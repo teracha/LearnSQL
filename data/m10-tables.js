@@ -75,17 +75,17 @@ LEARNSQL.questions.m10 = [
     id: "m10-q05", dialecte: "Standard",
     q: "Pourquoi éviter FLOAT pour des montants ?",
     choix: [
-      "Il est trop petit",
-      "Il stocke des valeurs approchées : les sommes peuvent avoir des écarts de centimes",
-      "Il n'accepte pas les négatifs",
-      "Il est interdit"
+      "Il est trop petit pour de gros montants",
+      "Il stocke des valeurs approchées",
+      "Il n'accepte pas les nombres négatifs",
+      "Il est interdit pour les colonnes monétaires"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. 0,1 n'est pas représentable exactement en binaire. Montants = DECIMAL.",
+      "Oui. Les sommes peuvent avoir des écarts de centimes : 0,1 n'est pas représentable exactement en binaire. Montants = DECIMAL.",
       "Non.",
-      "Non."
+      "Non. Il est permis, mais inadapté."
     ],
     retenir: "Argent : DECIMAL. FLOAT : mesures scientifiques."
   },
@@ -93,10 +93,10 @@ LEARNSQL.questions.m10 = [
     id: "m10-q06", dialecte: "SQL Server",
     q: "Une colonne CHAR(10) reçoit 'ABC'. Que contient-elle ?",
     choix: [
-      "'ABC'",
+      "'ABC', sans rien d'autre",
       "'ABC' suivi de 7 espaces",
-      "NULL",
-      "Une erreur"
+      "NULL, car la valeur est trop courte",
+      "Une erreur : longueur incorrecte"
     ],
     bonne: 1,
     pourquoi: [
@@ -111,15 +111,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q07", dialecte: "Standard",
     q: "Quand CHAR est-il un bon choix plutôt que VARCHAR ?",
     choix: [
-      "Pour des libellés",
-      "Pour des codes de longueur toujours identique (code pays 'FR', devise 'EUR')",
-      "Pour des adresses",
-      "Jamais"
+      "Pour des libellés d'articles",
+      "Pour des codes de longueur fixe",
+      "Pour des adresses de livraison",
+      "Jamais, VARCHAR est toujours meilleur"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les libellés varient : espaces inutiles.",
-      "Oui. CHAR(2), CHAR(3) : longueur fixe, pas de surcoût.",
+      "Oui. Code pays 'FR', devise 'EUR' : CHAR(2), CHAR(3), longueur fixe, pas de surcoût.",
       "Non.",
       "Non."
     ],
@@ -129,15 +129,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q08", dialecte: "SQL Server",
     q: "Quelle est la différence entre VARCHAR et NVARCHAR sur SQL Server ?",
     choix: [
-      "Aucune",
-      "NVARCHAR stocke l'Unicode (tous les alphabets), avec en général 2 octets par caractère",
-      "VARCHAR est plus récent",
+      "Aucune, ce sont deux synonymes",
+      "NVARCHAR stocke l'Unicode",
+      "VARCHAR est le type le plus récent",
       "NVARCHAR est limité à 10 caractères"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. VARCHAR dépend de la collation (page de codes) : certains caractères étrangers sont perdus.",
+      "Oui. Tous les alphabets, avec en général 2 octets par caractère. VARCHAR dépend de la collation (page de codes) : certains caractères étrangers sont perdus.",
       "Non.",
       "Non."
     ],
@@ -147,15 +147,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q09", dialecte: "SQL Server",
     q: "Pourquoi ne pas mettre VARCHAR(MAX) partout « pour être tranquille » ?",
     choix: [
-      "C'est interdit",
-      "Une colonne MAX ne peut pas être clé d'index, peut être stockée hors de la ligne, et cache la vraie taille attendue",
+      "C'est interdit dans une table",
+      "Pas d'index, et taille réelle cachée",
       "Elle ne peut contenir que 100 caractères",
-      "Elle est plus rapide"
+      "Elle est bloquée en lecture seule"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Choisis une longueur réaliste : c'est aussi un contrôle de qualité.",
+      "Oui. Une colonne MAX ne peut pas être clé d'index, peut être stockée hors de la ligne, et cache la vraie taille attendue. Choisis une longueur réaliste : c'est aussi un contrôle de qualité.",
       "Non.",
       "Non."
     ],
@@ -165,15 +165,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q10", dialecte: "Snowflake",
     q: "Sur Snowflake, VARCHAR(50) est-il plus performant que VARCHAR sans longueur ?",
     choix: [
-      "Oui, beaucoup",
-      "Non : la longueur n'influence pas les performances ; elle sert seulement de contrôle (refus des valeurs trop longues)",
+      "Oui, beaucoup plus rapide",
+      "Non : la longueur sert de contrôle",
       "VARCHAR sans longueur est interdit",
-      "Oui, pour les jointures"
+      "Oui, mais seulement pour les jointures"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Différent de SQL Server. Une longueur reste utile pour documenter et contrôler.",
+      "Oui. Sur Snowflake, la longueur n'influence pas les performances : elle refuse seulement les valeurs trop longues. Différent de SQL Server. Une longueur reste utile pour documenter et contrôler.",
       "Non.",
       "Non."
     ],
@@ -200,19 +200,18 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q12", dialecte: "SQL Server",
     q: "Quel type de date/heure moderne choisir sur SQL Server pour un horodatage ?",
-    choixCode: true,
     choix: [
-      "DATETIME",
-      "DATETIME2(0) à DATETIME2(7) selon la précision voulue",
-      "SMALLDATETIME",
-      "VARCHAR(19)"
+      "DATETIME (le type historique)",
+      "DATETIME2, précision au choix",
+      "SMALLDATETIME (plus léger)",
+      "VARCHAR(19) au format ISO"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ancien type, précision bizarre (1/300 s).",
-      "Oui. Plus précis, plage plus large, précision réglable. DATETIME2(0) = à la seconde.",
+      "Oui. DATETIME2(0) à DATETIME2(7) : plus précis, plage plus large, précision réglable. DATETIME2(0) = à la seconde.",
       "Non. Précision à la minute seulement.",
-      "Non."
+      "Non. Une date se stocke dans un type date."
     ],
     retenir: "Horodatage SQL Server : DATETIME2."
   },
@@ -275,15 +274,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q16", dialecte: "SQL Server",
     q: "Pourquoi un UNIQUEIDENTIFIER généré par NEWID() est-il une mauvaise clé d'index cluster ?",
     choix: [
-      "Il n'est pas unique",
-      "Les valeurs sont aléatoires : chaque insertion tombe au milieu de l'index, ce qui fragmente la table et ralentit",
-      "Il est trop petit",
-      "Il est interdit"
+      "Il n'est pas vraiment unique",
+      "Valeurs aléatoires : index fragmenté",
+      "Il est trop petit pour une clé",
+      "Il est interdit comme clé primaire"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il est unique.",
-      "Oui. Préfère un INT/BIGINT IDENTITY, ou NEWSEQUENTIALID() si un GUID est obligatoire.",
+      "Oui. Chaque insertion tombe au milieu de l'index : la table se fragmente et ralentit. Préfère un INT/BIGINT IDENTITY, ou NEWSEQUENTIALID() si un GUID est obligatoire.",
       "Non. 16 octets : 4 fois un INT.",
       "Non."
     ],
@@ -293,15 +292,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q17", dialecte: "Standard",
     q: "Pourquoi déclarer NOT NULL dès qu'une valeur est obligatoire ?",
     choix: [
-      "Pour la décoration",
-      "La base refuse les lignes incomplètes, et l'optimiseur peut faire de meilleurs plans",
+      "Pour la décoration du modèle",
+      "La base refuse les lignes incomplètes",
       "Pour accélérer les INSERT",
       "C'est obligatoire pour toutes les colonnes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Un NULL qui ne devrait pas exister est un bug qui arrive tôt ou tard.",
+      "Oui. Et l'optimiseur peut faire de meilleurs plans. Un NULL qui ne devrait pas exister est un bug qui arrive tôt ou tard.",
       "Non.",
       "Non."
     ],
@@ -329,15 +328,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q19", dialecte: "SQL Server",
     q: "Sur SQL Server, que crée automatiquement une PRIMARY KEY (par défaut) ?",
     choix: [
-      "Rien",
-      "Un index cluster (si la table n'en a pas déjà un)",
-      "Une vue",
-      "Un trigger"
+      "Rien de plus qu'une contrainte",
+      "Un index cluster (par défaut)",
+      "Une vue triée sur la clé",
+      "Un trigger de contrôle des doublons"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. La table est rangée selon la clé primaire. On peut choisir NONCLUSTERED si besoin.",
+      "Oui. Si la table n'en a pas déjà un : la table est rangée selon la clé primaire. On peut choisir NONCLUSTERED si besoin.",
       "Non.",
       "Non."
     ],
@@ -367,17 +366,17 @@ LEARNSQL.questions.m10 = [
     q: "Une table a un id technique en clé primaire. Comment empêcher deux factures d'avoir le même numéro ?",
     choixCode: true,
     choix: [
-      "Rien à faire, l'id suffit",
+      "CONSTRAINT pk_facture PRIMARY KEY (num_facture)",
       "CONSTRAINT uq_facture_num UNIQUE (num_facture)",
-      "Un index non unique",
-      "Un trigger"
+      "CREATE INDEX ix_facture_num ON facture (num_facture)",
+      "CONSTRAINT ck_facture_num CHECK (num_facture IS NOT NULL)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. L'id est unique, mais deux lignes peuvent avoir le même numéro.",
+      "Non. La table a déjà une clé primaire (l'id) : une seule PK par table.",
       "Oui. Clé technique + contrainte UNIQUE sur la clé métier.",
-      "Non. Ça n'empêche rien.",
-      "Non. Possible, mais compliqué et plus fragile."
+      "Non. Un index non unique n'empêche rien.",
+      "Non. Interdit les NULL, pas les doublons."
     ],
     retenir: "Clé technique en PK + UNIQUE sur la clé métier."
   },
@@ -385,15 +384,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q22", dialecte: "SQL Server",
     q: "Une contrainte UNIQUE (email) existe. Deux clients n'ont pas d'email (NULL). Que se passe-t-il au 2e INSERT sur SQL Server ?",
     choix: [
-      "Ça marche",
-      "Erreur : SQL Server n'accepte qu'un seul NULL dans une contrainte UNIQUE",
-      "Le 1er est écrasé",
-      "Le NULL devient ''"
+      "Ça marche : plusieurs NULL sont permis",
+      "Erreur : un seul NULL est accepté",
+      "Le 1er client est écrasé par le 2e",
+      "Le NULL devient '' automatiquement"
     ],
     bonne: 1,
     pourquoi: [
-      "Non sur SQL Server. (La norme SQL, elle, autorise plusieurs NULL dans une colonne UNIQUE.)",
-      "Oui. Solution : un index unique filtré … WHERE email IS NOT NULL.",
+      "Non. Pas sur SQL Server. (La norme SQL, elle, autorise plusieurs NULL dans une colonne UNIQUE.)",
+      "Oui. SQL Server n'accepte qu'un seul NULL dans une contrainte UNIQUE. Solution : un index unique filtré … WHERE email IS NOT NULL.",
       "Non.",
       "Non."
     ],
@@ -404,17 +403,17 @@ LEARNSQL.questions.m10 = [
     q: "Comment rendre l'email unique quand il est renseigné, tout en autorisant plusieurs NULL ?",
     choixCode: true,
     choix: [
-      "UNIQUE (email)",
+      "ALTER TABLE client ADD CONSTRAINT uq_client_email UNIQUE (email)",
       "CREATE UNIQUE INDEX ux_client_email ON client (email) WHERE email IS NOT NULL",
-      "CHECK (email IS NOT NULL)",
-      "PRIMARY KEY (email)"
+      "CREATE UNIQUE INDEX ux_client_email ON client (email) WHERE email IS NULL",
+      "CREATE INDEX ux_client_email ON client (email) WHERE email IS NOT NULL"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un seul NULL accepté.",
       "Oui. L'index ne contient que les lignes avec un email : les NULL ne sont pas comparés.",
-      "Non. Interdit les NULL.",
-      "Non."
+      "Non. Filtre inversé : l'unicité porte sur les NULL seulement.",
+      "Non. Index non unique : il n'empêche pas les doublons."
     ],
     retenir: "Unicité « si renseigné » : index unique filtré."
   },
@@ -422,15 +421,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q24", dialecte: "Standard",
     q: "Vers quoi une FOREIGN KEY doit-elle pointer ?",
     choix: [
-      "N'importe quelle colonne",
-      "Une colonne (ou un groupe) déclarée PRIMARY KEY ou UNIQUE dans la table référencée",
-      "Une colonne NULL",
-      "Une vue"
+      "N'importe quelle colonne de même type",
+      "Une PRIMARY KEY ou une colonne UNIQUE",
+      "Une colonne qui accepte NULL",
+      "Une vue sur la table parente"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. La référence doit identifier une seule ligne.",
+      "Oui. La colonne (ou le groupe) référencée doit identifier une seule ligne.",
       "Non.",
       "Non."
     ],
@@ -440,15 +439,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q25", dialecte: "Standard",
     q: "commande.client_id est une FK vers client.id, et accepte NULL. Une commande avec client_id NULL est-elle acceptée ?",
     choix: [
-      "Non",
-      "Oui : une FK ne vérifie que les valeurs renseignées",
+      "Non, la FK refuse les NULL",
+      "Oui : la FK ignore les NULL",
       "Seulement si un client a l'id NULL",
-      "Erreur"
+      "Erreur : valeur de référence absente"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour interdire : NOT NULL en plus de la FK.",
+      "Oui. Une FK ne vérifie que les valeurs renseignées. Pour interdire : NOT NULL en plus de la FK.",
       "Non.",
       "Non."
     ],
@@ -458,15 +457,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q26", dialecte: "Standard",
     q: "CHECK (qte > 0) existe. Une ligne avec qte = NULL est-elle acceptée ?",
     choix: [
-      "Non",
-      "Oui : un CHECK ne refuse que si la condition est FAUSSE, et NULL > 0 est « inconnu »",
-      "Erreur",
-      "Seulement en UPDATE"
+      "Non, le CHECK la refuse",
+      "Oui : le CHECK laisse passer NULL",
+      "Erreur : NULL n'est pas un nombre",
+      "Seulement en UPDATE, pas en INSERT"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Piège classique.",
-      "Oui. Pour refuser aussi NULL : NOT NULL sur la colonne.",
+      "Oui. Un CHECK ne refuse que si la condition est FAUSSE, et NULL > 0 est « inconnu ». Pour refuser aussi NULL : NOT NULL sur la colonne.",
       "Non.",
       "Non."
     ],
@@ -478,16 +477,16 @@ LEARNSQL.questions.m10 = [
     choixCode: true,
     choix: [
       "CHECK (statut IN ('BROUILLON', 'VALIDEE', 'ANNULEE'))",
-      "DEFAULT 'BROUILLON'",
-      "UNIQUE (statut)",
-      "FOREIGN KEY (statut)"
+      "CHECK (statut IN ('BROUILLON') OR statut IS NOT NULL)",
+      "CHECK (statut LIKE 'BROUILLON%' OR statut LIKE 'VALID%')",
+      "DEFAULT ('BROUILLON', 'VALIDEE', 'ANNULEE') FOR statut"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. (Une FK vers une table de statuts est une alternative, plus souple si la liste évolue.)",
-      "Non. Valeur par défaut seulement.",
-      "Non. Une seule commande par statut !",
-      "Non. Il faudrait une table référencée."
+      "Non. Toujours vrai dès que le statut est renseigné : n'importe quelle valeur passe.",
+      "Non. Accepte 'BROUILLONXYZ' et oublie ANNULEE.",
+      "Non. Un DEFAULT n'est pas une liste autorisée, et n'accepte qu'une valeur."
     ],
     retenir: "Liste de valeurs : CHECK IN (…) ou FK vers une table de référence."
   },
@@ -514,15 +513,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q29", dialecte: "SQL Server",
     q: "Pourquoi nommer ses contraintes (CONSTRAINT fk_commande_client …) plutôt que laisser SQL Server choisir ?",
     choix: [
-      "C'est obligatoire",
-      "Les noms automatiques sont illisibles (FK__commande__clien__3B75D760) et différents d'une base à l'autre : messages d'erreur et scripts de déploiement plus difficiles",
-      "Pour la performance",
-      "Pour trier"
+      "C'est obligatoire depuis SQL Server 2016",
+      "Des noms clairs pour les erreurs et scripts",
+      "Pour accélérer la vérification",
+      "Pour trier les contraintes par nom"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Un nom clair aide à comprendre l'erreur et à écrire DROP CONSTRAINT dans un script.",
+      "Oui. Les noms automatiques sont illisibles (FK__commande__clien__3B75D760) et différents d'une base à l'autre. Un nom clair aide à comprendre l'erreur et à écrire DROP CONSTRAINT dans un script.",
       "Non.",
       "Non."
     ],
@@ -534,16 +533,16 @@ LEARNSQL.questions.m10 = [
     choixCode: true,
     choix: [
       "ALTER TABLE commande ADD CONSTRAINT fk_commande_client FOREIGN KEY (client_id) REFERENCES client (id)",
-      "UPDATE commande SET FOREIGN KEY …",
-      "CREATE FOREIGN KEY …",
-      "Impossible, il faut recréer la table"
+      "ALTER TABLE client ADD CONSTRAINT fk_commande_client FOREIGN KEY (id) REFERENCES commande (client_id)",
+      "CREATE FOREIGN KEY fk_commande_client ON commande (client_id) REFERENCES client (id)",
+      "ALTER TABLE commande ADD CONSTRAINT fk_commande_client CHECK (client_id IN (SELECT id FROM client))"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Les données existantes sont vérifiées : des orphelins = erreur.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Sens inversé : la FK doit être sur commande, vers client.",
+      "Non. Syntaxe inexistante : on passe par ALTER TABLE.",
+      "Non. Sous-requête interdite dans un CHECK."
     ],
     retenir: "ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY … REFERENCES …"
   },
@@ -551,16 +550,16 @@ LEARNSQL.questions.m10 = [
     id: "m10-q31", dialecte: "SQL Server",
     q: "L'ajout d'une clé étrangère échoue : « conflit avec la contrainte FOREIGN KEY ». Pourquoi ?",
     choix: [
-      "La syntaxe est fausse",
-      "Des lignes existantes pointent vers des valeurs absentes de la table parente (orphelins)",
-      "La table est vide",
-      "Il faut un index"
+      "La syntaxe de la contrainte est fausse",
+      "Des orphelins existent déjà",
+      "La table commande est encore vide",
+      "Il faut d'abord créer un index"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Trouve-les avec NOT EXISTS, corrige-les, puis ajoute la contrainte.",
-      "Non.",
+      "Oui. Des lignes existantes pointent vers des valeurs absentes de la table parente. Trouve-les avec NOT EXISTS, corrige-les, puis ajoute la contrainte.",
+      "Non. Une table vide n'a aucun orphelin : ça marcherait.",
       "Non."
     ],
     retenir: "Avant d'ajouter une FK : nettoyer les orphelins."
@@ -569,15 +568,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q32", dialecte: "SQL Server",
     q: "Une FK a été réactivée avec WITH NOCHECK après un chargement. Quel est le problème ?",
     choix: [
-      "Aucun",
-      "Les données existantes n'ont pas été vérifiées : la contrainte est « non fiable » (untrusted) et l'optimiseur ne peut plus s'en servir",
-      "La FK est supprimée",
+      "Aucun, c'est la méthode recommandée",
+      "Contrainte non fiable (untrusted)",
+      "La FK est supprimée sans prévenir",
       "Les nouveaux INSERT ne sont plus contrôlés"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Réactive avec ALTER TABLE t WITH CHECK CHECK CONSTRAINT fk_… pour revérifier.",
+      "Oui. Les données existantes n'ont pas été vérifiées : l'optimiseur ne peut plus s'en servir. Réactive avec ALTER TABLE t WITH CHECK CHECK CONSTRAINT fk_… pour revérifier.",
       "Non.",
       "Non. Les nouveaux le sont."
     ],
@@ -587,17 +586,17 @@ LEARNSQL.questions.m10 = [
     id: "m10-q33", dialecte: "Snowflake",
     q: "Sur Snowflake, tu déclares PRIMARY KEY (id). Peut-on quand même insérer deux lignes avec le même id ?",
     choix: [
-      "Non, erreur",
-      "Oui : Snowflake n'applique pas les clés primaires, uniques et étrangères (seulement NOT NULL)",
-      "Seulement en COPY INTO",
-      "Seulement en MERGE"
+      "Non, erreur de clé primaire",
+      "Oui : la PK n'est pas appliquée",
+      "Oui, mais seulement avec COPY INTO",
+      "Oui, mais seulement dans un MERGE"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Grosse différence avec SQL Server.",
-      "Oui. Les contraintes sont documentaires. Les contrôles de doublons et d'orphelins sont à écrire soi-même.",
-      "Non.",
-      "Non."
+      "Oui. Snowflake n'applique pas les clés primaires, uniques et étrangères (seulement NOT NULL). Les contrôles de doublons et d'orphelins sont à écrire soi-même.",
+      "Non. Avec n'importe quelle instruction.",
+      "Non. Avec n'importe quelle instruction."
     ],
     retenir: "Snowflake : seul NOT NULL est appliqué."
   },
@@ -605,15 +604,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q34", dialecte: "Snowflake",
     q: "Puisque Snowflake n'applique pas les PK, à quoi bon les déclarer ?",
     choix: [
-      "À rien",
-      "Documentation du modèle, outils (Power BI, outils de modélisation) qui lisent les relations, et certaines optimisations",
-      "À accélérer les INSERT",
-      "C'est obligatoire"
+      "À rien, c'est juste décoratif",
+      "Documentation, outils, optimisations",
+      "À accélérer les INSERT en masse",
+      "C'est obligatoire pour créer une table"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Mais n'oublie pas d'écrire des contrôles de qualité dans tes chargements.",
+      "Oui. Le modèle est documenté, les outils (Power BI, modélisation) lisent les relations, et certaines optimisations en profitent. Mais écris aussi des contrôles de qualité dans tes chargements.",
       "Non.",
       "Non."
     ],
@@ -623,15 +622,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q35", dialecte: "SQL Server",
     q: "Que veut dire IDENTITY(1000, 10) ?",
     choix: [
-      "1 000 lignes maximum",
-      "Le 1er id vaut 1000, puis on ajoute 10 à chaque ligne (1000, 1010, 1020…)",
-      "Des id entre 10 et 1000",
-      "Un id aléatoire"
+      "1 000 lignes maximum dans la table",
+      "Départ à 1000, puis +10 à chaque ligne",
+      "Des id tirés entre 10 et 1000",
+      "Un id aléatoire de 10 chiffres"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. IDENTITY(départ, pas).",
+      "Oui. IDENTITY(départ, pas) : 1000, 1010, 1020…",
       "Non.",
       "Non."
     ],
@@ -680,15 +679,15 @@ LEARNSQL.questions.m10 = [
     q: "À quoi sert une colonne calculée PERSISTED ?",
     code: "ALTER TABLE ligne_cde ADD montant AS (qte * prix) PERSISTED;",
     choix: [
-      "À rien",
-      "La valeur est calculée à l'écriture et stockée : lecture rapide, et on peut l'indexer",
+      "À rien, c'est une option décorative",
+      "Stockée : lecture rapide, indexable",
       "Elle est recalculée à chaque lecture",
       "Elle peut être modifiée à la main"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Sans PERSISTED, elle est calculée à chaque lecture.",
+      "Oui. La valeur est calculée à l'écriture et stockée : lecture rapide, et on peut l'indexer. Sans PERSISTED, elle est calculée à chaque lecture.",
       "Non. C'est le cas sans PERSISTED.",
       "Non."
     ],
@@ -699,17 +698,17 @@ LEARNSQL.questions.m10 = [
     q: "Tu ajoutes une colonne NOT NULL à une table de 10 millions de lignes. Que faut-il ?",
     choixCode: true,
     choix: [
-      "ALTER TABLE t ADD devise CHAR(3) NOT NULL",
+      "ALTER TABLE t ADD devise CHAR(3) NOT NULL; UPDATE t SET devise = 'EUR'",
       "ALTER TABLE t ADD devise CHAR(3) NOT NULL CONSTRAINT df_t_devise DEFAULT 'EUR'",
-      "Recréer la table",
-      "Mettre NULL puis espérer"
+      "ALTER TABLE t ADD devise CHAR(3) NULL CONSTRAINT df_t_devise DEFAULT 'EUR'",
+      "ALTER TABLE t ALTER COLUMN devise CHAR(3) NOT NULL DEFAULT 'EUR'"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les lignes existantes n'ont pas de valeur : erreur.",
+      "Non. L'ALTER échoue avant l'UPDATE : les lignes existantes n'ont pas de valeur.",
       "Oui. La valeur par défaut remplit les lignes existantes. (Opération rapide sur les versions récentes.)",
-      "Non.",
-      "Non."
+      "Non. Colonne NULL : les lignes existantes restent à NULL (le DEFAULT ne sert qu'aux nouvelles).",
+      "Non. ALTER COLUMN modifie une colonne existante, et n'accepte pas DEFAULT."
     ],
     retenir: "Nouvelle colonne NOT NULL = DEFAULT obligatoire."
   },
@@ -717,15 +716,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q40", dialecte: "SQL Server",
     q: "Tu veux réduire une colonne de VARCHAR(100) à VARCHAR(20). Des valeurs font 35 caractères. Que se passe-t-il ?",
     choix: [
-      "Les valeurs sont coupées",
-      "Erreur : des données seraient tronquées",
-      "La colonne devient NULL",
-      "Rien"
+      "Les valeurs trop longues sont coupées",
+      "Erreur : données tronquées",
+      "Les valeurs trop longues deviennent NULL",
+      "Rien, la longueur est indicative"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
-      "Oui. Vérifie d'abord : SELECT MAX(LEN(col)). Corrige les données si besoin.",
+      "Oui. SQL Server refuse : des données seraient tronquées. Vérifie d'abord : SELECT MAX(LEN(col)). Corrige les données si besoin.",
       "Non.",
       "Non."
     ],
@@ -735,15 +734,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q41", dialecte: "Standard",
     q: "Peut-on ajouter une colonne « au milieu » d'une table existante (après la 2e colonne) ?",
     choix: [
-      "Oui, avec AFTER",
-      "Non : ALTER TABLE ADD l'ajoute toujours à la fin. Pour réordonner, il faut recréer la table",
-      "Oui, avec POSITION",
-      "Oui sur SQL Server seulement"
+      "Oui, avec AFTER nom_colonne",
+      "Non : ADD l'ajoute toujours à la fin",
+      "Oui, avec l'option POSITION = 3",
+      "Oui, mais sur SQL Server seulement"
     ],
     bonne: 1,
     pourquoi: [
       "Non. AFTER, c'est MySQL.",
-      "Oui. L'ordre physique n'a pas d'importance : liste les colonnes dans l'ordre voulu dans tes SELECT et tes vues.",
+      "Oui. Pour réordonner, il faut recréer la table. L'ordre physique n'a pas d'importance : liste les colonnes dans l'ordre voulu dans tes SELECT et tes vues.",
       "Non.",
       "Non."
     ],
@@ -753,17 +752,17 @@ LEARNSQL.questions.m10 = [
     id: "m10-q42", dialecte: "SQL Server + Snowflake",
     q: "Comment renommer une colonne ?",
     choix: [
-      "sp_rename 'dbo.client.ville', 'commune', 'COLUMN' sur SQL Server ; ALTER TABLE client RENAME COLUMN ville TO commune sur Snowflake",
+      "sp_rename (SQL Server), RENAME COLUMN (Snowflake)",
       "UPDATE client SET NAME ville = commune",
-      "ALTER COLUMN ville AS commune partout",
-      "Impossible"
+      "ALTER COLUMN ville AS commune, partout",
+      "RENAME COLUMN (SQL Server), sp_rename (Snowflake)"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Attention : les vues, procédures et rapports qui utilisent l'ancien nom vont casser.",
+      "Oui. sp_rename 'dbo.client.ville', 'commune', 'COLUMN' sur SQL Server ; ALTER TABLE client RENAME COLUMN ville TO commune sur Snowflake. Attention : les vues, procédures et rapports qui utilisent l'ancien nom vont casser.",
       "Non.",
       "Non.",
-      "Non."
+      "Non. C'est l'inverse."
     ],
     retenir: "Renommer : sp_rename (SQL Server), RENAME COLUMN (Snowflake). Vérifier les dépendances."
   },
@@ -771,15 +770,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q43", dialecte: "SQL Server",
     q: "SELECT * INTO client_copie FROM client copie-t-il la clé primaire, les index et les contraintes ?",
     choix: [
-      "Oui, tout",
-      "Non : seulement les colonnes, leurs types, NULL/NOT NULL et la propriété IDENTITY",
-      "Seulement les index",
-      "Seulement les FK"
+      "Oui, tout est copié à l'identique",
+      "Non : colonnes et données seulement",
+      "Seulement les index, pas les clés",
+      "Seulement les clés étrangères et les CHECK"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Clés, index, valeurs par défaut et triggers sont à recréer.",
+      "Oui. Seulement les colonnes, leurs types, NULL/NOT NULL et la propriété IDENTITY. Clés, index, valeurs par défaut et triggers sont à recréer.",
       "Non.",
       "Non."
     ],
@@ -789,15 +788,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q44", dialecte: "Snowflake",
     q: "Sur Snowflake, que fait CREATE OR REPLACE TABLE client (…) si la table client existe et contient des données ?",
     choix: [
-      "Erreur",
-      "Elle remplace la table : les données actuelles disparaissent (récupérables seulement via Time Travel)",
-      "Elle ajoute les colonnes manquantes",
-      "Rien"
+      "Erreur : la table existe déjà",
+      "Elle remplace la table : données perdues",
+      "Elle ajoute seulement les colonnes manquantes",
+      "Rien, car la table existe déjà"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Très dangereux dans un script de déploiement. Pour ajouter une colonne : ALTER TABLE.",
+      "Oui. Les données actuelles disparaissent (récupérables seulement via Time Travel). Très dangereux dans un script de déploiement. Pour ajouter une colonne : ALTER TABLE.",
       "Non.",
       "Non."
     ],
@@ -826,15 +825,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q46", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle est la différence entre une table PERMANENT et TRANSIENT ?",
     choix: [
-      "Aucune",
-      "TRANSIENT n'a pas de Fail-safe (7 jours de protection) et un Time Travel limité : moins de coût de stockage, moins de protection",
+      "Aucune, c'est le même type de table",
+      "TRANSIENT : pas de Fail-safe, moins cher",
       "TRANSIENT disparaît à la fin de la session",
       "PERMANENT est en lecture seule"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Idéal pour les tables de chargement qu'on peut recréer facilement.",
+      "Oui. Pas de Fail-safe (7 jours de protection) et un Time Travel limité : moins de coût de stockage, moins de protection. Idéal pour les tables de chargement qu'on peut recréer.",
       "Non. C'est TEMPORARY.",
       "Non."
     ],
@@ -844,15 +843,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q47", dialecte: "SQL Server",
     q: "Quelle est la différence entre #client et ##client ?",
     choix: [
-      "Aucune",
-      "#client est visible seulement par ta session ; ##client par toutes les sessions",
-      "##client est permanente",
-      "#client est plus grande"
+      "Aucune, c'est une faute de frappe",
+      "# : ta session ; ## : toutes",
+      "##client est une table permanente",
+      "#client peut contenir plus de lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. ## est rarement une bonne idée : conflits de noms et de données entre utilisateurs.",
+      "Oui. #client est visible seulement par ta session ; ##client par toutes les sessions. ## est rarement une bonne idée : conflits de noms et de données entre utilisateurs.",
       "Non. Elle disparaît quand plus personne ne l'utilise.",
       "Non."
     ],
@@ -862,15 +861,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q48", dialecte: "SQL Server",
     q: "À quoi servent les schémas (dbo, stg, rpt…) dans une base ?",
     choix: [
-      "À rien",
-      "À ranger les objets par usage (chargement, référentiel, rapports) et à donner des droits par schéma",
-      "À trier les lignes",
-      "À compresser"
+      "À rien, dbo suffit toujours",
+      "À ranger les objets et gérer les droits",
+      "À trier les lignes des tables",
+      "À compresser les données de chaque table"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Ex. les utilisateurs Power BI ont seulement le droit de lire le schéma rpt.",
+      "Oui. Ranger par usage (chargement, référentiel, rapports) et donner des droits par schéma. Ex. les utilisateurs Power BI ont seulement le droit de lire le schéma rpt.",
       "Non.",
       "Non."
     ],
@@ -880,15 +879,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q49", dialecte: "Standard",
     q: "Une vue stocke-t-elle des données ?",
     choix: [
-      "Oui, une copie",
-      "Non (vue simple) : c'est une requête enregistrée, exécutée à chaque lecture",
-      "Oui, en cache permanent",
-      "Seulement les index"
+      "Oui, une copie des données",
+      "Non : c'est une requête enregistrée",
+      "Oui, dans un cache permanent",
+      "Seulement les index de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les vues « matérialisées » / « indexées » sont l'exception : elles stockent le résultat.",
+      "Oui. Une vue simple est exécutée à chaque lecture. Les vues « matérialisées » / « indexées » sont l'exception : elles stockent le résultat.",
       "Non.",
       "Non."
     ],
@@ -898,15 +897,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q50", dialecte: "SQL Server",
     q: "Que fait WITH SCHEMABINDING sur une vue ?",
     choix: [
-      "Elle devient plus rapide",
-      "On ne peut plus modifier ou supprimer les colonnes des tables utilisées par la vue sans d'abord modifier la vue",
-      "Elle change de schéma",
-      "Elle stocke les données"
+      "La vue devient plus rapide",
+      "Les tables sources sont protégées",
+      "La vue change de schéma (dbo → sch)",
+      "La vue stocke ses données sur disque"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas directement.",
-      "Oui. La vue est protégée contre les changements de structure. Obligatoire pour une vue indexée.",
+      "Oui. On ne peut plus modifier ou supprimer les colonnes utilisées par la vue sans d'abord modifier la vue. Obligatoire pour une vue indexée.",
       "Non.",
       "Non. Sauf si on lui ajoute un index cluster."
     ],
@@ -916,15 +915,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q51", dialecte: "SQL Server",
     q: "Que faut-il pour transformer une vue en « vue indexée » (résultat stocké) sur SQL Server ?",
     choix: [
-      "Rien de spécial",
-      "WITH SCHEMABINDING, puis un index cluster UNIQUE sur la vue",
-      "Un trigger",
-      "Une table temporaire"
+      "Rien de spécial, il suffit de le demander",
+      "SCHEMABINDING + index cluster unique",
+      "Un trigger qui recopie les données",
+      "Une table temporaire globale (##)"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le résultat est alors stocké et maintenu à chaque modification des tables (coût en écriture).",
+      "Oui. WITH SCHEMABINDING, puis un index cluster UNIQUE sur la vue : le résultat est stocké et maintenu à chaque modification des tables (coût en écriture).",
       "Non.",
       "Non."
     ],
@@ -934,15 +933,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q52", dialecte: "Snowflake",
     q: "Sur Snowflake, qu'est-ce qu'une vue matérialisée ?",
     choix: [
-      "Une vue normale",
-      "Une vue dont le résultat est stocké et maintenu automatiquement (édition Enterprise, sur une seule table, avec un coût de maintenance)",
-      "Une table temporaire",
-      "Une copie manuelle"
+      "Une vue normale, recalculée à chaque fois",
+      "Une vue dont le résultat est stocké",
+      "Une table temporaire de la session",
+      "Une copie manuelle faite chaque nuit"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Utile pour des agrégats très souvent lus. Pour des jointures complexes : table alimentée par un traitement.",
+      "Oui. Le résultat est maintenu automatiquement (édition Enterprise, sur une seule table, avec un coût de maintenance). Utile pour des agrégats très souvent lus.",
       "Non.",
       "Non."
     ],
@@ -952,15 +951,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q53", dialecte: "Snowflake",
     q: "Sur Snowflake, à quoi sert une SECURE VIEW ?",
     choix: [
-      "À chiffrer les données",
-      "À cacher la définition (le SQL) de la vue aux utilisateurs, notamment en partage de données",
-      "À accélérer",
-      "À empêcher la lecture"
+      "À chiffrer les données de la vue",
+      "À cacher la définition de la vue",
+      "À accélérer la lecture de la vue",
+      "À empêcher toute lecture de la vue"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les utilisateurs voient le résultat, pas la logique ni les tables cachées derrière.",
+      "Oui. Les utilisateurs voient le résultat, pas le SQL ni les tables derrière (utile en partage de données).",
       "Non. Elle peut même être un peu plus lente.",
       "Non."
     ],
@@ -970,15 +969,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q54", dialecte: "SQL Server",
     q: "Une vue fait SELECT * FROM client. Tu ajoutes une colonne à client. La vue la montre-t-elle ?",
     choix: [
-      "Oui, tout de suite",
-      "Non : SQL Server garde la liste de colonnes de la création. Il faut sp_refreshview (ou recréer la vue)",
-      "Erreur",
-      "Seulement le lendemain"
+      "Oui, automatiquement et tout de suite",
+      "Non : il faut sp_refreshview",
+      "Erreur à la lecture de la vue",
+      "Oui, mais seulement le lendemain"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Encore une raison de lister les colonnes dans une vue.",
+      "Oui. SQL Server garde la liste de colonnes de la création : il faut sp_refreshview (ou recréer la vue). Encore une raison de lister les colonnes dans une vue.",
       "Non.",
       "Non."
     ],
@@ -988,15 +987,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q55", dialecte: "Standard",
     q: "Comment permettre aux utilisateurs RH de lire les salariés sans voir la colonne salaire ?",
     choix: [
-      "Supprimer la colonne",
-      "Créer une vue sans la colonne salaire et donner les droits sur la vue, pas sur la table",
-      "Mettre salaire à NULL",
-      "Chiffrer la table"
+      "Supprimer la colonne salaire",
+      "Une vue sans la colonne salaire",
+      "Mettre la colonne salaire à NULL",
+      "Chiffrer toute la table des salariés"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. La vue sert de « fenêtre » de sécurité.",
+      "Oui. On donne les droits sur la vue, pas sur la table : la vue sert de « fenêtre » de sécurité.",
       "Non.",
       "Non. Trop lourd pour ce besoin."
     ],
@@ -1007,9 +1006,9 @@ LEARNSQL.questions.m10 = [
     q: "Une vue filtre WHERE pays = 'FR' et est créée WITH CHECK OPTION. Que se passe-t-il si on fait un UPDATE via la vue qui met pays = 'BE' ?",
     choix: [
       "La ligne disparaît de la vue",
-      "Erreur : la modification ferait sortir la ligne de la vue",
-      "Rien",
-      "La vue est modifiée"
+      "Erreur : la ligne sortirait de la vue",
+      "Rien : la vue ignore l'UPDATE",
+      "La définition de la vue est modifiée"
     ],
     bonne: 1,
     pourquoi: [
@@ -1025,17 +1024,17 @@ LEARNSQL.questions.m10 = [
     q: "La base est insensible à la casse, mais une colonne code doit distinguer 'a1' et 'A1'. Que faire ?",
     choixCode: true,
     choix: [
-      "Changer la collation de toute la base",
-      "code VARCHAR(20) COLLATE Latin1_General_CS_AS dans la définition de la colonne",
-      "Mettre UPPER partout",
-      "Impossible"
+      "ALTER DATABASE … COLLATE Latin1_General_CS_AS",
+      "code VARCHAR(20) COLLATE Latin1_General_CS_AS",
+      "code VARCHAR(20) COLLATE Latin1_General_CI_AS",
+      "code VARCHAR(20) CHECK (code = UPPER(code))"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Trop lourd et risqué.",
-      "Oui. La collation peut être définie colonne par colonne.",
-      "Non. Ça ferait l'inverse : confondre.",
-      "Non."
+      "Non. Changer la collation de toute la base : trop lourd et risqué.",
+      "Oui. Dans la définition de la colonne : la collation peut être définie colonne par colonne.",
+      "Non. CI = insensible à la casse : 'a1' = 'A1'.",
+      "Non. En collation CI, code = UPPER(code) est toujours vrai : ça ne distingue rien."
     ],
     retenir: "Collation : réglable par colonne."
   },
@@ -1062,15 +1061,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q59", dialecte: "SQL Server",
     q: "La colonne modifie_le a DEFAULT SYSDATETIME(). Est-elle mise à jour automatiquement lors d'un UPDATE ?",
     choix: [
-      "Oui",
-      "Non : DEFAULT ne s'applique qu'à l'INSERT. Pour l'UPDATE : l'application, un trigger, ou une table temporelle",
-      "Oui, si la ligne change",
-      "Seulement sur Snowflake"
+      "Oui, à chaque modification",
+      "Non : DEFAULT sert seulement à l'INSERT",
+      "Oui, si la ligne change vraiment",
+      "Oui, mais seulement sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Erreur fréquente.",
-      "Oui. Pense-y dès la conception.",
+      "Oui. Pour l'UPDATE : l'application, un trigger, ou une table temporelle. Pense-y dès la conception.",
       "Non.",
       "Non."
     ],
@@ -1080,15 +1079,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q60", dialecte: "Standard",
     q: "Clé naturelle (ex. SIRET) ou clé technique (id auto) comme clé primaire : quel est le principal avantage de la clé technique ?",
     choix: [
-      "Elle a un sens métier",
-      "Elle ne change jamais, elle est courte et uniforme, même si la donnée métier change ou est saisie en retard",
-      "Elle est plus lisible",
-      "Elle évite les contraintes"
+      "Elle a un sens pour le métier",
+      "Elle ne change jamais",
+      "Elle est plus lisible par les humains",
+      "Elle évite d'écrire des contraintes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Au contraire.",
-      "Oui. Un SIRET peut changer, être faux, ou absent au début. Garde-le en UNIQUE à côté.",
+      "Oui. Elle est stable, courte et uniforme, même si la donnée métier change ou est saisie en retard. Un SIRET peut changer, être faux, ou absent au début : garde-le en UNIQUE à côté.",
       "Non.",
       "Non."
     ],
@@ -1098,15 +1097,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q61", dialecte: "Standard",
     q: "Stocker les montants en centimes dans un entier (12,50 € → 1250) : quel avantage, quel risque ?",
     choix: [
-      "Aucun avantage",
-      "Calculs exacts et rapides ; mais risque d'erreur d'affichage ou de calcul si quelqu'un oublie de diviser par 100",
-      "Ça interdit les négatifs",
-      "Ça arrondit tout"
+      "Aucun avantage, que des risques",
+      "Exact, mais /100 à ne pas oublier",
+      "Ça interdit les montants négatifs",
+      "Ça arrondit tout à l'euro près"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. DECIMAL est en général plus simple à comprendre pour tous. Documente le choix s'il est fait.",
+      "Oui. Calculs exacts et rapides ; mais risque d'erreur si quelqu'un oublie de diviser par 100. DECIMAL est en général plus simple pour tous. Documente le choix s'il est fait.",
       "Non.",
       "Non."
     ],
@@ -1117,17 +1116,17 @@ LEARNSQL.questions.m10 = [
     q: "Une vieille table stocke un booléen en CHAR(1) 'O' / 'N'. Comment le protéger ?",
     choixCode: true,
     choix: [
-      "Rien",
+      "CHECK (actif IN ('O', 'N'))",
       "CHECK (actif IN ('O', 'N')) et NOT NULL",
-      "Un index",
-      "UNIQUE (actif)"
+      "CHECK (actif <> '') et NOT NULL",
+      "UNIQUE (actif) et NOT NULL"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. On finit par trouver 'o', 'Y', '1'…",
+      "Non. Presque : mais NULL passe encore (un CHECK laisse passer NULL).",
       "Oui. Seules les valeurs prévues entrent. (En neuf, préfère BIT.)",
-      "Non.",
-      "Non."
+      "Non. 'Y', '1' ou 'o' passent encore.",
+      "Non. Une seule ligne par valeur : deux clients actifs impossibles."
     ],
     retenir: "Codes à valeurs fixes : CHECK IN (…)."
   },
@@ -1135,15 +1134,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q63", dialecte: "Standard",
     q: "Dans un entrepôt de données, la clé de la dimension date est souvent un entier 20261026. Est-ce une bonne pratique ?",
     choix: [
-      "Non, jamais",
-      "Oui pour la clé de la table calendrier (lisible et compacte) ; mais les vraies dates restent en type DATE dans la dimension",
+      "Non, jamais d'entier pour une date",
+      "Oui pour la clé du calendrier seulement",
       "Oui, partout, même dans l'ERP",
-      "Non, il faut du texte"
+      "Non, il faut stocker du texte"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Dans une base de gestion (ERP), une date reste une DATE.",
+      "Oui. Lisible et compacte pour la clé de la table calendrier ; mais les vraies dates restent en type DATE dans la dimension. Dans une base de gestion (ERP), une date reste une DATE.",
       "Non.",
       "Non."
     ],
@@ -1153,15 +1152,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q64", dialecte: "Standard",
     q: "Une colonne contient des listes : 'A12;B45;C78'. Quel est le problème ?",
     choix: [
-      "Aucun",
-      "Impossible de joindre, filtrer, compter ou contrôler proprement. Il faut une table enfant (une ligne par valeur)",
-      "C'est trop long",
-      "Le ; est interdit"
+      "Aucun, c'est compact et pratique",
+      "On ne peut ni joindre ni contrôler",
+      "Le texte est trop long pour la colonne",
+      "Le ; est interdit dans un VARCHAR"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. C'est contraire à la 1re forme normale : une valeur par case.",
+      "Oui. Impossible de joindre, filtrer, compter ou contrôler proprement : il faut une table enfant (une ligne par valeur). C'est contraire à la 1re forme normale.",
       "Non.",
       "Non."
     ],
@@ -1170,19 +1169,18 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q65", dialecte: "SQL Server",
     q: "Tu dois stocker du JSON dans SQL Server. Quelle approche ?",
-    choixCode: true,
     choix: [
-      "NVARCHAR(MAX) avec CHECK (ISJSON(doc) = 1), puis JSON_VALUE / OPENJSON pour lire",
-      "INT",
-      "VARCHAR(10)",
-      "Un fichier à côté"
+      "NVARCHAR(MAX) avec CHECK (ISJSON(doc) = 1)",
+      "VARIANT avec CHECK (IS_OBJECT(doc))",
+      "XML avec CHECK (doc IS NOT NULL)",
+      "VARCHAR(100) avec CHECK (doc LIKE '{%}')"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le CHECK refuse le JSON mal formé. (Snowflake : type VARIANT.)",
-      "Non.",
-      "Non.",
-      "Non."
+      "Oui. Le CHECK refuse le JSON mal formé ; on lit ensuite avec JSON_VALUE / OPENJSON. (Snowflake : type VARIANT.)",
+      "Non. VARIANT est un type Snowflake, pas SQL Server.",
+      "Non. JSON n'est pas du XML.",
+      "Non. Trop court, et le LIKE ne vérifie pas que le JSON est valide."
     ],
     retenir: "JSON SQL Server : NVARCHAR(MAX) + ISJSON. Snowflake : VARIANT."
   },
@@ -1246,15 +1244,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q69", dialecte: "Snowflake",
     q: "Sur Snowflake, que fait CLUSTER BY (date_cde) dans CREATE TABLE ?",
     choix: [
-      "Crée un index",
-      "Définit une clé de clustering : Snowflake réorganise les micro-partitions selon date_cde pour mieux filtrer (coût en crédits)",
-      "Trie l'affichage",
-      "Partitionne en plusieurs tables"
+      "Il crée un index sur date_cde",
+      "Il réorganise les micro-partitions",
+      "Il trie l'affichage des SELECT",
+      "Il découpe la table en plusieurs tables"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas d'index sur Snowflake.",
-      "Oui. À réserver aux très grosses tables souvent filtrées sur cette colonne.",
+      "Oui. CLUSTER BY définit une clé de clustering : Snowflake réorganise les micro-partitions selon date_cde pour mieux filtrer (coût en crédits). À réserver aux très grosses tables.",
       "Non.",
       "Non."
     ],
@@ -1264,15 +1262,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q70", dialecte: "Snowflake",
     q: "Sur une table Snowflake standard, que donne CREATE INDEX ix ON commande (client_id) ?",
     choix: [
-      "Un index est créé",
-      "Erreur : Snowflake n'a pas d'index sur ses tables standard",
-      "Un clustering est créé",
-      "Rien, sans message"
+      "Un index est créé sur client_id",
+      "Erreur : pas d'index sur Snowflake",
+      "Une clé de clustering est créée",
+      "Rien, sans aucun message"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. L'optimisation passe par le pruning des micro-partitions et, si besoin, une clé de clustering.",
+      "Oui. Pas d'index sur les tables standard. L'optimisation passe par le pruning des micro-partitions et, si besoin, une clé de clustering.",
       "Non.",
       "Non."
     ],
@@ -1282,15 +1280,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q71", dialecte: "SQL Server",
     q: "À quoi sert le partitionnement d'une très grosse table sur SQL Server (ex. par mois) ?",
     choix: [
-      "À créer plusieurs bases",
-      "À gérer la table par morceaux : archiver ou supprimer un mois entier instantanément (SWITCH), maintenance par partie",
-      "À remplacer les index",
-      "À trier les requêtes"
+      "À répartir la table sur plusieurs bases",
+      "À archiver ou purger par tranche",
+      "À remplacer les index de la table",
+      "À trier les requêtes par mois"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le gain principal est la gestion des données (archivage). Pour les performances, le bon index compte plus.",
+      "Oui. On gère la table par morceaux : archiver ou supprimer un mois entier instantanément (SWITCH), maintenance par partie. Pour les performances, le bon index compte plus.",
       "Non.",
       "Non."
     ],
@@ -1300,15 +1298,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q72", dialecte: "SQL Server",
     q: "Que peut apporter la compression PAGE sur une grosse table d'historique SQL Server ?",
     choix: [
-      "Rien",
-      "Moins d'espace disque et souvent moins de lectures, contre un peu plus de calcul processeur",
-      "Des données perdues",
-      "Une table en lecture seule"
+      "Rien de mesurable sur une table",
+      "Moins de disque, un peu plus de CPU",
+      "Des données perdues à la compression",
+      "Une table passée en lecture seule"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Intéressant pour les tables volumineuses peu modifiées.",
+      "Oui. Moins d'espace et souvent moins de lectures, contre un peu plus de calcul processeur. Intéressant pour les tables volumineuses peu modifiées.",
       "Non. La compression est sans perte.",
       "Non."
     ],
@@ -1318,15 +1316,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q73", dialecte: "SQL Server",
     q: "Pour une table de chargement vidée et rechargée chaque nuit, une table sans index cluster (heap) est-elle acceptable ?",
     choix: [
-      "Non, jamais",
-      "Oui : chargement en masse rapide. On peut ajouter des index après le chargement si nécessaire",
+      "Non, jamais : une table a toujours un cluster",
+      "Oui : chargement en masse rapide",
       "Oui, mais seulement le week-end",
-      "Non, c'est interdit"
+      "Non, c'est interdit par SQL Server"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour les tables « permanentes » souvent lues et modifiées, un index cluster reste conseillé.",
+      "Oui. On peut ajouter des index après le chargement si nécessaire. Pour les tables « permanentes » souvent lues et modifiées, un index cluster reste conseillé.",
       "Non.",
       "Non."
     ],
@@ -1390,16 +1388,16 @@ LEARNSQL.questions.m10 = [
     id: "m10-q77", dialecte: "Standard",
     q: "Tu stockes un taux de remise. 20 % : 20 ou 0,20 ?",
     choix: [
-      "Peu importe",
-      "Choisir UNE convention, la documenter, et adapter le type (DECIMAL(5,2) pour 20,00 ; DECIMAL(5,4) pour 0,2000)",
-      "Toujours 20",
-      "Toujours du texte '20%'"
+      "Peu importe, les deux se valent bien",
+      "Une seule convention, documentée",
+      "Toujours 20, c'est plus lisible",
+      "Toujours du texte comme '20%'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Mélanger les deux crée des erreurs × 100.",
-      "Oui. L'important : une seule convention partout.",
-      "Non.",
+      "Oui. Choisis UNE convention, documente-la, et adapte le type (DECIMAL(5,2) pour 20,00 ; DECIMAL(5,4) pour 0,2000).",
+      "Non. Les deux conventions existent : l'important est d'en choisir une.",
       "Non."
     ],
     retenir: "Pourcentages : une convention unique et documentée."
@@ -1408,15 +1406,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q78", dialecte: "Standard",
     q: "Pourquoi les tables de chargement (stg) ont-elles souvent toutes leurs colonnes en VARCHAR ?",
     choix: [
-      "Par paresse",
-      "Pour accepter toutes les lignes du fichier, même invalides, puis les contrôler et les convertir avant la table cible",
-      "Pour gagner de la place",
-      "C'est obligatoire"
+      "Par paresse des développeurs",
+      "Accepter tout, puis contrôler",
+      "Pour gagner de la place sur le disque",
+      "C'est obligatoire pour un import"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une date mal formée ne fait pas échouer tout le chargement : elle est repérée et rejetée proprement.",
+      "Oui. Toutes les lignes du fichier entrent, même invalides ; on les contrôle et on les convertit avant la table cible. Une date mal formée ne fait pas échouer tout le chargement.",
       "Non.",
       "Non."
     ],
@@ -1445,15 +1443,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q80", dialecte: "SQL Server",
     q: "CREATE OR ALTER existe pour les vues et procédures. Et pour les tables ?",
     choix: [
-      "CREATE OR ALTER TABLE existe",
-      "Non : pour une table, on teste son existence (IF OBJECT_ID(…) IS NULL) ou on utilise ALTER TABLE pour la faire évoluer",
-      "Oui depuis 2016",
-      "Oui avec FORCE"
+      "CREATE OR ALTER TABLE existe aussi",
+      "Non : on teste l'existence, ou ALTER",
+      "Oui, depuis SQL Server 2016",
+      "Oui, avec l'option FORCE"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une table contient des données : on ne la « remplace » pas.",
+      "Oui. Pour une table, on teste son existence (IF OBJECT_ID(…) IS NULL) ou on utilise ALTER TABLE. Une table contient des données : on ne la « remplace » pas.",
       "Non.",
       "Non."
     ],
@@ -1465,16 +1463,16 @@ LEARNSQL.questions.m10 = [
     choixCode: true,
     choix: [
       "IF COL_LENGTH('dbo.facture', 'devise') IS NULL ALTER TABLE dbo.facture ADD devise CHAR(3) NULL;",
-      "ALTER TABLE dbo.facture ADD IF NOT EXISTS devise CHAR(3);",
-      "ALTER TABLE dbo.facture ADD devise CHAR(3) FORCE;",
-      "Impossible"
+      "IF COL_LENGTH('dbo.facture', 'devise') IS NOT NULL ALTER TABLE dbo.facture ADD devise CHAR(3) NULL;",
+      "ALTER TABLE dbo.facture ADD IF NOT EXISTS devise CHAR(3) NULL;",
+      "IF OBJECT_ID('dbo.facture') IS NULL ALTER TABLE dbo.facture ADD devise CHAR(3) NULL;"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. COL_LENGTH renvoie NULL si la colonne n'existe pas.",
-      "Non. Pas sur SQL Server.",
-      "Non.",
-      "Non."
+      "Non. Test inversé : on n'ajoute que si la colonne existe déjà (erreur).",
+      "Non. Syntaxe Snowflake, pas SQL Server.",
+      "Non. On teste la table, pas la colonne : rien n'est ajouté si la table existe."
     ],
     retenir: "Script de déploiement relançable : tester avant d'ajouter."
   },
@@ -1482,17 +1480,17 @@ LEARNSQL.questions.m10 = [
     id: "m10-q82", dialecte: "SQL Server + Snowflake",
     q: "Comment renommer une table ?",
     choix: [
-      "sp_rename 'dbo.ancien', 'nouveau' sur SQL Server ; ALTER TABLE ancien RENAME TO nouveau sur Snowflake",
-      "UPDATE TABLE … SET NAME",
-      "COPY puis DROP obligatoire",
-      "Impossible"
+      "sp_rename (SQL Server), ALTER TABLE … RENAME TO (Snowflake)",
+      "ALTER TABLE … RENAME TO (SQL Server), sp_rename (Snowflake)",
+      "UPDATE TABLE … SET NAME sur les deux moteurs",
+      "Copier la table puis DROP, sur les deux moteurs"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Vérifie toujours les dépendances (vues, procédures, flux ETL, rapports).",
+      "Oui. sp_rename 'dbo.ancien', 'nouveau' sur SQL Server ; ALTER TABLE ancien RENAME TO nouveau sur Snowflake. Vérifie toujours les dépendances (vues, procédures, flux ETL, rapports).",
+      "Non. C'est l'inverse.",
       "Non.",
-      "Non.",
-      "Non."
+      "Non. Possible, mais pas obligatoire."
     ],
     retenir: "Renommer = casser les dépendances. Vérifier avant."
   },
@@ -1500,15 +1498,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q83", dialecte: "SQL Server",
     q: "Avant de supprimer ou renommer une table, comment savoir quels objets l'utilisent ?",
     choix: [
-      "Impossible",
-      "Afficher les dépendances (SSMS), ou interroger sys.sql_expression_dependencies ; et penser aux flux et rapports externes",
+      "Impossible, il faut deviner",
+      "Dépendances SSMS + équipes ETL et BI",
       "Supprimer et attendre les plaintes",
-      "Regarder le nom"
+      "Regarder le nom de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les outils externes (ETL, Power BI, ERP) ne sont pas visibles dans la base : demande aux équipes.",
+      "Oui. Affiche les dépendances (SSMS, sys.sql_expression_dependencies), et pense aux flux et rapports externes : ils ne sont pas visibles dans la base, demande aux équipes.",
       "Non.",
       "Non."
     ],
@@ -1518,15 +1516,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q84", dialecte: "Standard",
     q: "Quelle règle de nommage des tables et colonnes est la plus sûre ?",
     choix: [
-      "Avec espaces et accents (« Date de création »)",
-      "Sans espaces ni accents, en minuscules ou PascalCase, de façon cohérente (date_creation)",
-      "Des noms courts (dc)",
-      "Chacun son style"
+      "Avec espaces et accents, comme dans Excel",
+      "Sans espace ni accent, cohérente",
+      "Des noms très courts (dc, cl, ar)",
+      "Chacun son style, selon le projet"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il faudrait des crochets ou guillemets partout.",
-      "Oui. Lisible, portable (SQL Server, Snowflake, outils), sans pièges.",
+      "Oui. En minuscules ou PascalCase, de façon cohérente (date_creation) : lisible, portable (SQL Server, Snowflake, outils), sans pièges.",
       "Non. Illisible.",
       "Non."
     ],
@@ -1536,17 +1534,17 @@ LEARNSQL.questions.m10 = [
     id: "m10-q85", dialecte: "SQL Server + Snowflake",
     q: "Comment documenter le sens d'une colonne directement dans la base ?",
     choix: [
-      "Impossible",
-      "Snowflake : COMMENT ON COLUMN t.col IS '…' ; SQL Server : propriété étendue MS_Description (sp_addextendedproperty)",
-      "Dans le nom de la colonne",
-      "Dans une colonne en plus"
+      "Impossible : seulement dans un fichier Word",
+      "COMMENT ON (Snowflake), MS_Description (SQL Server)",
+      "Dans le nom de la colonne, en long",
+      "MS_Description (Snowflake), COMMENT ON (SQL Server)"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les outils de documentation et certains outils BI lisent ces descriptions.",
+      "Oui. Snowflake : COMMENT ON COLUMN t.col IS '…' ; SQL Server : propriété étendue MS_Description (sp_addextendedproperty). Les outils de documentation et certains outils BI lisent ces descriptions.",
       "Non.",
-      "Non."
+      "Non. C'est l'inverse."
     ],
     retenir: "Dictionnaire de données : commentaires en base."
   },
@@ -1554,15 +1552,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q86", dialecte: "SQL Server",
     q: "Peut-on créer une clé étrangère entre la table client de la base SOC1 et la table commande de la base SOC2 ?",
     choix: [
-      "Oui",
-      "Non : SQL Server n'accepte pas les clés étrangères entre bases. Contrôle par traitement ou trigger",
-      "Oui avec un synonyme",
-      "Oui avec une vue"
+      "Oui, exactement comme dans la même base",
+      "Non : pas de FK entre deux bases",
+      "Oui, en passant par un synonyme",
+      "Oui, en passant par une vue"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Fréquent avec les ERP « multi-dossiers » : l'intégrité doit être vérifiée autrement.",
+      "Oui. SQL Server n'accepte pas les clés étrangères entre bases : contrôle par traitement ou trigger. Fréquent avec les ERP « multi-dossiers ».",
       "Non.",
       "Non."
     ],
@@ -1572,15 +1570,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q87", dialecte: "Standard",
     q: "Un CHECK peut-il vérifier une valeur dans une AUTRE table (ex. que le client est actif) ?",
     choix: [
-      "Oui, directement",
-      "Non : un CHECK ne voit que les colonnes de la ligne. Pour une autre table : clé étrangère, trigger ou contrôle applicatif",
-      "Oui avec JOIN",
-      "Oui sur Snowflake"
+      "Oui, directement dans le CHECK",
+      "Non : le CHECK ne voit que la ligne",
+      "Oui, avec un JOIN écrit dans le CHECK",
+      "Oui, mais seulement sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. (Une fonction dans un CHECK le permet techniquement, mais c'est fragile et lent.)",
+      "Oui. Pour une autre table : clé étrangère, trigger ou contrôle applicatif. (Une fonction dans un CHECK le permet techniquement, mais c'est fragile et lent.)",
       "Non.",
       "Non."
     ],
@@ -1590,15 +1588,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q88", dialecte: "SQL Server",
     q: "Pour accélérer un très gros chargement, on désactive les contraintes (NOCHECK CONSTRAINT ALL). Que faut-il faire après ?",
     choix: [
-      "Rien",
-      "Les réactiver AVEC vérification (WITH CHECK CHECK CONSTRAINT ALL) pour contrôler les données chargées et garder des contraintes fiables",
-      "Les supprimer",
-      "Redémarrer le serveur"
+      "Rien, elles se réactivent seules",
+      "Les réactiver WITH CHECK",
+      "Les supprimer définitivement",
+      "Redémarrer le serveur SQL"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les données ne sont plus protégées.",
-      "Oui. Si des lignes sont invalides, la réactivation échoue : tu sais qu'il faut corriger.",
+      "Oui. WITH CHECK CHECK CONSTRAINT ALL contrôle les données chargées et garde des contraintes fiables. Si des lignes sont invalides, la réactivation échoue : tu sais qu'il faut corriger.",
       "Non.",
       "Non."
     ],
@@ -1609,14 +1607,14 @@ LEARNSQL.questions.m10 = [
     q: "Contrainte UNIQUE ou index UNIQUE : quelle différence en pratique ?",
     choix: [
       "La contrainte ne bloque pas les doublons",
-      "Les deux bloquent les doublons (la contrainte crée un index). La contrainte exprime une règle métier ; l'index permet des options (filtre, INCLUDE)",
-      "L'index est plus lent",
-      "Aucune utilité"
+      "Même blocage ; l'index a plus d'options",
+      "L'index unique est plus lent",
+      "Aucune utilité, ce sont des doublons"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Règle métier → contrainte. Besoin d'un filtre → index unique filtré.",
+      "Oui. Les deux bloquent les doublons (la contrainte crée un index). La contrainte exprime une règle métier ; l'index permet des options (filtre, INCLUDE).",
       "Non.",
       "Non."
     ],
@@ -1626,15 +1624,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q90", dialecte: "SQL Server",
     q: "ALTER TABLE t ADD CONSTRAINT pk_t PRIMARY KEY (code) échoue : « nullable column ». Pourquoi ?",
     choix: [
-      "La table est vide",
-      "La colonne code accepte NULL : il faut d'abord la passer en NOT NULL",
-      "La table a déjà une FK",
-      "code est un texte"
+      "La table est encore vide",
+      "La colonne code accepte NULL",
+      "La table a déjà une clé étrangère",
+      "code est un texte, pas un nombre"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. ALTER TABLE t ALTER COLUMN code VARCHAR(20) NOT NULL; puis la PK.",
+      "Oui. Une clé primaire exige des colonnes NOT NULL : ALTER TABLE t ALTER COLUMN code VARCHAR(20) NOT NULL; puis la PK.",
       "Non.",
       "Non. Une PK peut être un texte."
     ],
@@ -1644,15 +1642,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q91", dialecte: "Standard",
     q: "Quel est le risque d'une table sans clé primaire ?",
     choix: [
-      "Aucun",
-      "Doublons possibles, impossible de cibler une ligne précise pour la corriger, problèmes avec les outils de réplication et de synchronisation",
-      "Elle est en lecture seule",
-      "Elle est plus rapide, donc mieux"
+      "Aucun, c'est même plus rapide",
+      "Des doublons possibles",
+      "Elle passe en lecture seule",
+      "Elle ne peut pas avoir d'index"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Toute table « métier » doit avoir une clé.",
+      "Oui. Doublons possibles, impossible de cibler une ligne précise pour la corriger, problèmes avec les outils de réplication et de synchronisation. Toute table « métier » doit avoir une clé.",
       "Non.",
       "Non."
     ],
@@ -1663,14 +1661,14 @@ LEARNSQL.questions.m10 = [
     q: "Que fait ON DELETE SET NULL sur la FK commande.commercial_id ?",
     choix: [
       "Supprime les commandes du commercial",
-      "Si le commercial est supprimé, ses commandes gardent leur place mais commercial_id devient NULL",
-      "Empêche la suppression",
-      "Rien"
+      "commercial_id passe à NULL",
+      "Empêche la suppression du commercial",
+      "Rien, sauf un message d'alerte"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait CASCADE.",
-      "Oui. La colonne doit accepter NULL.",
+      "Oui. Si le commercial est supprimé, ses commandes restent, mais commercial_id devient NULL. La colonne doit accepter NULL.",
       "Non. C'est le comportement par défaut (NO ACTION).",
       "Non."
     ],
@@ -1679,19 +1677,18 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q93", dialecte: "Standard",
     q: "Comment modéliser « chaque salarié a un manager, qui est lui-même un salarié » ?",
-    choixCode: true,
     choix: [
       "Une table manager séparée, copie de salarie",
-      "Une colonne manager_id dans salarie, avec une FK vers salarie(id)",
-      "Une colonne texte nom_manager",
-      "Impossible"
+      "manager_id dans salarie, FK vers salarie(id)",
+      "Une colonne texte nom_manager dans salarie",
+      "manager_id dans salarie, FK vers manager(id)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Duplication des personnes.",
       "Oui. Clé étrangère vers la même table (auto-référence). NULL pour le sommet.",
       "Non. Pas de contrôle, homonymes.",
-      "Non."
+      "Non. Il n'y a pas de table manager : un manager est un salarié."
     ],
     retenir: "Hiérarchie : FK vers la même table."
   },
@@ -1699,15 +1696,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q94", dialecte: "SQL Server",
     q: "Deux tables se référencent mutuellement (A → B et B → A, colonnes NOT NULL). Comment insérer les premières lignes sur SQL Server ?",
     choix: [
-      "Contraintes « différées » jusqu'au COMMIT",
-      "SQL Server n'a pas de contraintes différées : rendre une des colonnes NULLable, insérer, puis mettre à jour. Ou revoir le modèle",
-      "Insérer les deux en même temps",
+      "Des contraintes « différées » jusqu'au COMMIT",
+      "Une colonne NULL le temps d'insérer",
+      "Insérer les deux lignes en même temps",
       "Impossible, il faut supprimer les FK"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ça existe dans d'autres bases (PostgreSQL), pas sur SQL Server.",
-      "Oui. Une dépendance circulaire est souvent le signe d'un modèle à simplifier.",
+      "Oui. SQL Server n'a pas de contraintes différées : rendre une des colonnes NULLable, insérer, puis mettre à jour. Ou revoir le modèle : une dépendance circulaire est souvent le signe d'un modèle à simplifier.",
       "Non.",
       "Non."
     ],
@@ -1717,15 +1714,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q95", dialecte: "SQL Server",
     q: "Qu'apporte une table temporelle (SYSTEM_VERSIONING = ON) sur SQL Server ?",
     choix: [
-      "Une table temporaire",
-      "SQL Server garde automatiquement l'historique de chaque modification dans une table d'historique, interrogeable avec FOR SYSTEM_TIME AS OF",
-      "Un tri par date",
-      "Une suppression automatique"
+      "Une table temporaire (#table)",
+      "Un historique automatique des modifications",
+      "Un tri automatique des lignes par date",
+      "Une suppression automatique des vieilles lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Rien à voir avec #table.",
-      "Oui. Idéal pour l'audit : « que valait ce tarif le 1er mars ? ».",
+      "Oui. SQL Server garde l'historique de chaque modification dans une table d'historique, interrogeable avec FOR SYSTEM_TIME AS OF. Idéal pour l'audit : « que valait ce tarif le 1er mars ? ».",
       "Non.",
       "Non."
     ],
@@ -1735,15 +1732,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q96", dialecte: "Snowflake",
     q: "Sur Snowflake, peut-on changer une colonne VARCHAR en NUMBER avec ALTER TABLE … ALTER COLUMN … SET DATA TYPE ?",
     choix: [
-      "Oui, toujours",
-      "Non : Snowflake permet surtout d'agrandir (VARCHAR plus long, plus de précision). Pour changer de type : nouvelle colonne, conversion, puis échange",
-      "Oui, si la table est vide",
-      "Oui avec FORCE"
+      "Oui, toujours, quel que soit le type",
+      "Non : surtout agrandir, pas changer",
+      "Oui, mais seulement si la table est vide",
+      "Oui, avec l'option FORCE"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Prévoir les types dès la conception évite ces migrations.",
+      "Oui. Snowflake permet surtout d'agrandir (VARCHAR plus long, plus de précision). Pour changer de type : nouvelle colonne, conversion, puis échange. Prévoir les types dès la conception évite ces migrations.",
       "Non. Toujours limité.",
       "Non."
     ],
@@ -1753,15 +1750,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q97", dialecte: "SQL Server",
     q: "Une colonne de type TEXT ou NTEXT apparaît dans une vieille base. Que faire ?",
     choix: [
-      "Rien",
-      "Ces types sont obsolètes : migrer vers VARCHAR(MAX) / NVARCHAR(MAX)",
-      "Les transformer en INT",
-      "Les supprimer"
+      "Rien, ces types sont modernes",
+      "Migrer vers (N)VARCHAR(MAX)",
+      "Les transformer en INT pour gagner de la place",
+      "Les supprimer de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Beaucoup de fonctions texte ne marchent pas dessus.",
-      "Oui. Même chose pour IMAGE → VARBINARY(MAX).",
+      "Oui. Ces types sont obsolètes : migre vers VARCHAR(MAX) / NVARCHAR(MAX). Même chose pour IMAGE → VARBINARY(MAX).",
       "Non.",
       "Non."
     ],
@@ -1771,15 +1768,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q98", dialecte: "Standard",
     q: "Pourquoi est-il préférable de typer correctement dès la création, plutôt que « tout en VARCHAR, on verra » ?",
     choix: [
-      "Pour la beauté",
-      "Contrôle automatique des données, tris et calculs justes, meilleures performances ; changer un type plus tard coûte cher",
-      "Ce n'est pas préférable",
+      "Pour la beauté du modèle",
+      "Contrôle, calculs justes, performance",
+      "Ce n'est pas préférable, VARCHAR suffit",
       "Pour économiser des lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le type est la première règle de qualité.",
+      "Oui. Contrôle automatique des données, tris et calculs justes, meilleures performances ; changer un type plus tard coûte cher. Le type est la première règle de qualité.",
       "Non.",
       "Non."
     ],
@@ -1789,15 +1786,15 @@ LEARNSQL.questions.m10 = [
     id: "m10-q99", dialecte: "Standard",
     q: "Une table client a 120 colonnes, dont 40 « adresse_livraison_2 », « adresse_livraison_3 »… Quel problème de conception ?",
     choix: [
-      "Aucun",
-      "Des groupes de colonnes répétés : il faut une table adresse séparée (une ligne par adresse)",
-      "Trop peu de colonnes",
-      "Il faut plus d'index"
+      "Aucun, 120 colonnes c'est normal",
+      "Il manque une table adresse séparée",
+      "Trop peu de colonnes pour les adresses",
+      "Il faut plus d'index sur ces colonnes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le nombre d'adresses devient illimité, et les requêtes restent simples.",
+      "Oui. Des groupes de colonnes répétés : il faut une table adresse (une ligne par adresse). Le nombre d'adresses devient illimité, et les requêtes restent simples.",
       "Non.",
       "Non."
     ],
@@ -1808,14 +1805,14 @@ LEARNSQL.questions.m10 = [
     q: "Quelle liste décrit une table bien conçue ?",
     choix: [
       "Beaucoup de colonnes VARCHAR(MAX)",
-      "Types justes, NOT NULL quand c'est obligatoire, clé primaire, UNIQUE sur la clé métier, FK, CHECK, DEFAULT, noms clairs",
-      "Aucune contrainte pour aller plus vite",
-      "Une seule colonne JSON"
+      "Types justes, clés et contraintes",
+      "Aucune contrainte, pour aller plus vite",
+      "Une seule colonne JSON pour tout"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. La base protège elle-même la qualité des données.",
+      "Oui. Types justes, NOT NULL quand c'est obligatoire, clé primaire, UNIQUE sur la clé métier, FK, CHECK, DEFAULT, noms clairs : la base protège elle-même la qualité des données.",
       "Non.",
       "Non."
     ],
