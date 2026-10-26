@@ -115,16 +115,16 @@ LEARNSQL.questions.m02 = [
     id: "m02-q07", dialecte: "SQL Server + Snowflake",
     q: "La table contient le nom 'DUPONT'. La requête WHERE nom = 'dupont' le trouve-t-elle ?",
     choix: [
-      "Oui, partout",
-      "Non, nulle part",
-      "Oui sur SQL Server (collation par défaut), non sur Snowflake",
+      "Oui, sur SQL Server et sur Snowflake",
+      "Non, ni sur SQL Server ni sur Snowflake",
+      "Oui sur SQL Server, non sur Snowflake",
       "Non sur SQL Server, oui sur Snowflake"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Snowflake compare en tenant compte de la casse.",
       "Non. SQL Server ignore la casse avec sa collation par défaut (ex. French_CI_AS, CI = Case Insensitive).",
-      "Oui. SQL Server dépend de la collation, souvent CI. Snowflake est sensible à la casse par défaut. Utilise UPPER() ou ILIKE sur Snowflake.",
+      "Oui. SQL Server dépend de la collation, souvent insensible à la casse (CI). Snowflake est sensible à la casse par défaut. Utilise UPPER() ou ILIKE sur Snowflake.",
       "Non. C'est l'inverse."
     ],
     retenir: "Casse : SQL Server dépend de la collation (souvent CI). Snowflake est sensible à la casse."
@@ -449,15 +449,15 @@ LEARNSQL.questions.m02 = [
     id: "m02-q25", dialecte: "SQL Server + Snowflake",
     q: "La colonne actif indique si le client est actif. Le filtre WHERE actif (sans = 1) est-il valide ?",
     choix: [
-      "Oui partout",
-      "Non sur SQL Server (type BIT, il faut = 1), oui sur Snowflake (type BOOLEAN)",
+      "Oui, sur SQL Server et sur Snowflake",
+      "Non sur SQL Server, oui sur Snowflake",
       "Oui sur SQL Server, non sur Snowflake",
-      "Non partout"
+      "Non, ni sur SQL Server ni sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server n'a pas de vrai type booléen.",
-      "Oui. Sur SQL Server, BIT est un nombre : écris actif = 1. Snowflake a un vrai BOOLEAN.",
+      "Oui. Sur SQL Server, BIT est un nombre : écris actif = 1. Snowflake a un vrai type BOOLEAN.",
       "Non. C'est l'inverse.",
       "Non. Snowflake l'accepte."
     ],
@@ -523,17 +523,17 @@ LEARNSQL.questions.m02 = [
     q: "Que fait cette instruction sur SQL Server ?",
     code: "SELECT *\nINTO client_copie\nFROM client\nWHERE 1 = 0;",
     choix: [
-      "Une copie complète de la table",
-      "Une table vide, avec les mêmes colonnes que client",
-      "Une erreur : 1 = 0 est faux",
-      "Elle supprime les clients"
+      "Une copie complète de la table, avec ses lignes",
+      "Une table vide, avec les colonnes de client",
+      "Une erreur : la condition 1 = 0 est toujours fausse",
+      "Rien : la table n'est pas créée, car 0 ligne"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le filtre 1 = 0 n'est jamais vrai : aucune ligne n'est copiée.",
       "Oui. SELECT INTO crée la table. WHERE 1 = 0 ne copie aucune ligne. Attention : les index et clés ne sont pas copiés.",
       "Non. C'est un filtre valide, juste toujours faux.",
-      "Non. SELECT ne supprime rien."
+      "Non. SELECT INTO crée la table, même sans ligne."
     ],
     retenir: "WHERE 1 = 0 : aucune ligne. Astuce pour copier seulement la structure d'une table."
   },
@@ -578,17 +578,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q32", dialecte: "Standard",
     q: "Pourquoi trouve-t-on souvent WHERE 1 = 1 au début des requêtes construites par programme ?",
     choix: [
-      "Pour accélérer la requête",
-      "Pour pouvoir ajouter chaque condition avec « AND … » sans se soucier de la première",
-      "Pour forcer l'utilisation d'un index",
-      "Pour éviter les NULL"
+      "Pour accélérer la requête grâce à un filtre simple",
+      "Pour ajouter chaque filtre avec « AND … »",
+      "Pour forcer SQL Server à utiliser un index",
+      "Pour éviter que les NULL fassent échouer le filtre"
     ],
     bonne: 1,
     pourquoi: [
       "Non. L'optimiseur l'ignore : aucun effet sur la vitesse.",
-      "Oui. 1 = 1 est toujours vrai. Chaque filtre ajouté commence alors par AND.",
-      "Non.",
-      "Non."
+      "Oui. 1 = 1 est toujours vrai. Chaque condition ajoutée par le programme commence alors par AND, même la première.",
+      "Non. Il n'a aucun effet sur le choix des index.",
+      "Non. 1 = 1 n'a aucun effet sur les NULL."
     ],
     retenir: "WHERE 1 = 1 : toujours vrai, pratique pour ajouter des AND."
   },
@@ -725,15 +725,15 @@ LEARNSQL.questions.m02 = [
     choix: [
       "LIKE '%50%%'",
       "LIKE '%50!%%' ESCAPE '!'",
-      "LIKE '50%'",
-      "= '%50%%'"
+      "LIKE '%50!%' ESCAPE '!'",
+      "LIKE '%50%' ESCAPE '!'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le 2e % est un joker : ça trouve tout ce qui contient « 50 ».",
       "Oui. ESCAPE '!' : le % qui suit ! devient un vrai caractère. Marche sur les deux moteurs.",
-      "Non. Ça cherche ce qui commence par 50.",
-      "Non. = ne connaît pas les jokers."
+      "Non. Il manque le % final : ça trouve seulement les libellés qui FINISSENT par « 50% ».",
+      "Non. Aucun ! dans le motif : le % reste un joker. Ça trouve tout ce qui contient « 50 »."
     ],
     retenir: "Chercher un vrai % ou _ : ESCAPE."
   },
@@ -763,15 +763,15 @@ LEARNSQL.questions.m02 = [
     choix: [
       "LIKE '[A-Z]{3}[0-9]{4}'",
       "LIKE '[A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9]'",
-      "LIKE 'AAA9999'",
-      "LIKE '___####'"
+      "LIKE '[A-Z][A-Z][A-Z]%[0-9][0-9][0-9][0-9]'",
+      "LIKE '[A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9]%'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les {3} ne sont pas compris par LIKE.",
       "Oui. Une classe [ ] par caractère. Attention : en collation CI, [A-Z] accepte aussi les minuscules.",
-      "Non. Ça cherche ce texte exact.",
-      "Non. # n'est pas un joker de LIKE."
+      "Non. Le % accepte n'importe quoi entre les lettres et les chiffres (ex. 'ABC-XY-1234').",
+      "Non. Le % final accepte une suite : 'PIS12345' passerait."
     ],
     retenir: "LIKE SQL Server : une classe [ ] par caractère."
   },
@@ -852,17 +852,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q47", dialecte: "SQL Server",
     q: "Une appli génère WHERE code IN ('A1', 'A2', … 5 000 valeurs). Quel est le problème, et la solution ?",
     choix: [
-      "Aucun problème",
-      "Compilation lente et plan difficile : mettre les valeurs dans une table temporaire et faire une jointure",
-      "IN est limité à 10 valeurs",
-      "Il faut remplacer IN par LIKE"
+      "Aucun : SQL Server gère très bien les longues listes",
+      "Requête lente : passer par une table + JOIN",
+      "IN est limité à 1 000 valeurs : la requête échoue",
+      "Il faut découper la liste en plusieurs IN reliés par OR"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une liste énorme pèse sur la compilation et sur l'estimation.",
-      "Oui. Table temporaire (ou paramètre table) + JOIN ou EXISTS : plus rapide et plus propre.",
-      "Non. Il n'y a pas de limite à 10.",
-      "Non."
+      "Oui. Une liste énorme pèse sur la compilation et sur le plan. Table temporaire (ou paramètre table) + JOIN ou EXISTS : plus rapide et plus propre.",
+      "Non. SQL Server n'a pas de limite fixe à 1 000 valeurs (c'est Oracle).",
+      "Non. C'est la même chose pour le moteur : même problème."
     ],
     retenir: "Très longue liste IN : passe par une table + JOIN."
   },
@@ -888,17 +888,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q49", dialecte: "SQL Server",
     q: "Une procédure filtre avec WHERE (@pays IS NULL OR pays = @pays). Quel est le risque ?",
     choix: [
-      "Erreur de syntaxe",
-      "Un seul plan pour tous les cas : souvent mauvais. OPTION (RECOMPILE) aide",
-      "Le filtre ne marche pas",
-      "Les NULL sont doublés"
+      "Une erreur de syntaxe : OR est interdit avec IS NULL",
+      "Un seul plan pour tous les cas, souvent mauvais",
+      "Le filtre ignore @pays, même quand il est renseigné",
+      "Les clients sans pays sont renvoyés en double à chaque appel"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est valide.",
-      "Oui. C'est la requête « fourre-tout ». Le plan prévu pour « tous les pays » est mauvais pour « un pays ». RECOMPILE crée un plan adapté à chaque appel.",
-      "Non. Le résultat est juste. C'est la performance qui souffre.",
-      "Non."
+      "Oui. C'est la requête « fourre-tout ». Le plan prévu pour « tous les pays » est mauvais pour « un pays ». OPTION (RECOMPILE) crée un plan adapté à chaque appel.",
+      "Non. Le résultat est juste : c'est la performance qui souffre.",
+      "Non. Aucune ligne n'est doublée."
     ],
     retenir: "Filtre optionnel (@p IS NULL OR col = @p) : pense à OPTION (RECOMPILE)."
   },
@@ -928,15 +928,15 @@ LEARNSQL.questions.m02 = [
     choix: [
       "DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)",
       "DATE_TRUNC('month', GETDATE())",
-      "EOMONTH(GETDATE())",
-      "DAY(GETDATE()) = 1"
+      "DATEFROMPARTS(YEAR(GETDATE()), 1, MONTH(GETDATE()))",
+      "DATEADD(day, -DAY(GETDATE()), GETDATE())"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On recompose une date avec le jour 1. Filtre du mois : >= cette date AND < DATEADD(month, 1, cette date).",
       "Non. C'est Snowflake. (SQL Server 2022 a DATETRUNC.)",
-      "Non. C'est le dernier jour du mois.",
-      "Non. C'est un test, pas une date."
+      "Non. L'ordre est année, mois, jour : ici le mois est à la place du jour.",
+      "Non. On recule d'autant de jours que le jour du mois : on tombe sur le dernier jour du mois précédent."
     ],
     retenir: "1er du mois : DATEFROMPARTS(année, mois, 1)."
   },
@@ -1019,17 +1019,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q56", dialecte: "SQL Server",
     q: "La base est en collation CI (insensible à la casse). Que penser de WHERE UPPER(nom) = 'DUPONT' ?",
     choix: [
-      "C'est nécessaire pour trouver 'Dupont'",
-      "C'est inutile (la comparaison ignore déjà la casse) et ça empêche l'index",
-      "C'est plus rapide",
-      "C'est une erreur"
+      "C'est nécessaire pour trouver aussi 'Dupont'",
+      "C'est inutile, et ça empêche l'index",
+      "C'est plus rapide, car le texte est normalisé",
+      "C'est une erreur : UPPER est interdit dans WHERE"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En CI, nom = 'DUPONT' trouve déjà 'Dupont'.",
-      "Oui. Supprime le UPPER. (Sur Snowflake, sensible à la casse, il serait utile.)",
+      "Oui. En collation CI, la comparaison ignore déjà la casse. Et une fonction sur la colonne empêche la recherche dans l'index. (Sur Snowflake, sensible à la casse, il serait utile.)",
       "Non. Une fonction sur la colonne ralentit.",
-      "Non."
+      "Non. UPPER est permis dans WHERE."
     ],
     retenir: "Connais ta collation avant d'ajouter UPPER / LOWER."
   },
@@ -1037,17 +1037,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q57", dialecte: "SQL Server",
     q: "Une appli envoie N'C001' (NVARCHAR) pour filtrer une colonne code en VARCHAR, indexée. Quel risque ?",
     choix: [
-      "Aucun",
-      "SQL Server convertit la colonne en NVARCHAR : l'index peut être mal utilisé",
-      "Erreur de type",
-      "Les accents sont perdus"
+      "Aucun : SQL Server convertit la valeur en VARCHAR",
+      "La colonne est convertie : l'index sert mal",
+      "Une erreur de type : NVARCHAR et VARCHAR incompatibles",
+      "Les accents de la valeur sont perdus à la conversion"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Le type le plus fort (NVARCHAR) l'emporte : la COLONNE est convertie.",
-      "Oui. Problème classique de performance avec les ORM. Le plan montre CONVERT_IMPLICIT. Aligne les types.",
+      "Non. C'est l'inverse : le type le plus fort (NVARCHAR) l'emporte, et c'est la COLONNE qui est convertie.",
+      "Oui. SQL Server convertit la colonne en NVARCHAR. Problème classique avec les ORM : le plan montre CONVERT_IMPLICIT. Aligne les types.",
       "Non. La conversion est automatique.",
-      "Non."
+      "Non. VARCHAR vers NVARCHAR ne perd rien."
     ],
     retenir: "Paramètre NVARCHAR sur colonne VARCHAR = conversion implicite de la colonne."
   },
@@ -1058,15 +1058,15 @@ LEARNSQL.questions.m02 = [
     choix: [
       "WHERE nom = 'dupont'",
       "WHERE nom = 'dupont' COLLATE French_CS_AS",
-      "WHERE LOWER(nom) = 'dupont'",
-      "WHERE nom LIKE 'dupont'"
+      "WHERE LOWER(nom) = 'dupont' COLLATE French_CI_AS",
+      "WHERE nom LIKE 'dupont' COLLATE French_CI_AS"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En CI, 'DUPONT' passe aussi.",
       "Oui. COLLATE impose une comparaison sensible à la casse (CS), juste pour ce test.",
-      "Non. LOWER('DUPONT') = 'dupont' : 'DUPONT' passe aussi.",
-      "Non. LIKE suit la même collation CI."
+      "Non. LOWER('DUPONT') = 'dupont', et CI ignore la casse : 'DUPONT' passe aussi.",
+      "Non. CI = insensible à la casse : 'DUPONT' passe aussi."
     ],
     retenir: "COLLATE … CS pour une comparaison sensible à la casse ponctuelle."
   },
@@ -1149,16 +1149,16 @@ LEARNSQL.questions.m02 = [
     choixCode: true,
     choix: [
       "WHERE pays IN (SELECT pays FROM zone_export)",
-      "WHERE pays = ALL (…)",
-      "WHERE pays NOT IN (…)",
-      "WHERE EXISTS (SELECT 1)"
+      "WHERE pays = ALL (SELECT pays FROM zone_export)",
+      "WHERE pays NOT IN (SELECT pays FROM zone_export)",
+      "WHERE EXISTS (SELECT pays FROM zone_export)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Égal à au moins une valeur = IN.",
       "Non. = ALL voudrait dire égal à toutes les valeurs.",
-      "Non.",
-      "Non."
+      "Non. C'est le contraire.",
+      "Non. Sans lien avec la ligne, EXISTS est vrai pour toutes les lignes dès que zone_export n'est pas vide."
     ],
     retenir: "= ANY = IN."
   },
@@ -1204,16 +1204,16 @@ LEARNSQL.questions.m02 = [
     q: "Quel test trouve en une fois les références NULL, vides ou faites seulement d'espaces ?",
     choixCode: true,
     choix: [
-      "WHERE ref IS NULL",
+      "WHERE ref IS NULL AND TRIM(ref) = ''",
       "WHERE NULLIF(TRIM(ref), '') IS NULL",
-      "WHERE ref = ''",
+      "WHERE TRIM(ref) = '' AND ref IS NOT NULL",
       "WHERE TRIM(ref) IS NULL"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Oublie les vides.",
+      "Non. Une valeur ne peut pas être NULL et vide en même temps : AND ne garde rien.",
       "Oui. TRIM enlève les espaces, NULLIF transforme '' en NULL : il ne reste qu'un test IS NULL.",
-      "Non. Oublie les NULL.",
+      "Non. Exclut les NULL, qu'on veut garder.",
       "Non. TRIM('') donne '', pas NULL."
     ],
     retenir: "NULLIF(TRIM(col), '') IS NULL = NULL, vide ou blanc."
@@ -1332,16 +1332,16 @@ LEARNSQL.questions.m02 = [
     id: "m02-q73", dialecte: "Standard",
     q: "poids est un FLOAT calculé (0.1 + 0.2). WHERE poids = 0.3 le trouve-t-il ?",
     choix: [
-      "Oui, toujours",
+      "Oui, toujours : 0.1 + 0.2 vaut 0.3",
       "Pas forcément : FLOAT est approximatif",
-      "Erreur",
-      "Seulement en DECIMAL"
+      "Non, jamais : FLOAT ne stocke pas les décimales",
+      "Seulement si la colonne est en DECIMAL"
     ],
     bonne: 1,
     pourquoi: [
       "Non. 0.1 + 0.2 en FLOAT donne 0.30000000000000004.",
       "Oui. Avec FLOAT, compare avec une tolérance : ABS(poids - 0.3) < 0.0001. Ou utilise DECIMAL.",
-      "Non.",
+      "Non. FLOAT stocke des décimales, mais de façon approchée.",
       "Non. La question porte sur FLOAT."
     ],
     retenir: "Jamais d'égalité stricte sur un FLOAT."
@@ -1350,17 +1350,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q74", dialecte: "Standard",
     q: "Mettre la condition la plus sélective en premier dans le WHERE accélère-t-il la requête ?",
     choix: [
-      "Oui, toujours",
+      "Oui, toujours : le moteur lit les conditions dans l'ordre",
       "Non, l'optimiseur choisit lui-même l'ordre",
-      "Oui, sur SQL Server",
-      "Oui, avec OR"
+      "Oui, mais seulement sur SQL Server",
+      "Oui, seulement si les conditions sont liées par OR"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est un mythe.",
       "Oui. L'optimiseur réorganise les conditions. Écris dans l'ordre le plus lisible.",
-      "Non.",
-      "Non."
+      "Non. L'optimiseur de SQL Server réorganise aussi les conditions.",
+      "Non. Avec OR comme avec AND, l'optimiseur choisit."
     ],
     retenir: "L'ordre des conditions dans WHERE : pour la lisibilité, pas pour la vitesse."
   },
@@ -1368,17 +1368,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q75", dialecte: "SQL Server",
     q: "WHERE client_id = 42 OR commercial_id = 7, avec un index sur chaque colonne, est lent. Quelle réécriture aide souvent ?",
     choix: [
-      "Ajouter DISTINCT",
-      "Deux requêtes (une par condition) assemblées avec UNION",
-      "Remplacer OR par AND",
-      "Ajouter NOLOCK"
+      "Ajouter DISTINCT pour réduire les lignes",
+      "Deux requêtes assemblées avec UNION",
+      "Remplacer OR par AND, plus rapide à évaluer",
+      "Ajouter WITH (NOLOCK) sur la table commande"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ça n'aide pas.",
-      "Oui. Chaque requête utilise son index (Seek). UNION retire les lignes présentes dans les deux.",
-      "Non. Ça change le sens.",
-      "Non."
+      "Oui. Une requête par condition : chacune utilise son index (Seek). UNION retire les lignes présentes dans les deux.",
+      "Non. Ça change le sens de la requête.",
+      "Non. NOLOCK ne change pas la façon de chercher, et donne des lectures fausses."
     ],
     retenir: "OR sur deux colonnes différentes : pense UNION."
   },
@@ -1405,17 +1405,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q77", dialecte: "SQL Server",
     q: "WHERE DATENAME(weekday, date_cde) IN ('Saturday', 'Sunday') ne trouve rien sur ton serveur. Pourquoi ?",
     choix: [
-      "Personne ne commande le week-end",
-      "DATENAME dépend de la langue : en français, il renvoie 'samedi', 'dimanche'",
-      "DATENAME n'existe pas",
-      "Il faut des majuscules"
+      "Personne ne commande le samedi ni le dimanche",
+      "DATENAME répond en français : 'samedi'",
+      "DATENAME n'existe pas sur SQL Server",
+      "Il faut écrire les jours en majuscules"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est un problème technique.",
-      "Oui. Le résultat dépend de la langue de la session. Code fragile !",
-      "Non.",
-      "Non."
+      "Oui. DATENAME dépend de la langue de la session : en français, il renvoie 'samedi', 'dimanche'. Code fragile !",
+      "Non. Elle existe.",
+      "Non. Le problème est la langue, pas la casse."
     ],
     retenir: "DATENAME / DATEPART(weekday) dépendent des réglages. Préfère une table calendrier."
   },
@@ -1426,15 +1426,15 @@ LEARNSQL.questions.m02 = [
     choix: [
       "WHERE date_cde BETWEEN '08:00' AND '12:00'",
       "WHERE CAST(date_cde AS time) >= '08:00' AND CAST(date_cde AS time) < '12:00'",
-      "WHERE HOUR(date_cde) = 8",
-      "WHERE date_cde LIKE '%08:%'"
+      "WHERE DATEPART(hour, date_cde) >= 8 AND DATEPART(hour, date_cde) <= 12",
+      "WHERE CAST(date_cde AS date) >= '08:00' AND CAST(date_cde AS date) < '12:00'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. '08:00' seul est lu comme le 1er janvier 1900 à 8 h.",
       "Oui. On extrait l'heure (type TIME), puis on compare.",
-      "Non. HOUR n'existe pas sur SQL Server (DATEPART(hour, …)), et 8 h seulement.",
-      "Non. Conversion en texte : fragile et lent."
+      "Non. <= 12 garde aussi les commandes de 12 h 00 à 12 h 59.",
+      "Non. CAST(… AS date) garde le jour et enlève l'heure : ce n'est pas ce qu'on veut comparer."
     ],
     retenir: "Heure de la journée : CAST(col AS time)."
   },
@@ -1444,16 +1444,16 @@ LEARNSQL.questions.m02 = [
     choixCode: true,
     choix: [
       "WHERE date_cde >= DATEFROMPARTS(YEAR(GETDATE()), 1, 1)",
-      "WHERE YEAR(date_cde) = 2026",
-      "WHERE date_cde >= '20260101'",
-      "WHERE date_cde = YEAR(GETDATE())"
+      "WHERE date_cde >= DATEFROMPARTS(2026, 1, 1)",
+      "WHERE date_cde >= DATEFROMPARTS(YEAR(GETDATE()), 12, 31)",
+      "WHERE date_cde >= DATEADD(year, -1, GETDATE())"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le 1er janvier de l'année en cours est calculé. La requête marchera encore l'an prochain.",
-      "Non. Année en dur, et fonction sur la colonne.",
       "Non. Année en dur : la requête sera fausse en 2027.",
-      "Non. On compare une date à un nombre."
+      "Non. On part du 31 décembre : il ne reste qu'un jour.",
+      "Non. Ce sont les 12 derniers mois glissants, pas l'année en cours."
     ],
     retenir: "Pas de date en dur dans un rapport récurrent."
   },
@@ -1483,15 +1483,15 @@ LEARNSQL.questions.m02 = [
     choix: [
       "WHERE @d BETWEEN date_debut AND date_fin",
       "WHERE date_debut <= @d AND (date_fin IS NULL OR date_fin >= @d)",
-      "WHERE date_debut = @d",
-      "WHERE date_fin IS NULL"
+      "WHERE date_debut <= @d AND date_fin IS NULL OR date_fin >= @d",
+      "WHERE date_debut <= @d AND (date_fin IS NULL AND date_fin >= @d)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les tarifs sans date de fin (NULL) sont exclus.",
       "Oui. Commencé avant @d, et pas encore fini (ou sans fin).",
-      "Non. Seulement ceux qui commencent ce jour-là.",
-      "Non. Oublie les tarifs avec une date de fin future."
+      "Non. Sans parenthèses, AND passe avant OR : un tarif futur, qui finit après @d, passerait.",
+      "Non. date_fin ne peut pas être NULL et >= @d en même temps : aucun tarif ne passe."
     ],
     retenir: "Validité : début <= @d AND (fin IS NULL OR fin >= @d)."
   },
@@ -1538,16 +1538,16 @@ LEARNSQL.questions.m02 = [
     choixCode: true,
     choix: [
       "WHERE TRY_CAST(qte_txt AS int) IS NULL AND qte_txt IS NOT NULL",
-      "WHERE CAST(qte_txt AS int) IS NULL",
-      "WHERE qte_txt NOT LIKE '%'",
-      "WHERE qte_txt IS NULL"
+      "WHERE CAST(qte_txt AS int) IS NULL AND qte_txt IS NOT NULL",
+      "WHERE TRY_CAST(qte_txt AS int) IS NOT NULL",
+      "WHERE TRY_CAST(qte_txt AS int) IS NULL"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. TRY_CAST donne NULL si la conversion échoue. On exclut les valeurs déjà NULL au départ.",
       "Non. CAST plante dès la 1re valeur invalide.",
-      "Non. Toujours faux sauf pour NULL.",
-      "Non. Ça trouve les vides, pas les invalides."
+      "Non. C'est l'inverse : ce sont les valeurs valides.",
+      "Non. Ramène aussi les lignes où qte_txt était déjà NULL au départ."
     ],
     retenir: "Contrôle d'import : TRY_CAST(col AS type) IS NULL AND col IS NOT NULL."
   },
@@ -1555,17 +1555,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q85", dialecte: "SQL Server",
     q: "ISNUMERIC('$') renvoie 1. Pourquoi ne pas utiliser ISNUMERIC pour contrôler des montants ?",
     choix: [
-      "C'est un bug corrigé",
-      "ISNUMERIC accepte des valeurs non convertibles ('$', '-', '1e5', '.') : préfère TRY_CAST",
-      "ISNUMERIC est trop lent",
-      "ISNUMERIC n'accepte que des entiers"
+      "C'est un bug, corrigé dans les versions récentes",
+      "Il accepte des valeurs non convertibles en DECIMAL",
+      "Il est trop lent sur les grosses tables d'import",
+      "Il n'accepte que des entiers, pas les décimales"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est le comportement normal, documenté.",
-      "Oui. ISNUMERIC répond « convertible vers AU MOINS un type numérique ». Pas fiable pour un DECIMAL précis.",
-      "Non.",
-      "Non."
+      "Oui. ISNUMERIC répond « convertible vers AU MOINS un type numérique » : '$', '-', '1e5', '.' passent. Préfère TRY_CAST vers le type voulu.",
+      "Non. La vitesse n'est pas le problème.",
+      "Non. Il accepte aussi les décimales."
     ],
     retenir: "ISNUMERIC = piège. TRY_CAST vers le type voulu = fiable."
   },
@@ -1611,17 +1611,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q88", dialecte: "SQL Server",
     q: "Une vieille procédure utilise WHERE col = NULL et ça « marche ». Pourquoi ?",
     choix: [
-      "C'est normal",
-      "Elle a été créée avec SET ANSI_NULLS OFF, un réglage obsolète",
-      "C'est un bug de SQL Server",
-      "La colonne est NOT NULL"
+      "C'est normal : = NULL équivaut à IS NULL",
+      "Elle a été créée avec SET ANSI_NULLS OFF",
+      "C'est un bug de SQL Server, corrigé depuis",
+      "La colonne est NOT NULL, donc rien ne change"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En standard, = NULL ne marche jamais.",
-      "Oui. Avec ANSI_NULLS OFF, = NULL se comporte comme IS NULL. Obsolète : corrige en IS NULL.",
-      "Non.",
-      "Non."
+      "Oui. Avec ANSI_NULLS OFF, = NULL se comporte comme IS NULL. Réglage obsolète : corrige en IS NULL.",
+      "Non. C'est un réglage, pas un bug.",
+      "Non. Le problème vient du réglage de la procédure."
     ],
     retenir: "= NULL qui « marche » = ANSI_NULLS OFF. À corriger."
   },
@@ -1629,17 +1629,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q89", dialecte: "Standard",
     q: "Quel est le défaut de WHERE COALESCE(a.ref, '') = COALESCE(b.ref, '') pour comparer deux colonnes ?",
     choix: [
-      "Aucun",
-      "Il confond NULL et '', et il empêche l'utilisation des index",
-      "Il plante si les deux sont NULL",
-      "Il ignore la casse"
+      "Aucun : c'est la bonne façon de comparer",
+      "Il confond NULL et '', et bloque les index",
+      "Il plante quand les deux colonnes sont NULL",
+      "Il ignore la casse des deux références"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Un NULL et un vide deviennent « égaux ». Préfère IS NOT DISTINCT FROM, ou des tests IS NULL explicites.",
+      "Non. Il a deux défauts.",
+      "Oui. Un NULL et un vide deviennent « égaux », et la fonction empêche l'index. Préfère IS NOT DISTINCT FROM, ou des tests IS NULL explicites.",
       "Non. Deux NULL deviennent '' = '' : vrai.",
-      "Non. La casse dépend de la collation."
+      "Non. La casse dépend de la collation, pas de COALESCE."
     ],
     retenir: "COALESCE des deux côtés : pratique, mais confond NULL et vide."
   },
@@ -1648,17 +1648,17 @@ LEARNSQL.questions.m02 = [
     q: "Avant SQL Server 2022 (pas de IS DISTINCT FROM), comment tester « a égal à b, NULL compris » ?",
     choixCode: true,
     choix: [
-      "a = b",
+      "(a = b) OR (a IS NULL OR b IS NULL)",
       "a = b OR (a IS NULL AND b IS NULL)",
-      "ISNULL(a) = ISNULL(b)",
-      "a IS b"
+      "ISNULL(a, 0) = ISNULL(b, 0)",
+      "a = b AND a IS NOT NULL"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Deux NULL ne sont pas égaux avec =.",
+      "Non. Vrai dès qu'un seul des deux est NULL, même si l'autre a une valeur.",
       "Oui. Égaux, ou NULL tous les deux.",
-      "Non. ISNULL demande deux arguments.",
-      "Non. Syntaxe invalide."
+      "Non. Confond NULL et 0 : un NULL et un vrai 0 deviennent « égaux ».",
+      "Non. Exclut le cas où les deux sont NULL."
     ],
     retenir: "Égalité NULL-safe à l'ancienne : a = b OR (a IS NULL AND b IS NULL)."
   },
@@ -1704,10 +1704,10 @@ LEARNSQL.questions.m02 = [
     id: "m02-q93", dialecte: "Snowflake",
     q: "Sur Snowflake, date_cde est un TIMESTAMP. Que renvoie WHERE date_cde = CURRENT_DATE ?",
     choix: [
-      "Toutes les commandes du jour",
+      "Toutes les commandes passées aujourd'hui",
       "Seulement celles passées exactement à minuit",
-      "Une erreur",
-      "Aucune ligne, toujours"
+      "Une erreur : TIMESTAMP et DATE incomparables",
+      "Aucune ligne, quelle que soit l'heure"
     ],
     bonne: 1,
     pourquoi: [
@@ -1723,17 +1723,17 @@ LEARNSQL.questions.m02 = [
     q: "date_cde est un DATETIME. Comment filtrer les commandes d'hier ?",
     choixCode: true,
     choix: [
-      "WHERE date_cde = GETDATE() - 1",
+      "WHERE date_cde >= DATEADD(day, -1, CAST(GETDATE() AS date)) AND date_cde <= CAST(GETDATE() AS date)",
       "WHERE date_cde >= DATEADD(day, -1, CAST(GETDATE() AS date)) AND date_cde < CAST(GETDATE() AS date)",
-      "WHERE DAY(date_cde) = DAY(GETDATE()) - 1",
-      "WHERE date_cde > GETDATE() - 1"
+      "WHERE date_cde >= DATEADD(day, -1, GETDATE()) AND date_cde < GETDATE()",
+      "WHERE DAY(date_cde) = DAY(GETDATE()) - 1"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Cherche un instant précis : hier à la même seconde.",
+      "Non. <= garde aussi les commandes d'aujourd'hui à 00:00:00 pile.",
       "Oui. De hier 00:00 (inclus) à aujourd'hui 00:00 (exclu).",
-      "Non. Faux le 1er du mois, et mélange tous les mois.",
-      "Non. Ce sont les dernières 24 heures, pas « hier »."
+      "Non. Ce sont les dernières 24 heures, pas « hier ».",
+      "Non. Faux le 1er du mois, et mélange tous les mois."
     ],
     retenir: "« Hier » = [hier 00:00 ; aujourd'hui 00:00[."
   },
@@ -1741,17 +1741,17 @@ LEARNSQL.questions.m02 = [
     id: "m02-q95", dialecte: "SQL Server",
     q: "La colonne ville est en NVARCHAR et contient 'Łódź'. Pourquoi WHERE ville = 'Łódź' ne trouve rien ?",
     choix: [
-      "La ville n'existe pas",
-      "Sans le préfixe N, le texte est en VARCHAR : Ł devient une autre lettre avant la comparaison",
-      "Il faut LIKE",
-      "Il faut des majuscules"
+      "La ville n'existe pas dans la table",
+      "Sans N devant, Ł est perdu avant la comparaison",
+      "Il faut LIKE pour les caractères spéciaux",
+      "Il faut écrire la ville en majuscules"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Écris WHERE ville = N'Łódź'. Le N garde les caractères Unicode.",
-      "Non.",
-      "Non."
+      "Non. Elle existe : le problème vient du texte de la requête.",
+      "Oui. Sans le préfixe N, le texte est en VARCHAR : Ł devient une autre lettre. Écris WHERE ville = N'Łódź'.",
+      "Non. = marche, si le texte est bien en Unicode.",
+      "Non. Le problème vient de l'Unicode, pas de la casse."
     ],
     retenir: "Texte Unicode sur SQL Server : N'…'."
   },
@@ -1763,14 +1763,14 @@ LEARNSQL.questions.m02 = [
       "WHERE qte <> 0 AND montant / qte > 5",
       "WHERE CASE WHEN qte = 0 THEN 0 ELSE montant / qte END > 5",
       "WHERE montant / qte > 5 AND qte <> 0",
-      "WHERE montant / qte > 5"
+      "WHERE CASE WHEN montant / qte > 5 AND qte <> 0 THEN 1 END = 1"
     ],
     bonne: 1,
     pourquoi: [
       "Non. L'ordre des conditions AND n'est pas garanti.",
       "Oui. Le CASE évalue ses branches dans l'ordre : la division n'a lieu que si qte ≠ 0. (NULLIF marche aussi.)",
       "Non. Même problème.",
-      "Non. Plante si qte = 0."
+      "Non. La division est dans la condition, mêlée au test de qte par un AND : elle peut quand même avoir lieu."
     ],
     retenir: "Protéger un calcul : CASE ou NULLIF, pas l'ordre des AND."
   },
@@ -1779,17 +1779,17 @@ LEARNSQL.questions.m02 = [
     q: "Comment garder les commandes au-dessus de la moyenne de toutes les commandes ?",
     choixCode: true,
     choix: [
-      "WHERE montant > AVG(montant)",
+      "WHERE montant > AVG(montant) OVER ()",
       "WHERE montant > (SELECT AVG(montant) FROM commande)",
-      "HAVING montant > AVG(montant)",
-      "WHERE AVG(montant) > montant"
+      "SELECT * FROM commande HAVING montant > AVG(montant)",
+      "WHERE montant > (SELECT montant FROM commande)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Agrégat interdit dans WHERE.",
+      "Non. Les fonctions de fenêtrage sont interdites dans WHERE.",
       "Oui. La sous-requête calcule la moyenne une fois, puis on compare chaque ligne.",
-      "Non. Sans GROUP BY, ce n'est pas ce qu'on veut.",
-      "Non. Agrégat dans WHERE : erreur."
+      "Non. Sans GROUP BY, montant n'est pas agrégé : erreur.",
+      "Non. La sous-requête renvoie plusieurs valeurs : erreur."
     ],
     retenir: "Comparer à un agrégat global : sous-requête scalaire."
   },
@@ -1815,15 +1815,15 @@ LEARNSQL.questions.m02 = [
     id: "m02-q99", dialecte: "Snowflake",
     q: "Sur Snowflake, que fait WHERE nom ILIKE 'dupont' (sans joker) ?",
     choix: [
-      "Erreur : il faut un %",
-      "Une égalité qui ignore la casse : trouve Dupont, DUPONT…",
-      "Une égalité stricte",
-      "Cherche 'dupont' n'importe où"
+      "Erreur : ILIKE exige au moins un joker %",
+      "Une égalité qui ignore la casse",
+      "Une égalité stricte, sensible à la casse",
+      "Cherche 'dupont' n'importe où dans le nom"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les jokers sont facultatifs.",
-      "Oui. Sans joker, ILIKE = égalité insensible à la casse.",
+      "Oui. Sans joker, ILIKE = égalité insensible à la casse : trouve Dupont, DUPONT…",
       "Non. ILIKE ignore la casse.",
       "Non. Il faudrait '%dupont%'."
     ],
@@ -1834,16 +1834,16 @@ LEARNSQL.questions.m02 = [
     q: "Sur Snowflake, pourquoi WHERE date_cde >= '2026-01-01' est-il souvent plus efficace que WHERE YEAR(date_cde) >= 2026 ?",
     choix: [
       "Snowflake utilise un index sur date_cde",
-      "Snowflake connaît le min et le max de date_cde par micro-partition : il peut sauter des partitions entières",
-      "YEAR n'existe pas sur Snowflake",
-      "Aucune différence"
+      "Il peut sauter des micro-partitions entières",
+      "YEAR n'existe pas sur Snowflake : erreur",
+      "Il garde le résultat en cache plus longtemps"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake n'a pas d'index.",
-      "Oui. C'est le pruning. Une fonction sur la colonne peut le rendre moins efficace.",
+      "Oui. Snowflake connaît le min et le max de date_cde dans chaque micro-partition : c'est le pruning. Une fonction sur la colonne peut le rendre moins efficace.",
       "Non. YEAR existe.",
-      "Non. La différence peut être importante sur de grosses tables."
+      "Non. Le cache de résultats ne dépend pas de l'écriture du filtre."
     ],
     retenir: "Snowflake aussi aime les colonnes « nues » : meilleur pruning."
   }
