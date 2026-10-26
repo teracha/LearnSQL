@@ -23,15 +23,15 @@ LEARNSQL.questions.m01 = [
     q: "Sur SQL Server, que se passe-t-il ?",
     code: "SELECT prix * 1.2 AS prix_ttc\nFROM article\nWHERE prix_ttc > 100;",
     choix: [
-      "La requête fonctionne",
-      "Erreur : nom de colonne « prix_ttc » non valide",
-      "La requête renvoie 0 ligne",
-      "Le filtre est ignoré"
+      "La requête fonctionne et filtre sur le prix TTC",
+      "Erreur : prix_ttc est inconnu dans WHERE",
+      "Elle renvoie 0 ligne, sans message d'erreur",
+      "Le filtre est ignoré, toutes les lignes sortent"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. WHERE est traité avant SELECT. L'alias n'existe pas encore.",
-      "Oui. WHERE passe avant SELECT, donc l'alias prix_ttc est inconnu. Écris WHERE prix * 1.2 > 100.",
+      "Non. WHERE est traité avant SELECT : l'alias prix_ttc n'existe pas encore.",
+      "Oui. WHERE passe avant SELECT : SQL Server répond « nom de colonne non valide ». Écris WHERE prix * 1.2 > 100.",
       "Non. La requête ne s'exécute même pas : c'est une erreur.",
       "Non. SQL Server n'ignore jamais un filtre en silence."
     ],
@@ -97,10 +97,10 @@ LEARNSQL.questions.m01 = [
     id: "m01-q06", dialecte: "Standard",
     q: "Que renvoie SELECT TOP (5) * FROM commande; sans ORDER BY ?",
     choix: [
-      "Les 5 premières lignes insérées",
-      "Les 5 plus petites clés primaires",
+      "Les 5 premières lignes insérées dans la table",
+      "Les 5 plus petites valeurs de la clé primaire",
       "5 lignes, sans garantie sur lesquelles",
-      "Une erreur : ORDER BY est obligatoire"
+      "Une erreur : ORDER BY est obligatoire avec TOP"
     ],
     bonne: 2,
     pourquoi: [
@@ -133,17 +133,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q08", dialecte: "Standard",
     q: "Pourquoi éviter SELECT * dans une requête de production (vue, procédure, rapport) ?",
     choix: [
-      "C'est une erreur de syntaxe sur SQL Server",
-      "Il ramène des colonnes inutiles, et le résultat change si la table change",
-      "Il ne marche pas avec les jointures",
-      "Il trie les données au hasard"
+      "C'est une erreur de syntaxe dans les vues SQL Server",
+      "Il lit trop de colonnes et casse si la table change",
+      "Il ne marche pas quand la requête contient une jointure",
+      "Il renvoie les lignes dans un ordre différent à chaque fois"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SELECT * est valide partout.",
+      "Non. SELECT * est valide partout, y compris dans une vue.",
       "Oui. Plus de données lues et transférées. Et si on ajoute une colonne, ton rapport ou ton flux peut casser.",
-      "Non. SELECT * marche avec les jointures (il ramène toutes les colonnes de toutes les tables).",
-      "Non. Le tri n'a rien à voir avec SELECT *."
+      "Non. SELECT * marche avec les jointures : il ramène toutes les colonnes de toutes les tables.",
+      "Non. L'ordre dépend de ORDER BY, pas de SELECT *."
     ],
     retenir: "En production, liste les colonnes. SELECT * : seulement pour explorer."
   },
@@ -191,14 +191,14 @@ LEARNSQL.questions.m01 = [
     code: "SELECT client.nom\nFROM client AS c;",
     choix: [
       "Ça marche : client et c désignent la même table",
-      "Erreur : une fois l'alias posé, il faut écrire c.nom",
-      "Ça renvoie 0 ligne",
-      "Ça renvoie la colonne en double"
+      "Erreur : il faut écrire c.nom",
+      "Ça renvoie 0 ligne, car client.nom n'est pas trouvé",
+      "Ça renvoie la colonne nom deux fois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Dès qu'un alias est posé, le nom d'origine n'est plus reconnu dans la requête.",
-      "Oui. SQL Server répond que l'identificateur « client.nom » ne peut pas être lié. Utilise l'alias partout.",
+      "Oui. Une fois l'alias posé, SQL Server ne reconnaît plus « client.nom » : il ne peut pas être lié. Utilise l'alias partout.",
       "Non. La requête ne s'exécute pas : c'est une erreur.",
       "Non. La requête ne s'exécute pas."
     ],
@@ -227,16 +227,16 @@ LEARNSQL.questions.m01 = [
     id: "m01-q13", dialecte: "SQL Server",
     q: "Sur SQL Server, dans quel cas le point-virgule ; est-il obligatoire ?",
     choix: [
-      "Après chaque SELECT",
-      "Jamais",
-      "À la fin de l'instruction qui précède un WITH (CTE)",
+      "Après chaque SELECT, sinon erreur",
+      "Jamais : il est toujours facultatif",
+      "Juste avant un WITH (CTE)",
       "Seulement dans les procédures stockées"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Il est conseillé, mais pas obligatoire après un simple SELECT.",
-      "Non. Il y a des cas obligatoires.",
-      "Oui. Sinon SQL Server croit que WITH fait partie de l'instruction d'avant. MERGE doit aussi finir par ;.",
+      "Non. Il y a des cas où il est obligatoire.",
+      "Oui. L'instruction qui précède un WITH doit finir par ; sinon SQL Server croit que WITH en fait partie. MERGE doit aussi finir par ;.",
       "Non. Les règles sont les mêmes partout."
     ],
     retenir: "Prends l'habitude de finir chaque instruction par ; : tu évites les pièges du WITH et du MERGE."
@@ -265,16 +265,16 @@ LEARNSQL.questions.m01 = [
     q: "Comment ces lignes sont-elles triées ?",
     code: "ORDER BY pays ASC, ca DESC",
     choix: [
-      "Par ca décroissant seulement",
-      "Par pays, puis, pour un même pays, par ca décroissant",
-      "Par ca, puis par pays",
+      "Par ca décroissant, le pays ne sert qu'à l'affichage",
+      "Par pays, puis par ca décroissant à l'intérieur de chaque pays",
+      "Par ca décroissant, puis par pays en cas d'égalité",
       "Erreur : un seul sens de tri par requête"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La première colonne du ORDER BY est prioritaire.",
       "Oui. Le 2e critère sert seulement à départager les lignes du même pays.",
-      "Non. L'ordre des colonnes dans ORDER BY compte.",
+      "Non. L'ordre des colonnes dans ORDER BY compte : pays d'abord.",
       "Non. Chaque colonne a son propre sens de tri."
     ],
     retenir: "ORDER BY a, b : tri sur a d'abord. b sert seulement en cas d'égalité sur a."
@@ -283,17 +283,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q16", dialecte: "SQL Server + Snowflake",
     q: "Tu fais ORDER BY date_livraison ASC. Où sont placées les lignes où date_livraison est NULL ?",
     choix: [
-      "En premier sur SQL Server, en dernier sur Snowflake",
-      "En dernier partout",
-      "En premier partout",
-      "Elles sont exclues du résultat"
+      "En tête sur SQL Server, à la fin sur Snowflake",
+      "En fin de résultat sur les deux moteurs",
+      "En tête de résultat sur les deux moteurs",
+      "En fin sur SQL Server, en tête sur Snowflake"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. SQL Server considère NULL comme la plus petite valeur. Snowflake, comme la plus grande. Sur Snowflake, tu peux forcer avec NULLS FIRST / NULLS LAST.",
       "Non. C'est vrai sur Snowflake seulement.",
       "Non. C'est vrai sur SQL Server seulement.",
-      "Non. ORDER BY ne supprime jamais de lignes."
+      "Non. C'est l'inverse : SQL Server traite NULL comme la plus petite valeur."
     ],
     retenir: "Tri en ASC : les NULL sont en tête sur SQL Server, en fin sur Snowflake."
   },
@@ -360,7 +360,7 @@ LEARNSQL.questions.m01 = [
     choix: [
       "Oui, sur SQL Server et sur Snowflake",
       "Non, FROM est toujours obligatoire",
-      "Seulement avec FROM DUAL",
+      "Seulement avec FROM DUAL, comme sur Oracle",
       "Seulement sur SQL Server"
     ],
     bonne: 0,
@@ -433,15 +433,15 @@ LEARNSQL.questions.m01 = [
     q: "Que renvoie cette requête sur une table de 50 clients ?",
     code: "SELECT 'FR' AS pays, nom\nFROM client;",
     choix: [
-      "1 ligne avec 'FR'",
-      "50 lignes, avec 'FR' dans la colonne pays de chacune",
-      "Les clients dont le pays est FR",
-      "Erreur : la colonne pays n'existe pas"
+      "1 seule ligne, avec 'FR' et un nom",
+      "50 lignes, avec 'FR' sur chacune",
+      "Seulement les clients dont le pays vaut 'FR'",
+      "Erreur : la colonne pays n'existe pas dans client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il y a une ligne par client.",
-      "Oui. Une valeur fixe est répétée sur chaque ligne. Pratique pour marquer la source d'une donnée.",
+      "Oui. Une valeur fixe est répétée sur chaque ligne, dans la colonne pays. Pratique pour marquer la source d'une donnée.",
       "Non. Ce n'est pas un filtre. Le filtre se met dans WHERE.",
       "Non. On crée la colonne avec un alias. Pas besoin qu'elle existe."
     ],
@@ -471,15 +471,15 @@ LEARNSQL.questions.m01 = [
     q: "Que se passe-t-il sur SQL Server ?",
     code: "SELECT DISTINCT ville\nFROM client\nORDER BY nom;",
     choix: [
-      "Les villes sont triées par nom de client",
-      "Erreur : avec DISTINCT, la colonne du ORDER BY doit être dans le SELECT",
-      "Le ORDER BY est ignoré",
-      "Les villes sont en double"
+      "Les villes, triées selon le nom du premier client",
+      "Erreur : nom doit être dans le SELECT",
+      "Les villes, sans tri : le ORDER BY est ignoré",
+      "Les villes en double, une par client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une ville peut avoir plusieurs clients : quel nom prendre pour trier ? Le moteur ne peut pas choisir.",
-      "Oui. Sans DISTINCT, trier sur une colonne absente du SELECT est permis. Avec DISTINCT, non.",
+      "Oui. Avec DISTINCT, on ne peut trier que sur des colonnes du SELECT. Sans DISTINCT, ce serait permis.",
       "Non. SQL Server n'ignore pas un tri.",
       "Non. La requête ne s'exécute pas."
     ],
@@ -508,17 +508,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q28", dialecte: "Standard",
     q: "select nom from client; et SELECT nom FROM client; donnent-ils le même résultat ?",
     choix: [
-      "Oui, les mots-clés SQL ne tiennent pas compte de la casse",
+      "Oui, la casse des mots-clés n'a pas d'importance",
       "Non, les mots-clés doivent être en majuscules",
-      "Seulement sur SQL Server",
-      "Seulement sur Snowflake"
+      "Seulement sur SQL Server, pas sur Snowflake",
+      "Seulement sur Snowflake, pas sur SQL Server"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Majuscules ou minuscules : même chose pour les mots-clés. Les majuscules aident juste à la lecture.",
       "Non. Ce n'est qu'une convention de lisibilité.",
-      "Non. C'est vrai partout.",
-      "Non. C'est vrai partout."
+      "Non. C'est vrai sur les deux.",
+      "Non. C'est vrai sur les deux."
     ],
     retenir: "Mots-clés : casse libre. Convention courante : mots-clés en MAJUSCULES."
   },
@@ -530,7 +530,7 @@ LEARNSQL.questions.m01 = [
       "Rien, SQL Server convertit 69110 en texte",
       "Une erreur de conversion, à cause de '2A004'",
       "Elle renvoie 0 ligne",
-      "Elle ignore les codes avec des lettres"
+      "Elle ignore les codes qui contiennent des lettres"
     ],
     bonne: 1,
     pourquoi: [
@@ -564,10 +564,10 @@ LEARNSQL.questions.m01 = [
     id: "m01-q31", dialecte: "Standard",
     q: "Dans l'ordre logique, à quel moment DISTINCT est-il appliqué ?",
     choix: [
-      "Avant WHERE",
-      "Juste après FROM",
+      "Avant WHERE, sur toutes les lignes",
+      "Juste après FROM, avant le filtre",
       "Après SELECT, avant ORDER BY",
-      "Après ORDER BY"
+      "Après ORDER BY, juste avant TOP"
     ],
     bonne: 2,
     pourquoi: [
@@ -620,17 +620,17 @@ LEARNSQL.questions.m01 = [
     q: "Tu veux afficher d'abord les commandes 'URGENT', puis les autres, triées par date. Quelle écriture ?",
     choixCode: true,
     choix: [
-      "ORDER BY statut = 'URGENT', date_cde",
+      "ORDER BY IIF(statut = 'URGENT', 1, 0), date_cde",
       "ORDER BY CASE WHEN statut = 'URGENT' THEN 0 ELSE 1 END, date_cde",
-      "ORDER BY 'URGENT', date_cde",
-      "ORDER BY statut DESC, date_cde"
+      "ORDER BY CASE statut WHEN 'URGENT' THEN 1 ELSE 0 END, date_cde",
+      "ORDER BY date_cde, CASE statut WHEN 'URGENT' THEN 0 ELSE 1 END"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SQL Server refuse (erreur). Snowflake l'accepte, mais trie FALSE avant TRUE : les urgentes seraient à la fin.",
+      "Non. Les urgentes valent 1 : en tri croissant, elles passent après les autres. (Et IIF n'existe pas sur Snowflake, qui a IFF.)",
       "Oui. Le CASE donne 0 aux urgentes, 1 aux autres. On trie sur ce chiffre, puis sur la date.",
-      "Non. Une constante ne trie rien : toutes les lignes ont la même valeur.",
-      "Non. Ça trie par ordre alphabétique inverse des statuts. 'URGENT' ne sera pas forcément en premier."
+      "Non. Les urgentes valent 1 : en tri croissant, elles passent à la fin.",
+      "Non. Le tri se fait d'abord sur la date : le CASE ne sert qu'à départager les commandes du même jour."
     ],
     retenir: "Ordre personnalisé : ORDER BY CASE WHEN … THEN 0 ELSE 1 END."
   },
@@ -640,14 +640,14 @@ LEARNSQL.questions.m01 = [
     code: "SELECT client_id, SUM(montant) AS total\nFROM commande\nGROUP BY client_id\nORDER BY total * 2 DESC;",
     choix: [
       "Elle marche : l'alias est permis dans ORDER BY",
-      "Erreur : l'alias n'est accepté dans ORDER BY que seul, pas dans un calcul",
-      "Elle trie par client_id",
-      "Elle double les montants"
+      "Erreur : total est inconnu dans ce calcul",
+      "Elle trie par client_id, car total est ignoré",
+      "Elle affiche des totaux multipliés par deux"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Piège : l'alias marche seul (ORDER BY total), mais pas dans une expression.",
-      "Oui. SQL Server répond : nom de colonne « total » non valide. Écris ORDER BY SUM(montant) * 2.",
+      "Oui. Dans ORDER BY, SQL Server accepte l'alias seul, mais pas dans un calcul : « nom de colonne total non valide ». Écris ORDER BY SUM(montant) * 2.",
       "Non. La requête ne s'exécute pas.",
       "Non. ORDER BY ne modifie jamais les valeurs affichées."
     ],
@@ -677,16 +677,16 @@ LEARNSQL.questions.m01 = [
     q: "Il manque une virgule. Que renvoie cette requête ?",
     code: "SELECT nom ville\nFROM client;",
     choix: [
-      "Une erreur de syntaxe",
-      "Deux colonnes : nom et ville",
-      "Une seule colonne, appelée « ville », qui contient les noms",
-      "Une seule colonne : ville"
+      "Une erreur de syntaxe : virgule manquante",
+      "Deux colonnes : nom, puis ville",
+      "Une colonne « ville » qui contient les noms",
+      "Une seule colonne ville, qui contient les villes"
     ],
     bonne: 2,
     pourquoi: [
       "Non. C'est valide, et c'est bien là le piège.",
       "Non. Sans virgule, il n'y a qu'une colonne.",
-      "Oui. Sans virgule, « ville » devient l'alias de nom (le AS est facultatif). Aucune erreur pour te prévenir.",
+      "Oui. Sans virgule, « ville » devient l'alias de nom (AS est facultatif). Aucune erreur pour te prévenir.",
       "Non. La colonne s'appelle ville, mais elle contient les noms."
     ],
     retenir: "Une virgule oubliée transforme une colonne en alias. Écris toujours AS pour les alias."
@@ -768,7 +768,7 @@ LEARNSQL.questions.m01 = [
     q: "Sur Snowflake, quelle expression colle 'CDE-' et num_cde (texte) ?",
     choixCode: true,
     choix: [
-      "'CDE-' + num_cde",
+      "'CDE-' + TRIM(num_cde)",
       "'CDE-' || num_cde",
       "'CDE-' & num_cde",
       "'CDE-' . num_cde"
@@ -786,17 +786,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q43", dialecte: "SQL Server + Snowflake",
     q: "Tu veux créer une nouvelle table à partir d'une requête. Quelle syntaxe pour chaque moteur ?",
     choix: [
-      "SELECT … INTO nouvelle_table sur les deux",
-      "SELECT … INTO sur SQL Server, CREATE TABLE … AS SELECT sur Snowflake",
-      "CREATE TABLE … AS SELECT sur les deux",
-      "INSERT INTO nouvelle_table sur les deux"
+      "SELECT … INTO nouvelle_table, sur les deux moteurs",
+      "SELECT … INTO (SQL Server), CREATE TABLE AS (Snowflake)",
+      "CREATE TABLE … AS SELECT, sur les deux moteurs",
+      "CREATE TABLE AS (SQL Server), SELECT INTO (Snowflake)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake ne crée pas de table avec SELECT INTO.",
       "Oui. SQL Server : SELECT … INTO t FROM … Snowflake : CREATE TABLE t AS SELECT … (CTAS).",
       "Non. SQL Server ne connaît pas CREATE TABLE AS SELECT.",
-      "Non. INSERT INTO suppose que la table existe déjà."
+      "Non. C'est l'inverse."
     ],
     retenir: "Créer une table depuis une requête : SELECT INTO (SQL Server), CTAS (Snowflake)."
   },
@@ -804,16 +804,16 @@ LEARNSQL.questions.m01 = [
     id: "m01-q44", dialecte: "SQL Server",
     q: "La table client_2026 existe déjà. Que fait SELECT * INTO client_2026 FROM client; ?",
     choix: [
-      "Elle ajoute les lignes à la table",
-      "Elle remplace la table",
-      "Erreur : un objet nommé client_2026 existe déjà",
-      "Elle ne fait rien"
+      "Elle ajoute les lignes à la suite de la table",
+      "Elle remplace l'ancienne table par la nouvelle",
+      "Erreur : la table existe déjà",
+      "Elle ne fait rien et n'affiche aucun message"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Pour ajouter, il faut INSERT INTO … SELECT.",
       "Non. SQL Server ne remplace jamais une table en silence.",
-      "Oui. SELECT INTO crée toujours une NOUVELLE table.",
+      "Oui. SELECT INTO crée toujours une NOUVELLE table. Message : « Un objet nommé client_2026 existe déjà ».",
       "Non. Il y a une erreur."
     ],
     retenir: "SELECT INTO = créer. INSERT INTO … SELECT = ajouter."
@@ -880,28 +880,27 @@ LEARNSQL.questions.m01 = [
     choixCode: true,
     choix: [
       "ORDER BY id LIMIT 10 OFFSET 20",
-      "ORDER BY id LIMIT 20, 10",
-      "ORDER BY id LIMIT 30",
-      "ORDER BY id OFFSET 30"
+      "ORDER BY id LIMIT 10 OFFSET 30",
+      "ORDER BY id LIMIT 30 OFFSET 20",
+      "ORDER BY id LIMIT 20 OFFSET 10"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. LIMIT = combien de lignes, OFFSET = combien en sauter.",
-      "Non. C'est la syntaxe de MySQL.",
-      "Non. Ça renvoie les 30 premières lignes.",
-      "Non. Ça saute 30 lignes et renvoie tout le reste."
+      "Non. On saute 30 lignes : on obtient les lignes 31 à 40.",
+      "Non. Ça renvoie 30 lignes : de la 21e à la 50e.",
+      "Non. On saute 10 lignes et on en prend 20 : lignes 11 à 30."
     ],
     retenir: "Snowflake : LIMIT n OFFSET m. SQL Server : OFFSET m ROWS FETCH NEXT n ROWS ONLY."
   },
   {
     id: "m01-q49", dialecte: "Standard",
     q: "La pagination avec OFFSET 500000 est lente. Quelle technique est plus rapide sur de grosses tables ?",
-    choixCode: true,
     choix: [
-      "Augmenter OFFSET par pas de 1 000",
-      "WHERE id > @dernier_id_vu ORDER BY id + TOP / LIMIT",
-      "Ajouter DISTINCT",
-      "Retirer ORDER BY"
+      "Augmenter OFFSET par pas de 1 000 lignes à la fois",
+      "WHERE id > @dernier_id_vu ORDER BY id, avec TOP ou LIMIT",
+      "Ajouter DISTINCT pour réduire le nombre de lignes lues",
+      "Retirer ORDER BY pour éviter le tri des 500 000 lignes"
     ],
     bonne: 1,
     pourquoi: [
@@ -934,15 +933,15 @@ LEARNSQL.questions.m01 = [
     id: "m01-q51", dialecte: "Standard",
     q: "id est la clé primaire de client. Que change le DISTINCT dans SELECT DISTINCT id, nom FROM client ?",
     choix: [
-      "Il supprime les clients en double",
-      "Rien : chaque ligne est déjà unique grâce à id",
-      "Il supprime les noms en double",
-      "Il trie par id"
+      "Il supprime les clients enregistrés en double",
+      "Rien : chaque ligne est déjà unique",
+      "Il supprime les clients qui ont le même nom",
+      "Il trie les clients par id croissant"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La clé primaire rend déjà chaque ligne unique.",
-      "Oui. Un DISTINCT avec une clé unique ne retire rien. Il coûte juste du temps.",
+      "Oui. id est unique, donc chaque ligne aussi. Le DISTINCT ne retire rien : il coûte juste du temps.",
       "Non. DISTINCT porte sur id + nom ensemble.",
       "Non. DISTINCT ne garantit aucun tri."
     ],
@@ -970,17 +969,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q53", dialecte: "SQL Server",
     q: "Dans un script SSMS, que fait GO ?",
     choix: [
-      "Il exécute la requête la plus rapide",
-      "Il sépare le script en lots. Ce n'est pas une instruction SQL",
-      "Il valide la transaction",
-      "Il lance le script en arrière-plan"
+      "Il exécute le script plus vite, en parallèle",
+      "Il découpe le script en lots",
+      "Il valide la transaction en cours (COMMIT)",
+      "Il lance la suite du script en arrière-plan"
     ],
     bonne: 1,
     pourquoi: [
       "Non. GO n'a aucun lien avec la vitesse.",
-      "Oui. SSMS et sqlcmd coupent le script à chaque GO. Les variables déclarées avant GO n'existent plus après.",
+      "Oui. GO n'est pas du SQL : SSMS et sqlcmd coupent le script à chaque GO. Les variables déclarées avant GO n'existent plus après.",
       "Non. C'est COMMIT qui valide.",
-      "Non."
+      "Non. Le script s'exécute normalement, lot par lot."
     ],
     retenir: "GO = séparateur de lots de l'outil. Une variable ne traverse pas un GO."
   },
@@ -988,10 +987,10 @@ LEARNSQL.questions.m01 = [
     id: "m01-q54", dialecte: "SQL Server",
     q: "Que fait USE Ventes; sur SQL Server ?",
     choix: [
-      "Il crée la base Ventes",
-      "Il fait de Ventes la base courante pour la suite",
-      "Il donne les droits sur Ventes",
-      "Il sauvegarde Ventes"
+      "Il crée la base Ventes si elle n'existe pas",
+      "Il choisit Ventes comme base courante",
+      "Il donne à l'utilisateur les droits sur Ventes",
+      "Il fait une sauvegarde de la base Ventes"
     ],
     bonne: 1,
     pourquoi: [
@@ -1006,15 +1005,15 @@ LEARNSQL.questions.m01 = [
     id: "m01-q55", dialecte: "SQL Server",
     q: "Pourquoi écrire dbo.client plutôt que client ?",
     choix: [
-      "C'est obligatoire, sinon erreur",
-      "Pour éviter toute ambiguïté si plusieurs schémas ont une table client, et aider SQL Server à réutiliser les plans",
-      "Pour rendre la requête plus rapide à écrire",
-      "Pour verrouiller la table"
+      "C'est obligatoire, sinon SQL Server renvoie une erreur",
+      "Pour lever toute ambiguïté sur la table visée",
+      "Pour que la requête soit plus courte à écrire",
+      "Pour poser un verrou sur la table pendant la lecture"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sans schéma, SQL Server cherche dans le schéma par défaut de l'utilisateur, puis dans dbo.",
-      "Oui. Avec le schéma, il n'y a aucun doute sur la table visée.",
+      "Oui. Plusieurs schémas peuvent avoir une table client (dbo, stg). Avec le schéma, aucun doute, et SQL Server réutilise mieux les plans.",
       "Non. C'est plus long à écrire.",
       "Non. Le nom ne pose aucun verrou."
     ],
@@ -1024,17 +1023,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q56", dialecte: "SQL Server",
     q: "Que désigne SRV_ERP.Divalto.dbo.article ?",
     choix: [
-      "Une colonne",
-      "La table article du schéma dbo, dans la base Divalto, sur le serveur lié SRV_ERP",
-      "Un fichier",
-      "Une procédure"
+      "La colonne article de la table dbo, base Divalto",
+      "La table article, sur le serveur lié SRV_ERP",
+      "Un fichier article exporté depuis le serveur SRV_ERP",
+      "La procédure article de la base Divalto"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Il y a 4 parties : serveur.base.schéma.table.",
-      "Oui. Nom en 4 parties : on lit une table sur un autre serveur (serveur lié). Souvent lent sur de gros volumes.",
-      "Non.",
-      "Non. Ce serait appelé avec EXEC."
+      "Non. Il y a 4 parties : serveur.base.schéma.table. Pas de colonne ici.",
+      "Oui. Nom en 4 parties : serveur.base.schéma.table. On lit la table de la base Divalto (schéma dbo) sur un autre serveur. Souvent lent sur de gros volumes.",
+      "Non. SQL Server ne lit pas un fichier avec ce nom.",
+      "Non. Une procédure s'appelle avec EXEC."
     ],
     retenir: "serveur.base.schéma.table : accès à un serveur lié."
   },
@@ -1079,17 +1078,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q59", dialecte: "Snowflake",
     q: "Sur Snowflake, tu crées la table avec CREATE TABLE Client (…) (sans guillemets). Que donne SELECT * FROM \"Client\" ?",
     choix: [
-      "Ça marche",
-      "Erreur : la table « Client » n'existe pas",
-      "Ça renvoie 0 ligne",
-      "Ça crée une copie"
+      "Ça marche : Snowflake ignore la casse des noms",
+      "Erreur : la table « Client » est introuvable",
+      "Ça renvoie 0 ligne, car la casse ne correspond pas",
+      "Ça crée une copie de la table nommée « Client »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sans guillemets à la création, le nom a été stocké en MAJUSCULES : CLIENT.",
       "Oui. Avec des guillemets, Snowflake cherche exactement « Client ». Écris FROM client (sans guillemets).",
-      "Non. La table n'est pas trouvée.",
-      "Non."
+      "Non. La table n'est pas trouvée : c'est une erreur.",
+      "Non. Un SELECT ne crée rien."
     ],
     retenir: "Snowflake : sans guillemets → MAJUSCULES. Ne mélange pas les deux styles."
   },
@@ -1097,17 +1096,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q60", dialecte: "Standard",
     q: "Quel est le type de la colonne dans SELECT '2026-10-26' AS d; ?",
     choix: [
-      "DATE",
+      "DATE, car le format est reconnu",
       "Texte (VARCHAR)",
-      "DATETIME",
-      "Nombre"
+      "DATETIME, à minuit",
+      "Nombre entier"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le moteur ne devine pas que c'est une date.",
       "Oui. Entre apostrophes, c'est du texte. Pour une date : CAST('2026-10-26' AS date).",
-      "Non.",
-      "Non."
+      "Non. Aucune conversion n'est faite.",
+      "Non. Les apostrophes en font un texte."
     ],
     retenir: "Une valeur entre apostrophes est un texte, même si elle ressemble à une date."
   },
@@ -1151,15 +1150,15 @@ LEARNSQL.questions.m01 = [
     id: "m01-q63", dialecte: "SQL Server",
     q: "Tu crées une vue avec SELECT TOP 100 PERCENT … ORDER BY nom. Un rapport fait SELECT * FROM la_vue. Est-il trié par nom ?",
     choix: [
-      "Oui, toujours",
-      "Non, pas garanti : le tri doit être dans la requête finale",
-      "Oui, si la vue a un index",
-      "Erreur : TOP interdit dans une vue"
+      "Oui, toujours : l'ORDER BY de la vue s'applique",
+      "Non, le tri n'est pas garanti",
+      "Oui, à condition que la vue ait un index",
+      "Erreur : TOP est interdit dans une vue"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Vieille astuce trompeuse : l'optimiseur peut ignorer ce tri.",
-      "Oui. Une vue n'a pas d'ordre. Mets l'ORDER BY dans la requête qui lit la vue.",
+      "Oui. Une vue n'a pas d'ordre : l'optimiseur peut ignorer ce tri. Mets l'ORDER BY dans la requête qui lit la vue.",
       "Non. L'index ne garantit pas l'ordre du résultat.",
       "Non. TOP est permis, c'est même le seul moyen d'y mettre un ORDER BY."
     ],
@@ -1187,17 +1186,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q65", dialecte: "SQL Server + Snowflake",
     q: "Tu veux 5 commandes tirées au hasard. Quelle écriture pour chaque moteur ?",
     choix: [
-      "TOP (5) … ORDER BY NEWID() sur SQL Server ; ORDER BY RANDOM() LIMIT 5 sur Snowflake",
-      "TOP (5) sans ORDER BY partout",
-      "ORDER BY 5 partout",
-      "ORDER BY RAND() partout"
+      "ORDER BY NEWID() sur SQL Server, RANDOM() sur Snowflake",
+      "TOP (5) ou LIMIT 5, sans ORDER BY, sur les deux",
+      "RAND() sur SQL Server, RANDOM() sur Snowflake",
+      "ORDER BY 5 sur les deux moteurs"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. NEWID() donne une valeur aléatoire par ligne. Snowflake : RANDOM(). Attention : trie toute la table.",
+      "Oui. SQL Server : TOP (5) … ORDER BY NEWID(). Snowflake : ORDER BY RANDOM() LIMIT 5. Attention : ça trie toute la table.",
       "Non. Sans ORDER BY, ce n'est pas aléatoire : souvent toujours les mêmes lignes.",
-      "Non. Ça trie sur la 5e colonne.",
-      "Non. Sur SQL Server, RAND() donne la même valeur à toutes les lignes."
+      "Non. Sur SQL Server, RAND() donne la même valeur à toutes les lignes : aucun mélange.",
+      "Non. Ça trie sur la 5e colonne."
     ],
     retenir: "Hasard : ORDER BY NEWID() (SQL Server), ORDER BY RANDOM() ou SAMPLE (Snowflake)."
   },
@@ -1205,9 +1204,9 @@ LEARNSQL.questions.m01 = [
     id: "m01-q66", dialecte: "Snowflake",
     q: "Sur Snowflake, que fait SELECT * FROM commande SAMPLE (100 ROWS); ?",
     choix: [
-      "Les 100 premières lignes insérées",
+      "Les 100 premières lignes insérées dans la table",
       "Un échantillon aléatoire de 100 lignes",
-      "100 % des lignes",
+      "Toutes les lignes, soit 100 %",
       "Une erreur"
     ],
     bonne: 1,
@@ -1242,17 +1241,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q68", dialecte: "SQL Server",
     q: "Une requête lit 1 million de lignes et affiche GETDATE() sur chacune. Les valeurs sont-elles toutes identiques ?",
     choix: [
-      "Oui, GETDATE() est calculé une seule fois pour la requête",
+      "Oui, GETDATE() est calculé une seule fois par requête",
       "Non, chaque ligne a l'heure exacte de sa lecture",
       "Seulement si la requête dure moins d'une seconde",
-      "Non, c'est aléatoire"
+      "Non, la valeur change à chaque bloc de lignes lu"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. GETDATE() est évalué une fois par requête. (NEWID(), lui, change à chaque ligne.)",
       "Non. Ce serait incohérent pour un horodatage de chargement.",
       "Non. La durée ne change rien.",
-      "Non."
+      "Non. GETDATE() n'est calculé qu'une fois."
     ],
     retenir: "GETDATE() = même valeur pour toutes les lignes d'une requête."
   },
@@ -1260,14 +1259,14 @@ LEARNSQL.questions.m01 = [
     id: "m01-q69", dialecte: "SQL Server",
     q: "À quoi sert SELECT TOP (0) * FROM commande; ?",
     choix: [
-      "À rien, c'est une erreur",
-      "À voir les colonnes de la table, sans lire de données",
-      "À vider la table",
-      "À compter les lignes"
+      "À rien : c'est une erreur, TOP doit être positif",
+      "À voir les colonnes, sans lire de données",
+      "À vider la table sans la supprimer",
+      "À compter les lignes sans les afficher"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est valide.",
+      "Non. TOP (0) est valide.",
       "Oui. Le résultat est vide, mais les en-têtes de colonnes s'affichent. Rapide, même sur une énorme table.",
       "Non. SELECT ne modifie rien.",
       "Non. Pour compter : COUNT(*)."
@@ -1279,17 +1278,17 @@ LEARNSQL.questions.m01 = [
     q: "Quelle vue système liste les colonnes d'une table, sur SQL Server ET sur Snowflake ?",
     choixCode: true,
     choix: [
-      "sys.columns",
+      "sys.all_columns",
       "INFORMATION_SCHEMA.COLUMNS",
-      "SHOW COLUMNS",
-      "sp_columns"
+      "SNOWFLAKE.ACCOUNT_USAGE.COLUMNS",
+      "INFORMATION_SCHEMA.FIELDS"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. sys.columns existe seulement sur SQL Server.",
+      "Non. Cette vue existe seulement sur SQL Server.",
       "Oui. INFORMATION_SCHEMA est standard : WHERE TABLE_NAME = 'COMMANDE' (en majuscules sur Snowflake).",
-      "Non. SHOW COLUMNS est une commande Snowflake seulement.",
-      "Non. sp_columns est propre à SQL Server."
+      "Non. Cette vue existe seulement sur Snowflake (et avec un délai de mise à jour).",
+      "Non. Cette vue n'existe pas."
     ],
     retenir: "INFORMATION_SCHEMA.COLUMNS : portable pour lire la structure."
   },
@@ -1297,17 +1296,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q71", dialecte: "SQL Server + Snowflake",
     q: "Pour voir rapidement la structure d'une table, quelle commande va avec quel moteur ?",
     choix: [
-      "sp_help 'dbo.client' sur SQL Server ; DESCRIBE TABLE client sur Snowflake",
-      "DESCRIBE TABLE sur les deux",
-      "sp_help sur les deux",
-      "SHOW CREATE sur les deux"
+      "sp_help sur SQL Server, DESCRIBE TABLE client sur Snowflake",
+      "DESCRIBE TABLE sur SQL Server et sur Snowflake",
+      "sp_help sur SQL Server et sur Snowflake",
+      "DESCRIBE TABLE sur SQL Server, sp_help sur Snowflake"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. sp_help est une procédure système SQL Server. DESCRIBE (ou DESC) est une commande Snowflake.",
       "Non. SQL Server ne connaît pas DESCRIBE.",
       "Non. Snowflake n'a pas sp_help.",
-      "Non. Ce n'est pas la syntaxe de ces moteurs."
+      "Non. C'est l'inverse."
     ],
     retenir: "Structure : sp_help (SQL Server), DESCRIBE TABLE (Snowflake)."
   },
@@ -1317,9 +1316,9 @@ LEARNSQL.questions.m01 = [
     code: "SELECT *\nFROM (VALUES (1, 'FR'), (2, 'BE')) AS t(id, pays);",
     choix: [
       "Une erreur : VALUES sert seulement à INSERT",
-      "Une petite table de 2 lignes, avec les colonnes id et pays",
-      "La valeur 1 seulement",
-      "Les clients de FR et BE"
+      "Une table de 2 lignes, avec id et pays",
+      "Une seule ligne, avec les valeurs 1 et 'FR'",
+      "Les clients dont le pays est FR ou BE"
     ],
     bonne: 1,
     pourquoi: [
@@ -1334,15 +1333,15 @@ LEARNSQL.questions.m01 = [
     id: "m01-q73", dialecte: "Standard",
     q: "Dans SELECT TOP (10) … FROM commande WHERE pays = 'FR' ORDER BY montant DESC, que se passe-t-il en premier ?",
     choix: [
-      "TOP prend 10 lignes, puis WHERE filtre",
-      "WHERE filtre, puis tri, puis TOP prend les 10 premières",
-      "Le tri, puis WHERE, puis TOP",
-      "Ça dépend du nombre de lignes"
+      "TOP prend 10 lignes, puis WHERE garde les FR",
+      "WHERE filtre, puis tri, puis TOP (10)",
+      "Le tri d'abord, puis WHERE, puis TOP",
+      "Ça dépend du nombre de lignes de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sinon on pourrait obtenir moins de 10 lignes FR.",
-      "Oui. Les 10 plus grosses commandes françaises.",
+      "Oui. Filtre, tri, puis on garde les 10 premières : les 10 plus grosses commandes françaises.",
       "Non. WHERE passe avant le tri.",
       "Non. L'ordre logique est fixe."
     ],
@@ -1389,10 +1388,10 @@ LEARNSQL.questions.m01 = [
     id: "m01-q76", dialecte: "SQL Server",
     q: "Tu crées une vue : SELECT * FROM commande co JOIN client cl ON cl.id = co.client_id. Les deux tables ont une colonne id. Que se passe-t-il ?",
     choix: [
-      "La vue est créée avec deux colonnes id",
-      "Erreur : la colonne id est présente plusieurs fois",
-      "La 2e colonne id est renommée id1",
-      "Seul le premier id est gardé"
+      "La vue est créée, avec deux colonnes id",
+      "Erreur : la colonne id apparaît plusieurs fois",
+      "La vue est créée, et le 2e id est renommé id1",
+      "La vue est créée, mais seul le premier id est gardé"
     ],
     bonne: 1,
     pourquoi: [
@@ -1425,17 +1424,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q78", dialecte: "Standard",
     q: "Les retours à la ligne et les espaces dans une requête changent-ils le résultat ?",
     choix: [
-      "Oui",
+      "Oui, un retour à la ligne termine l'instruction",
       "Non, ils servent seulement à la lisibilité",
-      "Oui, sur SQL Server",
-      "Oui, après WHERE"
+      "Oui, sur SQL Server seulement",
+      "Oui, s'ils sont placés après WHERE"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. En dehors des textes entre apostrophes, ils sont ignorés.",
+      "Non. En dehors des textes entre apostrophes, ils sont ignorés. C'est le ; qui termine l'instruction.",
       "Oui. Profites-en : une clause par ligne, c'est plus lisible.",
-      "Non.",
-      "Non."
+      "Non. C'est pareil partout.",
+      "Non. Leur place ne change rien."
     ],
     retenir: "Mise en forme libre : utilise-la pour être lisible."
   },
@@ -1461,17 +1460,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q80", dialecte: "Snowflake",
     q: "Sur Snowflake, SELECT * FROM commande LIMIT 10; (sans ORDER BY) renvoie-t-il toujours les mêmes lignes ?",
     choix: [
-      "Oui",
+      "Oui, toujours les mêmes",
       "Non, aucun ordre n'est garanti",
-      "Oui, les 10 plus anciennes",
-      "Oui, les 10 plus récentes"
+      "Oui, les 10 lignes les plus anciennes",
+      "Oui, les 10 lignes chargées en dernier"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Comme sur SQL Server, sans ORDER BY, aucun ordre n'est garanti.",
       "Oui. Bien pour jeter un œil aux données. Pas pour un rapport.",
-      "Non.",
-      "Non."
+      "Non. Sans ORDER BY, rien ne garantit les plus anciennes.",
+      "Non. Rien ne garantit les plus récentes."
     ],
     retenir: "LIMIT sans ORDER BY = lignes quelconques."
   },
@@ -1479,17 +1478,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q81", dialecte: "SQL Server",
     q: "Que donne SELECT TOP (5) WITH TIES * FROM commande; (sans ORDER BY) ?",
     choix: [
-      "5 lignes",
-      "Toutes les lignes",
+      "5 lignes, choisies au hasard",
+      "Toutes les lignes, car tout le monde est ex aequo",
       "Erreur : WITH TIES exige un ORDER BY",
-      "0 ligne"
+      "0 ligne, car aucun tri n'est donné"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Sans tri, impossible de savoir qui est ex aequo.",
-      "Non.",
+      "Non. Sans tri, impossible de savoir qui est ex aequo : c'est une erreur.",
+      "Non. Sans ORDER BY, il n'y a pas d'ex aequo à calculer : c'est une erreur.",
       "Oui. WITH TIES compare les valeurs du ORDER BY. Sans ORDER BY : erreur.",
-      "Non."
+      "Non. Il y a une erreur, pas un résultat vide."
     ],
     retenir: "WITH TIES = ORDER BY obligatoire."
   },
@@ -1515,17 +1514,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q83", dialecte: "Standard",
     q: "L'ordre logique (FROM → WHERE → …) est-il l'ordre réel dans lequel le serveur travaille ?",
     choix: [
-      "Oui, exactement",
-      "Non : c'est l'ordre qui définit le résultat. L'optimiseur peut travailler autrement, avec le même résultat",
-      "Non, c'est l'ordre d'écriture",
-      "Ça dépend du jour"
+      "Oui, le serveur suit exactement cet ordre",
+      "Non : il définit le sens du résultat, pas le travail réel",
+      "Non, le serveur suit l'ordre d'écriture de la requête",
+      "Oui, sauf si la requête contient une jointure"
     ],
     bonne: 1,
     pourquoi: [
       "Non. L'optimiseur réorganise souvent (filtrer avant de joindre, par exemple).",
-      "Oui. L'ordre logique sert à comprendre ce que la requête veut dire. Le plan d'exécution montre l'ordre réel.",
+      "Oui. L'ordre logique dit ce que la requête veut dire. L'optimiseur peut travailler autrement, avec le même résultat. Le plan d'exécution montre l'ordre réel.",
       "Non. L'ordre d'écriture commence par SELECT.",
-      "Non."
+      "Non. Avec ou sans jointure, l'optimiseur peut réorganiser le travail."
     ],
     retenir: "Ordre logique = le sens. Plan d'exécution = le travail réel."
   },
@@ -1552,17 +1551,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q85", dialecte: "Snowflake",
     q: "Sur Snowflake, que fait '2026-10-26'::DATE ?",
     choix: [
-      "Une erreur de syntaxe",
-      "Convertit le texte en date (raccourci de CAST)",
-      "Compare deux dates",
-      "Crée une colonne DATE"
+      "Une erreur de syntaxe sur Snowflake",
+      "La conversion du texte en date (comme CAST)",
+      "Une comparaison entre deux dates",
+      "La création d'une colonne de type DATE"
     ],
     bonne: 1,
     pourquoi: [
-      "Non sur Snowflake. (Oui sur SQL Server, qui ne connaît pas ::.)",
+      "Non. Sur Snowflake, c'est valide. (Erreur sur SQL Server, qui ne connaît pas ::.)",
       "Oui. :: est un raccourci de CAST(… AS DATE). Très utilisé sur Snowflake.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est comparé.",
+      "Non. Aucune colonne n'est créée dans une table."
     ],
     retenir: "Snowflake : valeur::TYPE = CAST(valeur AS TYPE)."
   },
@@ -1570,17 +1569,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q86", dialecte: "SQL Server + Snowflake",
     q: "Comment connaître la version du moteur ?",
     choix: [
-      "SELECT @@VERSION; sur SQL Server, SELECT CURRENT_VERSION(); sur Snowflake",
-      "SELECT VERSION(); partout",
-      "SHOW VERSION; partout",
-      "On ne peut pas en SQL"
+      "SELECT @@VERSION sur SQL Server, CURRENT_VERSION() sur Snowflake",
+      "SELECT VERSION(); sur SQL Server et sur Snowflake",
+      "SHOW VERSION; sur SQL Server et sur Snowflake",
+      "CURRENT_VERSION() sur SQL Server, @@VERSION sur Snowflake"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Utile avant d'utiliser une fonction récente (TRIM, STRING_AGG, DATETRUNC…).",
+      "Oui. SELECT @@VERSION; et SELECT CURRENT_VERSION();. Utile avant d'utiliser une fonction récente (TRIM, STRING_AGG, DATETRUNC…).",
       "Non. VERSION() n'existe pas sur ces moteurs.",
-      "Non.",
-      "Non."
+      "Non. Cette commande n'existe pas sur ces moteurs.",
+      "Non. C'est l'inverse."
     ],
     retenir: "@@VERSION (SQL Server), CURRENT_VERSION() (Snowflake)."
   },
@@ -1588,17 +1587,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q87", dialecte: "SQL Server + Snowflake",
     q: "Comment savoir dans quelle base tu travailles ?",
     choix: [
-      "SELECT DB_NAME(); sur SQL Server, SELECT CURRENT_DATABASE(); sur Snowflake",
-      "SELECT DATABASE(); partout",
-      "USE; partout",
-      "SELECT @@SERVER;"
+      "SELECT DB_NAME() sur SQL Server, CURRENT_DATABASE() sur Snowflake",
+      "SELECT DATABASE(); sur SQL Server et sur Snowflake",
+      "@@SERVERNAME sur SQL Server, CURRENT_SCHEMA() sur Snowflake",
+      "USE; sur SQL Server, SHOW DATABASES; sur Snowflake"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Bon réflexe avant un UPDATE en production !",
       "Non. DATABASE() est MySQL.",
-      "Non. USE change la base, il ne l'affiche pas.",
-      "Non. @@SERVERNAME donne le serveur, pas la base."
+      "Non. @@SERVERNAME donne le serveur, CURRENT_SCHEMA() le schéma : aucun ne donne la base.",
+      "Non. USE change de base, il ne l'affiche pas. SHOW DATABASES liste toutes les bases."
     ],
     retenir: "Avant de modifier : vérifie la base (DB_NAME / CURRENT_DATABASE)."
   },
@@ -1624,17 +1623,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q89", dialecte: "Standard",
     q: "Que renvoie SELECT cl.*, co.montant FROM client cl JOIN commande co ON co.client_id = cl.id ?",
     choix: [
-      "Toutes les colonnes des deux tables",
+      "Toutes les colonnes des deux tables, plus montant",
       "Toutes les colonnes de client, plus montant",
-      "Seulement montant",
-      "Une erreur"
+      "Seulement la colonne montant de commande",
+      "Une erreur : * ne peut pas suivre un alias"
     ],
     bonne: 1,
     pourquoi: [
       "Non. cl.* limite le * à la table client.",
       "Oui. alias.* = toutes les colonnes d'UNE table.",
-      "Non.",
-      "Non. C'est valide."
+      "Non. cl.* ajoute toutes les colonnes de client.",
+      "Non. alias.* est valide."
     ],
     retenir: "alias.* : toutes les colonnes d'une seule table."
   },
@@ -1643,17 +1642,17 @@ LEARNSQL.questions.m01 = [
     q: "Sur SQL Server, tu veux trier par date_livraison croissante, avec les NULL à la FIN. Que faire ?",
     choixCode: true,
     choix: [
-      "ORDER BY date_livraison NULLS LAST",
+      "ORDER BY date_livraison ASC NULLS LAST",
       "ORDER BY CASE WHEN date_livraison IS NULL THEN 1 ELSE 0 END, date_livraison",
-      "ORDER BY date_livraison DESC",
-      "ORDER BY ISNULL(date_livraison)"
+      "ORDER BY IIF(date_livraison IS NULL, 0, 1), date_livraison",
+      "ORDER BY ISNULL(date_livraison, '19000101')"
     ],
     bonne: 1,
     pourquoi: [
       "Non. NULLS LAST n'existe pas sur SQL Server (il existe sur Snowflake).",
       "Oui. 1er critère : les NULL valent 1, donc après. 2e critère : la date.",
-      "Non. Ça inverse toutes les dates.",
-      "Non. ISNULL demande deux arguments sur SQL Server."
+      "Non. Les NULL valent 0 : ils passent en premier.",
+      "Non. Les NULL deviennent le 01/01/1900 : ils passent en premier."
     ],
     retenir: "SQL Server : NULL à la fin avec ORDER BY CASE WHEN col IS NULL THEN 1 ELSE 0 END, col."
   },
@@ -1664,15 +1663,15 @@ LEARNSQL.questions.m01 = [
     choix: [
       "SELECT TOP (10) * FROM commande ORDER BY date_cde",
       "SELECT TOP (10) * FROM commande ORDER BY date_cde DESC",
-      "SELECT TOP (10) * FROM commande",
-      "SELECT * FROM commande WHERE TOP (10)"
+      "SELECT TOP (10) DESC * FROM commande ORDER BY date_cde",
+      "SELECT * FROM commande WHERE date_cde = MAX(date_cde)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Croissant = les 10 plus ANCIENNES.",
       "Oui. Les plus récentes d'abord (DESC), puis on en garde 10.",
-      "Non. Sans tri, ce sont 10 lignes quelconques.",
-      "Non. TOP ne va pas dans WHERE."
+      "Non. DESC se met dans ORDER BY, pas après TOP : erreur de syntaxe.",
+      "Non. Un agrégat est interdit dans WHERE : erreur. Et ça ne viserait que le dernier jour."
     ],
     retenir: "« Les plus récents » = ORDER BY date DESC + TOP."
   },
@@ -1680,16 +1679,16 @@ LEARNSQL.questions.m01 = [
     id: "m01-q92", dialecte: "SQL Server",
     q: "Quelle est la différence entre SELECT MAX(date_cde) FROM commande et SELECT TOP (1) * FROM commande ORDER BY date_cde DESC ?",
     choix: [
-      "Aucune",
-      "MAX donne seulement la date ; TOP (1) donne toute la ligne de la commande",
-      "TOP (1) est toujours faux",
-      "MAX renvoie plusieurs lignes"
+      "Aucune : les deux renvoient la date la plus récente",
+      "MAX donne la date, TOP (1) toute la ligne",
+      "TOP (1) donne la commande la plus ancienne",
+      "MAX renvoie une ligne par commande"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Le contenu du résultat est différent.",
+      "Non. TOP (1) renvoie toute la ligne, pas seulement la date.",
       "Oui. Si tu veux aussi le numéro, le client, le montant : TOP (1) … ORDER BY.",
-      "Non. Il est correct.",
+      "Non. DESC trie de la plus récente à la plus ancienne.",
       "Non. MAX sans GROUP BY renvoie une seule ligne."
     ],
     retenir: "MAX = une valeur. TOP (1) + ORDER BY = la ligne entière."
@@ -1719,14 +1718,14 @@ LEARNSQL.questions.m01 = [
     choix: [
       "ORDER BY d NULLS FIRST",
       "ORDER BY d NULL FIRST",
-      "ORDER BY NULL, d",
+      "ORDER BY NULLS FIRST, d",
       "ORDER BY d ASC NULL"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. NULLS FIRST / NULLS LAST : syntaxe standard, acceptée par Snowflake.",
       "Non. Il faut NULLS au pluriel.",
-      "Non. Trier sur une constante NULL ne change rien.",
+      "Non. NULLS FIRST se place après la colonne, pas avant.",
       "Non. Syntaxe invalide."
     ],
     retenir: "Snowflake : NULLS FIRST / NULLS LAST après le sens du tri."
@@ -1753,17 +1752,17 @@ LEARNSQL.questions.m01 = [
     id: "m01-q96", dialecte: "SQL Server",
     q: "Le SELECT a 3 colonnes. Que donne ORDER BY 5 ?",
     choix: [
-      "Tri sur la valeur 5",
+      "Tri sur la valeur constante 5",
       "Erreur : position hors limites",
-      "Tri sur la 3e colonne",
-      "Aucun tri"
+      "Tri sur la dernière colonne, la 3e",
+      "Aucun tri, le 5 est ignoré"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un entier dans ORDER BY est une position.",
       "Oui. Il n'y a pas de 5e colonne : SQL Server refuse.",
-      "Non.",
-      "Non."
+      "Non. SQL Server ne ramène pas le 5 à la dernière colonne.",
+      "Non. SQL Server refuse : c'est une erreur."
     ],
     retenir: "ORDER BY n : n doit exister dans le SELECT."
   },
@@ -1771,15 +1770,15 @@ LEARNSQL.questions.m01 = [
     id: "m01-q97", dialecte: "Snowflake",
     q: "Sur Snowflake, tu es dans la base PROD. Que désigne VENTES.COMMANDE ?",
     choix: [
-      "La base VENTES, table COMMANDE",
-      "Le schéma VENTES de la base PROD, table COMMANDE",
-      "Une colonne COMMANDE de la table VENTES",
-      "Le warehouse VENTES"
+      "La table COMMANDE de la base VENTES",
+      "La table COMMANDE du schéma VENTES",
+      "La colonne COMMANDE de la table VENTES",
+      "La table COMMANDE du warehouse VENTES"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Avec 2 parties, la 1re est le schéma.",
-      "Oui. Nom complet : PROD.VENTES.COMMANDE.",
+      "Oui. 2 parties = schéma.table, dans la base courante PROD. Nom complet : PROD.VENTES.COMMANDE.",
       "Non. Dans un FROM, c'est une table.",
       "Non. Un warehouse n'apparaît jamais dans un nom de table."
     ],
@@ -1790,17 +1789,17 @@ LEARNSQL.questions.m01 = [
     q: "date_cde est une DATE (sans heure). Que renvoie cette requête ?",
     code: "SELECT TOP (1) WITH TIES *\nFROM commande\nORDER BY date_cde DESC;",
     choix: [
-      "Une seule commande, la dernière",
+      "Une seule commande : la plus récente",
       "Toutes les commandes du dernier jour",
-      "Toutes les commandes",
-      "Une erreur"
+      "Toutes les commandes, de la plus récente à la plus ancienne",
+      "Une erreur : WITH TIES exige une clé unique"
     ],
     bonne: 1,
     pourquoi: [
       "Non. WITH TIES garde les ex aequo.",
       "Oui. Toutes les commandes qui ont la date la plus récente. Astuce élégante.",
       "Non. Seulement celles à égalité avec la 1re.",
-      "Non. Il y a bien un ORDER BY."
+      "Non. WITH TIES exige un ORDER BY, présent ici."
     ],
     retenir: "TOP (1) WITH TIES + ORDER BY : toutes les lignes de la valeur la plus haute."
   },
@@ -1826,15 +1825,15 @@ LEARNSQL.questions.m01 = [
     id: "m01-q100", dialecte: "Standard",
     q: "Dans un traitement de chargement (ETL), pourquoi éviter un ORDER BY sur les étapes intermédiaires ?",
     choix: [
-      "Il est interdit dans un ETL",
-      "Trier coûte cher, et l'ordre n'est pas conservé par les étapes suivantes. On trie seulement le résultat final",
-      "Il supprime des lignes",
-      "Il bloque la table"
+      "Il est interdit dans les outils d'ETL",
+      "Trier coûte cher, et l'étape suivante ne garde pas l'ordre",
+      "Il supprime les lignes en double sans prévenir",
+      "Il bloque la table pendant toute la durée du tri"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il est permis.",
-      "Oui. Un tri sur des millions de lignes prend du temps et de la mémoire, pour rien si l'étape suivante ne garde pas l'ordre.",
+      "Oui. Un tri sur des millions de lignes prend du temps et de la mémoire, et l'étape suivante ne garde pas l'ordre. On trie seulement le résultat final.",
       "Non. ORDER BY ne supprime jamais de lignes.",
       "Non. Un tri ne verrouille pas la table."
     ],
