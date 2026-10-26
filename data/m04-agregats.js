@@ -149,15 +149,15 @@ LEARNSQL.questions.m04 = [
     id: "m04-q09", dialecte: "Standard",
     q: "Tu veux, sur une ligne par client, le CA 2025 et le CA 2026 côte à côte. Quelle technique ?",
     choix: [
-      "Deux requêtes séparées",
-      "SUM(CASE WHEN annee = 2025 THEN montant ELSE 0 END), idem pour 2026",
-      "GROUP BY client_id, annee",
+      "Deux requêtes séparées, collées dans Excel",
+      "SUM(CASE WHEN annee = 2025 …) par année",
+      "GROUP BY client_id, annee, avec ORDER BY annee",
       "WHERE annee = 2025 AND annee = 2026"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Possible, mais il faut ensuite les assembler. Pas efficace.",
-      "Oui. C'est l'agrégation conditionnelle. Une seule lecture de la table, une colonne par année.",
+      "Oui. C'est l'agrégation conditionnelle : SUM(CASE WHEN annee = 2025 THEN montant ELSE 0 END), idem pour 2026. Une seule lecture de la table, une colonne par année.",
       "Non. Ça donne une ligne par client ET par année, pas côte à côte.",
       "Non. Une ligne ne peut pas avoir 2 années en même temps : 0 ligne."
     ],
@@ -224,15 +224,15 @@ LEARNSQL.questions.m04 = [
     q: "Que se passe-t-il ?",
     code: "SELECT YEAR(date_cde) AS annee, SUM(montant)\nFROM commande\nGROUP BY annee;",
     choix: [
-      "Ça marche partout",
-      "Erreur sur SQL Server (alias inconnu dans GROUP BY), mais ça marche sur Snowflake",
-      "Erreur partout",
+      "Ça marche sur SQL Server et sur Snowflake",
+      "Erreur sur SQL Server, ça marche sur Snowflake",
+      "Erreur sur SQL Server et sur Snowflake",
       "Ça marche sur SQL Server, erreur sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server traite GROUP BY avant SELECT.",
-      "Oui. Sur SQL Server, répète l'expression : GROUP BY YEAR(date_cde). Snowflake accepte l'alias.",
+      "Oui. SQL Server traite GROUP BY avant SELECT : l'alias est inconnu. Répète l'expression : GROUP BY YEAR(date_cde). Snowflake accepte l'alias.",
       "Non. Snowflake l'accepte.",
       "Non. C'est l'inverse."
     ],
@@ -336,17 +336,17 @@ LEARNSQL.questions.m04 = [
     q: "Tu veux garder chaque ligne de commande, avec le total de sa commande à côté. Quelle technique ?",
     choixCode: true,
     choix: [
-      "GROUP BY cde_id",
+      "SUM(montant) … GROUP BY cde_id, ligne_id",
       "SUM(montant) OVER (PARTITION BY cde_id)",
-      "SUM(montant) avec HAVING",
-      "DISTINCT cde_id"
+      "SUM(montant) … GROUP BY cde_id HAVING COUNT(*) > 0",
+      "COUNT(*) OVER (PARTITION BY cde_id)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. GROUP BY fusionne les lignes : tu perds le détail.",
+      "Non. Grouper par ligne donne le montant de chaque ligne, pas le total de la commande.",
       "Oui. Fonction de fenêtrage : le total est calculé, mais chaque ligne est gardée. On la verra au module 8.",
-      "Non. HAVING filtre les groupes, il ne garde pas le détail.",
-      "Non. Ça supprime les doublons, sans calculer de total."
+      "Non. GROUP BY fusionne les lignes : tu perds le détail.",
+      "Non. Ça compte les lignes de la commande, sans faire le total des montants."
     ],
     retenir: "GROUP BY réduit les lignes. OVER (PARTITION BY …) garde les lignes."
   },
@@ -374,16 +374,16 @@ LEARNSQL.questions.m04 = [
     q: "Tu veux la ligne complète de la DERNIÈRE commande de chaque client (date, montant, statut). Quelle approche ?",
     choix: [
       "GROUP BY client_id avec MAX(date_cde) et MAX(montant)",
-      "ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC), puis garder le n° 1",
+      "ROW_NUMBER() par client (date DESC), garder le n° 1",
       "SELECT TOP (1) … ORDER BY date_cde DESC",
-      "DISTINCT client_id"
+      "SELECT DISTINCT client_id, MAX(date_cde) FROM commande"
     ],
     bonne: 1,
     pourquoi: [
       "Non. MAX(montant) donne le plus gros montant du client, pas celui de sa dernière commande. Les valeurs sont mélangées.",
-      "Oui. On numérote les commandes de chaque client, de la plus récente à la plus ancienne. On garde la n° 1.",
+      "Oui. ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC) numérote les commandes de chaque client, de la plus récente à la plus ancienne. On garde la n° 1.",
       "Non. Ça donne la dernière commande de toute la table, pas une par client.",
-      "Non. Tu perds toutes les autres colonnes."
+      "Non. Sans GROUP BY, client_id n'est pas groupé : erreur. Et les autres colonnes manquent."
     ],
     retenir: "« La dernière X de chaque Y » : ROW_NUMBER() OVER (PARTITION BY Y ORDER BY … DESC) = 1."
   },
@@ -429,15 +429,15 @@ LEARNSQL.questions.m04 = [
     id: "m04-q24", dialecte: "SQL Server",
     q: "Sur SQL Server, SUM sur une colonne INT de plusieurs milliards au total renvoie une erreur. Pourquoi ?",
     choix: [
-      "SUM est limité à 1 million de lignes",
-      "SUM d'un INT renvoie un INT : dépassement au-delà d'environ 2,1 milliards",
-      "Il y a des NULL",
-      "Il faut un GROUP BY"
+      "SUM est limité à 1 million de lignes par requête",
+      "Le total dépasse la capacité d'un INT",
+      "Des NULL dans la colonne bloquent le calcul",
+      "Il faut un GROUP BY pour une si grosse somme"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il n'y a pas de limite de lignes.",
-      "Oui. Erreur « Arithmetic overflow ». Solution : SUM(CAST(col AS bigint)).",
+      "Oui. SUM d'un INT renvoie un INT : au-delà d'environ 2,1 milliards, erreur « Arithmetic overflow ». Solution : SUM(CAST(col AS bigint)).",
       "Non. SUM ignore les NULL.",
       "Non. SUM marche sans GROUP BY."
     ],
@@ -485,15 +485,15 @@ LEARNSQL.questions.m04 = [
     id: "m04-q27", dialecte: "Standard",
     q: "COUNT(1) est-il plus rapide que COUNT(*) ?",
     choix: [
-      "Oui, toujours",
-      "Non, les moteurs les traitent de la même façon",
-      "Oui, sur SQL Server seulement",
-      "Non, COUNT(1) est plus lent"
+      "Oui, toujours : COUNT(1) ne lit aucune colonne",
+      "Non, c'est la même chose",
+      "Oui, mais seulement sur SQL Server",
+      "Non, COUNT(1) est même plus lent"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un mythe très répandu.",
-      "Oui, c'est un mythe. Les deux comptent les lignes, avec le même plan d'exécution.",
+      "Non. C'est un mythe : COUNT(*) ne lit pas les colonnes non plus.",
+      "Oui. C'est un mythe : les deux comptent les lignes, avec le même plan d'exécution.",
       "Non. Même plan d'exécution.",
       "Non. Aucune différence."
     ],
@@ -613,15 +613,15 @@ LEARNSQL.questions.m04 = [
     id: "m04-q34", dialecte: "Standard",
     q: "SELECT COUNT(*) FROM commande HAVING COUNT(*) > 1000; (sans GROUP BY) est-il valide ?",
     choix: [
-      "Non, HAVING exige GROUP BY",
-      "Oui : toute la table forme un seul groupe. Une ligne si plus de 1000 commandes, sinon aucune",
-      "Oui, mais HAVING est ignoré",
-      "Seulement sur Snowflake"
+      "Non, HAVING exige toujours un GROUP BY",
+      "Oui : toute la table forme un seul groupe",
+      "Oui, mais le HAVING est ignoré sans GROUP BY",
+      "Seulement sur Snowflake, erreur sur SQL Server"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est permis.",
-      "Oui. Utile pour un contrôle : « renvoie quelque chose seulement si le seuil est dépassé ».",
+      "Oui. Une ligne si plus de 1000 commandes, sinon aucune. Utile pour un contrôle : « renvoie quelque chose seulement si le seuil est dépassé ».",
       "Non. HAVING filtre bien.",
       "Non. Valide partout."
     ],
@@ -705,17 +705,17 @@ LEARNSQL.questions.m04 = [
     q: "Comment calculer le taux de marge global d'une famille d'articles ?",
     choixCode: true,
     choix: [
-      "AVG(marge / ca)",
+      "AVG(marge / NULLIF(ca, 0))",
       "SUM(marge) / NULLIF(SUM(ca), 0)",
-      "SUM(marge / ca)",
-      "MAX(marge) / MAX(ca)"
+      "SUM(marge / NULLIF(ca, 0))",
+      "SUM(marge) / NULLIF(COUNT(ca), 0)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Moyenne des taux : un petit article à 80 % pèse autant qu'un gros à 10 %.",
       "Oui. Total des marges / total du CA. NULLIF évite la division par zéro.",
       "Non. Additionner des taux n'a pas de sens.",
-      "Non."
+      "Non. On divise par le nombre de lignes : c'est une marge moyenne, pas un taux."
     ],
     retenir: "Un taux global = somme / somme. Jamais la moyenne des taux."
   },
@@ -778,17 +778,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q43", dialecte: "Standard",
     q: "Tu fais GROUP BY MONTH(date_cde) sur 2 ans de données. Quel est le problème ?",
     choix: [
-      "Aucun",
-      "Les mois de 2025 et 2026 sont mélangés : il faut aussi grouper par année",
-      "MONTH n'existe pas",
-      "Les dates NULL plantent"
+      "Aucun : chaque mois a son groupe",
+      "Les années sont mélangées",
+      "MONTH n'existe pas, il faut DATEPART",
+      "Les dates NULL font planter la requête"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Janvier 2025 et janvier 2026 tombent dans le même groupe « 1 ».",
-      "Oui. GROUP BY YEAR(date_cde), MONTH(date_cde). Ou DATETRUNC / DATE_TRUNC.",
-      "Non.",
-      "Non. Ils forment juste un groupe NULL."
+      "Oui. Les mois de 2025 et 2026 tombent dans les mêmes groupes. Il faut aussi grouper par année : GROUP BY YEAR(date_cde), MONTH(date_cde). Ou DATETRUNC / DATE_TRUNC.",
+      "Non. MONTH existe sur les deux moteurs.",
+      "Non. Elles forment juste un groupe NULL."
     ],
     retenir: "Par mois = par année ET par mois."
   },
@@ -816,17 +816,17 @@ LEARNSQL.questions.m04 = [
     q: "Comment calculer le pourcentage de commandes livrées, en une seule expression ?",
     choixCode: true,
     choix: [
-      "COUNT(statut = 'LIVRE') / COUNT(*)",
+      "COUNT(statut = 'LIVRE') * 100.0 / COUNT(*)",
       "AVG(CASE WHEN statut = 'LIVRE' THEN 1.0 ELSE 0 END) * 100",
-      "SUM(statut) / 100",
-      "COUNT(*) * 100"
+      "COUNT(CASE WHEN statut = 'LIVRE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)",
+      "AVG(CASE WHEN statut = 'LIVRE' THEN 1 ELSE NULL END) * 100"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Syntaxe invalide sur SQL Server.",
+      "Non. Syntaxe invalide sur SQL Server. Et sur Snowflake, COUNT compte aussi les FALSE.",
       "Oui. La moyenne de 1 et de 0 donne la proportion. Le 1.0 évite la division entière.",
-      "Non.",
-      "Non."
+      "Non. COUNT compte aussi les 0 (ce ne sont pas des NULL) : on obtient toujours 100 %.",
+      "Non. AVG ignore les NULL : la moyenne de 1 vaut toujours 1, soit 100 %."
     ],
     retenir: "Proportion = AVG(CASE WHEN condition THEN 1.0 ELSE 0 END)."
   },
@@ -834,17 +834,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q46", dialecte: "SQL Server",
     q: "Sur SQL Server, COUNT(DISTINCT client_id, article_id) est-il valide ?",
     choix: [
-      "Oui",
-      "Non : SQL Server n'accepte qu'une expression. Passe par une sous-requête SELECT DISTINCT",
+      "Oui, il compte les couples distincts",
+      "Non : une seule expression est acceptée",
       "Oui, mais il compte les clients seulement",
-      "Oui avec des parenthèses"
+      "Oui, à condition d'ajouter des parenthèses"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Erreur de syntaxe sur SQL Server. (Snowflake, lui, l'accepte.)",
-      "Oui. SELECT COUNT(*) FROM (SELECT DISTINCT client_id, article_id FROM …) t.",
-      "Non.",
-      "Non."
+      "Oui. Passe par une sous-requête : SELECT COUNT(*) FROM (SELECT DISTINCT client_id, article_id FROM …) t.",
+      "Non. Il y a une erreur de syntaxe.",
+      "Non. COUNT(DISTINCT (a, b)) n'est pas accepté non plus."
     ],
     retenir: "COUNT(DISTINCT a, b) : non sur SQL Server, oui sur Snowflake."
   },
@@ -854,16 +854,16 @@ LEARNSQL.questions.m04 = [
     choixCode: true,
     choix: [
       "MIN(date_cde), MAX(date_cde) … GROUP BY client_id",
-      "FIRST(date_cde), LAST(date_cde)",
-      "TOP (1) date_cde",
-      "COUNT(date_cde)"
+      "FIRST(date_cde), LAST(date_cde) … GROUP BY client_id",
+      "MIN(date_cde), MAX(date_cde) … GROUP BY date_cde",
+      "COUNT(date_cde), MAX(date_cde) … GROUP BY client_id"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. MIN = la plus ancienne, MAX = la plus récente.",
       "Non. FIRST / LAST ne sont pas des agrégats SQL Server.",
-      "Non.",
-      "Non."
+      "Non. On groupe par date : une ligne par jour, pas par client.",
+      "Non. COUNT donne le nombre de commandes, pas la 1re date."
     ],
     retenir: "Première / dernière date : MIN / MAX."
   },
@@ -889,17 +889,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q49", dialecte: "SQL Server",
     q: "Tu veux le plus gros CA annuel d'un client. Que donne SELECT MAX(SUM(montant)) FROM commande GROUP BY annee; ?",
     choix: [
-      "Le CA de la meilleure année",
-      "Erreur : on ne met pas un agrégat dans un agrégat",
-      "La somme des maximums",
-      "Le CA total"
+      "Le CA de la meilleure année du client",
+      "Erreur : agrégat dans un agrégat",
+      "La somme des montants maximums par année",
+      "Le CA total, toutes années confondues"
     ],
     bonne: 1,
     pourquoi: [
-      "Non sur SQL Server : la requête ne s'exécute pas.",
-      "Oui. Fais l'étape en deux temps : SELECT MAX(ca) FROM (SELECT annee, SUM(montant) AS ca … GROUP BY annee) t.",
-      "Non.",
-      "Non."
+      "Non. Sur SQL Server, la requête ne s'exécute pas.",
+      "Oui. Fais-le en deux temps : SELECT MAX(ca) FROM (SELECT annee, SUM(montant) AS ca … GROUP BY annee) t.",
+      "Non. La requête ne s'exécute pas.",
+      "Non. La requête ne s'exécute pas."
     ],
     retenir: "Agrégat d'agrégat : sous-requête ou CTE."
   },
@@ -909,15 +909,15 @@ LEARNSQL.questions.m04 = [
     choixCode: true,
     choix: [
       "SELECT TOP (1) client_id, SUM(montant) AS ca FROM commande GROUP BY client_id ORDER BY ca DESC",
-      "SELECT client_id, MAX(montant) FROM commande",
-      "SELECT MAX(client_id) FROM commande",
+      "SELECT TOP (1) client_id, SUM(montant) AS ca FROM commande GROUP BY client_id ORDER BY ca",
+      "SELECT TOP (1) client_id, MAX(montant) AS ca FROM commande GROUP BY client_id ORDER BY ca DESC",
       "SELECT TOP (1) client_id FROM commande ORDER BY montant DESC"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On calcule le CA par client, on trie, on garde le 1er. (WITH TIES pour les ex aequo.)",
-      "Non. Erreur : client_id n'est pas groupé. Et MAX(montant) n'est pas un CA.",
-      "Non. C'est le plus grand identifiant.",
+      "Non. Tri croissant : c'est le client au plus PETIT CA.",
+      "Non. MAX(montant) = la plus grosse commande, pas le CA.",
       "Non. C'est le client de la plus grosse COMMANDE, pas du plus gros CA."
     ],
     retenir: "Meilleur X par CA : GROUP BY + ORDER BY SUM DESC + TOP."
@@ -945,17 +945,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q52", dialecte: "Standard",
     q: "Où mettre la condition client_id = 42 dans une requête GROUP BY client_id ?",
     choix: [
-      "Dans HAVING, c'est pareil",
-      "Dans WHERE : on filtre avant de grouper, c'est plus efficace",
-      "Dans GROUP BY",
-      "Dans SELECT"
+      "Dans HAVING : c'est pareil, et plus clair",
+      "Dans WHERE, avant de grouper",
+      "Dans GROUP BY, à côté de client_id",
+      "Dans le SELECT, avec un CASE WHEN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ça marche, mais tous les clients sont d'abord groupés, puis on en jette la plupart.",
-      "Oui. HAVING est réservé aux conditions sur les agrégats.",
-      "Non.",
-      "Non."
+      "Oui. On filtre avant de grouper : c'est plus efficace. HAVING est réservé aux conditions sur les agrégats.",
+      "Non. GROUP BY ne filtre pas.",
+      "Non. Un CASE ne filtre pas les lignes."
     ],
     retenir: "Condition sans agrégat → WHERE. Avec agrégat → HAVING."
   },
@@ -1020,16 +1020,16 @@ LEARNSQL.questions.m04 = [
     id: "m04-q56", dialecte: "SQL Server + Snowflake",
     q: "Que produit GROUP BY CUBE (region, annee) ?",
     choix: [
-      "Le détail seulement",
-      "Toutes les combinaisons de sous-totaux : par région, par année, région × année, et le total",
-      "Seulement le total",
+      "Le détail ligne par ligne, sans aucun sous-total",
+      "Tous les sous-totaux possibles, plus le total",
+      "Seulement le total général de la table",
       "Les sous-totaux par région uniquement"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. CUBE = tous les regroupements possibles. ROLLUP suit une hiérarchie (région, puis année).",
-      "Non.",
+      "Non. CUBE ajoute des lignes de sous-totaux.",
+      "Oui. Par région, par année, région × année, et le total général. ROLLUP, lui, suit une hiérarchie (région, puis année).",
+      "Non. Il y a aussi les sous-totaux.",
       "Non. C'est plutôt ROLLUP, sans le détail."
     ],
     retenir: "CUBE = toutes les combinaisons. ROLLUP = hiérarchie."
@@ -1059,15 +1059,15 @@ LEARNSQL.questions.m04 = [
     choix: [
       "COALESCE(region, 'Total')",
       "CASE WHEN GROUPING(region) = 1 THEN 'Total' ELSE region END",
-      "ISNULL(region)",
-      "REPLACE(region, NULL, 'Total')"
+      "CASE WHEN region IS NULL THEN 'Total' ELSE region END",
+      "CASE WHEN GROUPING(region) = 0 THEN 'Total' ELSE region END"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Presque : mais une vraie région NULL serait aussi affichée « Total ».",
       "Oui. GROUPING distingue la ligne de total d'une vraie valeur NULL.",
-      "Non.",
-      "Non. REPLACE ne gère pas NULL."
+      "Non. Une vraie région NULL serait aussi affichée « Total ».",
+      "Non. Inversé : GROUPING vaut 1 sur la ligne de total."
     ],
     retenir: "Libellé de total fiable : GROUPING(col) = 1."
   },
@@ -1076,16 +1076,16 @@ LEARNSQL.questions.m04 = [
     q: "Comment trier un ROLLUP pour avoir chaque sous-total juste après les lignes de sa région, et le total général à la fin ?",
     choixCode: true,
     choix: [
-      "ORDER BY region, pays",
+      "ORDER BY region, pays, GROUPING(region), GROUPING(pays)",
       "ORDER BY GROUPING(region), region, GROUPING(pays), pays",
-      "ORDER BY 1 DESC",
+      "ORDER BY GROUPING(region) DESC, region, GROUPING(pays) DESC, pays",
       "Pas besoin, c'est automatique"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les NULL des totaux se placeraient en tête (SQL Server).",
+      "Non. On trie d'abord par region : les NULL des totaux se placent en tête (SQL Server).",
       "Oui. GROUPING vaut 0 pour le détail, 1 pour le total : les totaux passent après.",
-      "Non.",
+      "Non. DESC met les totaux AVANT le détail.",
       "Non. Sans ORDER BY, aucun ordre garanti."
     ],
     retenir: "Trier un ROLLUP : ORDER BY GROUPING(col), col."
@@ -1094,17 +1094,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q60", dialecte: "SQL Server",
     q: "Que faut-il pour utiliser l'opérateur PIVOT de SQL Server ?",
     choix: [
-      "Rien de spécial",
-      "Un agrégat (SUM, COUNT…) et la liste fixe des valeurs qui deviennent des colonnes",
-      "Une procédure stockée",
-      "Une table temporaire"
+      "Rien de spécial, il marche comme GROUP BY",
+      "Un agrégat + une liste fixe",
+      "Une procédure stockée pour l'exécuter",
+      "Une table temporaire pour le résultat"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Ex. PIVOT (SUM(ca) FOR mois IN ([1], [2], [3])). Les colonnes doivent être connues à l'avance.",
-      "Non.",
-      "Non."
+      "Non. Il a des exigences précises.",
+      "Oui. Un agrégat (SUM, COUNT…) et la liste des valeurs qui deviennent des colonnes : PIVOT (SUM(ca) FOR mois IN ([1], [2], [3])). Les colonnes doivent être connues à l'avance.",
+      "Non. Une simple requête suffit.",
+      "Non. Une simple requête suffit."
     ],
     retenir: "PIVOT : un agrégat + une liste de colonnes écrite en dur."
   },
@@ -1112,17 +1112,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q61", dialecte: "SQL Server",
     q: "Tu veux un PIVOT dont les colonnes sont les articles, et la liste change chaque mois. Que faut-il ?",
     choix: [
-      "Un PIVOT simple",
-      "Du SQL dynamique qui construit la liste des colonnes",
-      "Un GROUP BY",
-      "C'est impossible"
+      "Un PIVOT simple : il s'adapte aux nouvelles valeurs",
+      "Du SQL dynamique qui construit la liste",
+      "Un GROUP BY sur la colonne article",
+      "C'est impossible sur SQL Server"
     ],
     bonne: 1,
     pourquoi: [
       "Non. PIVOT exige une liste écrite en dur.",
-      "Oui. On construit la liste avec STRING_AGG, puis on exécute avec sp_executesql. Souvent, il vaut mieux pivoter dans Power BI ou Excel.",
+      "Oui. On construit la liste des colonnes avec STRING_AGG, puis on exécute avec sp_executesql. Souvent, il vaut mieux pivoter dans Power BI ou Excel.",
       "Non. GROUP BY donne des lignes, pas des colonnes.",
-      "Non."
+      "Non. C'est possible avec du SQL dynamique."
     ],
     retenir: "Colonnes variables = SQL dynamique, ou pivot dans l'outil de restitution."
   },
@@ -1131,17 +1131,17 @@ LEARNSQL.questions.m04 = [
     q: "Une table a 12 colonnes m01 … m12 (une par mois). Comment la transformer en lignes (mois, montant) ?",
     choixCode: true,
     choix: [
-      "GROUP BY m01, m02, …",
+      "PIVOT (SUM(montant) FOR mois IN (m01, m02, …, m12))",
       "CROSS APPLY (VALUES (1, m01), (2, m02), …, (12, m12)) AS v(mois, montant)",
-      "PIVOT",
-      "UNION des 12 colonnes dans un SELECT"
+      "CROSS APPLY (VALUES (m01, m02, …, m12)) AS v(mois, montant)",
+      "SELECT m01 AS montant FROM t UNION SELECT m02 FROM t …"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. PIVOT fait l'inverse : lignes → colonnes.",
       "Oui. Chaque ligne d'origine produit 12 lignes. UNPIVOT marche aussi, mais il supprime les NULL.",
-      "Non. PIVOT fait l'inverse.",
-      "Non. Possible avec 12 SELECT et UNION ALL, mais lit 12 fois la table."
+      "Non. Une seule ligne de 12 valeurs : ça ne donne pas 12 lignes.",
+      "Non. UNION supprime les doublons (deux mois au même montant), et on perd le numéro du mois."
     ],
     retenir: "Colonnes → lignes : CROSS APPLY (VALUES …) ou UNPIVOT."
   },
@@ -1169,15 +1169,15 @@ LEARNSQL.questions.m04 = [
     q: "Comment s'appelle la fonction d'écart-type ?",
     choix: [
       "STDEV sur SQL Server, STDDEV sur Snowflake",
-      "STDDEV partout",
-      "ECART_TYPE partout",
-      "VAR partout"
+      "STDDEV sur SQL Server et sur Snowflake",
+      "STDDEV sur SQL Server, STDEV sur Snowflake",
+      "VAR sur SQL Server et sur Snowflake"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Petite différence d'orthographe, piège classique en migration.",
       "Non. SQL Server écrit STDEV (un seul D).",
-      "Non.",
+      "Non. C'est l'inverse.",
       "Non. VAR est la variance (SQL Server)."
     ],
     retenir: "Écart-type : STDEV (SQL Server), STDDEV (Snowflake)."
@@ -1186,17 +1186,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q65", dialecte: "SQL Server + Snowflake",
     q: "Valeurs : 10, 20, 30, 40. Différence entre PERCENTILE_CONT(0.5) et PERCENTILE_DISC(0.5) ?",
     choix: [
-      "Aucune",
-      "CONT donne 25 (calculé entre deux valeurs) ; DISC donne 20 (une valeur existante)",
+      "Aucune : les deux donnent 25",
+      "CONT donne 25 ; DISC donne 20",
       "CONT donne 20 ; DISC donne 25",
-      "Les deux donnent 30"
+      "Les deux donnent 30, la valeur du milieu"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. CONT interpole (continu). DISC prend une vraie valeur de la liste (discret).",
+      "Non. DISC renvoie forcément une valeur de la liste : 25 n'y est pas.",
+      "Oui. CONT interpole entre deux valeurs (continu). DISC prend une vraie valeur de la liste (discret).",
       "Non. C'est l'inverse.",
-      "Non."
+      "Non. Avec 4 valeurs, il n'y a pas de valeur du milieu unique."
     ],
     retenir: "PERCENTILE_CONT interpole. PERCENTILE_DISC renvoie une valeur réelle."
   },
@@ -1204,16 +1204,16 @@ LEARNSQL.questions.m04 = [
     id: "m04-q66", dialecte: "SQL Server",
     q: "Sur SQL Server, pourquoi SELECT client_id, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY montant) FROM commande GROUP BY client_id plante-t-il ?",
     choix: [
-      "PERCENTILE_CONT n'existe pas",
-      "Sur SQL Server, PERCENTILE_CONT est une fonction de fenêtrage : elle exige OVER (PARTITION BY …)",
-      "Il faut un HAVING",
-      "Il faut MEDIAN"
+      "PERCENTILE_CONT n'existe pas sur SQL Server",
+      "Elle exige OVER (PARTITION BY …) sur SQL Server",
+      "Il manque un HAVING après le GROUP BY",
+      "Il faut utiliser MEDIAN(montant) à la place sur SQL Server"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Elle existe.",
-      "Oui. Écris … OVER (PARTITION BY client_id), avec DISTINCT. Snowflake l'accepte comme agrégat normal.",
-      "Non.",
+      "Oui. Sur SQL Server, PERCENTILE_CONT est une fonction de fenêtrage : écris … OVER (PARTITION BY client_id), avec DISTINCT. Snowflake l'accepte comme agrégat normal.",
+      "Non. HAVING n'a rien à voir.",
       "Non. MEDIAN n'existe pas sur SQL Server."
     ],
     retenir: "SQL Server : PERCENTILE_CONT … OVER (…). Snowflake : agrégat ou MEDIAN."
@@ -1242,17 +1242,17 @@ LEARNSQL.questions.m04 = [
     q: "Comment calculer le prix moyen d'achat d'un article, pondéré par les quantités achetées ?",
     choixCode: true,
     choix: [
-      "AVG(prix)",
+      "SUM(prix) / NULLIF(COUNT(*), 0)",
       "SUM(prix * qte) / NULLIF(SUM(qte), 0)",
-      "SUM(prix) / COUNT(*)",
-      "AVG(prix * qte)"
+      "SUM(prix * qte) / NULLIF(COUNT(*), 0)",
+      "AVG(prix) * SUM(qte) / NULLIF(SUM(qte), 0)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un achat de 1 pièce pèse autant qu'un achat de 1000.",
-      "Oui. Montant total / quantité totale = prix moyen pondéré (PMP).",
       "Non. C'est AVG(prix), non pondéré.",
-      "Non. C'est un montant moyen par ligne."
+      "Oui. Montant total / quantité totale = prix moyen pondéré (PMP).",
+      "Non. Montant moyen par ligne d'achat, pas un prix.",
+      "Non. Ça se simplifie en AVG(prix) : non pondéré."
     ],
     retenir: "Prix moyen pondéré = SUM(prix × qte) / SUM(qte)."
   },
@@ -1298,16 +1298,16 @@ LEARNSQL.questions.m04 = [
     q: "Sur Snowflake, que fait GROUP BY ALL ?",
     choix: [
       "Groupe sur toutes les colonnes de la table",
-      "Groupe automatiquement sur toutes les colonnes du SELECT qui ne sont pas des agrégats",
-      "Supprime le regroupement",
-      "Erreur"
+      "Groupe sur les colonnes non agrégées du SELECT",
+      "Supprime le regroupement : une ligne par ligne",
+      "Groupe sur toutes les colonnes, agrégats compris"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Seulement les colonnes du SELECT.",
       "Oui. Pratique : plus besoin de recopier la liste des colonnes.",
-      "Non.",
-      "Non. Syntaxe Snowflake valide."
+      "Non. Il groupe bien.",
+      "Non. Les agrégats ne font pas partie du regroupement."
     ],
     retenir: "Snowflake : GROUP BY ALL = toutes les colonnes non agrégées du SELECT."
   },
@@ -1315,17 +1315,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q72", dialecte: "SQL Server",
     q: "actif est une colonne BIT. Que donne SUM(actif) sur SQL Server ?",
     choix: [
-      "Le nombre d'actifs",
-      "Erreur : SUM n'accepte pas le type BIT",
-      "1",
-      "NULL"
+      "Le nombre de clients actifs",
+      "Erreur : SUM refuse le type BIT",
+      "1, car un BIT ne dépasse jamais 1",
+      "NULL, car BIT n'est pas un nombre"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
       "Oui. Écris SUM(CAST(actif AS int)) ou COUNT(CASE WHEN actif = 1 THEN 1 END). MAX(bit) est aussi refusé.",
-      "Non.",
-      "Non."
+      "Non. Il y a une erreur.",
+      "Non. Il y a une erreur, pas un NULL."
     ],
     retenir: "BIT n'est pas un nombre pour les agrégats : CAST en INT."
   },
@@ -1334,17 +1334,17 @@ LEARNSQL.questions.m04 = [
     q: "Dans un rapport par région, comment afficher « (non renseignée) » au lieu d'un groupe NULL ?",
     choixCode: true,
     choix: [
-      "COALESCE(region, '(non renseignée)') dans le SELECT et dans le GROUP BY",
-      "WHERE region IS NOT NULL",
-      "HAVING region IS NOT NULL",
-      "ORDER BY region"
+      "COALESCE(region, '(non renseignée)') dans le SELECT",
+      "COALESCE(region, '(non renseignée)') dans le WHERE",
+      "HAVING region IS NOT NULL, puis un libellé dans Excel",
+      "ISNULL(region) = '(non renseignée)' dans le SELECT"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Même expression dans SELECT et GROUP BY (SQL Server). Les clients sans région restent visibles.",
-      "Non. Ils disparaîtraient du rapport.",
-      "Non. Même problème.",
-      "Non."
+      "Oui. Les clients sans région restent visibles, avec un libellé clair. (Le GROUP BY peut rester sur region.)",
+      "Non. Dans WHERE, ça ne change pas l'affichage du groupe.",
+      "Non. Les clients sans région disparaîtraient du rapport.",
+      "Non. ISNULL demande deux arguments sur SQL Server."
     ],
     retenir: "Ne cache pas les NULL : donne-leur un libellé."
   },
@@ -1371,17 +1371,17 @@ LEARNSQL.questions.m04 = [
     q: "Les avoirs sont stockés en POSITIF, avec type = 'AVOIR'. Comment calculer le CA net ?",
     choixCode: true,
     choix: [
-      "SUM(montant)",
+      "SUM(CASE WHEN type = 'AVOIR' THEN montant ELSE -montant END)",
       "SUM(CASE WHEN type = 'AVOIR' THEN -montant ELSE montant END)",
-      "SUM(montant) - COUNT(type)",
-      "SUM(ABS(montant))"
+      "SUM(montant) - COUNT(CASE WHEN type = 'AVOIR' THEN 1 END)",
+      "SUM(CASE WHEN type <> 'AVOIR' THEN montant END)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les avoirs seraient ajoutés au lieu d'être retirés.",
+      "Non. Signes inversés : le CA net devient négatif.",
       "Oui. On applique le signe selon le type de pièce.",
-      "Non.",
-      "Non."
+      "Non. On retire le NOMBRE d'avoirs, pas leur montant.",
+      "Non. Ignore les avoirs au lieu de les déduire."
     ],
     retenir: "Vérifie la convention de signe des avoirs avant de sommer."
   },
@@ -1410,16 +1410,16 @@ LEARNSQL.questions.m04 = [
     choixCode: true,
     choix: [
       "SELECT MIN(id) FROM client GROUP BY nom, code_postal",
-      "SELECT id FROM client GROUP BY nom",
-      "SELECT TOP (1) id FROM client",
-      "SELECT DISTINCT id FROM client"
+      "SELECT id FROM client GROUP BY nom, code_postal",
+      "SELECT MIN(id) FROM client GROUP BY id, nom, code_postal",
+      "SELECT DISTINCT MIN(id), nom FROM client"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Un id par groupe. Les autres sont les doublons à traiter (fusionner, désactiver…).",
-      "Non. Erreur : id n'est pas groupé.",
-      "Non. Un seul id pour toute la table.",
-      "Non. Tous les id."
+      "Non. Erreur : id n'est ni groupé ni agrégé.",
+      "Non. En groupant aussi par id, chaque client forme son groupe : tous les id sortent.",
+      "Non. Sans GROUP BY, nom n'est pas agrégé : erreur."
     ],
     retenir: "Un représentant par groupe : MIN(id) ou MAX(id)."
   },
@@ -1518,17 +1518,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q83", dialecte: "Standard",
     q: "SELECT SUM(montant) FROM commande GROUP BY client_id; (client_id absent du SELECT) est-il valide ?",
     choix: [
-      "Oui, mais on ne sait plus à quel client correspond chaque somme",
-      "Non : erreur",
-      "Oui, et le client est ajouté",
-      "Seulement sur Snowflake"
+      "Oui, mais on ne sait plus quel client est où",
+      "Non : erreur, client_id doit être affiché",
+      "Oui, et client_id est ajouté automatiquement",
+      "Seulement sur Snowflake, pas sur SQL Server"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Permis, mais peu utile. (Utile dans une sous-requête : par exemple le MAX des CA clients.)",
-      "Non.",
-      "Non.",
-      "Non."
+      "Oui. Permis, mais peu utile tel quel. (Utile dans une sous-requête : par exemple le MAX des CA clients.)",
+      "Non. On peut grouper sur une colonne sans l'afficher.",
+      "Non. Rien n'est ajouté.",
+      "Non. Valide partout."
     ],
     retenir: "On peut grouper sur une colonne sans l'afficher."
   },
@@ -1556,16 +1556,16 @@ LEARNSQL.questions.m04 = [
     q: "Sur SQL Server, tu groupes par client_id et le nom est le même sur toutes ses lignes. Quelles solutions sont correctes ?",
     choix: [
       "Ajouter nom au GROUP BY, ou utiliser MAX(nom)",
-      "Utiliser ANY_VALUE(nom)",
-      "Rien, SQL Server comprend",
-      "Utiliser DISTINCT"
+      "Utiliser ANY_VALUE(nom), comme sur Snowflake",
+      "Rien : SQL Server comprend que le nom est unique",
+      "Ajouter DISTINCT devant client_id et nom"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Les deux marchent. Ajouter au GROUP BY est le plus lisible.",
       "Non. ANY_VALUE n'est pas disponible sur SQL Server (jusqu'à la version 2022 au moins).",
       "Non. Erreur : colonne non groupée.",
-      "Non."
+      "Non. DISTINCT ne remplace pas le GROUP BY : erreur."
     ],
     retenir: "SQL Server : GROUP BY client_id, nom (ou MAX(nom))."
   },
@@ -1591,17 +1591,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q87", dialecte: "SQL Server",
     q: "duree est une colonne TIME. Que donne SUM(duree) ?",
     choix: [
-      "La durée totale",
-      "Erreur : SUM n'accepte pas le type TIME",
-      "NULL",
-      "Le nombre de lignes"
+      "La durée totale, au format TIME",
+      "Une erreur de type",
+      "NULL, car TIME n'est pas additionnable",
+      "Le nombre de lignes de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
-      "Oui. Convertis en secondes : SUM(DATEDIFF(second, '00:00', duree)). Même problème avec AVG sur des dates.",
-      "Non.",
-      "Non."
+      "Oui. SUM n'accepte pas le type TIME. Convertis en secondes : SUM(DATEDIFF(second, '00:00', duree)). Même problème avec AVG sur des dates.",
+      "Non. Il y a une erreur, pas un NULL.",
+      "Non. C'est COUNT(*)."
     ],
     retenir: "Additionner des durées : les convertir en nombre (secondes, minutes)."
   },
@@ -1629,17 +1629,17 @@ LEARNSQL.questions.m04 = [
     q: "Comment compter les clients actifs (au moins une commande) sur octobre 2026 ?",
     choixCode: true,
     choix: [
-      "COUNT(*) … WHERE date_cde dans octobre",
+      "COUNT(*) … WHERE date_cde >= '20261001' AND date_cde < '20261101'",
       "COUNT(DISTINCT client_id) … WHERE date_cde >= '20261001' AND date_cde < '20261101'",
-      "COUNT(client_id)",
-      "SUM(client_id)"
+      "COUNT(client_id) … WHERE date_cde >= '20261001' AND date_cde < '20261101'",
+      "COUNT(DISTINCT client_id) … WHERE date_cde BETWEEN '20261001' AND '20261101'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Compte les commandes, pas les clients.",
       "Oui. Chaque client compté une fois, s'il a commandé dans la période.",
-      "Non. Compte les commandes avec un client.",
-      "Non."
+      "Non. Compte les commandes qui ont un client.",
+      "Non. BETWEEN inclut le 1er novembre."
     ],
     retenir: "Clients actifs = COUNT(DISTINCT client_id) sur la période."
   },
@@ -1648,17 +1648,17 @@ LEARNSQL.questions.m04 = [
     q: "Comment trouver les clients qui ont commandé en 2025 ET en 2026 ?",
     choixCode: true,
     choix: [
-      "WHERE annee = 2025 AND annee = 2026",
+      "WHERE annee = 2025 AND annee = 2026 GROUP BY client_id",
       "WHERE annee IN (2025, 2026) GROUP BY client_id HAVING COUNT(DISTINCT annee) = 2",
-      "WHERE annee IN (2025, 2026)",
-      "GROUP BY annee HAVING COUNT(*) = 2"
+      "WHERE annee IN (2025, 2026) GROUP BY client_id HAVING COUNT(*) = 2",
+      "WHERE annee IN (2025, 2026) GROUP BY client_id HAVING COUNT(DISTINCT annee) >= 1"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une ligne ne peut pas avoir deux années : 0 ligne.",
       "Oui. On garde les clients présents sur les 2 années. (INTERSECT marche aussi.)",
-      "Non. Ceux qui ont commandé l'une OU l'autre.",
-      "Non."
+      "Non. Compte les commandes : un client avec 2 commandes en 2025 seulement passerait.",
+      "Non. ≥ 1 = l'une OU l'autre année."
     ],
     retenir: "« Présent sur toutes les périodes » : HAVING COUNT(DISTINCT période) = nb de périodes."
   },
@@ -1706,16 +1706,16 @@ LEARNSQL.questions.m04 = [
     choixCode: true,
     choix: [
       "MIN(CASE WHEN livre = 1 THEN 1 ELSE 0 END) = 1",
-      "MAX(livre) = 1",
-      "SUM(livre) > 0",
-      "COUNT(livre) = 1"
+      "MAX(CASE WHEN livre = 1 THEN 1 ELSE 0 END) = 1",
+      "SUM(CASE WHEN livre = 1 THEN 1 ELSE 0 END) > 0",
+      "MIN(CASE WHEN livre = 1 THEN 0 ELSE 1 END) = 1"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Si une seule ligne vaut 0, le MIN vaut 0.",
-      "Non. MAX(bit) est refusé, et MAX = au moins une.",
-      "Non. SUM(bit) est refusé, et > 0 = au moins une.",
-      "Non."
+      "Non. MAX = 1 dès qu'UNE ligne est livrée.",
+      "Non. > 0 = au moins une ligne livrée.",
+      "Non. Inversé : vaut 1 seulement si AUCUNE ligne n'est livrée."
     ],
     retenir: "« Toutes » = MIN(indicateur) = 1. « Au moins une » = MAX(indicateur) = 1."
   },
@@ -1723,17 +1723,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q94", dialecte: "SQL Server + Snowflake",
     q: "SELECT COUNT(*) FROM grosse_table; (sans WHERE) : quelle différence entre les moteurs ?",
     choix: [
-      "Aucune",
-      "Snowflake répond presque instantanément grâce à ses métadonnées ; SQL Server doit parcourir un index",
+      "Aucune : les deux lisent toute la table",
+      "Snowflake répond grâce à ses métadonnées",
       "SQL Server répond instantanément, Snowflake lit tout",
-      "Les deux refusent sans WHERE"
+      "Les deux refusent un COUNT(*) sans WHERE"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Snowflake connaît le nombre de lignes de chaque micro-partition. Sur SQL Server, sys.partitions donne une estimation rapide.",
+      "Oui. Snowflake connaît le nombre de lignes de chaque micro-partition : réponse presque instantanée. SQL Server doit parcourir un index (sys.partitions donne une estimation rapide).",
       "Non. C'est l'inverse.",
-      "Non."
+      "Non. COUNT(*) sans WHERE est valide."
     ],
     retenir: "COUNT(*) sans filtre : instantané sur Snowflake, coûteux sur SQL Server."
   },
@@ -1760,17 +1760,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q96", dialecte: "Standard",
     q: "Tu veux les 3 meilleurs clients de CHAQUE région. GROUP BY suffit-il ?",
     choix: [
-      "Oui, avec TOP (3)",
-      "Non : il faut une fonction de fenêtrage (ROW_NUMBER par région) sur le résultat du GROUP BY",
+      "Oui, avec TOP (3) après le GROUP BY",
+      "Non : il faut ROW_NUMBER par région",
       "Oui, avec HAVING COUNT(*) <= 3",
-      "Oui, avec ORDER BY"
+      "Oui, avec ORDER BY region, ca DESC"
     ],
     bonne: 1,
     pourquoi: [
       "Non. TOP (3) donne 3 lignes au total, pas 3 par région.",
-      "Oui. On calcule le CA par client, puis on numérote dans chaque région, et on garde les n° 1 à 3 (module 8).",
+      "Oui. On calcule le CA par client (GROUP BY), puis on numérote dans chaque région avec ROW_NUMBER() OVER (PARTITION BY region …), et on garde les n° 1 à 3 (module 8).",
       "Non. Ça filtre sur le nombre de lignes du groupe.",
-      "Non."
+      "Non. Le tri ne limite pas le nombre de clients."
     ],
     retenir: "« Top N par groupe » : GROUP BY + ROW_NUMBER() OVER (PARTITION BY …)."
   },
@@ -1778,17 +1778,17 @@ LEARNSQL.questions.m04 = [
     id: "m04-q97", dialecte: "Standard",
     q: "Tu importes un fichier Excel de ventes. Le CA calculé est le double du CA réel. Cause probable ?",
     choix: [
-      "Un bug de SUM",
-      "Le fichier contient des lignes « Total » ou « Sous-total » qui sont additionnées avec le détail",
-      "Les NULL",
-      "Le format des dates"
+      "Un bug de SUM sur les fichiers de plus de 1 Go",
+      "Des lignes « Total » ont été importées",
+      "Les NULL, comptés deux fois par SUM",
+      "Le format des dates, mal converti"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les totaux déjà calculés dans Excel sont recomptés. Filtre-les à l'import.",
-      "Non. Les NULL diminuent, ils ne doublent pas.",
-      "Non."
+      "Oui. Le fichier contient des lignes « Total » ou « Sous-total » : elles sont additionnées avec le détail. Filtre-les à l'import.",
+      "Non. SUM ignore les NULL : ils ne doublent rien.",
+      "Non. Une date mal convertie ne double pas les montants."
     ],
     retenir: "Données importées : élimine les lignes de totaux avant d'agréger."
   },
@@ -1796,15 +1796,15 @@ LEARNSQL.questions.m04 = [
     id: "m04-q98", dialecte: "Standard",
     q: "Une table contient le stock de fin de mois, par article. Que vaut SUM(qte_stock) sur 12 mois ?",
     choix: [
-      "Le stock moyen",
-      "Rien d'utile : le stock ne s'additionne pas dans le temps",
-      "Le stock actuel",
-      "Le total vendu"
+      "Le stock moyen sur l'année",
+      "Rien d'utile (stock non additif)",
+      "Le stock actuel de chaque article",
+      "Le total vendu sur les 12 mois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait AVG.",
-      "Oui. Le stock est une mesure « semi-additive ». On prend le dernier mois, ou la moyenne. Pas la somme.",
+      "Oui. Le stock est une mesure « semi-additive » : on ne l'additionne pas dans le temps. On prend le dernier mois, ou la moyenne.",
       "Non. Le stock actuel = le dernier mois.",
       "Non."
     ],
@@ -1833,16 +1833,16 @@ LEARNSQL.questions.m04 = [
     id: "m04-q100", dialecte: "SQL Server",
     q: "Les rapports d'agrégats sur une table de faits de 500 millions de lignes sont lents. Quelle solution SQL Server est faite pour ça ?",
     choix: [
-      "Ajouter NOLOCK",
-      "Un index columnstore : stockage par colonnes, compressé, très rapide pour SUM / COUNT sur de gros volumes",
-      "Ajouter DISTINCT",
-      "Un index sur chaque colonne"
+      "Ajouter NOLOCK à toutes les requêtes",
+      "Un index columnstore",
+      "Ajouter DISTINCT dans les agrégats",
+      "Un index classique sur chaque colonne"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ça ne rend pas le calcul plus rapide, et ça peut fausser.",
-      "Oui. Le columnstore lit seulement les colonnes utiles, par lots. C'est le principe de Snowflake.",
-      "Non.",
+      "Oui. Stockage par colonnes, compressé, lu par lots : très rapide pour SUM / COUNT sur de gros volumes. C'est le principe de Snowflake.",
+      "Non. Ça ajoute du travail.",
       "Non. Coûteux, et peu utile pour des agrégats sur toute la table."
     ],
     retenir: "Gros agrégats sur SQL Server : index columnstore."
