@@ -167,17 +167,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q10", dialecte: "Standard",
     q: "Pourquoi UNION est-il plus coûteux que UNION ALL ?",
     choix: [
-      "Il lit les tables deux fois",
-      "Il doit comparer toutes les lignes pour trouver les doublons (tri ou hachage)",
-      "Il crée des index",
-      "Il n'est pas plus coûteux"
+      "Il lit chaque table deux fois de suite",
+      "Il doit chercher les doublons (tri ou hachage)",
+      "Il crée des index temporaires sur chaque table",
+      "Il n'est pas plus coûteux, c'est un mythe"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Sur de gros volumes, ce travail en plus est important.",
+      "Oui. Il doit comparer toutes les lignes pour trouver les doublons. Sur de gros volumes, ce travail en plus est important.",
       "Non.",
-      "Non."
+      "Non. Le dédoublonnage coûte vraiment."
     ],
     retenir: "UNION = UNION ALL + un tri ou un hachage."
   },
@@ -203,17 +203,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q12", dialecte: "SQL Server",
     q: "Que donne SELECT 1 UNION ALL SELECT 'A'; sur SQL Server ?",
     choix: [
-      "Deux lignes : 1 et 'A'",
-      "Erreur : impossible de convertir 'A' en entier",
-      "Une ligne",
-      "NULL"
+      "Deux lignes, l'une avec 1 et l'autre avec 'A'",
+      "Erreur de conversion de 'A'",
+      "Une seule ligne : la valeur 1",
+      "Deux lignes : 1 et NULL"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une colonne n'a qu'un seul type.",
-      "Oui. Le type le plus fort (INT) s'impose. Convertis : CAST(1 AS varchar(10)).",
-      "Non.",
-      "Non."
+      "Oui. Le type le plus fort (INT) s'impose : 'A' ne peut pas devenir un entier. Convertis : CAST(1 AS varchar(10)).",
+      "Non. Il y a une erreur.",
+      "Non. Il y a une erreur."
     ],
     retenir: "Chaque colonne : types compatibles dans toutes les parties."
   },
@@ -239,17 +239,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q14", dialecte: "Standard",
     q: "Où se place le ORDER BY dans une requête avec UNION ALL ?",
     choix: [
-      "Dans chaque partie",
+      "Dans chaque partie, avant le UNION ALL",
       "Une seule fois, à la toute fin",
-      "Dans la 1re partie",
-      "Il est interdit"
+      "Dans la 1re partie seulement",
+      "Nulle part : il est interdit"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un ORDER BY dans chaque partie est refusé.",
       "Oui. Il trie le résultat complet.",
       "Non.",
-      "Non."
+      "Non. Il est permis, à la fin."
     ],
     retenir: "UNION : un seul ORDER BY, à la fin."
   },
@@ -314,15 +314,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q18", dialecte: "Standard",
     q: "Sans ORDER BY, A UNION ALL B renvoie-t-il toujours les lignes de A avant celles de B ?",
     choix: [
-      "Oui",
-      "Non, pas garanti. Ajoute une colonne (1 pour A, 2 pour B) et trie dessus",
-      "Oui, sur SQL Server",
+      "Oui, toujours dans cet ordre",
+      "Non, pas garanti",
+      "Oui, mais seulement sur SQL Server",
       "Non, B vient toujours en premier"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Souvent vrai en pratique, jamais garanti.",
-      "Oui. SELECT 1 AS ordre, … UNION ALL SELECT 2, … ORDER BY ordre.",
+      "Oui. Ajoute une colonne (1 pour A, 2 pour B) et trie dessus : SELECT 1 AS ordre, … UNION ALL SELECT 2, … ORDER BY ordre.",
       "Non.",
       "Non."
     ],
@@ -352,17 +352,17 @@ LEARNSQL.questions.m07 = [
     q: "Tu empiles l'ERP et l'EDI. Comment savoir d'où vient chaque ligne ?",
     choixCode: true,
     choix: [
-      "C'est impossible",
+      "SELECT 'ERP' AS source, … FROM erp UNION ALL SELECT 'ERP', … FROM edi",
       "SELECT 'ERP' AS source, … FROM erp UNION ALL SELECT 'EDI', … FROM edi",
-      "Utiliser UNION au lieu de UNION ALL",
-      "Ajouter ORDER BY"
+      "SELECT … FROM erp UNION ALL SELECT … FROM edi ORDER BY source",
+      "SELECT … FROM erp UNION SELECT … FROM edi"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les deux parties disent 'ERP' : impossible de les distinguer.",
       "Oui. Une colonne constante par partie indique la source.",
-      "Non. Ça mélangerait les sources.",
-      "Non."
+      "Non. La colonne source n'existe pas : erreur.",
+      "Non. Rien n'indique la source, et UNION fusionne les doublons."
     ],
     retenir: "Empiler des sources : ajoute une colonne « source »."
   },
@@ -388,15 +388,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q22", dialecte: "Standard",
     q: "Quelle différence entre a INTERSECT b (sur code, ville) et a INNER JOIN b ON a.code = b.code AND a.ville = b.ville ?",
     choix: [
-      "Aucune",
-      "INTERSECT considère NULL = NULL et ne renvoie pas de doublons ; le JOIN rate les NULL et peut multiplier les lignes",
-      "Le JOIN est toujours plus juste",
+      "Aucune, ce sont deux écritures identiques",
+      "INTERSECT gère les NULL, sans doublons",
+      "Le JOIN est toujours plus juste et plus rapide",
       "INTERSECT est interdit avec deux colonnes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une ville NULL des deux côtés : trouvée par INTERSECT, pas par le JOIN.",
+      "Oui. INTERSECT considère NULL = NULL et ne renvoie pas de doublons. Le JOIN rate les NULL et peut multiplier les lignes : une ville NULL des deux côtés est trouvée par INTERSECT, pas par le JOIN.",
       "Non.",
       "Non."
     ],
@@ -406,15 +406,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q23", dialecte: "Standard",
     q: "Quelle différence entre a EXCEPT b et a WHERE NOT EXISTS (… b.code = a.code) ?",
     choix: [
-      "Aucune",
-      "EXCEPT compare toutes les colonnes de la ligne ; NOT EXISTS compare seulement ce que tu mets dans le WHERE (souvent la clé)",
-      "NOT EXISTS supprime les doublons",
-      "EXCEPT ne marche que sur une colonne"
+      "Aucune, les deux donnent le même résultat",
+      "EXCEPT compare toute la ligne, pas la clé",
+      "NOT EXISTS supprime les doublons en plus",
+      "EXCEPT ne marche que sur une seule colonne"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. EXCEPT trouve aussi les lignes MODIFIÉES (même code, ville différente). NOT EXISTS sur le code trouve seulement les codes absents.",
+      "Oui. EXCEPT compare toutes les colonnes ; NOT EXISTS compare seulement ce que tu mets dans le WHERE (souvent la clé). EXCEPT trouve aussi les lignes MODIFIÉES (même code, ville différente).",
       "Non. C'est EXCEPT qui dédoublonne.",
       "Non."
     ],
@@ -424,15 +424,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q24", dialecte: "Standard",
     q: "La liste B contient un code NULL. A EXCEPT B pose-t-il le même problème que NOT IN ?",
     choix: [
-      "Oui, 0 ligne",
-      "Non : EXCEPT gère les NULL comme des valeurs normales",
-      "Oui, erreur",
-      "Seulement sur SQL Server"
+      "Oui : 0 ligne, comme avec NOT IN",
+      "Non : EXCEPT gère bien les NULL",
+      "Oui : une erreur à cause du NULL",
+      "Seulement sur SQL Server, pas Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le piège du NULL ne touche pas EXCEPT.",
-      "Oui. EXCEPT est une alternative sûre à NOT IN.",
+      "Oui. EXCEPT traite les NULL comme des valeurs normales : c'est une alternative sûre à NOT IN.",
       "Non.",
       "Non."
     ],
@@ -498,17 +498,17 @@ LEARNSQL.questions.m07 = [
     q: "Comment trouver TOUTES les différences entre deux tables de même structure, v1 et v2 ?",
     choixCode: true,
     choix: [
-      "v1 EXCEPT v2",
+      "(v1 EXCEPT v2) UNION ALL (v1 EXCEPT v2)",
       "(v1 EXCEPT v2) UNION ALL (v2 EXCEPT v1)",
-      "v1 INTERSECT v2",
-      "v1 UNION v2"
+      "(v1 UNION v2) EXCEPT (v1 UNION v2)",
+      "(v1 INTERSECT v2) UNION ALL (v2 EXCEPT v1)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Seulement ce qui manque (ou a changé) dans v2.",
+      "Non. Le même sens deux fois : les lignes en plus dans v2 manquent.",
       "Oui. Les deux sens. Ajoute une colonne 'v1' / 'v2' pour savoir d'où vient chaque différence.",
-      "Non. Ce sont les lignes identiques.",
-      "Non."
+      "Non. Toujours vide.",
+      "Non. Les lignes communes + celles en plus dans v2 : les lignes absentes de v2 manquent."
     ],
     retenir: "Différences complètes : EXCEPT dans les deux sens."
   },
@@ -553,17 +553,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q31", dialecte: "Standard",
     q: "EXCEPT sur une table de 80 colonnes et 50 millions de lignes est lent. Quelle alternative courante ?",
     choix: [
-      "UNION",
-      "Comparer une empreinte (hash) des colonnes, calculée et stockée à chaque chargement",
-      "INTERSECT",
-      "DISTINCT"
+      "INTERSECT à la place d'EXCEPT",
+      "Comparer un hash des colonnes",
+      "Ajouter DISTINCT dans chaque partie",
+      "Remplacer EXCEPT par UNION, plus rapide"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. On compare la clé + une seule colonne de hash au lieu de 80 colonnes.",
-      "Non.",
-      "Non."
+      "Non. Trouve les lignes identiques, pas les différences, et coûte autant.",
+      "Oui. Une empreinte (hash) des colonnes, calculée et stockée à chaque chargement : on compare la clé + une seule colonne au lieu de 80.",
+      "Non. EXCEPT dédoublonne déjà.",
+      "Non. UNION ne compare pas."
     ],
     retenir: "Très grosses comparaisons : clé + hash."
   },
@@ -572,17 +572,17 @@ LEARNSQL.questions.m07 = [
     q: "Ton ERP a une base par société (dossier). Comment créer une vue qui regroupe les clients de toutes les sociétés ?",
     choixCode: true,
     choix: [
-      "SELECT * FROM soc1.dbo.client JOIN soc2.dbo.client …",
+      "SELECT code, nom FROM soc1.dbo.client UNION ALL SELECT code, nom FROM soc2.dbo.client",
       "SELECT 'SOC1' AS societe, code, nom FROM soc1.dbo.client UNION ALL SELECT 'SOC2', code, nom FROM soc2.dbo.client",
-      "SELECT DISTINCT * FROM soc1.dbo.client, soc2.dbo.client",
-      "SELECT * FROM soc1.dbo.client UNION SELECT * FROM soc2.dbo.client"
+      "SELECT 'SOC1' AS societe, code, nom FROM soc1.dbo.client UNION SELECT 'SOC1', code, nom FROM soc2.dbo.client",
+      "SELECT 'SOC1' AS societe, c1.code, c1.nom FROM soc1.dbo.client c1 JOIN soc2.dbo.client c2 ON c2.code = c1.code"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. On veut empiler, pas relier.",
+      "Non. Sans colonne société, le même code dans deux sociétés est impossible à distinguer.",
       "Oui. UNION ALL + colonne société : le même code client peut exister dans les deux.",
-      "Non. Produit cartésien.",
-      "Non. Sans colonne société, deux clients différents de même code et même nom seraient fusionnés."
+      "Non. Les deux parties disent 'SOC1', et UNION fusionne les clients identiques des deux sociétés.",
+      "Non. On veut empiler, pas relier : seuls les codes communs sortent."
     ],
     retenir: "Multi-sociétés : UNION ALL + colonne société."
   },
@@ -591,17 +591,17 @@ LEARNSQL.questions.m07 = [
     q: "Les commandes sont dans commande (année en cours) et commande_archive (années passées). Comment tout analyser ?",
     choixCode: true,
     choix: [
-      "Un JOIN entre les deux",
+      "Une vue : SELECT … FROM commande JOIN commande_archive ON …",
       "Une vue : SELECT … FROM commande UNION ALL SELECT … FROM commande_archive",
-      "UNION entre les deux",
-      "Copier l'archive dans commande à chaque rapport"
+      "Une vue : SELECT … FROM commande UNION SELECT … FROM commande_archive",
+      "Copier l'archive dans commande avant chaque rapport"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On veut empiler, pas relier.",
       "Oui. Les colonnes doivent être listées dans le même ordre dans les deux parties.",
       "Non. Inutilement coûteux, et risque de fusionner des lignes identiques.",
-      "Non."
+      "Non. Lourd et risqué : doublons, données modifiées."
     ],
     retenir: "Tables découpées dans le temps : vue UNION ALL."
   },
@@ -610,17 +610,17 @@ LEARNSQL.questions.m07 = [
     q: "Tu veux le CA net par client à partir de facture (montants positifs) et avoir (montants positifs aussi). Quelle approche ?",
     choixCode: true,
     choix: [
-      "facture JOIN avoir ON client, puis SUM(f.montant) - SUM(a.montant)",
+      "SELECT client_id, montant FROM facture UNION ALL SELECT client_id, montant FROM avoir, puis GROUP BY client_id",
       "SELECT client_id, montant FROM facture UNION ALL SELECT client_id, -montant FROM avoir, puis GROUP BY client_id",
-      "facture UNION avoir, puis SUM",
-      "facture EXCEPT avoir"
+      "SELECT client_id, montant FROM facture UNION SELECT client_id, -montant FROM avoir, puis GROUP BY client_id",
+      "facture JOIN avoir ON client, puis SUM(f.montant) - SUM(a.montant)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Jointure 1-N des deux côtés : sommes multipliées.",
+      "Non. Les avoirs sont ajoutés au lieu d'être retirés.",
       "Oui. On empile avec le bon signe, puis on agrège une seule fois.",
-      "Non. UNION fusionnerait des montants identiques, et les avoirs seraient ajoutés.",
-      "Non."
+      "Non. UNION fusionnerait deux factures identiques du même client.",
+      "Non. Jointure 1-N des deux côtés : sommes multipliées."
     ],
     retenir: "Combiner deux tables de faits : UNION ALL (avec le signe) puis GROUP BY."
   },
@@ -628,17 +628,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q35", dialecte: "Standard",
     q: "Comment simuler un FULL OUTER JOIN avec des opérateurs ensemblistes ?",
     choix: [
-      "A INNER JOIN B UNION ALL B INNER JOIN A",
-      "A LEFT JOIN B, UNION ALL les lignes de B sans correspondance dans A",
-      "A INTERSECT B",
-      "A CROSS JOIN B"
+      "A INNER JOIN B, UNION ALL B INNER JOIN A",
+      "A LEFT JOIN B, puis UNION ALL du reste de B",
+      "A INTERSECT B, puis UNION ALL de A EXCEPT B",
+      "A CROSS JOIN B, filtré par un WHERE"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les lignes sans correspondance manquent.",
-      "Oui. Le LEFT JOIN donne A complet ; on ajoute la partie de B absente de A (NOT EXISTS).",
-      "Non.",
-      "Non."
+      "Oui. Le LEFT JOIN donne A complet ; on ajoute les lignes de B sans correspondance dans A (NOT EXISTS).",
+      "Non. Pas de jointure : on ne relie pas les colonnes de A et de B.",
+      "Non. Un filtre sur un CROSS JOIN donne un INNER JOIN."
     ],
     retenir: "FULL = LEFT JOIN + (B sans correspondance)."
   },
@@ -646,15 +646,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q36", dialecte: "Standard",
     q: "Pour simuler un FULL JOIN, tu écris A LEFT JOIN B UNION A RIGHT JOIN B. Quel est le risque ?",
     choix: [
-      "Aucun",
-      "UNION fusionne aussi des lignes identiques légitimes ; et le coût de dédoublonnage est élevé",
-      "Erreur de syntaxe",
-      "Les lignes communes disparaissent"
+      "Aucun, c'est équivalent à un FULL JOIN",
+      "UNION fusionne aussi de vraies lignes égales",
+      "Erreur de syntaxe entre LEFT et RIGHT JOIN",
+      "Les lignes communes disparaissent du résultat"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Préfère LEFT JOIN UNION ALL (B sans correspondance), ou un vrai FULL OUTER JOIN.",
+      "Oui. UNION fusionne des lignes identiques légitimes, et le dédoublonnage coûte cher. Préfère LEFT JOIN UNION ALL (B sans correspondance), ou un vrai FULL OUTER JOIN.",
       "Non.",
       "Non. Elles apparaissent une fois."
     ],
@@ -664,17 +664,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q37", dialecte: "Standard",
     q: "Que penser de SELECT DISTINCT code FROM a UNION SELECT DISTINCT code FROM b ?",
     choix: [
-      "C'est nécessaire",
-      "Les DISTINCT sont inutiles : UNION dédoublonne déjà tout",
-      "C'est une erreur",
-      "C'est plus rapide"
+      "Ils sont nécessaires pour dédoublonner",
+      "Les DISTINCT sont inutiles",
+      "C'est une erreur de syntaxe",
+      "C'est plus rapide grâce aux DISTINCT"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
       "Oui. UNION supprime déjà tous les doublons.",
       "Non. C'est valide.",
-      "Non."
+      "Non. Ça ajoute du travail."
     ],
     retenir: "UNION + DISTINCT = redondant."
   },
@@ -682,15 +682,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q38", dialecte: "Standard",
     q: "Une vue fait SELECT * FROM a UNION ALL SELECT * FROM b. Quelqu'un ajoute une colonne dans a. Que se passe-t-il ?",
     choix: [
-      "Rien",
-      "La vue casse (nombre de colonnes différent) ou mélange des colonnes",
-      "La colonne est ajoutée à b",
-      "La vue s'adapte"
+      "Rien, la vue continue de fonctionner",
+      "La vue casse ou mélange les colonnes",
+      "La colonne est ajoutée aussi dans b",
+      "La vue s'adapte toute seule"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Liste toujours les colonnes, dans le même ordre, dans chaque partie.",
+      "Oui. Le nombre de colonnes diffère (erreur) ou les colonnes se décalent. Liste toujours les colonnes, dans le même ordre, dans chaque partie.",
       "Non.",
       "Non."
     ],
@@ -700,15 +700,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q39", dialecte: "Standard",
     q: "Partie 1 : SELECT nom, ville. Partie 2 : SELECT ville, nom. Les deux colonnes sont du texte. Que se passe-t-il ?",
     choix: [
-      "Erreur",
-      "Aucune erreur, mais les villes et les noms sont mélangés dans les mêmes colonnes",
-      "Le moteur remet dans l'ordre",
+      "Erreur : colonnes dans un ordre différent",
+      "Villes et noms mélangés, sans erreur",
+      "Le moteur remet les colonnes dans l'ordre",
       "Les lignes de la partie 2 sont ignorées"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les types sont compatibles : pas d'erreur.",
-      "Oui. L'union se fait par POSITION, pas par nom.",
+      "Oui. L'union se fait par POSITION, pas par nom : les villes et les noms se retrouvent dans les mêmes colonnes.",
       "Non. Le moteur ne regarde pas les noms.",
       "Non."
     ],
@@ -719,14 +719,14 @@ LEARNSQL.questions.m07 = [
     q: "Erreur « Cannot resolve the collation conflict … in the UNION ALL operator ». Cause ?",
     choix: [
       "Les colonnes ont des types différents",
-      "Les deux parties viennent de bases avec des collations différentes. Ajoute COLLATE sur une des colonnes",
-      "Il manque un ORDER BY",
-      "Il y a des NULL"
+      "Des collations différentes entre bases",
+      "Il manque un ORDER BY à la fin de l'union",
+      "Il y a des NULL dans une des colonnes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Ex. nom COLLATE French_CI_AS dans une des parties.",
+      "Oui. Les deux parties viennent de bases avec des collations différentes. Ajoute COLLATE sur une des colonnes (ex. nom COLLATE French_CI_AS).",
       "Non.",
       "Non."
     ],
@@ -736,15 +736,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q41", dialecte: "SQL Server",
     q: "Partie 1 : code VARCHAR(5). Partie 2 : code VARCHAR(50). Les codes longs de la partie 2 sont-ils coupés ?",
     choix: [
-      "Oui, à 5 caractères",
-      "Non : le résultat prend le type le plus large (VARCHAR(50))",
-      "Erreur",
-      "Seulement avec UNION"
+      "Oui, coupés à 5 caractères",
+      "Non : le type le plus large l'emporte",
+      "Erreur : longueurs incompatibles",
+      "Seulement avec UNION, pas avec UNION ALL"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. SQL Server choisit un type qui peut contenir toutes les valeurs.",
+      "Oui. SQL Server choisit un type qui peut contenir toutes les valeurs : VARCHAR(50).",
       "Non.",
       "Non."
     ],
@@ -790,17 +790,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q44", dialecte: "Standard",
     q: "GROUP BY GROUPING SETS ((region), (annee)) équivaut à quoi ?",
     choix: [
-      "Un GROUP BY region, annee",
-      "Un GROUP BY region UNION ALL un GROUP BY annee, mais calculé en une seule lecture",
-      "Un INTERSECT",
-      "Un ROLLUP"
+      "Un GROUP BY region, annee, tout simplement",
+      "Deux GROUP BY empilés, en une lecture",
+      "Un INTERSECT entre les deux regroupements",
+      "Un ROLLUP (region, annee) complet"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ça donnerait les combinaisons.",
-      "Oui. Même résultat (avec NULL dans la colonne non groupée), en plus efficace.",
+      "Oui. Un GROUP BY region UNION ALL un GROUP BY annee, mais calculé en une seule lecture. Même résultat (avec NULL dans la colonne non groupée), en plus efficace.",
       "Non.",
-      "Non."
+      "Non. ROLLUP ajoute aussi region × annee et le total."
     ],
     retenir: "GROUPING SETS = plusieurs GROUP BY empilés, en une passe."
   },
@@ -808,15 +808,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q45", dialecte: "SQL Server",
     q: "Pour transformer 12 colonnes de mois en lignes, pourquoi CROSS APPLY (VALUES …) plutôt que 12 SELECT reliés par UNION ALL ?",
     choix: [
-      "UNION ALL est interdit",
-      "UNION ALL lit la table 12 fois ; CROSS APPLY la lit une seule fois",
-      "CROSS APPLY dédoublonne",
-      "Aucune différence"
+      "UNION ALL est interdit pour dépivoter",
+      "Une seule lecture au lieu de 12",
+      "CROSS APPLY dédoublonne les mois",
+      "Aucune différence de performance"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Même résultat, beaucoup moins de lectures.",
+      "Oui. UNION ALL lit la table 12 fois ; CROSS APPLY la lit une seule fois. Même résultat, beaucoup moins de lectures.",
       "Non.",
       "Non."
     ],
@@ -828,16 +828,16 @@ LEARNSQL.questions.m07 = [
     choixCode: true,
     choix: [
       "INSERT INTO cible (code, nom) SELECT code, nom FROM stg1 UNION ALL SELECT code, nom FROM stg2",
-      "INSERT INTO cible VALUES (stg1, stg2)",
-      "INSERT INTO cible SELECT * FROM stg1, stg2",
-      "Impossible"
+      "INSERT INTO cible (code, nom) SELECT code, nom FROM stg1 UNION ALL SELECT nom, code FROM stg2",
+      "INSERT INTO cible (code, nom) SELECT code, nom FROM stg1, stg2",
+      "INSERT INTO cible (code, nom) VALUES (SELECT code, nom FROM stg1), (SELECT code, nom FROM stg2)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le SELECT de l'INSERT peut être une union.",
-      "Non.",
-      "Non. Produit cartésien.",
-      "Non."
+      "Non. Colonnes inversées dans la 2e partie : les codes et les noms sont mélangés.",
+      "Non. Produit cartésien (et colonnes ambiguës).",
+      "Non. VALUES n'accepte pas des sous-requêtes de plusieurs lignes."
     ],
     retenir: "INSERT … SELECT … UNION ALL SELECT …"
   },
@@ -846,16 +846,16 @@ LEARNSQL.questions.m07 = [
     q: "Tu empiles commande et commande_archive, puis tu veux seulement 2024. Où filtrer ?",
     choix: [
       "Un seul WHERE, dans la dernière partie",
-      "Un WHERE dans CHAQUE partie, ou un WHERE sur l'ensemble enveloppé dans une CTE / table dérivée",
-      "Dans le ORDER BY",
-      "Impossible"
+      "Un WHERE dans chaque partie (ou autour)",
+      "Dans le ORDER BY, à la fin de l'union",
+      "Dans la 1re partie : il vaut pour tout"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce WHERE ne s'applique qu'à la dernière partie.",
-      "Oui. Chaque WHERE agit sur sa partie. Ou WITH u AS (… UNION ALL …) SELECT * FROM u WHERE annee = 2024.",
+      "Oui. Chaque WHERE agit sur sa partie. Ou on enveloppe l'union : WITH u AS (… UNION ALL …) SELECT * FROM u WHERE annee = 2024.",
       "Non.",
-      "Non."
+      "Non. Il ne vaut que pour sa partie."
     ],
     retenir: "Un WHERE dans une UNION ne vaut que pour sa partie."
   },
@@ -920,15 +920,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q51", dialecte: "SQL Server",
     q: "SQL Server accepte-t-il EXCEPT ALL (qui garderait les doublons) ?",
     choix: [
-      "Oui",
-      "Non : seulement EXCEPT (qui dédoublonne)",
-      "Oui, avec DISTINCT",
-      "Seulement en récursif"
+      "Oui, EXCEPT ALL est accepté",
+      "Non : seulement EXCEPT",
+      "Oui, avec un DISTINCT en plus",
+      "Seulement dans une CTE récursive"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour comparer avec les doublons : numérote les lignes (ROW_NUMBER par clé) avant l'EXCEPT.",
+      "Oui. Seulement EXCEPT, qui dédoublonne. Pour comparer avec les doublons : numérote les lignes (ROW_NUMBER par clé) avant l'EXCEPT.",
       "Non.",
       "Non."
     ],
@@ -956,17 +956,17 @@ LEARNSQL.questions.m07 = [
     id: "m07-q53", dialecte: "Standard",
     q: "Pour savoir quels CLIENTS manquent dans la cible, que comparer avec EXCEPT ?",
     choix: [
-      "Toutes les colonnes",
+      "Toutes les colonnes de la table",
       "Seulement la clé (code client)",
-      "Seulement le nom",
-      "Aucune colonne"
+      "Seulement le nom du client",
+      "Aucune colonne : EXCEPT * suffit"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un client présent mais modifié apparaîtrait comme « manquant ».",
       "Oui. Comparer la clé = présence / absence. Comparer toutes les colonnes = présence ET identité.",
       "Non. Le nom n'est pas un identifiant fiable.",
-      "Non."
+      "Non. EXCEPT compare les colonnes listées dans les SELECT."
     ],
     retenir: "EXCEPT sur la clé = absents. Sur toutes les colonnes = absents ou modifiés."
   },
@@ -974,15 +974,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q54", dialecte: "SQL Server",
     q: "Une vue UNION ALL regroupe vente_2024, vente_2025, vente_2026, chacune avec une contrainte CHECK sur l'année. Que fait SQL Server pour WHERE annee = 2026 ?",
     choix: [
-      "Il lit les 3 tables",
-      "Il peut ne lire que vente_2026, grâce aux contraintes CHECK (vue partitionnée)",
-      "Erreur",
-      "Il lit seulement la 1re table"
+      "Il lit les 3 tables, puis filtre",
+      "Il ne lit que vente_2026",
+      "Une erreur : la vue est ambiguë",
+      "Il lit seulement la 1re table de la vue"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas si les contraintes sont en place et fiables.",
-      "Oui. L'optimiseur sait que les autres tables ne peuvent pas contenir 2026.",
+      "Oui. Grâce aux contraintes CHECK (vue partitionnée), l'optimiseur sait que les autres tables ne peuvent pas contenir 2026.",
       "Non.",
       "Non."
     ],
@@ -1048,16 +1048,16 @@ LEARNSQL.questions.m07 = [
     choixCode: true,
     choix: [
       "(erp UNION edi) EXCEPT (erp INTERSECT edi)",
-      "erp INTERSECT edi",
-      "erp UNION ALL edi",
-      "erp EXCEPT edi"
+      "(erp INTERSECT edi) EXCEPT (erp UNION edi)",
+      "(erp EXCEPT edi) UNION ALL (erp EXCEPT edi)",
+      "(erp UNION edi) EXCEPT (erp EXCEPT edi)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Tout, moins ce qui est commun. C'est la « différence symétrique ».",
-      "Non. Seulement les communs.",
-      "Non. Tout, avec doublons.",
-      "Non. Un seul sens."
+      "Non. Toujours vide : le commun est inclus dans le tout.",
+      "Non. Le même sens deux fois : les codes seulement dans l'EDI manquent.",
+      "Non. On retire les codes seulement dans l'ERP : il reste les communs et ceux de l'EDI."
     ],
     retenir: "Différence symétrique = (A UNION B) EXCEPT (A INTERSECT B)."
   },
@@ -1083,15 +1083,15 @@ LEARNSQL.questions.m07 = [
     id: "m07-q60", dialecte: "Standard",
     q: "Quelle règle résume le bon usage des opérateurs ensemblistes ?",
     choix: [
-      "Toujours UNION",
-      "UNION ALL par défaut ; UNION seulement pour dédoublonner ; INTERSECT / EXCEPT pour comparer des listes ou des tables",
-      "Toujours EXCEPT",
-      "Jamais d'opérateurs ensemblistes"
+      "Toujours UNION, pour éviter les doublons",
+      "UNION ALL par défaut, le reste au besoin",
+      "Toujours EXCEPT, pour comparer les données",
+      "Jamais d'opérateurs ensemblistes en production"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Coûteux et risqué sur des données de détail.",
-      "Oui. Et toujours : colonnes listées, même ordre, même types.",
+      "Oui. UNION seulement pour dédoublonner ; INTERSECT / EXCEPT pour comparer des listes ou des tables. Et toujours : colonnes listées, même ordre, mêmes types.",
       "Non.",
       "Non."
     ],
