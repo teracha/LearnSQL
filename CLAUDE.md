@@ -55,7 +55,9 @@ L'export commence par `# LearnSQL — export pour le prof`. Dans ce cas :
 
 Règles pour écrire des questions :
 
-- 10 questions par module, de la plus simple à la plus difficile.
+- 30 questions par module (la réserve), de la plus simple à la plus difficile.
+- Un QCM tire 10 questions dans la réserve : d'abord les jamais vues, puis les ratées (`TAILLE_QCM` dans `js/app.js`).
+- Varier les angles : une même notion doit revenir dans plusieurs situations, pour que l'élève apprenne la règle et pas la réponse.
 - Des pièges réels, vus en entreprise. Pas de questions de pure mémoire.
 - Chaque `pourquoi` commence par « Oui. » ou « Non. » puis explique en 1 ou 2 phrases.
 - Signaler les différences SQL Server / Snowflake quand elles existent.

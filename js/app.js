@@ -3,6 +3,7 @@
 
   var DATA = window.LEARNSQL;
   var STORE_KEY = "learnsql-v1";
+  var TAILLE_QCM = 10;     // questions tirées par QCM dans la réserve du module
   var app = document.getElementById("app");
   var quiz = null;        // quiz en cours
   var dernierResultat = null;
@@ -72,6 +73,21 @@
     });
   }
 
+  function vuesModule(store, qs) {
+    return qs.filter(function (q) { return store.questions[q.id]; }).length;
+  }
+
+  // Tire TAILLE_QCM questions : d'abord les jamais vues, puis les ratées, puis les réussies.
+  function tirage(qs, store) {
+    function priorite(q) {
+      var st = store.questions[q.id];
+      return !st ? 0 : st.dernier === false ? 1 : 2;
+    }
+    return melange(qs)
+      .sort(function (a, b) { return priorite(a) - priorite(b); })
+      .slice(0, TAILLE_QCM);
+  }
+
   function statsModule(store, id) {
     var t = store.tentatives.filter(function (x) { return x.module === id; });
     if (!t.length) return null;
@@ -97,14 +113,15 @@
       var droite = !qs ? '<div class="note"><small>À venir</small></div>'
         : st ? '<div class="note ' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) +
                '<small>meilleure · ' + st.nb + ' essai(s)</small></div>'
-        : '<div class="note"><small>' + qs.length + ' questions</small></div>';
+        : '<div class="note"><small>' + Math.min(TAILLE_QCM, qs.length) + ' questions</small></div>';
       var debut = qs ? '<a class="card module" href="#/quiz/' + m.id + '" style="text-decoration:none;color:inherit">'
                      : '<div class="card module locked">';
       var fin = qs ? '</a>' : '</div>';
       html += debut +
         '<div class="num">' + (i + 1) + '</div>' +
         '<div><h3>' + esc(m.titre) + '</h3><p>' + esc(m.resume) + '</p>' +
-        '<div class="tags"><span class="tag">' + esc(m.niveau) + '</span></div></div>' +
+        '<div class="tags"><span class="tag">' + esc(m.niveau) + '</span>' +
+        (qs ? '<span class="tag">' + vuesModule(store, qs) + '/' + qs.length + ' vues</span>' : '') + '</div></div>' +
         droite + fin;
     });
 
@@ -119,7 +136,7 @@
       titre = "Mes erreurs";
     } else {
       var m = module(id);
-      questions = DATA.questions[id];
+      questions = DATA.questions[id] ? tirage(DATA.questions[id], lire()) : null;
       titre = m ? m.titre : id;
     }
     if (!questions || !questions.length) {

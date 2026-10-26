@@ -164,5 +164,336 @@ LEARNSQL.questions.m02 = [
       "Non. DATEPART est une fonction sur la colonne : même problème que YEAR."
     ],
     retenir: "Ne mets pas de fonction autour d'une colonne filtrée. Transforme plutôt la valeur."
+  },
+  {
+    id: "m02-q11", dialecte: "Standard",
+    q: "Quel filtre est équivalent à WHERE pays IN ('FR', 'BE', 'CH') ?",
+    choixCode: true,
+    choix: [
+      "WHERE pays = 'FR' AND pays = 'BE' AND pays = 'CH'",
+      "WHERE pays = 'FR' OR pays = 'BE' OR pays = 'CH'",
+      "WHERE pays BETWEEN 'BE' AND 'FR'",
+      "WHERE pays LIKE 'FR,BE,CH'"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Une ligne ne peut pas avoir 3 pays à la fois : 0 ligne.",
+      "Oui. IN est une écriture courte pour plusieurs OR sur la même colonne.",
+      "Non. BETWEEN prend un intervalle alphabétique : 'CH' passerait, mais aussi 'DE', 'ES'…",
+      "Non. LIKE cherche le texte exact 'FR,BE,CH'."
+    ],
+    retenir: "col IN (a, b, c) = col = a OR col = b OR col = c."
+  },
+  {
+    id: "m02-q12", dialecte: "SQL Server",
+    q: "Sur SQL Server, tu cherches les codes qui contiennent un vrai caractère _ (comme 'A_12'). Quel motif utiliser ?",
+    choixCode: true,
+    choix: ["LIKE '%_%'", "LIKE '%[_]%'", "LIKE '%__%'", "LIKE '_%_'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. _ est un joker : ce motif accepte tout texte d'au moins 1 caractère.",
+      "Oui. Entre crochets, _ redevient un caractère normal. (Snowflake ne connaît pas les crochets : utilise ESCAPE.)",
+      "Non. Deux jokers : tout texte d'au moins 2 caractères.",
+      "Non. Que des jokers : tout texte d'au moins 2 caractères."
+    ],
+    retenir: "LIKE : pour chercher un vrai _ ou %, mets-le entre crochets [_] sur SQL Server, ou utilise ESCAPE."
+  },
+  {
+    id: "m02-q13", dialecte: "Snowflake",
+    q: "Sur Snowflake, tu veux les noms qui commencent par « dup », quelle que soit la casse (Dupont, DUPUIS…). Que choisis-tu ?",
+    choixCode: true,
+    choix: ["nom LIKE 'dup%'", "nom ILIKE 'dup%'", "nom = 'dup%'", "nom LIKE 'DUP%'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Sur Snowflake, LIKE tient compte de la casse : 'Dupont' ne passe pas.",
+      "Oui. ILIKE est un LIKE qui ignore la casse. Il n'existe pas sur SQL Server.",
+      "Non. = ne connaît pas les jokers : il cherche le texte « dup% ».",
+      "Non. 'Dupont' ne passe pas : seules les majuscules exactes correspondent."
+    ],
+    retenir: "Snowflake : ILIKE = LIKE sans tenir compte de la casse."
+  },
+  {
+    id: "m02-q14", dialecte: "SQL Server + Snowflake",
+    q: "Le test '' IS NULL (texte vide) est-il vrai ?",
+    choix: [
+      "Oui, un texte vide est NULL",
+      "Non, un texte vide est une vraie valeur",
+      "Oui sur Snowflake, non sur SQL Server",
+      "Ça dépend de la collation"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est vrai sur Oracle seulement.",
+      "Oui. '' veut dire « vide, mais connu ». NULL veut dire « inconnu ». Pour tester les deux : COALESCE(col, '') = ''.",
+      "Non. C'est pareil sur les deux.",
+      "Non. La collation n'a aucun rôle ici."
+    ],
+    retenir: "'' n'est pas NULL. Champs EDI ou imports : teste les deux cas."
+  },
+  {
+    id: "m02-q15", dialecte: "Standard",
+    q: "La remise vaut NULL pour une ligne. Cette ligne passe-t-elle le filtre WHERE NOT (remise > 10) ?",
+    choix: ["Oui", "Non", "Seulement si la remise est 0", "Erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. NULL > 10 donne « inconnu ». NOT (inconnu) reste « inconnu ».",
+      "Oui, elle ne passe pas. Seul « vrai » passe un WHERE. « Inconnu » est éliminé.",
+      "Non. La ligne n'a pas 0, elle a NULL.",
+      "Non. C'est valide."
+    ],
+    retenir: "NOT n'inverse pas « inconnu ». Les NULL restent exclus."
+  },
+  {
+    id: "m02-q16", dialecte: "SQL Server",
+    q: "Sur SQL Server, ce filtre peut-il provoquer une erreur « division par zéro » ?",
+    code: "WHERE qte <> 0\n  AND montant / qte > 5",
+    choix: [
+      "Non, qte <> 0 est testé en premier",
+      "Oui, l'ordre d'évaluation des conditions n'est pas garanti",
+      "Non, SQL Server ignore les erreurs dans WHERE",
+      "Oui, toujours"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. On le croit souvent. Mais l'optimiseur peut évaluer la division d'abord.",
+      "Oui. Le moteur choisit l'ordre. Écris plutôt montant / NULLIF(qte, 0) > 5.",
+      "Non. Une erreur arrête la requête.",
+      "Non. Ça dépend du plan d'exécution. Le risque existe, sans être systématique."
+    ],
+    retenir: "Ne compte pas sur l'ordre des conditions dans WHERE. Protège la division avec NULLIF."
+  },
+  {
+    id: "m02-q17", dialecte: "Standard",
+    q: "Pour une ligne où qte = 0, que donne montant / NULLIF(qte, 0) ?",
+    choix: ["0", "Une erreur de division par zéro", "NULL", "montant"],
+    bonne: 2,
+    pourquoi: [
+      "Non. NULLIF ne renvoie pas 0 ici.",
+      "Non. C'est justement ce que NULLIF évite.",
+      "Oui. NULLIF(qte, 0) renvoie NULL si qte vaut 0. Diviser par NULL donne NULL, sans erreur.",
+      "Non. Il n'y a pas de division par 1."
+    ],
+    retenir: "NULLIF(a, b) = NULL si a = b. Parfait pour éviter les divisions par zéro."
+  },
+  {
+    id: "m02-q18", dialecte: "Standard",
+    q: "Que renvoie WHERE quantite BETWEEN 20 AND 10 ?",
+    choix: [
+      "Les quantités de 10 à 20",
+      "Aucune ligne",
+      "Une erreur",
+      "Toutes les lignes"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le moteur n'inverse pas les bornes pour toi.",
+      "Oui. Ça veut dire quantite >= 20 AND quantite <= 10 : impossible. Mets toujours la petite borne en premier.",
+      "Non. C'est valide, juste illogique.",
+      "Non. Aucune valeur ne peut être à la fois >= 20 et <= 10."
+    ],
+    retenir: "BETWEEN petite_borne AND grande_borne. Sinon : 0 ligne, sans erreur."
+  },
+  {
+    id: "m02-q19", dialecte: "Standard",
+    q: "WHERE pays IN ('FR', NULL) renvoie-t-il les clients dont le pays est NULL ?",
+    choix: ["Oui", "Non", "Seulement sur SQL Server", "Erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. IN fait des comparaisons avec =. Or NULL = NULL n'est jamais vrai.",
+      "Oui, il ne les renvoie pas. Seuls les FR passent. Pour les NULL : OR pays IS NULL.",
+      "Non. C'est la même règle partout.",
+      "Non. C'est valide."
+    ],
+    retenir: "Mettre NULL dans une liste IN ne sert à rien. Utilise IS NULL."
+  },
+  {
+    id: "m02-q20", dialecte: "SQL Server + Snowflake",
+    q: "La condition 'abc' = 'abc   ' (avec des espaces à la fin) est-elle vraie ?",
+    choix: [
+      "Oui partout",
+      "Non partout",
+      "Oui sur SQL Server, non sur Snowflake",
+      "Non sur SQL Server, oui sur Snowflake"
+    ],
+    bonne: 2,
+    pourquoi: [
+      "Non. Snowflake compte les espaces de fin.",
+      "Non. SQL Server ignore les espaces de fin pour =.",
+      "Oui. SQL Server complète avec des espaces avant de comparer. Snowflake compare exactement : pense à TRIM.",
+      "Non. C'est l'inverse."
+    ],
+    retenir: "Espaces de fin : ignorés par SQL Server, comptés par Snowflake. Migration = TRIM."
+  },
+  {
+    id: "m02-q21", dialecte: "SQL Server",
+    q: "date_cde est de type DATE. Comment filtrer les commandes du jour sur SQL Server ?",
+    choixCode: true,
+    choix: [
+      "WHERE date_cde = GETDATE()",
+      "WHERE date_cde = CAST(GETDATE() AS date)",
+      "WHERE date_cde LIKE GETDATE()",
+      "WHERE date_cde = 'today'"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. GETDATE() contient l'heure. La date du jour à 00:00 ne vaut pas maintenant à 14:32.",
+      "Oui. On enlève l'heure de GETDATE() pour comparer des dates. (Snowflake : CURRENT_DATE.)",
+      "Non. LIKE sert au texte.",
+      "Non. 'today' n'est pas une date valide sur SQL Server."
+    ],
+    retenir: "SQL Server : CAST(GETDATE() AS date) = date du jour sans l'heure."
+  },
+  {
+    id: "m02-q22", dialecte: "Standard",
+    q: "Quel filtre est équivalent à WHERE NOT (pays = 'FR' OR pays = 'BE') ? (on ignore les NULL)",
+    choixCode: true,
+    choix: [
+      "WHERE pays <> 'FR' OR pays <> 'BE'",
+      "WHERE pays <> 'FR' AND pays <> 'BE'",
+      "WHERE pays = 'FR' AND pays = 'BE'",
+      "WHERE NOT pays = 'FR' OR pays = 'BE'"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Piège classique : ce filtre est toujours vrai. 'FR' est bien différent de 'BE'.",
+      "Oui. NOT (A OR B) = (NOT A) AND (NOT B). C'est la loi de De Morgan.",
+      "Non. C'est impossible : 0 ligne.",
+      "Non. NOT s'applique seulement à la 1re condition ici."
+    ],
+    retenir: "NOT (A OR B) = NOT A AND NOT B. Le plus simple : pays NOT IN ('FR', 'BE')."
+  },
+  {
+    id: "m02-q23", dialecte: "SQL Server + Snowflake",
+    q: "Tu compares l'ancien et le nouveau prix d'un article. L'un des deux peut être NULL. Quel test détecte bien TOUS les changements ?",
+    choixCode: true,
+    choix: [
+      "WHERE ancien_prix <> nouveau_prix",
+      "WHERE ancien_prix IS DISTINCT FROM nouveau_prix",
+      "WHERE ancien_prix != nouveau_prix",
+      "WHERE NOT ancien_prix = nouveau_prix"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Si un des prix est NULL, <> donne « inconnu » : le changement est raté.",
+      "Oui. IS DISTINCT FROM traite NULL comme une valeur normale. Disponible sur Snowflake et SQL Server 2022+.",
+      "Non. != est la même chose que <> : même problème avec NULL.",
+      "Non. Même problème avec NULL."
+    ],
+    retenir: "Détecter un changement avec des NULL : IS DISTINCT FROM. Avant SQL Server 2022 : ajoute des tests IS NULL."
+  },
+  {
+    id: "m02-q24", dialecte: "SQL Server",
+    q: "Un index existe sur nom. Quel filtre permet une recherche rapide dans l'index (Index Seek) ?",
+    choixCode: true,
+    choix: ["LIKE '%DUP%'", "LIKE '%DUP'", "LIKE 'DUP%'", "LIKE '_UP%'"],
+    bonne: 2,
+    pourquoi: [
+      "Non. Le début est inconnu : il faut tout lire.",
+      "Non. Le début est inconnu : il faut tout lire.",
+      "Oui. Le début est connu. Comme dans un dictionnaire, on va directement à « DUP ».",
+      "Non. Le 1er caractère est inconnu : l'index ne peut pas servir."
+    ],
+    retenir: "LIKE 'début%' utilise l'index. LIKE '%…' lit tout."
+  },
+  {
+    id: "m02-q25", dialecte: "SQL Server + Snowflake",
+    q: "La colonne actif indique si le client est actif. Le filtre WHERE actif (sans = 1) est-il valide ?",
+    choix: [
+      "Oui partout",
+      "Non sur SQL Server (type BIT, il faut = 1), oui sur Snowflake (type BOOLEAN)",
+      "Oui sur SQL Server, non sur Snowflake",
+      "Non partout"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. SQL Server n'a pas de vrai type booléen.",
+      "Oui. Sur SQL Server, BIT est un nombre : écris actif = 1. Snowflake a un vrai BOOLEAN.",
+      "Non. C'est l'inverse.",
+      "Non. Snowflake l'accepte."
+    ],
+    retenir: "SQL Server : WHERE actif = 1. Snowflake : WHERE actif suffit."
+  },
+  {
+    id: "m02-q26", dialecte: "Standard",
+    q: "WHERE nom BETWEEN 'A' AND 'C' renvoie-t-il le client 'Caron' ?",
+    choix: ["Oui", "Non", "Seulement si la collation ignore la casse", "Erreur : BETWEEN ne marche pas sur du texte"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Dans l'ordre alphabétique, 'Caron' vient après 'C'.",
+      "Oui, il ne le renvoie pas. 'Caron' > 'C', donc il est hors de l'intervalle. Écris plutôt nom >= 'A' AND nom < 'D'.",
+      "Non. La casse ne change rien ici.",
+      "Non. BETWEEN marche sur du texte."
+    ],
+    retenir: "BETWEEN sur du texte est piégeux. Préfère >= 'A' AND < 'D'."
+  },
+  {
+    id: "m02-q27", dialecte: "Standard",
+    q: "La remise vaut 0, 5 ou NULL selon les lignes. Quelles lignes garde WHERE COALESCE(remise, 0) = 0 ?",
+    choix: [
+      "Seulement les remises à 0",
+      "Les remises à 0 et à NULL",
+      "Seulement les NULL",
+      "Toutes les lignes"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. COALESCE transforme aussi les NULL en 0.",
+      "Oui. Les NULL deviennent 0 avant la comparaison. Utile quand « pas de remise » est saisi des deux façons.",
+      "Non. Les vrais 0 passent aussi.",
+      "Non. La remise de 5 est exclue."
+    ],
+    retenir: "COALESCE(col, 0) = 0 : un seul test pour 0 et NULL. Attention : ce filtre n'utilise pas l'index."
+  },
+  {
+    id: "m02-q28", dialecte: "Standard",
+    q: "Comment le moteur lit-il WHERE NOT a = 1 AND b = 2 ?",
+    choixCode: true,
+    choix: [
+      "NOT (a = 1 AND b = 2)",
+      "(NOT a = 1) AND b = 2",
+      "NOT a = (1 AND b = 2)",
+      "Erreur de syntaxe"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. NOT ne s'applique qu'à la condition juste après lui.",
+      "Oui. Priorité : NOT, puis AND, puis OR.",
+      "Non. Ce n'est pas une expression valide.",
+      "Non. C'est valide."
+    ],
+    retenir: "Priorité : NOT > AND > OR. Dans le doute, mets des parenthèses."
+  },
+  {
+    id: "m02-q29", dialecte: "SQL Server",
+    q: "Que fait cette instruction sur SQL Server ?",
+    code: "SELECT *\nINTO client_copie\nFROM client\nWHERE 1 = 0;",
+    choix: [
+      "Une copie complète de la table",
+      "Une table vide, avec les mêmes colonnes que client",
+      "Une erreur : 1 = 0 est faux",
+      "Elle supprime les clients"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le filtre 1 = 0 n'est jamais vrai : aucune ligne n'est copiée.",
+      "Oui. SELECT INTO crée la table. WHERE 1 = 0 ne copie aucune ligne. Attention : les index et clés ne sont pas copiés.",
+      "Non. C'est un filtre valide, juste toujours faux.",
+      "Non. SELECT ne supprime rien."
+    ],
+    retenir: "WHERE 1 = 0 : aucune ligne. Astuce pour copier seulement la structure d'une table."
+  },
+  {
+    id: "m02-q30", dialecte: "SQL Server",
+    q: "Sur SQL Server, quel motif trouve les codes article qui commencent par A ou par B ?",
+    choixCode: true,
+    choix: ["LIKE '(A|B)%'", "LIKE '[AB]%'", "LIKE 'A%B%'", "LIKE 'A,B%'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. LIKE ne connaît pas les expressions régulières.",
+      "Oui. [AB] = un caractère, A ou B. (Snowflake ne connaît pas les crochets : utilise deux LIKE ou RLIKE.)",
+      "Non. Ça cherche un A au début, puis un B plus loin.",
+      "Non. Ça cherche le texte « A,B » au début."
+    ],
+    retenir: "SQL Server : [AB] = A ou B, [A-F] = de A à F, [^A] = tout sauf A."
   }
 ];

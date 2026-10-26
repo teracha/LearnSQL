@@ -5,7 +5,7 @@ SQL Server et Snowflake.
 
 ## Comment ça marche
 
-1. **Le site** : tu fais les QCM module par module. Après chaque réponse, juste ou fausse, tu as l'explication. À la fin, une note sur 20.
+1. **Le site** : tu fais les QCM module par module. Chaque QCM tire 10 questions dans une réserve de 30. Après chaque réponse, juste ou fausse, tu as l'explication. À la fin, une note sur 20.
 2. **L'export** : le bouton « Exporter » crée un texte avec tes notes et tes erreurs.
 3. **Le prof (Claude)** : tu colles l'export dans le chat, à l'écrit ou en vocal. Le prof analyse tes erreurs, t'explique et te pose des questions.
 
