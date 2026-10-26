@@ -21,7 +21,12 @@ LEARNSQL.questions.m08 = [
     id: "m08-q02", dialecte: "Standard",
     q: "Que contient la colonne total ?",
     code: "SELECT num_cde, montant,\n       SUM(montant) OVER () AS total\nFROM commande;",
-    choix: ["Le montant de la ligne", "Le total de toutes les commandes, répété sur chaque ligne", "Le cumul", "NULL"],
+    choix: [
+      "Le montant de la ligne",
+      "Le total de toutes les commandes, répété sur chaque ligne",
+      "Le cumul",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -108,7 +113,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q07", dialecte: "Standard",
     q: "Le ORDER BY à l'intérieur d'un OVER trie-t-il le résultat affiché ?",
-    choix: ["Oui", "Non : il faut un ORDER BY à la fin de la requête", "Seulement avec ROW_NUMBER", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non : il faut un ORDER BY à la fin de la requête",
+      "Seulement avec ROW_NUMBER",
+      "Seulement sur Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Il sert seulement au calcul de la fenêtre.",
@@ -140,7 +150,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q09", dialecte: "Standard",
     q: "Valeurs de CA triées : 500, 300, 300, 100. Que donne ROW_NUMBER() OVER (ORDER BY ca DESC) ?",
-    choix: ["1, 2, 2, 4", "1, 2, 3, 4", "1, 2, 2, 3", "4, 3, 2, 1"],
+    choix: [
+      "1, 2, 2, 4",
+      "1, 2, 3, 4",
+      "1, 2, 2, 3",
+      "4, 3, 2, 1"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est RANK.",
@@ -153,7 +168,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q10", dialecte: "Standard",
     q: "Valeurs de CA triées : 500, 300, 300, 100. Que donne RANK() OVER (ORDER BY ca DESC) ?",
-    choix: ["1, 2, 3, 4", "1, 2, 2, 4", "1, 2, 2, 3", "1, 1, 2, 3"],
+    choix: [
+      "1, 2, 3, 4",
+      "1, 2, 2, 4",
+      "1, 2, 2, 3",
+      "1, 1, 2, 3"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est ROW_NUMBER.",
@@ -166,7 +186,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q11", dialecte: "Standard",
     q: "Valeurs de CA triées : 500, 300, 300, 100. Que donne DENSE_RANK() OVER (ORDER BY ca DESC) ?",
-    choix: ["1, 2, 3, 4", "1, 2, 2, 4", "1, 2, 2, 3", "1, 1, 1, 2"],
+    choix: [
+      "1, 2, 3, 4",
+      "1, 2, 2, 4",
+      "1, 2, 2, 3",
+      "1, 1, 1, 2"
+    ],
     bonne: 2,
     pourquoi: [
       "Non.",
@@ -179,7 +204,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q12", dialecte: "Standard",
     q: "Tu veux les commerciaux classés dans les 3 premiers montants DIFFÉRENTS (ex aequo compris). Quelle fonction ?",
-    choix: ["ROW_NUMBER() <= 3", "RANK() <= 3", "DENSE_RANK() <= 3", "NTILE(3)"],
+    choix: [
+      "ROW_NUMBER() <= 3",
+      "RANK() <= 3",
+      "DENSE_RANK() <= 3",
+      "NTILE(3)"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Exactement 3 lignes : des ex aequo seraient coupés.",
@@ -192,7 +222,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q13", dialecte: "Standard",
     q: "ROW_NUMBER() OVER (ORDER BY date_cde) : deux commandes ont la même date. Leur numéro est-il stable d'une exécution à l'autre ?",
-    choix: ["Oui", "Non, pas garanti : ajoute un critère de départage (ex. id)", "Oui si la table a un index", "Erreur"],
+    choix: [
+      "Oui",
+      "Non, pas garanti : ajoute un critère de départage (ex. id)",
+      "Oui si la table a un index",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Entre ex aequo, l'ordre est arbitraire.",
@@ -205,7 +240,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q14", dialecte: "Standard",
     q: "10 clients. Que donne NTILE(4) OVER (ORDER BY ca DESC) en tailles de groupes ?",
-    choix: ["4, 4, 2", "3, 3, 2, 2", "2, 2, 3, 3", "2, 2, 2, 4"],
+    choix: [
+      "4, 4, 2",
+      "3, 3, 2, 2",
+      "2, 2, 3, 3",
+      "2, 2, 2, 4"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. 4 groupes sont demandés.",
@@ -236,7 +276,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q16", dialecte: "Standard",
     q: "Que renvoie LAG(ca) OVER (ORDER BY mois) ?",
-    choix: ["Le CA du mois suivant", "Le CA du mois précédent", "Le CA cumulé", "Le CA moyen"],
+    choix: [
+      "Le CA du mois suivant",
+      "Le CA du mois précédent",
+      "Le CA cumulé",
+      "Le CA moyen"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est LEAD.",
@@ -249,7 +294,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q17", dialecte: "Standard",
     q: "Que vaut LAG(ca) sur la toute première ligne ?",
-    choix: ["0", "NULL", "Le CA de la dernière ligne", "Une erreur"],
+    choix: [
+      "0",
+      "NULL",
+      "Le CA de la dernière ligne",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sauf si on le demande.",
@@ -373,7 +423,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q24", dialecte: "Standard",
     q: "Que donne FIRST_VALUE(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) ?",
-    choix: ["La dernière commande", "La date de 1re commande du client, sur chaque ligne", "La date de la ligne", "NULL"],
+    choix: [
+      "La dernière commande",
+      "La date de 1re commande du client, sur chaque ligne",
+      "La date de la ligne",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -478,7 +533,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q30", dialecte: "SQL Server",
     q: "Sur SQL Server, RANGE BETWEEN 7 PRECEDING AND CURRENT ROW est-il accepté ?",
-    choix: ["Oui", "Non : avec RANGE, SQL Server accepte seulement UNBOUNDED et CURRENT ROW", "Oui avec des dates", "Seulement avec PARTITION BY"],
+    choix: [
+      "Oui",
+      "Non : avec RANGE, SQL Server accepte seulement UNBOUNDED et CURRENT ROW",
+      "Oui avec des dates",
+      "Seulement avec PARTITION BY"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -583,7 +643,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q36", dialecte: "SQL Server",
     q: "Que donne SELECT * FROM commande WHERE ROW_NUMBER() OVER (ORDER BY id) = 1; ?",
-    choix: ["La 1re commande", "Erreur : les fonctions de fenêtrage ne sont pas autorisées dans WHERE", "Toutes les commandes", "0 ligne"],
+    choix: [
+      "La 1re commande",
+      "Erreur : les fonctions de fenêtrage ne sont pas autorisées dans WHERE",
+      "Toutes les commandes",
+      "0 ligne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -596,7 +661,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q37", dialecte: "SQL Server",
     q: "Peut-on utiliser une fonction de fenêtrage dans HAVING sur SQL Server ?",
-    choix: ["Oui", "Non", "Seulement RANK", "Seulement avec GROUP BY"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement RANK",
+      "Seulement avec GROUP BY"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -610,7 +680,12 @@ LEARNSQL.questions.m08 = [
     id: "m08-q38", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle clause filtre directement sur une fonction de fenêtrage ?",
     choixCode: true,
-    choix: ["WHERE", "HAVING", "QUALIFY", "FILTER"],
+    choix: [
+      "WHERE",
+      "HAVING",
+      "QUALIFY",
+      "FILTER"
+    ],
     bonne: 2,
     pourquoi: [
       "Non.",
@@ -660,7 +735,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q41", dialecte: "Standard",
     q: "Une requête a WHERE annee = 2026 et SUM(montant) OVER (). Que calcule la fenêtre ?",
-    choix: ["Le total de toutes les années", "Le total de 2026 seulement", "Une erreur", "Le cumul"],
+    choix: [
+      "Le total de toutes les années",
+      "Le total de 2026 seulement",
+      "Une erreur",
+      "Le cumul"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le WHERE a déjà retiré les autres années.",
@@ -823,7 +903,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q50", dialecte: "Standard",
     q: "Une requête trie sur une fenêtre : ORDER BY RANK() OVER (ORDER BY ca DESC). Est-ce valide ?",
-    choix: ["Oui", "Non", "Seulement dans une CTE", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement dans une CTE",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les fenêtres sont permises dans ORDER BY.",
@@ -836,7 +921,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q51", dialecte: "SQL Server",
     q: "Que donne COUNT(DISTINCT article_id) OVER (PARTITION BY client_id) sur SQL Server ?",
-    choix: ["Le nombre d'articles distincts du client", "Erreur : DISTINCT n'est pas permis avec OVER", "Le nombre de lignes", "NULL"],
+    choix: [
+      "Le nombre d'articles distincts du client",
+      "Erreur : DISTINCT n'est pas permis avec OVER",
+      "Le nombre de lignes",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non sur SQL Server. (Snowflake l'accepte, sans ORDER BY dans la fenêtre.)",
@@ -849,7 +939,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q52", dialecte: "Snowflake",
     q: "Sur Snowflake, COUNT(DISTINCT article_id) OVER (PARTITION BY client_id) est-il accepté ?",
-    choix: ["Oui", "Non", "Seulement avec ORDER BY dans la fenêtre", "Seulement avec QUALIFY"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement avec ORDER BY dans la fenêtre",
+      "Seulement avec QUALIFY"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Snowflake l'accepte tant que la fenêtre n'a pas d'ORDER BY.",
@@ -862,7 +957,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q53", dialecte: "SQL Server",
     q: "Que donne UPDATE commande SET rang = ROW_NUMBER() OVER (ORDER BY date_cde); ?",
-    choix: ["Les rangs sont mis à jour", "Erreur : fenêtre interdite dans SET. Passe par une CTE", "Tous les rangs valent 1", "Rien"],
+    choix: [
+      "Les rangs sont mis à jour",
+      "Erreur : fenêtre interdite dans SET. Passe par une CTE",
+      "Tous les rangs valent 1",
+      "Rien"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -875,7 +975,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q54", dialecte: "SQL Server",
     q: "Que donne SELECT SUM(ROW_NUMBER() OVER (ORDER BY id)) FROM t; ?",
-    choix: ["La somme des numéros", "Erreur : fenêtre interdite dans un agrégat", "Le nombre de lignes", "NULL"],
+    choix: [
+      "La somme des numéros",
+      "Erreur : fenêtre interdite dans un agrégat",
+      "Le nombre de lignes",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1259,7 +1364,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q75", dialecte: "Standard",
     q: "Que renvoie LEAD(statut, 2) OVER (ORDER BY date_evt) ?",
-    choix: ["Le statut 2 lignes avant", "Le statut 2 lignes après", "Le 2e statut de la table", "Le statut multiplié par 2"],
+    choix: [
+      "Le statut 2 lignes avant",
+      "Le statut 2 lignes après",
+      "Le 2e statut de la table",
+      "Le statut multiplié par 2"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait LAG(statut, 2).",
@@ -1272,7 +1382,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q76", dialecte: "Standard",
     q: "Avec LAG(montant) OVER (PARTITION BY client_id ORDER BY date_cde), que vaut LAG sur la 1re commande de CHAQUE client ?",
-    choix: ["La dernière commande du client précédent", "NULL", "0", "Le montant lui-même"],
+    choix: [
+      "La dernière commande du client précédent",
+      "NULL",
+      "0",
+      "Le montant lui-même"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La partition l'en empêche.",
@@ -1285,7 +1400,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q77", dialecte: "SQL Server",
     q: "Sur SQL Server, avec ROW_NUMBER() OVER (ORDER BY date_livraison), où sont numérotées les lignes sans date (NULL) ?",
-    choix: ["À la fin", "Au début", "Elles sont exclues", "Au hasard"],
+    choix: [
+      "À la fin",
+      "Au début",
+      "Elles sont exclues",
+      "Au hasard"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait le cas sur Snowflake.",
@@ -1374,7 +1494,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q82", dialecte: "Standard",
     q: "Tu veux le meilleur vendeur de chaque mois, en gardant les ex aequo. Quel filtre ?",
-    choix: ["ROW_NUMBER() = 1", "RANK() = 1", "NTILE(1) = 1", "LAG() IS NULL"],
+    choix: [
+      "ROW_NUMBER() = 1",
+      "RANK() = 1",
+      "NTILE(1) = 1",
+      "LAG() IS NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Un seul vendeur, même en cas d'égalité.",
@@ -1406,7 +1531,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q84", dialecte: "Standard",
     q: "COUNT(*) OVER (ORDER BY date_cde ROWS UNBOUNDED PRECEDING) donne le même résultat que…",
-    choix: ["COUNT(*)", "ROW_NUMBER() OVER (ORDER BY date_cde)", "RANK()", "NTILE"],
+    choix: [
+      "COUNT(*)",
+      "ROW_NUMBER() OVER (ORDER BY date_cde)",
+      "RANK()",
+      "NTILE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1437,7 +1567,12 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q86", dialecte: "Standard",
     q: "Sur SQL Server, peut-on écrire STRING_AGG(code, ',') OVER (PARTITION BY cde_id) ?",
-    choix: ["Oui", "Non : STRING_AGG n'est pas une fonction de fenêtrage sur SQL Server", "Oui avec ORDER BY", "Seulement en 2022"],
+    choix: [
+      "Oui",
+      "Non : STRING_AGG n'est pas une fonction de fenêtrage sur SQL Server",
+      "Oui avec ORDER BY",
+      "Seulement en 2022"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",

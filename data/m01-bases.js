@@ -3,7 +3,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q01", dialecte: "Standard",
     q: "Dans quel ordre le moteur traite-t-il cette requête ? Quelle clause passe en premier ?",
     code: "SELECT nom\nFROM client\nWHERE pays = 'FR'\nORDER BY nom;",
-    choix: ["SELECT", "FROM", "WHERE", "ORDER BY"],
+    choix: [
+      "SELECT",
+      "FROM",
+      "WHERE",
+      "ORDER BY"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. On écrit SELECT en premier, mais le moteur le traite presque à la fin.",
@@ -35,7 +40,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q03", dialecte: "SQL Server",
     q: "Sur SQL Server, dans quelle clause peut-on utiliser un alias créé dans le SELECT ?",
-    choix: ["WHERE", "GROUP BY", "HAVING", "ORDER BY"],
+    choix: [
+      "WHERE",
+      "GROUP BY",
+      "HAVING",
+      "ORDER BY"
+    ],
     bonne: 3,
     pourquoi: [
       "Non. WHERE est traité avant SELECT.",
@@ -49,7 +59,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q04", dialecte: "Standard",
     q: "La table contient 3 lignes : (Lyon, FR), (Lyon, FR), (Lyon, BE). Combien de lignes renvoie cette requête ?",
     code: "SELECT DISTINCT ville, pays\nFROM site;",
-    choix: ["1", "2", "3", "Erreur : DISTINCT ne s'applique qu'à une colonne"],
+    choix: [
+      "1",
+      "2",
+      "3",
+      "Erreur : DISTINCT ne s'applique qu'à une colonne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. DISTINCT ne regarde pas seulement la ville.",
@@ -99,7 +114,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q07", dialecte: "Standard",
     q: "Quel est le sens de tri par défaut de ORDER BY ?",
-    choix: ["Croissant (ASC)", "Décroissant (DESC)", "Ordre d'insertion", "Aucun, il faut toujours préciser"],
+    choix: [
+      "Croissant (ASC)",
+      "Décroissant (DESC)",
+      "Ordre d'insertion",
+      "Aucun, il faut toujours préciser"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Sans précision, le tri est croissant.",
@@ -150,7 +170,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q10", dialecte: "Standard",
     q: "Comment écrire le texte O'Neil dans une requête ?",
     choixCode: true,
-    choix: ["'O'Neil'", "\"O'Neil\"", "'O''Neil'", "'O\\'Neil'"],
+    choix: [
+      "'O'Neil'",
+      "\"O'Neil\"",
+      "'O''Neil'",
+      "'O\\'Neil'"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. L'apostrophe ferme le texte trop tôt : erreur de syntaxe.",
@@ -183,7 +208,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q12", dialecte: "Standard",
     q: "Comment écrire un commentaire sur une seule ligne en SQL ?",
     choixCode: true,
-    choix: ["-- mon commentaire", "// mon commentaire", "# mon commentaire", "' mon commentaire"],
+    choix: [
+      "-- mon commentaire",
+      "// mon commentaire",
+      "# mon commentaire",
+      "' mon commentaire"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Deux tirets : tout ce qui suit sur la ligne est ignoré. Pour plusieurs lignes : /* … */.",
@@ -271,7 +301,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q17", dialecte: "SQL Server",
     q: "Quelles lignes renvoie cette requête ?",
     code: "SELECT *\nFROM commande\nORDER BY id\nOFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;",
-    choix: ["Les lignes 1 à 10", "Les lignes 20 à 30", "Les lignes 21 à 30", "Les lignes 11 à 20"],
+    choix: [
+      "Les lignes 1 à 10",
+      "Les lignes 20 à 30",
+      "Les lignes 21 à 30",
+      "Les lignes 11 à 20"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. OFFSET 20 saute d'abord 20 lignes.",
@@ -285,7 +320,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q18", dialecte: "SQL Server",
     q: "Trois commerciaux ont le même CA, à la 3e place. Combien de lignes renvoie cette requête ?",
     code: "SELECT TOP (3) WITH TIES nom, ca\nFROM commercial\nORDER BY ca DESC;",
-    choix: ["Exactement 3", "5", "2", "Erreur"],
+    choix: [
+      "Exactement 3",
+      "5",
+      "2",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. WITH TIES ajoute les ex aequo de la dernière place.",
@@ -335,7 +375,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q21", dialecte: "SQL Server",
     q: "Dans le nom Ventes.dbo.Commande, que représente dbo ?",
-    choix: ["La base de données", "Le schéma", "Le serveur", "Le propriétaire de la ligne"],
+    choix: [
+      "La base de données",
+      "Le schéma",
+      "Le serveur",
+      "Le propriétaire de la ligne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La base, c'est Ventes (la 1re partie).",
@@ -368,7 +413,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q23", dialecte: "SQL Server",
     q: "Une colonne s'appelle Code Client (avec un espace). Comment l'écrire sur SQL Server ?",
     choixCode: true,
-    choix: ["[Code Client]", "'Code Client'", "`Code Client`", "Code_Client"],
+    choix: [
+      "[Code Client]",
+      "'Code Client'",
+      "`Code Client`",
+      "Code_Client"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les crochets entourent un nom spécial (espace, mot réservé). Les guillemets doubles marchent aussi.",
@@ -513,7 +563,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q31", dialecte: "Standard",
     q: "Dans l'ordre logique, à quel moment DISTINCT est-il appliqué ?",
-    choix: ["Avant WHERE", "Juste après FROM", "Après SELECT, avant ORDER BY", "Après ORDER BY"],
+    choix: [
+      "Avant WHERE",
+      "Juste après FROM",
+      "Après SELECT, avant ORDER BY",
+      "Après ORDER BY"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. On ne peut pas dédoublonner des colonnes qui ne sont pas encore choisies.",
@@ -527,7 +582,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q32", dialecte: "Standard",
     q: "Cette requête est-elle valide ?",
     code: "SELECT nom\nFROM client\nORDER BY ville;",
-    choix: ["Oui", "Non : ville doit être dans le SELECT", "Seulement sur Snowflake", "Seulement avec DISTINCT"],
+    choix: [
+      "Oui",
+      "Non : ville doit être dans le SELECT",
+      "Seulement sur Snowflake",
+      "Seulement avec DISTINCT"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Sans DISTINCT, on peut trier sur une colonne qu'on n'affiche pas.",
@@ -652,7 +712,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q39", dialecte: "Standard",
     q: "Une ligne a prix = 12 et qte = NULL. Que vaut prix * qte AS montant ?",
-    choix: ["0", "12", "NULL", "Une erreur"],
+    choix: [
+      "0",
+      "12",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. NULL n'est pas 0.",
@@ -665,7 +730,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q40", dialecte: "Standard",
     q: "Que renvoie SELECT 10 + 5 * 2; ?",
-    choix: ["30", "20", "25", "Une erreur"],
+    choix: [
+      "30",
+      "20",
+      "25",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait (10 + 5) * 2.",
@@ -678,7 +748,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q41", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie SELECT 10 % 3; ?",
-    choix: ["3", "1", "0.3", "30 %"],
+    choix: [
+      "3",
+      "1",
+      "0.3",
+      "30 %"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. 3 est le résultat de la division entière.",
@@ -692,7 +767,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q42", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle expression colle 'CDE-' et num_cde (texte) ?",
     choixCode: true,
-    choix: ["'CDE-' + num_cde", "'CDE-' || num_cde", "'CDE-' & num_cde", "'CDE-' . num_cde"],
+    choix: [
+      "'CDE-' + num_cde",
+      "'CDE-' || num_cde",
+      "'CDE-' & num_cde",
+      "'CDE-' . num_cde"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sur Snowflake, + est un calcul : il essaie de convertir le texte en nombre. Erreur.",
@@ -742,7 +822,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q45", dialecte: "SQL Server",
     q: "@n contient 10. Quelle syntaxe est correcte ?",
     choixCode: true,
-    choix: ["SELECT TOP @n * FROM commande", "SELECT TOP (@n) * FROM commande", "SELECT * FROM commande TOP @n", "SELECT TOP = @n * FROM commande"],
+    choix: [
+      "SELECT TOP @n * FROM commande",
+      "SELECT TOP (@n) * FROM commande",
+      "SELECT * FROM commande TOP @n",
+      "SELECT TOP = @n * FROM commande"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Avec une variable, les parenthèses sont obligatoires.",
@@ -755,7 +840,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q46", dialecte: "SQL Server",
     q: "La table a 15 lignes. Combien en renvoie SELECT TOP (10) PERCENT * FROM t ORDER BY id; ?",
-    choix: ["1", "2", "10", "15"],
+    choix: [
+      "1",
+      "2",
+      "10",
+      "15"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server arrondit au-dessus.",
@@ -769,7 +859,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q47", dialecte: "SQL Server",
     q: "Que renvoie cette requête sur une table de 25 lignes ?",
     code: "SELECT *\nFROM commande\nORDER BY id\nOFFSET 10 ROWS;",
-    choix: ["Erreur : FETCH est obligatoire", "Les lignes 1 à 10", "Les lignes 11 à 25", "Aucune ligne"],
+    choix: [
+      "Erreur : FETCH est obligatoire",
+      "Les lignes 1 à 10",
+      "Les lignes 11 à 25",
+      "Aucune ligne"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. FETCH est facultatif.",
@@ -820,7 +915,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q50", dialecte: "Standard",
     q: "La colonne region contient 'Sud', NULL, NULL, 'Sud'. Combien de lignes renvoie SELECT DISTINCT region ?",
-    choix: ["1", "2", "3", "4"],
+    choix: [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le NULL forme sa propre ligne.",
@@ -851,7 +951,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q52", dialecte: "Standard",
     q: "La table a 100 lignes et 8 villes différentes. Que renvoie SELECT DISTINCT COUNT(*) FROM client; ?",
-    choix: ["8", "100", "1 ligne : 8", "Une erreur"],
+    choix: [
+      "8",
+      "100",
+      "1 ligne : 8",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pour ça, il faut COUNT(DISTINCT ville).",
@@ -937,7 +1042,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q57", dialecte: "SQL Server",
     q: "Une colonne s'appelle order (mot réservé). Comment la lire sur SQL Server ?",
     choixCode: true,
-    choix: ["SELECT order FROM t", "SELECT [order] FROM t", "SELECT 'order' FROM t", "SELECT ORDER() FROM t"],
+    choix: [
+      "SELECT order FROM t",
+      "SELECT [order] FROM t",
+      "SELECT 'order' FROM t",
+      "SELECT ORDER() FROM t"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. ORDER est un mot-clé : erreur de syntaxe.",
@@ -986,7 +1096,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q60", dialecte: "Standard",
     q: "Quel est le type de la colonne dans SELECT '2026-10-26' AS d; ?",
-    choix: ["DATE", "Texte (VARCHAR)", "DATETIME", "Nombre"],
+    choix: [
+      "DATE",
+      "Texte (VARCHAR)",
+      "DATETIME",
+      "Nombre"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le moteur ne devine pas que c'est une date.",
@@ -999,7 +1114,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q61", dialecte: "Standard",
     q: "La table a les colonnes (id, nom, ville). Dans quel ordre s'affichent les colonnes de SELECT ville, id FROM client ?",
-    choix: ["id, ville", "ville, id", "id, nom, ville", "Au hasard"],
+    choix: [
+      "id, ville",
+      "ville, id",
+      "id, nom, ville",
+      "Au hasard"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. L'ordre de la table ne compte pas.",
@@ -1012,7 +1132,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q62", dialecte: "SQL Server + Snowflake",
     q: "FROM dbo.client c (sans AS) est-il valide ?",
-    choix: ["Oui", "Non, AS est obligatoire", "Seulement sur Snowflake", "Seulement pour les colonnes"],
+    choix: [
+      "Oui",
+      "Non, AS est obligatoire",
+      "Seulement sur Snowflake",
+      "Seulement pour les colonnes"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. AS est facultatif pour les alias de table, sur SQL Server comme sur Snowflake.",
@@ -1043,7 +1168,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q64", dialecte: "Standard",
     q: "code est un VARCHAR contenant '1', '2' et '10'. Dans quel ordre sort ORDER BY code ?",
-    choix: ["'1', '2', '10'", "'1', '10', '2'", "'10', '2', '1'", "'2', '1', '10'"],
+    choix: [
+      "'1', '2', '10'",
+      "'1', '10', '2'",
+      "'10', '2', '1'",
+      "'2', '1', '10'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait un tri de nombres.",
@@ -1148,7 +1278,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q70", dialecte: "SQL Server + Snowflake",
     q: "Quelle vue système liste les colonnes d'une table, sur SQL Server ET sur Snowflake ?",
     choixCode: true,
-    choix: ["sys.columns", "INFORMATION_SCHEMA.COLUMNS", "SHOW COLUMNS", "sp_columns"],
+    choix: [
+      "sys.columns",
+      "INFORMATION_SCHEMA.COLUMNS",
+      "SHOW COLUMNS",
+      "sp_columns"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. sys.columns existe seulement sur SQL Server.",
@@ -1216,7 +1351,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q74", dialecte: "Snowflake",
     q: "Sur Snowflake, SELECT nom FROM client; affiche une colonne nommée comment ?",
-    choix: ["nom", "NOM", "Nom", "client.nom"],
+    choix: [
+      "nom",
+      "NOM",
+      "Nom",
+      "client.nom"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les noms sans guillemets sont mis en majuscules.",
@@ -1230,7 +1370,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q75", dialecte: "Snowflake",
     q: "Sur Snowflake, tu veux une colonne nommée nom_client en minuscules dans le résultat. Que faut-il écrire ?",
     choixCode: true,
-    choix: ["AS nom_client", "AS \"nom_client\"", "AS 'nom_client'", "AS LOWER(nom_client)"],
+    choix: [
+      "AS nom_client",
+      "AS \"nom_client\"",
+      "AS 'nom_client'",
+      "AS LOWER(nom_client)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sans guillemets, l'alias devient NOM_CLIENT.",
@@ -1261,7 +1406,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q77", dialecte: "SQL Server",
     q: "SSMS génère [dbo].[client]. Est-ce la même chose que dbo.client ?",
-    choix: ["Oui", "Non, les crochets créent une copie", "Non, les crochets verrouillent la table", "Seulement en lecture"],
+    choix: [
+      "Oui",
+      "Non, les crochets créent une copie",
+      "Non, les crochets verrouillent la table",
+      "Seulement en lecture"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les crochets sont seulement utiles pour les noms spéciaux. Ici, ils ne changent rien.",
@@ -1274,7 +1424,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q78", dialecte: "Standard",
     q: "Les retours à la ligne et les espaces dans une requête changent-ils le résultat ?",
-    choix: ["Oui", "Non, ils servent seulement à la lisibilité", "Oui, sur SQL Server", "Oui, après WHERE"],
+    choix: [
+      "Oui",
+      "Non, ils servent seulement à la lisibilité",
+      "Oui, sur SQL Server",
+      "Oui, après WHERE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. En dehors des textes entre apostrophes, ils sont ignorés.",
@@ -1287,7 +1442,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q79", dialecte: "Snowflake",
     q: "SELECT TOP 10 * FROM commande ORDER BY montant DESC; marche-t-il sur Snowflake ?",
-    choix: ["Oui", "Non, seulement LIMIT", "Seulement sans ORDER BY", "Seulement avec PERCENT"],
+    choix: [
+      "Oui",
+      "Non, seulement LIMIT",
+      "Seulement sans ORDER BY",
+      "Seulement avec PERCENT"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Snowflake accepte TOP, en plus de LIMIT. Pratique pour migrer du code SQL Server.",
@@ -1300,7 +1460,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q80", dialecte: "Snowflake",
     q: "Sur Snowflake, SELECT * FROM commande LIMIT 10; (sans ORDER BY) renvoie-t-il toujours les mêmes lignes ?",
-    choix: ["Oui", "Non, aucun ordre n'est garanti", "Oui, les 10 plus anciennes", "Oui, les 10 plus récentes"],
+    choix: [
+      "Oui",
+      "Non, aucun ordre n'est garanti",
+      "Oui, les 10 plus anciennes",
+      "Oui, les 10 plus récentes"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Comme sur SQL Server, sans ORDER BY, aucun ordre n'est garanti.",
@@ -1313,7 +1478,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q81", dialecte: "SQL Server",
     q: "Que donne SELECT TOP (5) WITH TIES * FROM commande; (sans ORDER BY) ?",
-    choix: ["5 lignes", "Toutes les lignes", "Erreur : WITH TIES exige un ORDER BY", "0 ligne"],
+    choix: [
+      "5 lignes",
+      "Toutes les lignes",
+      "Erreur : WITH TIES exige un ORDER BY",
+      "0 ligne"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Sans tri, impossible de savoir qui est ex aequo.",
@@ -1326,7 +1496,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q82", dialecte: "Standard",
     q: "Dans FROM a JOIN b ON … WHERE …, qu'est-ce qui est traité en premier, logiquement ?",
-    choix: ["WHERE", "Le ON de la jointure", "SELECT", "Les deux en même temps"],
+    choix: [
+      "WHERE",
+      "Le ON de la jointure",
+      "SELECT",
+      "Les deux en même temps"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. WHERE s'applique au résultat de la jointure.",
@@ -1358,7 +1533,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q84", dialecte: "Standard",
     q: "Quelles colonnes renvoie cette requête ?",
     code: "SELECT nom -- , ville\nFROM client;",
-    choix: ["nom et ville", "nom seulement", "Erreur de syntaxe", "Aucune"],
+    choix: [
+      "nom et ville",
+      "nom seulement",
+      "Erreur de syntaxe",
+      "Aucune"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Tout ce qui suit -- sur la ligne est un commentaire.",
@@ -1425,7 +1605,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q88", dialecte: "SQL Server + Snowflake",
     q: "SELECT *, montant * 1.2 AS ttc FROM commande; est-il valide ?",
-    choix: ["Oui", "Non, on ne mélange pas * et colonnes", "Seulement sur Snowflake", "Seulement si ttc existe"],
+    choix: [
+      "Oui",
+      "Non, on ne mélange pas * et colonnes",
+      "Seulement sur Snowflake",
+      "Seulement si ttc existe"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Toutes les colonnes, plus une colonne calculée à la fin.",
@@ -1512,7 +1697,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q93", dialecte: "SQL Server",
     q: "Sur SQL Server, avec ORDER BY date_livraison DESC, où sont les NULL ?",
-    choix: ["En premier", "En dernier", "Supprimés", "Au milieu"],
+    choix: [
+      "En premier",
+      "En dernier",
+      "Supprimés",
+      "Au milieu"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server voit NULL comme la plus petite valeur.",
@@ -1526,7 +1716,12 @@ LEARNSQL.questions.m01 = [
     id: "m01-q94", dialecte: "Snowflake",
     q: "Sur Snowflake, comment forcer les NULL en premier dans un tri croissant ?",
     choixCode: true,
-    choix: ["ORDER BY d NULLS FIRST", "ORDER BY d NULL FIRST", "ORDER BY NULL, d", "ORDER BY d ASC NULL"],
+    choix: [
+      "ORDER BY d NULLS FIRST",
+      "ORDER BY d NULL FIRST",
+      "ORDER BY NULL, d",
+      "ORDER BY d ASC NULL"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. NULLS FIRST / NULLS LAST : syntaxe standard, acceptée par Snowflake.",
@@ -1539,7 +1734,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q95", dialecte: "SQL Server",
     q: "Sur SQL Server, la colonne contient 'ABC' et 'ABC ' (espace à la fin). Combien de lignes renvoie SELECT DISTINCT ?",
-    choix: ["1", "2", "0", "Une erreur"],
+    choix: [
+      "1",
+      "2",
+      "0",
+      "Une erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. SQL Server ignore les espaces de fin quand il compare : les deux valeurs sont « égales ».",
@@ -1552,7 +1752,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q96", dialecte: "SQL Server",
     q: "Le SELECT a 3 colonnes. Que donne ORDER BY 5 ?",
-    choix: ["Tri sur la valeur 5", "Erreur : position hors limites", "Tri sur la 3e colonne", "Aucun tri"],
+    choix: [
+      "Tri sur la valeur 5",
+      "Erreur : position hors limites",
+      "Tri sur la 3e colonne",
+      "Aucun tri"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Un entier dans ORDER BY est une position.",
@@ -1602,7 +1807,12 @@ LEARNSQL.questions.m01 = [
   {
     id: "m01-q99", dialecte: "Snowflake",
     q: "Sur Snowflake, que donne SELECT * FROM commande LIMIT 10 ORDER BY montant DESC; ?",
-    choix: ["Les 10 plus grosses commandes", "10 commandes triées", "Erreur de syntaxe", "Toutes les commandes triées"],
+    choix: [
+      "Les 10 plus grosses commandes",
+      "10 commandes triées",
+      "Erreur de syntaxe",
+      "Toutes les commandes triées"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. La requête ne s'exécute pas.",

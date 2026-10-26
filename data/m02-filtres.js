@@ -59,7 +59,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q04", dialecte: "Standard",
     q: "WHERE quantite BETWEEN 10 AND 20 garde-t-il les lignes avec 10 et 20 ?",
-    choix: ["Oui, les deux", "Non, aucune des deux", "Seulement 10", "Seulement 20"],
+    choix: [
+      "Oui, les deux",
+      "Non, aucune des deux",
+      "Seulement 10",
+      "Seulement 20"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. BETWEEN inclut les deux bornes : quantite >= 10 AND quantite <= 20.",
@@ -91,7 +96,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q06", dialecte: "Standard",
     q: "Quelle valeur correspond à LIKE 'PI_C%' ?",
-    choix: ["PIC", "PISCINE", "PISSCINE", "SPISCINE"],
+    choix: [
+      "PIC",
+      "PISCINE",
+      "PISSCINE",
+      "SPISCINE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. _ veut dire « exactement 1 caractère ». Il faut au moins 4 caractères.",
@@ -122,7 +132,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q08", dialecte: "Standard",
     q: "Quelle fonction remplace un NULL, est standard SQL et accepte plus de 2 valeurs ?",
-    choix: ["ISNULL", "NVL", "COALESCE", "IFNULL"],
+    choix: [
+      "ISNULL",
+      "NVL",
+      "COALESCE",
+      "IFNULL"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. ISNULL est propre à SQL Server et prend 2 arguments seulement.",
@@ -136,7 +151,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q09", dialecte: "Standard",
     q: "La colonne statut contient 3 lignes : 'A', 'X', NULL. Combien de lignes renvoie ce filtre ?",
     code: "WHERE statut <> 'X'",
-    choix: ["0", "1", "2", "3"],
+    choix: [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La ligne 'A' passe le test.",
@@ -188,7 +208,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q12", dialecte: "SQL Server",
     q: "Sur SQL Server, tu cherches les codes qui contiennent un vrai caractère _ (comme 'A_12'). Quel motif utiliser ?",
     choixCode: true,
-    choix: ["LIKE '%_%'", "LIKE '%[_]%'", "LIKE '%__%'", "LIKE '_%_'"],
+    choix: [
+      "LIKE '%_%'",
+      "LIKE '%[_]%'",
+      "LIKE '%__%'",
+      "LIKE '_%_'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. _ est un joker : ce motif accepte tout texte d'au moins 1 caractère.",
@@ -202,7 +227,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q13", dialecte: "Snowflake",
     q: "Sur Snowflake, tu veux les noms qui commencent par « dup », quelle que soit la casse (Dupont, DUPUIS…). Que choisis-tu ?",
     choixCode: true,
-    choix: ["nom LIKE 'dup%'", "nom ILIKE 'dup%'", "nom = 'dup%'", "nom LIKE 'DUP%'"],
+    choix: [
+      "nom LIKE 'dup%'",
+      "nom ILIKE 'dup%'",
+      "nom = 'dup%'",
+      "nom LIKE 'DUP%'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sur Snowflake, LIKE tient compte de la casse : 'Dupont' ne passe pas.",
@@ -233,7 +263,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q15", dialecte: "Standard",
     q: "La remise vaut NULL pour une ligne. Cette ligne passe-t-elle le filtre WHERE NOT (remise > 10) ?",
-    choix: ["Oui", "Non", "Seulement si la remise est 0", "Erreur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement si la remise est 0",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL > 10 donne « inconnu ». NOT (inconnu) reste « inconnu ».",
@@ -265,7 +300,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q17", dialecte: "Standard",
     q: "Pour une ligne où qte = 0, que donne montant / NULLIF(qte, 0) ?",
-    choix: ["0", "Une erreur de division par zéro", "NULL", "montant"],
+    choix: [
+      "0",
+      "Une erreur de division par zéro",
+      "NULL",
+      "montant"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. NULLIF ne renvoie pas 0 ici.",
@@ -296,7 +336,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q19", dialecte: "Standard",
     q: "WHERE pays IN ('FR', NULL) renvoie-t-il les clients dont le pays est NULL ?",
-    choix: ["Oui", "Non", "Seulement sur SQL Server", "Erreur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement sur SQL Server",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. IN fait des comparaisons avec =. Or NULL = NULL n'est jamais vrai.",
@@ -385,7 +430,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q24", dialecte: "SQL Server",
     q: "Un index existe sur nom. Quel filtre permet une recherche rapide dans l'index (Index Seek) ?",
     choixCode: true,
-    choix: ["LIKE '%DUP%'", "LIKE '%DUP'", "LIKE 'DUP%'", "LIKE '_UP%'"],
+    choix: [
+      "LIKE '%DUP%'",
+      "LIKE '%DUP'",
+      "LIKE 'DUP%'",
+      "LIKE '_UP%'"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Le début est inconnu : il faut tout lire.",
@@ -416,7 +466,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q26", dialecte: "Standard",
     q: "WHERE nom BETWEEN 'A' AND 'C' renvoie-t-il le client 'Caron' ?",
-    choix: ["Oui", "Non", "Seulement si la collation ignore la casse", "Erreur : BETWEEN ne marche pas sur du texte"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement si la collation ignore la casse",
+      "Erreur : BETWEEN ne marche pas sur du texte"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Dans l'ordre alphabétique, 'Caron' vient après 'C'.",
@@ -486,7 +541,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q30", dialecte: "SQL Server",
     q: "Sur SQL Server, quel motif trouve les codes article qui commencent par A ou par B ?",
     choixCode: true,
-    choix: ["LIKE '(A|B)%'", "LIKE '[AB]%'", "LIKE 'A%B%'", "LIKE 'A,B%'"],
+    choix: [
+      "LIKE '(A|B)%'",
+      "LIKE '[AB]%'",
+      "LIKE 'A%B%'",
+      "LIKE 'A,B%'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. LIKE ne connaît pas les expressions régulières.",
@@ -499,7 +559,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q31", dialecte: "Standard",
     q: "Que renvoie SELECT * FROM client WHERE NULL = NULL; ?",
-    choix: ["Toutes les lignes", "Aucune ligne", "Les lignes avec des NULL", "Une erreur"],
+    choix: [
+      "Toutes les lignes",
+      "Aucune ligne",
+      "Les lignes avec des NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL = NULL n'est pas vrai.",
@@ -530,7 +595,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q33", dialecte: "Standard",
     q: "Que renvoie WHERE date_livraison <> NULL ?",
-    choix: ["Les lignes avec une date", "Aucune ligne", "Toutes les lignes", "Les lignes sans date"],
+    choix: [
+      "Les lignes avec une date",
+      "Aucune ligne",
+      "Toutes les lignes",
+      "Les lignes sans date"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pour ça, il faut IS NOT NULL.",
@@ -543,7 +613,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q34", dialecte: "Standard",
     q: "Une ligne a pays = 'FR' et remise = NULL. Passe-t-elle WHERE pays = 'FR' OR remise > 10 ?",
-    choix: ["Oui", "Non", "Seulement si remise vaut 0", "Erreur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement si remise vaut 0",
+      "Erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. VRAI OU inconnu = VRAI. Une seule condition vraie suffit avec OR.",
@@ -556,7 +631,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q35", dialecte: "Standard",
     q: "Une ligne a pays = 'BE' et remise = NULL. Passe-t-elle WHERE NOT (pays = 'FR' AND remise > 10) ?",
-    choix: ["Oui", "Non", "Erreur", "Ça dépend du serveur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Erreur",
+      "Ça dépend du serveur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. pays = 'FR' est FAUX. FAUX AND inconnu = FAUX. NOT FAUX = VRAI : la ligne passe.",
@@ -569,7 +649,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q36", dialecte: "Standard",
     q: "100 lignes : 30 ont statut = 'X', 10 ont statut = NULL, le reste d'autres valeurs. Combien de lignes renvoie WHERE statut <> 'X' ?",
-    choix: ["70", "60", "30", "100"],
+    choix: [
+      "70",
+      "60",
+      "30",
+      "100"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les 10 NULL ne passent pas.",
@@ -582,7 +667,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q37", dialecte: "Standard",
     q: "La ligne a id = 1. Passe-t-elle WHERE id IN (1, 2, NULL) ?",
-    choix: ["Oui", "Non, le NULL bloque tout", "Erreur", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non, le NULL bloque tout",
+      "Erreur",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. id = 1 est VRAI. Avec IN (donc des OR), une égalité vraie suffit.",
@@ -595,7 +685,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q38", dialecte: "Standard",
     q: "La colonne categorie vaut NULL. La ligne passe-t-elle WHERE categorie NOT IN ('A', 'B') ?",
-    choix: ["Oui", "Non", "Erreur", "Seulement si la liste est vide"],
+    choix: [
+      "Oui",
+      "Non",
+      "Erreur",
+      "Seulement si la liste est vide"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL <> 'A' donne « inconnu ».",
@@ -608,7 +703,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q39", dialecte: "Standard",
     q: "Que deviennent les lignes où nom est NULL avec WHERE nom NOT LIKE 'A%' ?",
-    choix: ["Elles passent", "Elles sont exclues", "Erreur", "Elles passent sur SQL Server"],
+    choix: [
+      "Elles passent",
+      "Elles sont exclues",
+      "Erreur",
+      "Elles passent sur SQL Server"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL LIKE … donne « inconnu », et NOT inconnu reste inconnu.",
@@ -697,7 +797,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q44", dialecte: "SQL Server",
     q: "Que renvoie PATINDEX('%[0-9]%', 'ABC123') ?",
-    choix: ["0", "3", "4", "123"],
+    choix: [
+      "0",
+      "3",
+      "4",
+      "123"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. 0 voudrait dire « pas trouvé ».",
@@ -710,7 +815,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q45", dialecte: "Standard",
     q: "date_cde est de type DATE (sans heure). WHERE date_cde BETWEEN '20260101' AND '20260131' prend-il tout janvier ?",
-    choix: ["Oui", "Non, le 31 est exclu", "Non, le 1er est exclu", "Erreur"],
+    choix: [
+      "Oui",
+      "Non, le 31 est exclu",
+      "Non, le 1er est exclu",
+      "Erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Sans heure, pas de piège : le 31 vaut exactement '20260131'. Le piège existe seulement avec DATETIME.",
@@ -723,7 +833,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q46", dialecte: "Standard",
     q: "Quelles quantités garde WHERE qte NOT BETWEEN 10 AND 20 ?",
-    choix: ["De 11 à 19", "Inférieures à 10 ou supérieures à 20", "10 et 20 seulement", "Inférieures ou égales à 10"],
+    choix: [
+      "De 11 à 19",
+      "Inférieures à 10 ou supérieures à 20",
+      "10 et 20 seulement",
+      "Inférieures ou égales à 10"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est l'intérieur de l'intervalle, sans les bornes.",
@@ -754,7 +869,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q48", dialecte: "Standard",
     q: "La sous-requête de WHERE client_id IN (SELECT client_id FROM commande) renvoie 5 fois le client 42. Le client 42 apparaît combien de fois ?",
-    choix: ["1 fois", "5 fois", "0 fois", "Erreur"],
+    choix: [
+      "1 fois",
+      "5 fois",
+      "0 fois",
+      "Erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. IN teste seulement « est dans la liste ». Les doublons de la liste ne dupliquent rien.",
@@ -842,7 +962,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q53", dialecte: "SQL Server",
     q: "Comment simplifier WHERE ISNULL(statut, '') = 'OK' ?",
     choixCode: true,
-    choix: ["WHERE statut = 'OK'", "WHERE statut IS NULL", "WHERE statut <> ''", "Impossible"],
+    choix: [
+      "WHERE statut = 'OK'",
+      "WHERE statut IS NULL",
+      "WHERE statut <> ''",
+      "Impossible"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Une ligne NULL ne peut pas valoir 'OK'. Le ISNULL ne sert à rien, et il empêche l'index.",
@@ -856,7 +981,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q54", dialecte: "Standard",
     q: "Quel filtre est équivalent à WHERE montant * 1.2 > 1200, tout en laissant la colonne « nue » ?",
     choixCode: true,
-    choix: ["WHERE montant > 1200 / 1.2", "WHERE montant > 1200 * 1.2", "WHERE montant * 1.2 >= 1200", "WHERE ROUND(montant, 0) > 1000"],
+    choix: [
+      "WHERE montant > 1200 / 1.2",
+      "WHERE montant > 1200 * 1.2",
+      "WHERE montant * 1.2 >= 1200",
+      "WHERE ROUND(montant, 0) > 1000"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. On divise des deux côtés : montant > 1000. L'index sur montant peut servir.",
@@ -870,7 +1000,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q55", dialecte: "Standard",
     q: "Comment réécrire WHERE LEFT(code, 3) = 'PIS' pour profiter de l'index ?",
     choixCode: true,
-    choix: ["WHERE code LIKE 'PIS%'", "WHERE code LIKE '%PIS%'", "WHERE code = 'PIS'", "WHERE RIGHT(code, 3) = 'PIS'"],
+    choix: [
+      "WHERE code LIKE 'PIS%'",
+      "WHERE code LIKE '%PIS%'",
+      "WHERE code = 'PIS'",
+      "WHERE RIGHT(code, 3) = 'PIS'"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Même sens, et le début connu permet un Index Seek.",
@@ -938,7 +1073,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q59", dialecte: "SQL Server",
     q: "Collation French_CI_AS. WHERE prenom = 'Helene' trouve-t-il 'Hélène' ?",
-    choix: ["Oui", "Non", "Seulement en majuscules", "Erreur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement en majuscules",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. AS = Accent Sensitive : é ≠ e.",
@@ -952,7 +1092,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q60", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction renvoie VRAI quand deux valeurs sont égales, y compris quand les deux sont NULL ?",
     choixCode: true,
-    choix: ["EQUAL_NULL(a, b)", "a = b", "NULLIF(a, b)", "COALESCE(a, b)"],
+    choix: [
+      "EQUAL_NULL(a, b)",
+      "a = b",
+      "NULLIF(a, b)",
+      "COALESCE(a, b)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. EQUAL_NULL traite NULL comme une valeur. Équivalent : a IS NOT DISTINCT FROM b.",
@@ -983,7 +1128,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q62", dialecte: "Standard",
     q: "Aucune commande belge n'existe. Que renvoie WHERE montant > ALL (SELECT montant FROM commande WHERE pays = 'BE') ?",
-    choix: ["Aucune ligne", "Toutes les lignes", "Une erreur", "NULL"],
+    choix: [
+      "Aucune ligne",
+      "Toutes les lignes",
+      "Une erreur",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Piège : c'est l'inverse.",
@@ -997,7 +1147,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q63", dialecte: "Standard",
     q: "WHERE pays = ANY (SELECT pays FROM zone_export) est équivalent à…",
     choixCode: true,
-    choix: ["WHERE pays IN (SELECT pays FROM zone_export)", "WHERE pays = ALL (…)", "WHERE pays NOT IN (…)", "WHERE EXISTS (SELECT 1)"],
+    choix: [
+      "WHERE pays IN (SELECT pays FROM zone_export)",
+      "WHERE pays = ALL (…)",
+      "WHERE pays NOT IN (…)",
+      "WHERE EXISTS (SELECT 1)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Égal à au moins une valeur = IN.",
@@ -1010,7 +1165,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q64", dialecte: "SQL Server",
     q: "Sur SQL Server, la condition '   ' = '' (3 espaces contre texte vide) est-elle vraie ?",
-    choix: ["Oui", "Non", "Erreur", "NULL"],
+    choix: [
+      "Oui",
+      "Non",
+      "Erreur",
+      "NULL"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. SQL Server ignore les espaces de fin : '   ' devient '' pour la comparaison.",
@@ -1024,7 +1184,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q65", dialecte: "Snowflake",
     q: "Sur Snowflake, comment trouver les références vides OU faites seulement d'espaces ?",
     choixCode: true,
-    choix: ["WHERE ref = ''", "WHERE TRIM(ref) = ''", "WHERE ref IS NULL", "WHERE LEN(ref) = 0"],
+    choix: [
+      "WHERE ref = ''",
+      "WHERE TRIM(ref) = ''",
+      "WHERE ref IS NULL",
+      "WHERE LEN(ref) = 0"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sur Snowflake, '   ' ≠ ''.",
@@ -1056,7 +1221,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q67", dialecte: "SQL Server + Snowflake",
     q: "Une appli génère WHERE id IN () quand la liste est vide. Que se passe-t-il ?",
-    choix: ["0 ligne", "Toutes les lignes", "Erreur de syntaxe", "NULL"],
+    choix: [
+      "0 ligne",
+      "Toutes les lignes",
+      "Erreur de syntaxe",
+      "NULL"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. La requête ne s'exécute pas.",
@@ -1069,7 +1239,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q68", dialecte: "Standard",
     q: "WHERE NOT statut IN ('A', 'B') est-il équivalent à WHERE statut NOT IN ('A', 'B') ?",
-    choix: ["Oui", "Non", "Seulement sans NULL", "Erreur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement sans NULL",
+      "Erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les deux écritures sont équivalentes, NULL compris.",
@@ -1082,7 +1257,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q69", dialecte: "Standard",
     q: "montant_txt est un VARCHAR. Une ligne contient '99'. Passe-t-elle WHERE montant_txt > '100' ?",
-    choix: ["Non, 99 < 100", "Oui, car en texte '9' > '1'", "Erreur", "Seulement sur Snowflake"],
+    choix: [
+      "Non, 99 < 100",
+      "Oui, car en texte '9' > '1'",
+      "Erreur",
+      "Seulement sur Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait vrai pour des nombres.",
@@ -1096,7 +1276,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q70", dialecte: "SQL Server",
     q: "Quel filtre est équivalent à WHERE CHARINDEX('PISC', libelle) > 0 ?",
     choixCode: true,
-    choix: ["WHERE libelle LIKE 'PISC%'", "WHERE libelle LIKE '%PISC%'", "WHERE libelle = 'PISC'", "WHERE libelle LIKE '%PISC'"],
+    choix: [
+      "WHERE libelle LIKE 'PISC%'",
+      "WHERE libelle LIKE '%PISC%'",
+      "WHERE libelle = 'PISC'",
+      "WHERE libelle LIKE '%PISC'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ça demande que le libellé commence par PISC.",
@@ -1110,7 +1295,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q71", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction teste qu'un code commence par 'PIS' ?",
     choixCode: true,
-    choix: ["STARTSWITH(code, 'PIS')", "BEGINS(code, 'PIS')", "LEFTWITH(code, 'PIS')", "PREFIX(code) = 'PIS'"],
+    choix: [
+      "STARTSWITH(code, 'PIS')",
+      "BEGINS(code, 'PIS')",
+      "LEFTWITH(code, 'PIS')",
+      "PREFIX(code) = 'PIS'"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. STARTSWITH (et ENDSWITH, CONTAINS) existent sur Snowflake. LIKE 'PIS%' marche aussi.",
@@ -1141,7 +1331,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q73", dialecte: "Standard",
     q: "poids est un FLOAT calculé (0.1 + 0.2). WHERE poids = 0.3 le trouve-t-il ?",
-    choix: ["Oui, toujours", "Pas forcément : FLOAT est approximatif", "Erreur", "Seulement en DECIMAL"],
+    choix: [
+      "Oui, toujours",
+      "Pas forcément : FLOAT est approximatif",
+      "Erreur",
+      "Seulement en DECIMAL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. 0.1 + 0.2 en FLOAT donne 0.30000000000000004.",
@@ -1154,7 +1349,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q74", dialecte: "Standard",
     q: "Mettre la condition la plus sélective en premier dans le WHERE accélère-t-il la requête ?",
-    choix: ["Oui, toujours", "Non, l'optimiseur choisit lui-même l'ordre", "Oui, sur SQL Server", "Oui, avec OR"],
+    choix: [
+      "Oui, toujours",
+      "Non, l'optimiseur choisit lui-même l'ordre",
+      "Oui, sur SQL Server",
+      "Oui, avec OR"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est un mythe.",
@@ -1317,7 +1517,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q83", dialecte: "Standard",
     q: "@max vaut NULL. Que renvoie WHERE montant BETWEEN @min AND @max ?",
-    choix: ["Tout ce qui est >= @min", "Aucune ligne", "Toutes les lignes", "Une erreur"],
+    choix: [
+      "Tout ce qui est >= @min",
+      "Aucune ligne",
+      "Toutes les lignes",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. montant <= NULL est inconnu.",
@@ -1368,7 +1573,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q86", dialecte: "Standard",
     q: "Comment trouver les noms qui contiennent une apostrophe (ex. L'Isle) ?",
     choixCode: true,
-    choix: ["LIKE '%'%'", "LIKE '%''%'", "LIKE \"%'%\"", "LIKE '%\\'%'"],
+    choix: [
+      "LIKE '%'%'",
+      "LIKE '%''%'",
+      "LIKE \"%'%\"",
+      "LIKE '%\\'%'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. L'apostrophe ferme le texte : erreur.",
@@ -1456,7 +1666,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q91", dialecte: "SQL Server",
     q: "Les codes articles doivent faire 6 caractères. Comment trouver ceux qui ne respectent pas la règle ?",
     choixCode: true,
-    choix: ["WHERE LEN(code) <> 6", "WHERE code <> 6", "WHERE code NOT LIKE '%6%'", "WHERE SIZE(code) <> 6"],
+    choix: [
+      "WHERE LEN(code) <> 6",
+      "WHERE code <> 6",
+      "WHERE code NOT LIKE '%6%'",
+      "WHERE SIZE(code) <> 6"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Attention : LEN ignore les espaces de fin. Pour les voir, DATALENGTH.",
@@ -1470,7 +1685,12 @@ LEARNSQL.questions.m02 = [
     id: "m02-q92", dialecte: "SQL Server",
     q: "Comment trouver les libellés qui commencent par un chiffre ?",
     choixCode: true,
-    choix: ["LIKE '[0-9]%'", "LIKE '%[0-9]'", "LIKE '0-9%'", "LIKE '#%'"],
+    choix: [
+      "LIKE '[0-9]%'",
+      "LIKE '%[0-9]'",
+      "LIKE '0-9%'",
+      "LIKE '#%'"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Le 1er caractère est un chiffre, puis n'importe quoi.",
@@ -1576,7 +1796,12 @@ LEARNSQL.questions.m02 = [
   {
     id: "m02-q98", dialecte: "Standard",
     q: "Que donne SELECT * FROM commande WHERE montant > AVG(montant); ?",
-    choix: ["Les commandes au-dessus de la moyenne", "Erreur : agrégat interdit dans WHERE", "Toutes les commandes", "Aucune"],
+    choix: [
+      "Les commandes au-dessus de la moyenne",
+      "Erreur : agrégat interdit dans WHERE",
+      "Toutes les commandes",
+      "Aucune"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La requête ne s'exécute pas.",

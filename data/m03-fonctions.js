@@ -2,7 +2,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q01", dialecte: "SQL Server",
     q: "Sur SQL Server, que renvoie SELECT 7 / 2; ?",
-    choix: ["3.5", "3", "4", "Une erreur"],
+    choix: [
+      "3.5",
+      "3",
+      "4",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non sur SQL Server. (Oui sur Snowflake, qui renvoie un décimal.)",
@@ -16,7 +21,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q02", dialecte: "Standard",
     q: "Pour un client avec ca = 8000, que renvoie ce CASE ?",
     code: "CASE\n  WHEN ca > 1000 THEN 'B'\n  WHEN ca > 5000 THEN 'A'\n  ELSE 'C'\nEND",
-    choix: ["'A'", "'B'", "'C'", "'A' et 'B'"],
+    choix: [
+      "'A'",
+      "'B'",
+      "'C'",
+      "'A' et 'B'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le moteur s'arrête avant d'arriver à ce test.",
@@ -29,7 +39,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q03", dialecte: "Standard",
     q: "Que renvoie un CASE sans ELSE quand aucune condition n'est vraie ?",
-    choix: ["0", "Une chaîne vide ''", "NULL", "Une erreur"],
+    choix: [
+      "0",
+      "Une chaîne vide ''",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Le moteur ne choisit pas de valeur à ta place.",
@@ -43,7 +58,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q04", dialecte: "SQL Server",
     q: "Sur SQL Server, que renvoie cette requête ?",
     code: "SELECT 'Cde-' + NULL,\n       CONCAT('Cde-', NULL);",
-    choix: ["'Cde-' et 'Cde-'", "NULL et 'Cde-'", "NULL et NULL", "'Cde-' et NULL"],
+    choix: [
+      "'Cde-' et 'Cde-'",
+      "NULL et 'Cde-'",
+      "NULL et NULL",
+      "'Cde-' et NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Avec +, un NULL rend tout le résultat NULL.",
@@ -93,7 +113,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q07", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie DATEDIFF(year, '2025-12-31', '2026-01-01') ?",
-    choix: ["0", "1", "0.003", "-1"],
+    choix: [
+      "0",
+      "1",
+      "0.003",
+      "-1"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pourtant il n'y a qu'un jour d'écart…",
@@ -107,7 +132,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q08", dialecte: "SQL Server",
     q: "Ton serveur est en français (SET LANGUAGE French). Quel format de date en texte est sûr pour un DATETIME ?",
     choixCode: true,
-    choix: ["'22/10/2026'", "'10/22/2026'", "'2026-10-22'", "'20261022'"],
+    choix: [
+      "'22/10/2026'",
+      "'10/22/2026'",
+      "'2026-10-22'",
+      "'20261022'"
+    ],
     bonne: 3,
     pourquoi: [
       "Non. Ça dépend de la langue du serveur.",
@@ -120,7 +150,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q09", dialecte: "SQL Server",
     q: "Que renvoie LEN('abc   ') (avec 3 espaces à la fin) sur SQL Server ?",
-    choix: ["3", "6", "0", "NULL"],
+    choix: [
+      "3",
+      "6",
+      "0",
+      "NULL"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. LEN ignore les espaces de fin. DATALENGTH, lui, compte les octets réels.",
@@ -133,7 +168,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q10", dialecte: "Standard",
     q: "Quelle est la plus grande valeur possible pour une colonne DECIMAL(5,2) ?",
-    choix: ["99999.99", "999.99", "99.999", "5.2"],
+    choix: [
+      "99999.99",
+      "999.99",
+      "99.999",
+      "5.2"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ça ferait 7 chiffres au total.",
@@ -146,7 +186,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q11", dialecte: "SQL Server",
     q: "Que renvoie SUBSTRING('EDIFACT', 1, 3) ?",
-    choix: ["'DIF'", "'EDI'", "'EDIF'", "'FACT'"],
+    choix: [
+      "'DIF'",
+      "'EDI'",
+      "'EDIF'",
+      "'FACT'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. En SQL, on commence à compter à 1, pas à 0.",
@@ -159,7 +204,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q12", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie CHARINDEX('-', 'CDE-2026') ?",
-    choix: ["3", "4", "5", "0"],
+    choix: [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C, D, E occupent les positions 1 à 3.",
@@ -173,7 +223,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q13", dialecte: "SQL Server + Snowflake",
     q: "Quelle fonction enlève les espaces au début ET à la fin d'un texte ?",
     choixCode: true,
-    choix: ["LTRIM(x)", "RTRIM(x)", "TRIM(x)", "REPLACE(x, ' ', '')"],
+    choix: [
+      "LTRIM(x)",
+      "RTRIM(x)",
+      "TRIM(x)",
+      "REPLACE(x, ' ', '')"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. LTRIM enlève seulement à gauche (au début).",
@@ -243,7 +298,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q17", dialecte: "SQL Server",
     q: "Sur SQL Server, que renvoie EOMONTH('20260210') ?",
-    choix: ["2026-02-01", "2026-02-28", "2026-03-01", "2026-02-10"],
+    choix: [
+      "2026-02-01",
+      "2026-02-28",
+      "2026-03-01",
+      "2026-02-10"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est le 1er jour du mois.",
@@ -276,7 +336,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q19", dialecte: "Standard",
     q: "statut vaut NULL. Que renvoie ce CASE ?",
     code: "CASE statut\n  WHEN NULL THEN 'vide'\n  ELSE 'rempli'\nEND",
-    choix: ["'vide'", "'rempli'", "NULL", "Une erreur"],
+    choix: [
+      "'vide'",
+      "'rempli'",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le CASE simple compare avec = : NULL = NULL n'est jamais vrai.",
@@ -290,7 +355,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q20", dialecte: "SQL Server + Snowflake",
     q: "Sur SQL Server, on écrit IIF(qte > 0, 'OK', 'KO'). Quel est l'équivalent sur Snowflake ?",
     choixCode: true,
-    choix: ["IIF(qte > 0, 'OK', 'KO')", "IFF(qte > 0, 'OK', 'KO')", "IF(qte > 0, 'OK', 'KO')", "DECODE(qte > 0)"],
+    choix: [
+      "IIF(qte > 0, 'OK', 'KO')",
+      "IFF(qte > 0, 'OK', 'KO')",
+      "IF(qte > 0, 'OK', 'KO')",
+      "DECODE(qte > 0)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. IIF n'existe pas sur Snowflake.",
@@ -303,7 +373,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q21", dialecte: "Standard",
     q: "Que renvoie ROUND(12.345, 2) ?",
-    choix: ["12.34", "12.35", "12.3", "12"],
+    choix: [
+      "12.34",
+      "12.35",
+      "12.3",
+      "12"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait une troncature, pas un arrondi.",
@@ -316,7 +391,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q22", dialecte: "SQL Server",
     q: "25 cartons, 10 cartons par palette. Sur SQL Server, que renvoie CEILING(25 / 10) ?",
-    choix: ["3", "2", "2.5", "Une erreur"],
+    choix: [
+      "3",
+      "2",
+      "2.5",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est ce qu'on veut… mais 25 / 10 donne d'abord 2 (division entière).",
@@ -330,7 +410,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q23", dialecte: "Standard",
     q: "Quel type choisir pour stocker des montants en euros ?",
     choixCode: true,
-    choix: ["FLOAT", "DECIMAL(18,2)", "VARCHAR(20)", "INT"],
+    choix: [
+      "FLOAT",
+      "DECIMAL(18,2)",
+      "VARCHAR(20)",
+      "INT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. FLOAT est approximatif : 0.1 + 0.2 ne donne pas exactement 0.3. Les écarts comptables arrivent vite.",
@@ -362,7 +447,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q25", dialecte: "SQL Server",
     q: "Que renvoie le SELECT ?",
     code: "DECLARE @ref varchar;\nSET @ref = 'CDE2026';\nSELECT @ref;",
-    choix: ["'CDE2026'", "'C'", "NULL", "Une erreur de troncature"],
+    choix: [
+      "'CDE2026'",
+      "'C'",
+      "NULL",
+      "Une erreur de troncature"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La variable est trop courte.",
@@ -375,7 +465,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q26", dialecte: "SQL Server",
     q: "Sur SQL Server, que renvoie SELECT '10' + 5; ?",
-    choix: ["'105'", "15", "Une erreur", "NULL"],
+    choix: [
+      "'105'",
+      "15",
+      "Une erreur",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Il n'y aurait concaténation que si les deux valeurs étaient du texte.",
@@ -426,7 +521,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q29", dialecte: "SQL Server",
     q: "Que renvoie le SELECT ?",
     code: "DECLARE @c char(2) = NULL;\nSELECT ISNULL(@c, 'ABCD');",
-    choix: ["'ABCD'", "'AB'", "NULL", "Une erreur"],
+    choix: [
+      "'ABCD'",
+      "'AB'",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Piège : ISNULL prend le type du 1er argument, ici char(2).",
@@ -457,7 +557,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q31", dialecte: "Snowflake",
     q: "Sur Snowflake, que renvoie INITCAP('jean dupont') ?",
-    choix: ["'JEAN DUPONT'", "'Jean Dupont'", "'Jean dupont'", "'jean dupont'"],
+    choix: [
+      "'JEAN DUPONT'",
+      "'Jean Dupont'",
+      "'Jean dupont'",
+      "'jean dupont'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait UPPER.",
@@ -471,7 +576,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q32", dialecte: "SQL Server",
     q: "Comment extraire le département ('69') du code postal '69110' ?",
     choixCode: true,
-    choix: ["LEFT(cp, 2)", "RIGHT(cp, 2)", "SUBSTRING(cp, 2, 2)", "CHARINDEX('69', cp)"],
+    choix: [
+      "LEFT(cp, 2)",
+      "RIGHT(cp, 2)",
+      "SUBSTRING(cp, 2, 2)",
+      "CHARINDEX('69', cp)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les 2 premiers caractères. (Attention à la Corse : '2A', '2B', et aux DOM : 3 chiffres.)",
@@ -484,7 +594,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q33", dialecte: "SQL Server",
     q: "Que renvoie RIGHT('FAC-2026-0042', 4) ?",
-    choix: ["'FAC-'", "'0042'", "'2026'", "'42'"],
+    choix: [
+      "'FAC-'",
+      "'0042'",
+      "'2026'",
+      "'42'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait LEFT.",
@@ -516,7 +631,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q35", dialecte: "Snowflake",
     q: "Sur Snowflake, que renvoie SPLIT_PART('CDE;CLIENT;MONTANT', ';', 2) ?",
-    choix: ["'CDE'", "'CLIENT'", "'MONTANT'", "Un tableau"],
+    choix: [
+      "'CDE'",
+      "'CLIENT'",
+      "'MONTANT'",
+      "Un tableau"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est la 1re partie.",
@@ -529,7 +649,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q36", dialecte: "SQL Server",
     q: "Sur SQL Server, que renvoie SELECT value FROM STRING_SPLIT('A;B;C', ';') ?",
-    choix: ["Une ligne : 'A;B;C'", "3 lignes : A, B, C", "Une ligne : 'ABC'", "Une erreur"],
+    choix: [
+      "Une ligne : 'A;B;C'",
+      "3 lignes : A, B, C",
+      "Une ligne : 'ABC'",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le texte est découpé.",
@@ -542,7 +667,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q37", dialecte: "SQL Server",
     q: "Que renvoie REPLICATE('0', 3) ?",
-    choix: ["'0'", "'000'", "0", "'3'"],
+    choix: [
+      "'0'",
+      "'000'",
+      "0",
+      "'3'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -555,7 +685,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q38", dialecte: "SQL Server",
     q: "Que renvoie STUFF('ABCDEF', 2, 3, 'X') ?",
-    choix: ["'AXBCDEF'", "'AXEF'", "'ABCXEF'", "'XDEF'"],
+    choix: [
+      "'AXBCDEF'",
+      "'AXEF'",
+      "'ABCXEF'",
+      "'XDEF'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. STUFF supprime avant d'insérer.",
@@ -568,7 +703,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q39", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie TRANSLATE('12-05/2026', '-/', '..') ?",
-    choix: ["'12.05.2026'", "'12-05/2026'", "'1205.2026'", "Une erreur"],
+    choix: [
+      "'12.05.2026'",
+      "'12-05/2026'",
+      "'1205.2026'",
+      "Une erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. TRANSLATE remplace chaque caractère de la 2e liste par celui de même position dans la 3e. Un seul appel au lieu de deux REPLACE.",
@@ -618,7 +758,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q42", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie ASCII('A') ?",
-    choix: ["1", "65", "'A'", "97"],
+    choix: [
+      "1",
+      "65",
+      "'A'",
+      "97"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -631,7 +776,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q43", dialecte: "SQL Server",
     q: "Que renvoie DATALENGTH(N'abc') ?",
-    choix: ["3", "6", "4", "NULL"],
+    choix: [
+      "3",
+      "6",
+      "4",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est LEN, le nombre de caractères.",
@@ -644,7 +794,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q44", dialecte: "Standard",
     q: "Que renvoie LEN(NULL) ?",
-    choix: ["0", "NULL", "4", "Une erreur"],
+    choix: [
+      "0",
+      "NULL",
+      "4",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Une valeur inconnue n'a pas une longueur de 0.",
@@ -675,7 +830,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q46", dialecte: "SQL Server",
     q: "Collation CI (insensible à la casse). Que renvoie REPLACE('Aa', 'a', 'x') ?",
-    choix: ["'Ax'", "'xx'", "'Aa'", "'xa'"],
+    choix: [
+      "'Ax'",
+      "'xx'",
+      "'Aa'",
+      "'xa'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non sur SQL Server en CI. (Oui sur Snowflake, sensible à la casse.)",
@@ -726,7 +886,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q49", dialecte: "SQL Server",
     q: "Quelle fonction renvoie la date et l'heure en UTC (temps universel) ?",
     choixCode: true,
-    choix: ["GETDATE()", "SYSUTCDATETIME()", "SYSDATETIME()", "CURRENT_TIMESTAMP"],
+    choix: [
+      "GETDATE()",
+      "SYSUTCDATETIME()",
+      "SYSDATETIME()",
+      "CURRENT_TIMESTAMP"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. GETDATE donne l'heure locale du serveur.",
@@ -795,7 +960,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q53", dialecte: "SQL Server",
     q: "Que renvoie DATEPART(quarter, '20260815') ?",
-    choix: ["2", "3", "8", "15"],
+    choix: [
+      "2",
+      "3",
+      "8",
+      "15"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le 2e trimestre va d'avril à juin.",
@@ -809,7 +979,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q54", dialecte: "SQL Server",
     q: "En France, on compte les semaines selon la norme ISO. Quelle fonction utiliser sur SQL Server ?",
     choixCode: true,
-    choix: ["DATEPART(week, d)", "DATEPART(iso_week, d)", "WEEK(d)", "DATENAME(week, d)"],
+    choix: [
+      "DATEPART(week, d)",
+      "DATEPART(iso_week, d)",
+      "WEEK(d)",
+      "DATENAME(week, d)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. week suit la règle américaine (semaine du 1er janvier = semaine 1). Résultat différent en début et fin d'année.",
@@ -823,7 +998,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q55", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction donne le numéro de semaine ISO ?",
     choixCode: true,
-    choix: ["WEEKISO(d)", "ISO_WEEK(d)", "DATEPART(iso, d)", "WEEKNUM(d)"],
+    choix: [
+      "WEEKISO(d)",
+      "ISO_WEEK(d)",
+      "DATEPART(iso, d)",
+      "WEEKNUM(d)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. WEEKISO suit la norme ISO, comme en France. (WEEK dépend d'un paramètre de session.)",
@@ -836,7 +1016,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q56", dialecte: "SQL Server",
     q: "Que renvoie DATEFROMPARTS(2026, 2, 30) ?",
-    choix: ["2026-03-02", "2026-02-28", "Une erreur", "NULL"],
+    choix: [
+      "2026-03-02",
+      "2026-02-28",
+      "Une erreur",
+      "NULL"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. SQL Server ne « déborde » pas sur le mois suivant.",
@@ -849,7 +1034,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q57", dialecte: "SQL Server",
     q: "Que renvoie DATEADD(month, 1, '20260131') ?",
-    choix: ["2026-03-03", "2026-02-28", "2026-02-31", "Une erreur"],
+    choix: [
+      "2026-03-03",
+      "2026-02-28",
+      "2026-02-31",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pas de débordement.",
@@ -862,7 +1052,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q58", dialecte: "SQL Server",
     q: "Que renvoie DATEDIFF(month, '20260131', '20260201') ?",
-    choix: ["0", "1", "0.03", "-1"],
+    choix: [
+      "0",
+      "1",
+      "0.03",
+      "-1"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Un seul jour d'écart, mais…",
@@ -931,7 +1126,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q62", dialecte: "SQL Server",
     q: "Sur SQL Server, CAST('20261026' AS date) fonctionne-t-il ?",
-    choix: ["Oui, toujours", "Non, il faut CONVERT", "Seulement en anglais", "Non, il faut des tirets"],
+    choix: [
+      "Oui, toujours",
+      "Non, il faut CONVERT",
+      "Seulement en anglais",
+      "Non, il faut des tirets"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Le format AAAAMMJJ est compris quelle que soit la langue.",
@@ -982,7 +1182,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q65", dialecte: "SQL Server",
     q: "Que donne CONVERT(varchar(19), d, 120) pour le 26/10/2026 à 14:05:09 ?",
-    choix: ["'26/10/2026 14:05:09'", "'2026-10-26 14:05:09'", "'20261026'", "'Oct 26 2026 2:05PM'"],
+    choix: [
+      "'26/10/2026 14:05:09'",
+      "'2026-10-26 14:05:09'",
+      "'20261026'",
+      "'Oct 26 2026 2:05PM'"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait un style français.",
@@ -995,7 +1200,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q66", dialecte: "SQL Server",
     q: "Que renvoie TRY_CONVERT(date, '31/02/2026', 103) ?",
-    choix: ["2026-02-28", "2026-03-03", "NULL", "Une erreur"],
+    choix: [
+      "2026-02-28",
+      "2026-03-03",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Pas de correction automatique.",
@@ -1008,7 +1218,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q67", dialecte: "SQL Server",
     q: "Que renvoie TRY_PARSE('1234,50' AS decimal(10,2) USING 'fr-FR') ?",
-    choix: ["123450", "1234.50", "NULL", "Une erreur"],
+    choix: [
+      "123450",
+      "1234.50",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La virgule est comprise comme séparateur décimal en français.",
@@ -1021,7 +1236,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q68", dialecte: "SQL Server",
     q: "Que renvoie CONCAT('Cde ', 42) ?",
-    choix: ["'Cde 42'", "Une erreur", "42", "NULL"],
+    choix: [
+      "'Cde 42'",
+      "Une erreur",
+      "42",
+      "NULL"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. CONCAT convertit tout en texte. Pas besoin de CAST.",
@@ -1034,7 +1254,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q69", dialecte: "SQL Server",
     q: "Que renvoie SELECT 'Cde ' + 42; sur SQL Server ?",
-    choix: ["'Cde 42'", "Erreur : impossible de convertir 'Cde ' en entier", "42", "NULL"],
+    choix: [
+      "'Cde 42'",
+      "Erreur : impossible de convertir 'Cde ' en entier",
+      "42",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Avec +, l'entier est prioritaire.",
@@ -1047,7 +1272,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q70", dialecte: "SQL Server",
     q: "Que renvoie CAST(1234.5678 AS decimal(6,2)) ?",
-    choix: ["1234.56", "1234.57", "1234.5678", "Une erreur"],
+    choix: [
+      "1234.56",
+      "1234.57",
+      "1234.5678",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server arrondit, il ne tronque pas, vers un DECIMAL.",
@@ -1060,7 +1290,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q71", dialecte: "SQL Server",
     q: "Que renvoie CAST(123456.78 AS decimal(5,2)) ?",
-    choix: ["123.45", "999.99", "Une erreur de dépassement", "NULL"],
+    choix: [
+      "123.45",
+      "999.99",
+      "Une erreur de dépassement",
+      "NULL"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Pas de coupure silencieuse.",
@@ -1073,7 +1308,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q72", dialecte: "SQL Server",
     q: "Que renvoie ROUND(1234.567, -2) ?",
-    choix: ["1234.57", "1200.000", "1234.000", "1300.000"],
+    choix: [
+      "1234.57",
+      "1200.000",
+      "1234.000",
+      "1300.000"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. -2 n'est pas 2 décimales.",
@@ -1086,7 +1326,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q73", dialecte: "SQL Server",
     q: "Que renvoie ROUND(12.345, 2, 1) sur SQL Server ?",
-    choix: ["12.35", "12.34", "12", "Une erreur"],
+    choix: [
+      "12.35",
+      "12.34",
+      "12",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est l'arrondi normal.",
@@ -1099,7 +1344,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q74", dialecte: "Snowflake",
     q: "Sur Snowflake, que renvoie TRUNC(12.345, 2) ?",
-    choix: ["12.35", "12.34", "12", "Une erreur"],
+    choix: [
+      "12.35",
+      "12.34",
+      "12",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. TRUNC ne fait pas d'arrondi.",
@@ -1112,7 +1362,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q75", dialecte: "Standard",
     q: "Que renvoie FLOOR(-2.5) ?",
-    choix: ["-2", "-3", "2", "-2.5"],
+    choix: [
+      "-2",
+      "-3",
+      "2",
+      "-2.5"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. -2 est plus grand que -2.5.",
@@ -1143,7 +1398,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q77", dialecte: "SQL Server",
     q: "Que donne SELECT 2147483647 + 1; ?",
-    choix: ["2147483648", "Une erreur de dépassement (INT)", "0", "-2147483648"],
+    choix: [
+      "2147483648",
+      "Une erreur de dépassement (INT)",
+      "0",
+      "-2147483648"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le résultat ne tient pas dans un INT.",
@@ -1175,7 +1435,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q79", dialecte: "SQL Server",
     q: "Que donne COALESCE(qte, 'inconnu') quand qte (INT) vaut NULL ?",
-    choix: ["'inconnu'", "Erreur de conversion", "NULL", "0"],
+    choix: [
+      "'inconnu'",
+      "Erreur de conversion",
+      "NULL",
+      "0"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. COALESCE renvoie le type le plus fort de ses arguments : INT.",
@@ -1207,7 +1472,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q81", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction remplace NULL par 0 ?",
     choixCode: true,
-    choix: ["ZEROIFNULL(x)", "NULLIFZERO(x)", "ISZERO(x)", "NULLTOZERO(x)"],
+    choix: [
+      "ZEROIFNULL(x)",
+      "NULLIFZERO(x)",
+      "ISZERO(x)",
+      "NULLTOZERO(x)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Équivalent de COALESCE(x, 0).",
@@ -1238,7 +1508,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q83", dialecte: "SQL Server",
     q: "Que renvoie CHOOSE(2, 'Bronze', 'Argent', 'Or') ?",
-    choix: ["'Bronze'", "'Argent'", "'Or'", "2"],
+    choix: [
+      "'Bronze'",
+      "'Argent'",
+      "'Or'",
+      "2"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. L'index commence à 1.",
@@ -1325,7 +1600,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q88", dialecte: "Snowflake",
     q: "Sur Snowflake, quel format affiche l'heure et les minutes (ex. 14:05) ?",
     choixCode: true,
-    choix: ["'HH24:MI'", "'HH:MM'", "'hh:mm'", "'H:M'"],
+    choix: [
+      "'HH24:MI'",
+      "'HH:MM'",
+      "'hh:mm'",
+      "'H:M'"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. HH24 = heures sur 24 h, MI = minutes.",
@@ -1356,7 +1636,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q90", dialecte: "SQL Server",
     q: "Que renvoie EOMONTH('20261026', -1) ?",
-    choix: ["2026-10-31", "2026-09-30", "2026-10-25", "2026-11-30"],
+    choix: [
+      "2026-10-31",
+      "2026-09-30",
+      "2026-10-25",
+      "2026-11-30"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait EOMONTH sans 2e paramètre.",
@@ -1369,7 +1654,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q91", dialecte: "SQL Server",
     q: "Que donne DATEADD(day, 1, EOMONTH(d, -1)) ?",
-    choix: ["Le dernier jour du mois", "Le 1er jour du mois de d", "Le lendemain de d", "Le 1er jour du mois suivant"],
+    choix: [
+      "Le dernier jour du mois",
+      "Le 1er jour du mois de d",
+      "Le lendemain de d",
+      "Le 1er jour du mois suivant"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1383,7 +1673,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q92", dialecte: "SQL Server",
     q: "Sur SQL Server 2022, quelle fonction ramène une date au 1er jour de son mois ?",
     choixCode: true,
-    choix: ["DATETRUNC(month, d)", "DATE_TRUNC('month', d)", "TRUNC(d, 'MM')", "MONTHSTART(d)"],
+    choix: [
+      "DATETRUNC(month, d)",
+      "DATE_TRUNC('month', d)",
+      "TRUNC(d, 'MM')",
+      "MONTHSTART(d)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Nouvelle fonction de SQL Server 2022 (sans _).",
@@ -1414,7 +1709,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q94", dialecte: "Snowflake",
     q: "Sur Snowflake, que renvoie ADD_MONTHS('2026-02-28'::DATE, 1) ?",
-    choix: ["2026-03-28", "2026-03-31", "2026-03-01", "Une erreur"],
+    choix: [
+      "2026-03-28",
+      "2026-03-31",
+      "2026-03-01",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait DATEADD(month, 1, …).",
@@ -1447,7 +1747,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q96", dialecte: "Snowflake",
     q: "Sur Snowflake, comment enlever les zéros au début de '000123' ?",
     choixCode: true,
-    choix: ["LTRIM('000123', '0')", "TRIM('000123')", "REPLACE('000123', '0', '')", "LEFT('000123', 3)"],
+    choix: [
+      "LTRIM('000123', '0')",
+      "TRIM('000123')",
+      "REPLACE('000123', '0', '')",
+      "LEFT('000123', 3)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. LTRIM accepte les caractères à retirer. (SQL Server 2022 aussi.)",
@@ -1460,7 +1765,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q97", dialecte: "SQL Server",
     q: "Que renvoie SUBSTRING('ABC', 2, 10) ?",
-    choix: ["Une erreur", "'BC'", "'BC' suivi d'espaces", "NULL"],
+    choix: [
+      "Une erreur",
+      "'BC'",
+      "'BC' suivi d'espaces",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Demander plus que la longueur n'est pas une erreur.",
@@ -1473,7 +1783,12 @@ LEARNSQL.questions.m03 = [
   {
     id: "m03-q98", dialecte: "SQL Server",
     q: "Pour 'PISCINE' (sans tiret), que donne LEFT(code, CHARINDEX('-', code) - 1) ?",
-    choix: ["'PISCINE'", "''", "Une erreur : longueur négative", "NULL"],
+    choix: [
+      "'PISCINE'",
+      "''",
+      "Une erreur : longueur négative",
+      "NULL"
+    ],
     bonne: 2,
     pourquoi: [
       "Non.",
@@ -1487,7 +1802,12 @@ LEARNSQL.questions.m03 = [
     id: "m03-q99", dialecte: "Standard",
     q: "Avant d'insérer des données importées, tu veux que les textes vides deviennent NULL. Quelle expression ?",
     choixCode: true,
-    choix: ["COALESCE(x, '')", "NULLIF(TRIM(x), '')", "ISNULL(x, NULL)", "CASE WHEN x IS NULL THEN '' END"],
+    choix: [
+      "COALESCE(x, '')",
+      "NULLIF(TRIM(x), '')",
+      "ISNULL(x, NULL)",
+      "CASE WHEN x IS NULL THEN '' END"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est l'inverse : NULL devient vide.",

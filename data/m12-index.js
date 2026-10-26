@@ -20,7 +20,12 @@ LEARNSQL.questions.m12 = [
   {
     id: "m12-q02", dialecte: "SQL Server",
     q: "Combien d'index cluster une table peut-elle avoir ?",
-    choix: ["Aucun", "Un seul", "Deux", "Autant qu'on veut"],
+    choix: [
+      "Aucun",
+      "Un seul",
+      "Deux",
+      "Autant qu'on veut"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Elle peut en avoir un (sinon c'est un « heap »).",
@@ -234,7 +239,12 @@ LEARNSQL.questions.m12 = [
     id: "m12-q14", dialecte: "SQL Server",
     q: "Pour WHERE statut = 'OUVERT' AND date_cde >= '20260101', quel ordre de colonnes est le meilleur ?",
     choixCode: true,
-    choix: ["(date_cde, statut)", "(statut, date_cde)", "(montant)", "Peu importe"],
+    choix: [
+      "(date_cde, statut)",
+      "(statut, date_cde)",
+      "(montant)",
+      "Peu importe"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La plage sur date_cde d'abord empêche de chercher efficacement sur statut.",
@@ -374,7 +384,12 @@ LEARNSQL.questions.m12 = [
     id: "m12-q22", dialecte: "SQL Server",
     q: "Comment mesurer le vrai travail d'une requête (pages lues) ?",
     choixCode: true,
-    choix: ["SET STATISTICS IO ON", "SELECT @@ROWCOUNT", "sp_help", "SET NOCOUNT ON"],
+    choix: [
+      "SET STATISTICS IO ON",
+      "SELECT @@ROWCOUNT",
+      "sp_help",
+      "SET NOCOUNT ON"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Onglet Messages : « lectures logiques » par table. Moins = mieux. (STATISTICS TIME donne le CPU et la durée.)",
@@ -496,7 +511,12 @@ LEARNSQL.questions.m12 = [
     id: "m12-q29", dialecte: "SQL Server",
     q: "Après le chargement de 3 millions de lignes dans une table de 10 millions, les requêtes deviennent lentes. Première piste ?",
     choixCode: true,
-    choix: ["UPDATE STATISTICS dbo.commande;", "DROP INDEX", "Ajouter NOLOCK", "Redémarrer le PC"],
+    choix: [
+      "UPDATE STATISTICS dbo.commande;",
+      "DROP INDEX",
+      "Ajouter NOLOCK",
+      "Redémarrer le PC"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les statistiques ne reflètent peut-être pas encore les nouvelles données (la mise à jour automatique a un seuil).",
@@ -744,7 +764,12 @@ LEARNSQL.questions.m12 = [
   {
     id: "m12-q43", dialecte: "SQL Server",
     q: "Le plan montre un « Hash Match (Aggregate) » pour un GROUP BY client_id. Un index sur client_id permettrait quel autre opérateur, souvent moins coûteux ?",
-    choix: ["Nested Loops", "Stream Aggregate (agrégat sur des données déjà triées)", "Key Lookup", "Table Spool"],
+    choix: [
+      "Nested Loops",
+      "Stream Aggregate (agrégat sur des données déjà triées)",
+      "Key Lookup",
+      "Table Spool"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est une jointure.",
@@ -866,7 +891,12 @@ LEARNSQL.questions.m12 = [
     id: "m12-q50", dialecte: "SQL Server",
     q: "Une table reçoit des milliers d'INSERT par seconde sur une clé IDENTITY : contention sur la dernière page. Quelle option SQL Server 2019 aide ?",
     choixCode: true,
-    choix: ["OPTIMIZE_FOR_SEQUENTIAL_KEY = ON sur l'index", "NOLOCK", "FILLFACTOR = 10", "Supprimer l'index cluster"],
+    choix: [
+      "OPTIMIZE_FOR_SEQUENTIAL_KEY = ON sur l'index",
+      "NOLOCK",
+      "FILLFACTOR = 10",
+      "Supprimer l'index cluster"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Option prévue pour ce cas de « dernière page chaude ».",
@@ -879,7 +909,12 @@ LEARNSQL.questions.m12 = [
   {
     id: "m12-q51", dialecte: "SQL Server",
     q: "Pour une table de faits de 500 millions de lignes interrogée par des agrégats (SUM, COUNT par mois, par famille), quel type d'index est le plus adapté ?",
-    choix: ["Un index non cluster sur chaque colonne", "Un index columnstore (cluster)", "Aucun index", "Un index sur l'id seulement"],
+    choix: [
+      "Un index non cluster sur chaque colonne",
+      "Un index columnstore (cluster)",
+      "Aucun index",
+      "Un index sur l'id seulement"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -946,7 +981,12 @@ LEARNSQL.questions.m12 = [
   {
     id: "m12-q55", dialecte: "SQL Server",
     q: "Un tableau de bord recalcule toutes les 5 minutes le même gros agrégat (CA par jour et famille). Quelle option SQL Server stocke ce résultat et le tient à jour ?",
-    choix: ["Une vue simple", "Une vue indexée", "Une CTE", "Une variable table"],
+    choix: [
+      "Une vue simple",
+      "Une vue indexée",
+      "Une CTE",
+      "Une variable table"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Recalculée à chaque lecture.",
@@ -959,7 +999,12 @@ LEARNSQL.questions.m12 = [
   {
     id: "m12-q56", dialecte: "SQL Server",
     q: "Les utilisateurs cherchent des mots dans de longs libellés (LIKE '%pompe%'), c'est lent. Quelle fonctionnalité est faite pour ça ?",
-    choix: ["Un index classique", "La recherche en texte intégral (index full-text, CONTAINS)", "Un index filtré", "NOLOCK"],
+    choix: [
+      "Un index classique",
+      "La recherche en texte intégral (index full-text, CONTAINS)",
+      "Un index filtré",
+      "NOLOCK"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le % au début empêche le seek.",
@@ -1350,7 +1395,12 @@ LEARNSQL.questions.m12 = [
   {
     id: "m12-q78", dialecte: "SQL Server",
     q: "Une colonne VARCHAR(MAX) peut-elle être dans le INCLUDE d'un index ?",
-    choix: ["Non", "Oui (pas dans la clé)", "Seulement si elle est vide", "Seulement en columnstore"],
+    choix: [
+      "Non",
+      "Oui (pas dans la clé)",
+      "Seulement si elle est vide",
+      "Seulement en columnstore"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",

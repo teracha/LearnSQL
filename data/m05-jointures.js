@@ -57,7 +57,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q04", dialecte: "Standard",
     q: "Une commande a 4 lignes de détail et 20 € de frais de port. Tu calcules SUM(commande.frais_port) après une jointure avec les lignes. Quel résultat ?",
-    choix: ["20 €", "80 €", "4 €", "NULL"],
+    choix: [
+      "20 €",
+      "80 €",
+      "4 €",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La jointure a multiplié la ligne de commande.",
@@ -70,7 +75,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q05", dialecte: "Standard",
     q: "La table A a 3 lignes, la table B a 5 lignes. Combien de lignes donne A CROSS JOIN B ?",
-    choix: ["3", "5", "8", "15"],
+    choix: [
+      "3",
+      "5",
+      "8",
+      "15"
+    ],
     bonne: 3,
     pourquoi: [
       "Non.",
@@ -83,7 +93,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q06", dialecte: "Standard",
     q: "Tu compares les commandes de l'ERP et celles reçues par EDI. Tu veux voir les manquants des DEUX côtés. Quelle jointure ?",
-    choix: ["INNER JOIN", "LEFT JOIN", "FULL OUTER JOIN", "CROSS JOIN"],
+    choix: [
+      "INNER JOIN",
+      "LEFT JOIN",
+      "FULL OUTER JOIN",
+      "CROSS JOIN"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Ça montre seulement ce qui est présent des deux côtés.",
@@ -114,7 +129,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q08", dialecte: "Standard",
     q: "Dans les deux tables, la colonne code_depot vaut NULL. La jointure ON a.code_depot = b.code_depot relie-t-elle ces lignes ?",
-    choix: ["Oui", "Non", "Seulement en LEFT JOIN", "Ça dépend du serveur"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement en LEFT JOIN",
+      "Ça dépend du serveur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL = NULL donne « inconnu », pas « vrai ».",
@@ -255,7 +275,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q16", dialecte: "Standard",
     q: "Sans WHERE, un LEFT JOIN peut-il renvoyer MOINS de lignes que la table de gauche ?",
-    choix: ["Oui", "Non", "Oui, s'il y a des NULL", "Oui, sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non",
+      "Oui, s'il y a des NULL",
+      "Oui, sur Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le LEFT JOIN garde toujours chaque ligne de gauche.",
@@ -361,7 +386,12 @@ LEARNSQL.questions.m05 = [
     id: "m05-q22", dialecte: "SQL Server",
     q: "Sur SQL Server, tu veux pour chaque client ses 3 dernières commandes. Quel opérateur permet une sous-requête liée à chaque client ?",
     choixCode: true,
-    choix: ["CROSS JOIN", "CROSS APPLY", "FULL JOIN", "UNION"],
+    choix: [
+      "CROSS JOIN",
+      "CROSS APPLY",
+      "FULL JOIN",
+      "UNION"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. CROSS JOIN fait toutes les combinaisons, sans lien entre les tables.",
@@ -393,7 +423,12 @@ LEARNSQL.questions.m05 = [
     id: "m05-q24", dialecte: "Standard",
     q: "Tu rapproches l'ERP (e) et l'EDI (d) avec un FULL OUTER JOIN. Comment afficher un numéro de commande jamais vide ?",
     choixCode: true,
-    choix: ["e.num", "d.num", "COALESCE(e.num, d.num)", "e.num + d.num"],
+    choix: [
+      "e.num",
+      "d.num",
+      "COALESCE(e.num, d.num)",
+      "e.num + d.num"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. e.num est NULL pour les commandes présentes seulement dans l'EDI.",
@@ -442,7 +477,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q27", dialecte: "SQL Server",
     q: "Dans un plan d'exécution SQL Server, quelle jointure physique est faite pour deux grosses tables non triées ?",
-    choix: ["Nested Loops", "Hash Match", "Merge Join", "Index Seek"],
+    choix: [
+      "Nested Loops",
+      "Hash Match",
+      "Merge Join",
+      "Index Seek"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Nested Loops est efficace quand un côté est petit.",
@@ -510,7 +550,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q31", dialecte: "Standard",
     q: "Tu écris seulement JOIN, sans préciser le type. De quelle jointure s'agit-il ?",
-    choix: ["LEFT JOIN", "INNER JOIN", "FULL JOIN", "CROSS JOIN"],
+    choix: [
+      "LEFT JOIN",
+      "INNER JOIN",
+      "FULL JOIN",
+      "CROSS JOIN"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. LEFT doit être écrit.",
@@ -523,7 +568,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q32", dialecte: "Standard",
     q: "LEFT OUTER JOIN et LEFT JOIN sont-ils différents ?",
-    choix: ["Oui, OUTER garde plus de lignes", "Non, c'est la même chose", "Oui, OUTER est plus rapide", "Oui, sur Snowflake"],
+    choix: [
+      "Oui, OUTER garde plus de lignes",
+      "Non, c'est la même chose",
+      "Oui, OUTER est plus rapide",
+      "Oui, sur Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -608,7 +658,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q37", dialecte: "Standard",
     q: "client LEFT JOIN commande LEFT JOIN ligne_cde : que deviennent les clients sans commande ?",
-    choix: ["Ils disparaissent", "Ils restent, avec des NULL pour la commande et les lignes", "Ils apparaissent en double", "Erreur"],
+    choix: [
+      "Ils disparaissent",
+      "Ils restent, avec des NULL pour la commande et les lignes",
+      "Ils apparaissent en double",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Que des LEFT : rien ne les retire.",
@@ -640,7 +695,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q39", dialecte: "Standard",
     q: "Tu veux créer une ligne de stock à 0 pour chaque article dans chaque dépôt. Quelle jointure ?",
-    choix: ["INNER JOIN", "LEFT JOIN", "CROSS JOIN article × depot", "FULL JOIN"],
+    choix: [
+      "INNER JOIN",
+      "LEFT JOIN",
+      "CROSS JOIN article × depot",
+      "FULL JOIN"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Il n'y a pas de clé commune.",
@@ -653,7 +713,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q40", dialecte: "Standard",
     q: "Un CROSS JOIN entre deux tables de 10 000 lignes renvoie combien de lignes ?",
-    choix: ["20 000", "10 000", "100 millions", "1 million"],
+    choix: [
+      "20 000",
+      "10 000",
+      "100 millions",
+      "1 million"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. On multiplie, on n'additionne pas.",
@@ -739,7 +804,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q45", dialecte: "SQL Server + Snowflake",
     q: "Des codes ont un espace à la fin dans une table ('A1 ') et pas dans l'autre ('A1'). La jointure marche sur SQL Server. Et après migration sur Snowflake ?",
-    choix: ["Elle marche aussi", "Elle ne trouve plus ces correspondances", "Erreur", "Elle double les lignes"],
+    choix: [
+      "Elle marche aussi",
+      "Elle ne trouve plus ces correspondances",
+      "Erreur",
+      "Elle double les lignes"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake compte les espaces de fin.",
@@ -752,7 +822,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q46", dialecte: "Snowflake",
     q: "Sur Snowflake, la table A a le code 'abc12', la table B 'ABC12'. La jointure ON a.code = b.code les relie-t-elle ?",
-    choix: ["Oui", "Non", "Seulement en LEFT JOIN", "Seulement avec USING"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement en LEFT JOIN",
+      "Seulement avec USING"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake est sensible à la casse.",
@@ -784,7 +859,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q48", dialecte: "Standard",
     q: "client LEFT JOIN commande … WHERE co.id IS NOT NULL équivaut à quoi ?",
-    choix: ["Un LEFT JOIN", "Un INNER JOIN", "Un CROSS JOIN", "Une anti-jointure"],
+    choix: [
+      "Un LEFT JOIN",
+      "Un INNER JOIN",
+      "Un CROSS JOIN",
+      "Une anti-jointure"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les clients sans commande sont retirés.",
@@ -816,7 +896,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q50", dialecte: "Standard",
     q: "erp FULL OUTER JOIN edi … WHERE edi.statut = 'RECU'. Que deviennent les commandes présentes seulement dans l'ERP ?",
-    choix: ["Elles restent", "Elles disparaissent", "Elles sont doublées", "Erreur"],
+    choix: [
+      "Elles restent",
+      "Elles disparaissent",
+      "Elles sont doublées",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pour elles, edi.statut est NULL : le WHERE les retire.",
@@ -1088,7 +1173,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q65", dialecte: "SQL Server",
     q: "Sur SQL Server, une clé étrangère crée-t-elle automatiquement un index sur la colonne (ex. commande.client_id) ?",
-    choix: ["Oui", "Non : il faut le créer soi-même, et c'est souvent utile pour les jointures", "Oui, un index cluster", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non : il faut le créer soi-même, et c'est souvent utile pour les jointures",
+      "Oui, un index cluster",
+      "Seulement sur Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Seule la clé primaire crée un index automatiquement.",
@@ -1138,7 +1228,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q68", dialecte: "Standard",
     q: "a INNER JOIN b ON 1 = 1 équivaut à quoi ?",
-    choix: ["Un INNER JOIN normal", "Un CROSS JOIN", "Aucune ligne", "Une erreur"],
+    choix: [
+      "Un INNER JOIN normal",
+      "Un CROSS JOIN",
+      "Aucune ligne",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Il n'y a pas de lien entre les tables.",
@@ -1151,7 +1246,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q69", dialecte: "Standard",
     q: "Que renvoie client LEFT JOIN commande ON co.client_id = cl.id AND 1 = 0 ?",
-    choix: ["Aucune ligne", "Tous les clients, avec des colonnes de commande toutes NULL", "Une erreur", "Toutes les commandes"],
+    choix: [
+      "Aucune ligne",
+      "Tous les clients, avec des colonnes de commande toutes NULL",
+      "Une erreur",
+      "Toutes les commandes"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le LEFT JOIN garde la gauche quoi qu'il arrive.",
@@ -1164,7 +1264,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q70", dialecte: "SQL Server",
     q: "Une très vieille requête utilise WHERE a.id *= b.id. Que se passe-t-il sur un SQL Server récent ?",
-    choix: ["Ça marche comme un LEFT JOIN", "Erreur : cette syntaxe de jointure externe n'est plus supportée", "Ça fait un INNER JOIN", "Ça multiplie"],
+    choix: [
+      "Ça marche comme un LEFT JOIN",
+      "Erreur : cette syntaxe de jointure externe n'est plus supportée",
+      "Ça fait un INNER JOIN",
+      "Ça multiplie"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'était le cas il y a longtemps.",
@@ -1195,7 +1300,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q72", dialecte: "Standard",
     q: "ERP : 100 commandes. EDI : 98 commandes. 95 sont communes. Combien de lignes donne le FULL OUTER JOIN sur le numéro ?",
-    choix: ["95", "98", "100", "103"],
+    choix: [
+      "95",
+      "98",
+      "100",
+      "103"
+    ],
     bonne: 3,
     pourquoi: [
       "Non. C'est l'INNER JOIN.",
@@ -1208,7 +1318,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q73", dialecte: "Standard",
     q: "ERP : 100 commandes. EDI : 98 commandes. 95 sont communes. Combien manque-t-il de commandes dans l'EDI, et dans l'ERP ?",
-    choix: ["5 dans l'EDI, 3 dans l'ERP", "3 dans l'EDI, 5 dans l'ERP", "2 et 2", "5 et 5"],
+    choix: [
+      "5 dans l'EDI, 3 dans l'ERP",
+      "3 dans l'EDI, 5 dans l'ERP",
+      "2 et 2",
+      "5 et 5"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. 100 - 95 = 5 absentes de l'EDI. 98 - 95 = 3 absentes de l'ERP.",
@@ -1221,7 +1336,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q74", dialecte: "Snowflake",
     q: "Sur Snowflake, JOIN ligne USING (societe, num_cde) est-il valide ?",
-    choix: ["Oui, USING accepte plusieurs colonnes", "Non, une seule colonne", "Non, USING n'existe pas", "Seulement en LEFT JOIN"],
+    choix: [
+      "Oui, USING accepte plusieurs colonnes",
+      "Non, une seule colonne",
+      "Non, USING n'existe pas",
+      "Seulement en LEFT JOIN"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les colonnes doivent avoir le même nom des deux côtés.",
@@ -1253,7 +1373,12 @@ LEARNSQL.questions.m05 = [
     id: "m05-q76", dialecte: "Standard",
     q: "Ces deux écritures donnent-elles le même résultat ?",
     code: "-- A\nclient cl LEFT JOIN commande co\n  ON co.client_id = cl.id AND co.statut = 'OK'\n\n-- B\nclient cl LEFT JOIN (SELECT * FROM commande WHERE statut = 'OK') co\n  ON co.client_id = cl.id",
-    choix: ["Oui", "Non, B perd les clients sans commande OK", "Non, A est une erreur", "Non, B double les lignes"],
+    choix: [
+      "Oui",
+      "Non, B perd les clients sans commande OK",
+      "Non, A est une erreur",
+      "Non, B double les lignes"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Dans les deux cas, on filtre la table de droite avant la jointure. Tous les clients restent.",
@@ -1358,7 +1483,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q82", dialecte: "Standard",
     q: "Tu veux le mois de commande ET le mois de livraison via la table calendrier. Combien de jointures vers calendrier ?",
-    choix: ["Une seule", "Deux, avec deux alias", "Aucune", "Une, avec OR"],
+    choix: [
+      "Une seule",
+      "Deux, avec deux alias",
+      "Aucune",
+      "Une, avec OR"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Une seule ligne de calendrier ne peut pas être les deux dates à la fois.",
@@ -1409,7 +1539,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q85", dialecte: "Standard",
     q: "Pour comparer chaque relevé de stock au relevé précédent, une auto-jointure sur « la date précédente » est lente. Quelle alternative ?",
-    choix: ["Un CROSS JOIN", "La fonction de fenêtrage LAG", "Un DISTINCT", "Un UNION"],
+    choix: [
+      "Un CROSS JOIN",
+      "La fonction de fenêtrage LAG",
+      "Un DISTINCT",
+      "Un UNION"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1514,7 +1649,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q91", dialecte: "Snowflake",
     q: "Sur Snowflake, peut-on joindre des tables de deux bases différentes du même compte ?",
-    choix: ["Non", "Oui, avec les noms complets BASE.SCHEMA.TABLE", "Oui, avec un serveur lié", "Seulement par copie"],
+    choix: [
+      "Non",
+      "Oui, avec les noms complets BASE.SCHEMA.TABLE",
+      "Oui, avec un serveur lié",
+      "Seulement par copie"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1527,7 +1667,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q92", dialecte: "Standard",
     q: "La clé 'A' apparaît 3 fois à gauche et 2 fois à droite. Combien de lignes 'A' donne l'INNER JOIN ?",
-    choix: ["2", "3", "5", "6"],
+    choix: [
+      "2",
+      "3",
+      "5",
+      "6"
+    ],
     bonne: 3,
     pourquoi: [
       "Non.",
@@ -1540,7 +1685,12 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q93", dialecte: "Standard",
     q: "Une commande a client_id = NULL. Que devient-elle dans commande LEFT JOIN client ON cl.id = co.client_id ?",
-    choix: ["Elle disparaît", "Elle reste, avec les colonnes client à NULL", "Elle est reliée à tous les clients", "Erreur"],
+    choix: [
+      "Elle disparaît",
+      "Elle reste, avec les colonnes client à NULL",
+      "Elle est reliée à tous les clients",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est la table de gauche : elle est gardée.",

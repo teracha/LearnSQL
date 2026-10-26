@@ -84,6 +84,11 @@ Règles pour écrire des questions :
 - Chaque question doit se suffire à elle-même : le tirage est aléatoire (jamais « Même situation… »).
 - Des pièges réels, vus en entreprise. Pas de questions de pure mémoire.
 - Chaque `pourquoi` commence par « Oui. » ou « Non. » puis explique en 1 ou 2 phrases.
+- **La longueur ne doit jamais trahir la bonne réponse.** Les 4 choix ont une longueur proche.
+  La bonne réponse est tantôt la plus courte, tantôt au milieu, tantôt la plus longue.
+  Le détail va dans l'explication « Oui. », pas dans le choix.
+- Chaque choix faux est une vraie erreur courante, crédible. Pas de choix « gratuits » (« Aucun », « À rien »).
+- Avant chaque commit : `node outils/verifier.js` → 0 erreur, et aucun module marqué « À CORRIGER ».
 - Signaler les différences SQL Server / Snowflake quand elles existent.
 - **Vérifier chaque réponse.** Une question fausse fait plus de mal que pas de question.
 

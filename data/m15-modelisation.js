@@ -20,7 +20,12 @@ LEARNSQL.questions.m15 = [
   {
     id: "m15-q02", dialecte: "Standard",
     q: "Dans une table « à plat » commande + client, on ne peut pas créer un client tant qu'il n'a pas commandé. Comment s'appelle ce problème ?",
-    choix: ["Anomalie d'insertion", "Deadlock", "Fantôme", "Lecture sale"],
+    choix: [
+      "Anomalie d'insertion",
+      "Deadlock",
+      "Fantôme",
+      "Lecture sale"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Le client n'existe qu'à travers une commande. Solution : une table client séparée.",
@@ -33,7 +38,12 @@ LEARNSQL.questions.m15 = [
   {
     id: "m15-q03", dialecte: "Standard",
     q: "Une table « à plat » mélange commandes et clients (nom, adresse sur chaque ligne de commande). On supprime la seule commande d'un client. Que perd-on ?",
-    choix: ["Rien", "Toutes les informations du client (anomalie de suppression)", "La table", "Les index"],
+    choix: [
+      "Rien",
+      "Toutes les informations du client (anomalie de suppression)",
+      "La table",
+      "Les index"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -82,7 +92,12 @@ LEARNSQL.questions.m15 = [
   {
     id: "m15-q06", dialecte: "Standard",
     q: "Table client (id, code_postal, ville). La ville dépend du code postal, pas du client. Quelle forme normale est concernée ?",
-    choix: ["1FN", "3FN : dépendance « transitive » entre deux colonnes non clés", "Aucune", "4FN"],
+    choix: [
+      "1FN",
+      "3FN : dépendance « transitive » entre deux colonnes non clés",
+      "Aucune",
+      "4FN"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -437,7 +452,12 @@ LEARNSQL.questions.m15 = [
   {
     id: "m15-q26", dialecte: "Standard",
     q: "Le montant HT d'une vente est-il une mesure additive ?",
-    choix: ["Non", "Oui : on peut le sommer par client, par mois, par article, sans erreur", "Seulement par mois", "Seulement par client"],
+    choix: [
+      "Non",
+      "Oui : on peut le sommer par client, par mois, par article, sans erreur",
+      "Seulement par mois",
+      "Seulement par client"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -630,7 +650,12 @@ LEARNSQL.questions.m15 = [
   {
     id: "m15-q37", dialecte: "Standard",
     q: "Quel type de SCD choisir pour une colonne « date de naissance » ?",
-    choix: ["Type 2", "Type 0 (ou 1 pour corriger une erreur) : elle ne change pas dans le temps", "Type 3", "Aucune dimension"],
+    choix: [
+      "Type 2",
+      "Type 0 (ou 1 pour corriger une erreur) : elle ne change pas dans le temps",
+      "Type 3",
+      "Aucune dimension"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pas d'historique utile.",
@@ -751,7 +776,12 @@ LEARNSQL.questions.m15 = [
   {
     id: "m15-q44", dialecte: "Standard",
     q: "Le numéro de facture est stocké dans la table de faits, sans table de dimension associée. Comment s'appelle ce cas ?",
-    choix: ["Une erreur", "Une dimension « dégénérée »", "Une clé étrangère", "Un index"],
+    choix: [
+      "Une erreur",
+      "Une dimension « dégénérée »",
+      "Une clé étrangère",
+      "Un index"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est normal.",

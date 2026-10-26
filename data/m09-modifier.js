@@ -39,7 +39,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q03", dialecte: "SQL Server",
     q: "Un INSERT … VALUES contient 5 000 lignes. Que se passe-t-il sur SQL Server ?",
-    choix: ["Ça marche", "Erreur : 1 000 lignes maximum dans un VALUES", "Seules 1 000 lignes sont insérées", "Ça plante le serveur"],
+    choix: [
+      "Ça marche",
+      "Erreur : 1 000 lignes maximum dans un VALUES",
+      "Seules 1 000 lignes sont insérées",
+      "Ça plante le serveur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -71,7 +76,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q05", dialecte: "Standard",
     q: "La colonne date_creation a DEFAULT GETDATE(). Tu ne la mets pas dans ton INSERT. Que vaut-elle ?",
-    choix: ["NULL", "La date et l'heure de l'insertion", "Une erreur", "0"],
+    choix: [
+      "NULL",
+      "La date et l'heure de l'insertion",
+      "Une erreur",
+      "0"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La valeur par défaut s'applique.",
@@ -84,7 +94,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q06", dialecte: "Standard",
     q: "La colonne nom est NOT NULL, sans valeur par défaut. Tu ne la mets pas dans l'INSERT. Que se passe-t-il ?",
-    choix: ["Elle vaut ''", "Erreur : impossible d'insérer NULL dans la colonne nom", "Elle vaut NULL", "La ligne est insérée sans nom"],
+    choix: [
+      "Elle vaut ''",
+      "Erreur : impossible d'insérer NULL dans la colonne nom",
+      "Elle vaut NULL",
+      "La ligne est insérée sans nom"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pas de valeur inventée.",
@@ -98,7 +113,12 @@ LEARNSQL.questions.m09 = [
     id: "m09-q07", dialecte: "Standard",
     q: "Comment demander explicitement la valeur par défaut d'une colonne dans un VALUES ?",
     choixCode: true,
-    choix: ["VALUES ('C1', NULL)", "VALUES ('C1', DEFAULT)", "VALUES ('C1', '')", "VALUES ('C1', AUTO)"],
+    choix: [
+      "VALUES ('C1', NULL)",
+      "VALUES ('C1', DEFAULT)",
+      "VALUES ('C1', '')",
+      "VALUES ('C1', AUTO)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL insère NULL, pas la valeur par défaut.",
@@ -130,7 +150,12 @@ LEARNSQL.questions.m09 = [
     id: "m09-q09", dialecte: "SQL Server",
     q: "Après un INSERT dans une table IDENTITY, quelle fonction donne l'id généré par TON instruction ?",
     choixCode: true,
-    choix: ["@@IDENTITY", "SCOPE_IDENTITY()", "IDENT_CURRENT('client')", "MAX(id)"],
+    choix: [
+      "@@IDENTITY",
+      "SCOPE_IDENTITY()",
+      "IDENT_CURRENT('client')",
+      "MAX(id)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Peut renvoyer l'id créé par un trigger dans une autre table.",
@@ -180,7 +205,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q12", dialecte: "Standard",
     q: "INSERT INTO t … SELECT … ORDER BY date_cde : les lignes seront-elles relues dans cet ordre plus tard ?",
-    choix: ["Oui", "Non : une table n'a pas d'ordre. Seul un ORDER BY à la lecture garantit l'ordre", "Oui si la table a un IDENTITY", "Oui sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non : une table n'a pas d'ordre. Seul un ORDER BY à la lecture garantit l'ordre",
+      "Oui si la table a un IDENTITY",
+      "Oui sur Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -212,7 +242,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q14", dialecte: "Standard",
     q: "Que fait UPDATE article SET prix = prix * 1.05; (sans WHERE) ?",
-    choix: ["Rien", "Augmente le prix de TOUS les articles de 5 %", "Erreur : WHERE obligatoire", "Augmente le 1er article"],
+    choix: [
+      "Rien",
+      "Augmente le prix de TOUS les articles de 5 %",
+      "Erreur : WHERE obligatoire",
+      "Augmente le 1er article"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -262,7 +297,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q17", dialecte: "Standard",
     q: "a = 1 et b = 2. Après UPDATE t SET a = b, b = a, que valent a et b ?",
-    choix: ["a = 2, b = 2", "a = 2, b = 1", "a = 1, b = 1", "Erreur"],
+    choix: [
+      "a = 2, b = 2",
+      "a = 2, b = 1",
+      "a = 1, b = 1",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait le cas en programmation ligne par ligne.",
@@ -350,7 +390,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q22", dialecte: "Standard",
     q: "UPDATE article SET prix = prix * CASE famille WHEN 'POMPE' THEN 1.05 END; (sans ELSE). Que deviennent les prix des autres familles ?",
-    choix: ["Ils ne changent pas", "Ils deviennent NULL", "Erreur", "Ils sont multipliés par 1"],
+    choix: [
+      "Ils ne changent pas",
+      "Ils deviennent NULL",
+      "Erreur",
+      "Ils sont multipliés par 1"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Toutes les lignes sont mises à jour (pas de WHERE).",
@@ -364,7 +409,12 @@ LEARNSQL.questions.m09 = [
     id: "m09-q23", dialecte: "SQL Server",
     q: "Comment savoir combien de lignes ton UPDATE vient de modifier ?",
     choixCode: true,
-    choix: ["@@ROWCOUNT, juste après l'UPDATE", "COUNT(*)", "@@IDENTITY", "@@ERROR"],
+    choix: [
+      "@@ROWCOUNT, juste après l'UPDATE",
+      "COUNT(*)",
+      "@@IDENTITY",
+      "@@ERROR"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Attention : il est remis à zéro par l'instruction suivante. Lis-le tout de suite.",
@@ -377,7 +427,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q24", dialecte: "Standard",
     q: "Un UPDATE ne trouve aucune ligne (WHERE id = 999 qui n'existe pas). Que se passe-t-il ?",
-    choix: ["Erreur", "Rien : 0 ligne modifiée, sans erreur", "Une ligne est créée", "Toute la table est modifiée"],
+    choix: [
+      "Erreur",
+      "Rien : 0 ligne modifiée, sans erreur",
+      "Une ligne est créée",
+      "Toute la table est modifiée"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -483,7 +538,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q30", dialecte: "Standard",
     q: "Que fait DELETE FROM commande; (sans WHERE) ?",
-    choix: ["Supprime la table", "Supprime TOUTES les lignes (la table reste, vide)", "Erreur", "Supprime la 1re ligne"],
+    choix: [
+      "Supprime la table",
+      "Supprime TOUTES les lignes (la table reste, vide)",
+      "Erreur",
+      "Supprime la 1re ligne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait DROP TABLE.",
@@ -606,7 +666,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q37", dialecte: "SQL Server",
     q: "Un TRUNCATE TABLE dans une transaction peut-il être annulé par ROLLBACK sur SQL Server ?",
-    choix: ["Non, jamais", "Oui", "Seulement avec NOLOCK", "Seulement sans IDENTITY"],
+    choix: [
+      "Non, jamais",
+      "Oui",
+      "Seulement avec NOLOCK",
+      "Seulement sans IDENTITY"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Idée reçue fréquente.",
@@ -637,7 +702,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q39", dialecte: "Standard",
     q: "DROP TABLE, TRUNCATE TABLE, DELETE FROM : lequel supprime aussi la STRUCTURE de la table ?",
-    choix: ["DELETE", "TRUNCATE", "DROP TABLE", "Aucun"],
+    choix: [
+      "DELETE",
+      "TRUNCATE",
+      "DROP TABLE",
+      "Aucun"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Les lignes seulement.",
@@ -705,7 +775,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q43", dialecte: "SQL Server",
     q: "Un MERGE se termine sans point-virgule. Que se passe-t-il sur SQL Server ?",
-    choix: ["Rien", "Erreur : MERGE doit se terminer par ;", "Il ne fait que les INSERT", "Il est ignoré"],
+    choix: [
+      "Rien",
+      "Erreur : MERGE doit se terminer par ;",
+      "Il ne fait que les INSERT",
+      "Il est ignoré"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -773,7 +848,12 @@ LEARNSQL.questions.m09 = [
     id: "m09-q47", dialecte: "SQL Server",
     q: "Comment savoir, pour chaque ligne traitée par un MERGE, si elle a été insérée, mise à jour ou supprimée ?",
     choixCode: true,
-    choix: ["@@ROWCOUNT", "OUTPUT $action, inserted.code, deleted.code", "MERGE_RESULT()", "Impossible"],
+    choix: [
+      "@@ROWCOUNT",
+      "OUTPUT $action, inserted.code, deleted.code",
+      "MERGE_RESULT()",
+      "Impossible"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Seulement le total.",
@@ -970,7 +1050,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q58", dialecte: "Snowflake",
     q: "Sur Snowflake, sans BEGIN, un UPDATE est-il validé tout de suite ?",
-    choix: ["Non, il faut COMMIT", "Oui : par défaut, chaque instruction est validée automatiquement (autocommit)", "Seulement le soir", "Seulement en lecture"],
+    choix: [
+      "Non, il faut COMMIT",
+      "Oui : par défaut, chaque instruction est validée automatiquement (autocommit)",
+      "Seulement le soir",
+      "Seulement en lecture"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Seulement si tu as ouvert une transaction avec BEGIN.",
@@ -1110,7 +1195,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q66", dialecte: "SQL Server",
     q: "La colonne montant_ttc est une colonne calculée (montant_ht * 1.2). Que donne un INSERT qui lui donne une valeur ?",
-    choix: ["La valeur est stockée", "Erreur : on ne peut pas écrire dans une colonne calculée", "La valeur est ignorée", "Elle remplace la formule"],
+    choix: [
+      "La valeur est stockée",
+      "Erreur : on ne peut pas écrire dans une colonne calculée",
+      "La valeur est ignorée",
+      "Elle remplace la formule"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1142,7 +1232,12 @@ LEARNSQL.questions.m09 = [
     id: "m09-q68", dialecte: "SQL Server",
     q: "Toutes les colonnes ont une valeur par défaut ou sont IDENTITY. Comment insérer une ligne ?",
     choixCode: true,
-    choix: ["INSERT INTO t VALUES ()", "INSERT INTO t DEFAULT VALUES", "INSERT INTO t", "INSERT DEFAULT t"],
+    choix: [
+      "INSERT INTO t VALUES ()",
+      "INSERT INTO t DEFAULT VALUES",
+      "INSERT INTO t",
+      "INSERT DEFAULT t"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1628,7 +1723,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q95", dialecte: "SQL Server",
     q: "INSERT INTO t (d) VALUES ('01/02/2026') sur un serveur en anglais : quelle date est enregistrée ?",
-    choix: ["1er février 2026", "2 janvier 2026", "Erreur", "Ça dépend de DATEFORMAT / la langue : ici probablement le 2 janvier"],
+    choix: [
+      "1er février 2026",
+      "2 janvier 2026",
+      "Erreur",
+      "Ça dépend de DATEFORMAT / la langue : ici probablement le 2 janvier"
+    ],
     bonne: 3,
     pourquoi: [
       "Non. Pas en anglais (format mm/jj).",
@@ -1641,7 +1741,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q96", dialecte: "Standard",
     q: "Une table de chargement est vidée puis rechargée chaque nuit. DELETE ou TRUNCATE ?",
-    choix: ["DELETE", "TRUNCATE : plus rapide, moins de journal, compteurs remis à zéro", "DROP TABLE", "UPDATE"],
+    choix: [
+      "DELETE",
+      "TRUNCATE : plus rapide, moins de journal, compteurs remis à zéro",
+      "DROP TABLE",
+      "UPDATE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Plus lent, sans avantage ici.",
@@ -1691,7 +1796,12 @@ LEARNSQL.questions.m09 = [
   {
     id: "m09-q99", dialecte: "Standard",
     q: "Une procédure de mise à jour doit pouvoir être relancée sans effet de bord. Comment s'appelle cette propriété ?",
-    choix: ["Atomicité", "Idempotence", "Normalisation", "Cardinalité"],
+    choix: [
+      "Atomicité",
+      "Idempotence",
+      "Normalisation",
+      "Cardinalité"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Atomicité = tout ou rien.",

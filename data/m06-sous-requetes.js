@@ -21,7 +21,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q02", dialecte: "Standard",
     q: "La sous-requête scalaire (SELECT prix FROM tarif WHERE article = 'A1') renvoie 2 lignes. Que se passe-t-il ?",
-    choix: ["Le 1er prix est pris", "Erreur : la sous-requête renvoie plus d'une valeur", "Les deux prix sont additionnés", "NULL"],
+    choix: [
+      "Le 1er prix est pris",
+      "Erreur : la sous-requête renvoie plus d'une valeur",
+      "Les deux prix sont additionnés",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le moteur ne choisit pas.",
@@ -34,7 +39,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q03", dialecte: "Standard",
     q: "La sous-requête scalaire ne trouve aucune ligne. Que vaut-elle ?",
-    choix: ["0", "NULL", "Une erreur", "''"],
+    choix: [
+      "0",
+      "NULL",
+      "Une erreur",
+      "''"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -122,7 +132,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q08", dialecte: "SQL Server",
     q: "Que donne WHERE id IN (SELECT client_id, date_cde FROM commande) sur SQL Server ?",
-    choix: ["Ça marche", "Erreur : la sous-requête de IN doit renvoyer une seule colonne", "Ça compare les deux colonnes", "NULL"],
+    choix: [
+      "Ça marche",
+      "Erreur : la sous-requête de IN doit renvoyer une seule colonne",
+      "Ça compare les deux colonnes",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -135,7 +150,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q09", dialecte: "Standard",
     q: "La sous-requête contient un client_id NULL. Que renvoie WHERE id NOT IN (SELECT client_id FROM commande) ?",
-    choix: ["Les clients sans commande", "Aucune ligne", "Tous les clients", "Une erreur"],
+    choix: [
+      "Les clients sans commande",
+      "Aucune ligne",
+      "Tous les clients",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le NULL casse le NOT IN.",
@@ -350,7 +370,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q21", dialecte: "SQL Server",
     q: "Que donne SELECT * FROM (SELECT id, nom FROM client); sur SQL Server ?",
-    choix: ["Tous les clients", "Erreur : la table dérivée doit avoir un alias", "Une seule ligne", "NULL"],
+    choix: [
+      "Tous les clients",
+      "Erreur : la table dérivée doit avoir un alias",
+      "Une seule ligne",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -363,7 +388,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q22", dialecte: "SQL Server",
     q: "Que donne SELECT * FROM (SELECT YEAR(date_cde) FROM commande) AS t; ?",
-    choix: ["La liste des années", "Erreur : la colonne 1 de t n'a pas de nom", "Une ligne", "NULL"],
+    choix: [
+      "La liste des années",
+      "Erreur : la colonne 1 de t n'a pas de nom",
+      "Une ligne",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -377,7 +407,12 @@ LEARNSQL.questions.m06 = [
     id: "m06-q23", dialecte: "SQL Server",
     q: "Que donne une table dérivée avec ORDER BY (sans TOP) sur SQL Server ?",
     code: "SELECT *\nFROM (SELECT nom FROM client ORDER BY nom) AS t;",
-    choix: ["Les noms triés", "Erreur : ORDER BY interdit dans une table dérivée sans TOP", "Les noms au hasard", "Une ligne"],
+    choix: [
+      "Les noms triés",
+      "Erreur : ORDER BY interdit dans une table dérivée sans TOP",
+      "Les noms au hasard",
+      "Une ligne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -465,7 +500,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q28", dialecte: "Standard",
     q: "Dans WITH a AS (…), b AS (…), la CTE b peut-elle utiliser a ?",
-    choix: ["Oui", "Non", "Seulement en récursif", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement en récursif",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Une CTE peut utiliser celles définies AVANT elle. C'est ce qui permet d'avancer étape par étape.",
@@ -478,7 +518,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q29", dialecte: "Standard",
     q: "Après WITH ca AS (…) SELECT * FROM ca; tu écris une 2e requête SELECT * FROM ca;. Que se passe-t-il ?",
-    choix: ["Ça marche", "Erreur : la CTE n'existe que pour la requête qui la suit directement", "Ça renvoie 0 ligne", "Ça recalcule"],
+    choix: [
+      "Ça marche",
+      "Erreur : la CTE n'existe que pour la requête qui la suit directement",
+      "Ça renvoie 0 ligne",
+      "Ça recalcule"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -563,7 +608,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q34", dialecte: "SQL Server",
     q: "Que donne une CTE qui contient ORDER BY (sans TOP) sur SQL Server ?",
-    choix: ["Le résultat trié", "Une erreur", "Le tri est ignoré en silence", "Un tri aléatoire"],
+    choix: [
+      "Le résultat trié",
+      "Une erreur",
+      "Le tri est ignoré en silence",
+      "Un tri aléatoire"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -595,7 +645,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q36", dialecte: "SQL Server",
     q: "WITH x AS (SELECT id, statut FROM commande WHERE annee = 2020) UPDATE x SET statut = 'ARCHIVE'; Que modifie-t-on ?",
-    choix: ["Rien, une CTE est en lecture seule", "Les commandes de 2020 dans la table commande", "Toute la table", "Une copie temporaire"],
+    choix: [
+      "Rien, une CTE est en lecture seule",
+      "Les commandes de 2020 dans la table commande",
+      "Toute la table",
+      "Une copie temporaire"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sur SQL Server, une CTE simple (une table) est modifiable.",
@@ -771,7 +826,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q46", dialecte: "SQL Server",
     q: "Sur SQL Server, peut-on relier l'ancre et la partie récursive avec UNION (sans ALL) ?",
-    choix: ["Oui", "Non : UNION ALL est obligatoire", "Seulement avec DISTINCT", "Seulement sur deux niveaux"],
+    choix: [
+      "Oui",
+      "Non : UNION ALL est obligatoire",
+      "Seulement avec DISTINCT",
+      "Seulement sur deux niveaux"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
@@ -784,7 +844,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q47", dialecte: "SQL Server",
     q: "Dans la partie récursive d'une CTE, SQL Server accepte-t-il un LEFT JOIN vers la CTE elle-même ?",
-    choix: ["Oui", "Non : les jointures externes sont interdites dans la partie récursive", "Seulement RIGHT JOIN", "Seulement avec TOP"],
+    choix: [
+      "Oui",
+      "Non : les jointures externes sont interdites dans la partie récursive",
+      "Seulement RIGHT JOIN",
+      "Seulement avec TOP"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -797,7 +862,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q48", dialecte: "SQL Server",
     q: "Lequel de ces éléments est INTERDIT dans la partie récursive d'une CTE sur SQL Server ?",
-    choix: ["Un INNER JOIN", "Un WHERE", "GROUP BY, TOP, DISTINCT ou un agrégat", "Une colonne calculée"],
+    choix: [
+      "Un INNER JOIN",
+      "Un WHERE",
+      "GROUP BY, TOP, DISTINCT ou un agrégat",
+      "Une colonne calculée"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. C'est même le cas normal.",
@@ -869,7 +939,12 @@ LEARNSQL.questions.m06 = [
     q: "Comment générer tous les jours d'octobre 2026 avec une CTE récursive ?",
     code: "WITH jours AS (\n  SELECT CAST('20261001' AS date) AS d\n  UNION ALL\n  SELECT DATEADD(day, 1, d) FROM jours\n  WHERE ???\n)\nSELECT d FROM jours;",
     choixCode: true,
-    choix: ["d < '20261031'", "d <= '20261031'", "d = '20261031'", "d >= '20261001'"],
+    choix: [
+      "d < '20261031'",
+      "d <= '20261031'",
+      "d = '20261031'",
+      "d >= '20261001'"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Le dernier tour part du 30 et ajoute le 31, puis s'arrête.",
@@ -883,7 +958,12 @@ LEARNSQL.questions.m06 = [
     id: "m06-q53", dialecte: "SQL Server",
     q: "Sur SQL Server 2022, quelle fonction génère simplement les nombres de 1 à 100 ?",
     choixCode: true,
-    choix: ["GENERATE_SERIES(1, 100)", "RANGE(1, 100)", "SEQUENCE(1, 100)", "GENERATOR(100)"],
+    choix: [
+      "GENERATE_SERIES(1, 100)",
+      "RANGE(1, 100)",
+      "SEQUENCE(1, 100)",
+      "GENERATOR(100)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. SELECT value FROM GENERATE_SERIES(1, 100). Plus simple qu'une CTE récursive.",
@@ -916,7 +996,12 @@ LEARNSQL.questions.m06 = [
     id: "m06-q55", dialecte: "Snowflake",
     q: "Sur Snowflake, quel mot-clé est conseillé pour une CTE récursive ?",
     choixCode: true,
-    choix: ["WITH RECURSIVE", "WITH LOOP", "RECURSIVE WITH", "WITH REPEAT"],
+    choix: [
+      "WITH RECURSIVE",
+      "WITH LOOP",
+      "RECURSIVE WITH",
+      "WITH REPEAT"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. WITH RECURSIVE nom (colonnes) AS (ancre UNION ALL récursion). Lisible et standard.",
@@ -1003,7 +1088,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q60", dialecte: "Standard",
     q: "UPDATE client SET ca_total = (SELECT SUM(montant) FROM commande co WHERE co.client_id = client.id); Que vaut ca_total pour un client sans commande ?",
-    choix: ["0", "NULL", "L'ancienne valeur", "Une erreur"],
+    choix: [
+      "0",
+      "NULL",
+      "L'ancienne valeur",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SUM sur rien = NULL.",
@@ -1054,7 +1144,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q63", dialecte: "Standard",
     q: "Une commande a client_id = NULL. Passe-t-elle WHERE client_id IN (SELECT id FROM client) ?",
-    choix: ["Oui", "Non", "Erreur", "Seulement si un client a un id NULL"],
+    choix: [
+      "Oui",
+      "Non",
+      "Erreur",
+      "Seulement si un client a un id NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. NULL = n'importe quoi est inconnu.",
@@ -1067,7 +1162,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q64", dialecte: "Standard",
     q: "a.ref vaut NULL. Que donne EXISTS (SELECT 1 FROM b WHERE b.ref = a.ref) ?",
-    choix: ["Vrai si b contient des NULL", "Faux", "Erreur", "Vrai"],
+    choix: [
+      "Vrai si b contient des NULL",
+      "Faux",
+      "Erreur",
+      "Vrai"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. b.ref = NULL n'est jamais vrai.",
@@ -1190,7 +1290,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q71", dialecte: "SQL Server",
     q: "Une vue peut-elle contenir une CTE (WITH) ?",
-    choix: ["Oui", "Non", "Seulement si elle est récursive", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement si elle est récursive",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. CREATE VIEW v AS WITH x AS (…) SELECT … FROM x;",
@@ -1260,7 +1365,12 @@ LEARNSQL.questions.m06 = [
     id: "m06-q75", dialecte: "Snowflake",
     q: "Sur Snowflake, cette requête fonctionne-t-elle sans table dérivée ?",
     code: "SELECT montant * 1.2 AS ttc,\n       ttc - montant AS tva\nFROM commande\nWHERE ttc > 100;",
-    choix: ["Oui", "Non, il faut une sous-requête", "Seulement sans WHERE", "Erreur sur tva"],
+    choix: [
+      "Oui",
+      "Non, il faut une sous-requête",
+      "Seulement sans WHERE",
+      "Erreur sur tva"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Snowflake permet de réutiliser un alias dans le même SELECT et dans le WHERE.",
@@ -1293,7 +1403,12 @@ LEARNSQL.questions.m06 = [
     id: "m06-q77", dialecte: "Standard",
     q: "Que renvoie cette requête si un client a 2 commandes le même dernier jour ?",
     code: "SELECT co.*\nFROM commande co\nJOIN (SELECT client_id, MAX(date_cde) AS d\n      FROM commande GROUP BY client_id) m\n  ON m.client_id = co.client_id AND m.d = co.date_cde;",
-    choix: ["1 ligne pour ce client", "Les 2 commandes de ce jour-là", "Une erreur", "Aucune ligne"],
+    choix: [
+      "1 ligne pour ce client",
+      "Les 2 commandes de ce jour-là",
+      "Une erreur",
+      "Aucune ligne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les deux commandes ont la date maximale.",
@@ -1325,7 +1440,12 @@ LEARNSQL.questions.m06 = [
     id: "m06-q79", dialecte: "Standard",
     q: "Peut-on trier des clients par leur nombre de commandes avec une sous-requête dans ORDER BY ?",
     code: "SELECT nom FROM client c\nORDER BY (SELECT COUNT(*) FROM commande co WHERE co.client_id = c.id) DESC;",
-    choix: ["Oui", "Non, ORDER BY n'accepte pas de sous-requête", "Seulement avec TOP", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non, ORDER BY n'accepte pas de sous-requête",
+      "Seulement avec TOP",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. C'est valide. Une jointure + GROUP BY est souvent plus lisible.",
@@ -1338,7 +1458,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q80", dialecte: "SQL Server",
     q: "Peut-on mettre une sous-requête dans le GROUP BY sur SQL Server ?",
-    choix: ["Oui", "Non : erreur", "Seulement une sous-requête corrélée", "Seulement avec HAVING"],
+    choix: [
+      "Oui",
+      "Non : erreur",
+      "Seulement une sous-requête corrélée",
+      "Seulement avec HAVING"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1351,7 +1476,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q81", dialecte: "SQL Server",
     q: "Peut-on écrire un WITH à l'intérieur de la définition d'une CTE sur SQL Server ?",
-    choix: ["Oui", "Non : on enchaîne les CTE avec des virgules", "Seulement en récursif", "Seulement dans une vue"],
+    choix: [
+      "Oui",
+      "Non : on enchaîne les CTE avec des virgules",
+      "Seulement en récursif",
+      "Seulement dans une vue"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les WITH imbriqués sont refusés.",
@@ -1400,7 +1530,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q84", dialecte: "SQL Server",
     q: "Une table #temp créée dans une procédure stockée existe jusqu'à quand ?",
-    choix: ["Pour toujours", "Jusqu'à la fin de la procédure (ou de la session si créée hors procédure)", "Jusqu'au prochain GO", "Une heure"],
+    choix: [
+      "Pour toujours",
+      "Jusqu'à la fin de la procédure (ou de la session si créée hors procédure)",
+      "Jusqu'au prochain GO",
+      "Une heure"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1468,7 +1603,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q88", dialecte: "Standard",
     q: "Que change le DISTINCT dans WHERE id IN (SELECT DISTINCT client_id FROM commande) ?",
-    choix: ["Il évite des doublons dans le résultat", "Rien d'utile : IN ne crée jamais de doublons", "Il accélère toujours", "Il est obligatoire"],
+    choix: [
+      "Il évite des doublons dans le résultat",
+      "Rien d'utile : IN ne crée jamais de doublons",
+      "Il accélère toujours",
+      "Il est obligatoire"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. IN n'en crée pas.",
@@ -1609,7 +1749,12 @@ LEARNSQL.questions.m06 = [
   {
     id: "m06-q96", dialecte: "SQL Server",
     q: "Sur SQL Server, une table dérivée et la même logique en CTE (utilisée une fois) ont-elles des performances différentes ?",
-    choix: ["La CTE est toujours plus rapide", "En général non : les deux sont intégrées de la même façon dans le plan", "La table dérivée est stockée", "La CTE est stockée"],
+    choix: [
+      "La CTE est toujours plus rapide",
+      "En général non : les deux sont intégrées de la même façon dans le plan",
+      "La table dérivée est stockée",
+      "La CTE est stockée"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",

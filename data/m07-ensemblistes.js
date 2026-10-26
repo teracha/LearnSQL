@@ -4,7 +4,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q01", dialecte: "Standard",
     q: "A contient 3 lignes, B contient 3 lignes, dont une identique à une ligne de A. Combien de lignes donne A UNION ALL B ?",
-    choix: ["5", "6", "3", "1"],
+    choix: [
+      "5",
+      "6",
+      "3",
+      "1"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. UNION ALL ne supprime rien.",
@@ -17,7 +22,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q02", dialecte: "Standard",
     q: "A contient 3 lignes, B contient 3 lignes, dont une identique à une ligne de A. Combien de lignes donne A UNION B ?",
-    choix: ["6", "5", "4", "3"],
+    choix: [
+      "6",
+      "5",
+      "4",
+      "3"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. UNION supprime les doublons.",
@@ -30,7 +40,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q03", dialecte: "Standard",
     q: "A contient déjà deux lignes identiques. B est vide. Combien de lignes donne A UNION B ?",
-    choix: ["2", "1", "0", "Erreur"],
+    choix: [
+      "2",
+      "1",
+      "0",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. UNION dédoublonne tout le résultat, pas seulement entre A et B.",
@@ -43,7 +58,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q04", dialecte: "Standard",
     q: "A = {1, 2, 2, 3} et B = {3, 4}. Que donne A UNION B ?",
-    choix: ["1, 2, 2, 3, 3, 4", "1, 2, 3, 4", "3", "1, 2"],
+    choix: [
+      "1, 2, 2, 3, 3, 4",
+      "1, 2, 3, 4",
+      "3",
+      "1, 2"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est UNION ALL.",
@@ -56,7 +76,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q05", dialecte: "Standard",
     q: "A = {1, 2, 2, 3} et B = {3, 4}. Que donne A INTERSECT B ?",
-    choix: ["3", "3, 3", "1, 2, 4", "Rien"],
+    choix: [
+      "3",
+      "3, 3",
+      "1, 2, 4",
+      "Rien"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Seule la valeur 3 est présente des deux côtés.",
@@ -69,7 +94,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q06", dialecte: "Standard",
     q: "A = {1, 2, 2, 3} et B = {3, 4}. Que donne A EXCEPT B ?",
-    choix: ["1, 2, 2", "1, 2", "4", "1, 2, 4"],
+    choix: [
+      "1, 2, 2",
+      "1, 2",
+      "4",
+      "1, 2, 4"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. EXCEPT supprime aussi les doublons du résultat.",
@@ -82,7 +112,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q07", dialecte: "Standard",
     q: "A = {1, 2, 2, 3} et B = {3, 4}. Que donne B EXCEPT A ?",
-    choix: ["1, 2", "4", "3", "Rien"],
+    choix: [
+      "1, 2",
+      "4",
+      "3",
+      "Rien"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est A EXCEPT B.",
@@ -95,7 +130,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q08", dialecte: "Standard",
     q: "Tu empiles les ventes de la société 1 et celles de la société 2 (aucune ligne commune possible). UNION ou UNION ALL ?",
-    choix: ["UNION", "UNION ALL", "Peu importe", "INTERSECT"],
+    choix: [
+      "UNION",
+      "UNION ALL",
+      "Peu importe",
+      "INTERSECT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. UNION chercherait des doublons inexistants : travail inutile. Pire : deux ventes identiques mais réelles seraient fusionnées.",
@@ -108,7 +148,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q09", dialecte: "Standard",
     q: "Deux ventes réelles, identiques (même client, même article, même jour, même montant), sont dans A. Que fait A UNION B ?",
-    choix: ["Les garde toutes les deux", "N'en garde qu'une : le CA est faux", "Erreur", "Les supprime"],
+    choix: [
+      "Les garde toutes les deux",
+      "N'en garde qu'une : le CA est faux",
+      "Erreur",
+      "Les supprime"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. UNION les voit comme des doublons.",
@@ -139,7 +184,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q11", dialecte: "Standard",
     q: "Que donne SELECT code, libelle FROM a UNION ALL SELECT code FROM b; ?",
-    choix: ["Ça marche, libelle vaut NULL pour b", "Erreur : nombre de colonnes différent", "Seule la colonne code est gardée", "0 ligne"],
+    choix: [
+      "Ça marche, libelle vaut NULL pour b",
+      "Erreur : nombre de colonnes différent",
+      "Seule la colonne code est gardée",
+      "0 ligne"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le moteur ne complète pas.",
@@ -152,7 +202,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q12", dialecte: "SQL Server",
     q: "Que donne SELECT 1 UNION ALL SELECT 'A'; sur SQL Server ?",
-    choix: ["Deux lignes : 1 et 'A'", "Erreur : impossible de convertir 'A' en entier", "Une ligne", "NULL"],
+    choix: [
+      "Deux lignes : 1 et 'A'",
+      "Erreur : impossible de convertir 'A' en entier",
+      "Une ligne",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Une colonne n'a qu'un seul type.",
@@ -165,7 +220,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q13", dialecte: "Standard",
     q: "Comment s'appellent les colonnes du résultat de SELECT code AS ref FROM a UNION ALL SELECT code AS article FROM b ?",
-    choix: ["ref", "article", "code", "ref et article"],
+    choix: [
+      "ref",
+      "article",
+      "code",
+      "ref et article"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les noms viennent de la PREMIÈRE requête.",
@@ -178,7 +238,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q14", dialecte: "Standard",
     q: "Où se place le ORDER BY dans une requête avec UNION ALL ?",
-    choix: ["Dans chaque partie", "Une seule fois, à la toute fin", "Dans la 1re partie", "Il est interdit"],
+    choix: [
+      "Dans chaque partie",
+      "Une seule fois, à la toute fin",
+      "Dans la 1re partie",
+      "Il est interdit"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -192,7 +257,12 @@ LEARNSQL.questions.m07 = [
     id: "m07-q15", dialecte: "SQL Server",
     q: "Que donne cette requête sur SQL Server ?",
     code: "SELECT code FROM a ORDER BY code\nUNION ALL\nSELECT code FROM b;",
-    choix: ["Le résultat trié", "Erreur de syntaxe près de UNION", "Seule la 1re partie est triée", "Seule la 2e partie apparaît"],
+    choix: [
+      "Le résultat trié",
+      "Erreur de syntaxe près de UNION",
+      "Seule la 1re partie est triée",
+      "Seule la 2e partie apparaît"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -206,7 +276,12 @@ LEARNSQL.questions.m07 = [
     id: "m07-q16", dialecte: "Standard",
     q: "SELECT code AS ref FROM a UNION ALL SELECT code FROM b ORDER BY ???. Quel nom utiliser dans le ORDER BY ?",
     choixCode: true,
-    choix: ["ref", "b.code", "a.code", "article"],
+    choix: [
+      "ref",
+      "b.code",
+      "a.code",
+      "article"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Le tri utilise les noms du résultat, donc ceux de la 1re requête.",
@@ -294,7 +369,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q21", dialecte: "Standard",
     q: "Deux lignes (NULL, 'A') : une dans A, une dans B. Combien de lignes donne A UNION B ?",
-    choix: ["2", "1", "0", "Erreur"],
+    choix: [
+      "2",
+      "1",
+      "0",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pour UNION, deux NULL sont considérés comme égaux.",
@@ -343,7 +423,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q24", dialecte: "Standard",
     q: "La liste B contient un code NULL. A EXCEPT B pose-t-il le même problème que NOT IN ?",
-    choix: ["Oui, 0 ligne", "Non : EXCEPT gère les NULL comme des valeurs normales", "Oui, erreur", "Seulement sur SQL Server"],
+    choix: [
+      "Oui, 0 ligne",
+      "Non : EXCEPT gère les NULL comme des valeurs normales",
+      "Oui, erreur",
+      "Seulement sur SQL Server"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le piège du NULL ne touche pas EXCEPT.",
@@ -357,7 +442,12 @@ LEARNSQL.questions.m07 = [
     id: "m07-q25", dialecte: "Snowflake",
     q: "Sur Snowflake, quel mot-clé est synonyme de EXCEPT ?",
     choixCode: true,
-    choix: ["MINUS", "SUBTRACT", "DIFF", "NOT UNION"],
+    choix: [
+      "MINUS",
+      "SUBTRACT",
+      "DIFF",
+      "NOT UNION"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. MINUS (hérité d'Oracle) = EXCEPT. SQL Server ne connaît que EXCEPT.",
@@ -370,7 +460,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q26", dialecte: "SQL Server",
     q: "Sur SQL Server, comment est évalué A UNION B INTERSECT C ?",
-    choix: ["(A UNION B) INTERSECT C", "A UNION (B INTERSECT C)", "Erreur", "Au hasard"],
+    choix: [
+      "(A UNION B) INTERSECT C",
+      "A UNION (B INTERSECT C)",
+      "Erreur",
+      "Au hasard"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce n'est pas de gauche à droite ici.",
@@ -383,7 +478,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q27", dialecte: "Standard",
     q: "Comment est évalué A UNION B EXCEPT C (UNION et EXCEPT ont la même priorité) ?",
-    choix: ["A UNION (B EXCEPT C)", "(A UNION B) EXCEPT C", "Erreur", "A EXCEPT C, puis UNION B"],
+    choix: [
+      "A UNION (B EXCEPT C)",
+      "(A UNION B) EXCEPT C",
+      "Erreur",
+      "A EXCEPT C, puis UNION B"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -563,7 +663,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q37", dialecte: "Standard",
     q: "Que penser de SELECT DISTINCT code FROM a UNION SELECT DISTINCT code FROM b ?",
-    choix: ["C'est nécessaire", "Les DISTINCT sont inutiles : UNION dédoublonne déjà tout", "C'est une erreur", "C'est plus rapide"],
+    choix: [
+      "C'est nécessaire",
+      "Les DISTINCT sont inutiles : UNION dédoublonne déjà tout",
+      "C'est une erreur",
+      "C'est plus rapide"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -576,7 +681,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q38", dialecte: "Standard",
     q: "Une vue fait SELECT * FROM a UNION ALL SELECT * FROM b. Quelqu'un ajoute une colonne dans a. Que se passe-t-il ?",
-    choix: ["Rien", "La vue casse (nombre de colonnes différent) ou mélange des colonnes", "La colonne est ajoutée à b", "La vue s'adapte"],
+    choix: [
+      "Rien",
+      "La vue casse (nombre de colonnes différent) ou mélange des colonnes",
+      "La colonne est ajoutée à b",
+      "La vue s'adapte"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -625,7 +735,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q41", dialecte: "SQL Server",
     q: "Partie 1 : code VARCHAR(5). Partie 2 : code VARCHAR(50). Les codes longs de la partie 2 sont-ils coupés ?",
-    choix: ["Oui, à 5 caractères", "Non : le résultat prend le type le plus large (VARCHAR(50))", "Erreur", "Seulement avec UNION"],
+    choix: [
+      "Oui, à 5 caractères",
+      "Non : le résultat prend le type le plus large (VARCHAR(50))",
+      "Erreur",
+      "Seulement avec UNION"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -638,7 +753,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q42", dialecte: "Standard",
     q: "Partie 1 : qte INT. Partie 2 : qte DECIMAL(10,3). Quel est le type du résultat ?",
-    choix: ["INT, les décimales sont perdues", "DECIMAL : les décimales sont conservées", "Texte", "Erreur"],
+    choix: [
+      "INT, les décimales sont perdues",
+      "DECIMAL : les décimales sont conservées",
+      "Texte",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -651,7 +771,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q43", dialecte: "Standard",
     q: "Dans une CTE récursive, quel opérateur relie l'ancre et la partie récursive ?",
-    choix: ["UNION", "UNION ALL", "INTERSECT", "EXCEPT"],
+    choix: [
+      "UNION",
+      "UNION ALL",
+      "INTERSECT",
+      "EXCEPT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Refusé par SQL Server dans ce cas.",
@@ -794,7 +919,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q51", dialecte: "SQL Server",
     q: "SQL Server accepte-t-il EXCEPT ALL (qui garderait les doublons) ?",
-    choix: ["Oui", "Non : seulement EXCEPT (qui dédoublonne)", "Oui, avec DISTINCT", "Seulement en récursif"],
+    choix: [
+      "Oui",
+      "Non : seulement EXCEPT (qui dédoublonne)",
+      "Oui, avec DISTINCT",
+      "Seulement en récursif"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -807,7 +937,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q52", dialecte: "Standard",
     q: "INTERSECT et EXCEPT ont-ils les mêmes règles que UNION (même nombre de colonnes, types compatibles) ?",
-    choix: ["Oui", "Non, ils sont plus souples", "Non, ils exigent les mêmes noms", "Seulement INTERSECT"],
+    choix: [
+      "Oui",
+      "Non, ils sont plus souples",
+      "Non, ils exigent les mêmes noms",
+      "Seulement INTERSECT"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Mêmes règles : nombre de colonnes, types compatibles, association par position.",
@@ -856,7 +991,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q55", dialecte: "Standard",
     q: "A a 3 lignes distinctes. Combien de lignes donnent A UNION ALL A, puis A UNION A ?",
-    choix: ["6 et 6", "6 et 3", "3 et 3", "3 et 6"],
+    choix: [
+      "6 et 6",
+      "6 et 3",
+      "3 et 3",
+      "3 et 6"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -869,7 +1009,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q56", dialecte: "Standard",
     q: "Combien de lignes donne A INTERSECT A, si A a 3 lignes dont 2 identiques ?",
-    choix: ["3", "2", "1", "6"],
+    choix: [
+      "3",
+      "2",
+      "1",
+      "6"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. INTERSECT dédoublonne.",
@@ -882,7 +1027,12 @@ LEARNSQL.questions.m07 = [
   {
     id: "m07-q57", dialecte: "Standard",
     q: "Que donne A EXCEPT A ?",
-    choix: ["A", "Aucune ligne", "Les doublons de A", "Erreur"],
+    choix: [
+      "A",
+      "Aucune ligne",
+      "Les doublons de A",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",

@@ -492,7 +492,12 @@ LEARNSQL.questions.m14 = [
     id: "m14-q28", dialecte: "Snowflake",
     q: "Une table a été supprimée par erreur (DROP TABLE) hier. Comment la récupérer ?",
     choixCode: true,
-    choix: ["CREATE TABLE … FROM BACKUP", "UNDROP TABLE commande;", "ROLLBACK", "Impossible"],
+    choix: [
+      "CREATE TABLE … FROM BACKUP",
+      "UNDROP TABLE commande;",
+      "ROLLBACK",
+      "Impossible"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -560,7 +565,12 @@ LEARNSQL.questions.m14 = [
     id: "m14-q32", dialecte: "Snowflake",
     q: "Peut-on cloner une table telle qu'elle était hier ?",
     choixCode: true,
-    choix: ["Non", "Oui : CREATE TABLE commande_hier CLONE commande AT (OFFSET => -86400);", "Seulement une base", "Seulement avec UNDROP"],
+    choix: [
+      "Non",
+      "Oui : CREATE TABLE commande_hier CLONE commande AT (OFFSET => -86400);",
+      "Seulement une base",
+      "Seulement avec UNDROP"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -739,7 +749,12 @@ LEARNSQL.questions.m14 = [
     id: "m14-q42", dialecte: "Snowflake",
     q: "Une colonne VARIANT contient {\"client\": {\"nom\": \"Dupont\"}}. Comment lire le nom en texte ?",
     choixCode: true,
-    choix: ["doc.client.nom", "doc:client.nom::STRING", "JSON_VALUE(doc, '$.client.nom')", "doc['client']['nom']"],
+    choix: [
+      "doc.client.nom",
+      "doc:client.nom::STRING",
+      "JSON_VALUE(doc, '$.client.nom')",
+      "doc['client']['nom']"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le point seul sert aux noms d'objets.",
@@ -790,7 +805,12 @@ LEARNSQL.questions.m14 = [
     id: "m14-q45", dialecte: "Snowflake",
     q: "Comment transformer un texte JSON (VARCHAR) en VARIANT ?",
     choixCode: true,
-    choix: ["CAST(txt AS JSON)", "PARSE_JSON(txt)", "TO_JSON(txt)", "JSON(txt)"],
+    choix: [
+      "CAST(txt AS JSON)",
+      "PARSE_JSON(txt)",
+      "TO_JSON(txt)",
+      "JSON(txt)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -822,7 +842,12 @@ LEARNSQL.questions.m14 = [
   {
     id: "m14-q47", dialecte: "Snowflake",
     q: "Dans un JSON, les clés \"Nom\" et \"nom\" sont-elles identiques pour Snowflake ?",
-    choix: ["Oui", "Non : les clés JSON tiennent compte de la casse", "Seulement en majuscules", "Ça dépend du warehouse"],
+    choix: [
+      "Oui",
+      "Non : les clés JSON tiennent compte de la casse",
+      "Seulement en majuscules",
+      "Ça dépend du warehouse"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -907,7 +932,12 @@ LEARNSQL.questions.m14 = [
   {
     id: "m14-q52", dialecte: "Snowflake",
     q: "Quel rôle système sert normalement à créer et posséder les bases, schémas et tables ?",
-    choix: ["ACCOUNTADMIN", "SYSADMIN", "PUBLIC", "USERADMIN"],
+    choix: [
+      "ACCOUNTADMIN",
+      "SYSADMIN",
+      "PUBLIC",
+      "USERADMIN"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Rôle le plus puissant, à réserver à l'administration du compte.",
@@ -975,7 +1005,12 @@ LEARNSQL.questions.m14 = [
     id: "m14-q56", dialecte: "Snowflake",
     q: "Une requête échoue : « No active warehouse selected in the current session ». Que faire ?",
     choixCode: true,
-    choix: ["CREATE INDEX", "USE WAREHOUSE WH_ANALYSE; (ou définir un warehouse par défaut pour l'utilisateur)", "USE DATABASE", "Redémarrer"],
+    choix: [
+      "CREATE INDEX",
+      "USE WAREHOUSE WH_ANALYSE; (ou définir un warehouse par défaut pour l'utilisateur)",
+      "USE DATABASE",
+      "Redémarrer"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1282,7 +1317,12 @@ LEARNSQL.questions.m14 = [
     id: "m14-q73", dialecte: "Snowflake",
     q: "Une requête mal écrite tourne depuis 9 heures. Quel paramètre aurait pu l'arrêter automatiquement ?",
     choixCode: true,
-    choix: ["AUTO_SUSPEND", "STATEMENT_TIMEOUT_IN_SECONDS (sur le warehouse, l'utilisateur ou la session)", "LOCK_TIMEOUT", "DATA_RETENTION_TIME_IN_DAYS"],
+    choix: [
+      "AUTO_SUSPEND",
+      "STATEMENT_TIMEOUT_IN_SECONDS (sur le warehouse, l'utilisateur ou la session)",
+      "LOCK_TIMEOUT",
+      "DATA_RETENTION_TIME_IN_DAYS"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le warehouse ne s'arrête pas tant qu'une requête tourne.",

@@ -274,20 +274,20 @@ LEARNSQL.questions.m16 = [
   {
     id: "m16-q16", dialecte: "SQL Server + Snowflake",
     q: "Un curseur calcule le cumul du CA jour après jour. Quelle requête le remplace ?",
+    choixCode: true,
     choix: [
       "`SELECT jour, SUM(ca) FROM ventes GROUP BY jour`",
       "`SELECT jour, ca, SUM(ca) OVER (ORDER BY jour ROWS UNBOUNDED PRECEDING) AS cumul FROM ventes_jour`",
       "`SELECT jour, MAX(ca) FROM ventes GROUP BY jour`",
       "Aucune, il faut un curseur"
     ],
-    choixCode: true,
+    bonne: 1,
     pourquoi: [
       "Non. Total par jour, pas cumul.",
       "Oui. La fonction de fenêtrage calcule le cumul en une passe.",
       "Non. Maximum par jour.",
       "Non. Le fenêtrage existe pour ça."
     ],
-    bonne: 1,
     retenir: "Cumul = SUM() OVER (ORDER BY …)."
   },
   {
@@ -437,13 +437,13 @@ LEARNSQL.questions.m16 = [
   {
     id: "m16-q25", dialecte: "SQL Server",
     q: "Quelle écriture permet d'utiliser un index sur `date_cde` ?",
+    choixCode: true,
     choix: [
       "`WHERE YEAR(date_cde) = 2026`",
       "`WHERE date_cde >= '20260101' AND date_cde < '20270101'`",
       "`WHERE CONVERT(char(4), date_cde, 112) = '2026'`",
       "`WHERE DATEPART(year, date_cde) = 2026`"
     ],
-    choixCode: true,
     bonne: 1,
     pourquoi: [
       "Non. Fonction sur la colonne : scan.",
@@ -474,13 +474,13 @@ LEARNSQL.questions.m16 = [
   {
     id: "m16-q27", dialecte: "SQL Server",
     q: "Pour savoir si un client a au moins une commande, quelle écriture exprime le mieux l'intention ?",
+    choixCode: true,
     choix: [
       "`IF (SELECT COUNT(*) FROM dbo.commande WHERE client_id = @id) > 0`",
       "`IF EXISTS (SELECT 1 FROM dbo.commande WHERE client_id = @id)`",
       "`IF (SELECT SUM(1) FROM dbo.commande WHERE client_id = @id) > 0`",
       "`IF (SELECT MAX(id) FROM dbo.commande) > 0`"
     ],
-    choixCode: true,
     bonne: 1,
     pourquoi: [
       "Non. On demande « combien » alors qu'on veut « est-ce qu'il y en a ».",
@@ -511,13 +511,13 @@ LEARNSQL.questions.m16 = [
   {
     id: "m16-q29", dialecte: "Standard",
     q: "Quelle écriture est équivalente à `WHERE ISNULL(remise, 0) > 0`, mais permet d'utiliser un index ?",
+    choixCode: true,
     choix: [
       "`WHERE remise > 0 OR remise IS NULL`",
       "`WHERE remise > 0`",
       "`WHERE remise <> 0`",
       "`WHERE remise IS NOT NULL`"
     ],
-    choixCode: true,
     bonne: 1,
     pourquoi: [
       "Non. Ajoute les lignes sans remise.",
@@ -1381,13 +1381,13 @@ LEARNSQL.questions.m16 = [
   {
     id: "m16-q77", dialecte: "SQL Server",
     q: "Comment écrire proprement la suppression d'une table de travail qui n'existe peut-être pas ?",
+    choixCode: true,
     choix: [
       "`DROP TABLE stg.tmp_import;`",
       "`DROP TABLE IF EXISTS stg.tmp_import;`",
       "`DELETE stg.tmp_import;`",
       "`TRUNCATE TABLE IF EXISTS stg.tmp_import;`"
     ],
-    choixCode: true,
     bonne: 1,
     pourquoi: [
       "Non. Erreur si la table n'existe pas.",
@@ -1400,13 +1400,13 @@ LEARNSQL.questions.m16 = [
   {
     id: "m16-q78", dialecte: "SQL Server",
     q: "Comment ajouter la colonne `devise` à `commande` dans un script relançable ?",
+    choixCode: true,
     choix: [
       "`ALTER TABLE dbo.commande ADD devise CHAR(3);`",
       "`IF COL_LENGTH('dbo.commande', 'devise') IS NULL ALTER TABLE dbo.commande ADD devise CHAR(3);`",
       "`CREATE OR ALTER COLUMN devise CHAR(3);`",
       "`ALTER TABLE dbo.commande ADD IF NOT EXISTS devise CHAR(3);`"
     ],
-    choixCode: true,
     bonne: 1,
     pourquoi: [
       "Non. Erreur au 2e lancement : la colonne existe déjà.",

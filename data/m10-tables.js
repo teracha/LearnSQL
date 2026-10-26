@@ -2,7 +2,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q01", dialecte: "Standard",
     q: "Dans CREATE TABLE, que précise-t-on obligatoirement pour chaque colonne ?",
-    choix: ["Son index", "Son nom et son type", "Sa valeur par défaut", "Sa clé étrangère"],
+    choix: [
+      "Son index",
+      "Son nom et son type",
+      "Sa valeur par défaut",
+      "Sa clé étrangère"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -15,7 +20,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q02", dialecte: "SQL Server",
     q: "Quelle est la valeur maximale d'un TINYINT ?",
-    choix: ["127", "255", "32 767", "2,1 milliards"],
+    choix: [
+      "127",
+      "255",
+      "32 767",
+      "2,1 milliards"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sur SQL Server, TINYINT n'est pas signé.",
@@ -28,7 +38,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q03", dialecte: "SQL Server",
     q: "Quel type entier choisir pour l'identifiant d'une table de logs qui reçoit 50 millions de lignes par mois ?",
-    choix: ["SMALLINT", "INT", "BIGINT", "TINYINT"],
+    choix: [
+      "SMALLINT",
+      "INT",
+      "BIGINT",
+      "TINYINT"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Plein en quelques secondes.",
@@ -41,7 +56,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q04", dialecte: "Standard",
     q: "Quel type pour des quantités vendues au mètre (ex. 12,5 m de câble) ?",
-    choix: ["INT", "DECIMAL(12,3)", "VARCHAR(10)", "BIT"],
+    choix: [
+      "INT",
+      "DECIMAL(12,3)",
+      "VARCHAR(10)",
+      "BIT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les décimales seraient perdues.",
@@ -72,7 +92,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q06", dialecte: "SQL Server",
     q: "Une colonne CHAR(10) reçoit 'ABC'. Que contient-elle ?",
-    choix: ["'ABC'", "'ABC' suivi de 7 espaces", "NULL", "Une erreur"],
+    choix: [
+      "'ABC'",
+      "'ABC' suivi de 7 espaces",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. CHAR a une longueur fixe.",
@@ -157,7 +182,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q11", dialecte: "Snowflake",
     q: "Sur Snowflake, à quoi correspond INT ?",
-    choix: ["Un entier 32 bits", "NUMBER(38,0)", "FLOAT", "VARCHAR"],
+    choix: [
+      "Un entier 32 bits",
+      "NUMBER(38,0)",
+      "FLOAT",
+      "VARCHAR"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -171,7 +201,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q12", dialecte: "SQL Server",
     q: "Quel type de date/heure moderne choisir sur SQL Server pour un horodatage ?",
     choixCode: true,
-    choix: ["DATETIME", "DATETIME2(0) à DATETIME2(7) selon la précision voulue", "SMALLDATETIME", "VARCHAR(19)"],
+    choix: [
+      "DATETIME",
+      "DATETIME2(0) à DATETIME2(7) selon la précision voulue",
+      "SMALLDATETIME",
+      "VARCHAR(19)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ancien type, précision bizarre (1/300 s).",
@@ -203,7 +238,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q14", dialecte: "SQL Server",
     q: "Quel type stocke une date ET le décalage horaire (ex. +02:00) ?",
     choixCode: true,
-    choix: ["DATETIME2", "DATETIMEOFFSET", "DATE", "TIME"],
+    choix: [
+      "DATETIME2",
+      "DATETIMEOFFSET",
+      "DATE",
+      "TIME"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Pas de fuseau.",
@@ -216,7 +256,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q15", dialecte: "Standard",
     q: "Une date de commande sans heure : quel type ?",
-    choix: ["DATETIME", "DATE", "VARCHAR(10)", "INT"],
+    choix: [
+      "DATETIME",
+      "DATE",
+      "VARCHAR(10)",
+      "INT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. L'heure inutile crée des pièges de filtre.",
@@ -283,7 +328,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q19", dialecte: "SQL Server",
     q: "Sur SQL Server, que crée automatiquement une PRIMARY KEY (par défaut) ?",
-    choix: ["Rien", "Un index cluster (si la table n'en a pas déjà un)", "Une vue", "Un trigger"],
+    choix: [
+      "Rien",
+      "Un index cluster (si la table n'en a pas déjà un)",
+      "Une vue",
+      "Un trigger"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -334,7 +384,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q22", dialecte: "SQL Server",
     q: "Une contrainte UNIQUE (email) existe. Deux clients n'ont pas d'email (NULL). Que se passe-t-il au 2e INSERT sur SQL Server ?",
-    choix: ["Ça marche", "Erreur : SQL Server n'accepte qu'un seul NULL dans une contrainte UNIQUE", "Le 1er est écrasé", "Le NULL devient ''"],
+    choix: [
+      "Ça marche",
+      "Erreur : SQL Server n'accepte qu'un seul NULL dans une contrainte UNIQUE",
+      "Le 1er est écrasé",
+      "Le NULL devient ''"
+    ],
     bonne: 1,
     pourquoi: [
       "Non sur SQL Server. (La norme SQL, elle, autorise plusieurs NULL dans une colonne UNIQUE.)",
@@ -384,7 +439,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q25", dialecte: "Standard",
     q: "commande.client_id est une FK vers client.id, et accepte NULL. Une commande avec client_id NULL est-elle acceptée ?",
-    choix: ["Non", "Oui : une FK ne vérifie que les valeurs renseignées", "Seulement si un client a l'id NULL", "Erreur"],
+    choix: [
+      "Non",
+      "Oui : une FK ne vérifie que les valeurs renseignées",
+      "Seulement si un client a l'id NULL",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -397,7 +457,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q26", dialecte: "Standard",
     q: "CHECK (qte > 0) existe. Une ligne avec qte = NULL est-elle acceptée ?",
-    choix: ["Non", "Oui : un CHECK ne refuse que si la condition est FAUSSE, et NULL > 0 est « inconnu »", "Erreur", "Seulement en UPDATE"],
+    choix: [
+      "Non",
+      "Oui : un CHECK ne refuse que si la condition est FAUSSE, et NULL > 0 est « inconnu »",
+      "Erreur",
+      "Seulement en UPDATE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Piège classique.",
@@ -521,7 +586,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q33", dialecte: "Snowflake",
     q: "Sur Snowflake, tu déclares PRIMARY KEY (id). Peut-on quand même insérer deux lignes avec le même id ?",
-    choix: ["Non, erreur", "Oui : Snowflake n'applique pas les clés primaires, uniques et étrangères (seulement NOT NULL)", "Seulement en COPY INTO", "Seulement en MERGE"],
+    choix: [
+      "Non, erreur",
+      "Oui : Snowflake n'applique pas les clés primaires, uniques et étrangères (seulement NOT NULL)",
+      "Seulement en COPY INTO",
+      "Seulement en MERGE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Grosse différence avec SQL Server.",
@@ -571,7 +641,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q36", dialecte: "SQL Server",
     q: "Comment repositionner le compteur IDENTITY d'une table (par exemple après une reprise de données) ?",
     choixCode: true,
-    choix: ["DBCC CHECKIDENT ('dbo.client', RESEED, 5000)", "UPDATE client SET IDENTITY = 5000", "ALTER IDENTITY 5000", "TRUNCATE seulement"],
+    choix: [
+      "DBCC CHECKIDENT ('dbo.client', RESEED, 5000)",
+      "UPDATE client SET IDENTITY = 5000",
+      "ALTER IDENTITY 5000",
+      "TRUNCATE seulement"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. La prochaine valeur sera 5001. Attention à ne pas créer de doublons avec des id existants.",
@@ -585,7 +660,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q37", dialecte: "Snowflake",
     q: "Sur Snowflake, comment déclarer une colonne auto-incrémentée ?",
     choixCode: true,
-    choix: ["id INT AUTOINCREMENT", "id INT IDENTITY_INSERT", "id SERIAL", "id INT AUTO"],
+    choix: [
+      "id INT AUTOINCREMENT",
+      "id INT IDENTITY_INSERT",
+      "id SERIAL",
+      "id INT AUTO"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. AUTOINCREMENT (ou IDENTITY) avec départ et pas en option. Valeurs uniques, mais pas forcément sans trou.",
@@ -636,7 +716,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q40", dialecte: "SQL Server",
     q: "Tu veux réduire une colonne de VARCHAR(100) à VARCHAR(20). Des valeurs font 35 caractères. Que se passe-t-il ?",
-    choix: ["Les valeurs sont coupées", "Erreur : des données seraient tronquées", "La colonne devient NULL", "Rien"],
+    choix: [
+      "Les valeurs sont coupées",
+      "Erreur : des données seraient tronquées",
+      "La colonne devient NULL",
+      "Rien"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
@@ -722,7 +807,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q45", dialecte: "Snowflake",
     q: "Sur Snowflake, comment créer une table seulement si elle n'existe pas encore ?",
     choixCode: true,
-    choix: ["CREATE TABLE IF NOT EXISTS client (…)", "CREATE OR REPLACE TABLE client (…)", "CREATE TABLE client (…) ONLY", "CREATE NEW TABLE client"],
+    choix: [
+      "CREATE TABLE IF NOT EXISTS client (…)",
+      "CREATE OR REPLACE TABLE client (…)",
+      "CREATE TABLE client (…) ONLY",
+      "CREATE NEW TABLE client"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Rien n'est fait si elle existe : script relançable sans perte.",
@@ -915,7 +1005,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q56", dialecte: "SQL Server",
     q: "Une vue filtre WHERE pays = 'FR' et est créée WITH CHECK OPTION. Que se passe-t-il si on fait un UPDATE via la vue qui met pays = 'BE' ?",
-    choix: ["La ligne disparaît de la vue", "Erreur : la modification ferait sortir la ligne de la vue", "Rien", "La vue est modifiée"],
+    choix: [
+      "La ligne disparaît de la vue",
+      "Erreur : la modification ferait sortir la ligne de la vue",
+      "Rien",
+      "La vue est modifiée"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait le cas sans CHECK OPTION.",
@@ -1095,7 +1190,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q66", dialecte: "Snowflake",
     q: "Sur Snowflake, quel type stocke du JSON pour l'interroger directement ?",
     choixCode: true,
-    choix: ["VARCHAR", "VARIANT", "BINARY", "TEXT"],
+    choix: [
+      "VARCHAR",
+      "VARIANT",
+      "BINARY",
+      "TEXT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Possible, mais il faudrait le convertir à chaque lecture.",
@@ -1108,7 +1208,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q67", dialecte: "Snowflake",
     q: "Sur Snowflake, une colonne déclarée TIMESTAMP (sans précision) devient, par défaut…",
-    choix: ["TIMESTAMP_TZ", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "DATE"],
+    choix: [
+      "TIMESTAMP_TZ",
+      "TIMESTAMP_NTZ",
+      "TIMESTAMP_LTZ",
+      "DATE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1158,7 +1263,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q70", dialecte: "Snowflake",
     q: "Sur une table Snowflake standard, que donne CREATE INDEX ix ON commande (client_id) ?",
-    choix: ["Un index est créé", "Erreur : Snowflake n'a pas d'index sur ses tables standard", "Un clustering est créé", "Rien, sans message"],
+    choix: [
+      "Un index est créé",
+      "Erreur : Snowflake n'a pas d'index sur ses tables standard",
+      "Un clustering est créé",
+      "Rien, sans message"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1225,7 +1335,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q74", dialecte: "Standard",
     q: "Quel type pour un numéro de téléphone (+33 4 78 12 34 56) ?",
-    choix: ["INT", "BIGINT", "VARCHAR(20)", "DECIMAL"],
+    choix: [
+      "INT",
+      "BIGINT",
+      "VARCHAR(20)",
+      "DECIMAL"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Trop petit, et le + et le 0 de tête sont perdus.",
@@ -1238,7 +1353,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q75", dialecte: "Standard",
     q: "Quel type pour un code postal de clients internationaux ?",
-    choix: ["INT", "CHAR(5)", "VARCHAR(10)", "DECIMAL(5,0)"],
+    choix: [
+      "INT",
+      "CHAR(5)",
+      "VARCHAR(10)",
+      "DECIMAL(5,0)"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Zéros perdus, et des codes contiennent des lettres (UK, Canada, Corse).",
@@ -1251,7 +1371,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q76", dialecte: "Standard",
     q: "Les prix unitaires d'achat ont jusqu'à 4 décimales (ex. 0,0375 € la vis). Quel type ?",
-    choix: ["DECIMAL(18,2)", "DECIMAL(19,4)", "INT", "FLOAT"],
+    choix: [
+      "DECIMAL(18,2)",
+      "DECIMAL(19,4)",
+      "INT",
+      "FLOAT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. 0,0375 deviendrait 0,04 : erreur sur 10 000 vis.",
@@ -1301,7 +1426,12 @@ LEARNSQL.questions.m10 = [
     id: "m10-q79", dialecte: "SQL Server",
     q: "Comment supprimer une table seulement si elle existe (script relançable) ?",
     choixCode: true,
-    choix: ["DROP TABLE IF EXISTS stg.tmp_import;", "DROP TABLE stg.tmp_import FORCE;", "DELETE TABLE stg.tmp_import;", "TRUNCATE IF EXISTS"],
+    choix: [
+      "DROP TABLE IF EXISTS stg.tmp_import;",
+      "DROP TABLE stg.tmp_import FORCE;",
+      "DELETE TABLE stg.tmp_import;",
+      "TRUNCATE IF EXISTS"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. SQL Server 2016+ et Snowflake.",
@@ -1423,7 +1553,12 @@ LEARNSQL.questions.m10 = [
   {
     id: "m10-q86", dialecte: "SQL Server",
     q: "Peut-on créer une clé étrangère entre la table client de la base SOC1 et la table commande de la base SOC2 ?",
-    choix: ["Oui", "Non : SQL Server n'accepte pas les clés étrangères entre bases. Contrôle par traitement ou trigger", "Oui avec un synonyme", "Oui avec une vue"],
+    choix: [
+      "Oui",
+      "Non : SQL Server n'accepte pas les clés étrangères entre bases. Contrôle par traitement ou trigger",
+      "Oui avec un synonyme",
+      "Oui avec une vue"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",

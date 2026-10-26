@@ -21,7 +21,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q02", dialecte: "SQL Server",
     q: "Que vaut une variable déclarée sans valeur (DECLARE @n INT;) ?",
-    choix: ["0", "NULL", "Une erreur", "-1"],
+    choix: [
+      "0",
+      "NULL",
+      "Une erreur",
+      "-1"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -70,7 +75,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q05", dialecte: "SQL Server",
     q: "@prix vaut 10. SELECT @prix = prix FROM tarif WHERE article = 'INCONNU'; ne trouve rien. Que vaut @prix ?",
-    choix: ["NULL", "10 (inchangé)", "0", "Erreur"],
+    choix: [
+      "NULL",
+      "10 (inchangé)",
+      "0",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait le cas avec SET @prix = (SELECT …).",
@@ -83,7 +93,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q06", dialecte: "SQL Server",
     q: "Une variable déclarée avant un GO est-elle utilisable après ?",
-    choix: ["Oui", "Non : GO termine le lot, la variable n'existe plus", "Seulement en lecture", "Seulement dans SSMS"],
+    choix: [
+      "Oui",
+      "Non : GO termine le lot, la variable n'existe plus",
+      "Seulement en lecture",
+      "Seulement dans SSMS"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -150,7 +165,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q10", dialecte: "SQL Server",
     q: "Une boucle WHILE @i < 100 n'incrémente jamais @i. Que se passe-t-il ?",
-    choix: ["Elle s'arrête après 100 tours", "Boucle infinie : le traitement ne s'arrête jamais", "Erreur", "Elle ne démarre pas"],
+    choix: [
+      "Elle s'arrête après 100 tours",
+      "Boucle infinie : le traitement ne s'arrête jamais",
+      "Erreur",
+      "Elle ne démarre pas"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -418,7 +438,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q25", dialecte: "SQL Server",
     q: "Une fonction scalaire peut-elle faire un INSERT dans une table ?",
-    choix: ["Oui", "Non : une fonction ne peut pas modifier les données de la base", "Seulement dans une #table", "Seulement la nuit"],
+    choix: [
+      "Oui",
+      "Non : une fonction ne peut pas modifier les données de la base",
+      "Seulement dans une #table",
+      "Seulement la nuit"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -431,7 +456,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q26", dialecte: "SQL Server",
     q: "Peut-on utiliser NEWID() directement dans une fonction utilisateur ?",
-    choix: ["Oui", "Non : fonction à « effet de bord », interdite dans une fonction utilisateur", "Seulement en scalaire", "Seulement en table"],
+    choix: [
+      "Oui",
+      "Non : fonction à « effet de bord », interdite dans une fonction utilisateur",
+      "Seulement en scalaire",
+      "Seulement en table"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -444,7 +474,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q27", dialecte: "SQL Server",
     q: "Peut-on utiliser TRY / CATCH dans une fonction utilisateur ?",
-    choix: ["Oui", "Non", "Seulement dans une fonction table", "Seulement avec THROW"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement dans une fonction table",
+      "Seulement avec THROW"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -643,7 +678,12 @@ LEARNSQL.questions.m13 = [
     id: "m13-q38", dialecte: "SQL Server",
     q: "Si un curseur est vraiment nécessaire, quelles options le rendent le plus léger ?",
     choixCode: true,
-    choix: ["DECLARE c CURSOR GLOBAL DYNAMIC", "DECLARE c CURSOR LOCAL FAST_FORWARD", "DECLARE c CURSOR SCROLL", "Aucune"],
+    choix: [
+      "DECLARE c CURSOR GLOBAL DYNAMIC",
+      "DECLARE c CURSOR LOCAL FAST_FORWARD",
+      "DECLARE c CURSOR SCROLL",
+      "Aucune"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les plus coûteuses.",
@@ -656,7 +696,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q39", dialecte: "SQL Server",
     q: "Dans une boucle de curseur, que signifie @@FETCH_STATUS = 0 ?",
-    choix: ["Fin du curseur", "La lecture (FETCH) a réussi : une ligne est disponible", "Erreur", "Curseur vide"],
+    choix: [
+      "Fin du curseur",
+      "La lecture (FETCH) a réussi : une ligne est disponible",
+      "Erreur",
+      "Curseur vide"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. -1 = plus de lignes.",
@@ -669,7 +714,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q40", dialecte: "SQL Server",
     q: "Après une boucle de curseur, qu'est-ce qu'on oublie souvent ?",
-    choix: ["Rien", "CLOSE puis DEALLOCATE du curseur", "COMMIT", "DROP TABLE"],
+    choix: [
+      "Rien",
+      "CLOSE puis DEALLOCATE du curseur",
+      "COMMIT",
+      "DROP TABLE"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -738,7 +788,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q44", dialecte: "SQL Server",
     q: "Que fait WAITFOR DELAY '00:00:05' ?",
-    choix: ["Rien", "Met en pause l'exécution 5 secondes", "Attend un verrou 5 s", "Planifie un job"],
+    choix: [
+      "Rien",
+      "Met en pause l'exécution 5 secondes",
+      "Attend un verrou 5 s",
+      "Planifie un job"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -949,7 +1004,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q56", dialecte: "SQL Server",
     q: "Une procédure A crée #temp puis appelle une procédure B. B peut-elle lire #temp ?",
-    choix: ["Non", "Oui : une #table est visible dans les procédures appelées par celle qui l'a créée", "Seulement en ##", "Seulement si B la recrée"],
+    choix: [
+      "Non",
+      "Oui : une #table est visible dans les procédures appelées par celle qui l'a créée",
+      "Seulement en ##",
+      "Seulement si B la recrée"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -980,7 +1040,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q58", dialecte: "SQL Server",
     q: "INSERT INTO #t EXEC dbo.p_A; marche, mais p_A fait elle-même INSERT … EXEC p_B. Que se passe-t-il ?",
-    choix: ["Ça marche", "Erreur : un INSERT … EXEC ne peut pas être imbriqué", "Seules les données de p_B arrivent", "Boucle infinie"],
+    choix: [
+      "Ça marche",
+      "Erreur : un INSERT … EXEC ne peut pas être imbriqué",
+      "Seules les données de p_B arrivent",
+      "Boucle infinie"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1232,7 +1297,12 @@ LEARNSQL.questions.m13 = [
     id: "m13-q72", dialecte: "Snowflake",
     q: "En Snowflake Scripting, comment déclarer et affecter une variable dans le corps du bloc ?",
     choixCode: true,
-    choix: ["DECLARE @n INT = 5;", "LET n := 5;", "SET @n = 5;", "VAR n = 5;"],
+    choix: [
+      "DECLARE @n INT = 5;",
+      "LET n := 5;",
+      "SET @n = 5;",
+      "VAR n = 5;"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Syntaxe SQL Server.",
@@ -1284,7 +1354,12 @@ LEARNSQL.questions.m13 = [
     id: "m13-q75", dialecte: "Snowflake",
     q: "Comment exécuter une procédure sur Snowflake ?",
     choixCode: true,
-    choix: ["EXEC p 30", "CALL p(30);", "RUN p(30)", "SELECT p(30)"],
+    choix: [
+      "EXEC p 30",
+      "CALL p(30);",
+      "RUN p(30)",
+      "SELECT p(30)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server.",
@@ -1298,7 +1373,12 @@ LEARNSQL.questions.m13 = [
     id: "m13-q76", dialecte: "Snowflake",
     q: "Sur Snowflake, comment exécuter une requête construite dans une chaîne ?",
     choixCode: true,
-    choix: ["EXEC (@sql)", "EXECUTE IMMEDIATE :sql;", "sp_executesql", "RUN :sql"],
+    choix: [
+      "EXEC (@sql)",
+      "EXECUTE IMMEDIATE :sql;",
+      "sp_executesql",
+      "RUN :sql"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1387,7 +1467,12 @@ LEARNSQL.questions.m13 = [
     id: "m13-q81", dialecte: "Snowflake",
     q: "Tu crées une TASK Snowflake planifiée chaque nuit. Elle ne s'exécute jamais. Oubli classique ?",
     choixCode: true,
-    choix: ["Le warehouse est trop grand", "ALTER TASK ma_task RESUME; (une task est créée suspendue)", "Il faut un index", "Il faut redémarrer Snowflake"],
+    choix: [
+      "Le warehouse est trop grand",
+      "ALTER TASK ma_task RESUME; (une task est créée suspendue)",
+      "Il faut un index",
+      "Il faut redémarrer Snowflake"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1474,7 +1559,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q86", dialecte: "Snowflake",
     q: "En plus de SQL, dans quels langages peut-on écrire des procédures Snowflake ?",
-    choix: ["Aucun autre", "JavaScript, Python, Java, Scala", "COBOL", "Seulement C#"],
+    choix: [
+      "Aucun autre",
+      "JavaScript, Python, Java, Scala",
+      "COBOL",
+      "Seulement C#"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -1598,7 +1688,12 @@ LEARNSQL.questions.m13 = [
     id: "m13-q93", dialecte: "Snowflake",
     q: "Dans une procédure Snowflake, comment créer une table de travail qui disparaît à la fin de la session ?",
     choixCode: true,
-    choix: ["CREATE TABLE #travail …", "CREATE TEMPORARY TABLE travail …", "DECLARE @travail TABLE", "CREATE VOLATILE travail"],
+    choix: [
+      "CREATE TABLE #travail …",
+      "CREATE TEMPORARY TABLE travail …",
+      "DECLARE @travail TABLE",
+      "CREATE VOLATILE travail"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. # est SQL Server.",
@@ -1647,7 +1742,12 @@ LEARNSQL.questions.m13 = [
   {
     id: "m13-q96", dialecte: "Standard",
     q: "Quel nom de procédure est le plus clair ?",
-    choix: ["dbo.proc1", "dbo.p_integrer_commandes_edi", "dbo.sp_traitement", "dbo.toto"],
+    choix: [
+      "dbo.proc1",
+      "dbo.p_integrer_commandes_edi",
+      "dbo.sp_traitement",
+      "dbo.toto"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",

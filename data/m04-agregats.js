@@ -3,7 +3,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q01", dialecte: "Standard",
     q: "La table a 5 lignes. La colonne couleur vaut : 'bleu', 'bleu', 'rouge', NULL, NULL. Que renvoie cette requête ?",
     code: "SELECT COUNT(*), COUNT(couleur), COUNT(DISTINCT couleur)\nFROM produit;",
-    choix: ["5, 5, 3", "5, 3, 2", "3, 3, 2", "5, 3, 3"],
+    choix: [
+      "5, 5, 3",
+      "5, 3, 2",
+      "3, 3, 2",
+      "5, 3, 3"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. COUNT(colonne) ne compte pas les NULL.",
@@ -16,7 +21,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q02", dialecte: "Standard",
     q: "La colonne note contient 10, 20 et NULL. Que renvoie AVG(note) ?",
-    choix: ["10", "15", "NULL", "Une erreur"],
+    choix: [
+      "10",
+      "15",
+      "NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait (10 + 20 + 0) / 3 : le NULL n'est pas un zéro.",
@@ -29,7 +39,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q03", dialecte: "SQL Server",
     q: "Sur SQL Server, la colonne qte est un INT avec les valeurs 1 et 2. Que renvoie AVG(qte) ?",
-    choix: ["1.5", "1", "2", "NULL"],
+    choix: [
+      "1.5",
+      "1",
+      "2",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non sur SQL Server. (Oui sur Snowflake.)",
@@ -61,7 +76,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q05", dialecte: "Standard",
     q: "Tu veux les clients dont le total des commandes dépasse 10 000 €. Où mets-tu la condition SUM(montant) > 10000 ?",
-    choix: ["Dans WHERE", "Dans HAVING", "Dans GROUP BY", "Dans ORDER BY"],
+    choix: [
+      "Dans WHERE",
+      "Dans HAVING",
+      "Dans GROUP BY",
+      "Dans ORDER BY"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. WHERE filtre les lignes avant le regroupement. Le SUM n'existe pas encore.",
@@ -74,7 +94,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q06", dialecte: "Standard",
     q: "Aucune commande ne correspond au filtre. Que renvoie SELECT SUM(montant) FROM commande WHERE annee = 1900; ?",
-    choix: ["0", "Aucune ligne", "Une ligne avec NULL", "Une erreur"],
+    choix: [
+      "0",
+      "Aucune ligne",
+      "Une ligne avec NULL",
+      "Une erreur"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Piège classique : SUM d'un ensemble vide n'est pas 0.",
@@ -105,7 +130,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q08", dialecte: "Standard",
     q: "Tu veux le CA par client, sans les commandes annulées. Où est-il le plus logique de filtrer statut <> 'ANNULEE' ?",
-    choix: ["Dans WHERE", "Dans HAVING", "Dans le SELECT avec un CASE", "Dans ORDER BY"],
+    choix: [
+      "Dans WHERE",
+      "Dans HAVING",
+      "Dans le SELECT avec un CASE",
+      "Dans ORDER BY"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. On enlève les lignes avant de les regrouper. C'est clair et efficace.",
@@ -155,7 +185,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q11", dialecte: "Standard",
     q: "La colonne ville contient 'Lyon', 'Bordeaux' et 'Paris'. Que renvoie MAX(ville) ?",
-    choix: ["'Bordeaux'", "'Lyon'", "'Paris'", "Une erreur : MAX ne marche que sur des nombres"],
+    choix: [
+      "'Bordeaux'",
+      "'Lyon'",
+      "'Paris'",
+      "Une erreur : MAX ne marche que sur des nombres"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. 'Bordeaux' est le MIN (premier dans l'ordre alphabétique).",
@@ -169,7 +204,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q12", dialecte: "SQL Server",
     q: "Sur SQL Server, tu veux la liste des codes articles de chaque commande, séparés par des virgules. Quelle fonction ?",
     choixCode: true,
-    choix: ["CONCAT(code)", "STRING_AGG(code, ', ')", "GROUP_CONCAT(code)", "SUM(code)"],
+    choix: [
+      "CONCAT(code)",
+      "STRING_AGG(code, ', ')",
+      "GROUP_CONCAT(code)",
+      "SUM(code)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. CONCAT colle des valeurs d'une même ligne, pas de plusieurs lignes.",
@@ -202,7 +242,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q14", dialecte: "Standard",
     q: "Tu comptes les commandes par client, y compris ceux qui n'en ont aucune. Un client sans commande obtient quel nombre ?",
     code: "SELECT cl.nom, COUNT(*)\nFROM client cl\nLEFT JOIN commande co ON co.client_id = cl.id\nGROUP BY cl.nom;",
-    choix: ["0", "1", "NULL", "Il n'apparaît pas"],
+    choix: [
+      "0",
+      "1",
+      "NULL",
+      "Il n'apparaît pas"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. C'est ce qu'on voudrait. Il faut alors écrire COUNT(co.id).",
@@ -215,7 +260,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q15", dialecte: "Standard",
     q: "Deux commandes valent 100 € chacune. Que renvoie SUM(DISTINCT montant) ?",
-    choix: ["200", "100", "2", "NULL"],
+    choix: [
+      "200",
+      "100",
+      "2",
+      "NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. DISTINCT supprime les montants en double avant la somme.",
@@ -228,7 +278,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q16", dialecte: "Standard",
     q: "Région A : 2 commandes, moyenne 100 €. Région B : 8 commandes, moyenne 50 €. Quel est le panier moyen global ?",
-    choix: ["75 €", "60 €", "150 €", "50 €"],
+    choix: [
+      "75 €",
+      "60 €",
+      "150 €",
+      "50 €"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. (100 + 50) / 2 = 75 : c'est la moyenne des moyennes. Elle ne tient pas compte du nombre de commandes.",
@@ -261,7 +316,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q18", dialecte: "SQL Server + Snowflake",
     q: "Après un ROLLUP, une ligne a region = NULL. Comment savoir si c'est le total général, ou une vraie région NULL ?",
     choixCode: true,
-    choix: ["region IS NULL", "GROUPING(region) = 1", "COUNT(region) = 0", "On ne peut pas savoir"],
+    choix: [
+      "region IS NULL",
+      "GROUPING(region) = 1",
+      "COUNT(region) = 0",
+      "On ne peut pas savoir"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les deux cas ont region à NULL.",
@@ -331,7 +391,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q22", dialecte: "Standard",
     q: "Sur 10 lignes, 3 ont le statut 'LIVRE'. Que renvoie cette expression ?",
     code: "COUNT(CASE WHEN statut = 'LIVRE' THEN 1 ELSE 0 END)",
-    choix: ["3", "10", "7", "0"],
+    choix: [
+      "3",
+      "10",
+      "7",
+      "0"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Piège : COUNT compte aussi les 0, car 0 n'est pas NULL.",
@@ -345,7 +410,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q23", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction compte directement les lignes qui vérifient une condition ?",
     choixCode: true,
-    choix: ["COUNT_IF(statut = 'LIVRE')", "COUNTIF(statut, 'LIVRE')", "COUNT(statut = 'LIVRE')", "SUMIF(statut = 'LIVRE')"],
+    choix: [
+      "COUNT_IF(statut = 'LIVRE')",
+      "COUNTIF(statut, 'LIVRE')",
+      "COUNT(statut = 'LIVRE')",
+      "SUMIF(statut = 'LIVRE')"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. COUNT_IF existe sur Snowflake. Pas sur SQL Server.",
@@ -377,7 +447,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q25", dialecte: "Standard",
     q: "Ces deux requêtes donnent-elles le même résultat ?",
     code: "SELECT DISTINCT pays FROM client;\n\nSELECT pays FROM client GROUP BY pays;",
-    choix: ["Oui", "Non, GROUP BY renvoie plus de lignes", "Non, DISTINCT trie le résultat", "Non, la 2e est une erreur"],
+    choix: [
+      "Oui",
+      "Non, GROUP BY renvoie plus de lignes",
+      "Non, DISTINCT trie le résultat",
+      "Non, la 2e est une erreur"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Même liste de pays sans doublon. Utilise DISTINCT pour dédoublonner, GROUP BY pour calculer.",
@@ -391,7 +466,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q26", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction donne la médiane des montants ?",
     choixCode: true,
-    choix: ["AVG(montant)", "MEDIAN(montant)", "MID(montant)", "MODE(montant)"],
+    choix: [
+      "AVG(montant)",
+      "MEDIAN(montant)",
+      "MID(montant)",
+      "MODE(montant)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. AVG est la moyenne, pas la médiane. Les très grosses commandes la tirent vers le haut.",
@@ -422,7 +502,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q28", dialecte: "Standard",
     q: "La colonne contient NULL, 5 et 3. Que renvoie MAX(col) ?",
-    choix: ["NULL", "5", "3", "8"],
+    choix: [
+      "NULL",
+      "5",
+      "3",
+      "8"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Les agrégats ignorent les NULL.",
@@ -436,7 +521,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q29", dialecte: "Standard",
     q: "Peut-on trier par un agrégat, sans alias ?",
     code: "SELECT client_id, SUM(montant)\nFROM commande\nGROUP BY client_id\nORDER BY SUM(montant) DESC;",
-    choix: ["Oui", "Non, il faut un alias", "Non, ORDER BY n'accepte pas d'agrégat", "Seulement avec HAVING"],
+    choix: [
+      "Oui",
+      "Non, il faut un alias",
+      "Non, ORDER BY n'accepte pas d'agrégat",
+      "Seulement avec HAVING"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. ORDER BY passe après le calcul des agrégats. Un alias rendrait la requête plus lisible.",
@@ -450,7 +540,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q30", dialecte: "SQL Server + Snowflake",
     q: "Tu veux estimer le nombre de clients distincts sur 2 milliards de lignes. Une valeur approchée suffit. Quelle fonction est la plus rapide ?",
     choixCode: true,
-    choix: ["COUNT(DISTINCT client_id)", "APPROX_COUNT_DISTINCT(client_id)", "COUNT(*)", "SUM(DISTINCT client_id)"],
+    choix: [
+      "COUNT(DISTINCT client_id)",
+      "APPROX_COUNT_DISTINCT(client_id)",
+      "COUNT(*)",
+      "SUM(DISTINCT client_id)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le résultat est exact, mais lent et gourmand en mémoire sur de gros volumes.",
@@ -463,7 +558,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q31", dialecte: "Standard",
     q: "La table est vide. Que renvoie SELECT COUNT(*) FROM commande; ?",
-    choix: ["Aucune ligne", "Une ligne avec 0", "Une ligne avec NULL", "Une erreur"],
+    choix: [
+      "Aucune ligne",
+      "Une ligne avec 0",
+      "Une ligne avec NULL",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sans GROUP BY, un agrégat renvoie toujours une ligne.",
@@ -476,7 +576,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q32", dialecte: "Standard",
     q: "Aucune commande en 2030. Que renvoie SELECT MAX(date_cde) FROM commande WHERE annee = 2030; ?",
-    choix: ["Aucune ligne", "Une ligne avec NULL", "Une ligne avec 0", "La date du jour"],
+    choix: [
+      "Aucune ligne",
+      "Une ligne avec NULL",
+      "Une ligne avec 0",
+      "La date du jour"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Sans GROUP BY, toujours une ligne.",
@@ -489,7 +594,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q33", dialecte: "Standard",
     q: "Que renvoie SELECT pays, COUNT(*) FROM client WHERE 1 = 0 GROUP BY pays; ?",
-    choix: ["Une ligne avec 0", "Aucune ligne", "Une ligne par pays avec 0", "Une erreur"],
+    choix: [
+      "Une ligne avec 0",
+      "Aucune ligne",
+      "Une ligne par pays avec 0",
+      "Une erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Avec GROUP BY, il faut au moins une ligne pour former un groupe.",
@@ -520,7 +630,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q35", dialecte: "Standard",
     q: "La colonne contient 'A', 'A', NULL, 'B'. Que renvoie COUNT(DISTINCT col) ?",
-    choix: ["2", "3", "4", "1"],
+    choix: [
+      "2",
+      "3",
+      "4",
+      "1"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. A et B. Les NULL ne sont jamais comptés par COUNT(col).",
@@ -534,7 +649,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q36", dialecte: "Standard",
     q: "Les notes de satisfaction sont 4, 2 et NULL (non répondu). Tu veux compter les non-réponses comme 0. Quelle expression ?",
     choixCode: true,
-    choix: ["AVG(note)", "AVG(COALESCE(note, 0))", "SUM(note) / 2", "AVG(note) * 3"],
+    choix: [
+      "AVG(note)",
+      "AVG(COALESCE(note, 0))",
+      "SUM(note) / 2",
+      "AVG(note) * 3"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Donne 3 : le NULL est ignoré.",
@@ -547,7 +667,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q37", dialecte: "Standard",
     q: "Toutes les remises d'un client sont NULL. Que renvoie SUM(remise) pour ce client ?",
-    choix: ["0", "NULL", "Une erreur", "Le nombre de lignes"],
+    choix: [
+      "0",
+      "NULL",
+      "Une erreur",
+      "Le nombre de lignes"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Somme de valeurs toutes inconnues = NULL.",
@@ -560,7 +685,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q38", dialecte: "Standard",
     q: "Ligne 1 : ht = 10, port = NULL. Ligne 2 : ht = 5, port = 5. Que valent SUM(ht + port) et SUM(ht) + SUM(port) ?",
-    choix: ["20 et 20", "10 et 20", "NULL et 20", "20 et NULL"],
+    choix: [
+      "20 et 20",
+      "10 et 20",
+      "NULL et 20",
+      "20 et NULL"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Le NULL change le premier calcul.",
@@ -592,7 +722,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q40", dialecte: "Standard",
     q: "GROUP BY pays, ville et GROUP BY ville, pays donnent-ils les mêmes groupes ?",
-    choix: ["Oui", "Non", "Seulement sans NULL", "Seulement sur SQL Server"],
+    choix: [
+      "Oui",
+      "Non",
+      "Seulement sans NULL",
+      "Seulement sur SQL Server"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les groupes sont les mêmes. Seul l'ordre d'affichage peut changer (et il n'est pas garanti sans ORDER BY).",
@@ -605,7 +740,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q41", dialecte: "Standard",
     q: "Le résultat d'un GROUP BY client_id est-il trié par client_id ?",
-    choix: ["Oui, toujours", "Non, pas garanti", "Oui, sur SQL Server", "Oui, si client_id est indexé"],
+    choix: [
+      "Oui, toujours",
+      "Non, pas garanti",
+      "Oui, sur SQL Server",
+      "Oui, si client_id est indexé"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Souvent c'est le cas par hasard, mais rien ne le garantit.",
@@ -730,7 +870,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q48", dialecte: "Standard",
     q: "Que change le DISTINCT dans SELECT DISTINCT client_id, SUM(montant) FROM commande GROUP BY client_id ?",
-    choix: ["Il supprime les montants en double", "Rien : GROUP BY donne déjà une ligne par client", "Il trie", "Erreur"],
+    choix: [
+      "Il supprime les montants en double",
+      "Rien : GROUP BY donne déjà une ligne par client",
+      "Il trie",
+      "Erreur"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. DISTINCT s'applique aux lignes du résultat, pas aux montants additionnés.",
@@ -892,7 +1037,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q57", dialecte: "Standard",
     q: "2 régions, chacune avec 3 pays. Combien de lignes renvoie GROUP BY ROLLUP (region, pays) ?",
-    choix: ["6", "8", "9", "11"],
+    choix: [
+      "6",
+      "8",
+      "9",
+      "11"
+    ],
     bonne: 2,
     pourquoi: [
       "Non. Ce sont les lignes de détail seulement.",
@@ -999,7 +1149,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q63", dialecte: "Snowflake",
     q: "Sur Snowflake, quelle fonction donne la valeur la plus fréquente (ex. le mode de paiement le plus utilisé) ?",
     choixCode: true,
-    choix: ["MEDIAN(mode_paiement)", "MODE(mode_paiement)", "MAX(mode_paiement)", "TOP(mode_paiement)"],
+    choix: [
+      "MEDIAN(mode_paiement)",
+      "MODE(mode_paiement)",
+      "MAX(mode_paiement)",
+      "TOP(mode_paiement)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. La médiane est la valeur du milieu, pour des nombres.",
@@ -1067,7 +1222,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q67", dialecte: "SQL Server",
     q: "Une table de logs a 3 milliards de lignes. COUNT(*) plante en dépassement. Que faire ?",
     choixCode: true,
-    choix: ["COUNT(1)", "COUNT_BIG(*)", "SUM(1)", "COUNT(DISTINCT *)"],
+    choix: [
+      "COUNT(1)",
+      "COUNT_BIG(*)",
+      "SUM(1)",
+      "COUNT(DISTINCT *)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Même type de retour (INT) que COUNT(*).",
@@ -1267,7 +1427,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q78", dialecte: "Standard",
     q: "Tu joins commande et ligne_cde, puis tu veux le nombre de commandes par client. Quelle expression ?",
     choixCode: true,
-    choix: ["COUNT(*)", "COUNT(DISTINCT co.id)", "COUNT(li.id)", "SUM(1)"],
+    choix: [
+      "COUNT(*)",
+      "COUNT(DISTINCT co.id)",
+      "COUNT(li.id)",
+      "SUM(1)"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Compte les lignes de détail, pas les commandes.",
@@ -1280,7 +1445,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q79", dialecte: "Standard",
     q: "Paniers : 50, 60, 55, 45, 5000 €. Quel indicateur décrit le mieux le panier « typique » ?",
-    choix: ["La moyenne (1042 €)", "La médiane (55 €)", "Le maximum", "La somme"],
+    choix: [
+      "La moyenne (1042 €)",
+      "La médiane (55 €)",
+      "Le maximum",
+      "La somme"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Une seule grosse commande tire la moyenne vers le haut.",
@@ -1293,7 +1463,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q80", dialecte: "Standard",
     q: "Après GROUP BY region, le groupe NULL a 12 lignes. Que valent COUNT(*) et COUNT(region) pour ce groupe ?",
-    choix: ["12 et 12", "12 et 0", "0 et 0", "NULL et 12"],
+    choix: [
+      "12 et 12",
+      "12 et 0",
+      "0 et 0",
+      "NULL et 12"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. COUNT(region) ne compte pas les NULL.",
@@ -1306,7 +1481,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q81", dialecte: "Standard",
     q: "SELECT pays FROM client GROUP BY pays ORDER BY COUNT(*) DESC; est-il valide ?",
-    choix: ["Oui", "Non : COUNT(*) doit être dans le SELECT", "Non : ORDER BY n'accepte pas d'agrégat", "Seulement sur Snowflake"],
+    choix: [
+      "Oui",
+      "Non : COUNT(*) doit être dans le SELECT",
+      "Non : ORDER BY n'accepte pas d'agrégat",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. On trie les pays du plus fréquent au moins fréquent, sans afficher le nombre.",
@@ -1319,7 +1499,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q82", dialecte: "Standard",
     q: "SELECT 'France' AS pays, SUM(montant) FROM commande WHERE pays = 'FR'; est-il valide ?",
-    choix: ["Oui", "Non : 'France' n'est pas groupé", "Non : il faut GROUP BY", "Seulement avec DISTINCT"],
+    choix: [
+      "Oui",
+      "Non : 'France' n'est pas groupé",
+      "Non : il faut GROUP BY",
+      "Seulement avec DISTINCT"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Une constante n'a pas besoin d'être groupée.",
@@ -1332,7 +1517,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q83", dialecte: "Standard",
     q: "SELECT SUM(montant) FROM commande GROUP BY client_id; (client_id absent du SELECT) est-il valide ?",
-    choix: ["Oui, mais on ne sait plus à quel client correspond chaque somme", "Non : erreur", "Oui, et le client est ajouté", "Seulement sur Snowflake"],
+    choix: [
+      "Oui, mais on ne sait plus à quel client correspond chaque somme",
+      "Non : erreur",
+      "Oui, et le client est ajouté",
+      "Seulement sur Snowflake"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Permis, mais peu utile. (Utile dans une sous-requête : par exemple le MAX des CA clients.)",
@@ -1346,7 +1536,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q84", dialecte: "Snowflake",
     q: "Sur Snowflake, tu groupes par client_id et tu veux afficher son nom (identique sur toutes ses lignes). Quelle fonction ?",
     choixCode: true,
-    choix: ["ANY_VALUE(nom)", "FIRST(nom)", "nom (sans fonction)", "DISTINCT nom"],
+    choix: [
+      "ANY_VALUE(nom)",
+      "FIRST(nom)",
+      "nom (sans fonction)",
+      "DISTINCT nom"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. ANY_VALUE prend une valeur quelconque du groupe : parfait quand elles sont toutes égales.",
@@ -1377,7 +1572,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q86", dialecte: "Standard",
     q: "TVA par ligne : 0,333 ; 0,333 ; 0,333. Que valent SUM(ROUND(tva, 2)) et ROUND(SUM(tva), 2) ?",
-    choix: ["1,00 et 1,00", "0,99 et 1,00", "1,00 et 0,99", "0,99 et 0,99"],
+    choix: [
+      "1,00 et 1,00",
+      "0,99 et 1,00",
+      "1,00 et 0,99",
+      "0,99 et 0,99"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. L'arrondi ligne par ligne perd des centimes.",
@@ -1390,7 +1590,12 @@ LEARNSQL.questions.m04 = [
   {
     id: "m04-q87", dialecte: "SQL Server",
     q: "duree est une colonne TIME. Que donne SUM(duree) ?",
-    choix: ["La durée totale", "Erreur : SUM n'accepte pas le type TIME", "NULL", "Le nombre de lignes"],
+    choix: [
+      "La durée totale",
+      "Erreur : SUM n'accepte pas le type TIME",
+      "NULL",
+      "Le nombre de lignes"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
@@ -1480,7 +1685,12 @@ LEARNSQL.questions.m04 = [
     id: "m04-q92", dialecte: "Snowflake",
     q: "Sur Snowflake, comment savoir si TOUTES les lignes d'une commande sont livrées (livre est un BOOLEAN) ?",
     choixCode: true,
-    choix: ["BOOLAND_AGG(livre)", "BOOLOR_AGG(livre)", "SUM(livre)", "MAX(livre)"],
+    choix: [
+      "BOOLAND_AGG(livre)",
+      "BOOLOR_AGG(livre)",
+      "SUM(livre)",
+      "MAX(livre)"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. ET logique sur toutes les lignes : vrai seulement si toutes sont vraies.",

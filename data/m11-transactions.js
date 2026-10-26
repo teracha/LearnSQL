@@ -56,7 +56,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q04", dialecte: "SQL Server",
     q: "Que vaut @@TRANCOUNT après BEGIN TRAN; BEGIN TRAN; ?",
-    choix: ["0", "1", "2", "Erreur"],
+    choix: [
+      "0",
+      "1",
+      "2",
+      "Erreur"
+    ],
     bonne: 2,
     pourquoi: [
       "Non.",
@@ -196,7 +201,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q12", dialecte: "SQL Server",
     q: "Sur SQL Server, un CREATE TABLE fait dans une transaction peut-il être annulé par ROLLBACK ?",
-    choix: ["Non", "Oui : la plupart des ordres de structure (DDL) sont transactionnels sur SQL Server", "Seulement les DROP", "Seulement le week-end"],
+    choix: [
+      "Non",
+      "Oui : la plupart des ordres de structure (DDL) sont transactionnels sur SQL Server",
+      "Seulement les DROP",
+      "Seulement le week-end"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -228,7 +238,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q14", dialecte: "Snowflake",
     q: "Sur Snowflake, comment regrouper plusieurs INSERT / UPDATE dans une transaction ?",
     choixCode: true,
-    choix: ["BEGIN TRAN … COMMIT TRAN", "BEGIN; … COMMIT; (ou BEGIN TRANSACTION / START TRANSACTION)", "TRANSACTION START", "Impossible"],
+    choix: [
+      "BEGIN TRAN … COMMIT TRAN",
+      "BEGIN; … COMMIT; (ou BEGIN TRANSACTION / START TRANSACTION)",
+      "TRANSACTION START",
+      "Impossible"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Syntaxe SQL Server.",
@@ -241,7 +256,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q15", dialecte: "Snowflake",
     q: "Quel niveau d'isolation propose Snowflake ?",
-    choix: ["Tous les niveaux", "READ COMMITTED uniquement", "SERIALIZABLE uniquement", "READ UNCOMMITTED"],
+    choix: [
+      "Tous les niveaux",
+      "READ COMMITTED uniquement",
+      "SERIALIZABLE uniquement",
+      "READ UNCOMMITTED"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -362,7 +382,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q22", dialecte: "SQL Server",
     q: "Où SQL Server stocke-t-il les anciennes versions des lignes avec RCSI / SNAPSHOT ?",
-    choix: ["Dans le journal", "Dans tempdb (version store)", "Dans la table elle-même", "Nulle part"],
+    choix: [
+      "Dans le journal",
+      "Dans tempdb (version store)",
+      "Dans la table elle-même",
+      "Nulle part"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -411,7 +436,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q25", dialecte: "SQL Server",
     q: "Quel niveau d'isolation empêche les lectures sales, non répétables ET les fantômes, avec des verrous ?",
-    choix: ["READ UNCOMMITTED", "READ COMMITTED", "REPEATABLE READ", "SERIALIZABLE"],
+    choix: [
+      "READ UNCOMMITTED",
+      "READ COMMITTED",
+      "REPEATABLE READ",
+      "SERIALIZABLE"
+    ],
     bonne: 3,
     pourquoi: [
       "Non. Il n'empêche rien.",
@@ -424,7 +454,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q26", dialecte: "SQL Server",
     q: "Quel est le niveau d'isolation par défaut de SQL Server (installé chez soi) ?",
-    choix: ["READ UNCOMMITTED", "READ COMMITTED (avec verrous)", "SERIALIZABLE", "SNAPSHOT"],
+    choix: [
+      "READ UNCOMMITTED",
+      "READ COMMITTED (avec verrous)",
+      "SERIALIZABLE",
+      "SNAPSHOT"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -455,7 +490,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q28", dialecte: "SQL Server",
     q: "Deux utilisateurs lisent le stock (10), chacun retire 3 et écrit 7. Le stock final vaut 7 au lieu de 4. Comment s'appelle ce problème ?",
-    choix: ["Lecture sale", "Mise à jour perdue (lost update)", "Fantôme", "Deadlock"],
+    choix: [
+      "Lecture sale",
+      "Mise à jour perdue (lost update)",
+      "Fantôme",
+      "Deadlock"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -613,7 +653,12 @@ LEARNSQL.questions.m11 = [
   {
     id: "m11-q37", dialecte: "Standard",
     q: "Session 1 : met à jour client puis commande. Session 2 : met à jour commande puis client. Quel risque ?",
-    choix: ["Aucun", "Deadlock", "Lecture sale", "Fantôme"],
+    choix: [
+      "Aucun",
+      "Deadlock",
+      "Lecture sale",
+      "Fantôme"
+    ],
     bonne: 1,
     pourquoi: [
       "Non.",
@@ -682,7 +727,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q41", dialecte: "SQL Server",
     q: "Comment trouver la plus vieille transaction ouverte d'une base ?",
     choixCode: true,
-    choix: ["DBCC OPENTRAN", "SELECT @@TRANCOUNT", "sp_help", "SHOW TRANSACTIONS"],
+    choix: [
+      "DBCC OPENTRAN",
+      "SELECT @@TRANCOUNT",
+      "sp_help",
+      "SHOW TRANSACTIONS"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Affiche la session et l'heure de début : souvent la coupable d'un blocage ou d'un journal qui grossit.",
@@ -750,7 +800,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q45", dialecte: "SQL Server",
     q: "Une table sert de file d'attente : plusieurs traitements prennent les tâches « à faire ». Quel indicateur permet de sauter les lignes déjà prises par un autre ?",
     choixCode: true,
-    choix: ["NOLOCK", "READPAST (avec UPDLOCK, ROWLOCK)", "TABLOCK", "HOLDLOCK"],
+    choix: [
+      "NOLOCK",
+      "READPAST (avec UPDLOCK, ROWLOCK)",
+      "TABLOCK",
+      "HOLDLOCK"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. Deux traitements prendraient la même tâche.",
@@ -872,7 +927,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q52", dialecte: "Snowflake",
     q: "Sur Snowflake, une requête attend un verrou depuis des heures. Quel paramètre limite cette attente ?",
     choixCode: true,
-    choix: ["LOCK_TIMEOUT", "STATEMENT_TIMEOUT_IN_SECONDS", "AUTO_SUSPEND", "DATA_RETENTION_TIME_IN_DAYS"],
+    choix: [
+      "LOCK_TIMEOUT",
+      "STATEMENT_TIMEOUT_IN_SECONDS",
+      "AUTO_SUSPEND",
+      "DATA_RETENTION_TIME_IN_DAYS"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Par défaut 12 heures (43 200 s) : souvent trop long pour un traitement.",
@@ -886,7 +946,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q53", dialecte: "Snowflake",
     q: "Sur Snowflake, comment voir les verrous et transactions en cours ?",
     choixCode: true,
-    choix: ["SHOW LOCKS; et SHOW TRANSACTIONS;", "sp_who2", "DBCC OPENTRAN", "SELECT @@TRANCOUNT"],
+    choix: [
+      "SHOW LOCKS; et SHOW TRANSACTIONS;",
+      "sp_who2",
+      "DBCC OPENTRAN",
+      "SELECT @@TRANCOUNT"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Pour retrouver qui bloque une table.",
@@ -900,7 +965,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q54", dialecte: "Snowflake",
     q: "Sur Snowflake, comment annuler une transaction restée ouverte qui bloque une table ?",
     choixCode: true,
-    choix: ["KILL 87", "SELECT SYSTEM$ABORT_TRANSACTION(<id de transaction>)", "ROLLBACK ALL", "DROP TRANSACTION"],
+    choix: [
+      "KILL 87",
+      "SELECT SYSTEM$ABORT_TRANSACTION(<id de transaction>)",
+      "ROLLBACK ALL",
+      "DROP TRANSACTION"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server.",
@@ -1202,7 +1272,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q71", dialecte: "SQL Server",
     q: "Un traitement de nuit et l'ERP se retrouvent parfois en deadlock. Comment faire en sorte que ce soit le traitement qui soit sacrifié ?",
     choixCode: true,
-    choix: ["SET DEADLOCK_PRIORITY LOW; dans le traitement", "SET DEADLOCK_PRIORITY HIGH; dans le traitement", "WITH (NOLOCK)", "Impossible"],
+    choix: [
+      "SET DEADLOCK_PRIORITY LOW; dans le traitement",
+      "SET DEADLOCK_PRIORITY HIGH; dans le traitement",
+      "WITH (NOLOCK)",
+      "Impossible"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Le moteur choisit en priorité la session de priorité basse. Le traitement doit savoir se relancer.",
@@ -1324,7 +1399,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q78", dialecte: "SQL Server",
     q: "Sur SQL Server, quel est l'équivalent du SELECT … FOR UPDATE d'Oracle ou PostgreSQL ?",
     choixCode: true,
-    choix: ["SELECT … FOR UPDATE", "SELECT … FROM t WITH (UPDLOCK, ROWLOCK) WHERE …, dans une transaction", "SELECT … LOCK", "Il n'y en a pas"],
+    choix: [
+      "SELECT … FOR UPDATE",
+      "SELECT … FROM t WITH (UPDLOCK, ROWLOCK) WHERE …, dans une transaction",
+      "SELECT … LOCK",
+      "Il n'y en a pas"
+    ],
     bonne: 1,
     pourquoi: [
       "Non. N'existe pas sur SQL Server.",
@@ -1464,7 +1544,12 @@ LEARNSQL.questions.m11 = [
     id: "m11-q86", dialecte: "SQL Server",
     q: "Reconstruire un index en journée bloque les utilisateurs. Quelle option l'évite (selon l'édition) ?",
     choixCode: true,
-    choix: ["ALTER INDEX … REBUILD WITH (ONLINE = ON)", "WITH (NOLOCK)", "TRUNCATE", "Rien"],
+    choix: [
+      "ALTER INDEX … REBUILD WITH (ONLINE = ON)",
+      "WITH (NOLOCK)",
+      "TRUNCATE",
+      "Rien"
+    ],
     bonne: 0,
     pourquoi: [
       "Oui. Les lectures et écritures continuent pendant la reconstruction (édition Enterprise / Azure).",
