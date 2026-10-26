@@ -453,5 +453,1066 @@ LEARNSQL.questions.m03 = [
       "Non. C'est l'inverse."
     ],
     retenir: "CAST en entier : SQL Server coupe, Snowflake arrondit. Utilise ROUND ou FLOOR pour être explicite."
+  },
+  {
+    id: "m03-q31", dialecte: "Snowflake",
+    q: "Sur Snowflake, que renvoie INITCAP('jean dupont') ?",
+    choix: ["'JEAN DUPONT'", "'Jean Dupont'", "'Jean dupont'", "'jean dupont'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ce serait UPPER.",
+      "Oui. INITCAP met une majuscule au début de chaque mot. SQL Server n'a pas d'équivalent direct.",
+      "Non. Chaque mot reçoit sa majuscule.",
+      "Non."
+    ],
+    retenir: "Snowflake : INITCAP pour « Première Lettre En Majuscule »."
+  },
+  {
+    id: "m03-q32", dialecte: "SQL Server",
+    q: "Comment extraire le département ('69') du code postal '69110' ?",
+    choixCode: true,
+    choix: ["LEFT(cp, 2)", "RIGHT(cp, 2)", "SUBSTRING(cp, 2, 2)", "CHARINDEX('69', cp)"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Les 2 premiers caractères. (Attention à la Corse : '2A', '2B', et aux DOM : 3 chiffres.)",
+      "Non. Ça donne '10'.",
+      "Non. Ça donne '91'.",
+      "Non. Ça donne une position."
+    ],
+    retenir: "LEFT(texte, n) = les n premiers caractères."
+  },
+  {
+    id: "m03-q33", dialecte: "SQL Server",
+    q: "Que renvoie RIGHT('FAC-2026-0042', 4) ?",
+    choix: ["'FAC-'", "'0042'", "'2026'", "'42'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ce serait LEFT.",
+      "Oui. Les 4 derniers caractères.",
+      "Non.",
+      "Non. On prend 4 caractères, zéros compris."
+    ],
+    retenir: "RIGHT(texte, n) = les n derniers caractères."
+  },
+  {
+    id: "m03-q34", dialecte: "SQL Server",
+    q: "Comment récupérer l'extension après le DERNIER point de 'export.edi.txt' ?",
+    choixCode: true,
+    choix: [
+      "SUBSTRING(f, CHARINDEX('.', f) + 1, 10)",
+      "RIGHT(f, CHARINDEX('.', REVERSE(f)) - 1)",
+      "RIGHT(f, 3)",
+      "REPLACE(f, '.', '')"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. CHARINDEX trouve le PREMIER point : on obtient 'edi.txt'.",
+      "Oui. On retourne le texte, on cherche le 1er point (= le dernier de l'original), puis on prend la fin.",
+      "Non. Faux si l'extension n'a pas 3 lettres (.xlsx).",
+      "Non. Ça enlève les points."
+    ],
+    retenir: "Dernière occurrence : astuce REVERSE + CHARINDEX."
+  },
+  {
+    id: "m03-q35", dialecte: "Snowflake",
+    q: "Sur Snowflake, que renvoie SPLIT_PART('CDE;CLIENT;MONTANT', ';', 2) ?",
+    choix: ["'CDE'", "'CLIENT'", "'MONTANT'", "Un tableau"],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est la 1re partie.",
+      "Oui. On découpe sur ; et on prend la 2e partie. Pratique pour les lignes EDI ou CSV.",
+      "Non. C'est la 3e partie.",
+      "Non. SPLIT renvoie un tableau. SPLIT_PART renvoie un texte."
+    ],
+    retenir: "Snowflake : SPLIT_PART(texte, séparateur, n)."
+  },
+  {
+    id: "m03-q36", dialecte: "SQL Server",
+    q: "Sur SQL Server, que renvoie SELECT value FROM STRING_SPLIT('A;B;C', ';') ?",
+    choix: ["Une ligne : 'A;B;C'", "3 lignes : A, B, C", "Une ligne : 'ABC'", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le texte est découpé.",
+      "Oui. STRING_SPLIT est une fonction table : une ligne par morceau. L'ordre n'est garanti qu'avec le 3e paramètre (SQL Server 2022).",
+      "Non.",
+      "Non. Disponible depuis SQL Server 2016."
+    ],
+    retenir: "STRING_SPLIT = un texte → plusieurs lignes."
+  },
+  {
+    id: "m03-q37", dialecte: "SQL Server",
+    q: "Que renvoie REPLICATE('0', 3) ?",
+    choix: ["'0'", "'000'", "0", "'3'"],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. REPLICATE répète un texte n fois. (Snowflake : REPEAT.)",
+      "Non. Le résultat est un texte.",
+      "Non."
+    ],
+    retenir: "REPLICATE (SQL Server) / REPEAT (Snowflake)."
+  },
+  {
+    id: "m03-q38", dialecte: "SQL Server",
+    q: "Que renvoie STUFF('ABCDEF', 2, 3, 'X') ?",
+    choix: ["'AXBCDEF'", "'AXEF'", "'ABCXEF'", "'XDEF'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. STUFF supprime avant d'insérer.",
+      "Oui. À partir de la position 2, on supprime 3 caractères (BCD), puis on insère 'X'.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "STUFF(texte, début, nb_à_supprimer, à_insérer)."
+  },
+  {
+    id: "m03-q39", dialecte: "SQL Server + Snowflake",
+    q: "Que renvoie TRANSLATE('12-05/2026', '-/', '..') ?",
+    choix: ["'12.05.2026'", "'12-05/2026'", "'1205.2026'", "Une erreur"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. TRANSLATE remplace chaque caractère de la 2e liste par celui de même position dans la 3e. Un seul appel au lieu de deux REPLACE.",
+      "Non.",
+      "Non.",
+      "Non. Disponible sur SQL Server 2017+ et Snowflake."
+    ],
+    retenir: "TRANSLATE : remplacer plusieurs caractères en une fois."
+  },
+  {
+    id: "m03-q40", dialecte: "SQL Server + Snowflake",
+    q: "Que renvoie CONCAT_WS(';', 'A', NULL, 'C') ?",
+    choix: [
+      "'A;C' partout",
+      "'A;C' sur SQL Server, NULL sur Snowflake",
+      "NULL partout",
+      "'A;;C' partout"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Snowflake renvoie NULL dès qu'un argument est NULL.",
+      "Oui. SQL Server ignore les NULL. Snowflake : enveloppe chaque valeur dans COALESCE (et gère le séparateur).",
+      "Non. SQL Server ignore les NULL.",
+      "Non. Le NULL n'est pas remplacé par du vide."
+    ],
+    retenir: "CONCAT_WS + NULL : ignoré par SQL Server, fatal sur Snowflake."
+  },
+  {
+    id: "m03-q41", dialecte: "SQL Server",
+    q: "Un export CSV est cassé : des libellés contiennent des retours à la ligne. Comment les enlever ?",
+    choixCode: true,
+    choix: [
+      "TRIM(libelle)",
+      "REPLACE(REPLACE(libelle, CHAR(13), ' '), CHAR(10), ' ')",
+      "UPPER(libelle)",
+      "LEFT(libelle, 100)"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. TRIM n'enlève que des espaces aux extrémités.",
+      "Oui. CHAR(13) = retour chariot, CHAR(10) = saut de ligne. On les remplace par un espace.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Caractères invisibles : CHAR(13), CHAR(10), CHAR(9) (tabulation)."
+  },
+  {
+    id: "m03-q42", dialecte: "SQL Server + Snowflake",
+    q: "Que renvoie ASCII('A') ?",
+    choix: ["1", "65", "'A'", "97"],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Le code du caractère. Utile pour repérer un caractère invisible dans une donnée.",
+      "Non. ASCII renvoie un nombre.",
+      "Non. 97, c'est 'a' minuscule."
+    ],
+    retenir: "ASCII(c) = code du caractère. CHAR(n) = l'inverse."
+  },
+  {
+    id: "m03-q43", dialecte: "SQL Server",
+    q: "Que renvoie DATALENGTH(N'abc') ?",
+    choix: ["3", "6", "4", "NULL"],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est LEN, le nombre de caractères.",
+      "Oui. NVARCHAR utilise 2 octets par caractère : 3 × 2 = 6.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "NVARCHAR = 2 octets par caractère (en général)."
+  },
+  {
+    id: "m03-q44", dialecte: "Standard",
+    q: "Que renvoie LEN(NULL) ?",
+    choix: ["0", "NULL", "4", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Une valeur inconnue n'a pas une longueur de 0.",
+      "Oui. Presque toutes les fonctions renvoient NULL quand on leur donne NULL.",
+      "Non. Ce n'est pas le mot « NULL ».",
+      "Non."
+    ],
+    retenir: "Fonction(NULL) = NULL, sauf exceptions (COALESCE, CONCAT sur SQL Server…)."
+  },
+  {
+    id: "m03-q45", dialecte: "SQL Server + Snowflake",
+    q: "Que renvoie la longueur de 'abc  ' (2 espaces à la fin) ?",
+    choix: [
+      "3 partout",
+      "LEN = 3 sur SQL Server ; LENGTH = 5 sur Snowflake",
+      "5 partout",
+      "LEN = 5 sur SQL Server ; LENGTH = 3 sur Snowflake"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Snowflake compte les espaces.",
+      "Oui. SQL Server ignore les espaces de fin dans LEN. Snowflake les compte.",
+      "Non. SQL Server ne les compte pas avec LEN.",
+      "Non. C'est l'inverse."
+    ],
+    retenir: "Espaces de fin : LEN les ignore (SQL Server), LENGTH les compte (Snowflake)."
+  },
+  {
+    id: "m03-q46", dialecte: "SQL Server",
+    q: "Collation CI (insensible à la casse). Que renvoie REPLACE('Aa', 'a', 'x') ?",
+    choix: ["'Ax'", "'xx'", "'Aa'", "'xa'"],
+    bonne: 1,
+    pourquoi: [
+      "Non sur SQL Server en CI. (Oui sur Snowflake, sensible à la casse.)",
+      "Oui. REPLACE suit la collation : en CI, 'A' et 'a' sont « égaux », les deux sont remplacés.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "REPLACE suit la collation sur SQL Server."
+  },
+  {
+    id: "m03-q47", dialecte: "Snowflake",
+    q: "Sur Snowflake, comment garder seulement les chiffres d'un numéro de téléphone ('04 78-12.34.56') ?",
+    choixCode: true,
+    choix: [
+      "REPLACE(tel, ' ', '')",
+      "REGEXP_REPLACE(tel, '[^0-9]', '')",
+      "TRIM(tel)",
+      "TRANSLATE(tel, '0123456789', '')"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les tirets et points restent.",
+      "Oui. On remplace tout ce qui n'est pas un chiffre par rien.",
+      "Non. TRIM n'agit qu'aux extrémités.",
+      "Non. Ça supprimerait plutôt les chiffres."
+    ],
+    retenir: "Nettoyage puissant : REGEXP_REPLACE (Snowflake)."
+  },
+  {
+    id: "m03-q48", dialecte: "SQL Server",
+    q: "Que penser de FORMAT(montant, 'N2', 'fr-FR') dans une requête de 5 millions de lignes ?",
+    choix: [
+      "Parfait, c'est rapide",
+      "Le résultat est joli ('1 234,50') mais FORMAT est lent, et renvoie du texte. Formate plutôt dans l'outil de restitution",
+      "Erreur : 'fr-FR' n'existe pas",
+      "Il arrondit à l'entier"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. FORMAT passe par .NET : très lent sur de gros volumes.",
+      "Oui. Et un texte ne se trie plus comme un nombre. Laisse Power BI ou Excel formater.",
+      "Non. La culture 'fr-FR' existe.",
+      "Non. N2 = 2 décimales."
+    ],
+    retenir: "FORMAT : pour l'affichage final seulement, et pas sur des millions de lignes."
+  },
+  {
+    id: "m03-q49", dialecte: "SQL Server",
+    q: "Quelle fonction renvoie la date et l'heure en UTC (temps universel) ?",
+    choixCode: true,
+    choix: ["GETDATE()", "SYSUTCDATETIME()", "SYSDATETIME()", "CURRENT_TIMESTAMP"],
+    bonne: 1,
+    pourquoi: [
+      "Non. GETDATE donne l'heure locale du serveur.",
+      "Oui. SYSUTCDATETIME (précis) ou GETUTCDATE. Idéal pour horodater des flux entre pays.",
+      "Non. Heure locale, en plus précis.",
+      "Non. Équivalent de GETDATE : heure locale."
+    ],
+    retenir: "Horodatage de flux : UTC (SYSUTCDATETIME)."
+  },
+  {
+    id: "m03-q50", dialecte: "SQL Server",
+    q: "Une date est stockée en UTC. Comment l'afficher à l'heure de Paris (heure d'été comprise) ?",
+    choixCode: true,
+    choix: [
+      "DATEADD(hour, 1, d)",
+      "d AT TIME ZONE 'UTC' AT TIME ZONE 'Romance Standard Time'",
+      "CONVERT(datetime, d, 103)",
+      "d + '01:00'"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Faux pendant l'heure d'été (+2 h).",
+      "Oui. On dit d'abord que d est en UTC, puis on convertit vers le fuseau de Paris (nom Windows). L'heure d'été est gérée.",
+      "Non. 103 est un format d'affichage.",
+      "Non."
+    ],
+    retenir: "Fuseaux horaires : AT TIME ZONE (SQL Server 2016+)."
+  },
+  {
+    id: "m03-q51", dialecte: "Snowflake",
+    q: "Sur Snowflake, comment convertir un horodatage UTC (sans fuseau) en heure de Paris ?",
+    choixCode: true,
+    choix: [
+      "CONVERT_TIMEZONE('UTC', 'Europe/Paris', ts)",
+      "ts AT TIME ZONE 'Paris'",
+      "DATEADD(hour, 1, ts)",
+      "TO_TIMESTAMP(ts, 'Paris')"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Fuseau source, fuseau cible, valeur. L'heure d'été est gérée.",
+      "Non. Ce n'est pas la syntaxe Snowflake.",
+      "Non. Faux en été.",
+      "Non."
+    ],
+    retenir: "Snowflake : CONVERT_TIMEZONE(source, cible, ts)."
+  },
+  {
+    id: "m03-q52", dialecte: "Snowflake",
+    q: "Sur Snowflake, que veut dire TIMESTAMP_NTZ ?",
+    choix: [
+      "Horodatage sans fuseau horaire (« No Time Zone »)",
+      "Horodatage en UTC obligatoire",
+      "Horodatage avec le fuseau de la session",
+      "Horodatage en nanosecondes"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. La valeur est stockée telle quelle, sans fuseau. LTZ = fuseau de la session, TZ = fuseau stocké avec la valeur.",
+      "Non. Rien n'oblige à l'UTC : c'est une convention à respecter soi-même.",
+      "Non. C'est TIMESTAMP_LTZ.",
+      "Non."
+    ],
+    retenir: "Snowflake : NTZ (sans fuseau), LTZ (session), TZ (fuseau stocké)."
+  },
+  {
+    id: "m03-q53", dialecte: "SQL Server",
+    q: "Que renvoie DATEPART(quarter, '20260815') ?",
+    choix: ["2", "3", "8", "15"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le 2e trimestre va d'avril à juin.",
+      "Oui. Août est dans le 3e trimestre (juillet à septembre).",
+      "Non. 8, c'est le mois.",
+      "Non. 15, c'est le jour."
+    ],
+    retenir: "DATEPART(quarter, d) = trimestre (1 à 4)."
+  },
+  {
+    id: "m03-q54", dialecte: "SQL Server",
+    q: "En France, on compte les semaines selon la norme ISO. Quelle fonction utiliser sur SQL Server ?",
+    choixCode: true,
+    choix: ["DATEPART(week, d)", "DATEPART(iso_week, d)", "WEEK(d)", "DATENAME(week, d)"],
+    bonne: 1,
+    pourquoi: [
+      "Non. week suit la règle américaine (semaine du 1er janvier = semaine 1). Résultat différent en début et fin d'année.",
+      "Oui. iso_week : semaines du lundi au dimanche, semaine 1 = celle du 1er jeudi de l'année.",
+      "Non. WEEK n'existe pas sur SQL Server.",
+      "Non. Même règle que week."
+    ],
+    retenir: "Semaine française = ISO : DATEPART(iso_week, d)."
+  },
+  {
+    id: "m03-q55", dialecte: "Snowflake",
+    q: "Sur Snowflake, quelle fonction donne le numéro de semaine ISO ?",
+    choixCode: true,
+    choix: ["WEEKISO(d)", "ISO_WEEK(d)", "DATEPART(iso, d)", "WEEKNUM(d)"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. WEEKISO suit la norme ISO, comme en France. (WEEK dépend d'un paramètre de session.)",
+      "Non. Cette fonction n'existe pas.",
+      "Non.",
+      "Non. C'est Excel."
+    ],
+    retenir: "Snowflake : WEEKISO(d)."
+  },
+  {
+    id: "m03-q56", dialecte: "SQL Server",
+    q: "Que renvoie DATEFROMPARTS(2026, 2, 30) ?",
+    choix: ["2026-03-02", "2026-02-28", "Une erreur", "NULL"],
+    bonne: 2,
+    pourquoi: [
+      "Non. SQL Server ne « déborde » pas sur le mois suivant.",
+      "Non. Pas de correction automatique.",
+      "Oui. Le 30 février n'existe pas : erreur.",
+      "Non. Ce serait le cas d'une fonction TRY_."
+    ],
+    retenir: "DATEFROMPARTS refuse les dates impossibles."
+  },
+  {
+    id: "m03-q57", dialecte: "SQL Server",
+    q: "Que renvoie DATEADD(month, 1, '20260131') ?",
+    choix: ["2026-03-03", "2026-02-28", "2026-02-31", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Pas de débordement.",
+      "Oui. Le 31 février n'existe pas : SQL Server prend le dernier jour de février.",
+      "Non. Date impossible.",
+      "Non."
+    ],
+    retenir: "DATEADD(month) ajuste au dernier jour du mois si besoin. Attention aux échéances."
+  },
+  {
+    id: "m03-q58", dialecte: "SQL Server",
+    q: "Que renvoie DATEDIFF(month, '20260131', '20260201') ?",
+    choix: ["0", "1", "0.03", "-1"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Un seul jour d'écart, mais…",
+      "Oui. On passe de janvier à février : une frontière de mois franchie.",
+      "Non. DATEDIFF renvoie un entier.",
+      "Non."
+    ],
+    retenir: "DATEDIFF compte les frontières, pas les durées."
+  },
+  {
+    id: "m03-q59", dialecte: "SQL Server",
+    q: "Quelle expression donne l'âge exact (en années révolues) au jour @d ?",
+    choixCode: true,
+    choix: [
+      "DATEDIFF(year, naissance, @d)",
+      "DATEDIFF(year, naissance, @d) - CASE WHEN DATEADD(year, DATEDIFF(year, naissance, @d), naissance) > @d THEN 1 ELSE 0 END",
+      "DATEDIFF(day, naissance, @d) / 365",
+      "YEAR(@d) - YEAR(naissance)"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Faux si l'anniversaire n'est pas encore passé cette année.",
+      "Oui. On retire 1 si l'anniversaire de l'année n'est pas encore arrivé.",
+      "Non. Faux à cause des années bissextiles.",
+      "Non. Même erreur que DATEDIFF(year)."
+    ],
+    retenir: "Âge / ancienneté : corrige DATEDIFF(year) si la date anniversaire n'est pas passée."
+  },
+  {
+    id: "m03-q60", dialecte: "SQL Server",
+    q: "DATEDIFF(millisecond, d1, d2) renvoie une erreur de dépassement sur un écart d'un mois. Pourquoi ?",
+    choix: [
+      "Les millisecondes n'existent pas",
+      "DATEDIFF renvoie un INT, trop petit. Utilise DATEDIFF_BIG",
+      "Il faut DATEADD",
+      "Les dates sont NULL"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Un INT dépasse après environ 24 jours en millisecondes. DATEDIFF_BIG renvoie un BIGINT.",
+      "Non.",
+      "Non. Avec NULL, le résultat serait NULL, pas une erreur."
+    ],
+    retenir: "Grands écarts en petites unités : DATEDIFF_BIG."
+  },
+  {
+    id: "m03-q61", dialecte: "Snowflake",
+    q: "Un fichier EDI donne la date '20261026'. Comment la convertir en DATE sur Snowflake ?",
+    choixCode: true,
+    choix: [
+      "TO_DATE('20261026', 'YYYYMMDD')",
+      "CONVERT(date, '20261026', 112)",
+      "DATE('20261026')",
+      "CAST('20261026' AS DATE FORMAT)"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. On donne le format exact.",
+      "Non. Syntaxe SQL Server.",
+      "Non. Le format n'est pas précisé : risque d'erreur.",
+      "Non. Syntaxe invalide."
+    ],
+    retenir: "Snowflake : TO_DATE(texte, 'format')."
+  },
+  {
+    id: "m03-q62", dialecte: "SQL Server",
+    q: "Sur SQL Server, CAST('20261026' AS date) fonctionne-t-il ?",
+    choix: ["Oui, toujours", "Non, il faut CONVERT", "Seulement en anglais", "Non, il faut des tirets"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Le format AAAAMMJJ est compris quelle que soit la langue.",
+      "Non. CAST suffit pour ce format.",
+      "Non. Ce format ne dépend pas de la langue.",
+      "Non."
+    ],
+    retenir: "'AAAAMMJJ' : le format de date sûr sur SQL Server."
+  },
+  {
+    id: "m03-q63", dialecte: "SQL Server",
+    q: "Un champ EDI contient l'heure '1430' (HHMM). Comment obtenir un TIME sur SQL Server ?",
+    choixCode: true,
+    choix: [
+      "CAST('1430' AS time)",
+      "CAST(STUFF('1430', 3, 0, ':') AS time)",
+      "CONVERT(time, '1430', 112)",
+      "TIME('1430')"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. '1430' n'est pas un format d'heure reconnu.",
+      "Oui. STUFF insère ':' en position 3 : '14:30', puis conversion.",
+      "Non. 112 est un style de date.",
+      "Non. TIME n'est pas une fonction."
+    ],
+    retenir: "STUFF pour insérer un séparateur avant une conversion."
+  },
+  {
+    id: "m03-q64", dialecte: "SQL Server",
+    q: "Tu dois envoyer une date au format AAAAMMJJ dans un fichier EDI. Quelle expression ?",
+    choixCode: true,
+    choix: [
+      "CONVERT(varchar(8), d, 112)",
+      "CONVERT(varchar(10), d, 103)",
+      "CAST(d AS varchar)",
+      "FORMAT(d, 'dd/MM/yyyy')"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Style 112 = AAAAMMJJ (format ISO court).",
+      "Non. 103 = jj/mm/aaaa.",
+      "Non. Le format dépend des réglages.",
+      "Non. Format français, et lent."
+    ],
+    retenir: "CONVERT styles utiles : 112 (AAAAMMJJ), 103 (jj/mm/aaaa), 120 (AAAA-MM-JJ hh:mi:ss)."
+  },
+  {
+    id: "m03-q65", dialecte: "SQL Server",
+    q: "Que donne CONVERT(varchar(19), d, 120) pour le 26/10/2026 à 14:05:09 ?",
+    choix: ["'26/10/2026 14:05:09'", "'2026-10-26 14:05:09'", "'20261026'", "'Oct 26 2026 2:05PM'"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ce serait un style français.",
+      "Oui. Style 120 = format ODBC, AAAA-MM-JJ hh:mi:ss, en 24 h.",
+      "Non. C'est le style 112.",
+      "Non. C'est le style par défaut (100)."
+    ],
+    retenir: "Style 120 : horodatage lisible et triable."
+  },
+  {
+    id: "m03-q66", dialecte: "SQL Server",
+    q: "Que renvoie TRY_CONVERT(date, '31/02/2026', 103) ?",
+    choix: ["2026-02-28", "2026-03-03", "NULL", "Une erreur"],
+    bonne: 2,
+    pourquoi: [
+      "Non. Pas de correction automatique.",
+      "Non.",
+      "Oui. Le 31 février n'existe pas : TRY_CONVERT renvoie NULL au lieu de planter.",
+      "Non. Ce serait CONVERT."
+    ],
+    retenir: "TRY_CONVERT / TRY_CAST : NULL au lieu d'une erreur."
+  },
+  {
+    id: "m03-q67", dialecte: "SQL Server",
+    q: "Que renvoie TRY_PARSE('1234,50' AS decimal(10,2) USING 'fr-FR') ?",
+    choix: ["123450", "1234.50", "NULL", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. La virgule est comprise comme séparateur décimal en français.",
+      "Oui. PARSE comprend les formats d'une culture. Mais il est lent (passe par .NET).",
+      "Non. La conversion réussit.",
+      "Non."
+    ],
+    retenir: "TRY_PARSE … USING 'fr-FR' : pratique, mais lent sur de gros volumes."
+  },
+  {
+    id: "m03-q68", dialecte: "SQL Server",
+    q: "Que renvoie CONCAT('Cde ', 42) ?",
+    choix: ["'Cde 42'", "Une erreur", "42", "NULL"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. CONCAT convertit tout en texte. Pas besoin de CAST.",
+      "Non. C'est + qui pose problème.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "CONCAT convertit automatiquement en texte."
+  },
+  {
+    id: "m03-q69", dialecte: "SQL Server",
+    q: "Que renvoie SELECT 'Cde ' + 42; sur SQL Server ?",
+    choix: ["'Cde 42'", "Erreur : impossible de convertir 'Cde ' en entier", "42", "NULL"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Avec +, l'entier est prioritaire.",
+      "Oui. SQL Server essaie de transformer 'Cde ' en nombre. Utilise CONCAT, ou CAST(42 AS varchar(10)).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Texte + nombre avec + : risque d'erreur. CONCAT est plus sûr."
+  },
+  {
+    id: "m03-q70", dialecte: "SQL Server",
+    q: "Que renvoie CAST(1234.5678 AS decimal(6,2)) ?",
+    choix: ["1234.56", "1234.57", "1234.5678", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. SQL Server arrondit, il ne tronque pas, vers un DECIMAL.",
+      "Oui. Arrondi à 2 décimales.",
+      "Non. Seulement 2 décimales.",
+      "Non. 6 chiffres dont 2 décimales : 1234.57 tient."
+    ],
+    retenir: "CAST vers DECIMAL : arrondi. CAST vers INT : troncature (SQL Server)."
+  },
+  {
+    id: "m03-q71", dialecte: "SQL Server",
+    q: "Que renvoie CAST(123456.78 AS decimal(5,2)) ?",
+    choix: ["123.45", "999.99", "Une erreur de dépassement", "NULL"],
+    bonne: 2,
+    pourquoi: [
+      "Non. Pas de coupure silencieuse.",
+      "Non. Pas de valeur maximale de remplacement.",
+      "Oui. DECIMAL(5,2) va jusqu'à 999.99. 123456.78 ne tient pas.",
+      "Non. TRY_CAST renverrait NULL, mais pas CAST."
+    ],
+    retenir: "Trop de chiffres avant la virgule = erreur de dépassement."
+  },
+  {
+    id: "m03-q72", dialecte: "SQL Server",
+    q: "Que renvoie ROUND(1234.567, -2) ?",
+    choix: ["1234.57", "1200.000", "1234.000", "1300.000"],
+    bonne: 1,
+    pourquoi: [
+      "Non. -2 n'est pas 2 décimales.",
+      "Oui. Une longueur négative arrondit avant la virgule : aux centaines.",
+      "Non.",
+      "Non. 34 arrondi aux centaines donne 00."
+    ],
+    retenir: "ROUND(x, -2) = arrondi à la centaine."
+  },
+  {
+    id: "m03-q73", dialecte: "SQL Server",
+    q: "Que renvoie ROUND(12.345, 2, 1) sur SQL Server ?",
+    choix: ["12.35", "12.34", "12", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est l'arrondi normal.",
+      "Oui. Le 3e paramètre à 1 demande une troncature : on coupe sans arrondir.",
+      "Non.",
+      "Non. Le 3e paramètre existe sur SQL Server."
+    ],
+    retenir: "ROUND(x, n, 1) = tronquer (SQL Server). Snowflake : TRUNC(x, n)."
+  },
+  {
+    id: "m03-q74", dialecte: "Snowflake",
+    q: "Sur Snowflake, que renvoie TRUNC(12.345, 2) ?",
+    choix: ["12.35", "12.34", "12", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. TRUNC ne fait pas d'arrondi.",
+      "Oui. On coupe après 2 décimales.",
+      "Non. On garde 2 décimales.",
+      "Non."
+    ],
+    retenir: "Snowflake : TRUNC(nombre, n) coupe sans arrondir."
+  },
+  {
+    id: "m03-q75", dialecte: "Standard",
+    q: "Que renvoie FLOOR(-2.5) ?",
+    choix: ["-2", "-3", "2", "-2.5"],
+    bonne: 1,
+    pourquoi: [
+      "Non. -2 est plus grand que -2.5.",
+      "Oui. FLOOR donne l'entier juste en dessous. Pour un nombre négatif, c'est -3.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "FLOOR = vers le bas, CEILING = vers le haut. Attention aux négatifs (avoirs)."
+  },
+  {
+    id: "m03-q76", dialecte: "SQL Server",
+    q: "Pourquoi éviter le type MONEY de SQL Server pour les calculs ?",
+    choix: [
+      "Il est trop gros",
+      "Il n'a que 4 décimales : divisions et calculs en chaîne peuvent donner des arrondis faux",
+      "Il n'accepte pas l'euro",
+      "Il est réservé aux banques"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Les résultats intermédiaires sont arrondis à 4 décimales. DECIMAL avec une précision choisie est plus sûr.",
+      "Non. Le type ne connaît pas les devises.",
+      "Non."
+    ],
+    retenir: "Montants : DECIMAL plutôt que MONEY."
+  },
+  {
+    id: "m03-q77", dialecte: "SQL Server",
+    q: "Que donne SELECT 2147483647 + 1; ?",
+    choix: ["2147483648", "Une erreur de dépassement (INT)", "0", "-2147483648"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le résultat ne tient pas dans un INT.",
+      "Oui. 2 147 483 647 est le plus grand INT. Pour plus grand : BIGINT.",
+      "Non.",
+      "Non. SQL Server ne « boucle » pas : il signale l'erreur."
+    ],
+    retenir: "INT max ≈ 2,1 milliards. Au-delà : BIGINT."
+  },
+  {
+    id: "m03-q78", dialecte: "SQL Server",
+    q: "Que se passe-t-il quand stock vaut NULL ?",
+    code: "SELECT CASE WHEN stock IS NULL THEN 'N/A' ELSE stock END\nFROM article;   -- stock est un INT",
+    choix: [
+      "Ça affiche 'N/A'",
+      "Erreur : impossible de convertir 'N/A' en INT",
+      "Ça affiche NULL",
+      "Ça affiche 0"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Un CASE n'a qu'un seul type de résultat.",
+      "Oui. Le type le plus fort (INT) l'emporte. Écris ELSE CAST(stock AS varchar(10)).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Toutes les branches d'un CASE doivent être du même type."
+  },
+  {
+    id: "m03-q79", dialecte: "SQL Server",
+    q: "Que donne COALESCE(qte, 'inconnu') quand qte (INT) vaut NULL ?",
+    choix: ["'inconnu'", "Erreur de conversion", "NULL", "0"],
+    bonne: 1,
+    pourquoi: [
+      "Non. COALESCE renvoie le type le plus fort de ses arguments : INT.",
+      "Oui. 'inconnu' doit devenir un INT : impossible. Convertis qte en texte d'abord.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "COALESCE : arguments de types compatibles."
+  },
+  {
+    id: "m03-q80", dialecte: "Snowflake",
+    q: "Sur Snowflake, que renvoie NVL2(date_livraison, 'Livrée', 'En attente') ?",
+    choix: [
+      "'Livrée' si date_livraison est remplie, sinon 'En attente'",
+      "date_livraison si elle est remplie",
+      "'En attente' si date_livraison est remplie",
+      "Une erreur"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. NVL2(x, si_non_null, si_null). Raccourci d'un CASE WHEN x IS NOT NULL.",
+      "Non. Ce serait NVL / COALESCE.",
+      "Non. C'est l'inverse.",
+      "Non. NVL2 existe sur Snowflake."
+    ],
+    retenir: "Snowflake : NVL2(x, valeur_si_rempli, valeur_si_null)."
+  },
+  {
+    id: "m03-q81", dialecte: "Snowflake",
+    q: "Sur Snowflake, quelle fonction remplace NULL par 0 ?",
+    choixCode: true,
+    choix: ["ZEROIFNULL(x)", "NULLIFZERO(x)", "ISZERO(x)", "NULLTOZERO(x)"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Équivalent de COALESCE(x, 0).",
+      "Non. NULLIFZERO fait l'inverse : 0 devient NULL (pratique contre la division par zéro).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Snowflake : ZEROIFNULL et NULLIFZERO."
+  },
+  {
+    id: "m03-q82", dialecte: "SQL Server + Snowflake",
+    q: "Que renvoie GREATEST(10, NULL, 30) ?",
+    choix: [
+      "30 partout",
+      "30 sur SQL Server 2022, NULL sur Snowflake",
+      "NULL partout",
+      "Une erreur partout"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Snowflake renvoie NULL dès qu'un argument est NULL.",
+      "Oui. SQL Server 2022 ignore les NULL. Snowflake non : protège avec COALESCE.",
+      "Non. SQL Server ignore les NULL.",
+      "Non. GREATEST existe sur les deux (SQL Server depuis 2022)."
+    ],
+    retenir: "GREATEST / LEAST + NULL : ignoré (SQL Server), contagieux (Snowflake)."
+  },
+  {
+    id: "m03-q83", dialecte: "SQL Server",
+    q: "Que renvoie CHOOSE(2, 'Bronze', 'Argent', 'Or') ?",
+    choix: ["'Bronze'", "'Argent'", "'Or'", "2"],
+    bonne: 1,
+    pourquoi: [
+      "Non. L'index commence à 1.",
+      "Oui. CHOOSE prend la valeur à la position donnée.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "CHOOSE(n, a, b, c) : la n-ième valeur (à partir de 1)."
+  },
+  {
+    id: "m03-q84", dialecte: "SQL Server + Snowflake",
+    q: "Tu veux détecter si une ligne a changé entre deux chargements, sans comparer 30 colonnes une par une. Quelle technique ?",
+    choix: [
+      "Comparer les longueurs",
+      "Calculer une empreinte (hash) des colonnes : HASHBYTES('SHA2_256', …) sur SQL Server, SHA2() ou HASH() sur Snowflake",
+      "Comparer les id",
+      "Comparer les dates de création"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Deux valeurs différentes peuvent avoir la même longueur.",
+      "Oui. Même empreinte = mêmes données (en pratique). Pense à gérer les NULL et les séparateurs dans la concaténation.",
+      "Non. L'id ne change pas quand les données changent.",
+      "Non."
+    ],
+    retenir: "Détection de changement : comparer des empreintes (hash)."
+  },
+  {
+    id: "m03-q85", dialecte: "SQL Server + Snowflake",
+    q: "Comment générer un identifiant unique (GUID) ?",
+    choix: [
+      "NEWID() sur SQL Server, UUID_STRING() sur Snowflake",
+      "RAND() partout",
+      "ROW_NUMBER() partout",
+      "GETDATE() partout"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Une nouvelle valeur unique à chaque appel, sur chaque ligne.",
+      "Non. RAND n'est pas unique.",
+      "Non. ROW_NUMBER n'est unique que dans la requête.",
+      "Non. Plusieurs lignes ont la même date."
+    ],
+    retenir: "GUID : NEWID() (SQL Server), UUID_STRING() (Snowflake)."
+  },
+  {
+    id: "m03-q86", dialecte: "Standard",
+    q: "Un SIRET '00123456700018' est converti en entier. Que se passe-t-il ?",
+    choix: [
+      "Rien de grave",
+      "Les zéros du début disparaissent : 123456700018",
+      "Erreur",
+      "Il devient NULL"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le code est abîmé.",
+      "Oui. Un nombre n'a pas de zéros devant. Les identifiants (SIRET, code postal, EAN) se stockent en texte.",
+      "Non. La conversion marche… et c'est le problème.",
+      "Non."
+    ],
+    retenir: "Un code n'est pas un nombre : stocke-le en texte."
+  },
+  {
+    id: "m03-q87", dialecte: "Snowflake",
+    q: "Sur Snowflake, comment écrire une date au format AAAAMMJJ ?",
+    choixCode: true,
+    choix: [
+      "TO_VARCHAR(d, 'YYYYMMDD')",
+      "CONVERT(varchar, d, 112)",
+      "FORMAT(d, 'yyyyMMdd')",
+      "CAST(d AS 'YYYYMMDD')"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. TO_VARCHAR (ou TO_CHAR) avec un format.",
+      "Non. Syntaxe SQL Server.",
+      "Non. FORMAT n'existe pas sur Snowflake.",
+      "Non."
+    ],
+    retenir: "Snowflake : TO_VARCHAR / TO_CHAR(date, 'format')."
+  },
+  {
+    id: "m03-q88", dialecte: "Snowflake",
+    q: "Sur Snowflake, quel format affiche l'heure et les minutes (ex. 14:05) ?",
+    choixCode: true,
+    choix: ["'HH24:MI'", "'HH:MM'", "'hh:mm'", "'H:M'"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. HH24 = heures sur 24 h, MI = minutes.",
+      "Non. MM = le MOIS. Tu obtiendrais 14:10 en octobre.",
+      "Non. Même problème : mm = mois.",
+      "Non."
+    ],
+    retenir: "Snowflake : MI = minutes, MM = mois."
+  },
+  {
+    id: "m03-q89", dialecte: "SQL Server",
+    q: "Sur SQL Server, FORMAT(d, 'dd/mm/yyyy') affiche '26/05/2026' pour le 26 octobre à 14:05. Pourquoi ?",
+    choix: [
+      "Bug de SQL Server",
+      "En format .NET, mm = minutes. Le mois s'écrit MM",
+      "La date est fausse",
+      "Il faut 'fr-FR'"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. 'dd/MM/yyyy' : MM majuscules pour le mois. Piège inverse de Snowflake !",
+      "Non. 05 = les minutes.",
+      "Non. La culture ne change pas ce code."
+    ],
+    retenir: "FORMAT (SQL Server) : MM = mois, mm = minutes."
+  },
+  {
+    id: "m03-q90", dialecte: "SQL Server",
+    q: "Que renvoie EOMONTH('20261026', -1) ?",
+    choix: ["2026-10-31", "2026-09-30", "2026-10-25", "2026-11-30"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ce serait EOMONTH sans 2e paramètre.",
+      "Oui. Le 2e paramètre décale le mois : -1 = fin du mois précédent.",
+      "Non.",
+      "Non. Ce serait +1."
+    ],
+    retenir: "EOMONTH(d, n) : fin du mois décalé de n mois."
+  },
+  {
+    id: "m03-q91", dialecte: "SQL Server",
+    q: "Que donne DATEADD(day, 1, EOMONTH(d, -1)) ?",
+    choix: ["Le dernier jour du mois", "Le 1er jour du mois de d", "Le lendemain de d", "Le 1er jour du mois suivant"],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Fin du mois précédent + 1 jour = 1er du mois. Astuce classique avant SQL Server 2022.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "1er du mois = lendemain de la fin du mois précédent."
+  },
+  {
+    id: "m03-q92", dialecte: "SQL Server",
+    q: "Sur SQL Server 2022, quelle fonction ramène une date au 1er jour de son mois ?",
+    choixCode: true,
+    choix: ["DATETRUNC(month, d)", "DATE_TRUNC('month', d)", "TRUNC(d, 'MM')", "MONTHSTART(d)"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Nouvelle fonction de SQL Server 2022 (sans _).",
+      "Non. C'est la syntaxe Snowflake (avec _).",
+      "Non. Syntaxe Oracle.",
+      "Non."
+    ],
+    retenir: "DATETRUNC (SQL Server 2022) / DATE_TRUNC (Snowflake)."
+  },
+  {
+    id: "m03-q93", dialecte: "Standard",
+    q: "Comment compter les jours ouvrés (sans week-ends ni jours fériés) entre deux dates ?",
+    choix: [
+      "DATEDIFF(weekday, d1, d2)",
+      "Avec une table calendrier qui indique les jours ouvrés, et un COUNT",
+      "DATEDIFF(day, d1, d2) * 5 / 7",
+      "Impossible en SQL"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. weekday ne compte pas les jours ouvrés.",
+      "Oui. La table calendrier (une ligne par jour, avec est_ouvre) gère aussi les fériés et les ponts.",
+      "Non. Approximation fausse.",
+      "Non."
+    ],
+    retenir: "Jours ouvrés : table calendrier."
+  },
+  {
+    id: "m03-q94", dialecte: "Snowflake",
+    q: "Sur Snowflake, que renvoie ADD_MONTHS('2026-02-28'::DATE, 1) ?",
+    choix: ["2026-03-28", "2026-03-31", "2026-03-01", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ce serait DATEADD(month, 1, …).",
+      "Oui. ADD_MONTHS garde la « fin de mois » : le 28 février est le dernier jour, le résultat est le dernier jour de mars.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Snowflake : ADD_MONTHS conserve la fin de mois, DATEADD non."
+  },
+  {
+    id: "m03-q95", dialecte: "Standard",
+    q: "Un fichier donne '1.234,50' (format français avec séparateur de milliers). Comment obtenir '1234.50' avant conversion ?",
+    choixCode: true,
+    choix: [
+      "REPLACE(x, ',', '.')",
+      "REPLACE(REPLACE(x, '.', ''), ',', '.')",
+      "REPLACE(x, '.', ',')",
+      "TRIM(x)"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ça donne '1.234.50' : invalide.",
+      "Oui. D'abord on enlève les points des milliers, ensuite la virgule devient un point. L'ordre compte !",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Format français : enlever les milliers, puis virgule → point."
+  },
+  {
+    id: "m03-q96", dialecte: "Snowflake",
+    q: "Sur Snowflake, comment enlever les zéros au début de '000123' ?",
+    choixCode: true,
+    choix: ["LTRIM('000123', '0')", "TRIM('000123')", "REPLACE('000123', '0', '')", "LEFT('000123', 3)"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. LTRIM accepte les caractères à retirer. (SQL Server 2022 aussi.)",
+      "Non. TRIM enlève les espaces par défaut.",
+      "Non. Ça enlèverait aussi les zéros au milieu : '1020' → '12'.",
+      "Non."
+    ],
+    retenir: "LTRIM(texte, '0') : enlever les zéros de tête."
+  },
+  {
+    id: "m03-q97", dialecte: "SQL Server",
+    q: "Que renvoie SUBSTRING('ABC', 2, 10) ?",
+    choix: ["Une erreur", "'BC'", "'BC' suivi d'espaces", "NULL"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Demander plus que la longueur n'est pas une erreur.",
+      "Oui. On prend ce qui existe à partir de la position 2.",
+      "Non. Pas d'espaces ajoutés.",
+      "Non."
+    ],
+    retenir: "SUBSTRING trop long = on prend jusqu'à la fin."
+  },
+  {
+    id: "m03-q98", dialecte: "SQL Server",
+    q: "Pour 'PISCINE' (sans tiret), que donne LEFT(code, CHARINDEX('-', code) - 1) ?",
+    choix: ["'PISCINE'", "''", "Une erreur : longueur négative", "NULL"],
+    bonne: 2,
+    pourquoi: [
+      "Non.",
+      "Non.",
+      "Oui. CHARINDEX vaut 0, donc LEFT(code, -1) : erreur. Protège : CASE WHEN CHARINDEX(…) > 0 …",
+      "Non."
+    ],
+    retenir: "CHARINDEX peut renvoyer 0 : protège les LEFT / SUBSTRING qui l'utilisent."
+  },
+  {
+    id: "m03-q99", dialecte: "Standard",
+    q: "Avant d'insérer des données importées, tu veux que les textes vides deviennent NULL. Quelle expression ?",
+    choixCode: true,
+    choix: ["COALESCE(x, '')", "NULLIF(TRIM(x), '')", "ISNULL(x, NULL)", "CASE WHEN x IS NULL THEN '' END"],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est l'inverse : NULL devient vide.",
+      "Oui. Vide ou blanc → NULL. Les données sont plus propres.",
+      "Non. Ne change rien.",
+      "Non."
+    ],
+    retenir: "Vide → NULL : NULLIF(TRIM(x), '')."
+  },
+  {
+    id: "m03-q100", dialecte: "SQL Server",
+    q: "Pourquoi COALESCE((SELECT … sous-requête lourde …), 0) peut-il être plus lent que prévu sur SQL Server ?",
+    choix: [
+      "COALESCE est toujours lent",
+      "COALESCE est transformé en CASE : la sous-requête peut être exécutée deux fois",
+      "Le 0 force un scan",
+      "Il n'y a aucune différence"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Pas sur des colonnes simples.",
+      "Oui. CASE WHEN (sous-requête) IS NOT NULL THEN (sous-requête) ELSE 0. ISNULL n'a pas ce défaut.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "COALESCE + sous-requête : risque de double exécution. ISNULL ou variable."
   }
 ];
