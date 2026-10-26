@@ -37,6 +37,28 @@ L'export commence par `# LearnSQL — export pour le prof`. Dans ce cas :
 3. Pour chaque point faible : un exemple concret, puis l'explication, puis une petite question pour vérifier.
 4. Dire quoi faire ensuite : refaire un module, passer au suivant, ou demander un QCM ciblé.
 
+## Fiches de cours
+
+Une fiche par module : `data/cours/mXX.js` (chargée dans `index.html`).
+
+```js
+LEARNSQL.cours.mXX = {
+  intro: "Pourquoi ce thème compte, en 2 phrases.",
+  sections: [
+    { titre: "...", exemple: "code SQL", resultat: "optionnel", points: ["..."], retenir: "..." }
+  ],
+  differences: [["Sujet", "SQL Server", "Snowflake"]]   // optionnel
+};
+```
+
+Toujours l'exemple d'abord. Texte entre accents graves = affiché en police code.
+
+## Mode révision
+
+Page `#/revision` : l'élève choisit au moins 2 thèmes. Le QCM fait au moins 20 questions,
+avec au moins 5 questions par thème (constantes `REVISION_*` dans `js/app.js`).
+L'export indique le score par thème des révisions.
+
 ## Format d'une question
 
 ```js
@@ -55,7 +77,8 @@ L'export commence par `# LearnSQL — export pour le prof`. Dans ce cas :
 
 Règles pour écrire des questions :
 
-- 30 questions par module (la réserve), de la plus simple à la plus difficile.
+- Objectif : 100 questions par module (la réserve), de la plus simple à la plus difficile.
+- Si un thème n'a pas 100 cas vraiment différents, s'arrêter avant et le signaler : pas de questions de remplissage.
 - Un QCM tire 10 questions dans la réserve : d'abord les jamais vues, puis les ratées (`TAILLE_QCM` dans `js/app.js`).
 - Varier les angles : une même notion doit revenir dans plusieurs situations, pour que l'élève apprenne la règle et pas la réponse.
 - Des pièges réels, vus en entreprise. Pas de questions de pure mémoire.
