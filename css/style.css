@@ -107,6 +107,8 @@ h2 { font-size: 21px; margin: 32px 0 12px; }
 }
 :root[data-theme="dark"] .btn { color: #10131a; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #10131a; } }
+.btn.small { padding: 4px 14px; font-size: 15px; border-radius: 8px; }
+.mini-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 .btn:disabled { opacity: 0.4; cursor: default; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
@@ -144,6 +146,15 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.88em
 .feedback h3 { margin: 0 0 4px; font-size: 19px; }
 .feedback p { margin: 4px 0; }
 
+.label { margin: 0 0 6px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.points { margin: 8px 0; padding-left: 22px; }
+.points li { margin-bottom: 6px; }
+.table-wrap { overflow-x: auto; }
+.themes { display: grid; gap: 4px; }
+.theme { display: flex; gap: 10px; align-items: center; padding: 6px 0; cursor: pointer; }
+.theme input { width: 20px; height: 20px; accent-color: var(--accent); }
+.theme small { font-weight: 700; margin-left: 6px; }
+select { font: inherit; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text); }
 .big-note { font-size: 56px; font-weight: 700; line-height: 1; margin: 12px 0; }
 .recap li { margin-bottom: 8px; }
 

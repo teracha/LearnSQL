@@ -1,5 +1,6 @@
 // Catalogue du parcours. Chaque module a son fichier de questions dans data/.
 // Un module sans fichier de questions s'affiche comme "à venir".
+// Les fiches de cours sont dans data/cours/mXX.js.
 window.LEARNSQL = { modules: [
   { id: "m01", titre: "Les bases du SELECT", resume: "SELECT, FROM, ORDER BY, TOP / LIMIT, ordre d'exécution.", niveau: "Débutant" },
   { id: "m02", titre: "Filtrer et gérer NULL", resume: "WHERE, AND / OR, LIKE, BETWEEN, IN, le piège du NULL.", niveau: "Débutant" },
@@ -17,4 +18,4 @@ window.LEARNSQL = { modules: [
   { id: "m14", titre: "Spécificités Snowflake", resume: "Warehouses, micro-partitions, Time Travel, VARIANT, clustering.", niveau: "Avancé" },
   { id: "m15", titre: "Modélisation des données", resume: "Normalisation, modèle en étoile, faits et dimensions.", niveau: "Avancé" },
   { id: "m16", titre: "Bonnes pratiques et anti-patterns", resume: "Lisibilité, curseurs, fonctions scalaires, conventions.", niveau: "Expert" }
-], questions: {} };
+], questions: {}, cours: {} };

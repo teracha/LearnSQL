@@ -4,6 +4,9 @@
   var DATA = window.LEARNSQL;
   var STORE_KEY = "learnsql-v1";
   var TAILLE_QCM = 10;     // questions tirées par QCM dans la réserve du module
+  var REVISION_MIN_THEMES = 2;
+  var REVISION_MIN_QUESTIONS = 20;
+  var REVISION_MIN_PAR_THEME = 5;
   var app = document.getElementById("app");
   var quiz = null;        // quiz en cours
   var dernierResultat = null;
@@ -77,15 +80,47 @@
     return qs.filter(function (q) { return store.questions[q.id]; }).length;
   }
 
-  // Tire TAILLE_QCM questions : d'abord les jamais vues, puis les ratées, puis les réussies.
-  function tirage(qs, store) {
+  // Tire n questions : d'abord les jamais vues, puis les ratées, puis les réussies.
+  function tirage(qs, store, n) {
     function priorite(q) {
       var st = store.questions[q.id];
       return !st ? 0 : st.dernier === false ? 1 : 2;
     }
     return melange(qs)
       .sort(function (a, b) { return priorite(a) - priorite(b); })
-      .slice(0, TAILLE_QCM);
+      .slice(0, n || TAILLE_QCM);
+  }
+
+  // Révision : répartit total questions entre les thèmes, au moins REVISION_MIN_PAR_THEME chacun.
+  function tirageRevision(ids, total, store) {
+    var quotas = {};
+    var base = Math.floor(total / ids.length);
+    ids.forEach(function (id) { quotas[id] = base; });
+    melange(ids).slice(0, total - base * ids.length).forEach(function (id) { quotas[id]++; });
+    // Un thème trop petit donne son surplus aux autres
+    var manque = 0;
+    ids.forEach(function (id) {
+      var dispo = DATA.questions[id].length;
+      if (quotas[id] > dispo) { manque += quotas[id] - dispo; quotas[id] = dispo; }
+    });
+    melange(ids).forEach(function (id) {
+      var place = DATA.questions[id].length - quotas[id];
+      var ajout = Math.min(place, manque);
+      quotas[id] += ajout; manque -= ajout;
+    });
+    var liste = [];
+    ids.forEach(function (id) { liste = liste.concat(tirage(DATA.questions[id], store, quotas[id])); });
+    return liste;
+  }
+
+  function themesRevisables() {
+    return DATA.modules.filter(function (m) {
+      return DATA.questions[m.id] && DATA.questions[m.id].length >= REVISION_MIN_PAR_THEME;
+    });
+  }
+
+  function minRevision(nbThemes) {
+    return Math.max(REVISION_MIN_QUESTIONS, REVISION_MIN_PAR_THEME * nbThemes);
   }
 
   function statsModule(store, id) {
@@ -114,24 +149,111 @@
         : st ? '<div class="note ' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) +
                '<small>meilleure · ' + st.nb + ' essai(s)</small></div>'
         : '<div class="note"><small>' + Math.min(TAILLE_QCM, qs.length) + ' questions</small></div>';
-      var debut = qs ? '<a class="card module" href="#/quiz/' + m.id + '" style="text-decoration:none;color:inherit">'
-                     : '<div class="card module locked">';
-      var fin = qs ? '</a>' : '</div>';
-      html += debut +
+      var boutons = (DATA.cours[m.id] ? '<a class="btn small ghost" href="#/cours/' + m.id + '">Cours</a>' : '') +
+        (qs ? '<a class="btn small" href="#/quiz/' + m.id + '">QCM</a>' : '');
+      html += '<div class="card module' + (qs || DATA.cours[m.id] ? '' : ' locked') + '">' +
         '<div class="num">' + (i + 1) + '</div>' +
         '<div><h3>' + esc(m.titre) + '</h3><p>' + esc(m.resume) + '</p>' +
         '<div class="tags"><span class="tag">' + esc(m.niveau) + '</span>' +
-        (qs ? '<span class="tag">' + vuesModule(store, qs) + '/' + qs.length + ' vues</span>' : '') + '</div></div>' +
-        droite + fin;
+        (qs ? '<span class="tag">' + vuesModule(store, qs) + '/' + qs.length + ' vues</span>' : '') + '</div>' +
+        (boutons ? '<div class="mini-actions">' + boutons + '</div>' : '') + '</div>' +
+        droite + '</div>';
     });
 
     html += '<p class="muted">Un module « À venir » ? Demande au prof de le créer : <code>/qcm</code> dans Claude Code.</p>';
     app.innerHTML = html;
   }
 
-  function demarrerQuiz(id) {
+  function pageCours(id) {
+    var m = module(id);
+    var c = DATA.cours[id];
+    if (!m || !c) { location.hash = "#/"; return; }
+    var html = '<p class="muted">Cours · Module ' + (DATA.modules.indexOf(m) + 1) + '</p>' +
+      '<h1>' + esc(m.titre) + '</h1>' +
+      '<p>' + fmt(c.intro) + '</p>';
+    c.sections.forEach(function (sec, i) {
+      html += '<h2>' + (i + 1) + '. ' + esc(sec.titre) + '</h2><div class="card">' +
+        (sec.exemple ? '<p class="label">Exemple</p><pre class="code">' + esc(sec.exemple) + '</pre>' : '') +
+        (sec.resultat ? '<p class="muted">→ ' + fmt(sec.resultat) + '</p>' : '') +
+        '<ul class="points">' + sec.points.map(function (p) { return '<li>' + fmt(p) + '</li>'; }).join('') + '</ul>' +
+        (sec.retenir ? '<div class="feedback ok"><p><strong>À retenir :</strong> ' + fmt(sec.retenir) + '</p></div>' : '') +
+        '</div>';
+    });
+    if (c.differences && c.differences.length) {
+      html += '<h2>SQL Server ou Snowflake ?</h2><div class="card table-wrap"><table><thead><tr>' +
+        '<th>Sujet</th><th>SQL Server</th><th>Snowflake</th></tr></thead><tbody>' +
+        c.differences.map(function (d) {
+          return '<tr><td>' + fmt(d[0]) + '</td><td>' + fmt(d[1]) + '</td><td>' + fmt(d[2]) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }
+    html += '<div class="actions">' +
+      (DATA.questions[id] ? '<a class="btn" href="#/quiz/' + id + '">Faire le QCM</a>' : '') +
+      '<a class="btn ghost" href="#/">Parcours</a></div>';
+    app.innerHTML = html;
+  }
+
+  function pageRevision(preselection) {
+    var store = lire();
+    var choisis = (preselection || "").split(",").filter(Boolean);
+    var themes = themesRevisables();
+    var html = '<h1>Révision</h1>' +
+      '<p>Choisis au moins ' + REVISION_MIN_THEMES + ' thèmes. Le QCM mélange les questions : ' +
+      REVISION_MIN_QUESTIONS + ' minimum, et au moins ' + REVISION_MIN_PAR_THEME + ' par thème.</p>';
+    if (themes.length < REVISION_MIN_THEMES) {
+      app.innerHTML = html + '<p>Il faut au moins ' + REVISION_MIN_THEMES + ' modules avec des questions.</p>';
+      return;
+    }
+    html += '<div class="card themes">';
+    themes.forEach(function (m) {
+      var st = statsModule(store, m.id);
+      html += '<label class="theme"><input type="checkbox" value="' + m.id + '"' +
+        (choisis.indexOf(m.id) >= 0 ? ' checked' : '') + '> <span>' + esc(m.titre) +
+        (st ? ' <small class="' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) + '</small>' : '') +
+        '</span></label>';
+    });
+    html += '</div>' +
+      '<p><label>Nombre de questions : <select id="nb"></select></label></p>' +
+      '<p id="info" class="muted"></p>' +
+      '<div class="actions"><button type="button" class="btn" id="lancer">Lancer la révision</button></div>';
+    app.innerHTML = html;
+
+    var nb = document.getElementById("nb");
+    function maj() {
+      var ids = selection();
+      var dispo = ids.reduce(function (t, id) { return t + DATA.questions[id].length; }, 0);
+      var min = minRevision(Math.max(ids.length, REVISION_MIN_THEMES));
+      var garde = Number(nb.value) || min;
+      nb.innerHTML = "";
+      for (var n = min; n <= min + 30 && (n <= dispo || n === min); n += 10) {
+        nb.innerHTML += '<option value="' + n + '"' + (n === garde ? ' selected' : '') + '>' + n + '</option>';
+      }
+      var ok = ids.length >= REVISION_MIN_THEMES;
+      document.getElementById("lancer").disabled = !ok;
+      document.getElementById("info").textContent = ok
+        ? ids.length + " thèmes choisis."
+        : "Choisis encore " + (REVISION_MIN_THEMES - ids.length) + " thème(s).";
+    }
+    function selection() {
+      return Array.prototype.slice.call(app.querySelectorAll(".theme input:checked")).map(function (c) { return c.value; });
+    }
+    app.querySelectorAll(".theme input").forEach(function (c) { c.addEventListener("change", maj); });
+    document.getElementById("lancer").addEventListener("click", function () {
+      location.hash = "#/quiz/revision/" + selection().join(",") + "/" + nb.value;
+    });
+    maj();
+  }
+
+  function demarrerQuiz(id, themes, nb) {
     var questions, titre;
-    if (id === "erreurs") {
+    if (id === "revision") {
+      var ids = (themes || "").split(",").filter(function (t) {
+        return themesRevisables().some(function (m) { return m.id === t; });
+      });
+      if (ids.length < REVISION_MIN_THEMES) { location.hash = "#/revision"; return; }
+      var total = Math.max(minRevision(ids.length), Number(nb) || 0);
+      questions = tirageRevision(ids, total, lire());
+      titre = "Révision · " + ids.length + " thèmes";
+    } else if (id === "erreurs") {
       questions = idsEnErreur(lire()).map(questionParId);
       titre = "Mes erreurs";
     } else {
@@ -147,6 +269,7 @@
     quiz = {
       module: id,
       titre: titre,
+      lien: location.hash,
       items: melange(questions).map(function (q) {
         // On mélange les réponses en gardant l'index d'origine
         return { q: q, ordre: melange(q.choix.map(function (_, i) { return i; })) };
@@ -253,8 +376,16 @@
       bonnes: bonnes,
       total: total,
       erreurs: quiz.reponses.filter(function (r) { return !r.juste; })
-        .map(function (r) { return { id: r.id, choisi: r.choisi }; })
+        .map(function (r) { return { id: r.id, choisi: r.choisi }; }),
+      lien: quiz.lien,
+      parTheme: {}
     };
+    quiz.reponses.forEach(function (r) {
+      var m = r.id.slice(0, 3);
+      var pt = t.parTheme[m] || (t.parTheme[m] = { bonnes: 0, total: 0 });
+      pt.total++;
+      if (r.juste) pt.bonnes++;
+    });
     var store = lire();
     store.tentatives.push(t);
     ecrire(store);
@@ -275,6 +406,18 @@
       '<div class="big-note ' + classeNote(t.note) + '">' + fmtNote(t.note) + '</div>' +
       '<p>' + t.bonnes + ' bonne(s) réponse(s) sur ' + t.total + '. ' + appreciation + '</p>';
 
+    var themes = Object.keys(t.parTheme || {});
+    if (themes.length > 1) {
+      html += '<h2>Par thème</h2><div class="card"><table><tbody>';
+      themes.forEach(function (id) {
+        var pt = t.parTheme[id];
+        var n = note20(pt.bonnes, pt.total);
+        html += '<tr><td>' + esc(module(id).titre) + '</td><td>' + pt.bonnes + '/' + pt.total + '</td>' +
+          '<td class="' + classeNote(n) + '"><strong>' + fmtNote(n) + '</strong></td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
     if (t.erreurs.length) {
       html += '<h2>Tes erreurs</h2><ul class="recap">';
       t.erreurs.forEach(function (e) {
@@ -284,7 +427,7 @@
       html += '</ul>';
     }
     html += '<div class="actions">' +
-      '<a class="btn" href="#/quiz/' + esc(t.module) + '">Refaire</a>' +
+      '<a class="btn" href="' + esc(t.lien || "#/quiz/" + t.module) + '">Refaire</a>' +
       '<a class="btn ghost" href="#/">Parcours</a>' +
       '<a class="btn ghost" href="#/export">Exporter pour le prof</a></div>';
     app.innerHTML = html;
@@ -356,7 +499,11 @@
         var q = questionParId(e.id);
         return e.id + " → répondu « " + (q ? q.choix[e.choisi] : e.choisi) + " »";
       });
+      var pt = Object.keys(t.parTheme || {});
       l.push("- " + fmtDate(t.date) + " · " + t.titre + " · " + fmtNote(t.note) +
+        (pt.length > 1 ? "\n    par thème : " + pt.map(function (id) {
+          return id + " " + t.parTheme[id].bonnes + "/" + t.parTheme[id].total;
+        }).join(", ") : "") +
         (det.length ? "\n    erreurs : " + det.join(" | ") : ""));
     });
     l.push("");
@@ -419,7 +566,9 @@
     var h = location.hash.replace(/^#\/?/, "");
     var parts = h.split("/");
     window.scrollTo(0, 0);
-    if (parts[0] === "quiz" && parts[1]) demarrerQuiz(parts[1]);
+    if (parts[0] === "quiz" && parts[1]) demarrerQuiz(parts[1], parts[2], parts[3]);
+    else if (parts[0] === "cours" && parts[1]) pageCours(parts[1]);
+    else if (parts[0] === "revision") pageRevision(parts[1]);
     else if (parts[0] === "resultat") pageResultat();
     else if (parts[0] === "erreurs") pageErreurs();
     else if (parts[0] === "historique") pageHistorique();
