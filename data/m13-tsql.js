@@ -40,16 +40,16 @@ LEARNSQL.questions.m13 = [
     id: "m13-q03", dialecte: "SQL Server",
     q: "Quelle différence entre SET et SELECT pour affecter des variables ?",
     choix: [
-      "Aucune",
-      "SET affecte une seule variable ; SELECT peut en affecter plusieurs à la fois (SELECT @a = …, @b = … FROM …)",
-      "SELECT est interdit",
-      "SET est plus lent"
+      "Aucune, ce sont deux synonymes",
+      "SELECT peut en affecter plusieurs",
+      "SET marche aussi avec un FROM",
+      "SET est plus rapide sur une table"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Mais attention aux comportements différents si la requête renvoie 0 ou plusieurs lignes.",
-      "Non.",
+      "Oui. SET affecte une seule variable ; SELECT peut en affecter plusieurs à la fois (SELECT @a = …, @b = … FROM …). Attention aux comportements différents si la requête renvoie 0 ou plusieurs lignes.",
+      "Non. SET n'accepte pas de FROM : il faut SET @a = (SELECT … FROM …).",
       "Non."
     ],
     retenir: "SET = une variable. SELECT = plusieurs."
@@ -58,17 +58,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q04", dialecte: "SQL Server",
     q: "SELECT @nom = nom FROM client WHERE pays = 'FR'; renvoie 500 lignes. Que contient @nom ?",
     choix: [
-      "Une erreur",
-      "Le nom d'une seule des lignes (souvent la dernière lue), sans aucun avertissement",
-      "Tous les noms",
-      "NULL"
+      "Une erreur « plusieurs lignes »",
+      "Le nom d'une seule ligne, sans avertir",
+      "Tous les noms, séparés par des virgules",
+      "NULL, faute de ligne unique"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas d'erreur : c'est le piège.",
-      "Oui. Rends le résultat unique (WHERE sur la clé) ou utilise SET @nom = (SELECT …) qui plante si plusieurs lignes.",
-      "Non.",
-      "Non."
+      "Oui. Souvent la dernière lue, sans aucun avertissement. Rends le résultat unique (WHERE sur la clé) ou utilise SET @nom = (SELECT …) qui plante si plusieurs lignes.",
+      "Non. Il faudrait STRING_AGG pour ça.",
+      "Non. La variable reçoit bien une valeur."
     ],
     retenir: "SELECT @v = … sur plusieurs lignes : valeur imprévisible."
   },
@@ -94,15 +94,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q06", dialecte: "SQL Server",
     q: "Une variable déclarée avant un GO est-elle utilisable après ?",
     choix: [
-      "Oui",
-      "Non : GO termine le lot, la variable n'existe plus",
-      "Seulement en lecture",
-      "Seulement dans SSMS"
+      "Oui, jusqu'à la fin du script",
+      "Non : GO termine le lot",
+      "Seulement en lecture après le GO",
+      "Oui, si elle est déclarée en premier"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Il faut la redéclarer dans le nouveau lot.",
+      "Non. Elle vit seulement dans son lot.",
+      "Oui. La variable n'existe plus après le GO. Il faut la redéclarer dans le nouveau lot.",
       "Non.",
       "Non."
     ],
@@ -112,16 +112,16 @@ LEARNSQL.questions.m13 = [
     id: "m13-q07", dialecte: "SQL Server",
     q: "Pourquoi les messages PRINT d'un long traitement n'apparaissent-ils qu'à la fin ?",
     choix: [
-      "Bug",
-      "Ils sont mis en mémoire tampon. Pour un affichage immédiat : RAISERROR('message', 0, 1) WITH NOWAIT",
-      "PRINT est désactivé",
-      "Il faut SELECT"
+      "Un bug connu de SSMS",
+      "Ils sont mis en mémoire tampon",
+      "PRINT attend la fin de la transaction",
+      "PRINT s'affiche seulement en cas d'erreur"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Gravité 0 = simple information, pas une erreur.",
-      "Non.",
+      "Oui. Pour un affichage immédiat : RAISERROR('message', 0, 1) WITH NOWAIT. Gravité 0 = simple information, pas une erreur.",
+      "Non. Le tampon existe même sans transaction.",
       "Non."
     ],
     retenir: "Suivi en direct : RAISERROR(…, 0, 1) WITH NOWAIT."
@@ -130,15 +130,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q08", dialecte: "SQL Server",
     q: "Pourquoi entourer plusieurs instructions d'un BEGIN … END après un IF ?",
     choix: [
-      "Pour la décoration",
-      "Sans BEGIN … END, seule la PREMIÈRE instruction dépend du IF ; les suivantes s'exécutent toujours",
-      "C'est obligatoire même pour une instruction",
-      "Pour créer une transaction"
+      "Pour la lisibilité seulement, sans effet",
+      "Sinon, seule la 1re ligne dépend du IF",
+      "C'est obligatoire même pour une seule ligne",
+      "Pour ouvrir une transaction implicite"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Bug classique. Mets toujours BEGIN … END, même pour une seule ligne.",
+      "Non. L'effet est réel.",
+      "Oui. Sans BEGIN … END, seule la PREMIÈRE instruction dépend du IF ; les suivantes s'exécutent toujours. Bug classique. Mets toujours BEGIN … END.",
       "Non. Mais c'est conseillé.",
       "Non. Ce n'est pas BEGIN TRAN."
     ],
@@ -148,16 +148,16 @@ LEARNSQL.questions.m13 = [
     id: "m13-q09", dialecte: "SQL Server",
     q: "Dans une boucle WHILE, que font BREAK et CONTINUE ?",
     choix: [
-      "Rien",
-      "BREAK sort de la boucle ; CONTINUE passe directement au tour suivant",
-      "Ils annulent la transaction",
-      "Ils arrêtent le serveur"
+      "Rien, ce sont des mots réservés",
+      "BREAK sort ; CONTINUE passe au tour suivant",
+      "BREAK met en pause ; CONTINUE reprend",
+      "Ils annulent la transaction en cours"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
       "Oui. Attention à faire avancer la condition, sinon boucle infinie.",
-      "Non.",
+      "Non. Il n'y a pas de pause : BREAK sort définitivement.",
       "Non."
     ],
     retenir: "BREAK = sortir. CONTINUE = tour suivant."
@@ -166,15 +166,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q10", dialecte: "SQL Server",
     q: "Une boucle WHILE @i < 100 n'incrémente jamais @i. Que se passe-t-il ?",
     choix: [
-      "Elle s'arrête après 100 tours",
-      "Boucle infinie : le traitement ne s'arrête jamais",
-      "Erreur",
-      "Elle ne démarre pas"
+      "Elle s'arrête seule après 100 tours",
+      "Boucle infinie",
+      "Une erreur de dépassement de pile",
+      "Elle ne démarre pas du tout"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Il faut l'annuler à la main. Toujours vérifier que la condition progresse (SET @i += 1).",
+      "Oui. Le traitement ne s'arrête jamais : il faut l'annuler à la main. Toujours vérifier que la condition progresse (SET @i += 1).",
       "Non.",
       "Non."
     ],
@@ -184,15 +184,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q11", dialecte: "SQL Server",
     q: "Quelle est l'utilité de SET NOCOUNT ON en début de procédure ?",
     choix: [
-      "Compter les lignes",
-      "Supprimer les messages « (n lignes affectées) » : moins de trafic réseau, et certains outils (ETL, applis) ne sont plus perturbés",
-      "Empêcher les modifications",
-      "Accélérer les index"
+      "Compter les lignes modifiées",
+      "Masquer les messages « n lignes »",
+      "Empêcher toute modification de données",
+      "Accélérer la lecture des index"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Bonne pratique dans toute procédure.",
+      "Non. C'est plutôt l'inverse : on supprime ce comptage affiché.",
+      "Oui. Supprimer les messages « (n lignes affectées) » : moins de trafic réseau, et certains outils (ETL, applis) ne sont plus perturbés. Bonne pratique dans toute procédure.",
       "Non.",
       "Non."
     ],
@@ -204,16 +204,16 @@ LEARNSQL.questions.m13 = [
     choixCode: true,
     choix: [
       "@annee INT DEFAULT 2026",
-      "@annee INT = NULL (puis gérer le cas NULL dans le code)",
-      "@annee INT OPTIONAL",
-      "Impossible"
+      "@annee INT = NULL",
+      "@annee INT OPTIONAL = 2026",
+      "@annee INT NULLABLE"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Syntaxe invalide.",
-      "Oui. L'appelant peut omettre le paramètre. Ex. SET @annee = COALESCE(@annee, YEAR(GETDATE())).",
-      "Non.",
-      "Non."
+      "Non. Syntaxe invalide : pas de DEFAULT ici.",
+      "Oui. L'appelant peut omettre le paramètre ; on gère ensuite le cas NULL. Ex. SET @annee = COALESCE(@annee, YEAR(GETDATE())).",
+      "Non. OPTIONAL n'existe pas en T-SQL.",
+      "Non. NULLABLE n'existe pas."
     ],
     retenir: "Paramètre facultatif : @p type = valeur_par_défaut."
   },
@@ -221,15 +221,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q13", dialecte: "SQL Server",
     q: "Pourquoi appeler une procédure avec des paramètres nommés (EXEC p @annee = 2026, @client = 42) ?",
     choix: [
-      "C'est plus long, donc mieux",
-      "L'appel reste juste même si l'ordre des paramètres change, et il est plus lisible",
-      "C'est obligatoire",
-      "C'est plus rapide"
+      "C'est obligatoire depuis SQL Server 2016",
+      "L'appel reste juste si l'ordre change",
+      "C'est plus rapide à l'exécution",
+      "Pour forcer les types des valeurs"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Un appel par position (EXEC p 2026, 42) casse si quelqu'un ajoute un paramètre au milieu.",
+      "Non. Les deux écritures sont permises.",
+      "Oui. Et il est plus lisible. Un appel par position (EXEC p 2026, 42) casse si quelqu'un ajoute un paramètre au milieu.",
       "Non.",
       "Non."
     ],
@@ -240,16 +240,16 @@ LEARNSQL.questions.m13 = [
     q: "Comment une procédure renvoie-t-elle une valeur calculée à l'appelant, autrement qu'avec un SELECT ?",
     choix: [
       "Avec RETURN 'texte'",
-      "Avec un paramètre OUTPUT (déclaré OUTPUT dans la procédure ET dans l'appel)",
-      "Avec PRINT",
-      "Impossible"
+      "Avec un paramètre OUTPUT",
+      "Avec PRINT, lu par l'appelant",
+      "Avec une variable globale @@resultat"
     ],
     bonne: 1,
     pourquoi: [
       "Non. RETURN ne renvoie qu'un entier.",
-      "Oui. Oublier OUTPUT dans l'appel = la valeur n'est pas récupérée, sans erreur.",
-      "Non.",
-      "Non."
+      "Oui. Déclaré OUTPUT dans la procédure ET dans l'appel. Oublier OUTPUT dans l'appel = la valeur n'est pas récupérée, sans erreur.",
+      "Non. PRINT envoie un message, pas une valeur exploitable.",
+      "Non. On ne crée pas de variables @@."
     ],
     retenir: "Valeur de retour : paramètre OUTPUT."
   },
@@ -257,17 +257,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q15", dialecte: "SQL Server",
     q: "À quoi sert RETURN dans une procédure ?",
     choix: [
-      "À renvoyer un texte",
-      "À sortir de la procédure, en renvoyant éventuellement un code entier (0 = succès, par convention)",
-      "À renvoyer un tableau",
-      "À valider la transaction"
+      "À renvoyer un texte à l'appelant",
+      "À sortir, avec un code entier",
+      "À renvoyer un tableau de lignes",
+      "À valider la transaction, puis sortir"
     ],
     bonne: 1,
     pourquoi: [
+      "Non. RETURN ne renvoie qu'un entier.",
+      "Oui. Il sort de la procédure, en renvoyant éventuellement un code entier (0 = succès, par convention). EXEC @code = dbo.p … récupère ce code.",
       "Non.",
-      "Oui. EXEC @code = dbo.p … récupère ce code.",
-      "Non.",
-      "Non."
+      "Non. RETURN ne fait pas de COMMIT."
     ],
     retenir: "RETURN = sortie + code entier."
   },
@@ -275,15 +275,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q16", dialecte: "SQL Server",
     q: "Pourquoi éviter de préfixer ses procédures par sp_ ?",
     choix: [
-      "C'est interdit",
-      "SQL Server cherche d'abord les procédures sp_ dans la base master (procédures système) : risque de conflit et léger surcoût",
+      "C'est interdit par SQL Server",
+      "Cherchées d'abord dans la base master",
       "Elles sont plus lentes à écrire",
       "Elles ne peuvent pas avoir de paramètres"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Préfère usp_, p_ ou un nom métier clair, dans un schéma dédié.",
+      "Oui. Les procédures sp_ sont d'abord cherchées dans master (procédures système) : risque de conflit et léger surcoût. Préfère usp_, p_ ou un nom métier clair, dans un schéma dédié.",
       "Non.",
       "Non."
     ],
@@ -294,16 +294,16 @@ LEARNSQL.questions.m13 = [
     q: "Quel est l'avantage de CREATE OR ALTER PROCEDURE ?",
     choix: [
       "Plus rapide à l'exécution",
-      "Le même script crée la procédure si elle n'existe pas, ou la modifie sinon, en gardant les droits existants",
-      "Il supprime les anciennes versions",
-      "Aucun"
+      "Crée ou modifie, en gardant les droits",
+      "Il garde l'historique des anciennes versions",
+      "Il fait un DROP puis un CREATE"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Scripts de déploiement relançables (SQL Server 2016 SP1+).",
-      "Non.",
-      "Non."
+      "Oui. Le même script crée la procédure si elle n'existe pas, ou la modifie sinon, en gardant les droits existants. Scripts de déploiement relançables (SQL Server 2016 SP1+).",
+      "Non. L'historique, c'est Git.",
+      "Non. Un DROP ferait perdre les droits."
     ],
     retenir: "CREATE OR ALTER = déploiement relançable."
   },
@@ -312,17 +312,17 @@ LEARNSQL.questions.m13 = [
     q: "Quelles fonctions donnent les détails d'une erreur dans un bloc CATCH ?",
     choixCode: true,
     choix: [
-      "ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE(), ERROR_SEVERITY()",
+      "ERROR_MESSAGE(), ERROR_LINE()…",
       "@@ERROR seulement",
-      "GET_ERROR()",
-      "PRINT ERROR"
+      "GET_ERROR_MESSAGE(), GET_ERROR_LINE()",
+      "ERROR.Message, ERROR.Line"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. À enregistrer dans une table de log avant de relancer l'erreur.",
-      "Non. @@ERROR est remis à 0 par l'instruction suivante : peu fiable.",
-      "Non.",
-      "Non."
+      "Oui. ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE(), ERROR_SEVERITY(). À enregistrer dans une table de log avant de relancer l'erreur.",
+      "Non. Il ne donne que le numéro, et il est remis à 0 par l'instruction suivante.",
+      "Non. Ces fonctions n'existent pas.",
+      "Non. Syntaxe d'autres langages."
     ],
     retenir: "CATCH : ERROR_MESSAGE(), ERROR_LINE()…"
   },
@@ -330,15 +330,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q19", dialecte: "SQL Server",
     q: "Dans un CATCH, que fait THROW; (sans paramètre) ?",
     choix: [
-      "Rien",
-      "Il relance l'erreur d'origine (même numéro, même message) vers l'appelant",
-      "Il efface l'erreur",
-      "Il valide la transaction"
+      "Rien, sans paramètre",
+      "Il relance l'erreur d'origine",
+      "Il efface l'erreur, puis continue",
+      "Il valide la transaction en cours"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Après ROLLBACK et log, l'appelant (Agent SQL, ETL) sait que ça a échoué.",
+      "Non. Sans paramètre, il relance l'erreur attrapée.",
+      "Oui. Même numéro, même message, vers l'appelant. Après ROLLBACK et log, l'appelant (Agent SQL, ETL) sait que ça a échoué.",
       "Non.",
       "Non."
     ],
@@ -348,15 +348,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q20", dialecte: "SQL Server",
     q: "Un CATCH contient seulement PRINT 'erreur'. Quel est le problème ?",
     choix: [
-      "Aucun",
-      "L'erreur est « avalée » : le travail planifié est vu comme réussi alors qu'il a échoué",
-      "PRINT est interdit",
+      "Aucun, l'erreur est bien affichée",
+      "L'erreur est avalée",
+      "PRINT est interdit dans un CATCH",
       "La transaction est validée deux fois"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Personne n'est alerté. Toujours relancer (THROW) ou signaler l'échec.",
+      "Non. Le message n'est vu par personne.",
+      "Oui. Le travail planifié est vu comme réussi alors qu'il a échoué. Personne n'est alerté. Toujours relancer (THROW) ou signaler l'échec.",
       "Non.",
       "Non."
     ],
@@ -385,17 +385,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q22", dialecte: "SQL Server",
     q: "THROW 50001, 'X', 1; donne une erreur de syntaxe. L'instruction juste avant est SET @a = 1 (sans point-virgule). Pourquoi ?",
     choix: [
-      "THROW n'existe pas",
-      "L'instruction qui précède THROW doit se terminer par ;",
-      "Le numéro est trop grand",
-      "Il faut RAISERROR"
+      "THROW n'existe pas en T-SQL",
+      "Il manque le ; avant THROW",
+      "Le numéro 50001 est trop grand",
+      "THROW doit être dans un CATCH"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Comme pour WITH et MERGE. Termine toutes tes instructions par ;",
-      "Non.",
-      "Non."
+      "Non. Il existe depuis SQL Server 2012.",
+      "Oui. L'instruction qui précède THROW doit se terminer par ;. Comme pour WITH et MERGE. Termine toutes tes instructions par ;",
+      "Non. Les numéros d'erreur utilisateur vont bien au-delà.",
+      "Non. THROW avec paramètres marche partout ; c'est THROW; seul qui doit être dans un CATCH."
     ],
     retenir: "Avant THROW : point-virgule."
   },
@@ -403,17 +403,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q23", dialecte: "SQL Server",
     q: "TRY / CATCH attrape-t-il une faute de frappe dans un nom de table (SELECT * FROM clientt) dans le même bloc ?",
     choix: [
-      "Oui, toujours",
-      "Non : les erreurs de compilation / de résolution de nom au même niveau ne sont pas attrapées par ce CATCH",
-      "Oui, en mode debug",
-      "Seulement les jours pairs"
+      "Oui, toutes les erreurs du bloc",
+      "Non, pas ce CATCH-là (même niveau)",
+      "Oui, si XACT_ABORT est activé",
+      "Non, aucune erreur de syntaxe jamais"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Elles sont attrapées par un CATCH de niveau supérieur (procédure appelante). D'où l'importance des tests.",
-      "Non.",
-      "Non."
+      "Oui. Les erreurs de compilation / de résolution de nom au même niveau ne sont pas attrapées par ce CATCH. Un CATCH de niveau supérieur (procédure appelante) les attrape. D'où l'importance des tests.",
+      "Non. XACT_ABORT n'y change rien.",
+      "Non. Un CATCH de niveau supérieur l'attrape."
     ],
     retenir: "CATCH n'attrape pas les erreurs de compilation du même niveau."
   },
@@ -422,16 +422,16 @@ LEARNSQL.questions.m13 = [
     q: "Pourquoi préférer THROW à RAISERROR dans du code neuf ?",
     choix: [
       "RAISERROR n'existe plus",
-      "THROW est plus simple, respecte XACT_ABORT et relance fidèlement l'erreur d'origine",
+      "Plus simple et plus fidèle",
       "RAISERROR est plus rapide",
-      "Aucune raison"
+      "THROW accepte plus de paramètres"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il existe encore (et reste utile pour WITH NOWAIT).",
-      "Oui. RAISERROR garde des usages (messages de progression), mais THROW est la référence pour les erreurs.",
+      "Oui. THROW est plus simple, respecte XACT_ABORT et relance fidèlement l'erreur d'origine. RAISERROR garde des usages (messages de progression).",
       "Non.",
-      "Non."
+      "Non. Il en accepte moins (pas de gravité, pas de format)."
     ],
     retenir: "Erreurs : THROW. Messages de progression : RAISERROR … WITH NOWAIT."
   },
@@ -439,15 +439,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q25", dialecte: "SQL Server",
     q: "Une fonction scalaire peut-elle faire un INSERT dans une table ?",
     choix: [
-      "Oui",
-      "Non : une fonction ne peut pas modifier les données de la base",
+      "Oui, comme une procédure",
+      "Non : une fonction ne modifie rien",
       "Seulement dans une #table",
-      "Seulement la nuit"
+      "Oui, si elle est déterministe"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour modifier : une procédure stockée.",
+      "Oui. Une fonction ne peut pas modifier les données de la base. Pour modifier : une procédure stockée.",
       "Non. Les #tables sont aussi interdites dans une fonction (variables table permises).",
       "Non."
     ],
@@ -457,15 +457,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q26", dialecte: "SQL Server",
     q: "Peut-on utiliser NEWID() directement dans une fonction utilisateur ?",
     choix: [
-      "Oui",
-      "Non : fonction à « effet de bord », interdite dans une fonction utilisateur",
-      "Seulement en scalaire",
-      "Seulement en table"
+      "Oui, comme GETDATE()",
+      "Non : effet de bord interdit",
+      "Seulement dans une fonction scalaire",
+      "Seulement dans une fonction table"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. GETDATE() est permis, mais NEWID() et RAND() non.",
+      "Non. GETDATE() est permis, mais pas NEWID().",
+      "Oui. Fonction à « effet de bord » : interdite dans une fonction utilisateur. NEWID() et RAND() non ; GETDATE() oui.",
       "Non.",
       "Non."
     ],
@@ -483,7 +483,7 @@ LEARNSQL.questions.m13 = [
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui, c'est interdit. Une fonction doit être simple ; la gestion d'erreur va dans la procédure appelante.",
+      "Oui. C'est interdit. Une fonction doit être simple ; la gestion d'erreur va dans la procédure appelante.",
       "Non.",
       "Non."
     ],
@@ -531,17 +531,17 @@ LEARNSQL.questions.m13 = [
     q: "Une procédure reçoit un JSON de commande. Comment le transformer en lignes ?",
     choixCode: true,
     choix: [
-      "SELECT * FROM OPENJSON(@json, '$.lignes') WITH (article VARCHAR(20) '$.art', qte INT '$.qte')",
+      "SELECT * FROM OPENJSON(@json) WITH (…)",
       "SELECT * FROM @json",
       "CAST(@json AS TABLE)",
-      "Impossible"
+      "SELECT * FROM JSON_VALUE(@json, '$.lignes')"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. OPENJSON + WITH donne des colonnes typées (SQL Server 2016+).",
+      "Oui. Ex. OPENJSON(@json, '$.lignes') WITH (article VARCHAR(20) '$.art', qte INT '$.qte') : colonnes typées (SQL Server 2016+).",
       "Non.",
       "Non.",
-      "Non."
+      "Non. JSON_VALUE renvoie une seule valeur, pas des lignes."
     ],
     retenir: "JSON → lignes : OPENJSON … WITH (…)."
   },
@@ -550,17 +550,17 @@ LEARNSQL.questions.m13 = [
     q: "Pourquoi ce code est-il dangereux ?",
     code: "DECLARE @sql NVARCHAR(MAX) =\n  N'SELECT * FROM client WHERE nom = ''' + @nom + N'''';\nEXEC (@sql);",
     choix: [
-      "Il est lent",
-      "Injection SQL : si @nom contient '; DROP TABLE client; --, la commande est exécutée",
+      "Il est lent à l'exécution",
+      "Injection SQL via @nom",
       "Il manque un ORDER BY",
-      "Il n'y a pas de danger"
+      "Aucun : EXEC protège déjà"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce n'est pas le problème principal.",
-      "Oui. Jamais de concaténation d'une valeur saisie. sp_executesql avec @nom en paramètre.",
+      "Oui. Si @nom contient '; DROP TABLE client; --, la commande est exécutée. Jamais de concaténation d'une valeur saisie : sp_executesql avec @nom en paramètre.",
       "Non.",
-      "Non."
+      "Non. EXEC exécute le texte tel quel."
     ],
     retenir: "Concaténer une saisie dans du SQL = injection."
   },
@@ -570,16 +570,16 @@ LEARNSQL.questions.m13 = [
     choixCode: true,
     choix: [
       "EXEC ('SELECT * FROM client WHERE nom = ''' + @nom + '''')",
-      "EXEC sp_executesql N'SELECT * FROM client WHERE nom = @n', N'@n NVARCHAR(100)', @n = @nom",
-      "EXEC (@nom)",
-      "SELECT * FROM @nom"
+      "EXEC sp_executesql N'… WHERE nom = @n', N'@n NVARCHAR(100)', @n = @nom",
+      "EXEC sp_executesql N'… WHERE nom = ''' + @nom + ''''",
+      "EXEC (@nom)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Injection possible.",
       "Oui. La valeur est un paramètre : jamais exécutée comme du code. Et le plan est réutilisé.",
-      "Non.",
-      "Non."
+      "Non. sp_executesql ne protège rien si la valeur est concaténée dans le texte.",
+      "Non. Exécute la saisie elle-même comme du code."
     ],
     retenir: "sp_executesql + paramètres."
   },
@@ -589,16 +589,16 @@ LEARNSQL.questions.m13 = [
     choixCode: true,
     choix: [
       "Concaténer @table tel quel",
-      "QUOTENAME(@table), et idéalement vérifier que la table existe dans une liste autorisée",
-      "Mettre des apostrophes autour",
-      "Impossible"
+      "QUOTENAME(@table) + liste blanche",
+      "Mettre des apostrophes autour de @table",
+      "Passer @table en paramètre sp_executesql"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. QUOTENAME entoure de crochets et neutralise les caractères dangereux.",
+      "Oui. QUOTENAME entoure de crochets et neutralise les caractères dangereux ; vérifier aussi que la table existe dans une liste autorisée.",
       "Non. Ça en ferait un texte.",
-      "Non."
+      "Non. Les paramètres ne marchent pas pour un nom d'objet."
     ],
     retenir: "Nom d'objet dynamique : QUOTENAME + liste blanche."
   },
@@ -606,15 +606,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q34", dialecte: "SQL Server",
     q: "Une variable @annee déclarée dans la procédure est-elle visible à l'intérieur d'un EXEC sp_executesql @sql ?",
     choix: [
-      "Oui",
-      "Non : le SQL dynamique s'exécute dans un contexte séparé. Il faut la passer en paramètre",
-      "Seulement si elle s'appelle @annee",
-      "Seulement en lecture"
+      "Oui, comme dans le reste de la procédure",
+      "Non : il faut la passer en paramètre",
+      "Seulement si elle s'appelle pareil",
+      "Seulement en lecture, pas en écriture"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. D'où la liste de paramètres de sp_executesql.",
+      "Oui. Le SQL dynamique s'exécute dans un contexte séparé. D'où la liste de paramètres de sp_executesql.",
       "Non.",
       "Non."
     ],
@@ -624,16 +624,16 @@ LEARNSQL.questions.m13 = [
     id: "m13-q35", dialecte: "SQL Server",
     q: "Une #table créée À L'INTÉRIEUR d'un SQL dynamique est-elle visible après l'EXEC ?",
     choix: [
-      "Oui",
-      "Non : elle disparaît à la fin du SQL dynamique. Crée-la avant, et remplis-la dedans",
-      "Seulement en ## ",
-      "Seulement dans SSMS"
+      "Oui, jusqu'à la fin de la session",
+      "Non : crée-la avant",
+      "Oui, si elle est créée par SELECT INTO",
+      "Oui, si on fait un COMMIT avant"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une #table créée AVANT l'EXEC est visible dedans.",
-      "Non. Possible, mais à éviter.",
+      "Oui. Elle disparaît à la fin du SQL dynamique. Crée-la AVANT l'EXEC (elle est visible dedans), et remplis-la dedans.",
+      "Non. Elle disparaît de la même façon.",
       "Non."
     ],
     retenir: "#table : la créer avant le SQL dynamique."
@@ -642,15 +642,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q36", dialecte: "SQL Server",
     q: "Comment déboguer un SQL dynamique qui plante ?",
     choix: [
-      "Le relancer en boucle",
-      "Afficher le texte généré (PRINT @sql ou SELECT @sql), le copier et l'exécuter seul pour voir l'erreur exacte",
-      "Ajouter NOLOCK",
-      "Le supprimer"
+      "Le relancer en boucle jusqu'à ce qu'il passe",
+      "Afficher le texte généré (PRINT @sql)",
+      "Ajouter NOLOCK dans le texte",
+      "Le remplacer par un curseur"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On voit souvent tout de suite l'espace ou l'apostrophe manquante.",
+      "Oui. PRINT @sql ou SELECT @sql, puis copier le texte et l'exécuter seul pour voir l'erreur exacte. On voit souvent tout de suite l'espace ou l'apostrophe manquante.",
       "Non.",
       "Non."
     ],
@@ -660,15 +660,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q37", dialecte: "SQL Server",
     q: "Pourquoi les curseurs sont-ils souvent déconseillés ?",
     choix: [
-      "Ils sont interdits",
-      "Ils traitent les lignes une par une : beaucoup plus lent qu'une requête sur l'ensemble des lignes",
+      "Ils sont interdits en production",
+      "Ils traitent ligne par ligne : lent",
       "Ils suppriment des données",
-      "Ils ne marchent pas sur SQL Server"
+      "Ils verrouillent toujours toute la base"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. 100 000 lignes en curseur : minutes. En une requête : secondes.",
+      "Oui. Beaucoup plus lent qu'une requête sur l'ensemble des lignes. 100 000 lignes en curseur : minutes. En une requête : secondes.",
       "Non.",
       "Non."
     ],
@@ -697,15 +697,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q39", dialecte: "SQL Server",
     q: "Dans une boucle de curseur, que signifie @@FETCH_STATUS = 0 ?",
     choix: [
-      "Fin du curseur",
-      "La lecture (FETCH) a réussi : une ligne est disponible",
-      "Erreur",
-      "Curseur vide"
+      "Fin du curseur atteinte",
+      "Une ligne a bien été lue",
+      "Erreur pendant la lecture",
+      "Le curseur est vide"
     ],
     bonne: 1,
     pourquoi: [
       "Non. -1 = plus de lignes.",
-      "Oui. Boucle typique : WHILE @@FETCH_STATUS = 0 BEGIN … FETCH NEXT … END.",
+      "Oui. Le FETCH a réussi : une ligne est disponible. Boucle typique : WHILE @@FETCH_STATUS = 0 BEGIN … FETCH NEXT … END.",
       "Non.",
       "Non."
     ],
@@ -715,17 +715,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q40", dialecte: "SQL Server",
     q: "Après une boucle de curseur, qu'est-ce qu'on oublie souvent ?",
     choix: [
-      "Rien",
-      "CLOSE puis DEALLOCATE du curseur",
-      "COMMIT",
-      "DROP TABLE"
+      "COMMIT de la transaction",
+      "CLOSE puis DEALLOCATE",
+      "DROP TABLE du curseur",
+      "Remettre @@FETCH_STATUS à 0"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
       "Oui. Sinon il reste ouvert (surtout s'il est GLOBAL) et bloque une nouvelle exécution.",
-      "Non.",
-      "Non."
+      "Non. Un curseur n'est pas une table.",
+      "Non. On ne peut pas l'affecter."
     ],
     retenir: "Curseur : OPEN, FETCH, CLOSE, DEALLOCATE."
   },
@@ -733,15 +733,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q41", dialecte: "SQL Server",
     q: "Dans quel cas un curseur (ou une boucle) reste-t-il acceptable ?",
     choix: [
-      "Pour calculer un total",
-      "Pour appeler une procédure par élément (ex. envoyer un fichier par client), ou pour des tâches d'administration sur quelques objets",
+      "Pour calculer un total par client",
+      "Pour une action vraiment unitaire",
       "Pour mettre à jour 1 million de prix",
-      "Jamais"
+      "Jamais, dans aucun cas"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SUM.",
-      "Oui. Quand chaque élément déclenche une action qui ne peut pas être faite « en masse ».",
+      "Non. SUM … GROUP BY.",
+      "Oui. Ex. appeler une procédure par élément (envoyer un fichier par client), ou des tâches d'administration sur quelques objets : chaque élément déclenche une action impossible « en masse ».",
       "Non. Un UPDATE.",
       "Non."
     ],
@@ -752,17 +752,17 @@ LEARNSQL.questions.m13 = [
     q: "Comment remplacer ce curseur qui met à jour le prix de chaque article d'une famille, un par un ?",
     choixCode: true,
     choix: [
-      "Un deuxième curseur",
+      "WHILE @@ROWCOUNT > 0 UPDATE TOP (1) article SET prix = prix * 1.05;",
       "UPDATE article SET prix = prix * 1.05 WHERE famille = 'POMPE';",
-      "Une boucle WHILE",
-      "Impossible"
+      "UPDATE article SET prix = prix * 1.05;",
+      "SELECT prix * 1.05 FROM article WHERE famille = 'POMPE';"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Toujours une boucle ligne par ligne, et sans filtre sur la famille.",
       "Oui. Une seule instruction pour toutes les lignes.",
-      "Non. Même problème.",
-      "Non."
+      "Non. Sans WHERE, TOUS les articles augmentent.",
+      "Non. Affiche les nouveaux prix, sans rien modifier."
     ],
     retenir: "Penser « ensemble »."
   },
@@ -771,17 +771,17 @@ LEARNSQL.questions.m13 = [
     q: "Comment empêcher qu'un même traitement planifié tourne deux fois en même temps (s'il dure plus longtemps que prévu) ?",
     choixCode: true,
     choix: [
-      "Espérer",
-      "EXEC sp_getapplock @Resource = 'traitement_edi', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = 0",
-      "NOLOCK",
-      "WAITFOR DELAY"
+      "WAITFOR DELAY '00:05:00'",
+      "EXEC sp_getapplock @Resource = 'edi', @LockMode = 'Exclusive'",
+      "SET TRANSACTION ISOLATION LEVEL SERIALIZABLE",
+      "EXEC msdb.dbo.sp_start_job @job_name = 'traitement_edi'"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Un verrou « applicatif » : la 2e exécution voit que le verrou est pris et s'arrête.",
-      "Non.",
-      "Non."
+      "Non. Décaler n'empêche pas deux exécutions en même temps.",
+      "Oui. Un verrou « applicatif » (avec @LockOwner = 'Session', @LockTimeout = 0) : la 2e exécution voit que le verrou est pris et s'arrête.",
+      "Non. Isole les lectures, mais n'empêche pas deux traitements de démarrer.",
+      "Non. Ça lance le job, ça ne l'empêche pas."
     ],
     retenir: "Un seul traitement à la fois : sp_getapplock."
   },
@@ -789,17 +789,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q44", dialecte: "SQL Server",
     q: "Que fait WAITFOR DELAY '00:00:05' ?",
     choix: [
-      "Rien",
-      "Met en pause l'exécution 5 secondes",
-      "Attend un verrou 5 s",
-      "Planifie un job"
+      "Rien en dehors d'une transaction",
+      "Une pause de 5 s",
+      "Attend qu'un verrou se libère, 5 s max",
+      "Planifie le lot dans 5 secondes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Utile entre deux lots d'une purge, ou pour réessayer après un deadlock.",
-      "Non.",
-      "Non."
+      "Oui. Met en pause l'exécution 5 secondes. Utile entre deux lots d'une purge, ou pour réessayer après un deadlock.",
+      "Non. Ce serait SET LOCK_TIMEOUT 5000.",
+      "Non. Il bloque la session pendant 5 s."
     ],
     retenir: "WAITFOR DELAY = pause."
   },
@@ -807,15 +807,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q45", dialecte: "SQL Server",
     q: "Comment planifier une procédure chaque nuit à 2 h sur SQL Server ?",
     choix: [
-      "Une boucle WHILE infinie",
-      "Un travail (job) de l'Agent SQL Server, avec une étape EXEC dbo.p_… et une planification",
-      "Le planificateur Windows obligatoirement",
-      "Impossible"
+      "Une boucle WHILE avec WAITFOR TIME",
+      "Un job de l'Agent SQL, planifié à 2 h",
+      "Le planificateur Windows, obligatoirement",
+      "Un trigger sur la table des dates"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Avec historique, alertes par mail en cas d'échec, reprise…",
+      "Non. Une session ouverte en permanence, fragile.",
+      "Oui. Une étape EXEC dbo.p_… et une planification. Avec historique, alertes par mail en cas d'échec, reprise…",
       "Non. Possible, mais l'Agent est fait pour ça.",
       "Non."
     ],
@@ -825,17 +825,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q46", dialecte: "SQL Server",
     q: "Un job de l'Agent SQL échoue la nuit. Comment le savoir le matin sans regarder l'historique ?",
     choix: [
-      "Impossible",
-      "Configurer une notification (Database Mail + opérateur) en cas d'échec du job",
+      "Impossible sans l'historique",
+      "Une notification en cas d'échec",
       "Regarder les logs Windows",
-      "Attendre les plaintes"
+      "Un PRINT à la fin de la procédure"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Et pour que l'échec soit détecté, la procédure ne doit pas avaler ses erreurs.",
-      "Non.",
-      "Non."
+      "Oui. Database Mail + opérateur, notifié en cas d'échec du job. Et pour que l'échec soit détecté, la procédure ne doit pas avaler ses erreurs.",
+      "Non. Il faut encore aller les regarder.",
+      "Non. Personne ne le lit la nuit."
     ],
     retenir: "Jobs : alertes en cas d'échec."
   },
@@ -843,15 +843,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q47", dialecte: "SQL Server",
     q: "Un utilisateur a le droit EXEC sur dbo.p_ca_client, mais aucun droit sur la table commande. La procédure (même propriétaire) lit commande. Ça marche ?",
     choix: [
-      "Non, erreur de droits",
-      "Oui : chaînage de propriété. Les procédures sont une bonne façon de donner un accès contrôlé",
-      "Seulement en lecture",
-      "Seulement le soir"
+      "Non, erreur de droits sur commande",
+      "Oui : chaînage de propriété",
+      "Non, sauf avec WITH NOLOCK",
+      "Oui, mais seulement pour les admins"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Exception : le SQL dynamique dans la procédure casse ce chaînage.",
+      "Oui. Même propriétaire : SQL Server ne revérifie pas les droits sur la table. Les procédures sont une bonne façon de donner un accès contrôlé. Exception : le SQL dynamique casse ce chaînage.",
       "Non.",
       "Non."
     ],
@@ -861,15 +861,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q48", dialecte: "SQL Server",
     q: "Pourquoi xp_cmdshell (lancer des commandes Windows depuis SQL) est-il désactivé par défaut ?",
     choix: [
-      "Il est lent",
-      "Risque de sécurité : il donne accès au système d'exploitation du serveur",
-      "Il ne marche pas",
-      "Il est payant"
+      "Il ralentit tout le serveur",
+      "Accès au système du serveur",
+      "Il ne marche pas sous Linux",
+      "Il est payant en édition Standard"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour manipuler des fichiers : un outil ETL, PowerShell ou un job dédié.",
+      "Oui. Risque de sécurité : il donne accès au système d'exploitation du serveur. Pour manipuler des fichiers : un outil ETL, PowerShell ou un job dédié.",
       "Non.",
       "Non."
     ],
@@ -879,15 +879,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q49", dialecte: "SQL Server",
     q: "Une procédure de 2 000 lignes fait tout (import, contrôle, calcul, export). Quelle amélioration ?",
     choix: [
-      "Aucune",
-      "La découper en procédures plus petites, une par responsabilité, appelées par une procédure « chef d'orchestre »",
+      "Aucune, une seule procédure c'est plus simple",
+      "Découper : une procédure par rôle",
       "Tout mettre dans une fonction",
-      "La copier"
+      "La dupliquer pour chaque étape"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Plus facile à tester, à relancer partiellement, à maintenir.",
+      "Oui. Des procédures plus petites, une par responsabilité, appelées par une procédure « chef d'orchestre ». Plus facile à tester, à relancer partiellement, à maintenir.",
       "Non.",
       "Non."
     ],
@@ -897,17 +897,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q50", dialecte: "SQL Server",
     q: "Que mettre dans une table de log de traitement ?",
     choix: [
-      "Rien",
-      "Nom du traitement, début, fin, statut, nombre de lignes traitées, message d'erreur éventuel",
       "Seulement l'heure de fin",
-      "Le mot de passe"
+      "Quoi, quand, combien, résultat",
+      "Le texte complet de chaque requête",
+      "Le login et le mot de passe utilisé"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On sait ce qui a tourné, combien de temps, avec quel volume, et pourquoi ça a échoué.",
-      "Non.",
-      "Non. Jamais."
+      "Oui. Nom du traitement, début, fin, statut, nombre de lignes, message d'erreur éventuel : on sait ce qui a tourné, combien de temps, avec quel volume, et pourquoi ça a échoué.",
+      "Non. Trop lourd, et peu utile.",
+      "Non. Jamais de mot de passe."
     ],
     retenir: "Log de traitement : qui, quand, combien, résultat."
   },
@@ -915,15 +915,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q51", dialecte: "SQL Server",
     q: "T-SQL accepte GOTO. Faut-il l'utiliser ?",
     choix: [
-      "Oui, partout",
-      "Rarement : il rend le code difficile à suivre. IF / WHILE / TRY-CATCH suffisent presque toujours",
-      "Il est obligatoire",
-      "Il n'existe pas"
+      "Oui, partout où c'est pratique",
+      "Rarement",
+      "Oui, il est obligatoire avec CATCH",
+      "Non, il n'existe pas en T-SQL"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le code doit pouvoir être lu de haut en bas.",
+      "Oui. Il rend le code difficile à suivre. IF / WHILE / TRY-CATCH suffisent presque toujours : le code doit pouvoir être lu de haut en bas.",
       "Non.",
       "Non. Il existe."
     ],
@@ -933,15 +933,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q52", dialecte: "SQL Server",
     q: "Quelle différence entre CASE et IF en T-SQL ?",
     choix: [
-      "Aucune",
-      "CASE est une expression qui renvoie une valeur (dans une requête) ; IF contrôle l'enchaînement des instructions",
-      "IF marche dans un SELECT",
-      "CASE exécute des instructions"
+      "Aucune, ce sont deux synonymes",
+      "CASE renvoie une valeur, IF enchaîne",
+      "IF marche aussi dans un SELECT",
+      "CASE peut exécuter un UPDATE"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On ne peut pas écrire IF dans un SELECT, ni exécuter un UPDATE dans un CASE.",
+      "Oui. CASE est une expression qui renvoie une valeur (dans une requête) ; IF contrôle l'enchaînement des instructions. On ne peut pas écrire IF dans un SELECT, ni exécuter un UPDATE dans un CASE.",
       "Non.",
       "Non."
     ],
@@ -951,15 +951,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q53", dialecte: "SQL Server",
     q: "Dans une procédure, pourquoi préférer CREATE TABLE #t (…) explicite à SELECT … INTO #t ?",
     choix: [
-      "C'est plus court",
-      "On maîtrise les types, NULL / NOT NULL et on peut ajouter une clé ; SELECT INTO déduit les types (parfois trop larges ou faux)",
-      "SELECT INTO est interdit",
-      "Aucune différence"
+      "C'est plus court à écrire",
+      "On maîtrise types, NULL et clé",
+      "SELECT INTO est interdit en procédure",
+      "SELECT INTO verrouille toute la base"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. SELECT INTO reste pratique et rapide pour des besoins simples.",
+      "Oui. On maîtrise les types, NULL / NOT NULL, et on peut ajouter une clé ; SELECT INTO déduit les types (parfois trop larges ou faux). SELECT INTO reste pratique pour des besoins simples.",
       "Non.",
       "Non."
     ],
@@ -970,14 +970,14 @@ LEARNSQL.questions.m13 = [
     q: "Tu insères des lignes dans une variable table @log, puis tu fais ROLLBACK. Que contient @log ?",
     choix: [
       "Rien, tout est annulé",
-      "Toujours les lignes : les variables table ne sont pas concernées par le ROLLBACK",
-      "Une erreur",
-      "La moitié"
+      "Toujours les lignes insérées",
+      "Une erreur au ROLLBACK",
+      "Seulement la dernière ligne insérée"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les #tables, elles, seraient annulées.",
-      "Oui. Astuce pour garder un journal d'erreurs malgré l'annulation.",
+      "Oui. Les variables table ne sont pas concernées par le ROLLBACK. Astuce pour garder un journal d'erreurs malgré l'annulation.",
       "Non.",
       "Non."
     ],
@@ -988,14 +988,14 @@ LEARNSQL.questions.m13 = [
     q: "Comment garder une trace de l'erreur dans une table de log permanente, alors que la transaction est annulée ?",
     choix: [
       "Insérer dans le log AVANT le ROLLBACK",
-      "Dans le CATCH : faire le ROLLBACK D'ABORD, puis insérer dans la table de log (hors transaction)",
-      "Impossible",
-      "Mettre NOLOCK"
+      "ROLLBACK d'abord, puis log",
+      "Impossible, tout est annulé",
+      "Mettre le log en NOLOCK"
     ],
     bonne: 1,
     pourquoi: [
       "Non. L'insertion serait annulée avec le reste.",
-      "Oui. Ou passer par une variable table pendant la transaction, puis l'écrire après.",
+      "Oui. Dans le CATCH : ROLLBACK D'ABORD, puis insérer dans la table de log (hors transaction). Ou passer par une variable table pendant la transaction, puis l'écrire après.",
       "Non.",
       "Non."
     ],
@@ -1005,17 +1005,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q56", dialecte: "SQL Server",
     q: "Une procédure A crée #temp puis appelle une procédure B. B peut-elle lire #temp ?",
     choix: [
-      "Non",
-      "Oui : une #table est visible dans les procédures appelées par celle qui l'a créée",
-      "Seulement en ##",
+      "Non, elle est privée à A",
+      "Oui, elle est visible",
+      "Seulement si on la nomme ##temp",
       "Seulement si B la recrée"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pratique, mais crée une dépendance cachée entre A et B : à documenter.",
-      "Non.",
-      "Non."
+      "Oui. Une #table est visible dans les procédures appelées par celle qui l'a créée. Pratique, mais crée une dépendance cachée entre A et B : à documenter.",
+      "Non. Pas besoin de ##.",
+      "Non. La recréer en ferait une autre table."
     ],
     retenir: "#table visible vers le bas (procédures appelées)."
   },
@@ -1023,15 +1023,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q57", dialecte: "SQL Server",
     q: "Une procédure contient 3 SELECT. Que reçoit un outil ETL qui l'appelle ?",
     choix: [
-      "Les 3 fusionnés",
-      "3 jeux de résultats séparés ; beaucoup d'outils ne lisent que le premier",
-      "Une erreur",
-      "Seulement le dernier"
+      "Les 3 résultats fusionnés en un seul",
+      "3 jeux de résultats séparés",
+      "Une erreur : un seul SELECT permis",
+      "Seulement le dernier SELECT"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une procédure appelée par un outil devrait renvoyer un seul jeu de résultats clair.",
+      "Oui. Beaucoup d'outils ne lisent que le premier. Une procédure appelée par un outil devrait renvoyer un seul jeu de résultats clair.",
       "Non.",
       "Non."
     ],
@@ -1041,15 +1041,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q58", dialecte: "SQL Server",
     q: "INSERT INTO #t EXEC dbo.p_A; marche, mais p_A fait elle-même INSERT … EXEC p_B. Que se passe-t-il ?",
     choix: [
-      "Ça marche",
-      "Erreur : un INSERT … EXEC ne peut pas être imbriqué",
-      "Seules les données de p_B arrivent",
-      "Boucle infinie"
+      "Ça marche, sur deux niveaux",
+      "Une erreur : pas d'imbrication",
+      "Seules les lignes de p_B arrivent",
+      "Une boucle infinie entre p_A et p_B"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Limite connue. Alternative : faire écrire p_A directement dans une #table créée par l'appelant.",
+      "Oui. Un INSERT … EXEC ne peut pas être imbriqué : limite connue. Alternative : faire écrire p_A directement dans une #table créée par l'appelant.",
       "Non.",
       "Non."
     ],
@@ -1061,16 +1061,16 @@ LEARNSQL.questions.m13 = [
     choixCode: true,
     choix: [
       "CREATE SYNONYM dbo.erp_client FOR Divalto_PROD.dbo.client;",
-      "Copier la table",
-      "Une variable @base",
-      "Impossible"
+      "DECLARE @base = 'Divalto_PROD'; SELECT * FROM @base.dbo.client;",
+      "SELECT * INTO dbo.erp_client FROM Divalto_PROD.dbo.client;",
+      "CREATE TABLE dbo.erp_client AS Divalto_PROD.dbo.client;"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Si la base change de nom (test, recette), on modifie seulement le synonyme.",
-      "Non.",
-      "Non. Une variable ne peut pas remplacer un nom de table (sauf SQL dynamique).",
-      "Non."
+      "Non. Une variable ne peut pas remplacer un nom d'objet (sauf SQL dynamique).",
+      "Non. C'est une copie figée, pas un lien.",
+      "Non. Syntaxe invalide sur SQL Server."
     ],
     retenir: "Synonyme = alias permanent vers un objet."
   },
@@ -1079,16 +1079,16 @@ LEARNSQL.questions.m13 = [
     q: "Où doit vivre le code des procédures, vues et fonctions ?",
     choix: [
       "Seulement dans la base de production",
-      "Dans un dépôt Git (scripts versionnés), déployé vers les bases : on sait qui a changé quoi, et on peut revenir en arrière",
-      "Sur le bureau du développeur",
-      "Dans un mail"
+      "Dans un dépôt Git, puis déployé",
+      "Sur le poste du développeur",
+      "Dans un dossier partagé du réseau"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas d'historique, pas de retour arrière.",
-      "Oui. La base reçoit le code ; Git le garde.",
+      "Oui. Scripts versionnés, déployés vers les bases : on sait qui a changé quoi, et on peut revenir en arrière. La base reçoit le code ; Git le garde.",
       "Non.",
-      "Non."
+      "Non. Pas d'historique fiable des changements."
     ],
     retenir: "Le code SQL se versionne dans Git."
   },
@@ -1096,17 +1096,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q61", dialecte: "Standard",
     q: "Une procédure contient en dur le taux de TVA 0,20 et le chemin d'un dossier d'export. Meilleure pratique ?",
     choix: [
-      "C'est très bien",
-      "Les mettre dans une table de paramètres (code, valeur, date d'effet) lue par la procédure",
-      "Les mettre en commentaire",
-      "Les mettre dans le nom de la procédure"
+      "C'est très bien ainsi",
+      "Dans une table de paramètres",
+      "En commentaire au-dessus",
+      "Dans des variables en début de code"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un changement = modifier et redéployer le code.",
-      "Oui. Un changement = une mise à jour de données, tracée.",
+      "Oui. Une table (code, valeur, date d'effet) lue par la procédure : un changement = une mise à jour de données, tracée.",
       "Non.",
-      "Non."
+      "Non. Toujours dans le code : il faut redéployer pour changer."
     ],
     retenir: "Valeurs métier variables : table de paramètres."
   },
@@ -1114,17 +1114,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q62", dialecte: "SQL Server",
     q: "Pourquoi déclarer @date_debut DATE plutôt que @date_debut VARCHAR(10) dans une procédure ?",
     choix: [
-      "Aucune raison",
-      "Le type DATE refuse les dates invalides à l'appel, évite les problèmes de format, et permet des comparaisons efficaces",
-      "VARCHAR est interdit",
-      "DATE est plus court à écrire"
+      "Aucune, c'est pareil",
+      "DATE refuse les dates invalides",
+      "VARCHAR est interdit en paramètre",
+      "DATE accepte tous les formats de texte"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Avec un texte, '31/02/2026' passerait jusqu'à planter au milieu du traitement.",
+      "Oui. Le type DATE refuse les dates invalides à l'appel, évite les problèmes de format et permet des comparaisons efficaces. Avec un texte, '31/02/2026' passerait jusqu'à planter au milieu du traitement.",
       "Non.",
-      "Non."
+      "Non. Certains formats texte sont refusés ou mal compris."
     ],
     retenir: "Paramètres typés = erreurs détectées tôt."
   },
@@ -1133,16 +1133,16 @@ LEARNSQL.questions.m13 = [
     q: "Une procédure reçoit @date_debut et @date_fin. Que faire en tout début de procédure ?",
     choixCode: true,
     choix: [
-      "Rien",
+      "IF @date_fin < @date_debut PRINT 'Période invalide';",
       "IF @date_fin < @date_debut THROW 50010, 'Période invalide', 1;",
-      "Un curseur",
-      "SET NOCOUNT OFF"
+      "IF @date_fin < @date_debut RETURN;",
+      "SET NOCOUNT OFF;"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le message passe inaperçu et le traitement continue.",
       "Oui. Valider les paramètres d'abord : message clair, aucun travail inutile.",
-      "Non.",
+      "Non. On sort sans erreur : l'appelant croit que tout va bien.",
       "Non."
     ],
     retenir: "Valider les paramètres en entrée."
@@ -1152,17 +1152,17 @@ LEARNSQL.questions.m13 = [
     q: "Tu veux construire la liste 'A1;B2;C3' à partir d'une table. Que préférer à une boucle qui concatène ligne par ligne ?",
     choixCode: true,
     choix: [
-      "Un curseur",
+      "SELECT @liste += code + ';' FROM … ORDER BY …",
       "SELECT @liste = STRING_AGG(code, ';') FROM …",
-      "Une fonction scalaire",
-      "Impossible"
+      "SELECT @liste = CONCAT(code, ';') FROM …",
+      "SELECT @liste = SUM(code + ';') FROM …"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Concaténation dans une variable : résultat non garanti, surtout avec ORDER BY.",
       "Oui. Une seule instruction (SQL Server 2017+).",
-      "Non.",
-      "Non."
+      "Non. Garde seulement la valeur d'une ligne.",
+      "Non. SUM ne marche pas sur du texte."
     ],
     retenir: "Concaténer des lignes : STRING_AGG."
   },
@@ -1170,15 +1170,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q65", dialecte: "SQL Server",
     q: "Différence entre CREATE PROCEDURE … WITH RECOMPILE et OPTION (RECOMPILE) sur une requête ?",
     choix: [
-      "Aucune",
-      "WITH RECOMPILE recompile TOUTE la procédure à chaque appel ; OPTION (RECOMPILE) seulement la requête concernée",
-      "OPTION (RECOMPILE) est interdit",
+      "Aucune, ce sont deux synonymes",
+      "Toute la procédure vs une requête",
+      "OPTION (RECOMPILE) est interdit en procédure",
       "WITH RECOMPILE accélère toujours"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Préfère OPTION (RECOMPILE) sur la seule requête sensible.",
+      "Oui. WITH RECOMPILE recompile TOUTE la procédure à chaque appel ; OPTION (RECOMPILE) seulement la requête concernée. Préfère OPTION (RECOMPILE) sur la seule requête sensible.",
       "Non.",
       "Non."
     ],
@@ -1188,17 +1188,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q66", dialecte: "SQL Server",
     q: "À quoi sert EXECUTE AS OWNER dans la définition d'une procédure ?",
     choix: [
-      "À rien",
-      "La procédure s'exécute avec les droits de son propriétaire : utile pour une action précise que l'appelant n'a pas le droit de faire directement",
-      "À changer de base",
-      "À créer un utilisateur"
+      "À changer de base de données",
+      "À emprunter les droits du propriétaire",
+      "À créer un utilisateur temporaire",
+      "À exécuter sous le compte administrateur"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. À utiliser avec prudence : la procédure doit être bien contrôlée.",
+      "Oui. La procédure s'exécute avec les droits de son propriétaire : utile pour une action précise que l'appelant n'a pas le droit de faire. À utiliser avec prudence : la procédure doit être bien contrôlée.",
       "Non.",
-      "Non."
+      "Non. Les droits du propriétaire, pas forcément ceux d'un admin."
     ],
     retenir: "EXECUTE AS = droits empruntés, à encadrer."
   },
@@ -1206,17 +1206,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q67", dialecte: "SQL Server",
     q: "Dans un script de déploiement exécuté en mode SQLCMD, à quoi sert :setvar BaseCible Divalto_RECETTE ?",
     choix: [
-      "À créer une base",
-      "À définir une variable de script, utilisée ensuite comme $(BaseCible) : le même script sert pour recette et production",
-      "À rien",
-      "À déclarer une variable T-SQL"
+      "À créer une base de recette",
+      "Une variable de script $(BaseCible)",
+      "À déclarer une variable T-SQL",
+      "À changer de base comme USE"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Remplacement de texte avant l'exécution.",
-      "Non.",
-      "Non. Ce n'est pas un @."
+      "Oui. Variable de script, utilisée ensuite comme $(BaseCible) : le même script sert pour recette et production. Remplacement de texte avant l'exécution.",
+      "Non. Ce n'est pas un @.",
+      "Non. Elle définit un texte ; c'est USE $(BaseCible) qui change de base."
     ],
     retenir: "SQLCMD :setvar = paramètre de script de déploiement."
   },
@@ -1224,17 +1224,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q68", dialecte: "SQL Server",
     q: "Que signifie la gravité (severity) d'une erreur SQL Server ?",
     choix: [
-      "Rien",
-      "0-10 : information ; 11-16 : erreur corrigeable par l'utilisateur ; 17-19 : ressources ; 20+ : grave, la connexion est coupée",
-      "Le nombre de lignes",
-      "La durée"
+      "Le nombre de lignes touchées",
+      "Le niveau, de l'info au critique",
+      "La durée de l'erreur en secondes",
+      "Le numéro de ligne de l'erreur"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les erreurs métier levées avec THROW ont une gravité 16. Les messages ≤ 10 ne déclenchent pas le CATCH.",
+      "Oui. 0-10 : information ; 11-16 : erreur corrigeable par l'utilisateur ; 17-19 : ressources ; 20+ : grave, connexion coupée. THROW lève en gravité 16. Les messages ≤ 10 ne déclenchent pas le CATCH.",
       "Non.",
-      "Non."
+      "Non. C'est ERROR_LINE()."
     ],
     retenir: "Gravité ≤ 10 = info ; 16 = erreur classique ; 20+ = critique."
   },
@@ -1242,15 +1242,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q69", dialecte: "SQL Server",
     q: "Une procédure renvoie un résultat faux. Méthode simple pour trouver l'étape fautive ?",
     choix: [
-      "Tout réécrire",
-      "Ajouter temporairement des SELECT (ou PRINT) des tables intermédiaires et des variables après chaque étape",
-      "Ajouter NOLOCK",
-      "Redémarrer"
+      "Tout réécrire depuis le début",
+      "Afficher chaque étape",
+      "Ajouter NOLOCK partout",
+      "Relancer jusqu'à ce que ça marche"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Même idée que déboguer une chaîne de CTE. Penser à les retirer ensuite (ou les conditionner à un paramètre @debug).",
+      "Oui. Ajouter temporairement des SELECT (ou PRINT) des tables intermédiaires et des variables après chaque étape. Penser à les retirer ensuite (ou les conditionner à un paramètre @debug).",
       "Non.",
       "Non."
     ],
@@ -1261,16 +1261,16 @@ LEARNSQL.questions.m13 = [
     q: "Comment tester une procédure de calcul de remise de façon fiable et répétable ?",
     choix: [
       "La lancer en production et regarder",
-      "Préparer un jeu de données de test connu, l'exécuter, comparer au résultat attendu (des outils comme tSQLt automatisent ces tests)",
-      "Demander à l'utilisateur",
-      "Ne pas tester"
+      "Données connues, résultat attendu",
+      "Demander à l'utilisateur de valider",
+      "Relire le code attentivement"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les tests rejouables évitent les régressions quand on modifie le code.",
-      "Non.",
-      "Non."
+      "Oui. Préparer un jeu de données de test connu, l'exécuter, comparer au résultat attendu (des outils comme tSQLt automatisent ces tests). Les tests rejouables évitent les régressions.",
+      "Non. Ni fiable, ni répétable.",
+      "Non. Utile, mais pas répétable."
     ],
     retenir: "Tests : données connues + résultat attendu."
   },
@@ -1279,15 +1279,15 @@ LEARNSQL.questions.m13 = [
     q: "Quelle est la structure d'un bloc Snowflake Scripting ?",
     choixCode: true,
     choix: [
-      "BEGIN TRY … END TRY",
-      "DECLARE (facultatif) … BEGIN … EXCEPTION (facultatif) … END;",
-      "TRY … CATCH",
-      "{ … }"
+      "BEGIN TRY … END TRY BEGIN CATCH … END CATCH",
+      "DECLARE … BEGIN … EXCEPTION … END;",
+      "TRY { … } CATCH { … }",
+      "BEGIN … ON ERROR … END;"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Syntaxe SQL Server.",
-      "Oui. Déclarations, corps, gestion d'erreurs.",
+      "Oui. Déclarations (facultatives), corps, gestion d'erreurs (facultative).",
       "Non.",
       "Non."
     ],
@@ -1337,16 +1337,16 @@ LEARNSQL.questions.m13 = [
     choixCode: true,
     choix: [
       "CREATE PROCEDURE p @a INT AS BEGIN … END",
-      "CREATE OR REPLACE PROCEDURE p(a INT) RETURNS VARCHAR LANGUAGE SQL AS $$ BEGIN … RETURN 'OK'; END; $$;",
-      "CREATE FUNCTION p …",
-      "DEFINE PROCEDURE p"
+      "CREATE PROCEDURE p(a INT) RETURNS VARCHAR LANGUAGE SQL AS $$ … $$",
+      "CREATE PROCEDURE p(a INT) AS BEGIN … RETURN 'OK'; END;",
+      "CREATE FUNCTION p(a INT) RETURNS VARCHAR AS $$ … $$"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Syntaxe SQL Server.",
-      "Oui. Type de retour obligatoire, langage précisé, corps entre $$.",
-      "Non.",
-      "Non."
+      "Oui. Type de retour obligatoire, langage précisé, corps entre $$ (ex. $$ BEGIN … RETURN 'OK'; END; $$).",
+      "Non. Il manque RETURNS (obligatoire) et les $$.",
+      "Non. Ça crée une fonction, pas une procédure."
     ],
     retenir: "Snowflake : RETURNS + LANGUAGE + $$ … $$."
   },
@@ -1374,16 +1374,16 @@ LEARNSQL.questions.m13 = [
     q: "Sur Snowflake, comment exécuter une requête construite dans une chaîne ?",
     choixCode: true,
     choix: [
-      "EXEC (@sql)",
+      "EXEC (:sql);",
       "EXECUTE IMMEDIATE :sql;",
-      "sp_executesql",
-      "RUN :sql"
+      "CALL sp_executesql(:sql);",
+      "RUN :sql;"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Syntaxe proche de SQL Server, invalide ici.",
       "Oui. Avec USING (…) pour passer des valeurs en paramètres (contre l'injection).",
-      "Non. SQL Server.",
+      "Non. sp_executesql est propre à SQL Server.",
       "Non."
     ],
     retenir: "SQL dynamique Snowflake : EXECUTE IMMEDIATE."
@@ -1393,16 +1393,16 @@ LEARNSQL.questions.m13 = [
     q: "En Snowflake Scripting, comment récupérer le message d'une erreur attrapée ?",
     choixCode: true,
     choix: [
-      "ERROR_MESSAGE()",
+      "BEGIN CATCH RETURN ERROR_MESSAGE(); END CATCH",
       "EXCEPTION WHEN OTHER THEN RETURN SQLERRM;",
-      "CATCH (e)",
-      "@@ERROR"
+      "EXCEPTION WHEN OTHER THEN RETURN @@ERROR;",
+      "CATCH (e) RETURN e.message;"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SQL Server.",
+      "Non. Syntaxe SQL Server.",
       "Oui. SQLERRM = message, SQLCODE = code, SQLSTATE = état.",
-      "Non.",
+      "Non. @@ERROR n'existe pas sur Snowflake.",
       "Non."
     ],
     retenir: "Snowflake : EXCEPTION WHEN OTHER + SQLERRM."
@@ -1412,17 +1412,17 @@ LEARNSQL.questions.m13 = [
     q: "En Snowflake Scripting, comment lever une erreur métier personnalisée ?",
     choixCode: true,
     choix: [
-      "THROW 50001, 'msg', 1;",
-      "DECLARE erreur_periode EXCEPTION (-20001, 'Période invalide'); … RAISE erreur_periode;",
-      "PRINT 'erreur'",
-      "RETURN -1"
+      "THROW 50001, 'Période invalide', 1;",
+      "DECLARE e EXCEPTION (-20001, 'Période invalide'); … RAISE e;",
+      "SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Période invalide';",
+      "RETURN 'Période invalide';"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server.",
       "Oui. On déclare l'exception (numéro entre -20000 et -20999), puis RAISE.",
-      "Non.",
-      "Non. Un code retour n'arrête pas l'appelant."
+      "Non. Syntaxe MySQL.",
+      "Non. Un retour n'arrête pas l'appelant."
     ],
     retenir: "Snowflake : DECLARE … EXCEPTION puis RAISE."
   },
@@ -1431,17 +1431,17 @@ LEARNSQL.questions.m13 = [
     q: "En Snowflake Scripting, comment parcourir les lignes d'une requête ?",
     choixCode: true,
     choix: [
-      "WHILE @@FETCH_STATUS = 0",
-      "DECLARE c CURSOR FOR SELECT …; … FOR ligne IN c DO … END FOR;",
-      "FOREACH ROW",
-      "Impossible"
+      "WHILE @@FETCH_STATUS = 0 BEGIN … END",
+      "FOR ligne IN c DO … END FOR;",
+      "FOREACH ROW IN c LOOP … END LOOP;",
+      "FETCH NEXT FROM c INTO :ligne;"
     ],
     bonne: 1,
     pourquoi: [
       "Non. SQL Server.",
-      "Oui. Mais comme sur SQL Server : à réserver aux actions vraiment unitaires.",
+      "Oui. Avec c déclaré avant : DECLARE c CURSOR FOR SELECT …; Mais comme sur SQL Server : à réserver aux actions vraiment unitaires.",
       "Non.",
-      "Non."
+      "Non. Lit une seule ligne : il faudrait une boucle autour."
     ],
     retenir: "Snowflake : FOR … IN curseur DO … END FOR."
   },
@@ -1449,15 +1449,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q80", dialecte: "Snowflake",
     q: "Une procédure Snowflake s'exécute par défaut avec les droits de qui ?",
     choix: [
-      "De l'appelant",
-      "De son propriétaire (EXECUTE AS OWNER) ; on peut choisir EXECUTE AS CALLER",
-      "De l'administrateur",
-      "De personne"
+      "De l'appelant, toujours",
+      "Du propriétaire (OWNER)",
+      "De l'administrateur du compte",
+      "Du rôle PUBLIC, par sécurité"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Sauf si on le précise.",
-      "Oui. OWNER : l'appelant n'a pas besoin de droits sur les tables. CALLER : il les lui faut.",
+      "Non. Seulement si on précise EXECUTE AS CALLER.",
+      "Oui. EXECUTE AS OWNER par défaut ; on peut choisir EXECUTE AS CALLER. OWNER : l'appelant n'a pas besoin de droits sur les tables. CALLER : il les lui faut.",
       "Non.",
       "Non."
     ],
@@ -1468,17 +1468,17 @@ LEARNSQL.questions.m13 = [
     q: "Tu crées une TASK Snowflake planifiée chaque nuit. Elle ne s'exécute jamais. Oubli classique ?",
     choixCode: true,
     choix: [
-      "Le warehouse est trop grand",
-      "ALTER TASK ma_task RESUME; (une task est créée suspendue)",
-      "Il faut un index",
-      "Il faut redémarrer Snowflake"
+      "ALTER WAREHOUSE mon_wh RESUME;",
+      "ALTER TASK ma_task RESUME;",
+      "GRANT EXECUTE TASK TO ROLE sysadmin;",
+      "ALTER TASK ma_task SET SCHEDULE = 'DAILY';"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Il faut l'activer explicitement après création.",
-      "Non.",
-      "Non."
+      "Non. Le warehouse reprend seul (auto-resume).",
+      "Oui. Une task est créée suspendue : il faut l'activer explicitement après création.",
+      "Non. Même avec ce droit, la task reste suspendue.",
+      "Non. Le planning existe déjà ; la task reste suspendue."
     ],
     retenir: "Snowflake TASK : créée suspendue → RESUME."
   },
@@ -1505,15 +1505,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q83", dialecte: "Snowflake",
     q: "Une task Snowflake peut-elle s'exécuter sans warehouse dédié ?",
     choix: [
-      "Non, jamais",
-      "Oui : les tasks « serverless » utilisent des ressources gérées par Snowflake (facturées à l'usage)",
-      "Oui, gratuitement",
-      "Seulement le week-end"
+      "Non, un warehouse est toujours requis",
+      "Oui : tasks « serverless »",
+      "Oui, et c'est gratuit",
+      "Seulement pour les tasks SQL"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pratique pour de petites tâches fréquentes.",
+      "Oui. Elles utilisent des ressources gérées par Snowflake (facturées à l'usage). Pratique pour de petites tâches fréquentes.",
       "Non. Ce n'est pas gratuit.",
       "Non."
     ],
@@ -1524,16 +1524,16 @@ LEARNSQL.questions.m13 = [
     q: "Comment traiter seulement les nouvelles lignes d'une table, toutes les 10 minutes, sur Snowflake ?",
     choix: [
       "Relire toute la table à chaque fois",
-      "Un STREAM sur la table (il capte les changements) + une TASK qui consomme ce stream quand il a des données",
-      "Un trigger",
-      "Impossible"
+      "Un STREAM + une TASK",
+      "Un trigger AFTER INSERT",
+      "Un index sur la date d'insertion"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Coûteux.",
-      "Oui. Condition WHEN SYSTEM$STREAM_HAS_DATA('mon_stream') : la task ne tourne que s'il y a du nouveau.",
+      "Oui. Le STREAM capte les changements ; la TASK le consomme quand il a des données (WHEN SYSTEM$STREAM_HAS_DATA('mon_stream')).",
       "Non. Pas de triggers sur Snowflake.",
-      "Non."
+      "Non. Pas d'index classiques sur Snowflake."
     ],
     retenir: "Incrémental Snowflake : STREAM + TASK."
   },
@@ -1542,16 +1542,16 @@ LEARNSQL.questions.m13 = [
     q: "Comment créer une fonction SQL simple sur Snowflake (prix TTC) ?",
     choixCode: true,
     choix: [
-      "CREATE FUNCTION ttc(ht NUMBER(18,2)) RETURNS NUMBER(18,2) AS 'ht * 1.2';",
-      "CREATE PROCEDURE ttc …",
-      "DEFINE ttc = ht * 1.2",
-      "Impossible"
+      "CREATE FUNCTION ttc(ht NUMBER) RETURNS NUMBER AS 'ht * 1.2';",
+      "CREATE PROCEDURE ttc(ht NUMBER) RETURNS NUMBER AS 'ht * 1.2';",
+      "CREATE FUNCTION ttc(@ht NUMBER) AS RETURN @ht * 1.2;",
+      "DEFINE ttc(ht) = ht * 1.2;"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Fonction utilisable dans un SELECT : SELECT ttc(montant) FROM …",
       "Non. Une procédure ne s'utilise pas dans un SELECT.",
-      "Non.",
+      "Non. Syntaxe proche de SQL Server, invalide ici.",
       "Non."
     ],
     retenir: "Snowflake : CREATE FUNCTION … AS 'expression'."
@@ -1560,10 +1560,10 @@ LEARNSQL.questions.m13 = [
     id: "m13-q86", dialecte: "Snowflake",
     q: "En plus de SQL, dans quels langages peut-on écrire des procédures Snowflake ?",
     choix: [
-      "Aucun autre",
+      "Aucun autre que SQL",
       "JavaScript, Python, Java, Scala",
-      "COBOL",
-      "Seulement C#"
+      "C# et VB.NET seulement",
+      "PL/SQL et COBOL"
     ],
     bonne: 1,
     pourquoi: [
@@ -1579,17 +1579,17 @@ LEARNSQL.questions.m13 = [
     q: "Comment une procédure Snowflake peut-elle renvoyer un tableau de lignes ?",
     choixCode: true,
     choix: [
-      "RETURNS VARCHAR",
-      "RETURNS TABLE (code VARCHAR, ca NUMBER) … LET res RESULTSET := (SELECT …); RETURN TABLE(res);",
-      "PRINT",
-      "SELECT à la fin, comme SQL Server"
+      "RETURNS VARCHAR … RETURN 'lignes';",
+      "RETURNS TABLE (…) … RETURN TABLE(res);",
+      "SELECT … à la fin, comme SQL Server",
+      "RETURNS ARRAY … RETURN ARRAY_AGG(*);"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une seule valeur.",
-      "Oui. On déclare la structure du tableau renvoyé.",
-      "Non.",
-      "Non. Sur Snowflake, il faut déclarer RETURNS TABLE."
+      "Oui. RETURNS TABLE (code VARCHAR, ca NUMBER) … LET res RESULTSET := (SELECT …); RETURN TABLE(res); On déclare la structure du tableau renvoyé.",
+      "Non. Sur Snowflake, il faut déclarer RETURNS TABLE.",
+      "Non. Renvoie une seule valeur (un tableau), pas des lignes."
     ],
     retenir: "Snowflake : RETURNS TABLE + RETURN TABLE(resultset)."
   },
@@ -1597,17 +1597,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q88", dialecte: "Snowflake",
     q: "Snowflake Scripting n'a pas de PRINT. Comment suivre l'avancement d'un traitement ?",
     choix: [
-      "Impossible",
-      "Écrire dans une table de log (ou utiliser la journalisation par table d'événements), et renvoyer un résumé en valeur de retour",
+      "Impossible sur Snowflake",
+      "Écrire dans une table de log",
       "PRINT marche quand même",
-      "Regarder le warehouse"
+      "Regarder l'activité du warehouse"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une table de log est de toute façon une bonne pratique, sur les deux moteurs.",
+      "Oui. Ou la journalisation par table d'événements, et renvoyer un résumé en valeur de retour. Une table de log est de toute façon une bonne pratique, sur les deux moteurs.",
       "Non.",
-      "Non."
+      "Non. On voit la charge, pas l'avancement."
     ],
     retenir: "Snowflake : log en table, pas de PRINT."
   },
@@ -1617,16 +1617,16 @@ LEARNSQL.questions.m13 = [
     choixCode: true,
     choix: [
       "BEGIN TRAN … COMMIT TRAN",
-      "BEGIN TRANSACTION; … COMMIT; (et ROLLBACK dans le bloc EXCEPTION)",
-      "Impossible",
-      "SAVEPOINT obligatoire"
+      "BEGIN TRANSACTION; … COMMIT;",
+      "SAVEPOINT s1; … RELEASE SAVEPOINT s1;",
+      "BEGIN ATOMIC … END;"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SQL Server.",
-      "Oui. Attention : pas d'instruction DDL au milieu (COMMIT implicite).",
-      "Non.",
-      "Non."
+      "Non. Syntaxe SQL Server.",
+      "Oui. Et ROLLBACK dans le bloc EXCEPTION. Attention : pas d'instruction DDL au milieu (COMMIT implicite).",
+      "Non. Pas de SAVEPOINT sur Snowflake.",
+      "Non. Syntaxe d'autres moteurs."
     ],
     retenir: "Snowflake : BEGIN TRANSACTION … COMMIT, ROLLBACK dans EXCEPTION."
   },
@@ -1634,17 +1634,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q90", dialecte: "Snowflake",
     q: "Sur Snowflake, à quoi servent SET seuil = 1000; puis WHERE montant > $seuil ?",
     choix: [
-      "À rien",
-      "À définir une variable de SESSION, utilisable dans les requêtes suivantes avec $",
-      "À créer une colonne",
-      "À créer un paramètre de procédure"
+      "À créer une colonne seuil",
+      "Une variable de session ($seuil)",
+      "À créer un paramètre de procédure",
+      "À définir une constante permanente"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pratique dans une feuille de calcul Snowsight. Dans une procédure, on utilise plutôt LET et :var.",
+      "Oui. Variable de SESSION, utilisable dans les requêtes suivantes avec $. Pratique dans une feuille de calcul Snowsight. Dans une procédure, on utilise plutôt LET et :var.",
       "Non.",
-      "Non."
+      "Non. Elle disparaît à la fin de la session."
     ],
     retenir: "Snowflake : SET v = … ; $v (variable de session)."
   },
@@ -1652,15 +1652,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q91", dialecte: "SQL Server + Snowflake",
     q: "Tu migres une procédure T-SQL vers Snowflake. Que faut-il réécrire au minimum ?",
     choix: [
-      "Rien",
-      "La structure (CREATE PROCEDURE … $$), les @variables, TRY/CATCH, les fonctions propres à SQL Server (GETDATE, ISNULL, TOP…), les #tables",
-      "Seulement le nom",
-      "Seulement les commentaires"
+      "Rien, la syntaxe est la même",
+      "Presque toute la syntaxe",
+      "Seulement le nom de la procédure",
+      "Seulement les commentaires et les GO"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. La logique reste, la syntaxe change beaucoup. C'est l'occasion de passer en « ensembliste ».",
+      "Oui. La structure (CREATE PROCEDURE … $$), les @variables, TRY/CATCH, les fonctions propres à SQL Server (GETDATE, ISNULL, TOP…), les #tables. La logique reste. C'est l'occasion de passer en « ensembliste ».",
       "Non.",
       "Non."
     ],
@@ -1670,16 +1670,16 @@ LEARNSQL.questions.m13 = [
     id: "m13-q92", dialecte: "SQL Server + Snowflake",
     q: "Quelles traductions SQL Server → Snowflake sont correctes ?",
     choix: [
-      "GETDATE() → NOW()",
-      "GETDATE() → CURRENT_TIMESTAMP ; ISNULL(a, b) → COALESCE(a, b) ou IFNULL ; TOP (n) → LIMIT n ; #t → TEMPORARY TABLE",
-      "ISNULL → ISNULL",
-      "Aucune traduction nécessaire"
+      "GETDATE() → NOW() ; TOP → ROWNUM",
+      "ISNULL → COALESCE ; #t → TEMPORARY TABLE",
+      "ISNULL → ISNULL ; #t → #t",
+      "Aucune traduction n'est nécessaire"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Les fonctions standard (COALESCE, CURRENT_TIMESTAMP, CASE) simplifient les migrations.",
-      "Non. ISNULL n'existe pas sur Snowflake.",
+      "Non. ROWNUM vient d'Oracle.",
+      "Oui. Aussi GETDATE() → CURRENT_TIMESTAMP, TOP (n) → LIMIT n. Les fonctions standard (COALESCE, CURRENT_TIMESTAMP, CASE) simplifient les migrations.",
+      "Non. Ni ISNULL ni les #tables n'existent sur Snowflake.",
       "Non."
     ],
     retenir: "Écrire standard = migrer plus facilement."
@@ -1707,17 +1707,17 @@ LEARNSQL.questions.m13 = [
     id: "m13-q94", dialecte: "Snowflake",
     q: "Pourquoi une boucle qui exécute 10 000 petites requêtes est-elle encore plus pénalisante sur Snowflake que sur SQL Server ?",
     choix: [
-      "Elle ne l'est pas",
-      "Chaque instruction a un coût fixe (compilation, coordination dans le cloud) : 10 000 instructions = beaucoup de temps et de crédits",
+      "Elle ne l'est pas, c'est pareil",
+      "Un coût fixe par instruction",
       "Snowflake interdit les boucles",
-      "À cause des index"
+      "À cause des index Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Snowflake excelle sur quelques grosses requêtes, pas sur des milliers de petites.",
+      "Oui. Chaque instruction a un coût fixe (compilation, coordination dans le cloud) : 10 000 instructions = beaucoup de temps et de crédits. Snowflake excelle sur quelques grosses requêtes.",
       "Non.",
-      "Non."
+      "Non. Pas d'index classiques sur Snowflake."
     ],
     retenir: "Snowflake : peu de grosses requêtes, pas beaucoup de petites."
   },
@@ -1725,15 +1725,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q95", dialecte: "Standard",
     q: "Lors d'une relecture de code SQL (revue), que vérifier en priorité ?",
     choix: [
-      "La couleur dans l'éditeur",
-      "Résultat juste (jointures, NULL, doublons), gestion d'erreurs et transactions, performance (SARGable, ensembliste), sécurité (injection), lisibilité",
+      "La mise en forme et les majuscules",
+      "Juste, sûr, rapide, lisible",
       "Le nombre de lignes de code",
-      "Les majuscules uniquement"
+      "Les noms des variables seulement"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Dans cet ordre : juste, sûr, rapide, lisible.",
+      "Non. Ça vient en dernier.",
+      "Oui. Dans cet ordre : résultat juste (jointures, NULL, doublons), sûr (erreurs, transactions, injection), rapide (SARGable, ensembliste), lisible.",
       "Non.",
       "Non."
     ],
@@ -1745,15 +1745,15 @@ LEARNSQL.questions.m13 = [
     choix: [
       "dbo.proc1",
       "dbo.p_integrer_commandes_edi",
-      "dbo.sp_traitement",
-      "dbo.toto"
+      "dbo.sp_traitement_des_commandes",
+      "dbo.p_traitement"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
       "Oui. Préfixe cohérent + verbe + objet : on sait ce qu'elle fait sans l'ouvrir.",
       "Non. Préfixe sp_ et nom vague.",
-      "Non."
+      "Non. « traitement » de quoi ?"
     ],
     retenir: "Nom = verbe + objet."
   },
@@ -1761,15 +1761,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q97", dialecte: "SQL Server",
     q: "Pour signaler un échec, pourquoi THROW est-il plus sûr que RETURN -1 ?",
     choix: [
-      "Il est plus court",
-      "Un code de retour est souvent ignoré par l'appelant ; une erreur levée arrête le traitement et est vue par l'Agent SQL, l'ETL ou l'application",
-      "RETURN est interdit",
-      "Aucune différence"
+      "Il est plus court à écrire",
+      "On ne peut pas l'ignorer",
+      "RETURN est interdit dans un CATCH",
+      "RETURN -1 annule la transaction"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Un job qui « réussit » avec un code -1 ignoré, c'est une erreur silencieuse.",
+      "Oui. Un code de retour est souvent ignoré par l'appelant ; une erreur levée arrête le traitement et est vue par l'Agent SQL, l'ETL ou l'application.",
       "Non.",
       "Non."
     ],
@@ -1779,15 +1779,15 @@ LEARNSQL.questions.m13 = [
     id: "m13-q98", dialecte: "SQL Server",
     q: "Une étape de job échoue parfois à cause d'un deadlock. Quelle option simple de l'Agent SQL aide ?",
     choix: [
-      "Aucune",
-      "Les « tentatives » (retry attempts) de l'étape, avec un délai entre deux essais",
-      "Supprimer le job",
-      "NOLOCK"
+      "Aucune option ne le permet",
+      "Les tentatives de l'étape",
+      "Passer l'étape en NOLOCK",
+      "Supprimer et recréer le job"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. À condition que la procédure soit relançable sans doublon (idempotente).",
+      "Oui. « Retry attempts », avec un délai entre deux essais. À condition que la procédure soit relançable sans doublon (idempotente).",
       "Non.",
       "Non."
     ],
@@ -1797,16 +1797,16 @@ LEARNSQL.questions.m13 = [
     id: "m13-q99", dialecte: "Standard",
     q: "Que mettre dans l'en-tête de commentaire d'une procédure ?",
     choix: [
-      "Rien",
-      "Son objectif, ses paramètres, ce qu'elle modifie, les tables lues, et les cas particuliers / règles métier",
-      "Une blague",
-      "Le mot de passe"
+      "Rien, le code suffit",
+      "Objectif, paramètres, effets, règles",
+      "L'historique de toutes les versions",
+      "Le login et le mot de passe utilisés"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. L'historique des modifications, lui, est dans Git.",
-      "Non.",
+      "Oui. Son objectif, ses paramètres, ce qu'elle modifie, les tables lues, et les cas particuliers / règles métier.",
+      "Non. L'historique est dans Git.",
       "Non. Jamais de secret dans le code."
     ],
     retenir: "En-tête : objectif, paramètres, effets, règles."
@@ -1816,14 +1816,14 @@ LEARNSQL.questions.m13 = [
     q: "Quelle liste résume une bonne procédure stockée ?",
     choix: [
       "Longue, avec des curseurs",
-      "SET NOCOUNT ON, paramètres typés et validés, ensembliste, transaction + XACT_ABORT + TRY/CATCH + THROW, log, relançable, versionnée",
-      "Sans gestion d'erreur pour aller vite",
-      "Avec des valeurs en dur"
+      "Typée, ensembliste, protégée, tracée",
+      "Sans gestion d'erreur, pour aller vite",
+      "Avec des valeurs en dur, plus simple"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. C'est le standard attendu en production.",
+      "Oui. SET NOCOUNT ON, paramètres typés et validés, ensembliste, transaction + XACT_ABORT + TRY/CATCH + THROW, log, relançable, versionnée : le standard attendu en production.",
       "Non.",
       "Non."
     ],
