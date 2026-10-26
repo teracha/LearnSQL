@@ -3,15 +3,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q01", dialecte: "Standard",
     q: "Une table commande répète le nom et la ville du client sur chaque commande. Le client déménage. Quel problème ?",
     choix: [
-      "Aucun",
-      "Il faut modifier toutes ses commandes ; si on en oublie une, les données deviennent incohérentes (anomalie de mise à jour)",
-      "La table devient plus rapide",
-      "Le client disparaît"
+      "Aucun, c'est le plus simple",
+      "Il faut modifier chaque commande",
+      "Les anciennes commandes sont bloquées",
+      "Le client est supprimé automatiquement"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Une information doit être stockée à un seul endroit.",
+      "Non. Rien ne met les autres commandes à jour.",
+      "Oui. Si on en oublie une, les données deviennent incohérentes (anomalie de mise à jour). Une information doit être stockée à un seul endroit.",
       "Non.",
       "Non."
     ],
@@ -22,16 +22,16 @@ LEARNSQL.questions.m15 = [
     q: "Dans une table « à plat » commande + client, on ne peut pas créer un client tant qu'il n'a pas commandé. Comment s'appelle ce problème ?",
     choix: [
       "Anomalie d'insertion",
-      "Deadlock",
-      "Fantôme",
-      "Lecture sale"
+      "Deadlock à la création",
+      "Lecture fantôme",
+      "Lecture sale (dirty read)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le client n'existe qu'à travers une commande. Solution : une table client séparée.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Un problème de verrous, pas de modèle.",
+      "Non. Un problème d'isolation des transactions.",
+      "Non. Un problème d'isolation des transactions."
     ],
     retenir: "Anomalie d'insertion = on ne peut pas créer une info seule."
   },
@@ -39,15 +39,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q03", dialecte: "Standard",
     q: "Une table « à plat » mélange commandes et clients (nom, adresse sur chaque ligne de commande). On supprime la seule commande d'un client. Que perd-on ?",
     choix: [
-      "Rien",
-      "Toutes les informations du client (anomalie de suppression)",
-      "La table",
-      "Les index"
+      "Rien d'autre que la commande",
+      "Le client",
+      "La table entière",
+      "Les index de la table"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Supprimer une commande ne devrait pas effacer un client.",
+      "Non. Le client disparaît avec elle.",
+      "Oui. Toutes les informations du client (anomalie de suppression). Supprimer une commande ne devrait pas effacer un client.",
       "Non.",
       "Non."
     ],
@@ -58,14 +58,14 @@ LEARNSQL.questions.m15 = [
     q: "Que demande la 1re forme normale (1FN) ?",
     choix: [
       "Une clé étrangère par table",
-      "Une seule valeur par case : pas de liste ni de groupe de colonnes répétées",
-      "Des noms en majuscules",
-      "Un index par colonne"
+      "Des valeurs atomiques, sans liste",
+      "Des noms de colonnes en majuscules",
+      "Au moins un index par table"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. 'A1;B2;C3' dans une colonne, ou tel1, tel2, tel3 : non conforme.",
+      "Oui. Une seule valeur par case : pas de liste ni de groupe de colonnes répétées. 'A1;B2;C3' dans une colonne, ou tel1, tel2, tel3 : non conforme.",
       "Non.",
       "Non."
     ],
@@ -75,17 +75,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q05", dialecte: "Standard",
     q: "Table ligne_cde (num_cde, num_ligne, article, libelle_article, qte). Clé = (num_cde, num_ligne). Quel problème de 2e forme normale ?",
     choix: [
-      "Aucun",
-      "libelle_article dépend seulement de article, pas de toute la clé : il est répété et peut devenir incohérent",
-      "qte est en trop",
-      "num_ligne est inutile"
+      "Aucun, la table est correcte",
+      "libelle_article dépend de article seul",
+      "qte devrait être dans la clé",
+      "num_ligne est inutile, num_cde suffit comme clé"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. En pratique : le libellé va dans la table article. (Sauf si on veut garder le libellé « au moment de la commande » : c'est alors un choix voulu.)",
+      "Oui. Il ne dépend pas de toute la clé : il est répété et peut devenir incohérent. En pratique : le libellé va dans la table article. (Sauf si on veut garder le libellé « au moment de la commande » : c'est alors un choix voulu.)",
       "Non.",
-      "Non."
+      "Non. Une commande a plusieurs lignes : num_cde seul n'est pas unique."
     ],
     retenir: "2FN = chaque colonne dépend de TOUTE la clé."
   },
@@ -93,16 +93,16 @@ LEARNSQL.questions.m15 = [
     id: "m15-q06", dialecte: "Standard",
     q: "Table client (id, code_postal, ville). La ville dépend du code postal, pas du client. Quelle forme normale est concernée ?",
     choix: [
-      "1FN",
-      "3FN : dépendance « transitive » entre deux colonnes non clés",
-      "Aucune",
-      "4FN"
+      "1FN : valeurs non atomiques",
+      "3FN (transitive)",
+      "2FN : dépendance partielle de clé",
+      "Aucune, tout est conforme"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. En théorie : une table des codes postaux. En pratique, on accepte souvent cette redondance pour les adresses.",
-      "Non.",
+      "Non. Chaque case a une seule valeur.",
+      "Oui. Dépendance « transitive » entre deux colonnes non clés (ville dépend de code_postal). En théorie : une table des codes postaux. En pratique, on accepte souvent cette redondance pour les adresses.",
+      "Non. La clé (id) n'est pas composée.",
       "Non."
     ],
     retenir: "3FN = pas de dépendance entre colonnes non clés."
@@ -112,16 +112,16 @@ LEARNSQL.questions.m15 = [
     q: "Pourquoi une base d'ERP (saisie des commandes) est-elle normalisée ?",
     choix: [
       "Pour aller plus vite en lecture",
-      "Pour saisir et modifier sans incohérence : chaque information à un seul endroit, intégrité garantie",
-      "Pour Power BI",
-      "Par habitude"
+      "Pour écrire sans aucune incohérence",
+      "Pour faciliter les rapports Power BI",
+      "Pour réduire le nombre de tables"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les lectures demandent plus de jointures.",
-      "Oui. C'est un système transactionnel (OLTP) : beaucoup de petites écritures.",
+      "Oui. Chaque information à un seul endroit, intégrité garantie. C'est un système transactionnel (OLTP) : beaucoup de petites écritures.",
       "Non.",
-      "Non."
+      "Non. Normaliser crée plutôt plus de tables."
     ],
     retenir: "OLTP = normalisé, pour écrire juste."
   },
@@ -129,15 +129,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q08", dialecte: "Standard",
     q: "Pourquoi un entrepôt de données (pour l'analyse) est-il souvent DÉnormalisé ?",
     choix: [
-      "Par erreur",
-      "Pour des requêtes simples et rapides : moins de jointures, des dimensions « à plat » faciles à comprendre",
+      "Par erreur de conception",
+      "Pour des requêtes simples et rapides",
       "Pour économiser de la place",
-      "Pour la saisie"
+      "Pour faciliter la saisie des données"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les données sont chargées par des traitements contrôlés, pas saisies : le risque d'incohérence est maîtrisé.",
+      "Oui. Moins de jointures, des dimensions « à plat » faciles à comprendre. Les données sont chargées par des traitements contrôlés, pas saisies : le risque d'incohérence est maîtrisé.",
       "Non. Il en prend un peu plus.",
       "Non."
     ],
@@ -147,15 +147,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q09", dialecte: "Standard",
     q: "Qu'est-ce qu'une clé candidate ?",
     choix: [
-      "Une clé étrangère",
-      "Une colonne (ou un groupe) qui pourrait servir de clé primaire : unique et non NULL",
-      "Une clé supprimée",
-      "Un index"
+      "Une clé étrangère vers une autre table",
+      "Une clé possible : unique, non NULL",
+      "Une clé supprimée mais conservée",
+      "Un index non unique"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Ex. id, SIRET, email. On en choisit une comme PK ; les autres deviennent des clés alternatives (UNIQUE).",
+      "Oui. Une colonne (ou un groupe) qui pourrait servir de clé primaire. Ex. id, SIRET, email. On en choisit une comme PK ; les autres deviennent des clés alternatives (UNIQUE).",
       "Non.",
       "Non."
     ],
@@ -165,17 +165,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q10", dialecte: "Standard",
     q: "Une relation « une commande a plusieurs lignes ». Où va la clé étrangère ?",
     choix: [
-      "Dans commande",
-      "Dans ligne_cde (cde_id) : le côté « plusieurs » porte la référence vers le côté « un »",
-      "Dans une 3e table",
-      "Nulle part"
+      "Dans commande, une colonne par ligne",
+      "Dans ligne_cde",
+      "Dans une table de liaison à part",
+      "Dans les deux tables, par sécurité"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Une commande ne peut pas stocker plusieurs id de lignes dans une colonne.",
-      "Oui. Règle du 1-N.",
+      "Non. Une commande ne peut pas stocker plusieurs id de lignes.",
+      "Oui. Colonne cde_id : le côté « plusieurs » porte la référence vers le côté « un ». Règle du 1-N.",
       "Non. Seulement pour le N-N.",
-      "Non."
+      "Non. Redondance et risque d'incohérence."
     ],
     retenir: "1-N : la FK est côté N."
   },
@@ -183,15 +183,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q11", dialecte: "Standard",
     q: "Un client a au plus une fiche « conditions de paiement » spécifique. Comment modéliser cette relation 1-1 ?",
     choix: [
-      "Une table de liaison",
-      "Soit des colonnes dans la table client, soit une table séparée dont la clé est aussi client_id (PK + FK)",
-      "Une liste dans une colonne",
-      "Impossible"
+      "Une table de liaison client_conditions",
+      "Dans client, ou table de même clé",
+      "Une liste dans une colonne de client",
+      "Impossible en relationnel"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Réservé au N-N.",
-      "Oui. Table séparée si les données sont facultatives, volumineuses ou sensibles.",
+      "Oui. Soit des colonnes dans la table client, soit une table séparée dont la clé est aussi client_id (PK + FK). Table séparée si les données sont facultatives, volumineuses ou sensibles.",
       "Non.",
       "Non."
     ],
@@ -201,17 +201,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q12", dialecte: "Standard",
     q: "Un article peut être vendu dans plusieurs promotions, une promotion contient plusieurs articles. Modélisation ?",
     choix: [
-      "Une FK dans article",
-      "Une table de liaison promo_article (promo_id, article_id), avec éventuellement le prix promo",
-      "Une FK dans promotion",
-      "Une colonne liste"
+      "Une FK promo_id dans article",
+      "Une table de liaison promo_article",
+      "Une FK article_id dans promotion",
+      "Une colonne liste des articles en promo"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un seul promo possible.",
-      "Oui. La clé de la table de liaison est souvent (promo_id, article_id).",
-      "Non.",
-      "Non."
+      "Non. Une seule promo possible par article.",
+      "Oui. promo_article (promo_id, article_id), avec éventuellement le prix promo. Sa clé est souvent (promo_id, article_id).",
+      "Non. Un seul article possible par promotion.",
+      "Non. Contraire à la 1FN."
     ],
     retenir: "N-N = table de liaison."
   },
@@ -220,16 +220,16 @@ LEARNSQL.questions.m15 = [
     q: "Dans un schéma entité-association, que veut dire « 0,N » côté commande pour la relation client-commande ?",
     choix: [
       "Un client a exactement une commande",
-      "Un client peut avoir zéro ou plusieurs commandes",
+      "De zéro à N commandes par client",
       "Une commande a plusieurs clients",
-      "Erreur"
+      "Une commande a zéro ou N lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
       "Oui. Minimum 0 (prospect sans commande), maximum N.",
       "Non.",
-      "Non."
+      "Non. Ce serait la relation commande-ligne."
     ],
     retenir: "Cardinalités : minimum, maximum."
   },
@@ -237,15 +237,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q14", dialecte: "Standard",
     q: "Une commande doit TOUJOURS avoir un client (cardinalité 1,1). Comment le traduire en base ?",
     choix: [
-      "Rien à faire",
-      "client_id NOT NULL + clé étrangère vers client",
-      "Un index",
-      "Un CHECK sur le nom"
+      "Rien, c'est le cas par défaut",
+      "NOT NULL + clé étrangère",
+      "Un index sur client_id",
+      "Un CHECK sur le nom du client"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. NOT NULL = obligatoire ; FK = qui existe.",
+      "Oui. client_id NOT NULL + clé étrangère vers client. NOT NULL = obligatoire ; FK = qui existe.",
       "Non.",
       "Non."
     ],
@@ -255,17 +255,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q15", dialecte: "Standard",
     q: "Dans un ERP, pourquoi sépare-t-on l'en-tête de commande et les lignes de commande ?",
     choix: [
-      "Par habitude",
-      "Les infos de l'en-tête (client, date, adresse) sont communes ; les lignes (article, quantité, prix) sont multiples : c'est une relation 1-N",
-      "Pour Power BI",
-      "Pour l'EDI uniquement"
+      "Par habitude des éditeurs",
+      "Infos communes vs lignes multiples",
+      "Pour accélérer Power BI",
+      "Parce que la norme EDI l'impose aux ERP"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Même structure dans les messages EDI (ORDERS : en-tête + lignes).",
+      "Oui. Les infos de l'en-tête (client, date, adresse) sont communes ; les lignes (article, quantité, prix) sont multiples : relation 1-N. Même structure dans les messages EDI (ORDERS : en-tête + lignes).",
       "Non.",
-      "Non."
+      "Non. L'EDI a la même structure, mais ne l'impose pas."
     ],
     retenir: "Document = en-tête (1) + lignes (N)."
   },
@@ -273,15 +273,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q16", dialecte: "Standard",
     q: "Dans un ERP multi-sociétés, pourquoi la colonne societe fait-elle souvent partie des clés ?",
     choix: [
-      "Pour faire joli",
-      "Le même code client ou numéro de pièce peut exister dans plusieurs sociétés : la clé doit les distinguer",
-      "Pour trier",
-      "Ce n'est jamais le cas"
+      "Pour trier les données par société",
+      "Codes en double entre sociétés",
+      "Ce n'est jamais le cas en pratique",
+      "Pour faciliter les droits d'accès"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Toute jointure doit alors inclure la société.",
+      "Oui. Le même code client ou numéro de pièce peut exister dans plusieurs sociétés : la clé doit les distinguer. Toute jointure doit alors inclure la société.",
       "Non.",
       "Non."
     ],
@@ -292,14 +292,14 @@ LEARNSQL.questions.m15 = [
     q: "Le prix de l'article change. Les anciennes factures doivent garder l'ancien prix. Comment modéliser ?",
     choix: [
       "Lire le prix dans la table article",
-      "Copier le prix unitaire dans la ligne de facture au moment de la facturation",
+      "Le copier sur la ligne de facture",
       "Ne jamais changer les prix",
-      "Recalculer les factures"
+      "Recalculer les factures au besoin"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les anciennes factures changeraient.",
-      "Oui. Redondance VOULUE : c'est une « photo » à la date du document.",
+      "Oui. Copier le prix unitaire dans la ligne au moment de la facturation. Redondance VOULUE : c'est une « photo » à la date du document.",
       "Non.",
       "Non. Une facture émise ne change plus."
     ],
@@ -310,14 +310,14 @@ LEARNSQL.questions.m15 = [
     q: "Comment modéliser des tarifs qui changent dans le temps ?",
     choix: [
       "Une colonne prix qu'on écrase",
-      "Une table tarif (article, prix, date_debut, date_fin) : un prix par période de validité",
-      "Une colonne par année",
-      "Un fichier Excel"
+      "Des prix datés (début, fin)",
+      "Une colonne de prix par année",
+      "Un fichier Excel partagé"
     ],
     bonne: 1,
     pourquoi: [
       "Non. On perd l'historique.",
-      "Oui. Pour trouver le prix à une date : debut <= @d AND (fin IS NULL OR fin >= @d).",
+      "Oui. Une table tarif (article, prix, date_debut, date_fin) : un prix par période de validité. Prix à une date : debut <= @d AND (fin IS NULL OR fin >= @d).",
       "Non.",
       "Non."
     ],
@@ -327,15 +327,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q19", dialecte: "Standard",
     q: "Comment modéliser la conversion de devises pour des ventes en USD et en EUR ?",
     choix: [
-      "Un taux fixe dans le code",
-      "Une table de taux (devise, date, taux) et, sur les ventes, le montant en devise d'origine + éventuellement le montant converti au taux du jour",
-      "Tout saisir en EUR",
-      "Une colonne par devise"
+      "Un taux fixe écrit dans le code",
+      "Montant d'origine + table de taux datée",
+      "Tout saisir directement en EUR",
+      "Une colonne de montant par devise"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On garde la vérité (devise d'origine) et une conversion traçable.",
+      "Oui. Une table de taux (devise, date, taux) et, sur les ventes, le montant en devise d'origine + éventuellement le montant converti. On garde la vérité et une conversion traçable.",
       "Non.",
       "Non."
     ],
@@ -345,15 +345,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q20", dialecte: "Standard",
     q: "Un article se vend à l'unité, au carton (12) ou à la palette (480). Comment gérer les quantités ?",
     choix: [
-      "Une colonne par unité",
-      "Une unité de référence pour l'article, une table de conversion (article, unité, coefficient), et toujours stocker la quantité avec son unité",
-      "Tout en cartons",
-      "Ignorer les unités"
+      "Une colonne de quantité par unité",
+      "Quantité + unité, avec conversions",
+      "Tout stocker en cartons",
+      "Ignorer les unités, garder le nombre"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Sinon, additionner des cartons et des pièces donne des totaux faux.",
+      "Oui. Une unité de référence pour l'article, une table de conversion (article, unité, coefficient), et toujours la quantité avec son unité. Sinon, additionner cartons et pièces donne des totaux faux.",
       "Non.",
       "Non."
     ],
@@ -364,14 +364,14 @@ LEARNSQL.questions.m15 = [
     q: "Dans un modèle en étoile, que contient la table de faits ?",
     choix: [
       "Les descriptions des clients",
-      "Les mesures (montants, quantités) et les clés vers les dimensions",
-      "Les paramètres",
-      "Les utilisateurs"
+      "Les mesures et les clés",
+      "Les paramètres de l'application",
+      "Les utilisateurs du rapport"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ça, ce sont les dimensions.",
-      "Oui. Une ligne = un événement ou une mesure, au grain choisi.",
+      "Oui. Les mesures (montants, quantités) et les clés vers les dimensions. Une ligne = un événement ou une mesure, au grain choisi.",
       "Non.",
       "Non."
     ],
@@ -381,15 +381,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q22", dialecte: "Standard",
     q: "Que contient une table de dimension ?",
     choix: [
-      "Des montants",
-      "Les descriptions qui servent à filtrer et regrouper : qui, quoi, où, quand (client, article, date, dépôt…)",
-      "Les erreurs",
-      "Les index"
+      "Des montants et des quantités",
+      "Les axes d'analyse",
+      "Les erreurs de chargement",
+      "Les index des faits"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Ce sont les « axes d'analyse » des rapports.",
+      "Non. Ce sont des mesures (faits).",
+      "Oui. Les descriptions qui servent à filtrer et regrouper : qui, quoi, où, quand (client, article, date, dépôt…).",
       "Non.",
       "Non."
     ],
@@ -399,15 +399,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q23", dialecte: "Standard",
     q: "Qu'est-ce que le « grain » d'une table de faits ?",
     choix: [
-      "Sa taille",
-      "Ce que représente exactement UNE ligne (ex. une ligne de facture ; un article par jour et par dépôt)",
-      "Son index",
-      "Son nombre de colonnes"
+      "Sa taille sur le disque",
+      "Ce que représente UNE ligne",
+      "Son nombre d'index",
+      "Son nombre de colonnes de mesures"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. C'est la première décision à prendre et à écrire.",
+      "Oui. Ce que représente exactement une ligne (ex. une ligne de facture ; un article par jour et par dépôt). C'est la première décision à prendre et à écrire.",
       "Non.",
       "Non."
     ],
@@ -417,15 +417,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q24", dialecte: "Standard",
     q: "Une table de faits contient des lignes de facture ET des lignes « total facture ». Quel problème ?",
     choix: [
-      "Aucun",
-      "Deux grains mélangés : une somme compte deux fois les montants",
-      "Moins de lignes",
+      "Aucun, c'est plus complet",
+      "Deux grains mélangés",
+      "Moins de lignes à lire",
       "Les dimensions disparaissent"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Une table de faits = un seul grain.",
+      "Oui. Une somme compte deux fois les montants. Une table de faits = un seul grain.",
       "Non.",
       "Non."
     ],
@@ -436,14 +436,14 @@ LEARNSQL.questions.m15 = [
     q: "Pourquoi choisir le grain le plus fin possible (ex. ligne de facture plutôt que total mensuel par client) ?",
     choix: [
       "Pour avoir plus de lignes",
-      "On peut toujours agréger un détail ; on ne peut jamais retrouver le détail à partir d'un total",
-      "C'est obligatoire",
-      "Pour Excel"
+      "On peut agréger un détail",
+      "C'est obligatoire en BI",
+      "Pour l'export vers Excel"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les besoins d'analyse évoluent : le détail rend le modèle durable.",
+      "Oui. On peut toujours agréger un détail ; on ne peut jamais retrouver le détail à partir d'un total. Les besoins évoluent : le détail rend le modèle durable.",
       "Non.",
       "Non."
     ],
@@ -453,15 +453,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q26", dialecte: "Standard",
     q: "Le montant HT d'une vente est-il une mesure additive ?",
     choix: [
-      "Non",
-      "Oui : on peut le sommer par client, par mois, par article, sans erreur",
+      "Non, jamais",
+      "Oui",
       "Seulement par mois",
       "Seulement par client"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. C'est la mesure idéale.",
+      "Oui. On peut le sommer par client, par mois, par article, sans erreur. C'est la mesure idéale.",
       "Non.",
       "Non."
     ],
@@ -471,15 +471,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q27", dialecte: "Standard",
     q: "Le stock en fin de mois est-il additif dans le temps ?",
     choix: [
-      "Oui",
-      "Non : semi-additif. On peut le sommer par dépôt, mais pas sur plusieurs mois (on prend le dernier, ou la moyenne)",
+      "Oui, comme le CA",
+      "Non : semi-additif",
       "Non additif du tout",
-      "Additif seulement le lundi"
+      "Additif seulement par mois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. 100 en janvier + 100 en février ≠ 200 en stock.",
-      "Oui. Dans Power BI : LASTNONBLANK / CLOSINGBALANCE plutôt que SUM sur le temps.",
+      "Oui. On peut le sommer par dépôt, mais pas sur plusieurs mois (on prend le dernier, ou la moyenne). Dans Power BI : LASTNONBLANK / CLOSINGBALANCE plutôt que SUM sur le temps.",
       "Non. On peut le sommer par dépôt ou par article.",
       "Non."
     ],
@@ -490,14 +490,14 @@ LEARNSQL.questions.m15 = [
     q: "Comment stocker un taux de marge dans une table de faits ?",
     choix: [
       "Stocker le taux et le sommer",
-      "Stocker la marge et le CA (additifs), et calculer le taux au moment de l'analyse : SUM(marge) / SUM(ca)",
-      "Ne pas le stocker du tout",
-      "Stocker le taux en texte"
+      "Stocker marge et CA, calculer après",
+      "Ne rien stocker du tout",
+      "Stocker le taux en texte formaté"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un taux ne s'additionne pas.",
-      "Oui. Les ratios se recalculent à partir de leurs composants.",
+      "Oui. Marge et CA sont additifs ; le taux se calcule au moment de l'analyse : SUM(marge) / SUM(ca). Les ratios se recalculent à partir de leurs composants.",
       "Non. Les composants sont nécessaires.",
       "Non."
     ],
@@ -507,15 +507,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q29", dialecte: "Standard",
     q: "Quelle différence entre un modèle en étoile et un modèle en flocon (snowflake schema) ?",
     choix: [
-      "Aucune",
-      "Étoile : dimensions à plat (famille et gamme dans dim_article). Flocon : dimensions normalisées en plusieurs tables (article → famille → gamme)",
+      "Aucune, deux noms pour la même chose",
+      "Dimensions à plat vs éclatées",
       "Le flocon est le produit Snowflake",
-      "L'étoile n'a pas de faits"
+      "L'étoile n'a pas de table de faits"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. L'étoile est en général préférée pour Power BI : plus simple et plus rapide.",
+      "Oui. Étoile : dimensions à plat (famille et gamme dans dim_article). Flocon : dimensions normalisées en plusieurs tables (article → famille → gamme). L'étoile est en général préférée pour Power BI.",
       "Non. Coïncidence de nom.",
       "Non."
     ],
@@ -525,15 +525,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q30", dialecte: "Standard",
     q: "Pourquoi Power BI préfère-t-il un modèle en étoile ?",
     choix: [
-      "C'est obligatoire",
-      "Filtres simples (des dimensions vers les faits), calculs DAX plus simples, meilleures performances, modèle compréhensible par les utilisateurs",
-      "Pour la couleur",
-      "Il n'a pas de préférence"
+      "C'est obligatoire dans Power BI",
+      "Filtres et DAX simples, plus rapide",
+      "Pour les couleurs des visuels",
+      "Il n'a aucune préférence"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Mais c'est fortement recommandé.",
-      "Oui. C'est la recommandation officielle de Microsoft.",
+      "Oui. Filtres simples (des dimensions vers les faits), calculs DAX plus simples, meilleures performances, modèle compréhensible. C'est la recommandation officielle de Microsoft.",
       "Non.",
       "Non."
     ],
@@ -543,16 +543,16 @@ LEARNSQL.questions.m15 = [
     id: "m15-q31", dialecte: "Standard",
     q: "Pourquoi les dimensions ont-elles souvent une clé technique (client_sk) différente du code client de l'ERP ?",
     choix: [
-      "Pour compliquer",
-      "Pour gérer l'historique (plusieurs versions du même client), mélanger plusieurs sources, et rester stable si le code métier change",
-      "Pour la sécurité",
+      "Pour compliquer les requêtes",
+      "Historique, multi-sources, stabilité",
+      "Pour masquer le code client aux utilisateurs",
       "C'est obligatoire dans Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le code ERP reste une colonne de la dimension (clé naturelle).",
-      "Non.",
+      "Oui. Gérer l'historique (plusieurs versions du même client), mélanger plusieurs sources, et rester stable si le code métier change. Le code ERP reste une colonne de la dimension (clé naturelle).",
+      "Non. Le code ERP reste visible dans la dimension.",
       "Non."
     ],
     retenir: "Dimension : clé technique + clé métier."
@@ -562,14 +562,14 @@ LEARNSQL.questions.m15 = [
     q: "Une dimension de type SCD 1 : le client change de ville. Que se passe-t-il ?",
     choix: [
       "Une nouvelle ligne est créée",
-      "La ville est écrasée : toutes les ventes, même anciennes, sont rattachées à la nouvelle ville",
-      "Rien ne change",
-      "La vente est supprimée"
+      "La ville est écrasée",
+      "Rien ne change dans la dimension",
+      "Les anciennes ventes sont supprimées"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est le type 2.",
-      "Oui. Simple, mais pas d'historique. Adapté aux corrections (faute de frappe).",
+      "Oui. Toutes les ventes, même anciennes, sont rattachées à la nouvelle ville. Simple, mais pas d'historique. Adapté aux corrections (faute de frappe).",
       "Non.",
       "Non."
     ],
@@ -580,14 +580,14 @@ LEARNSQL.questions.m15 = [
     q: "Une dimension de type SCD 2 : le client change de commercial. Que se passe-t-il ?",
     choix: [
       "Le commercial est écrasé",
-      "On ferme l'ancienne ligne (date de fin) et on crée une nouvelle ligne (nouvelle clé technique, date de début)",
-      "On supprime le client",
-      "On ajoute une colonne"
+      "On ferme l'ancienne ligne, on en crée une",
+      "On supprime puis recrée le client",
+      "On ajoute une colonne « ancien commercial »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est le type 1.",
-      "Oui. Les ventes passées restent liées à l'ancien commercial, les nouvelles au nouveau.",
+      "Oui. Ancienne ligne fermée (date de fin) ; nouvelle ligne (nouvelle clé technique, date de début). Les ventes passées restent liées à l'ancien commercial, les nouvelles au nouveau.",
       "Non.",
       "Non. C'est le type 3."
     ],
@@ -597,16 +597,16 @@ LEARNSQL.questions.m15 = [
     id: "m15-q34", dialecte: "Standard",
     q: "Une dimension de type SCD 3 : que garde-t-on ?",
     choix: [
-      "Tout l'historique",
-      "La valeur actuelle et la valeur précédente, dans deux colonnes (ex. region_actuelle, region_precedente)",
-      "Rien",
-      "Une copie de la table"
+      "Tout l'historique des valeurs",
+      "Valeur actuelle + précédente",
+      "Rien, la valeur est écrasée",
+      "Une copie complète de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est le type 2.",
-      "Oui. Utile pour comparer « avant / après » une réorganisation, sans historique complet.",
-      "Non.",
+      "Oui. Dans deux colonnes (ex. region_actuelle, region_precedente). Utile pour comparer « avant / après » une réorganisation, sans historique complet.",
+      "Non. C'est le type 1.",
       "Non."
     ],
     retenir: "SCD 3 = valeur actuelle + précédente."
@@ -615,15 +615,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q35", dialecte: "Standard",
     q: "Dans une dimension SCD 2, à quoi sert la colonne actuel (1 / 0) ?",
     choix: [
-      "À rien",
-      "À trouver vite la version en cours de chaque client, sans tester les dates",
-      "À trier",
-      "À supprimer"
+      "À rien, c'est décoratif",
+      "Trouver vite la version en cours",
+      "À trier les versions par date",
+      "À supprimer les anciennes versions"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les colonnes date_debut, date_fin, actuel vont ensemble.",
+      "Oui. Trouver vite la version en cours de chaque client, sans tester les dates. Les colonnes date_debut, date_fin, actuel vont ensemble.",
       "Non.",
       "Non."
     ],
@@ -633,15 +633,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q36", dialecte: "Standard",
     q: "Pourquoi mettre date_fin = '9999-12-31' plutôt que NULL sur la version en cours d'une dimension SCD 2 ?",
     choix: [
-      "C'est obligatoire",
-      "Les jointures et filtres par période (date BETWEEN debut AND fin) marchent sans cas particulier pour NULL",
-      "Pour la beauté",
+      "C'est obligatoire en SQL",
+      "Filtres par période sans cas NULL",
+      "Pour la lisibilité des dates",
       "Pour économiser de la place"
     ],
     bonne: 1,
     pourquoi: [
       "Non. NULL est aussi utilisé.",
-      "Oui. Un choix de convention, à documenter.",
+      "Oui. Les jointures et filtres par période (date BETWEEN debut AND fin) marchent sans cas particulier pour NULL. Un choix de convention, à documenter.",
       "Non.",
       "Non."
     ],
@@ -651,15 +651,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q37", dialecte: "Standard",
     q: "Quel type de SCD choisir pour une colonne « date de naissance » ?",
     choix: [
-      "Type 2",
-      "Type 0 (ou 1 pour corriger une erreur) : elle ne change pas dans le temps",
-      "Type 3",
-      "Aucune dimension"
+      "Type 2 : historique complet",
+      "Type 0 ou 1",
+      "Type 3 : valeur précédente",
+      "Aucune dimension pour ça"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas d'historique utile.",
-      "Oui. Le type se choisit colonne par colonne selon le besoin métier.",
+      "Oui. Type 0 (ou 1 pour corriger une erreur) : elle ne change pas dans le temps. Le type se choisit colonne par colonne selon le besoin métier.",
       "Non.",
       "Non."
     ],
@@ -669,15 +669,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q38", dialecte: "Standard",
     q: "Une vente arrive avec un code client inconnu de la dimension. Bonne pratique ?",
     choix: [
-      "Supprimer la vente",
-      "La rattacher à un membre « Inconnu » (clé -1) ou créer un membre provisoire, puis corriger quand le client arrive",
-      "Mettre NULL dans la clé",
+      "Supprimer la vente du chargement",
+      "Un membre « Inconnu » (clé -1)",
+      "Mettre NULL dans la clé client",
       "Bloquer tout le chargement"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le CA serait faux.",
-      "Oui. Le total reste juste, et l'anomalie est visible.",
+      "Oui. Ou créer un membre provisoire, puis corriger quand le client arrive. Le total reste juste, et l'anomalie est visible.",
       "Non. Les jointures perdraient la vente.",
       "Non. Sauf règle métier stricte."
     ],
@@ -687,15 +687,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q39", dialecte: "Standard",
     q: "Qu'est-ce qu'un « membre déduit » (inferred member) dans une dimension ?",
     choix: [
-      "Un membre supprimé",
-      "Une ligne provisoire créée avec seulement le code, quand un fait arrive avant sa dimension ; complétée au prochain chargement",
-      "Un doublon",
-      "Un utilisateur"
+      "Un membre supprimé de la dimension",
+      "Une ligne provisoire, avec le code",
+      "Un doublon détecté automatiquement",
+      "Un utilisateur sans rôle"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Mieux que « Inconnu » : la vente est déjà rattachée au bon client.",
+      "Oui. Créée avec seulement le code, quand un fait arrive avant sa dimension ; complétée au prochain chargement. Mieux que « Inconnu » : la vente est déjà rattachée au bon client.",
       "Non.",
       "Non."
     ],
@@ -705,15 +705,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q40", dialecte: "Standard",
     q: "Pourquoi une dimension date (calendrier) plutôt que d'utiliser seulement la colonne date de la table de faits ?",
     choix: [
-      "C'est inutile",
-      "Elle porte tous les attributs utiles (semaine ISO, mois, trimestre, année fiscale, jour ouvré, férié, saison) et contient tous les jours, même sans vente",
-      "Pour avoir plus de tables",
-      "Pour l'ERP"
+      "C'est inutile, la date suffit",
+      "Attributs utiles et tous les jours",
+      "Pour stocker les dates au format texte",
+      "Parce que l'ERP l'exige"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Indispensable pour l'intelligence temporelle de Power BI.",
+      "Oui. Elle porte tous les attributs utiles (semaine ISO, mois, trimestre, année fiscale, jour ouvré, férié, saison) et contient tous les jours, même sans vente. Indispensable pour l'intelligence temporelle de Power BI.",
       "Non.",
       "Non."
     ],
@@ -723,16 +723,16 @@ LEARNSQL.questions.m15 = [
     id: "m15-q41", dialecte: "Standard",
     q: "Ton entreprise a un exercice fiscal d'octobre à septembre. Où gérer cette notion ?",
     choix: [
-      "Dans chaque rapport",
-      "Dans la dimension date : colonnes annee_fiscale, mois_fiscal, trimestre_fiscal",
-      "Dans la table de faits",
-      "Impossible"
+      "Dans chaque rapport, par une formule",
+      "Dans la dimension date",
+      "Dans la table de faits, sur chaque ligne",
+      "Impossible : l'année civile s'impose"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Calcul répété et risque d'écarts.",
-      "Oui. La règle est écrite une fois.",
-      "Non.",
+      "Oui. Colonnes annee_fiscale, mois_fiscal, trimestre_fiscal : la règle est écrite une fois.",
+      "Non. Répété des millions de fois.",
       "Non."
     ],
     retenir: "Calendrier fiscal : dans la dimension date."
@@ -741,15 +741,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q42", dialecte: "Standard",
     q: "Pourquoi l'activité « piscine » rend-elle utile une colonne saison dans la dimension date ?",
     choix: [
-      "Inutile",
-      "Pour comparer facilement les saisons (haute / basse) et les mêmes périodes d'une année à l'autre",
-      "Pour la météo",
-      "Pour les vacances du personnel"
+      "Inutile pour l'analyse",
+      "Comparer les saisons d'une année à l'autre",
+      "Pour afficher la météo du jour",
+      "Pour planifier les vacances du personnel"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les attributs métier spécifiques donnent de la valeur à la dimension date.",
+      "Oui. Comparer facilement les saisons (haute / basse) et les mêmes périodes d'une année à l'autre. Les attributs métier spécifiques donnent de la valeur à la dimension date.",
       "Non.",
       "Non."
     ],
@@ -760,14 +760,14 @@ LEARNSQL.questions.m15 = [
     q: "Une commande a une date de commande, de livraison et de facturation. Combien de dimensions date faut-il créer ?",
     choix: [
       "Trois tables calendrier différentes",
-      "Une seule table calendrier, reliée trois fois (dimension « à rôles multiples »)",
-      "Aucune",
+      "Une seule, à rôles multiples",
+      "Aucune, les dates suffisent",
       "Une par client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Inutile.",
-      "Oui. Dans Power BI : une relation active, les autres inactives (USERELATIONSHIP), ou des copies de la table.",
+      "Oui. Une seule table calendrier, reliée trois fois (dimension « à rôles multiples »). Dans Power BI : une relation active, les autres inactives (USERELATIONSHIP), ou des copies de la table.",
       "Non.",
       "Non."
     ],
@@ -777,17 +777,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q44", dialecte: "Standard",
     q: "Le numéro de facture est stocké dans la table de faits, sans table de dimension associée. Comment s'appelle ce cas ?",
     choix: [
-      "Une erreur",
+      "Une erreur de modèle",
       "Une dimension « dégénérée »",
-      "Une clé étrangère",
-      "Un index"
+      "Une clé étrangère orpheline",
+      "Une mesure non additive"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est normal.",
       "Oui. Utile pour regrouper les lignes d'une même facture, sans autre attribut à décrire.",
       "Non.",
-      "Non."
+      "Non. Un numéro ne se somme pas, mais ce n'est pas une mesure."
     ],
     retenir: "N° de document dans les faits = dimension dégénérée."
   },
@@ -795,15 +795,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q45", dialecte: "Standard",
     q: "Les ventes ont 6 petits indicateurs (urgent O/N, mode de livraison, canal, payé O/N…). Comment éviter 6 petites dimensions ?",
     choix: [
-      "6 dimensions",
-      "Une dimension « fourre-tout » (junk dimension) qui contient les combinaisons existantes de ces indicateurs",
+      "Créer quand même 6 dimensions",
+      "Une dimension « fourre-tout »",
       "Les mettre en texte dans les faits",
-      "Les supprimer"
+      "Les supprimer du modèle"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Modèle encombré.",
-      "Oui. Une seule clé dans les faits.",
+      "Oui. Junk dimension : elle contient les combinaisons existantes de ces indicateurs. Une seule clé dans les faits.",
       "Non. Possible pour 1 ou 2, mais alourdit les faits.",
       "Non."
     ],
@@ -813,15 +813,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q46", dialecte: "Standard",
     q: "Qu'est-ce qu'une dimension « conforme » ?",
     choix: [
-      "Une dimension correcte",
-      "Une dimension partagée par plusieurs tables de faits (ventes, achats, stock) avec le même sens et les mêmes clés",
-      "Une dimension vide",
+      "Une dimension sans aucune erreur de données",
+      "Partagée, avec le même sens",
+      "Une dimension vide, prête",
       "Une dimension temporaire"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On peut alors croiser ventes et stock par article sans incohérence.",
+      "Oui. Une dimension partagée par plusieurs tables de faits (ventes, achats, stock), avec le même sens et les mêmes clés. On peut alors croiser ventes et stock par article sans incohérence.",
       "Non.",
       "Non."
     ],
@@ -831,15 +831,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q47", dialecte: "Standard",
     q: "Quelle table de faits pour le stock de chaque article, chaque fin de mois ?",
     choix: [
-      "Transactionnelle",
-      "Photo périodique (periodic snapshot) : une ligne par article, par dépôt, par mois",
-      "Sans faits",
-      "Accumulative"
+      "Transactionnelle (mouvements)",
+      "Photo périodique",
+      "Table sans faits (factless)",
+      "Accumulative (par étapes)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait les mouvements.",
-      "Oui. On mesure un état à intervalle régulier.",
+      "Oui. Periodic snapshot : une ligne par article, par dépôt, par mois. On mesure un état à intervalle régulier.",
       "Non.",
       "Non."
     ],
@@ -849,15 +849,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q48", dialecte: "Standard",
     q: "Tu veux suivre chaque commande à travers ses étapes (commandée, préparée, expédiée, facturée) et mesurer les délais. Quel type de table de faits ?",
     choix: [
-      "Transactionnelle",
-      "Accumulative (accumulating snapshot) : une ligne par commande, mise à jour à chaque étape, avec une date par étape",
-      "Photo mensuelle",
-      "Aucune"
+      "Transactionnelle (une ligne par événement)",
+      "Accumulative (accumulating snapshot)",
+      "Photo mensuelle (periodic)",
+      "Aucune table de faits"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Les délais se calculent facilement (expédition - commande).",
+      "Non. Les délais entre étapes seraient difficiles à calculer.",
+      "Oui. Une ligne par commande, mise à jour à chaque étape, avec une date par étape. Les délais se calculent facilement (expédition - commande).",
       "Non.",
       "Non."
     ],
@@ -867,15 +867,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q49", dialecte: "Standard",
     q: "Tu veux savoir quels articles étaient en promotion, même ceux qui ne se sont pas vendus. Quel type de table ?",
     choix: [
-      "Une table de ventes",
-      "Une table de faits « sans faits » (factless) : article × promotion × période, sans montant",
-      "Une dimension date",
-      "Un index"
+      "La table des ventes, filtrée",
+      "Une table « sans faits »",
+      "La dimension date",
+      "Un index sur promotion"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les articles non vendus n'y sont pas.",
-      "Oui. Elle enregistre une couverture ou un événement, sans mesure.",
+      "Oui. Table de faits « sans faits » (factless) : article × promotion × période, sans montant. Elle enregistre une couverture ou un événement, sans mesure.",
       "Non.",
       "Non."
     ],
@@ -886,16 +886,16 @@ LEARNSQL.questions.m15 = [
     q: "Combien de tables de faits pour un entrepôt couvrant ventes, achats et stock ?",
     choix: [
       "Une seule pour tout",
-      "Une par processus métier (ventes, achats, stock), reliées par des dimensions conformes",
+      "Une par processus métier",
       "Une par client",
-      "Aucune"
+      "Une par rapport Power BI"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Grains et mesures incompatibles.",
-      "Oui. On parle de « constellation » de faits.",
+      "Oui. Ventes, achats, stock : reliées par des dimensions conformes. On parle de « constellation » de faits.",
       "Non.",
-      "Non."
+      "Non. Les rapports partagent les mêmes faits."
     ],
     retenir: "Un processus = une table de faits."
   },
@@ -904,14 +904,14 @@ LEARNSQL.questions.m15 = [
     q: "À quoi sert une « matrice en bus » (processus en lignes, dimensions en colonnes) au début d'un projet d'entrepôt ?",
     choix: [
       "À dessiner le réseau",
-      "À voir quels processus (ventes, achats, stock…) partagent quelles dimensions, pour planifier un entrepôt cohérent, processus par processus",
-      "À choisir le matériel",
-      "À rien"
+      "Voir les dimensions partagées",
+      "À choisir le matériel serveur",
+      "À planifier les sauvegardes"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Outil de cadrage très utile pour un chef de projet data.",
+      "Oui. Voir quels processus (ventes, achats, stock…) partagent quelles dimensions, pour planifier un entrepôt cohérent, processus par processus. Outil de cadrage très utile pour un chef de projet data.",
       "Non.",
       "Non."
     ],
@@ -921,17 +921,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q52", dialecte: "Standard",
     q: "Hiérarchie article : gamme > famille > sous-famille > article. Dans un modèle en étoile, où la mettre ?",
     choix: [
-      "Quatre tables séparées",
-      "Dans dim_article, en colonnes (gamme, famille, sous_famille) sur chaque ligne d'article",
+      "Quatre tables reliées en chaîne",
+      "En colonnes dans dim_article",
       "Dans la table de faits",
-      "Nulle part"
+      "Dans une table de hiérarchie à part"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est le flocon.",
-      "Oui. Les répétitions sont acceptées : la dimension reste simple et rapide.",
+      "Oui. gamme, famille, sous_famille sur chaque ligne d'article. Les répétitions sont acceptées : la dimension reste simple et rapide.",
       "Non.",
-      "Non."
+      "Non. Ce serait encore du flocon."
     ],
     retenir: "Hiérarchie = colonnes dans la dimension."
   },
@@ -939,15 +939,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q53", dialecte: "Standard",
     q: "Un organigramme a une profondeur variable (3 à 7 niveaux). Comment le rendre exploitable dans un outil de reporting ?",
     choix: [
-      "Impossible",
-      "Calculer, à partir de la relation parent-enfant, des colonnes de niveaux (niveau1, niveau2…) ou un chemin, par exemple avec une CTE récursive",
-      "Garder seulement le parent",
-      "Une table par niveau"
+      "Impossible à exploiter",
+      "L'aplatir en colonnes de niveaux",
+      "Garder seulement le parent direct",
+      "Créer une table par niveau"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On « aplatit » la hiérarchie ; les niveaux manquants reprennent souvent la valeur du parent.",
+      "Oui. Calculer, à partir de la relation parent-enfant, des colonnes niveau1, niveau2… ou un chemin, par exemple avec une CTE récursive. Les niveaux manquants reprennent souvent la valeur du parent.",
       "Non. Trop limité pour les filtres.",
       "Non."
     ],
@@ -958,14 +958,14 @@ LEARNSQL.questions.m15 = [
     q: "Une vente est partagée entre deux commerciaux (60 % / 40 %). Comment modéliser sans compter la vente deux fois ?",
     choix: [
       "Deux lignes de vente identiques",
-      "Une table « pont » (vente, commercial, part) : on multiplie le montant par la part pour l'analyse par commercial",
+      "Une table pont avec la part",
       "Ignorer le 2e commercial",
       "Une colonne texte « Martin, Bernard »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. CA doublé.",
-      "Oui. La somme des parts vaut 100 % : le total reste juste.",
+      "Oui. Table « pont » (vente, commercial, part) : on multiplie le montant par la part pour l'analyse par commercial. La somme des parts vaut 100 % : le total reste juste.",
       "Non.",
       "Non."
     ],
@@ -976,14 +976,14 @@ LEARNSQL.questions.m15 = [
     q: "Dans Power BI, pourquoi éviter les relations « bidirectionnelles » par défaut ?",
     choix: [
       "Elles sont interdites",
-      "Elles créent des chemins de filtre ambigus, des résultats surprenants et des lenteurs. Filtre simple : dimension → faits",
+      "Filtres ambigus et lenteurs",
       "Elles sont payantes",
       "Elles suppriment des données"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. À utiliser seulement dans un cas précis et maîtrisé.",
+      "Oui. Chemins de filtre ambigus, résultats surprenants, lenteurs. Filtre simple : dimension → faits. À utiliser seulement dans un cas précis et maîtrisé.",
       "Non.",
       "Non."
     ],
@@ -993,15 +993,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q56", dialecte: "Standard",
     q: "Power BI signale une relation « plusieurs à plusieurs » entre deux tables. Que faut-il souvent faire ?",
     choix: [
-      "L'accepter partout",
-      "Revoir le modèle : créer une vraie dimension avec des valeurs uniques, ou une table pont",
-      "Supprimer une table",
-      "Mettre tout en texte"
+      "L'accepter, c'est normal",
+      "Revoir le modèle",
+      "Supprimer une des deux tables",
+      "Passer toutes les clés en texte"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Source fréquente de totaux faux.",
-      "Oui. Le plus souvent, c'est qu'une dimension a des doublons de clé.",
+      "Oui. Créer une vraie dimension avec des valeurs uniques, ou une table pont. Le plus souvent, une dimension a des doublons de clé.",
       "Non.",
       "Non."
     ],
@@ -1012,14 +1012,14 @@ LEARNSQL.questions.m15 = [
     q: "Power BI refuse une relation 1-N entre dim_client et les ventes : « valeurs en double ». Cause ?",
     choix: [
       "Les ventes ont des doublons",
-      "La clé de dim_client n'est pas unique (ex. un même code client présent dans deux sociétés, ou deux versions SCD 2 sur le même code)",
-      "Bug de Power BI",
-      "Trop de lignes"
+      "La clé de dim_client n'est pas unique",
+      "Un bug de Power BI",
+      "Trop de lignes dans les ventes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le côté « N » peut avoir des doublons.",
-      "Oui. Utiliser la clé technique unique (client_sk), ou corriger les doublons.",
+      "Oui. Ex. un même code client dans deux sociétés, ou deux versions SCD 2 sur le même code. Utiliser la clé technique unique (client_sk), ou corriger les doublons.",
       "Non.",
       "Non."
     ],
@@ -1030,14 +1030,14 @@ LEARNSQL.questions.m15 = [
     q: "Les tableaux de bord sont lents sur une table de faits de 2 milliards de lignes, alors qu'ils affichent surtout des totaux mensuels. Piste de modélisation ?",
     choix: [
       "Supprimer les données anciennes",
-      "Créer une table agrégée (mois × famille × région) pour ces visuels, et garder le détail pour les analyses fines",
-      "Ajouter des colonnes",
-      "Tout passer en texte"
+      "Une table agrégée pour ces visuels",
+      "Ajouter des colonnes calculées",
+      "Passer les montants en texte"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les agrégats précalculés sont un outil classique de performance.",
+      "Oui. Par ex. mois × famille × région, en gardant le détail pour les analyses fines. Les agrégats précalculés sont un outil classique de performance.",
       "Non.",
       "Non."
     ],
@@ -1047,15 +1047,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q59", dialecte: "Standard",
     q: "Dans la méthode Data Vault, que sont les hubs, les links et les satellites ?",
     choix: [
-      "Des serveurs",
-      "Hub : les clés métier (un client). Link : les relations entre hubs (client-commande). Satellite : les attributs descriptifs historisés",
-      "Des rapports",
-      "Des index"
+      "Trois types de serveurs",
+      "Clés, liens, attributs",
+      "Trois niveaux de rapports",
+      "Trois types d'index"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Modèle très souple pour intégrer et historiser de nombreuses sources.",
+      "Oui. Hub : les clés métier (un client). Link : les relations entre hubs (client-commande). Satellite : les attributs descriptifs historisés. Modèle très souple pour intégrer et historiser de nombreuses sources.",
       "Non.",
       "Non."
     ],
@@ -1066,16 +1066,16 @@ LEARNSQL.questions.m15 = [
     q: "Data Vault ou modèle en étoile : comment les utilise-t-on souvent ensemble ?",
     choix: [
       "On n'utilise jamais les deux",
-      "Data Vault pour la couche d'intégration et d'historique ; étoile pour la couche de restitution (Power BI)",
+      "Vault intègre, étoile restitue",
       "L'étoile pour l'intégration",
-      "Data Vault pour Power BI"
+      "Data Vault directement pour Power BI"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Data Vault est difficile à requêter directement ; l'étoile est faite pour l'analyse.",
+      "Oui. Data Vault pour la couche d'intégration et d'historique ; étoile pour la couche de restitution (Power BI). Data Vault est difficile à requêter directement.",
       "Non.",
-      "Non."
+      "Non. Difficile à requêter directement."
     ],
     retenir: "Intégration (Vault) → restitution (étoile)."
   },
@@ -1083,15 +1083,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q61", dialecte: "Standard",
     q: "Quelle convention de nommage aide à lire un entrepôt ?",
     choix: [
-      "Aucune",
-      "Des préfixes clairs : dim_client, fct_ventes, stg_… pour le chargement, et des noms de colonnes identiques pour la même notion partout",
-      "Des noms courts : t1, t2",
+      "Aucune, chacun choisit",
+      "Préfixes clairs, mêmes noms partout",
+      "Des noms courts : t1, t2, t3",
       "Les noms de l'ERP tels quels (ex. T1_CLI_COD)"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Un utilisateur doit comprendre le modèle sans documentation lourde.",
+      "Oui. dim_client, fct_ventes, stg_… pour le chargement, et des noms de colonnes identiques pour la même notion partout. Un utilisateur doit comprendre le modèle sans documentation lourde.",
       "Non.",
       "Non. Les noms techniques de l'ERP sont souvent obscurs : on les traduit."
     ],
@@ -1101,15 +1101,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q62", dialecte: "Standard",
     q: "À quoi sert un dictionnaire de données (ou glossaire métier) ?",
     choix: [
-      "À traduire en anglais",
-      "À définir chaque donnée et chaque indicateur (sens, source, règle de calcul, propriétaire) pour que tout le monde parle de la même chose",
+      "À traduire les noms en anglais",
+      "Une définition par donnée",
       "À stocker les mots de passe",
-      "À rien"
+      "À rien, le code suffit"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Ex. « CA » : HT ? net des avoirs ? date de facture ou de livraison ?",
+      "Oui. Définir chaque donnée et chaque indicateur (sens, source, règle de calcul, propriétaire) pour que tout le monde parle de la même chose. Ex. « CA » : HT ? net des avoirs ? date de facture ou de livraison ?",
       "Non.",
       "Non."
     ],
@@ -1120,14 +1120,14 @@ LEARNSQL.questions.m15 = [
     q: "La direction et la comptabilité n'ont pas le même « CA » dans leurs rapports. Quelle est la vraie solution ?",
     choix: [
       "Choisir le chiffre le plus élevé",
-      "Faire valider une définition unique du CA par les métiers, la documenter et l'implémenter une seule fois (dans le modèle)",
-      "Laisser chacun son chiffre",
-      "Arrondir"
+      "Une définition validée, codée une fois",
+      "Laisser chacun son propre chiffre",
+      "Arrondir les deux chiffres"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. C'est un sujet de gouvernance avant d'être un sujet technique.",
+      "Oui. Faire valider une définition unique du CA par les métiers, la documenter et l'implémenter une seule fois (dans le modèle). Un sujet de gouvernance avant d'être un sujet technique.",
       "Non.",
       "Non."
     ],
@@ -1137,17 +1137,17 @@ LEARNSQL.questions.m15 = [
     id: "m15-q64", dialecte: "Standard",
     q: "Le même client existe dans l'ERP, le CRM et l'outil EDI, avec des codes différents. Quelle démarche ?",
     choix: [
-      "Garder trois clients",
-      "Gestion des données de référence (MDM) : une table de correspondance des codes, et un référentiel client « maître »",
+      "Garder trois clients distincts",
+      "Un référentiel (MDM)",
       "Supprimer le CRM",
-      "Utiliser le nom comme clé"
+      "Utiliser le nom comme clé commune"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le CA d'un client serait éclaté.",
-      "Oui. On relie les identifiants de chaque système à un identifiant unique.",
+      "Oui. Gestion des données de référence : une table de correspondance des codes, et un référentiel client « maître ». On relie les identifiants de chaque système à un identifiant unique.",
       "Non.",
-      "Non."
+      "Non. Les noms s'écrivent de mille façons."
     ],
     retenir: "Multi-systèmes : référentiel et table de correspondance."
   },
@@ -1155,15 +1155,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q65", dialecte: "Standard",
     q: "Comment repérer les doublons de clients venant de plusieurs sources ?",
     choix: [
-      "Comparer les id",
-      "Comparer des attributs stables et normalisés (SIRET, TVA intracommunautaire, email, nom + code postal nettoyés), puis valider avec le métier",
+      "Comparer les id techniques",
+      "SIRET, email, puis validation",
       "Comparer les dates de création",
-      "Impossible"
+      "Impossible sans saisie manuelle"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les id sont différents d'un système à l'autre.",
-      "Oui. On construit une « fiche de référence » (golden record) par client.",
+      "Oui. Comparer des attributs stables et normalisés (SIRET, TVA intracommunautaire, email, nom + code postal nettoyés), puis valider avec le métier. On construit une fiche de référence (golden record).",
       "Non.",
       "Non."
     ],
@@ -1173,15 +1173,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q66", dialecte: "Standard",
     q: "Comment les messages EDI se rattachent-ils au modèle de données ?",
     choix: [
-      "Ils n'ont aucun lien",
-      "ORDERS → commande ; DESADV (avis d'expédition) → expédition / livraison ; INVOIC → facture. Chaque message a un en-tête et des lignes",
-      "Tout dans une seule table",
-      "Seulement les factures"
+      "Ils n'ont aucun lien avec le modèle",
+      "Chaque message = un document",
+      "Tout va dans une seule table EDI",
+      "Seules les factures sont concernées"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le numéro de commande d'origine permet de relier les documents entre eux.",
+      "Oui. ORDERS → commande ; DESADV → expédition / livraison ; INVOIC → facture. Chaque message a un en-tête et des lignes. Le numéro de commande d'origine relie les documents.",
       "Non.",
       "Non."
     ],
@@ -1191,15 +1191,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q67", dialecte: "Standard",
     q: "Pourquoi garder aussi le message EDI brut (texte complet) dans une table, en plus des données intégrées ?",
     choix: [
-      "Inutile",
-      "Traçabilité : en cas de litige ou d'erreur d'intégration, on peut relire et rejouer le message d'origine",
-      "Pour Power BI",
+      "Inutile une fois intégré",
+      "Traçabilité : relire, rejouer",
+      "Pour l'afficher dans Power BI",
       "Pour gagner de la place"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Couche « brute » : on ne perd jamais la source.",
+      "Oui. En cas de litige ou d'erreur d'intégration, on peut relire et rejouer le message d'origine. Couche « brute » : on ne perd jamais la source.",
       "Non.",
       "Non."
     ],
@@ -1210,14 +1210,14 @@ LEARNSQL.questions.m15 = [
     q: "Une commande passe par plusieurs statuts. On veut savoir quand chaque statut a été atteint. Modélisation ?",
     choix: [
       "Une seule colonne statut, écrasée",
-      "Une table historique (commande, statut, date_statut, utilisateur), en plus du statut actuel sur la commande",
-      "Une colonne par jour",
-      "Impossible"
+      "Une table d'historique des statuts",
+      "Une colonne par jour du mois",
+      "Impossible sans outil externe"
     ],
     bonne: 1,
     pourquoi: [
       "Non. On perd les dates de passage.",
-      "Oui. On peut mesurer les délais entre étapes.",
+      "Oui. (commande, statut, date_statut, utilisateur), en plus du statut actuel sur la commande. On peut mesurer les délais entre étapes.",
       "Non.",
       "Non."
     ],
@@ -1227,15 +1227,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q69", dialecte: "Standard",
     q: "Comment garder la trace de toutes les modifications d'une table sensible (tarifs, conditions de paiement) ?",
     choix: [
-      "Impossible",
-      "Une table d'audit (qui, quand, ancienne valeur, nouvelle valeur), alimentée par trigger, par OUTPUT ou par une table temporelle",
-      "Une capture d'écran",
-      "Un mail"
+      "Impossible en SQL",
+      "Une table d'audit",
+      "Des captures d'écran",
+      "Un mail à chaque changement"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Exigence fréquente des audits et des commissaires aux comptes.",
+      "Oui. Qui, quand, ancienne valeur, nouvelle valeur ; alimentée par trigger, par OUTPUT ou par une table temporelle. Exigence fréquente des audits et des commissaires aux comptes.",
       "Non.",
       "Non."
     ],
@@ -1245,15 +1245,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q70", dialecte: "Standard",
     q: "Un article est arrêté (plus vendu). Dans la dimension article de l'entrepôt, que faire ?",
     choix: [
-      "Le supprimer",
-      "Le garder, avec un attribut statut (actif / arrêté) et éventuellement une date d'arrêt : les ventes passées en ont besoin",
-      "Le renommer",
-      "Le dupliquer"
+      "Le supprimer de la dimension",
+      "Le garder avec un statut",
+      "Le renommer « ARRÊTÉ »",
+      "Le dupliquer dans une archive"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les ventes passées perdraient leur article.",
-      "Oui. On ne supprime pas de membres d'une dimension.",
+      "Oui. Attribut statut (actif / arrêté) et éventuellement une date d'arrêt : les ventes passées en ont besoin. On ne supprime pas de membres d'une dimension.",
       "Non.",
       "Non."
     ],
@@ -1263,15 +1263,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q71", dialecte: "Standard",
     q: "Quelle différence entre modèle logique et modèle physique ?",
     choix: [
-      "Aucune",
-      "Logique : entités, attributs, relations, indépendamment du moteur. Physique : tables, types, index, contraintes pour un moteur précis (SQL Server, Snowflake)",
-      "Le physique est sur papier",
-      "Le logique a des index"
+      "Aucune, deux mots pour la même chose",
+      "Indépendant vs lié à un moteur",
+      "Le physique est fait sur papier",
+      "Le logique contient les index"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le même modèle logique peut donner deux modèles physiques différents.",
+      "Oui. Logique : entités, attributs, relations, indépendamment du moteur. Physique : tables, types, index, contraintes pour un moteur précis (SQL Server, Snowflake). Le même modèle logique peut donner deux modèles physiques.",
       "Non.",
       "Non."
     ],
@@ -1282,9 +1282,9 @@ LEARNSQL.questions.m15 = [
     q: "Dans quel ordre conçoit-on un modèle de données ?",
     choix: [
       "Directement les tables",
-      "Conceptuel (avec le métier) → logique → physique",
-      "Physique → conceptuel",
-      "Peu importe"
+      "Conceptuel → logique → physique",
+      "Physique → logique → conceptuel",
+      "Peu importe l'ordre"
     ],
     bonne: 1,
     pourquoi: [
@@ -1300,14 +1300,14 @@ LEARNSQL.questions.m15 = [
     q: "Dans l'ERP, un client est identifié par (societe, code_client). Dans l'entrepôt, comment le gérer ?",
     choix: [
       "Garder seulement code_client",
-      "Une clé technique client_sk, et les deux colonnes société + code comme clé métier (unique ensemble)",
-      "Concaténer en texte et l'utiliser partout comme clé",
+      "Clé technique + clé métier composée",
+      "Concaténer en texte et l'utiliser comme clé",
       "Ignorer la société"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Doublons entre sociétés.",
-      "Oui. Les faits ne portent que client_sk : jointures simples.",
+      "Oui. Une clé technique client_sk, et société + code comme clé métier (unique ensemble). Les faits ne portent que client_sk : jointures simples.",
       "Non. Possible, mais moins propre qu'une clé technique.",
       "Non."
     ],
@@ -1317,15 +1317,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q74", dialecte: "Standard",
     q: "Des ventes de septembre arrivent seulement en octobre (fichier en retard). Le client a changé de commercial le 1er octobre (SCD 2). À quelle version les rattacher ?",
     choix: [
-      "À la version actuelle",
-      "À la version valide à la date de la VENTE (septembre), en joignant sur la période de validité",
-      "Au hasard",
-      "À aucune"
+      "À la version actuelle du client",
+      "À la version valide à la date de vente",
+      "Au hasard parmi les versions",
+      "À aucune, la vente est rejetée"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le commercial de septembre serait faux.",
-      "Oui. Les faits « en retard » se rattachent selon leur date métier, pas la date de chargement.",
+      "Oui. En joignant sur la période de validité. Les faits « en retard » se rattachent selon leur date métier, pas la date de chargement.",
       "Non.",
       "Non."
     ],
@@ -1335,15 +1335,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q75", dialecte: "Standard",
     q: "La DAF veut l'encours clients et son ancienneté (balance âgée) à chaque fin de mois. Quel type de table de faits ?",
     choix: [
-      "Transactionnelle",
-      "Photo périodique : une ligne par client (ou facture) et par fin de mois, avec le montant dû par tranche d'âge",
-      "Sans faits",
+      "Transactionnelle (mouvements)",
+      "Photo périodique",
+      "Table sans faits (factless)",
       "Une vue en temps réel seulement"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Recalculer le passé à partir des mouvements est complexe et fragile.",
-      "Oui. On fige l'état à chaque clôture.",
+      "Oui. Une ligne par client (ou facture) et par fin de mois, avec le montant dû par tranche d'âge. On fige l'état à chaque clôture.",
       "Non.",
       "Non. On ne pourrait pas revoir les mois passés."
     ],
@@ -1354,14 +1354,14 @@ LEARNSQL.questions.m15 = [
     q: "Les frais de port sont au niveau de la facture, la table de faits est au niveau ligne. Que faire ?",
     choix: [
       "Les recopier sur chaque ligne",
-      "Les répartir sur les lignes (au prorata du montant, par exemple), ou les mettre dans une table de faits au grain facture",
-      "Les ignorer",
+      "Les répartir, ou un autre grain",
+      "Les ignorer dans l'analyse",
       "Les mettre dans la dimension client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ils seraient comptés plusieurs fois.",
-      "Oui. Le choix de la règle de répartition se valide avec le métier.",
+      "Oui. Les répartir sur les lignes (au prorata du montant, par exemple), ou les mettre dans une table de faits au grain facture. La règle de répartition se valide avec le métier.",
       "Non.",
       "Non."
     ],
@@ -1372,14 +1372,14 @@ LEARNSQL.questions.m15 = [
     q: "Une remise de 100 € est accordée sur toute une facture de 3 lignes. Comment l'analyser par article ?",
     choix: [
       "100 € sur chaque ligne",
-      "La répartir au prorata du montant de chaque ligne, en gérant l'arrondi pour que la somme fasse exactement 100 €",
-      "La mettre sur la première ligne",
-      "L'ignorer"
+      "Au prorata, arrondi géré",
+      "Tout sur la première ligne",
+      "L'ignorer dans l'analyse"
     ],
     bonne: 1,
     pourquoi: [
       "Non. 300 € au total.",
-      "Oui. Le dernier centime est souvent mis sur la plus grosse ligne pour équilibrer.",
+      "Oui. La répartir au prorata du montant de chaque ligne, en gérant l'arrondi pour que la somme fasse exactement 100 €. Le dernier centime va souvent sur la plus grosse ligne.",
       "Non. La marge par article serait faussée.",
       "Non."
     ],
@@ -1390,14 +1390,14 @@ LEARNSQL.questions.m15 = [
     q: "Un groupe a des filiales en EUR et en GBP. Comment stocker les montants dans l'entrepôt ?",
     choix: [
       "Seulement en devise locale",
-      "En devise d'origine ET en devise du groupe (EUR), avec le taux utilisé, pour comparer et consolider",
-      "Seulement en EUR",
-      "En texte"
+      "Origine + EUR + taux utilisé",
+      "Seulement en EUR, converti",
+      "En texte avec le symbole"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Impossible de consolider facilement.",
-      "Oui. Préciser aussi la règle : taux du jour, du mois, budgétaire…",
+      "Oui. En devise d'origine ET en devise du groupe (EUR), avec le taux utilisé, pour comparer et consolider. Préciser aussi la règle : taux du jour, du mois, budgétaire…",
       "Non. On perd la valeur d'origine.",
       "Non."
     ],
@@ -1407,15 +1407,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q79", dialecte: "Standard",
     q: "Le budget est défini par mois et par famille ; les ventes sont au jour et à l'article. Comment les modéliser ?",
     choix: [
-      "Les mettre dans la même table de faits",
-      "Deux tables de faits différentes, chacune à son grain, reliées à des dimensions communes au niveau partagé (mois, famille)",
-      "Répartir le budget sur chaque article au hasard",
+      "Dans la même table de faits",
+      "Deux faits, un niveau commun",
+      "Répartir le budget au hasard",
       "Ne pas modéliser le budget"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Grains incompatibles.",
-      "Oui. La comparaison se fait au niveau commun.",
+      "Oui. Deux tables de faits, chacune à son grain, reliées à des dimensions communes au niveau partagé (mois, famille). La comparaison se fait au niveau commun.",
       "Non.",
       "Non."
     ],
@@ -1425,15 +1425,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q80", dialecte: "Standard",
     q: "Dans Power BI, comment relier un budget mensuel à la table calendrier journalière ?",
     choix: [
-      "Impossible",
-      "Stocker dans le budget une date du mois (ex. le 1er) reliée au calendrier, et ne l'analyser qu'au niveau mois ou au-dessus",
+      "Impossible dans Power BI",
+      "Une date au 1er du mois",
       "Créer 30 lignes de budget par mois",
       "Relier sur le nom du mois en texte"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Attention : un filtre sur un jour précis n'a pas de sens pour le budget.",
+      "Oui. Stocker dans le budget une date du mois (ex. le 1er) reliée au calendrier, et ne l'analyser qu'au niveau mois ou au-dessus. Un filtre sur un jour précis n'a pas de sens pour le budget.",
       "Non. Possible (répartition), mais c'est un autre choix métier.",
       "Non. « Janvier » de quelle année ?"
     ],
@@ -1444,14 +1444,14 @@ LEARNSQL.questions.m15 = [
     q: "On veut analyser les commandes par heure de la journée. Faut-il mettre les heures dans la dimension date ?",
     choix: [
       "Oui, une ligne par minute de chaque jour",
-      "Non : une dimension « heure » séparée (24 ou 1 440 lignes), en plus de la dimension date",
-      "Non, impossible",
+      "Non : une dimension heure à part",
+      "Non, c'est impossible",
       "Oui, une colonne par heure"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La dimension date exploserait (des millions de lignes).",
-      "Oui. Deux petites dimensions plutôt qu'une énorme.",
+      "Oui. Une dimension « heure » séparée (24 ou 1 440 lignes), en plus de la dimension date. Deux petites dimensions plutôt qu'une énorme.",
       "Non.",
       "Non."
     ],
@@ -1461,15 +1461,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q82", dialecte: "Standard",
     q: "Dans dim_client (SCD 2), la « classe de CA » change chaque mois pour beaucoup de clients : la dimension grossit énormément. Solution ?",
     choix: [
-      "Rien",
-      "Sortir cet attribut très changeant dans une « mini-dimension » (ou le traiter en type 1), reliée directement aux faits",
+      "Rien, c'est normal",
+      "Une mini-dimension (ou type 1)",
       "Supprimer l'historique",
       "Une colonne par mois"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On évite de créer une nouvelle version complète du client à chaque petit changement.",
+      "Oui. Sortir cet attribut très changeant dans une « mini-dimension » reliée directement aux faits (ou le traiter en type 1). On évite une nouvelle version complète du client à chaque petit changement.",
       "Non.",
       "Non."
     ],
@@ -1479,15 +1479,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q83", dialecte: "Standard",
     q: "Le classement ABC des articles est recalculé chaque trimestre. Où le stocker, et de quel type ?",
     choix: [
-      "Dans chaque rapport",
-      "En attribut de dim_article : type 1 si on veut seulement le classement actuel, type 2 si on veut analyser les ventes selon le classement de l'époque",
+      "Dans chaque rapport, recalculé",
+      "Dans dim_article, type 1 ou 2",
       "Dans la table de faits uniquement",
-      "Nulle part"
+      "Nulle part, on le recalcule"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Le choix dépend de la question métier : à valider avec les utilisateurs.",
+      "Oui. Type 1 si on veut seulement le classement actuel, type 2 si on veut analyser les ventes selon le classement de l'époque. Le choix dépend de la question métier.",
       "Non.",
       "Non."
     ],
@@ -1497,15 +1497,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q84", dialecte: "Standard",
     q: "Pourquoi distinguer, dans une dimension, un membre « Inconnu » (-1) et un membre « Non applicable » (-2) ?",
     choix: [
-      "Inutile",
-      "Inconnu = l'information devrait exister mais manque (erreur à corriger). Non applicable = l'information n'a pas de sens (ex. pas de commercial pour une vente web)",
+      "Inutile, c'est la même chose",
+      "Manque anormal vs sans objet",
       "Pour avoir plus de lignes",
       "Pour Power BI uniquement"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les rapports de qualité ne remontent que les vrais « inconnus ».",
+      "Oui. Inconnu = l'information devrait exister mais manque (erreur à corriger). Non applicable = elle n'a pas de sens (ex. pas de commercial pour une vente web). Les rapports de qualité ne remontent que les vrais « inconnus ».",
       "Non.",
       "Non."
     ],
@@ -1516,14 +1516,14 @@ LEARNSQL.questions.m15 = [
     q: "Dans une dimension, la région est parfois NULL. Que voit l'utilisateur dans Power BI, et que faire ?",
     choix: [
       "Rien de spécial",
-      "Une valeur « (Vide) » peu claire. Mieux : remplacer par un libellé explicite comme « Non renseignée » lors du chargement",
-      "Une erreur",
+      "« (Vide) » : à remplacer",
+      "Une erreur de rapport",
       "Les ventes disparaissent"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Un rapport doit être compréhensible sans connaître la technique.",
+      "Oui. Une valeur « (Vide) » peu claire. Mieux : remplacer par un libellé explicite comme « Non renseignée » lors du chargement. Un rapport doit être compréhensible sans connaître la technique.",
       "Non.",
       "Non."
     ],
@@ -1533,15 +1533,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q86", dialecte: "Standard",
     q: "Les clés étrangères d'une table de faits doivent-elles accepter NULL ?",
     choix: [
-      "Oui",
-      "Non, de préférence : utiliser les membres -1 / -2. Ainsi toutes les jointures retrouvent une ligne de dimension",
-      "Seulement la date",
-      "Peu importe"
+      "Oui, c'est plus souple",
+      "Non : membres -1 / -2",
+      "Seulement la clé date",
+      "Peu importe, c'est pareil"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un NULL ne se joint jamais : la ligne peut disparaître d'un rapport.",
-      "Oui. Totaux toujours justes, quel que soit le type de jointure.",
+      "Oui. Utiliser les membres -1 / -2 : toutes les jointures retrouvent une ligne de dimension, et les totaux restent justes.",
       "Non.",
       "Non."
     ],
@@ -1551,15 +1551,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q87", dialecte: "Standard",
     q: "Un entrepôt a été modélisé comme l'ERP (normalisé, 250 tables). Quelle conséquence pour les utilisateurs Power BI ?",
     choix: [
-      "Aucune",
-      "Modèle incompréhensible, beaucoup de jointures, calculs complexes et lents : il manque une couche de restitution en étoile",
-      "C'est l'idéal",
-      "Plus de sécurité"
+      "Aucune, c'est l'idéal",
+      "Modèle illisible, lent, complexe",
+      "Une sécurité renforcée par les jointures",
+      "Des rapports plus rapides"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Normalisé pour stocker et intégrer ; en étoile pour analyser.",
+      "Oui. Modèle incompréhensible, beaucoup de jointures, calculs complexes et lents : il manque une couche de restitution en étoile. Normalisé pour stocker ; en étoile pour analyser.",
       "Non.",
       "Non."
     ],
@@ -1569,15 +1569,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q88", dialecte: "Standard",
     q: "Une seule énorme table « tout à plat » (One Big Table) avec toutes les colonnes : avantage et risque ?",
     choix: [
-      "Aucun avantage",
-      "Simple à interroger ; mais très large, beaucoup de répétitions, historique et mises à jour des descriptions difficiles",
-      "Aucun risque",
-      "Interdite"
+      "Aucun avantage, que des risques",
+      "Simple à lire, mais rigide",
+      "Aucun risque, que des avantages",
+      "Elle est interdite en BI"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pratique pour certains usages précis (export, data science).",
-      "Oui. Pour Power BI, l'étoile reste généralement meilleure.",
+      "Oui. Simple à interroger ; mais très large, beaucoup de répétitions, historique et mises à jour des descriptions difficiles. Pour Power BI, l'étoile reste généralement meilleure.",
       "Non.",
       "Non."
     ],
@@ -1588,14 +1588,14 @@ LEARNSQL.questions.m15 = [
     q: "Pourquoi construire un modèle sémantique partagé (un dataset Power BI certifié) plutôt qu'un modèle par rapport ?",
     choix: [
       "Pour avoir plus de fichiers",
-      "Une seule définition des mesures et des relations, réutilisée par tous les rapports : mêmes chiffres partout",
-      "Pour la couleur",
-      "C'est obligatoire"
+      "Mêmes chiffres dans tous les rapports",
+      "Pour les couleurs communes",
+      "C'est obligatoire dans Power BI"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Fin des « deux CA différents » dans deux rapports.",
+      "Oui. Une seule définition des mesures et des relations, réutilisée par tous les rapports. Fin des « deux CA différents » dans deux rapports.",
       "Non.",
       "Non."
     ],
@@ -1606,14 +1606,14 @@ LEARNSQL.questions.m15 = [
     q: "Comment charger seulement les lignes nouvelles ou modifiées de l'ERP chaque nuit ?",
     choix: [
       "Tout recharger chaque nuit, toujours",
-      "Utiliser une colonne de date de modification (ou rowversion, ou une capture de changements) et ne prendre que ce qui a changé depuis le dernier chargement",
-      "Deviner",
+      "Un repère de dernier chargement",
+      "Deviner les lignes modifiées",
       "Charger une ligne sur deux"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Possible pour de petites tables, coûteux pour les grandes.",
-      "Oui. On garde la date (ou la valeur) du dernier chargement réussi.",
+      "Oui. Une colonne de date de modification (ou rowversion, ou une capture de changements) : ne prendre que ce qui a changé depuis le dernier chargement réussi.",
       "Non.",
       "Non."
     ],
@@ -1623,15 +1623,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q91", dialecte: "Standard",
     q: "Une commande est supprimée dans l'ERP. Un chargement incrémental basé sur la date de modification la voit-il ?",
     choix: [
-      "Oui",
-      "Non : une ligne supprimée n'a plus de date. Il faut une suppression logique, une table de suppressions, une capture de changements, ou une comparaison complète régulière",
+      "Oui, comme une modification",
+      "Non, pas du tout",
       "Seulement le lundi",
-      "Oui, avec DISTINCT"
+      "Oui, avec un DISTINCT"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Point souvent oublié : l'entrepôt garde des commandes qui n'existent plus.",
+      "Oui. Une ligne supprimée n'a plus de date. Il faut une suppression logique, une table de suppressions, une capture de changements, ou une comparaison complète régulière. Point souvent oublié.",
       "Non.",
       "Non."
     ],
@@ -1641,15 +1641,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q92", dialecte: "Standard",
     q: "Comment s'assurer que l'entrepôt est juste par rapport à l'ERP ?",
     choix: [
-      "Faire confiance",
-      "Des contrôles de rapprochement automatiques : nombres de lignes et totaux (CA, quantités) par période, comparés entre source et entrepôt",
+      "Faire confiance au chargement",
+      "Des rapprochements automatiques",
       "Demander aux utilisateurs",
       "Regarder un rapport au hasard"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Un écart déclenche une alerte avant que les décideurs ne voient un chiffre faux.",
+      "Oui. Nombres de lignes et totaux (CA, quantités) par période, comparés entre source et entrepôt. Un écart déclenche une alerte avant que les décideurs ne voient un chiffre faux.",
       "Non.",
       "Non."
     ],
@@ -1659,15 +1659,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q93", dialecte: "Standard",
     q: "Dans l'ERP, l'en-tête de commande stocke aussi montant_total (somme des lignes). Quel est le risque ?",
     choix: [
-      "Aucun",
-      "Redondance : si une ligne change sans mise à jour du total, l'en-tête devient faux. Il faut une règle qui garantit la cohérence",
-      "La commande est plus lente",
-      "Le total est interdit"
+      "Aucun, c'est plus pratique",
+      "Total faux si une ligne change",
+      "La commande devient plus lente",
+      "Le total est interdit en SQL"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Dénormalisation acceptée pour la performance, à condition d'être maîtrisée (procédure, trigger, contrôle).",
+      "Oui. Redondance : si une ligne change sans mise à jour du total, l'en-tête devient faux. Dénormalisation acceptée pour la performance, à condition d'être maîtrisée (procédure, trigger, contrôle).",
       "Non.",
       "Non."
     ],
@@ -1678,14 +1678,14 @@ LEARNSQL.questions.m15 = [
     q: "Comment modéliser les adresses d'un client (facturation, livraison, plusieurs dépôts) ?",
     choix: [
       "Des colonnes adresse1, adresse2… dans client",
-      "Une table adresse (client, type, rue, cp, ville…) ; et une copie de l'adresse utilisée sur chaque document",
-      "Une seule adresse",
-      "Un fichier"
+      "Table adresse + copie sur document",
+      "Une seule adresse par client",
+      "Un fichier joint au client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Nombre limité et colonnes répétées.",
-      "Oui. Le document garde l'adresse « du moment », même si le client déménage.",
+      "Oui. Une table adresse (client, type, rue, cp, ville…) ; et une copie de l'adresse utilisée sur chaque document. Le document garde l'adresse « du moment ».",
       "Non.",
       "Non."
     ],
@@ -1696,14 +1696,14 @@ LEARNSQL.questions.m15 = [
     q: "Une même pompe existe en 3 puissances et 2 tensions. Comment modéliser ?",
     choix: [
       "Une colonne par combinaison",
-      "Un article modèle et des variantes (ou un article par variante, avec des attributs puissance et tension)",
-      "Un texte libre",
-      "Une seule ligne"
+      "Un modèle + variantes",
+      "Un texte libre de description",
+      "Une seule ligne d'article"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les analyses peuvent alors se faire par modèle ou par variante.",
+      "Oui. Un article modèle et des variantes (ou un article par variante, avec des attributs puissance et tension). Analyses possibles par modèle ou par variante.",
       "Non.",
       "Non. Impossible de gérer le stock par variante."
     ],
@@ -1714,14 +1714,14 @@ LEARNSQL.questions.m15 = [
     q: "Comment modéliser une nomenclature (un kit piscine contient une pompe, un filtre, un liner…) ?",
     choix: [
       "Une colonne liste dans article",
-      "Une table de composition (article_parent, article_composant, quantite), qui relie la table article à elle-même",
+      "Une table parent-composant-quantité",
       "Un article par composant sans lien",
-      "Un fichier Excel"
+      "Un fichier Excel partagé"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les niveaux multiples se parcourent avec une CTE récursive.",
+      "Oui. (article_parent, article_composant, quantite) : elle relie la table article à elle-même. Les niveaux multiples se parcourent avec une CTE récursive.",
       "Non.",
       "Non."
     ],
@@ -1731,15 +1731,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q97", dialecte: "Standard",
     q: "Un modèle « entité-attribut-valeur » (table unique : id, nom_attribut, valeur en texte) : quel est le problème ?",
     choix: [
-      "Aucun",
-      "Pas de types, pas de contraintes, requêtes très compliquées (une jointure par attribut) et lentes",
+      "Aucun, c'est le modèle le plus souple",
+      "Ni types, ni contraintes, lent",
       "Il est trop rapide",
-      "Il est interdit"
+      "Il est interdit en SQL"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Souple en apparence, coûteux en pratique. À réserver à des cas très particuliers.",
+      "Oui. Pas de types, pas de contraintes, requêtes très compliquées (une jointure par attribut) et lentes. Souple en apparence, coûteux en pratique.",
       "Non.",
       "Non."
     ],
@@ -1750,15 +1750,15 @@ LEARNSQL.questions.m15 = [
     q: "Des caractéristiques produit varient beaucoup selon la famille (dimensions d'un liner, débit d'une pompe…). Option moderne et raisonnable ?",
     choix: [
       "100 colonnes souvent vides",
-      "Les attributs communs en colonnes, les attributs spécifiques dans une colonne JSON (VARIANT sur Snowflake)",
+      "Colonnes communes + JSON",
       "Un modèle EAV",
       "Ne pas les stocker"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les attributs souvent filtrés peuvent ensuite être extraits en vraies colonnes.",
-      "Non.",
+      "Oui. Les attributs communs en colonnes, les spécifiques dans une colonne JSON (VARIANT sur Snowflake). Les attributs souvent filtrés peuvent ensuite devenir de vraies colonnes.",
+      "Non. Pas de types, et des requêtes complexes.",
       "Non."
     ],
     retenir: "Attributs variables : colonnes communes + JSON."
@@ -1768,14 +1768,14 @@ LEARNSQL.questions.m15 = [
     q: "Avant de modéliser un nouveau besoin d'analyse, quelles questions poser au métier ?",
     choix: [
       "Quelle couleur pour le rapport ?",
-      "Quelles décisions veut-on prendre ? Quels indicateurs, avec quelle définition ? Par quels axes ? À quel niveau de détail ? Avec quel historique ?",
-      "Quel serveur ?",
-      "Aucune"
+      "Décisions, indicateurs, axes, détail",
+      "Quel serveur utiliser ?",
+      "Combien de pages de rapport ?"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Ces réponses donnent le grain, les faits, les dimensions et le type de SCD.",
+      "Oui. Quelles décisions ? Quels indicateurs, avec quelle définition ? Par quels axes ? À quel niveau de détail ? Avec quel historique ? Ces réponses donnent le grain, les faits, les dimensions et le type de SCD.",
       "Non.",
       "Non."
     ],
@@ -1785,15 +1785,15 @@ LEARNSQL.questions.m15 = [
     id: "m15-q100", dialecte: "Standard",
     q: "Quelle phrase résume la modélisation pour l'analyse ?",
     choix: [
-      "Copier l'ERP",
-      "Définir le grain, séparer faits (mesures) et dimensions (axes), gérer l'historique, utiliser des clés techniques et des membres spéciaux, et partager des dimensions conformes",
-      "Tout mettre dans une table",
-      "Laisser Power BI deviner"
+      "Copier l'ERP tel quel",
+      "Grain, faits, dimensions, historique",
+      "Tout mettre dans une seule table",
+      "Laisser Power BI deviner les liens"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. C'est la méthode de Kimball, la plus utilisée pour la BI.",
+      "Oui. Définir le grain, séparer faits (mesures) et dimensions (axes), gérer l'historique, utiliser des clés techniques et des membres spéciaux, partager des dimensions conformes. C'est la méthode de Kimball.",
       "Non.",
       "Non."
     ],
