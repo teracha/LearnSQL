@@ -3,10 +3,10 @@ LEARNSQL.questions.m08 = [
     id: "m08-q01", dialecte: "Standard",
     q: "Quelle est la grande différence entre SUM(montant) avec GROUP BY et SUM(montant) OVER (…) ?",
     choix: [
-      "Aucune",
-      "GROUP BY fusionne les lignes ; OVER garde chaque ligne et ajoute le calcul à côté",
-      "OVER est plus lent, toujours",
-      "GROUP BY garde les lignes"
+      "Aucune, c'est la même chose écrite autrement",
+      "GROUP BY fusionne les lignes, OVER les garde",
+      "OVER est toujours plus lent que GROUP BY",
+      "GROUP BY garde les lignes, OVER les fusionne"
     ],
     bonne: 1,
     pourquoi: [
@@ -22,17 +22,17 @@ LEARNSQL.questions.m08 = [
     q: "Que contient la colonne total ?",
     code: "SELECT num_cde, montant,\n       SUM(montant) OVER () AS total\nFROM commande;",
     choix: [
-      "Le montant de la ligne",
-      "Le total de toutes les commandes, répété sur chaque ligne",
-      "Le cumul",
-      "NULL"
+      "Le montant de la commande de la ligne",
+      "Le total général, sur chaque ligne",
+      "Le cumul des montants jusqu'à la ligne",
+      "NULL, car la fenêtre OVER () est vide"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. OVER () = la fenêtre est toute la table (après WHERE).",
+      "Oui. Le total de toutes les commandes, répété sur chaque ligne. OVER () = la fenêtre est tout le résultat (après WHERE).",
       "Non. Pas de ORDER BY : pas de cumul.",
-      "Non."
+      "Non. OVER () = tout le résultat."
     ],
     retenir: "OVER () = tout le résultat."
   },
@@ -59,10 +59,10 @@ LEARNSQL.questions.m08 = [
     id: "m08-q04", dialecte: "Standard",
     q: "Que fait PARTITION BY client_id dans SUM(montant) OVER (PARTITION BY client_id) ?",
     choix: [
-      "Trie par client",
-      "Calcule une somme séparée pour chaque client, affichée sur chacune de ses lignes",
-      "Supprime les doublons",
-      "Groupe les lignes"
+      "Il trie les lignes par client_id",
+      "Une somme par client, sur chacune de ses lignes",
+      "Il supprime les doublons de client_id",
+      "Il fusionne les lignes de chaque client"
     ],
     bonne: 1,
     pourquoi: [
@@ -96,15 +96,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q06", dialecte: "Standard",
     q: "Que change l'ajout de ORDER BY date_cde dans SUM(montant) OVER (ORDER BY date_cde) ?",
     choix: [
-      "Rien",
-      "La somme devient un cumul : chaque ligne additionne les lignes jusqu'à elle",
-      "Le résultat est trié",
-      "Erreur"
+      "Rien, l'ordre n'a pas d'effet sur SUM",
+      "La somme devient un cumul",
+      "Le résultat affiché est trié par date",
+      "Erreur : ORDER BY interdit dans OVER"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Avec ORDER BY, la fenêtre va « du début jusqu'à la ligne courante ».",
+      "Oui. Chaque ligne additionne les lignes jusqu'à elle : avec ORDER BY, la fenêtre va « du début jusqu'à la ligne courante ».",
       "Non. L'ORDER BY de la fenêtre ne trie pas l'affichage.",
       "Non."
     ],
@@ -114,15 +114,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q07", dialecte: "Standard",
     q: "Le ORDER BY à l'intérieur d'un OVER trie-t-il le résultat affiché ?",
     choix: [
-      "Oui",
-      "Non : il faut un ORDER BY à la fin de la requête",
-      "Seulement avec ROW_NUMBER",
-      "Seulement sur Snowflake"
+      "Oui, il trie aussi le résultat",
+      "Non : il faut un ORDER BY final",
+      "Seulement quand on utilise ROW_NUMBER",
+      "Oui, mais seulement sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il sert seulement au calcul de la fenêtre.",
-      "Oui. Le résultat est souvent trié par hasard, mais rien ne le garantit.",
+      "Oui. Il sert seulement au calcul de la fenêtre. Le résultat est souvent trié par hasard, mais rien ne le garantit : ajoute un ORDER BY à la fin de la requête.",
       "Non.",
       "Non."
     ],
@@ -133,17 +133,17 @@ LEARNSQL.questions.m08 = [
     q: "Comment calculer un CA cumulé qui repart à zéro chaque année ?",
     choixCode: true,
     choix: [
-      "SUM(ca) OVER (ORDER BY mois)",
+      "SUM(ca) OVER (ORDER BY annee, mois ROWS UNBOUNDED PRECEDING)",
       "SUM(ca) OVER (PARTITION BY annee ORDER BY mois ROWS UNBOUNDED PRECEDING)",
-      "SUM(ca) OVER (PARTITION BY mois)",
-      "SUM(ca) GROUP BY annee"
+      "SUM(ca) OVER (PARTITION BY annee, mois ORDER BY mois ROWS UNBOUNDED PRECEDING)",
+      "SUM(ca) OVER (PARTITION BY mois ORDER BY annee ROWS UNBOUNDED PRECEDING)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le cumul continue d'une année à l'autre.",
       "Oui. Un cumul par année, dans l'ordre des mois.",
-      "Non. Pas de cumul.",
-      "Non."
+      "Non. Une partition par mois : le « cumul » ne contient que le mois lui-même.",
+      "Non. Cumule le même mois d'année en année."
     ],
     retenir: "Cumul qui repart à zéro : PARTITION BY + ORDER BY."
   },
@@ -223,15 +223,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q13", dialecte: "Standard",
     q: "ROW_NUMBER() OVER (ORDER BY date_cde) : deux commandes ont la même date. Leur numéro est-il stable d'une exécution à l'autre ?",
     choix: [
-      "Oui",
-      "Non, pas garanti : ajoute un critère de départage (ex. id)",
-      "Oui si la table a un index",
-      "Erreur"
+      "Oui, toujours le même numéro partout",
+      "Non : ajoute un départage (id)",
+      "Oui, si la table a un index sur la date",
+      "Erreur : la date doit être unique"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Entre ex aequo, l'ordre est arbitraire.",
-      "Oui. ORDER BY date_cde, id : numéros stables et reproductibles.",
+      "Oui. Entre ex aequo, l'ordre est arbitraire. ORDER BY date_cde, id : numéros stables et reproductibles.",
       "Non. Toujours pas garanti.",
       "Non."
     ],
@@ -259,15 +259,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q15", dialecte: "Standard",
     q: "À quoi sert NTILE(4) OVER (ORDER BY ca DESC) dans une analyse clients ?",
     choix: [
-      "À compter les clients",
-      "À découper les clients en quartiles (25 % les plus gros = groupe 1…)",
-      "À trouver les doublons",
-      "À calculer une moyenne"
+      "À compter les clients par tranche",
+      "À découper en quartiles",
+      "À trouver les clients en double",
+      "À calculer le CA moyen par client"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Segmentation rapide en tranches de taille égale (en nombre de clients).",
+      "Oui. Les 25 % les plus gros = groupe 1, etc. Segmentation rapide en tranches de taille égale (en nombre de clients).",
       "Non.",
       "Non."
     ],
@@ -333,16 +333,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "(ca - LAG(ca) OVER (ORDER BY mois)) * 100.0 / NULLIF(LAG(ca) OVER (ORDER BY mois), 0)",
-      "ca * 100 / LAG(ca)",
-      "LAG(ca) - ca",
-      "ca / mois"
+      "(LAG(ca) OVER (ORDER BY mois) - ca) * 100.0 / NULLIF(LAG(ca) OVER (ORDER BY mois), 0)",
+      "(ca - LAG(ca) OVER (ORDER BY mois)) * 100.0 / NULLIF(ca, 0)",
+      "(ca - LAG(ca) OVER (ORDER BY mois)) * 100 / LAG(ca) OVER (ORDER BY mois)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Écart / valeur précédente. NULLIF évite la division par zéro, 100.0 la division entière.",
-      "Non. LAG sans OVER : erreur. Et ce n'est pas une évolution.",
-      "Non. Écart en valeur, et à l'envers.",
-      "Non."
+      "Non. Écart à l'envers : une hausse apparaît en négatif.",
+      "Non. On divise par le mois courant, pas par le mois précédent.",
+      "Non. Pas de protection contre la division par zéro, et risque de division entière."
     ],
     retenir: "Évolution % = (x - LAG(x)) * 100.0 / NULLIF(LAG(x), 0)."
   },
@@ -350,15 +350,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q20", dialecte: "Standard",
     q: "Tu compares chaque mois au même mois de l'année précédente avec LAG(ca, 12). Quelle condition doit être vraie ?",
     choix: [
-      "Aucune",
-      "Aucun mois ne doit manquer dans les données (sinon LAG(…, 12) remonte trop loin)",
-      "Il faut 12 clients",
-      "Il faut un index"
+      "Aucune, LAG sait compter les mois",
+      "Aucun mois ne doit manquer",
+      "Il faut au moins 12 clients",
+      "Il faut un index sur la colonne mois"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. LAG compte des LIGNES, pas des mois. Un mois sans vente décale tout. Pars d'un calendrier complet (LEFT JOIN).",
+      "Oui. LAG compte des LIGNES, pas des mois. Un mois sans vente décale tout : LAG(…, 12) remonte trop loin. Pars d'un calendrier complet (LEFT JOIN).",
       "Non.",
       "Non."
     ],
@@ -389,16 +389,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "DATEDIFF(day, LAG(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde), date_cde)",
-      "DATEDIFF(day, date_cde, date_cde)",
-      "LAG(DATEDIFF(day, date_cde))",
-      "date_cde - 1"
+      "DATEDIFF(day, date_cde, LAG(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde))",
+      "DATEDIFF(day, LAG(date_cde) OVER (ORDER BY date_cde), date_cde)",
+      "DATEDIFF(day, LEAD(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde), date_cde)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. NULL pour la 1re commande de chaque client.",
-      "Non. Toujours 0.",
-      "Non.",
-      "Non."
+      "Non. Ordre des dates inversé : les délais sont négatifs.",
+      "Non. Sans PARTITION BY : on compare à la commande précédente de N'IMPORTE QUEL client.",
+      "Non. LEAD prend la commande SUIVANTE : délais négatifs, décalés."
     ],
     retenir: "Délai entre événements : DATEDIFF(LAG(date), date)."
   },
@@ -406,17 +406,17 @@ LEARNSQL.questions.m08 = [
     id: "m08-q23", dialecte: "Standard",
     q: "Comment repérer la DERNIÈRE commande de chaque client avec LEAD ?",
     choix: [
-      "LEAD(date_cde) = date_cde",
+      "LEAD(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) = date_cde",
       "LEAD(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) IS NULL",
-      "LEAD(date_cde) > 0",
-      "Impossible avec LEAD"
+      "LAG(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) IS NULL",
+      "LEAD(date_cde) OVER (ORDER BY date_cde) IS NULL"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça repère deux commandes le même jour, pas la dernière.",
       "Oui. Pas de commande suivante = c'est la dernière.",
-      "Non.",
-      "Non."
+      "Non. LAG IS NULL = la PREMIÈRE commande.",
+      "Non. Sans PARTITION BY : seule la dernière commande de toute la table."
     ],
     retenir: "LEAD(…) IS NULL = dernière ligne de la partition."
   },
@@ -424,15 +424,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q24", dialecte: "Standard",
     q: "Que donne FIRST_VALUE(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) ?",
     choix: [
-      "La dernière commande",
-      "La date de 1re commande du client, sur chaque ligne",
-      "La date de la ligne",
-      "NULL"
+      "La date de la dernière commande du client",
+      "La date de 1re commande",
+      "La date de la ligne elle-même",
+      "NULL pour toutes les lignes sauf une"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. La première valeur de la fenêtre, dans l'ordre demandé.",
+      "Oui. La date de 1re commande du client, sur chaque ligne : la première valeur de la fenêtre, dans l'ordre demandé.",
       "Non.",
       "Non."
     ],
@@ -442,15 +442,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q25", dialecte: "SQL Server",
     q: "LAST_VALUE(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) renvoie la date de la ligne elle-même. Pourquoi ?",
     choix: [
-      "Bug",
-      "Le cadre par défaut s'arrête à la ligne courante : la « dernière » de la fenêtre, c'est elle",
-      "Il faut DESC",
-      "LAST_VALUE n'existe pas"
+      "Un bug connu de SQL Server",
+      "Le cadre s'arrête à la ligne courante",
+      "Il manque DESC dans le ORDER BY",
+      "LAST_VALUE n'existe pas sur SQL Server"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Précise le cadre : ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING. Ou FIRST_VALUE avec ORDER BY … DESC.",
+      "Oui. Le cadre par défaut va du début jusqu'à la ligne courante : la « dernière » de la fenêtre, c'est elle. Précise : ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING. Ou FIRST_VALUE avec ORDER BY … DESC.",
       "Non. Ce serait une autre solution, mais pas l'explication.",
       "Non."
     ],
@@ -516,16 +516,16 @@ LEARNSQL.questions.m08 = [
     id: "m08-q29", dialecte: "Standard",
     q: "Moyenne mobile 7 jours avec ROWS BETWEEN 6 PRECEDING AND CURRENT ROW. Certains jours n'ont aucune vente (pas de ligne). Problème ?",
     choix: [
-      "Aucun",
-      "La fenêtre prend 7 LIGNES, donc peut couvrir plus de 7 jours. Il faut un calendrier complet",
-      "Erreur",
+      "Aucun, la moyenne reste juste",
+      "7 lignes ne font pas forcément 7 jours",
+      "Erreur : la fenêtre a des trous",
       "Les jours vides comptent pour 0 automatiquement"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. LEFT JOIN depuis le calendrier + COALESCE(ca, 0), puis la fenêtre.",
-      "Non.",
+      "Oui. La fenêtre prend 7 LIGNES : sans les jours vides, elle couvre plus de 7 jours. Pars d'un calendrier complet : LEFT JOIN + COALESCE(ca, 0), puis la fenêtre.",
+      "Non. Aucune erreur.",
       "Non. Une ligne absente n'est pas un 0."
     ],
     retenir: "ROWS compte des lignes, pas des jours."
@@ -534,15 +534,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q30", dialecte: "SQL Server",
     q: "Sur SQL Server, RANGE BETWEEN 7 PRECEDING AND CURRENT ROW est-il accepté ?",
     choix: [
-      "Oui",
-      "Non : avec RANGE, SQL Server accepte seulement UNBOUNDED et CURRENT ROW",
-      "Oui avec des dates",
-      "Seulement avec PARTITION BY"
+      "Oui, comme sur Snowflake",
+      "Non : RANGE limité à UNBOUNDED",
+      "Oui, mais seulement avec des dates",
+      "Seulement avec un PARTITION BY"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour un décalage en nombre, utilise ROWS (et un calendrier complet).",
+      "Oui. Avec RANGE, SQL Server accepte seulement UNBOUNDED et CURRENT ROW. Pour un décalage en nombre, utilise ROWS (et un calendrier complet).",
       "Non.",
       "Non."
     ],
@@ -591,14 +591,14 @@ LEARNSQL.questions.m08 = [
     q: "Que donne MAX(ca) OVER (ORDER BY mois ROWS UNBOUNDED PRECEDING) ?",
     choix: [
       "Le CA maximum de toute la période, partout",
-      "Le record de CA atteint jusqu'à ce mois (plus haut historique à date)",
-      "Le CA du mois",
-      "Une erreur"
+      "Le record de CA atteint jusqu'au mois",
+      "Le CA du mois, sans changement",
+      "Une erreur : MAX refuse ORDER BY"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait OVER ().",
-      "Oui. Un maximum « courant ». Utile pour repérer les nouveaux records (ca = record).",
+      "Oui. Le plus haut historique à date : un maximum « courant ». Utile pour repérer les nouveaux records (ca = record).",
       "Non.",
       "Non."
     ],
@@ -608,15 +608,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q34", dialecte: "Standard",
     q: "Que donne COUNT(*) OVER (PARTITION BY client_id) ?",
     choix: [
-      "Le numéro de la ligne",
-      "Le nombre de commandes du client, affiché sur chacune de ses lignes",
-      "Le nombre total de clients",
-      "1"
+      "Le numéro de la ligne dans le client",
+      "Le nombre de commandes du client",
+      "Le nombre total de clients de la table",
+      "1 sur chaque ligne de chaque commande"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est ROW_NUMBER.",
-      "Oui. Pratique pour filtrer ensuite (ex. clients avec une seule commande).",
+      "Oui. Affiché sur chacune de ses lignes. Pratique pour filtrer ensuite (ex. clients avec une seule commande).",
       "Non.",
       "Non."
     ],
@@ -627,15 +627,15 @@ LEARNSQL.questions.m08 = [
     q: "Comment afficher TOUTES les colonnes des factures en double (même numéro), pas seulement les numéros ?",
     choix: [
       "GROUP BY num_facture HAVING COUNT(*) > 1",
-      "Calculer COUNT(*) OVER (PARTITION BY num_facture) AS nb dans une CTE, puis WHERE nb > 1",
-      "SELECT DISTINCT *",
-      "ROW_NUMBER() = 1"
+      "COUNT(*) OVER (PARTITION BY num) puis nb > 1",
+      "SELECT DISTINCT * pour voir les doublons",
+      "ROW_NUMBER() OVER (PARTITION BY num) = 1"
     ],
     bonne: 1,
     pourquoi: [
       "Non. On perd le détail des lignes.",
-      "Oui. Chaque ligne garde ses colonnes et connaît la taille de son groupe.",
-      "Non.",
+      "Oui. Calcule COUNT(*) OVER (PARTITION BY num_facture) AS nb dans une CTE, puis WHERE nb > 1. Chaque ligne garde ses colonnes et connaît la taille de son groupe.",
+      "Non. DISTINCT cache les doublons au lieu de les montrer.",
       "Non. Garde une ligne par numéro."
     ],
     retenir: "Voir le détail des doublons : COUNT(*) OVER (PARTITION BY clé)."
@@ -644,15 +644,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q36", dialecte: "SQL Server",
     q: "Que donne SELECT * FROM commande WHERE ROW_NUMBER() OVER (ORDER BY id) = 1; ?",
     choix: [
-      "La 1re commande",
-      "Erreur : les fonctions de fenêtrage ne sont pas autorisées dans WHERE",
-      "Toutes les commandes",
-      "0 ligne"
+      "La 1re commande, par ordre d'id",
+      "Erreur : fenêtre interdite dans WHERE",
+      "Toutes les commandes, numérotées",
+      "0 ligne, car aucune n'est numérotée"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Elles sont permises seulement dans SELECT et ORDER BY. Passe par une CTE.",
+      "Oui. Les fonctions de fenêtrage sont permises seulement dans SELECT et ORDER BY. Passe par une CTE.",
       "Non.",
       "Non."
     ],
@@ -701,16 +701,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "SELECT * FROM commande QUALIFY ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC) = 1",
-      "SELECT * FROM commande WHERE date_cde = MAX(date_cde)",
-      "SELECT * FROM commande GROUP BY client_id",
-      "SELECT TOP 1 * FROM commande"
+      "SELECT * FROM commande QUALIFY ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde) = 1",
+      "SELECT * FROM commande WHERE ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC) = 1",
+      "SELECT * FROM commande QUALIFY ROW_NUMBER() OVER (ORDER BY date_cde DESC) = 1"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une ligne par client, sans CTE.",
-      "Non. Agrégat dans WHERE.",
-      "Non.",
-      "Non. Une seule ligne au total."
+      "Non. Tri croissant : c'est la PLUS ANCIENNE commande.",
+      "Non. Fenêtre interdite dans WHERE.",
+      "Non. Sans PARTITION BY : une seule ligne au total."
     ],
     retenir: "Dernière ligne par groupe sur Snowflake : QUALIFY ROW_NUMBER() = 1."
   },
@@ -718,15 +718,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q40", dialecte: "Standard",
     q: "Dans quel ordre logique les fonctions de fenêtrage sont-elles calculées ?",
     choix: [
-      "Avant WHERE",
-      "Après WHERE, GROUP BY et HAVING, au moment du SELECT",
-      "Après ORDER BY",
-      "Avant FROM"
+      "Avant WHERE, sur toutes les lignes",
+      "Après WHERE, GROUP BY et HAVING",
+      "Après ORDER BY, à la toute fin du calcul",
+      "Avant FROM, pour préparer les lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sinon on pourrait les filtrer dans WHERE.",
-      "Oui. Elles voient les lignes déjà filtrées et regroupées.",
+      "Oui. Au moment du SELECT : elles voient les lignes déjà filtrées et regroupées.",
       "Non.",
       "Non."
     ],
@@ -754,15 +754,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q42", dialecte: "Standard",
     q: "Peut-on écrire SUM(SUM(montant)) OVER () dans une requête GROUP BY client_id ?",
     choix: [
-      "Non, agrégat imbriqué interdit",
-      "Oui : le SUM intérieur est le total du client, le SUM … OVER () fait le total de ces totaux",
+      "Non : agrégat imbriqué interdit",
+      "Oui : total des totaux par client",
       "Oui, mais le résultat est faux",
-      "Seulement sur Snowflake"
+      "Seulement sur Snowflake, pas SQL Server"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ici, c'est permis : la fenêtre s'applique APRÈS le GROUP BY.",
-      "Oui. Parfait pour la part de chaque client : SUM(montant) * 100.0 / SUM(SUM(montant)) OVER ().",
+      "Oui. Le SUM intérieur est le total du client ; SUM(…) OVER () fait le total de ces totaux, car la fenêtre s'applique APRÈS le GROUP BY. Parfait pour la part de chaque client.",
       "Non.",
       "Non."
     ],
@@ -774,16 +774,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "RANK() OVER (ORDER BY SUM(montant) DESC)",
-      "RANK(SUM(montant))",
-      "ORDER BY RANK()",
-      "SUM(RANK())"
+      "RANK() OVER (ORDER BY montant DESC)",
+      "RANK() OVER (PARTITION BY SUM(montant))",
+      "SUM(RANK() OVER (ORDER BY montant))"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On classe sur l'agrégat, calculé avant la fenêtre.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Dans une requête GROUP BY client_id, montant n'est ni groupé ni agrégé : erreur.",
+      "Non. Chaque CA forme sa partition : tout le monde est classé 1.",
+      "Non. On ne peut pas agréger une fenêtre."
     ],
     retenir: "Classement d'agrégats : RANK() OVER (ORDER BY SUM(x) DESC)."
   },
@@ -793,16 +793,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "SUM(ca) OVER (ORDER BY ca DESC ROWS UNBOUNDED PRECEDING) * 100.0 / SUM(ca) OVER ()",
-      "ca * 100.0 / SUM(ca) OVER ()",
-      "RANK() OVER (ORDER BY ca)",
-      "AVG(ca) OVER ()"
+      "SUM(ca) OVER (ORDER BY ca ROWS UNBOUNDED PRECEDING) * 100.0 / SUM(ca) OVER ()",
+      "ca * 100.0 / SUM(ca) OVER (ORDER BY ca DESC ROWS UNBOUNDED PRECEDING)",
+      "SUM(ca) OVER (ORDER BY ca DESC ROWS UNBOUNDED PRECEDING) * 100.0 / SUM(ca)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Cumul décroissant / total. Classe A jusqu'à 80 %, B jusqu'à 95 %, C ensuite.",
-      "Non. Part individuelle, pas cumulée.",
-      "Non.",
-      "Non."
+      "Non. Tri croissant : on cumule depuis les plus PETITS articles.",
+      "Non. Part de l'article dans le cumul, pas un % cumulé.",
+      "Non. SUM(ca) sans OVER : erreur (pas de GROUP BY)."
     ],
     retenir: "ABC / Pareto : % cumulé décroissant."
   },
@@ -812,16 +812,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "SUM(qte) OVER (PARTITION BY article ORDER BY date_mvt, id ROWS UNBOUNDED PRECEDING)",
-      "SUM(qte) GROUP BY article",
-      "LAG(qte)",
-      "MAX(qte) OVER ()"
+      "SUM(qte) OVER (ORDER BY date_mvt, id ROWS UNBOUNDED PRECEDING)",
+      "SUM(ABS(qte)) OVER (PARTITION BY article ORDER BY date_mvt, id ROWS UNBOUNDED PRECEDING)",
+      "SUM(qte) OVER (PARTITION BY article)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Cumul des mouvements signés, par article, dans l'ordre. L'id départage les mouvements du même instant.",
-      "Non. Seulement le stock final.",
-      "Non.",
-      "Non."
+      "Non. Sans PARTITION BY : les mouvements de tous les articles sont mélangés.",
+      "Non. ABS rend les sorties positives : elles s'ajoutent au stock.",
+      "Non. Pas de ORDER BY : le stock final sur chaque ligne, pas le stock après chaque mouvement."
     ],
     retenir: "Solde courant = cumul des mouvements signés."
   },
@@ -831,35 +831,34 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "MIN(date_cde) OVER (PARTITION BY client_id)",
-      "MIN(date_cde)",
-      "FIRST(date_cde)",
-      "LAG(date_cde)"
+      "MAX(date_cde) OVER (PARTITION BY client_id)",
+      "MIN(date_cde) OVER (ORDER BY client_id)",
+      "LAG(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le minimum du client, répété sur ses lignes. (FIRST_VALUE marche aussi.)",
-      "Non. Sans OVER ni GROUP BY : erreur.",
-      "Non.",
-      "Non."
+      "Non. C'est la DERNIÈRE commande.",
+      "Non. Minimum cumulé sur toute la table, pas par client.",
+      "Non. La commande précédente, pas la première."
     ],
     retenir: "Info du groupe sur chaque ligne : agrégat OVER (PARTITION BY)."
   },
   {
     id: "m08-q47", dialecte: "Standard",
     q: "Comment repérer les lignes où le prix d'un article a changé par rapport à la ligne précédente ?",
-    choixCode: true,
     choix: [
-      "WHERE prix <> LAG(prix) OVER (…)",
-      "Calculer LAG(prix) OVER (PARTITION BY article ORDER BY date_effet) AS prix_prec dans une CTE, puis WHERE prix <> prix_prec OR prix_prec IS NULL",
-      "GROUP BY prix",
-      "DISTINCT prix"
+      "WHERE prix <> LAG(prix) OVER (PARTITION BY article ORDER BY date_effet)",
+      "LAG(prix) … AS prix_prec dans une CTE, puis WHERE prix <> prix_prec OR prix_prec IS NULL",
+      "LAG(prix) … AS prix_prec dans une CTE, puis WHERE prix = prix_prec",
+      "LEAD(prix) … AS prix_suiv dans une CTE, puis WHERE prix <> prix_suiv OR prix_suiv IS NULL"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Fenêtre interdite dans WHERE (SQL Server).",
-      "Oui. On compare à la valeur précédente. La 1re ligne (prix_prec NULL) est un « début ».",
-      "Non.",
-      "Non."
+      "Oui. LAG(prix) OVER (PARTITION BY article ORDER BY date_effet) : on compare à la valeur précédente. La 1re ligne (prix_prec NULL) est un « début ».",
+      "Non. Ce sont les lignes SANS changement.",
+      "Non. On compare à la ligne suivante : on repère la ligne AVANT le changement."
     ],
     retenir: "Détecter un changement : LAG puis comparaison, au niveau du dessus."
   },
@@ -867,16 +866,16 @@ LEARNSQL.questions.m08 = [
     id: "m08-q48", dialecte: "Standard",
     q: "Comment repérer les clients perdus (dernière commande il y a plus d'un an) avec une fenêtre ?",
     choix: [
-      "LAG(date_cde) > 365",
-      "Garder les lignes où LEAD(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) IS NULL, puis tester date_cde < il y a un an",
-      "RANK() = 1",
-      "NTILE(12)"
+      "Garder les lignes où LAG(date_cde) IS NULL, puis tester leur âge",
+      "Garder les lignes où LEAD(date_cde) IS NULL, puis tester leur âge",
+      "Garder les lignes où RANK() OVER (ORDER BY date_cde) = 1",
+      "Découper les commandes avec NTILE(12) par mois"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. On isole la dernière commande, puis on regarde son âge. (MAX + GROUP BY marche aussi.)",
-      "Non.",
+      "Non. LAG IS NULL = la PREMIÈRE commande.",
+      "Oui. LEAD(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) IS NULL isole la dernière commande ; on regarde ensuite si elle a plus d'un an. (MAX + GROUP BY marche aussi.)",
+      "Non. La commande la plus ancienne de toute la table.",
       "Non."
     ],
     retenir: "Dernière commande = LEAD IS NULL (ou ROW_NUMBER DESC = 1)."
@@ -886,16 +885,16 @@ LEARNSQL.questions.m08 = [
     q: "Comment numéroter des lignes sans ordre particulier sur SQL Server (ORDER BY est obligatoire dans ROW_NUMBER) ?",
     choixCode: true,
     choix: [
-      "ROW_NUMBER() OVER ()",
+      "ROW_NUMBER() OVER (PARTITION BY (SELECT NULL))",
       "ROW_NUMBER() OVER (ORDER BY (SELECT NULL))",
-      "ROW_NUMBER()",
-      "IDENTITY()"
+      "ROW_NUMBER() OVER (ORDER BY NULL)",
+      "IDENTITY(int, 1, 1) dans un SELECT normal"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SQL Server exige ORDER BY pour ROW_NUMBER.",
-      "Oui. Astuce : un ORDER BY sur une constante. Numérotation arbitraire, mais sans tri coûteux.",
-      "Non.",
+      "Non. Pas de ORDER BY : SQL Server refuse.",
+      "Oui. Astuce : un ORDER BY sur une sous-requête constante. Numérotation arbitraire, mais sans tri coûteux.",
+      "Non. SQL Server refuse une constante directe dans ce ORDER BY : il faut (SELECT NULL).",
       "Non. IDENTITY() s'utilise seulement avec SELECT INTO."
     ],
     retenir: "Numéroter sans ordre : ORDER BY (SELECT NULL)."
@@ -958,15 +957,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q53", dialecte: "SQL Server",
     q: "Que donne UPDATE commande SET rang = ROW_NUMBER() OVER (ORDER BY date_cde); ?",
     choix: [
-      "Les rangs sont mis à jour",
-      "Erreur : fenêtre interdite dans SET. Passe par une CTE",
-      "Tous les rangs valent 1",
-      "Rien"
+      "Les rangs sont mis à jour dans l'ordre",
+      "Erreur : fenêtre interdite dans SET",
+      "Tous les rangs valent 1, sans erreur",
+      "Rien : l'UPDATE ne touche aucune ligne"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. WITH x AS (SELECT rang, ROW_NUMBER() OVER (ORDER BY date_cde) AS rn FROM commande) UPDATE x SET rang = rn;",
+      "Oui. Passe par une CTE : WITH x AS (SELECT rang, ROW_NUMBER() OVER (ORDER BY date_cde) AS rn FROM commande) UPDATE x SET rang = rn;",
       "Non.",
       "Non."
     ],
@@ -976,10 +975,10 @@ LEARNSQL.questions.m08 = [
     id: "m08-q54", dialecte: "SQL Server",
     q: "Que donne SELECT SUM(ROW_NUMBER() OVER (ORDER BY id)) FROM t; ?",
     choix: [
-      "La somme des numéros",
-      "Erreur : fenêtre interdite dans un agrégat",
-      "Le nombre de lignes",
-      "NULL"
+      "La somme des numéros de ligne",
+      "Erreur : fenêtre dans un agrégat",
+      "Le nombre de lignes de la table",
+      "NULL, car l'ordre n'est pas unique"
     ],
     bonne: 1,
     pourquoi: [
@@ -995,14 +994,14 @@ LEARNSQL.questions.m08 = [
     q: "Tu veux le rang des clients selon leur évolution (CA - CA de l'an dernier, calculé avec LAG). Comment faire ?",
     choix: [
       "RANK() OVER (ORDER BY ca - LAG(ca) OVER (…))",
-      "Calculer LAG dans une 1re CTE, puis RANK() sur la colonne obtenue dans une 2e étape",
-      "C'est impossible",
-      "Utiliser GROUP BY"
+      "LAG dans une 1re étape, RANK dans une 2e",
+      "C'est impossible avec des fenêtres",
+      "Un GROUP BY client avec RANK et LAG"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Fenêtre dans une fenêtre : interdit.",
-      "Oui. Une fenêtre par étape.",
+      "Oui. Une fenêtre par étape : on calcule l'évolution avec LAG dans une CTE, puis RANK() sur cette colonne.",
       "Non.",
       "Non."
     ],
@@ -1012,17 +1011,17 @@ LEARNSQL.questions.m08 = [
     id: "m08-q56", dialecte: "Standard",
     q: "SELECT DISTINCT client_id, SUM(montant) OVER (PARTITION BY client_id) FROM commande. Est-ce une bonne idée ?",
     choix: [
-      "Oui, c'est la meilleure méthode",
-      "Le résultat est juste, mais GROUP BY client_id fait la même chose plus simplement et plus vite",
-      "C'est une erreur",
-      "Le résultat est faux"
+      "Oui, c'est la meilleure méthode possible",
+      "Juste, mais GROUP BY fait mieux",
+      "C'est une erreur : DISTINCT avec OVER",
+      "Le résultat est faux : sommes doublées"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. On calcule sur chaque ligne, puis on supprime les doublons : du travail en trop.",
-      "Non.",
-      "Non."
+      "Oui. Le résultat est juste, mais on calcule sur chaque ligne puis on supprime les doublons : du travail en trop. GROUP BY client_id fait la même chose plus simplement et plus vite.",
+      "Non. C'est valide.",
+      "Non. Le résultat est juste."
     ],
     retenir: "Une ligne par groupe = GROUP BY. Fenêtre = garder le détail."
   },
@@ -1031,17 +1030,17 @@ LEARNSQL.questions.m08 = [
     q: "Jours de production : 1, 2, 3, 6, 7 octobre. Comment regrouper les jours CONSÉCUTIFS (îlots) ?",
     choixCode: true,
     choix: [
-      "GROUP BY jour",
+      "GROUP BY DATEADD(day, -ROW_NUMBER() OVER (ORDER BY jour), jour)",
       "GROUP BY DATEADD(day, -ROW_NUMBER() OVER (ORDER BY jour), jour), calculé d'abord dans une CTE",
-      "GROUP BY MONTH(jour)",
-      "GROUP BY LAG(jour)"
+      "GROUP BY DATEADD(day, ROW_NUMBER() OVER (ORDER BY jour), jour), calculé d'abord dans une CTE",
+      "GROUP BY MONTH(jour), calculé d'abord dans une CTE"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un groupe par jour.",
+      "Non. Fenêtre interdite dans GROUP BY : il faut la calculer avant, dans une CTE.",
       "Oui. Jour - numéro de ligne reste constant tant que les jours se suivent. Ce « marqueur » identifie chaque îlot.",
-      "Non.",
-      "Non."
+      "Non. On AJOUTE le numéro : la clé change à chaque ligne, même pour des jours consécutifs.",
+      "Non. Un groupe par mois, pas par série de jours."
     ],
     retenir: "Îlots de dates consécutives : date - ROW_NUMBER = clé de groupe."
   },
@@ -1051,16 +1050,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "SELECT MIN(jour), MAX(jour), COUNT(*) FROM x GROUP BY cle_ilot",
-      "SELECT jour FROM x ORDER BY cle_ilot",
-      "SELECT DISTINCT cle_ilot",
-      "SELECT SUM(jour)"
+      "SELECT MIN(jour), MAX(jour), COUNT(*) FROM x GROUP BY jour",
+      "SELECT MIN(cle_ilot), MAX(cle_ilot), COUNT(*) FROM x GROUP BY jour",
+      "SELECT MIN(jour), MAX(jour), COUNT(*) FROM x"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Un îlot = un groupe : début, fin, nombre de jours.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Un groupe par jour : chaque « période » fait 1 jour.",
+      "Non. Grouper par jour et prendre MIN / MAX de la clé n'a pas de sens.",
+      "Non. Un seul groupe : de la 1re à la dernière date, tous îlots confondus."
     ],
     retenir: "Îlots : GROUP BY clé → MIN, MAX, COUNT."
   },
@@ -1069,17 +1068,17 @@ LEARNSQL.questions.m08 = [
     q: "Une machine a un statut par heure (MARCHE / ARRET). Comment regrouper les heures consécutives de même statut ?",
     choixCode: true,
     choix: [
-      "GROUP BY statut",
+      "Clé = ROW_NUMBER() OVER (ORDER BY heure) - ROW_NUMBER() OVER (PARTITION BY heure ORDER BY statut), puis GROUP BY statut, clé",
       "Clé = ROW_NUMBER() OVER (ORDER BY heure) - ROW_NUMBER() OVER (PARTITION BY statut ORDER BY heure), puis GROUP BY statut, clé",
-      "GROUP BY heure",
-      "DISTINCT statut"
+      "Clé = ROW_NUMBER() OVER (PARTITION BY statut ORDER BY heure), puis GROUP BY statut, clé",
+      "GROUP BY statut, puis MIN(heure) et MAX(heure)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Toutes les périodes ARRET seraient fusionnées.",
+      "Non. Partition par heure : chaque heure est seule, la 2e numérotation vaut toujours 1.",
       "Oui. La différence des deux numérotations est constante dans une même séquence.",
-      "Non.",
-      "Non."
+      "Non. Chaque ligne a sa propre clé : aucun regroupement.",
+      "Non. Toutes les périodes ARRET seraient fusionnées."
     ],
     retenir: "Îlots de valeurs : différence de deux ROW_NUMBER."
   },
@@ -1089,16 +1088,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "CONDITIONAL_CHANGE_EVENT(statut) OVER (ORDER BY heure)",
-      "CHANGE_COUNT(statut)",
-      "LAG(statut)",
-      "DENSE_RANK(statut)"
+      "CONDITIONAL_TRUE_EVENT(statut) OVER (ORDER BY heure)",
+      "LAG(statut) OVER (ORDER BY heure)",
+      "DENSE_RANK() OVER (ORDER BY statut, heure)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le compteur augmente à chaque changement de valeur : c'est directement la clé d'îlot.",
-      "Non.",
+      "Non. Il attend une condition (vrai / faux), pas une valeur qui change.",
       "Non. Donne la valeur précédente, pas un numéro de séquence.",
-      "Non."
+      "Non. Un numéro par ligne, pas par séquence."
     ],
     retenir: "Snowflake : CONDITIONAL_CHANGE_EVENT pour les îlots."
   },
@@ -1108,16 +1107,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "CONDITIONAL_TRUE_EVENT(DATEDIFF('minute', LAG(ts) OVER (ORDER BY ts), ts) > 30) OVER (ORDER BY ts)",
-      "NTILE(30)",
-      "ROW_NUMBER() / 30",
-      "GROUP BY ts"
+      "CONDITIONAL_CHANGE_EVENT(DATEDIFF('minute', LAG(ts) OVER (ORDER BY ts), ts) > 30) OVER (ORDER BY ts)",
+      "ROW_NUMBER() OVER (ORDER BY ts) / 30",
+      "CONDITIONAL_TRUE_EVENT(DATEDIFF('minute', LAG(ts) OVER (ORDER BY ts), ts) < 30) OVER (ORDER BY ts)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le compteur augmente chaque fois que la condition est vraie. (La condition est souvent calculée dans une étape avant.)",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Il compte les CHANGEMENTS de la condition (vrai → faux aussi), pas ses passages à vrai.",
+      "Non. Des paquets de 30 lignes, sans lien avec les pauses.",
+      "Non. Condition inversée : le compteur augmente à chaque message rapproché."
     ],
     retenir: "Snowflake : CONDITIONAL_TRUE_EVENT(condition) = compteur d'événements."
   },
@@ -1125,16 +1124,16 @@ LEARNSQL.questions.m08 = [
     id: "m08-q62", dialecte: "SQL Server",
     q: "Sur SQL Server, comment numéroter des sessions (pause > 30 min = nouvelle session) ?",
     choix: [
-      "Un curseur",
-      "1) drapeau = CASE WHEN DATEDIFF(minute, LAG(ts) OVER (ORDER BY ts), ts) > 30 THEN 1 ELSE 0 END ; 2) session = SUM(drapeau) OVER (ORDER BY ts ROWS UNBOUNDED PRECEDING)",
-      "NTILE",
+      "Un curseur qui parcourt les lignes une à une",
+      "Drapeau 0/1 avec LAG, puis SUM cumulé",
+      "NTILE découpé en tranches de 30 min",
       "GROUP BY DATEPART(minute, ts)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Lent et inutile.",
-      "Oui. Le cumul des drapeaux « nouvelle session » donne un numéro de session.",
-      "Non.",
+      "Oui. 1) drapeau = CASE WHEN DATEDIFF(minute, LAG(ts) OVER (ORDER BY ts), ts) > 30 THEN 1 ELSE 0 END ; 2) session = SUM(drapeau) OVER (ORDER BY ts ROWS UNBOUNDED PRECEDING). Le cumul des drapeaux donne un numéro de session.",
+      "Non. NTILE découpe en nombre de lignes, pas en durée.",
       "Non."
     ],
     retenir: "Numéroter des événements : drapeau 0/1, puis SUM cumulatif."
@@ -1145,16 +1144,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "LAG(prix) IGNORE NULLS OVER (PARTITION BY article ORDER BY jour)",
-      "COALESCE(prix, 0)",
-      "MAX(prix) OVER ()",
-      "LEAD(prix)"
+      "LAG(prix) OVER (PARTITION BY article ORDER BY jour)",
+      "LEAD(prix) IGNORE NULLS OVER (PARTITION BY article ORDER BY jour)",
+      "MAX(prix) OVER (PARTITION BY article)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. IGNORE NULLS saute les NULL pour trouver la dernière vraie valeur. Combine avec COALESCE(prix, …).",
-      "Non. Un prix à 0 est faux.",
-      "Non.",
-      "Non. Valeur suivante."
+      "Non. Si la veille est aussi NULL, LAG renvoie NULL.",
+      "Non. LEAD regarde vers l'avant : le PROCHAIN prix connu.",
+      "Non. Le plus haut prix de l'article, pas le dernier connu."
     ],
     retenir: "Prolonger la dernière valeur : IGNORE NULLS."
   },
@@ -1164,16 +1163,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "LAST_VALUE(prix) IGNORE NULLS OVER (PARTITION BY article ORDER BY jour ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
-      "ISNULL(prix, LAG(prix))",
-      "MAX(prix)",
-      "C'est impossible"
+      "FIRST_VALUE(prix) IGNORE NULLS OVER (PARTITION BY article ORDER BY jour ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
+      "LAST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
+      "ISNULL(prix, LAG(prix) OVER (PARTITION BY article ORDER BY jour))"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Nouveauté de SQL Server 2022 : IGNORE NULLS sur FIRST_VALUE / LAST_VALUE.",
-      "Non. LAG ne regarde qu'une ligne en arrière : deux NULL de suite et ça échoue.",
-      "Non.",
-      "Non."
+      "Non. Le PREMIER prix connu, pas le dernier.",
+      "Non. Sans IGNORE NULLS : c'est la ligne courante, NULL compris.",
+      "Non. LAG ne regarde qu'une ligne en arrière : deux NULL de suite et ça échoue."
     ],
     retenir: "SQL Server 2022 : LAST_VALUE … IGNORE NULLS."
   },
@@ -1181,17 +1180,17 @@ LEARNSQL.questions.m08 = [
     id: "m08-q65", dialecte: "SQL Server",
     q: "Avant SQL Server 2022, quelle astuce prolonge la dernière valeur connue ?",
     choix: [
-      "Impossible",
-      "grp = COUNT(prix) OVER (ORDER BY jour ROWS UNBOUNDED PRECEDING) ; puis MAX(prix) OVER (PARTITION BY grp)",
-      "SUM(prix) OVER ()",
-      "LAG(prix, 2)"
+      "Impossible avant SQL Server 2022",
+      "COUNT(prix) cumulé = groupe, puis MAX",
+      "SUM(prix) OVER () sur toute la table",
+      "LAG(prix, 2) pour sauter deux NULL"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. COUNT(prix) n'augmente que sur les valeurs non NULL : les NULL restent dans le groupe de la dernière valeur.",
+      "Oui. grp = COUNT(prix) OVER (ORDER BY jour ROWS UNBOUNDED PRECEDING) ; puis MAX(prix) OVER (PARTITION BY grp). COUNT(prix) n'augmente que sur les valeurs non NULL : les NULL restent dans le groupe de la dernière valeur.",
       "Non.",
-      "Non."
+      "Non. Et s'il y a trois NULL de suite ?"
     ],
     retenir: "Remplir vers le bas : COUNT cumulatif = groupe, puis MAX du groupe."
   },
@@ -1199,15 +1198,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q66", dialecte: "Standard",
     q: "Que mesure PERCENT_RANK() OVER (ORDER BY ca) ?",
     choix: [
-      "La part du CA",
-      "La position relative dans le classement, de 0 (premier) à 1 (dernier)",
-      "Le nombre de lignes",
-      "Le CA en %"
+      "La part du CA de la ligne dans le total",
+      "La position relative, de 0 à 1",
+      "Le nombre de lignes avant la ligne",
+      "Le CA exprimé en pourcentage du max"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. (rang - 1) / (nombre de lignes - 1).",
+      "Oui. De 0 (premier) à 1 (dernier) : (rang - 1) / (nombre de lignes - 1).",
       "Non.",
       "Non."
     ],
@@ -1217,14 +1216,14 @@ LEARNSQL.questions.m08 = [
     id: "m08-q67", dialecte: "Standard",
     q: "Que mesure CUME_DIST() OVER (ORDER BY ca) ?",
     choix: [
-      "La proportion de lignes dont le CA est inférieur ou égal à celui de la ligne",
-      "Le CA cumulé",
-      "L'écart-type",
-      "Le rang"
+      "La part des lignes au CA inférieur ou égal",
+      "Le CA cumulé jusqu'à la ligne courante",
+      "L'écart-type du CA de la table",
+      "Le rang de la ligne, de 1 à N"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Ex. 0,8 = 80 % des clients font un CA inférieur ou égal.",
+      "Oui. La proportion de lignes dont le CA est inférieur ou égal à celui de la ligne. Ex. 0,8 = 80 % des clients font un CA inférieur ou égal.",
       "Non. Ce serait SUM OVER.",
       "Non.",
       "Non."
@@ -1238,15 +1237,15 @@ LEARNSQL.questions.m08 = [
     choix: [
       "MEDIAN(montant) OVER (PARTITION BY client_id)",
       "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY montant) OVER (PARTITION BY client_id)",
-      "AVG(montant) OVER (PARTITION BY client_id)",
-      "NTILE(2)"
+      "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY client_id) OVER (PARTITION BY montant)",
+      "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY montant) OVER ()"
     ],
     bonne: 1,
     pourquoi: [
       "Non. MEDIAN n'existe pas sur SQL Server.",
       "Oui. Fonction de distribution : WITHIN GROUP pour l'ordre, OVER pour le groupe.",
-      "Non. Moyenne.",
-      "Non."
+      "Non. Colonnes inversées : on cherche la médiane des client_id par montant.",
+      "Non. OVER () : la médiane de toutes les commandes, pas par client."
     ],
     retenir: "Médiane SQL Server : PERCENTILE_CONT(0.5) … OVER."
   },
@@ -1256,16 +1255,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "MEDIAN(montant) OVER (PARTITION BY client_id)",
-      "PERCENTILE(montant)",
-      "AVG(montant)",
-      "MID(montant)"
+      "MEDIAN(client_id) OVER (PARTITION BY montant)",
+      "AVG(montant) OVER (PARTITION BY client_id)",
+      "MEDIAN(montant) OVER (ORDER BY client_id)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. MEDIAN existe comme agrégat et comme fenêtre.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Colonnes inversées.",
+      "Non. C'est la moyenne.",
+      "Non. MEDIAN n'accepte pas de ORDER BY dans OVER, et il faut une partition par client."
     ],
     retenir: "Snowflake : MEDIAN(x) OVER (…)."
   },
@@ -1273,15 +1272,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q70", dialecte: "Snowflake",
     q: "Sur Snowflake, que fait RATIO_TO_REPORT(ca) OVER (PARTITION BY region) ?",
     choix: [
-      "Le rang du CA",
-      "La part du CA de la ligne dans le total de sa région (entre 0 et 1)",
-      "Le CA cumulé",
-      "Un rapport PDF"
+      "Le rang du CA dans sa région",
+      "La part du CA dans le total de sa région",
+      "Le CA cumulé de la région, mois par mois",
+      "Un rapport PDF envoyé à chaque région"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Raccourci de ca / SUM(ca) OVER (PARTITION BY region).",
+      "Oui. Entre 0 et 1. Raccourci de ca / SUM(ca) OVER (PARTITION BY region).",
       "Non.",
       "Non."
     ],
@@ -1292,15 +1291,15 @@ LEARNSQL.questions.m08 = [
     q: "Sur SQL Server 2022, à quoi sert la clause WINDOW ?",
     code: "SELECT client_id, montant,\n  SUM(montant) OVER w AS cumul,\n  AVG(montant) OVER w AS moy\nFROM commande\nWINDOW w AS (PARTITION BY client_id ORDER BY date_cde);",
     choix: [
-      "À créer une vue",
-      "À nommer une fenêtre une seule fois et la réutiliser dans plusieurs fonctions",
-      "À filtrer les fenêtres",
-      "Rien, c'est une erreur"
+      "À créer une vue réutilisable",
+      "À nommer une fenêtre pour la réutiliser",
+      "À filtrer les lignes selon une fonction de fenêtrage",
+      "Rien, c'est une erreur de syntaxe"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Moins de répétition, moins d'erreurs de copier-coller.",
+      "Oui. On nomme la fenêtre une seule fois et on la réutilise dans plusieurs fonctions : moins de répétition, moins d'erreurs de copier-coller.",
       "Non. Ce serait QUALIFY (Snowflake).",
       "Non. Valide depuis SQL Server 2022."
     ],
@@ -1309,19 +1308,18 @@ LEARNSQL.questions.m08 = [
   {
     id: "m08-q72", dialecte: "SQL Server",
     q: "Quel index aide le plus ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde) ?",
-    choixCode: true,
     choix: [
-      "Un index sur date_cde seul",
-      "Un index sur (client_id, date_cde), avec INCLUDE des colonnes affichées",
-      "Un index sur montant",
-      "Aucun index ne peut aider"
+      "Un index sur (date_cde, client_id) + INCLUDE",
+      "Un index sur (client_id, date_cde) + INCLUDE",
+      "Un index sur date_cde seul, avec INCLUDE",
+      "Un index sur (montant, client_id, date_cde)"
     ],
     bonne: 1,
     pourquoi: [
+      "Non. L'ordre doit d'abord être par client (PARTITION BY).",
+      "Oui. Index (client_id, date_cde) INCLUDE (colonnes affichées) : les lignes arrivent déjà dans l'ordre, pas de tri coûteux. On appelle ça un index « POC » (Partition, Order, Covering).",
       "Non. L'ordre doit d'abord être par client.",
-      "Oui. Les lignes arrivent déjà dans l'ordre : pas de tri coûteux. On appelle ça un index « POC » (Partition, Order, Covering).",
-      "Non.",
-      "Non."
+      "Non. montant en tête ne sert pas l'ordre demandé."
     ],
     retenir: "Fenêtre rapide : index (PARTITION BY, ORDER BY) INCLUDE (…)."
   },
@@ -1329,15 +1327,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q73", dialecte: "SQL Server",
     q: "Le plan d'une requête avec fenêtre montre un gros opérateur Sort. Pourquoi ?",
     choix: [
-      "À cause du ORDER BY final seulement",
-      "La fenêtre a besoin des lignes triées par PARTITION BY + ORDER BY ; sans index adapté, SQL Server trie",
-      "C'est un bug",
+      "Seulement à cause du ORDER BY final",
+      "La fenêtre a besoin de lignes triées",
+      "C'est un bug de l'optimiseur",
       "Les fenêtres trient toujours tout deux fois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas seulement.",
-      "Oui. Un index sur ces colonnes supprime souvent ce tri.",
+      "Oui. La fenêtre a besoin des lignes triées par PARTITION BY + ORDER BY ; sans index adapté, SQL Server trie. Un index sur ces colonnes supprime souvent ce tri.",
       "Non.",
       "Non."
     ],
@@ -1347,15 +1345,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q74", dialecte: "SQL Server",
     q: "Sur SQL Server, pourquoi préciser ROWS plutôt que laisser RANGE (par défaut) pour un cumul ?",
     choix: [
-      "Pour le style",
-      "ROWS donne un cumul ligne à ligne (pas de regroupement des ex aequo) et il est généralement plus rapide",
-      "RANGE est interdit",
-      "ROWS trie le résultat"
+      "Pour le style, aucun effet",
+      "Cumul ligne à ligne, plus rapide",
+      "RANGE est interdit dans un cumul",
+      "ROWS trie aussi le résultat affiché"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. RANGE peut utiliser une table de travail sur disque ; ROWS travaille en mémoire.",
+      "Oui. ROWS ne regroupe pas les ex aequo, et il est généralement plus rapide : RANGE peut utiliser une table de travail sur disque.",
       "Non.",
       "Non."
     ],
@@ -1439,17 +1437,17 @@ LEARNSQL.questions.m08 = [
     q: "Une table client_import contient plusieurs versions du même client (date_maj différente). Comment garder la version la plus récente ?",
     choixCode: true,
     choix: [
-      "SELECT DISTINCT * FROM client_import",
+      "ROW_NUMBER() OVER (PARTITION BY code_client ORDER BY date_maj) = 1 (via CTE ou QUALIFY)",
       "ROW_NUMBER() OVER (PARTITION BY code_client ORDER BY date_maj DESC) = 1 (via CTE ou QUALIFY)",
-      "MAX(date_maj) seul",
-      "GROUP BY code_client"
+      "ROW_NUMBER() OVER (ORDER BY date_maj DESC) = 1 (via CTE ou QUALIFY)",
+      "RANK() OVER (PARTITION BY code_client ORDER BY code_client DESC) = 1 (via CTE ou QUALIFY)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les versions sont différentes : rien n'est supprimé.",
+      "Non. Tri croissant : on garde la version la PLUS ANCIENNE.",
       "Oui. Dédoublonnage classique d'un flux d'import.",
-      "Non. On perd les autres colonnes.",
-      "Non. Les autres colonnes ne sont pas groupées."
+      "Non. Sans PARTITION BY : une seule ligne pour toute la table.",
+      "Non. Tri sur le code lui-même : toutes les versions sont ex aequo, toutes gardées."
     ],
     retenir: "Garder la dernière version : ROW_NUMBER … ORDER BY date DESC = 1."
   },
@@ -1459,16 +1457,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "montant - AVG(montant) OVER (PARTITION BY client_id)",
-      "montant - AVG(montant)",
-      "AVG(montant - montant)",
-      "montant - LAG(montant)"
+      "montant - AVG(montant) OVER (ORDER BY client_id)",
+      "montant - AVG(montant) OVER ()",
+      "montant - LAG(montant) OVER (PARTITION BY client_id ORDER BY date_cde)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Positif = au-dessus de sa moyenne habituelle.",
-      "Non. Erreur sans GROUP BY.",
-      "Non.",
-      "Non. Écart avec la précédente."
+      "Non. Moyenne cumulée de toute la table, pas du client.",
+      "Non. Écart avec la moyenne de TOUTES les commandes.",
+      "Non. Écart avec la commande précédente."
     ],
     retenir: "Écart à la moyenne du groupe : x - AVG(x) OVER (PARTITION BY …)."
   },
@@ -1515,16 +1513,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "ca / SUM(ca) OVER (PARTITION BY famille) AS part_famille, ca / SUM(ca) OVER () AS part_totale",
-      "Deux requêtes séparées",
-      "ca / SUM(ca) GROUP BY famille",
-      "Impossible"
+      "ca / SUM(ca) OVER (PARTITION BY famille) AS part_famille, ca / SUM(ca) OVER (PARTITION BY famille) AS part_totale",
+      "ca / SUM(ca) OVER () AS part_famille, ca / SUM(ca) OVER (PARTITION BY famille) AS part_totale",
+      "Impossible : une seule fenêtre par SELECT"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Plusieurs fenêtres différentes dans le même SELECT, aucun problème.",
-      "Non. Possible, mais inutile.",
-      "Non.",
-      "Non."
+      "Non. La « part totale » est encore calculée par famille.",
+      "Non. Les deux calculs sont inversés.",
+      "Non. Plusieurs fenêtres différentes sont permises."
     ],
     retenir: "Plusieurs fenêtres différentes dans un même SELECT : permis."
   },
@@ -1532,17 +1530,17 @@ LEARNSQL.questions.m08 = [
     id: "m08-q84", dialecte: "Standard",
     q: "COUNT(*) OVER (ORDER BY date_cde ROWS UNBOUNDED PRECEDING) donne le même résultat que…",
     choix: [
-      "COUNT(*)",
+      "COUNT(*) OVER () sur toute la table",
       "ROW_NUMBER() OVER (ORDER BY date_cde)",
-      "RANK()",
-      "NTILE"
+      "DENSE_RANK() OVER (ORDER BY date_cde DESC)",
+      "NTILE(1) OVER (ORDER BY date_cde)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le total sur chaque ligne, pas un compteur.",
       "Oui. Un compteur qui augmente de 1 à chaque ligne.",
-      "Non. RANK gère les ex aequo autrement.",
-      "Non."
+      "Non. Les ex aequo sont gérés autrement, et l'ordre est inversé.",
+      "Non. Un seul groupe : vaut 1 partout."
     ],
     retenir: "Comptage cumulatif ligne à ligne = ROW_NUMBER."
   },
@@ -1551,16 +1549,16 @@ LEARNSQL.questions.m08 = [
     q: "Comment afficher, mois par mois, le nombre CUMULÉ de clients différents depuis le début ?",
     choix: [
       "COUNT(DISTINCT client_id) OVER (ORDER BY mois)",
-      "Marquer la 1re commande de chaque client (ROW_NUMBER par client = 1), puis faire la somme cumulée de ces marques par mois",
-      "COUNT(*) OVER (ORDER BY mois)",
-      "DENSE_RANK()"
+      "Compter les 1res commandes, puis cumuler",
+      "COUNT(*) OVER (ORDER BY mois), tout simplement",
+      "DENSE_RANK() OVER (ORDER BY client_id)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. DISTINCT avec ORDER BY dans OVER n'est pas permis.",
-      "Oui. Chaque client est compté une fois, le mois de son arrivée.",
+      "Oui. Marque la 1re commande de chaque client (ROW_NUMBER par client = 1), puis fais la somme cumulée de ces marques par mois. Chaque client est compté une fois, le mois de son arrivée.",
       "Non. Compte les commandes.",
-      "Non."
+      "Non. Numérote les clients, sans lien avec les mois."
     ],
     retenir: "Cumul de distincts : compter les « premières fois », puis cumuler."
   },
@@ -1568,15 +1566,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q86", dialecte: "Standard",
     q: "Sur SQL Server, peut-on écrire STRING_AGG(code, ',') OVER (PARTITION BY cde_id) ?",
     choix: [
-      "Oui",
-      "Non : STRING_AGG n'est pas une fonction de fenêtrage sur SQL Server",
-      "Oui avec ORDER BY",
-      "Seulement en 2022"
+      "Oui, comme LISTAGG sur Snowflake",
+      "Non : pas en fenêtre sur SQL Server",
+      "Oui, à condition d'ajouter ORDER BY",
+      "Seulement depuis SQL Server 2022"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Fais un GROUP BY dans une sous-requête puis une jointure. (Snowflake, lui, accepte LISTAGG … OVER.)",
+      "Oui. STRING_AGG n'est pas une fonction de fenêtrage sur SQL Server. Fais un GROUP BY dans une sous-requête puis une jointure. (Snowflake, lui, accepte LISTAGG … OVER.)",
       "Non.",
       "Non."
     ],
@@ -1587,17 +1585,17 @@ LEARNSQL.questions.m08 = [
     q: "Comment détecter les trous de plus d'une heure dans la réception des messages EDI ?",
     choixCode: true,
     choix: [
-      "Calculer DATEDIFF(minute, LAG(recu_le) OVER (ORDER BY recu_le), recu_le), puis garder > 60",
-      "COUNT(*) par heure",
-      "MAX(recu_le) - MIN(recu_le)",
-      "GROUP BY recu_le"
+      "DATEDIFF(minute, LAG(recu_le) OVER (ORDER BY recu_le), recu_le), puis garder > 60",
+      "DATEDIFF(minute, LEAD(recu_le) OVER (ORDER BY recu_le), recu_le), puis garder > 60",
+      "COUNT(*) par heure, puis garder les heures à 0",
+      "DATEDIFF(minute, MIN(recu_le) OVER (), recu_le), puis garder > 60"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Écart avec le message précédent : au-delà de 60 min, alerte.",
-      "Non. Une heure sans message n'aurait pas de ligne : invisible.",
-      "Non. Durée totale seulement.",
-      "Non."
+      "Non. Avec LEAD, l'écart est négatif : jamais > 60.",
+      "Non. Une heure sans message n'a pas de ligne : invisible.",
+      "Non. Écart avec le tout premier message, pas avec le précédent."
     ],
     retenir: "Surveiller un flux : écart avec LAG."
   },
@@ -1607,16 +1605,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "LAST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) - FIRST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour)",
-      "MAX(prix) - MIN(prix)",
-      "LAG(prix) - prix",
-      "SUM(prix)"
+      "LAST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour) - FIRST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour)",
+      "FIRST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) - LAST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour)",
+      "MAX(prix) OVER (PARTITION BY article) - MIN(prix) OVER (PARTITION BY article)"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Dernier relevé (cadre complet !) moins premier relevé.",
-      "Non. Plus haut moins plus bas : pas forcément le début et la fin.",
-      "Non. Écart avec la veille.",
-      "Non."
+      "Non. Sans cadre complet, LAST_VALUE renvoie le prix de la ligne elle-même.",
+      "Non. Ordre inversé (premier moins dernier), et LAST_VALUE sans cadre complet.",
+      "Non. Plus haut moins plus bas : pas forcément le début et la fin."
     ],
     retenir: "Début / fin de période : FIRST_VALUE et LAST_VALUE (cadre complet)."
   },
@@ -1626,16 +1624,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "SUM(ca) * 100.0 / SUM(SUM(ca)) OVER (PARTITION BY annee)",
-      "SUM(ca) * 100.0 / SUM(ca)",
-      "ca / annee",
-      "SUM(ca) OVER (PARTITION BY mois)"
+      "SUM(ca) * 100.0 / SUM(SUM(ca)) OVER (PARTITION BY mois)",
+      "SUM(ca) * 100.0 / SUM(ca) OVER (PARTITION BY annee)",
+      "SUM(ca) * 100.0 / SUM(SUM(ca)) OVER ()"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le SUM intérieur = CA du mois ; la fenêtre = total de l'année.",
-      "Non. Toujours 100 %.",
-      "Non.",
-      "Non."
+      "Non. Total du même mois sur toutes les années.",
+      "Non. ca n'est pas groupé : dans une requête GROUP BY, il faut SUM(SUM(ca)).",
+      "Non. Part dans le total de toutes les années."
     ],
     retenir: "Part dans le groupe supérieur : SUM(SUM(x)) OVER (PARTITION BY niveau_supérieur)."
   },
@@ -1664,16 +1662,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "SUM(montant) OVER (PARTITION BY client ORDER BY echeance ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING)",
-      "SUM(montant) OVER ()",
-      "LAG(montant)",
-      "MAX(montant)"
+      "SUM(montant) OVER (PARTITION BY client ORDER BY echeance ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
+      "SUM(montant) OVER (PARTITION BY client ORDER BY echeance ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING)",
+      "SUM(montant) OVER (PARTITION BY client) - montant"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. La somme des échéances SUIVANTES. NULL après la dernière : COALESCE(…, 0).",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. C'est le déjà payé (cumul jusqu'ici), pas le reste.",
+      "Non. Inclut l'échéance de la ligne : c'est le reste AVANT de la payer.",
+      "Non. Total moins la ligne : ignore les échéances déjà passées."
     ],
     retenir: "Cumul « restant » : cadre tourné vers FOLLOWING."
   },
@@ -1682,14 +1680,14 @@ LEARNSQL.questions.m08 = [
     q: "Comment voir si un client a gagné ou perdu des places dans le classement d'un mois à l'autre ?",
     choix: [
       "RANK() deux fois dans la même expression",
-      "Calculer le rang par mois (RANK … PARTITION BY mois), puis LAG(rang) OVER (PARTITION BY client ORDER BY mois) à l'étape suivante",
-      "NTILE",
-      "COUNT(*)"
+      "Rang par mois, puis LAG du rang",
+      "NTILE(12) sur le CA de l'année",
+      "COUNT(*) des clients mieux classés"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Deux étapes : le rang, puis la comparaison avec le rang précédent.",
+      "Oui. Deux étapes : RANK … PARTITION BY mois, puis LAG(rang) OVER (PARTITION BY client ORDER BY mois) pour comparer au rang précédent.",
       "Non.",
       "Non."
     ],
@@ -1699,15 +1697,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q93", dialecte: "Standard",
     q: "Une vue calcule ROW_NUMBER() OVER (ORDER BY date_cde) AS rn. Tu filtres la vue avec WHERE client_id = 42. Les rn sont-ils 1, 2, 3… ?",
     choix: [
-      "Oui",
-      "Non : la numérotation a été faite sur TOUTES les commandes, avant ton filtre. Les rn du client 42 ont des trous",
-      "Erreur",
-      "Ça dépend de l'index"
+      "Oui, la numérotation suit le filtre",
+      "Non : des trous dans la numérotation",
+      "Erreur : on ne filtre pas une vue numérotée",
+      "Ça dépend de l'index sur client_id"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Filtrer avant ou après une fenêtre change le résultat. Ajoute PARTITION BY client_id si tu veux une numérotation par client.",
+      "Oui. La numérotation a été faite sur TOUTES les commandes, avant ton filtre : les rn du client 42 ont des trous. Ajoute PARTITION BY client_id pour une numérotation par client.",
       "Non.",
       "Non."
     ],
@@ -1719,16 +1717,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "COUNT(*) OVER (PARTITION BY client_id) AS nb dans une CTE, puis WHERE nb = 1",
-      "ROW_NUMBER() = 1",
-      "RANK() = 1",
-      "GROUP BY client_id"
+      "ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY id) AS nb dans une CTE, puis WHERE nb = 1",
+      "COUNT(*) OVER (ORDER BY client_id) AS nb dans une CTE, puis WHERE nb = 1",
+      "COUNT(*) OVER (PARTITION BY client_id) AS nb dans une CTE, puis WHERE nb > 1"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On connaît la taille du groupe sur chaque ligne.",
       "Non. La 1re commande de TOUS les clients.",
-      "Non.",
-      "Non. On perd le détail."
+      "Non. Comptage cumulé sur toute la table : seule la 1re ligne vaut 1.",
+      "Non. Ce sont les clients avec PLUSIEURS commandes."
     ],
     retenir: "Filtrer selon la taille du groupe : COUNT(*) OVER (PARTITION BY)."
   },
@@ -1736,15 +1734,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q95", dialecte: "Standard",
     q: "NTILE(10) découpe 1 000 clients en 10 groupes de 100. Le groupe 1 représente-t-il 10 % du CA ?",
     choix: [
-      "Oui",
-      "Non : NTILE découpe en NOMBRE de clients, pas en CA. Le 1er décile peut faire 60 % du CA",
-      "Oui, si on trie par CA",
-      "Erreur"
+      "Oui, toujours exactement 10 %",
+      "Non : 10 % des clients, pas du CA",
+      "Oui, si on trie les clients par CA",
+      "Erreur : NTILE exige un PARTITION BY"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Pour des tranches de CA, utilise le % cumulé (analyse ABC).",
+      "Oui. NTILE découpe en NOMBRE de clients, pas en CA : le 1er décile peut faire 60 % du CA. Pour des tranches de CA, utilise le % cumulé (analyse ABC).",
       "Non. Même trié, chaque groupe a 100 clients, pas 10 % du CA.",
       "Non."
     ],
@@ -1756,16 +1754,16 @@ LEARNSQL.questions.m08 = [
     choixCode: true,
     choix: [
       "CASE WHEN ca > LAG(ca) OVER (ORDER BY mois) THEN 'Hausse' WHEN ca < LAG(ca) OVER (ORDER BY mois) THEN 'Baisse' ELSE 'Stable' END",
-      "IF ca > LAG(ca)",
-      "SIGN(ca)",
-      "RANK(ca)"
+      "CASE WHEN ca > LAG(ca) OVER (ORDER BY mois) THEN 'Baisse' WHEN ca < LAG(ca) OVER (ORDER BY mois) THEN 'Hausse' ELSE 'Stable' END",
+      "CASE WHEN ca > LEAD(ca) OVER (ORDER BY mois) THEN 'Hausse' WHEN ca < LEAD(ca) OVER (ORDER BY mois) THEN 'Baisse' ELSE 'Stable' END",
+      "CASE WHEN ca > LAG(ca) THEN 'Hausse' WHEN ca < LAG(ca) THEN 'Baisse' ELSE 'Stable' END"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Attention : le 1er mois (LAG NULL) tombe dans « Stable ». Ajoute un cas WHEN LAG(…) IS NULL.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Libellés inversés.",
+      "Non. LEAD compare au mois SUIVANT, pas au précédent.",
+      "Non. LAG sans OVER : erreur."
     ],
     retenir: "CASE + LAG pour qualifier une évolution. Pense au 1er cas (NULL)."
   },
@@ -1773,15 +1771,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q97", dialecte: "Standard",
     q: "Une requête utilise 5 fenêtres avec 5 PARTITION BY / ORDER BY différents. Quel impact ?",
     choix: [
-      "Aucun",
-      "Chaque ordre différent peut demander un tri : plus de travail. Regroupe les fenêtres qui partagent le même OVER",
-      "Erreur au-delà de 3",
-      "Elles sont fusionnées en une"
+      "Aucun, les fenêtres sont gratuites",
+      "Plus de tris à faire",
+      "Une erreur au-delà de 3 fenêtres",
+      "Elles sont fusionnées en une seule"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
-      "Oui. Les fenêtres identiques sont calculées ensemble ; les différentes multiplient les tris.",
+      "Oui. Chaque ordre différent peut demander un tri. Regroupe les fenêtres qui partagent le même OVER : elles sont calculées ensemble.",
       "Non.",
       "Non."
     ],
@@ -1791,15 +1789,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q98", dialecte: "Snowflake",
     q: "Sur Snowflake, une requête avec fenêtre sur 2 milliards de lignes « déborde sur disque » (spilling) dans le Query Profile. Que faire ?",
     choix: [
-      "Créer un index",
-      "Réduire les données avant la fenêtre (filtre, colonnes utiles) ou prendre un warehouse plus grand",
-      "Ajouter NOLOCK",
-      "Rien"
+      "Créer un index sur les colonnes de la fenêtre",
+      "Moins de données, ou warehouse plus grand",
+      "Ajouter NOLOCK et un ORDER BY final",
+      "Rien, le débordement est sans effet"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas d'index sur Snowflake.",
-      "Oui. La mémoire ne suffit pas : moins de données, ou plus de mémoire.",
+      "Oui. Réduis les données avant la fenêtre (filtre, colonnes utiles) ou prends un warehouse plus grand : la mémoire ne suffit pas.",
       "Non.",
       "Non. Le débordement ralentit fortement."
     ],
@@ -1809,16 +1807,16 @@ LEARNSQL.questions.m08 = [
     id: "m08-q99", dialecte: "Standard",
     q: "SUM(montant) OVER (ORDER BY date_cde ROWS UNBOUNDED PRECEDING) : plusieurs commandes ont la même date. Le cumul est-il reproductible ?",
     choix: [
-      "Oui",
-      "Le total final oui, mais les cumuls intermédiaires entre ex aequo peuvent changer d'une exécution à l'autre. Ajoute un départage (id)",
-      "Non, le total change",
-      "Erreur"
+      "Oui, toujours au centime près",
+      "Pas entre ex aequo",
+      "Non, même le total final change",
+      "Erreur : dates en double interdites"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas ligne par ligne.",
-      "Oui. ORDER BY date_cde, id : ordre unique, cumul stable.",
-      "Non.",
+      "Oui. Le total final reste juste, mais les cumuls intermédiaires entre ex aequo peuvent changer d'une exécution à l'autre. Ajoute un départage : ORDER BY date_cde, id.",
+      "Non. Le total ne change pas.",
       "Non."
     ],
     retenir: "Cumul stable = ORDER BY unique dans OVER."
@@ -1827,15 +1825,15 @@ LEARNSQL.questions.m08 = [
     id: "m08-q100", dialecte: "Standard",
     q: "Quand choisir une fonction de fenêtrage plutôt que GROUP BY ?",
     choix: [
-      "Toujours",
-      "Quand tu as besoin du détail ET d'une information de groupe (total, rang, précédent, cumul) sur la même ligne",
-      "Jamais",
-      "Seulement sur Snowflake"
+      "Toujours, c'est plus moderne",
+      "Pour garder le détail ET le contexte",
+      "Jamais, GROUP BY suffit toujours",
+      "Seulement sur Snowflake, plus rapide"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pour une ligne par groupe, GROUP BY est plus simple.",
-      "Oui. Résumé = GROUP BY. Détail + contexte = fenêtre.",
+      "Oui. Quand tu as besoin du détail ET d'une information de groupe (total, rang, précédent, cumul) sur la même ligne. Résumé = GROUP BY. Détail + contexte = fenêtre.",
       "Non.",
       "Non."
     ],
