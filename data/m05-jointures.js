@@ -22,15 +22,15 @@ LEARNSQL.questions.m05 = [
     q: "Tu veux TOUS les clients, avec leurs commandes 2026 s'il y en a. Quel est le problème ici ?",
     code: "SELECT cl.nom, co.montant\nFROM client cl\nLEFT JOIN commande co ON co.client_id = cl.id\nWHERE co.annee = 2026;",
     choix: [
-      "Aucun problème",
+      "Aucun : la requête fait ce qui est demandé",
       "Les clients sans commande 2026 disparaissent",
-      "Les commandes sont en double",
-      "Erreur de syntaxe"
+      "Les commandes 2026 apparaissent en double",
+      "Erreur : WHERE est interdit après un LEFT JOIN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il y a un piège.",
-      "Oui. Pour ces clients, co.annee est NULL. Le WHERE les élimine. Le LEFT JOIN devient un INNER JOIN. Mets la condition dans le ON : … AND co.annee = 2026.",
+      "Oui. Pour ces clients, co.annee est NULL. Le WHERE les élimine : le LEFT JOIN devient un INNER JOIN. Mets la condition dans le ON : … AND co.annee = 2026.",
       "Non. Pas de doublon créé ici.",
       "Non. C'est valide."
     ],
@@ -112,16 +112,16 @@ LEARNSQL.questions.m05 = [
     id: "m05-q07", dialecte: "Standard",
     q: "La table salarie a les colonnes id, nom, manager_id. Comment afficher chaque salarié avec le nom de son manager ?",
     choix: [
-      "Impossible avec une seule table",
-      "Joindre salarie avec elle-même : salarie s LEFT JOIN salarie m ON m.id = s.manager_id",
-      "GROUP BY manager_id",
-      "UNION des deux colonnes"
+      "Impossible : il faut une deuxième table",
+      "Joindre salarie avec elle-même",
+      "GROUP BY manager_id, puis MAX(nom)",
+      "UNION des colonnes id et manager_id"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est possible avec une auto-jointure.",
-      "Oui. C'est une auto-jointure. Deux alias pour la même table. LEFT pour garder le grand patron (sans manager).",
-      "Non. Ça regroupe, ça ne récupère pas le nom.",
+      "Oui. C'est une auto-jointure : salarie s LEFT JOIN salarie m ON m.id = s.manager_id. Deux alias pour la même table. LEFT pour garder le grand patron (sans manager).",
+      "Non. Ça regroupe, ça ne relie pas chaque salarié à son manager.",
       "Non. UNION empile des lignes, il ne les relie pas."
     ],
     retenir: "Auto-jointure : même table, deux alias."
@@ -167,10 +167,10 @@ LEARNSQL.questions.m05 = [
     id: "m05-q10", dialecte: "Standard",
     q: "La table tranche a les colonnes min, max, taux. Peut-on faire commande JOIN tranche ON montant BETWEEN tranche.min AND tranche.max ?",
     choix: [
-      "Non, une jointure exige un =",
-      "Oui, une jointure accepte n'importe quelle condition",
-      "Seulement avec CROSS JOIN",
-      "Seulement sur Snowflake"
+      "Non, une jointure exige toujours un =",
+      "Oui, le ON accepte toute condition",
+      "Seulement avec un CROSS JOIN et un WHERE",
+      "Seulement sur Snowflake, pas sur SQL Server"
     ],
     bonne: 1,
     pourquoi: [
@@ -185,15 +185,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q11", dialecte: "Standard",
     q: "Quel est le risque de l'ancienne syntaxe FROM a, b WHERE a.id = b.a_id ?",
     choix: [
-      "Elle ne marche plus sur SQL Server",
-      "Si on oublie la condition dans WHERE, on obtient un produit cartésien",
-      "Elle fait un LEFT JOIN caché",
-      "Elle est plus lente"
+      "Elle ne marche plus sur SQL Server récent",
+      "Oublier la condition = produit cartésien",
+      "Elle fait un LEFT JOIN sans le dire",
+      "Elle est toujours plus lente qu'un JOIN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Elle marche encore, pour une jointure interne.",
-      "Oui. Sans la condition, chaque ligne de a est associée à chaque ligne de b. Avec JOIN … ON, l'oubli se voit tout de suite.",
+      "Oui. Sans la condition dans WHERE, chaque ligne de a est associée à chaque ligne de b. Avec JOIN … ON, l'oubli se voit tout de suite.",
       "Non. C'est un INNER JOIN.",
       "Non. Même plan d'exécution qu'un INNER JOIN."
     ],
@@ -240,10 +240,10 @@ LEARNSQL.questions.m05 = [
     id: "m05-q14", dialecte: "Standard",
     q: "Ton ERP gère plusieurs sociétés (dossiers). La clé d'une commande est (societe, num_cde). Que se passe-t-il si tu joins seulement sur num_cde ?",
     choix: [
-      "Rien, num_cde suffit",
-      "Des lignes de la société 2 se mélangent avec celles de la société 1 : doublons et montants faux",
-      "Erreur : clé incomplète",
-      "Le moteur ajoute societe tout seul"
+      "Rien : num_cde suffit à identifier la commande",
+      "Des sociétés se mélangent : doublons, montants faux",
+      "Une erreur : la clé de jointure est incomplète",
+      "Le moteur ajoute la colonne societe tout seul"
     ],
     bonne: 1,
     pourquoi: [
@@ -295,17 +295,17 @@ LEARNSQL.questions.m05 = [
     q: "Tu veux la liste des clients qui ont au moins une commande, chacun UNE seule fois. Quelle écriture est la plus adaptée ?",
     choixCode: true,
     choix: [
-      "client INNER JOIN commande ON …",
+      "client INNER JOIN commande ON commande.client_id = client.id",
       "client WHERE EXISTS (SELECT 1 FROM commande WHERE commande.client_id = client.id)",
-      "client LEFT JOIN commande ON …",
-      "client CROSS JOIN commande"
+      "client LEFT JOIN commande ON commande.client_id = client.id",
+      "client WHERE EXISTS (SELECT 1 FROM commande WHERE commande.id = client.id)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un client avec 5 commandes apparaît 5 fois.",
       "Oui. EXISTS vérifie juste qu'il y a au moins une commande. Pas de doublon. C'est une « semi-jointure ».",
       "Non. Ça garde aussi les clients sans commande, et ça crée des doublons.",
-      "Non. Toutes les combinaisons."
+      "Non. Mauvaise colonne : on compare l'id de la commande à l'id du client."
     ],
     retenir: "« Ceux qui ont au moins un… » : EXISTS. Pas de doublons, pas besoin de DISTINCT."
   },
@@ -313,10 +313,10 @@ LEARNSQL.questions.m05 = [
     id: "m05-q18", dialecte: "SQL Server",
     q: "article.code est un VARCHAR, stock.code_article un INT. Que risque la jointure ON article.code = stock.code_article ?",
     choix: [
-      "Rien",
-      "Une erreur si un code contient une lettre, et un index qui ne sert plus",
-      "Des doublons",
-      "Le moteur refuse les types différents"
+      "Rien : SQL Server compare les deux sans souci",
+      "Erreurs sur les codes avec lettres, index inutile",
+      "Des doublons dans le résultat de la jointure",
+      "Le moteur refuse de joindre deux types différents"
     ],
     bonne: 1,
     pourquoi: [
@@ -350,15 +350,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q20", dialecte: "Standard",
     q: "Avec que des INNER JOIN, l'ordre des tables dans le FROM change-t-il le résultat ?",
     choix: [
-      "Oui",
-      "Non, le résultat est le même, et l'optimiseur choisit l'ordre d'exécution",
+      "Oui, l'ordre change les lignes renvoyées",
+      "Non, le résultat est le même",
       "Oui, la 1re table doit être la plus grande",
-      "Oui, sur SQL Server seulement"
+      "Oui, mais sur SQL Server seulement"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Avec des INNER JOIN, l'ordre n'a pas d'effet sur le résultat.",
-      "Oui. Écris dans l'ordre le plus lisible. Attention : avec des LEFT JOIN, l'ordre compte.",
+      "Oui. L'optimiseur choisit lui-même l'ordre d'exécution. Écris dans l'ordre le plus lisible. Attention : avec des LEFT JOIN, l'ordre compte.",
       "Non. L'optimiseur réorganise lui-même.",
       "Non. C'est vrai partout."
     ],
@@ -405,15 +405,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q23", dialecte: "SQL Server",
     q: "Quelle est la différence entre CROSS APPLY et OUTER APPLY ?",
     choix: [
-      "Aucune",
-      "OUTER APPLY garde les lignes de gauche même si la sous-requête ne renvoie rien",
-      "OUTER APPLY est plus rapide",
-      "CROSS APPLY fait un produit cartésien"
+      "Aucune : ce sont deux noms pour la même chose",
+      "OUTER APPLY garde les lignes sans résultat",
+      "OUTER APPLY est plus rapide que CROSS APPLY",
+      "CROSS APPLY fait toujours un produit cartésien"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Elles diffèrent comme INNER et LEFT JOIN.",
-      "Oui. CROSS APPLY ressemble à un INNER JOIN, OUTER APPLY à un LEFT JOIN.",
+      "Oui. OUTER APPLY garde les lignes de gauche même si la sous-requête ne renvoie rien. CROSS APPLY ressemble à un INNER JOIN, OUTER APPLY à un LEFT JOIN.",
       "Non. Ce n'est pas une question de vitesse.",
       "Non. La sous-requête est liée à chaque ligne de gauche."
     ],
@@ -442,17 +442,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q25", dialecte: "Standard",
     q: "Tu veux le CA de chaque jour du mois, même les jours sans vente (affichés à 0). Comment faire ?",
     choix: [
-      "SELECT … FROM vente GROUP BY jour",
+      "SELECT … FROM vente GROUP BY jour, avec COALESCE",
       "Partir d'une table calendrier, puis LEFT JOIN vente",
-      "vente INNER JOIN calendrier",
-      "C'est impossible en SQL"
+      "vente INNER JOIN calendrier ON la date",
+      "vente LEFT JOIN calendrier ON la date"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un jour sans vente n'a aucune ligne : il n'apparaît pas.",
+      "Non. Un jour sans vente n'a aucune ligne : COALESCE n'a rien à remplacer.",
       "Oui. Le calendrier contient tous les jours. Le LEFT JOIN les garde tous. COALESCE(SUM(…), 0) affiche 0.",
       "Non. INNER JOIN supprime les jours sans vente.",
-      "Non. Une table calendrier règle le problème."
+      "Non. On part des ventes : les jours sans vente n'apparaissent toujours pas."
     ],
     retenir: "Montrer ce qui n'existe pas (jours, mois) : pars d'une table de référence + LEFT JOIN."
   },
@@ -460,10 +460,10 @@ LEARNSQL.questions.m05 = [
     id: "m05-q26", dialecte: "Standard",
     q: "Tu cherches les paires de clients en doublon (même SIRET) avec une auto-jointure. Pourquoi écrire a.id < b.id plutôt que a.id <> b.id ?",
     choix: [
-      "C'est plus rapide à écrire",
-      "Pour voir chaque paire une seule fois, et pas aussi dans l'autre sens",
-      "<> n'est pas permis dans un ON",
-      "Pour trier le résultat"
+      "C'est plus rapide à écrire et à lire",
+      "Pour voir chaque paire une seule fois",
+      "<> n'est pas permis dans une condition ON",
+      "Pour trier les paires par id croissant"
     ],
     bonne: 1,
     pourquoi: [
@@ -496,15 +496,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q28", dialecte: "Snowflake",
     q: "Dans le Query Profile de Snowflake, une jointure sort 500 millions de lignes à partir de deux tables d'1 million. Que soupçonner ?",
     choix: [
-      "C'est normal",
-      "Une condition de jointure manquante ou une clé non unique (jointure qui « explose »)",
-      "Le warehouse est trop petit",
-      "Un bug d'affichage"
+      "C'est normal pour une jointure sur 1 million",
+      "Une jointure qui « explose » (clé non unique)",
+      "Le warehouse est trop petit pour cette jointure",
+      "Un bug d'affichage du Query Profile"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce n'est pas normal.",
-      "Oui. Snowflake appelle ça une « exploding join ». Vérifie le ON et l'unicité des clés.",
+      "Oui. Une condition manquante ou une clé non unique multiplie les lignes : Snowflake appelle ça une « exploding join ». Vérifie le ON et l'unicité des clés.",
       "Non. La taille du warehouse change la vitesse, pas le nombre de lignes.",
       "Non. Le profil est fiable."
     ],
@@ -514,15 +514,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q29", dialecte: "Standard",
     q: "Tu joins client avec commande (1-N) ET avec paiement (1-N) dans la même requête, puis tu fais SUM(montant_cde) et SUM(montant_paye). Que se passe-t-il ?",
     choix: [
-      "Les sommes sont justes",
-      "Les sommes sont multipliées : chaque commande est répétée par paiement, et l'inverse",
-      "Erreur de jointure",
-      "Seules les commandes sont fausses"
+      "Les sommes sont justes, rien à signaler",
+      "Les deux sommes sont multipliées",
+      "Une erreur : deux jointures 1-N interdites",
+      "Seule la somme des commandes est fausse"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Piège classique, souvent invisible dans un rapport.",
-      "Oui. 3 commandes × 2 paiements = 6 lignes. Fais d'abord un GROUP BY par client dans chaque sous-requête, puis joins.",
+      "Oui. Chaque commande est répétée par paiement, et l'inverse : 3 commandes × 2 paiements = 6 lignes. Fais d'abord un GROUP BY par client dans chaque sous-requête, puis joins.",
       "Non. Pas d'erreur, juste des montants faux.",
       "Non. Les deux sommes sont fausses."
     ],
@@ -587,17 +587,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q33", dialecte: "Standard",
     q: "Pour chaque ligne de commande, tu veux le nom du client et le libellé de l'article. Quelles jointures ?",
     choix: [
-      "ligne_cde → article seulement",
-      "ligne_cde → commande → client, et ligne_cde → article",
-      "client → article directement",
-      "Un CROSS JOIN entre les 4 tables"
+      "ligne_cde → article, puis article → client",
+      "ligne_cde → commande → client, et → article",
+      "client → article directement, par le code",
+      "ligne_cde → client directement, et → article"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Le client est sur la commande, pas sur la ligne.",
+      "Non. Il n'y a pas de lien article → client : le client est sur la commande.",
       "Oui. On suit les clés : la ligne connaît sa commande et son article ; la commande connaît son client.",
       "Non. Il n'y a pas de lien direct client-article.",
-      "Non."
+      "Non. Le client est sur la commande, pas sur la ligne."
     ],
     retenir: "Pour joindre, suis le chemin des clés étrangères."
   },
@@ -605,17 +605,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q34", dialecte: "Standard",
     q: "Que donne SELECT id FROM client cl JOIN commande co ON co.client_id = cl.id; ?",
     choix: [
-      "Les id des clients",
-      "Erreur : nom de colonne ambigu « id »",
-      "Les id des commandes",
-      "Les deux colonnes id"
+      "Les id des clients, la 1re table",
+      "Erreur : colonne « id » ambiguë",
+      "Les id des commandes, la 2e table",
+      "Les deux colonnes id, côte à côte"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le moteur ne choisit pas pour toi.",
       "Oui. Les deux tables ont une colonne id. Préfixe : cl.id ou co.id.",
-      "Non.",
-      "Non."
+      "Non. Le moteur ne choisit pas pour toi.",
+      "Non. Il y a une erreur."
     ],
     retenir: "Avec plusieurs tables, préfixe chaque colonne par son alias."
   },
@@ -623,17 +623,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q35", dialecte: "Standard",
     q: "Tu écris par erreur ON co.id = cl.id au lieu de ON co.client_id = cl.id. Que se passe-t-il ?",
     choix: [
-      "Une erreur",
-      "Aucune erreur, mais des associations fausses : la commande n° 5 est reliée au client n° 5",
-      "Aucune ligne",
-      "Le moteur corrige"
+      "Une erreur de jointure, détectée tout de suite",
+      "Aucune erreur, mais des liens faux",
+      "Aucune ligne, car aucun id ne correspond",
+      "Le moteur corrige la condition tout seul"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les deux colonnes existent et ont le même type.",
-      "Oui. Bug silencieux et dangereux. Relis toujours tes ON.",
+      "Oui. La commande n° 5 est reliée au client n° 5. Bug silencieux et dangereux. Relis toujours tes ON.",
       "Non. Il y aura des correspondances, mais fausses.",
-      "Non."
+      "Non. Le moteur ne devine jamais ton intention."
     ],
     retenir: "Un mauvais ON ne fait pas d'erreur : il donne des résultats faux."
   },
@@ -641,17 +641,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q36", dialecte: "Standard",
     q: "Pour trouver les clients sans commande, tu écris LEFT JOIN … WHERE co.date_livraison IS NULL. Quel est le problème ?",
     choix: [
-      "Aucun",
-      "date_livraison peut être NULL même quand la commande existe : tu ramènes aussi des clients qui ont des commandes non livrées",
-      "Erreur de syntaxe",
+      "Aucun : c'est la bonne façon de faire",
+      "Des clients avec commandes passent aussi",
+      "Erreur de syntaxe : IS NULL après un JOIN",
       "IS NULL ne marche pas après un LEFT JOIN"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Teste une colonne qui ne peut pas être NULL quand la ligne existe : la clé (co.id).",
-      "Non.",
-      "Non."
+      "Non. Il y a un piège.",
+      "Oui. date_livraison est NULL aussi pour une commande existante mais non livrée : ces clients sont ramenés à tort. Teste une colonne jamais NULL quand la ligne existe : la clé (co.id).",
+      "Non. C'est valide.",
+      "Non. IS NULL marche très bien après un LEFT JOIN."
     ],
     retenir: "Anti-jointure : teste IS NULL sur la clé de droite, pas sur une colonne facultative."
   },
@@ -659,17 +659,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q37", dialecte: "Standard",
     q: "client LEFT JOIN commande LEFT JOIN ligne_cde : que deviennent les clients sans commande ?",
     choix: [
-      "Ils disparaissent",
-      "Ils restent, avec des NULL pour la commande et les lignes",
-      "Ils apparaissent en double",
-      "Erreur"
+      "Ils disparaissent du résultat",
+      "Ils restent, avec des NULL à droite",
+      "Ils apparaissent en double, une fois par JOIN",
+      "Erreur : deux LEFT JOIN à la suite"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Que des LEFT : rien ne les retire.",
-      "Oui. Une chaîne de LEFT JOIN garde la table de départ.",
-      "Non.",
-      "Non."
+      "Oui. Une chaîne de LEFT JOIN garde la table de départ : NULL pour la commande et les lignes.",
+      "Non. Aucun doublon n'est créé.",
+      "Non. On peut enchaîner autant de LEFT JOIN qu'on veut."
     ],
     retenir: "Chaîne de LEFT JOIN = la 1re table est toujours complète."
   },
@@ -696,17 +696,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q39", dialecte: "Standard",
     q: "Tu veux créer une ligne de stock à 0 pour chaque article dans chaque dépôt. Quelle jointure ?",
     choix: [
-      "INNER JOIN",
-      "LEFT JOIN",
+      "INNER JOIN article et depot",
+      "LEFT JOIN article vers depot",
       "CROSS JOIN article × depot",
-      "FULL JOIN"
+      "FULL JOIN article et depot"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Il n'y a pas de clé commune.",
-      "Non.",
+      "Non. Il n'y a pas de clé commune entre article et dépôt.",
+      "Non. Il faudrait une condition de jointure, et il n'y en a pas.",
       "Oui. Toutes les combinaisons article × dépôt.",
-      "Non."
+      "Non. Il faudrait une condition de jointure, et il n'y en a pas."
     ],
     retenir: "Générer toutes les combinaisons : CROSS JOIN."
   },
@@ -733,17 +733,17 @@ LEARNSQL.questions.m05 = [
     q: "Tu cherches les paires d'articles achetés dans la même commande. Quelle auto-jointure ?",
     choixCode: true,
     choix: [
-      "l1.cde_id = l2.cde_id",
+      "l1.cde_id = l2.cde_id AND l1.article <> l2.article",
       "l1.cde_id = l2.cde_id AND l1.article < l2.article",
-      "l1.article = l2.article",
-      "l1.cde_id <> l2.cde_id"
+      "l1.article = l2.article AND l1.cde_id < l2.cde_id",
+      "l1.cde_id <> l2.cde_id AND l1.article < l2.article"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Chaque article serait associé à lui-même, et chaque paire apparaîtrait deux fois.",
+      "Non. Chaque paire apparaît deux fois : (A, B) et (B, A).",
       "Oui. Même commande, et article1 < article2 : chaque paire une seule fois.",
-      "Non. Ça relie les ventes du même article.",
-      "Non."
+      "Non. Ça relie les ventes du même article dans deux commandes.",
+      "Non. Commandes différentes : ce n'est pas « dans la même commande »."
     ],
     retenir: "Paires uniques : même groupe + a < b."
   },
@@ -751,15 +751,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q42", dialecte: "Standard",
     q: "Tu joins commande et tarif ON co.date_cde BETWEEN t.debut AND t.fin. Certaines commandes apparaissent deux fois. Pourquoi ?",
     choix: [
-      "BETWEEN est buggé",
-      "Des périodes de tarif se chevauchent : la date tombe dans deux tarifs",
-      "Les dates sont NULL",
-      "Il manque DISTINCT"
+      "BETWEEN est buggé avec les dates",
+      "Des périodes de tarif se chevauchent",
+      "Certaines dates de commande sont NULL",
+      "Il manque un DISTINCT dans la requête"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Contrôle les chevauchements (début1 <= fin2 AND début2 <= fin1) dans la table des tarifs.",
+      "Non. BETWEEN marche très bien.",
+      "Oui. La date tombe dans deux tarifs. Contrôle les chevauchements (début1 <= fin2 AND début2 <= fin1) dans la table des tarifs.",
       "Non. Une date NULL ne joindrait rien.",
       "Non. DISTINCT cacherait le problème."
     ],
@@ -769,17 +769,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q43", dialecte: "SQL Server",
     q: "Que penser de ON a.libelle LIKE '%' + m.mot_cle + '%' ?",
     choix: [
-      "Interdit",
-      "Permis, mais très lent sur de gros volumes : chaque ligne est comparée à chaque mot-clé",
-      "Aussi rapide qu'une égalité",
-      "Ça ne marche qu'en LEFT JOIN"
+      "Interdit : LIKE n'est pas permis dans un ON",
+      "Permis, mais très lent sur gros volume",
+      "Aussi rapide qu'une égalité, grâce à l'index",
+      "Ça ne marche qu'avec un LEFT JOIN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est valide.",
-      "Oui. Pas d'index possible. Pour du volume : précalculer une table de correspondance.",
-      "Non.",
-      "Non."
+      "Oui. Chaque ligne est comparée à chaque mot-clé, sans index possible. Pour du volume : précalculer une table de correspondance.",
+      "Non. Le % au début empêche l'index.",
+      "Non. Ça marche avec tous les types de jointure."
     ],
     retenir: "Jointure LIKE : possible, mais lente."
   },
@@ -787,17 +787,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q44", dialecte: "Standard",
     q: "Quel est le défaut de ON LEFT(a.code, 6) = b.code ?",
     choix: [
-      "Aucun",
-      "La fonction sur la colonne empêche l'utilisation de l'index sur a.code",
-      "Erreur de syntaxe",
-      "Ça fait un CROSS JOIN"
+      "Aucun : la jointure reste rapide",
+      "La fonction empêche l'index sur a.code",
+      "Erreur : pas de fonction dans un ON",
+      "Ça transforme la jointure en CROSS JOIN"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il y a un coût caché.",
       "Oui. Même règle que dans WHERE. Mieux : stocker le code à 6 caractères dans une colonne (calculée et indexée).",
-      "Non.",
-      "Non."
+      "Non. C'est permis.",
+      "Non. La condition relie bien les deux tables."
     ],
     retenir: "Pas de fonction sur les colonnes de jointure (si possible)."
   },
@@ -805,17 +805,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q45", dialecte: "SQL Server + Snowflake",
     q: "Des codes ont un espace à la fin dans une table ('A1 ') et pas dans l'autre ('A1'). La jointure marche sur SQL Server. Et après migration sur Snowflake ?",
     choix: [
-      "Elle marche aussi",
+      "Elle marche aussi, sans changement",
       "Elle ne trouve plus ces correspondances",
-      "Erreur",
-      "Elle double les lignes"
+      "Erreur : les clés n'ont pas la même longueur",
+      "Elle double les lignes de ces codes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake compte les espaces de fin.",
       "Oui. 'A1 ' ≠ 'A1' sur Snowflake. Nettoie avec TRIM au chargement.",
-      "Non.",
-      "Non."
+      "Non. Aucune erreur : les lignes manquent, c'est tout.",
+      "Non. Rien n'est doublé."
     ],
     retenir: "Migration : TRIM des clés texte, sinon jointures perdues."
   },
@@ -879,17 +879,17 @@ LEARNSQL.questions.m05 = [
     q: "Que renvoie cette requête ?",
     code: "SELECT cl.nom, co.num_cde\nFROM client cl\nLEFT JOIN commande co\n  ON co.client_id = cl.id\n AND cl.pays = 'FR';",
     choix: [
-      "Seulement les clients français",
-      "TOUS les clients ; seuls les français ont leurs commandes, les autres ont NULL",
-      "Une erreur",
-      "Les commandes françaises seulement"
+      "Seulement les clients français, avec leurs commandes",
+      "Tous les clients ; commandes des français seulement",
+      "Une erreur : condition sur la gauche dans le ON",
+      "Seulement les commandes des clients français"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Piège : une condition sur la table de GAUCHE dans le ON ne filtre pas la gauche.",
-      "Oui. Le LEFT JOIN garde toutes les lignes de gauche. Pour filtrer les clients : WHERE cl.pays = 'FR'.",
-      "Non.",
-      "Non."
+      "Oui. Le LEFT JOIN garde toutes les lignes de gauche. Les clients non français ont NULL à la place des commandes. Pour filtrer les clients : WHERE cl.pays = 'FR'.",
+      "Non. C'est valide.",
+      "Non. Tous les clients restent."
     ],
     retenir: "LEFT JOIN : filtre de gauche dans WHERE, filtre de droite dans ON."
   },
@@ -916,17 +916,17 @@ LEARNSQL.questions.m05 = [
     q: "Rapprochement ERP / EDI : tu veux les manquants ET les montants différents. Quel filtre après le FULL OUTER JOIN ?",
     choixCode: true,
     choix: [
-      "WHERE e.montant <> d.montant",
+      "WHERE e.num IS NULL OR d.num IS NULL",
       "WHERE e.num IS NULL OR d.num IS NULL OR e.montant <> d.montant",
-      "WHERE e.num = d.num",
-      "WHERE e.montant = d.montant"
+      "WHERE e.num IS NULL AND d.num IS NULL OR e.montant <> d.montant",
+      "WHERE e.montant <> d.montant OR e.montant IS NULL"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les manquants ont un montant NULL : <> les élimine.",
+      "Non. Les manquants seulement : les écarts de montant sont oubliés.",
       "Oui. Manquant d'un côté, manquant de l'autre, ou écart de montant.",
-      "Non. Ce sont les correspondances.",
-      "Non. Ce sont les lignes identiques."
+      "Non. Une ligne ne peut pas manquer des deux côtés : seuls les écarts restent.",
+      "Non. Oublie les lignes absentes de l'ERP (d.montant NULL)."
     ],
     retenir: "Rapprochement complet : manquants des deux côtés + écarts."
   },
@@ -937,15 +937,15 @@ LEARNSQL.questions.m05 = [
     choix: [
       "JOIN libelle_article l ON l.article_id = a.id",
       "LEFT JOIN libelle_article l ON l.article_id = a.id AND l.langue = 'FR'",
-      "JOIN libelle_article l ON l.langue = 'FR'",
-      "SELECT DISTINCT …"
+      "LEFT JOIN libelle_article l ON l.article_id = a.id WHERE l.langue = 'FR'",
+      "LEFT JOIN libelle_article l ON l.langue = 'FR'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. 3 lignes par article.",
       "Oui. La langue dans le ON : une seule correspondance. LEFT pour garder les articles sans libellé FR.",
-      "Non. Il manque le lien avec l'article : quasi CROSS JOIN.",
-      "Non. Ça cache le problème."
+      "Non. Le WHERE retire les articles sans libellé FR : le LEFT JOIN devient un INNER JOIN.",
+      "Non. Il manque le lien avec l'article : chaque article reçoit tous les libellés FR."
     ],
     retenir: "Table de référence multi-lignes : complète la clé dans le ON."
   },
@@ -953,17 +953,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q53", dialecte: "Standard",
     q: "La table prix_achat garde l'historique des prix par article. Tu veux le DERNIER prix de chaque article. Quelle méthode ?",
     choix: [
-      "JOIN prix_achat ON article_id",
-      "Numéroter avec ROW_NUMBER() OVER (PARTITION BY article_id ORDER BY date_prix DESC) et garder 1",
-      "MAX(prix)",
-      "DISTINCT article_id"
+      "JOIN prix_achat sur article_id, sans aucun filtre",
+      "ROW_NUMBER par article (date DESC), garder 1",
+      "MAX(prix) par article, avec GROUP BY",
+      "MAX(date_prix) et MAX(prix) par article"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Tous les prix historiques sont ramenés.",
-      "Oui. Ou OUTER APPLY (SELECT TOP (1) … ORDER BY date_prix DESC) sur SQL Server.",
+      "Oui. ROW_NUMBER() OVER (PARTITION BY article_id ORDER BY date_prix DESC), puis on garde le n° 1. Ou OUTER APPLY (SELECT TOP (1) … ORDER BY date_prix DESC) sur SQL Server.",
       "Non. Le plus haut prix, pas le dernier.",
-      "Non."
+      "Non. Les deux MAX sont indépendants : le plus haut prix n'est pas forcément le dernier."
     ],
     retenir: "Dernière valeur d'un historique : ROW_NUMBER ou APPLY TOP (1)."
   },
@@ -972,10 +972,10 @@ LEARNSQL.questions.m05 = [
     q: "Que fait cette requête ?",
     code: "SELECT a.code, p.prix\nFROM article a\nOUTER APPLY (\n  SELECT TOP (1) prix\n  FROM prix_achat x\n  WHERE x.article_id = a.id\n  ORDER BY x.date_prix DESC\n) p;",
     choix: [
-      "Erreur : TOP interdit dans APPLY",
-      "Chaque article avec son dernier prix d'achat, ou NULL s'il n'en a pas",
-      "Seulement les articles avec un prix",
-      "Tous les prix de chaque article"
+      "Erreur : TOP est interdit dans un APPLY",
+      "Chaque article avec son dernier prix, ou NULL",
+      "Seulement les articles qui ont un prix",
+      "Tous les prix de chaque article, du plus récent"
     ],
     bonne: 1,
     pourquoi: [
@@ -990,17 +990,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q55", dialecte: "Snowflake",
     q: "Sur Snowflake, à quoi sert LATERAL FLATTEN(input => t.doc:lignes) dans un FROM ?",
     choix: [
-      "À trier les lignes",
-      "À créer une ligne par élément du tableau JSON « lignes », reliée à sa ligne d'origine",
-      "À supprimer les doublons",
-      "À compresser la table"
+      "À trier les lignes du tableau JSON",
+      "Une ligne par élément du tableau JSON",
+      "À supprimer les doublons du tableau JSON",
+      "À compresser le JSON pour gagner de la place"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. LATERAL veut dire « pour chaque ligne de t ». FLATTEN déplie le tableau.",
-      "Non.",
-      "Non."
+      "Non. FLATTEN ne trie rien.",
+      "Oui. LATERAL veut dire « pour chaque ligne de t ». FLATTEN déplie le tableau : une ligne par élément, reliée à sa ligne d'origine.",
+      "Non. Il ne supprime rien.",
+      "Non. Il ne compresse rien."
     ],
     retenir: "LATERAL FLATTEN : déplier un tableau JSON en lignes."
   },
@@ -1008,17 +1008,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q56", dialecte: "SQL Server",
     q: "Une vue fait LEFT JOIN vers une table par sa clé unique. Ta requête n'utilise aucune colonne de cette table. Que peut faire SQL Server ?",
     choix: [
-      "Rien, il fait la jointure",
-      "Supprimer la jointure du plan : elle ne change ni le nombre de lignes ni le résultat",
-      "Une erreur",
-      "Transformer en INNER JOIN"
+      "Rien : il fait la jointure comme demandé",
+      "Retirer la jointure du plan",
+      "Renvoyer une erreur : colonne inutilisée",
+      "Transformer le LEFT JOIN en INNER JOIN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. L'optimiseur est plus malin.",
-      "Oui. C'est l'élimination de jointure. Pour ça, la clé de droite doit être déclarée unique (PK ou UNIQUE).",
-      "Non.",
-      "Non."
+      "Oui. Elle ne change ni le nombre de lignes ni le résultat : c'est l'élimination de jointure. Il faut que la clé de droite soit déclarée unique (PK ou UNIQUE).",
+      "Non. Aucune erreur.",
+      "Non. Ça changerait le résultat."
     ],
     retenir: "Contraintes déclarées = l'optimiseur peut simplifier."
   },
@@ -1045,17 +1045,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q58", dialecte: "Standard",
     q: "Pourquoi éviter de joindre deux tables sur le nom du client ?",
     choix: [
-      "Le texte est interdit dans un ON",
-      "Homonymes, fautes de frappe, changements de nom : correspondances fausses ou manquées",
-      "C'est plus lent qu'un CROSS JOIN",
-      "Aucune raison"
+      "Le texte est interdit dans une condition ON",
+      "Homonymes, fautes, noms qui changent",
+      "C'est encore plus lent qu'un CROSS JOIN",
+      "Aucune raison, c'est aussi fiable qu'un id"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Joins sur un identifiant stable : id, code client, SIRET.",
-      "Non.",
-      "Non."
+      "Non. C'est permis.",
+      "Oui. Correspondances fausses ou manquées. Joins sur un identifiant stable : id, code client, SIRET.",
+      "Non. Ce n'est pas une question de vitesse.",
+      "Non. Un nom n'est pas un identifiant fiable."
     ],
     retenir: "Joins sur des identifiants, pas sur des libellés."
   },
@@ -1064,17 +1064,17 @@ LEARNSQL.questions.m05 = [
     q: "Avant de joindre une table de référence, comment vérifier que la clé y est bien unique ?",
     choixCode: true,
     choix: [
-      "SELECT COUNT(*) FROM ref",
+      "SELECT COUNT(*) FROM ref WHERE cle IS NOT NULL",
       "SELECT cle, COUNT(*) FROM ref GROUP BY cle HAVING COUNT(*) > 1",
-      "SELECT DISTINCT cle FROM ref",
-      "SELECT MAX(cle) FROM ref"
+      "SELECT cle, COUNT(*) FROM ref GROUP BY cle HAVING COUNT(*) = 1",
+      "SELECT DISTINCT cle FROM ref ORDER BY cle"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le total ne dit rien sur les doublons.",
       "Oui. Si ça renvoie des lignes, la jointure va multiplier tes données.",
-      "Non. Ça cache les doublons.",
-      "Non."
+      "Non. Ce sont les clés uniques : les doublons n'apparaissent pas.",
+      "Non. Ça cache les doublons."
     ],
     retenir: "Contrôle avant jointure : GROUP BY clé HAVING COUNT(*) > 1."
   },
@@ -1082,17 +1082,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q60", dialecte: "Standard",
     q: "Des ventes ont un code client inconnu de la table client. Avec un INNER JOIN, le CA total baisse. Bonne pratique en entrepôt de données ?",
     choix: [
-      "Supprimer ces ventes",
-      "LEFT JOIN, et rattacher les ventes orphelines à un client « Inconnu » pour ne pas perdre de CA",
-      "Ignorer le problème",
-      "Utiliser CROSS JOIN"
+      "Supprimer ces ventes de la table de faits",
+      "LEFT JOIN et client « Inconnu »",
+      "Ignorer le problème, il est marginal",
+      "Remplacer l'INNER JOIN par un CROSS JOIN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le CA serait faux.",
-      "Oui. Le total reste juste, et les orphelins sont visibles pour être corrigés.",
-      "Non.",
-      "Non."
+      "Oui. Les ventes orphelines sont rattachées à un client « Inconnu » : le total reste juste, et les orphelins sont visibles pour être corrigés.",
+      "Non. Le CA total est faux.",
+      "Non. Toutes les combinaisons : encore pire."
     ],
     retenir: "Ne perds jamais de faits à cause d'une jointure : membre « Inconnu »."
   },
@@ -1120,17 +1120,17 @@ LEARNSQL.questions.m05 = [
     q: "La dimension client garde l'historique (une ligne par version, avec debut et fin). Comment rattacher une vente à la version du client valable à la date de vente ?",
     choixCode: true,
     choix: [
-      "ON d.code = f.client_code",
+      "ON d.code = f.client_code AND f.date_vente BETWEEN d.debut AND d.fin",
       "ON d.code = f.client_code AND f.date_vente >= d.debut AND f.date_vente < d.fin",
       "ON d.code = f.client_code AND d.actuel = 1",
-      "ON f.date_vente = d.debut"
+      "ON d.code = f.client_code AND f.date_vente >= d.debut"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Une ligne par version : doublons.",
+      "Non. Si la fin d'une version = le début de la suivante, une vente ce jour-là tombe dans deux versions.",
       "Oui. Le code ET la période de validité. C'est la jointure sur une dimension historisée (SCD type 2).",
       "Non. Toutes les ventes prennent la version actuelle : l'historique est perdu.",
-      "Non."
+      "Non. Sans borne de fin, la vente se relie à toutes les versions commencées avant : doublons."
     ],
     retenir: "Dimension historisée : clé + période de validité dans le ON."
   },
@@ -1138,17 +1138,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q63", dialecte: "Standard",
     q: "Tu veux, par commande, le nombre de lignes et les frais de port, sans doubler les frais. Quelle approche ?",
     choix: [
-      "Joindre commande et lignes, puis SUM(frais_port) et COUNT(*)",
-      "Compter les lignes dans une sous-requête (GROUP BY cde_id), puis joindre ce résultat à commande",
-      "Utiliser SUM(DISTINCT frais_port)",
-      "Utiliser CROSS JOIN"
+      "Joindre commande et lignes, puis SUM(frais_port)",
+      "Compter les lignes à part, puis joindre",
+      "Joindre, puis SUM(DISTINCT frais_port)",
+      "Joindre avec un CROSS JOIN, puis GROUP BY"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les frais sont répétés sur chaque ligne.",
-      "Oui. Une ligne par commande de chaque côté : relation 1-1, pas de doublon.",
+      "Oui. Une sous-requête compte les lignes (GROUP BY cde_id), puis on la joint à commande : une ligne par commande de chaque côté, pas de doublon.",
       "Non. Deux commandes avec les mêmes frais seraient comptées une fois.",
-      "Non."
+      "Non. Toutes les combinaisons : encore pire."
     ],
     retenir: "Agrège le côté « N » avant de le joindre au côté « 1 »."
   },
@@ -1156,17 +1156,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q64", dialecte: "SQL Server",
     q: "Le plan montre un Nested Loops avec, à l'intérieur, un Scan d'une table de 2 millions de lignes, exécuté 50 000 fois. Que soupçonner ?",
     choix: [
-      "Tout est normal",
-      "Il manque un index sur la colonne de jointure de la table intérieure",
-      "Il faut ajouter DISTINCT",
-      "La table est trop petite"
+      "Tout est normal pour un Nested Loops",
+      "Il manque un index sur la table intérieure",
+      "Il faut ajouter DISTINCT à la requête",
+      "La table extérieure est trop petite"
     ],
     bonne: 1,
     pourquoi: [
       "Non. 50 000 lectures complètes : catastrophe.",
-      "Oui. Avec un index, chaque boucle ferait un Seek au lieu d'un Scan.",
+      "Oui. Sur la colonne de jointure : avec un index, chaque boucle ferait un Seek au lieu d'un Scan.",
       "Non.",
-      "Non."
+      "Non. Le problème est la table intérieure."
     ],
     retenir: "Nested Loops : la table intérieure doit avoir un index sur la clé de jointure."
   },
@@ -1174,16 +1174,16 @@ LEARNSQL.questions.m05 = [
     id: "m05-q65", dialecte: "SQL Server",
     q: "Sur SQL Server, une clé étrangère crée-t-elle automatiquement un index sur la colonne (ex. commande.client_id) ?",
     choix: [
-      "Oui",
-      "Non : il faut le créer soi-même, et c'est souvent utile pour les jointures",
-      "Oui, un index cluster",
-      "Seulement sur Snowflake"
+      "Oui, un index non cluster est créé",
+      "Non, il faut le créer soi-même",
+      "Oui, un index cluster est créé",
+      "Seulement sur Snowflake, pas SQL Server"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Seule la clé primaire crée un index automatiquement.",
-      "Oui. Index les colonnes de clés étrangères souvent jointes ou filtrées.",
-      "Non.",
+      "Non. Seule la clé primaire (ou UNIQUE) crée un index automatiquement.",
+      "Oui. Seule la clé primaire (et UNIQUE) crée un index. Index les colonnes de clés étrangères souvent jointes ou filtrées.",
+      "Non. Aucun index n'est créé.",
       "Non. Snowflake n'a pas d'index."
     ],
     retenir: "Clé étrangère ≠ index. Pense à indexer les FK."
@@ -1192,17 +1192,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q66", dialecte: "Snowflake",
     q: "Sur Snowflake, une grosse jointure est lente. Quelles pistes sont adaptées ?",
     choix: [
-      "Créer des index",
-      "Regarder le Query Profile (débordement sur disque, explosion de lignes), filtrer tôt, ou prendre un warehouse plus grand",
-      "Ajouter NOLOCK",
-      "Changer de collation"
+      "Créer des index sur les colonnes jointes",
+      "Lire le Query Profile, filtrer tôt",
+      "Ajouter NOLOCK sur les deux tables",
+      "Changer la collation des colonnes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake n'a pas d'index.",
-      "Oui. « Bytes spilled » = mémoire insuffisante : warehouse plus grand. Lignes explosées : vérifier les clés.",
+      "Oui. Le Query Profile montre le débordement sur disque (« bytes spilled » : warehouse plus grand) ou l'explosion de lignes (vérifier les clés). Filtrer tôt réduit le volume.",
       "Non. N'existe pas sur Snowflake.",
-      "Non."
+      "Non. Aucun effet sur la vitesse."
     ],
     retenir: "Snowflake lent : Query Profile d'abord."
   },
@@ -1247,17 +1247,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q69", dialecte: "Standard",
     q: "Que renvoie client LEFT JOIN commande ON co.client_id = cl.id AND 1 = 0 ?",
     choix: [
-      "Aucune ligne",
-      "Tous les clients, avec des colonnes de commande toutes NULL",
-      "Une erreur",
-      "Toutes les commandes"
+      "Aucune ligne, car la condition est fausse",
+      "Tous les clients, commandes à NULL",
+      "Une erreur : 1 = 0 est interdit dans un ON",
+      "Toutes les commandes, sans les clients"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le LEFT JOIN garde la gauche quoi qu'il arrive.",
       "Oui. La condition n'est jamais vraie : aucune correspondance, mais les clients restent.",
-      "Non.",
-      "Non."
+      "Non. C'est valide.",
+      "Non. C'est la table de gauche (client) qui est gardée."
     ],
     retenir: "LEFT JOIN : même un ON impossible garde la table de gauche."
   },
@@ -1265,17 +1265,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q70", dialecte: "SQL Server",
     q: "Une très vieille requête utilise WHERE a.id *= b.id. Que se passe-t-il sur un SQL Server récent ?",
     choix: [
-      "Ça marche comme un LEFT JOIN",
-      "Erreur : cette syntaxe de jointure externe n'est plus supportée",
-      "Ça fait un INNER JOIN",
-      "Ça multiplie"
+      "Ça marche toujours comme un LEFT JOIN",
+      "Erreur : syntaxe plus supportée",
+      "Ça fait un INNER JOIN sans prévenir",
+      "Ça multiplie les lignes par deux"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'était le cas il y a longtemps.",
       "Oui. *= et =* ont été supprimés. Réécris avec LEFT JOIN … ON.",
-      "Non.",
-      "Non."
+      "Non. Il y a une erreur.",
+      "Non. Il y a une erreur."
     ],
     retenir: "*= est mort : LEFT JOIN … ON."
   },
@@ -1283,17 +1283,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q71", dialecte: "Standard",
     q: "L'ERP stocke le code client '0042', le fichier EDI '42' (texte). La jointure ne trouve rien. Pourquoi ?",
     choix: [
-      "Bug",
-      "En texte, '0042' ≠ '42'. Il faut normaliser le format (compléter avec des zéros, ou convertir les deux)",
-      "Il faut un LEFT JOIN",
-      "Il faut DISTINCT"
+      "Un bug de l'ERP ou du connecteur EDI",
+      "'0042' ≠ '42' : formats différents",
+      "Il faut un LEFT JOIN pour les trouver",
+      "Il faut un DISTINCT sur les codes"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Choisis un format de référence et applique-le au chargement (ex. RIGHT('0000' + code, 4)).",
+      "Non. C'est un problème de format.",
+      "Oui. En texte, '0042' ≠ '42'. Choisis un format de référence et applique-le au chargement (ex. RIGHT('0000' + code, 4)).",
       "Non. Toujours aucune correspondance.",
-      "Non."
+      "Non. Toujours aucune correspondance."
     ],
     retenir: "Clés en texte : même format des deux côtés (zéros, espaces, casse)."
   },
@@ -1338,16 +1338,16 @@ LEARNSQL.questions.m05 = [
     q: "Sur Snowflake, JOIN ligne USING (societe, num_cde) est-il valide ?",
     choix: [
       "Oui, USING accepte plusieurs colonnes",
-      "Non, une seule colonne",
-      "Non, USING n'existe pas",
-      "Seulement en LEFT JOIN"
+      "Non, USING n'accepte qu'une colonne",
+      "Non, USING n'existe pas sur Snowflake",
+      "Oui, mais seulement avec un LEFT JOIN"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Les colonnes doivent avoir le même nom des deux côtés.",
-      "Non.",
+      "Non. Il en accepte plusieurs.",
       "Non. Il existe sur Snowflake (pas sur SQL Server).",
-      "Non."
+      "Non. Il marche avec tous les types de jointure."
     ],
     retenir: "USING (col1, col2) : jointure sur des colonnes de même nom."
   },
@@ -1355,17 +1355,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q75", dialecte: "Snowflake",
     q: "Sur Snowflake, pourquoi éviter NATURAL JOIN ?",
     choix: [
-      "Il n'existe pas",
-      "Il joint sur TOUTES les colonnes de même nom : une colonne commune comme date_maj fausse la jointure",
-      "Il est lent",
-      "Il fait un CROSS JOIN"
+      "Il n'existe pas sur Snowflake",
+      "Il joint sur toutes les colonnes de même nom",
+      "Il est beaucoup plus lent qu'un JOIN … ON",
+      "Il fait en réalité un CROSS JOIN"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il existe.",
-      "Oui. Les colonnes de jointure sont implicites. Une colonne ajoutée plus tard peut tout casser.",
-      "Non.",
-      "Non."
+      "Oui. Une colonne commune comme date_maj fausse la jointure. Les colonnes de jointure sont implicites : une colonne ajoutée plus tard peut tout casser.",
+      "Non. Ce n'est pas une question de vitesse.",
+      "Non. Seulement s'il n'y a aucune colonne commune."
     ],
     retenir: "NATURAL JOIN : à éviter. Écris toujours la condition."
   },
@@ -1429,17 +1429,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q79", dialecte: "Standard",
     q: "Tu veux le détail des commandes des clients dont le CA total dépasse 50 000 €. Quelle structure ?",
     choix: [
-      "WHERE SUM(montant) > 50000",
-      "Joindre commande à une sous-requête (client_id … GROUP BY client_id HAVING SUM(montant) > 50000)",
-      "HAVING montant > 50000",
-      "ORDER BY SUM(montant)"
+      "WHERE SUM(montant) > 50000, groupé par client",
+      "Joindre à une sous-requête agrégée par client",
+      "HAVING montant > 50000 sur le détail",
+      "ORDER BY SUM(montant) DESC, puis TOP"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Agrégat dans WHERE : erreur.",
-      "Oui. La sous-requête donne la liste des gros clients ; la jointure ramène leurs commandes. (IN ou EXISTS aussi.)",
+      "Oui. Sous-requête : client_id … GROUP BY client_id HAVING SUM(montant) > 50000. Elle donne la liste des gros clients ; la jointure ramène leurs commandes. (IN ou EXISTS aussi.)",
       "Non. Filtre chaque commande, pas le total.",
-      "Non."
+      "Non. TOP ne garde pas « tous ceux au-dessus de 50 000 »."
     ],
     retenir: "Filtrer le détail selon un total : joindre à une sous-requête agrégée."
   },
@@ -1503,17 +1503,17 @@ LEARNSQL.questions.m05 = [
     q: "Certains articles n'ont pas de taux de TVA dans la table tva. Comment appliquer 20 % par défaut ?",
     choixCode: true,
     choix: [
-      "INNER JOIN tva t … puis t.taux",
+      "INNER JOIN tva t … puis COALESCE(t.taux, 0.20)",
       "LEFT JOIN tva t … puis COALESCE(t.taux, 0.20)",
-      "LEFT JOIN tva t … puis t.taux",
-      "CROSS JOIN tva"
+      "LEFT JOIN tva t … puis COALESCE(t.taux, 0)",
+      "LEFT JOIN tva t … puis ISNULL(t.taux)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les articles sans taux disparaissent.",
+      "Non. Les articles sans taux disparaissent : COALESCE n'a rien à remplacer.",
       "Oui. LEFT JOIN garde tous les articles ; COALESCE met la valeur par défaut.",
-      "Non. Le taux reste NULL : calcul NULL.",
-      "Non."
+      "Non. Les articles sans taux auraient une TVA à 0 %.",
+      "Non. ISNULL demande deux arguments sur SQL Server."
     ],
     retenir: "Valeur par défaut : LEFT JOIN + COALESCE."
   },
@@ -1522,17 +1522,17 @@ LEARNSQL.questions.m05 = [
     q: "Ces deux requêtes sont-elles équivalentes ?",
     code: "-- A\nLEFT JOIN commande co ON co.client_id = cl.id AND co.statut = 'X'\n\n-- B\nLEFT JOIN commande co ON co.client_id = cl.id\nWHERE co.statut = 'X' OR co.statut IS NULL",
     choix: [
-      "Oui",
-      "Non : B perd les clients qui ont des commandes, mais aucune au statut X",
-      "Non : A est une erreur",
-      "Non : B double les lignes"
+      "Oui, ce sont deux écritures équivalentes",
+      "Non : B perd certains clients",
+      "Non : A provoque une erreur de syntaxe",
+      "Non : B double les lignes de chaque client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Piège classique.",
-      "Oui. Dans B, ces clients ont des lignes avec un autre statut : le WHERE les retire toutes. Dans A, ils restent avec des NULL.",
-      "Non.",
-      "Non."
+      "Oui. B perd les clients qui ont des commandes, mais aucune au statut X : leurs lignes ont un autre statut, et le WHERE les retire toutes. Dans A, ils restent avec des NULL.",
+      "Non. A est valide.",
+      "Non. Rien n'est doublé."
     ],
     retenir: "« OR IS NULL » dans le WHERE ne remplace pas une condition dans le ON."
   },
@@ -1540,17 +1540,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q85", dialecte: "Standard",
     q: "Pour comparer chaque relevé de stock au relevé précédent, une auto-jointure sur « la date précédente » est lente. Quelle alternative ?",
     choix: [
-      "Un CROSS JOIN",
+      "Un CROSS JOIN avec un filtre",
       "La fonction de fenêtrage LAG",
-      "Un DISTINCT",
-      "Un UNION"
+      "Un DISTINCT sur l'auto-jointure",
+      "Un UNION des deux relevés"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Encore plus de combinaisons.",
       "Oui. LAG(qte) OVER (PARTITION BY article ORDER BY date) lit la ligne précédente sans jointure (module 8).",
-      "Non.",
-      "Non."
+      "Non. Ça ne réduit pas le travail.",
+      "Non. Empile sans comparer."
     ],
     retenir: "Ligne précédente / suivante : LAG / LEAD plutôt qu'une auto-jointure."
   },
@@ -1558,16 +1558,16 @@ LEARNSQL.questions.m05 = [
     id: "m05-q86", dialecte: "Standard",
     q: "Un cumul calculé par auto-jointure (a.date >= b.date, puis SUM) devient très lent quand la table grossit. Pourquoi ?",
     choix: [
-      "SUM est lent",
-      "Chaque ligne est jointe à toutes les précédentes : le travail croît comme n² (« jointure triangulaire »)",
-      "Il manque DISTINCT",
-      "Les dates sont mal indexées"
+      "SUM est lent sur les grandes tables",
+      "Le travail croît comme n²",
+      "Il manque un DISTINCT dans le cumul",
+      "Les dates de la table sont mal indexées"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. 10 000 lignes ≈ 50 millions de combinaisons. Utilise SUM() OVER (ORDER BY … ROWS …).",
-      "Non.",
+      "Non. SUM n'est pas le problème.",
+      "Oui. Chaque ligne est jointe à toutes les précédentes (« jointure triangulaire ») : 10 000 lignes ≈ 50 millions de combinaisons. Utilise SUM() OVER (ORDER BY … ROWS …).",
+      "Non. DISTINCT ne réduit pas le travail.",
       "Non. Même avec index, le volume explose."
     ],
     retenir: "Cumul : fonction de fenêtrage, pas auto-jointure triangulaire."
@@ -1596,15 +1596,15 @@ LEARNSQL.questions.m05 = [
     q: "Que penser d'un indice de jointure comme INNER HASH JOIN dans une requête ?",
     choix: [
       "À mettre partout pour aller plus vite",
-      "À éviter sauf cas précis : il force aussi l'ordre des jointures et empêche l'optimiseur de s'adapter",
+      "À éviter sauf cas précis",
       "Obligatoire sur les grosses tables",
-      "Interdit"
+      "Interdit dans une requête de production"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce qui est rapide aujourd'hui peut être lent quand les volumes changent.",
-      "Oui. Corrige plutôt la cause (index, statistiques, écriture de la requête).",
-      "Non.",
+      "Oui. Il force aussi l'ordre des jointures et empêche l'optimiseur de s'adapter. Corrige plutôt la cause (index, statistiques, écriture de la requête).",
+      "Non. Rien n'est obligatoire.",
       "Non. C'est permis."
     ],
     retenir: "Indices de jointure : dernier recours."
@@ -1612,19 +1612,18 @@ LEARNSQL.questions.m05 = [
   {
     id: "m05-q89", dialecte: "SQL Server",
     q: "Comment joindre une table de la base Divalto et une de la base Reporting, sur le même serveur SQL Server ?",
-    choixCode: true,
     choix: [
-      "C'est impossible",
-      "Avec des noms en 3 parties : Divalto.dbo.client JOIN Reporting.dbo.ca …",
-      "Avec un serveur lié obligatoire",
-      "Avec USE dans la requête"
+      "Avec un serveur lié vers le même serveur",
+      "Divalto.dbo.client JOIN Reporting.dbo.ca …",
+      "USE Divalto et USE Reporting dans la requête",
+      "Impossible : une requête = une seule base"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. base.schéma.table. Attention aux collations différentes entre bases.",
       "Non. Serveur lié seulement pour un AUTRE serveur.",
-      "Non."
+      "Oui. Noms en 3 parties : base.schéma.table. Attention aux collations différentes entre bases.",
+      "Non. USE change la base courante, une seule à la fois.",
+      "Non. Les noms en 3 parties le permettent."
     ],
     retenir: "Même serveur, autre base : base.schéma.table."
   },
@@ -1632,17 +1631,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q90", dialecte: "SQL Server",
     q: "Une jointure vers un serveur lié (SRV.base.dbo.grosse_table) est très lente. Quelle piste ?",
     choix: [
-      "Ajouter DISTINCT",
-      "Filtrer côté distant avec OPENQUERY, pour ne rapatrier que les lignes utiles",
-      "Ajouter un ORDER BY",
-      "Utiliser CROSS JOIN"
+      "Ajouter DISTINCT pour réduire les lignes",
+      "Filtrer côté distant avec OPENQUERY",
+      "Ajouter un ORDER BY sur la table distante",
+      "Remplacer la jointure par un CROSS JOIN"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça n'aide pas.",
       "Oui. Sinon, SQL Server peut rapatrier toute la table distante avant de joindre. Ou copier d'abord les données utiles dans une table locale.",
-      "Non.",
-      "Non."
+      "Non. Ça ajoute du travail.",
+      "Non. Encore pire."
     ],
     retenir: "Serveur lié : faire filtrer le serveur distant (OPENQUERY)."
   },
@@ -1650,17 +1649,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q91", dialecte: "Snowflake",
     q: "Sur Snowflake, peut-on joindre des tables de deux bases différentes du même compte ?",
     choix: [
-      "Non",
-      "Oui, avec les noms complets BASE.SCHEMA.TABLE",
-      "Oui, avec un serveur lié",
-      "Seulement par copie"
+      "Non, une requête = une seule base",
+      "Oui, avec BASE.SCHEMA.TABLE",
+      "Oui, mais avec un serveur lié",
+      "Seulement en copiant la table avant"
     ],
     bonne: 1,
     pourquoi: [
       "Non.",
       "Oui. Le stockage est partagé : pas besoin de serveur lié ni de copie.",
       "Non. Pas de serveur lié sur Snowflake.",
-      "Non."
+      "Non. Aucune copie n'est nécessaire."
     ],
     retenir: "Snowflake : jointure entre bases = noms en 3 parties."
   },
@@ -1704,17 +1703,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q94", dialecte: "Standard",
     q: "Tu veux les articles vendus au moins une fois en 2026, avec leur CA 2026. Quelle structure ?",
     choix: [
-      "article LEFT JOIN ligne … sans filtre",
-      "article INNER JOIN ligne (filtrée sur 2026) … GROUP BY article",
-      "article CROSS JOIN ligne",
-      "NOT EXISTS"
+      "article LEFT JOIN ligne, sans aucun filtre d'année",
+      "article INNER JOIN ligne (2026), puis GROUP BY",
+      "article CROSS JOIN ligne, puis GROUP BY",
+      "article WHERE NOT EXISTS (ventes 2026)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Garde aussi les articles jamais vendus, et toutes les années.",
-      "Oui. INNER car on veut seulement les articles vendus ; GROUP BY pour le CA.",
-      "Non.",
-      "Non. Ce serait les articles jamais vendus."
+      "Oui. INNER car on veut seulement les articles vendus ; filtre sur 2026 ; GROUP BY pour le CA.",
+      "Non. Toutes les combinaisons.",
+      "Non. Ce serait les articles jamais vendus en 2026."
     ],
     retenir: "Choisis le type de jointure selon la question : « au moins un » = INNER."
   },
@@ -1725,15 +1724,15 @@ LEARNSQL.questions.m05 = [
     choix: [
       "hier INNER JOIN auj ON article, puis auj.qte - hier.qte",
       "hier FULL OUTER JOIN auj ON article, puis COALESCE(auj.qte, 0) - COALESCE(hier.qte, 0)",
-      "hier LEFT JOIN auj, puis auj.qte - hier.qte",
-      "hier UNION auj"
+      "hier FULL OUTER JOIN auj ON article, puis auj.qte - hier.qte",
+      "hier LEFT JOIN auj ON article, puis COALESCE(auj.qte, 0) - COALESCE(hier.qte, 0)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les nouveaux et les disparus sont perdus.",
       "Oui. FULL garde tous les articles ; COALESCE traite l'absence comme 0.",
-      "Non. Les nouveaux articles sont perdus.",
-      "Non. Empile sans comparer."
+      "Non. Pour un article nouveau ou disparu, un des deux est NULL : la différence est NULL.",
+      "Non. Les nouveaux articles (absents hier) sont perdus."
     ],
     retenir: "Comparer deux photos : FULL OUTER JOIN + COALESCE(…, 0)."
   },
@@ -1743,16 +1742,16 @@ LEARNSQL.questions.m05 = [
     choixCode: true,
     choix: [
       "JOIN (VALUES ('FR', 'France'), ('BE', 'Belgique')) AS m(code, libelle) ON m.code = cl.pays",
-      "JOIN 'FR=France, BE=Belgique' ON …",
-      "CASE seulement, pas de jointure possible",
-      "JOIN pays_temp"
+      "JOIN (VALUES ('FR', 'BE'), ('France', 'Belgique')) AS m(code, libelle) ON m.code = cl.pays",
+      "JOIN (SELECT 'FR', 'France', 'BE', 'Belgique') AS m(code, libelle) ON m.code = cl.pays",
+      "JOIN 'FR=France, BE=Belgique' AS m ON m.code = cl.pays"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une table en dur, jointe comme une vraie table. (Un CASE marche aussi pour quelques valeurs.)",
-      "Non.",
-      "Non. VALUES permet la jointure.",
-      "Non. Cette table n'existe pas."
+      "Non. Les valeurs sont rangées par colonne au lieu de par ligne : on obtient les paires (FR, BE) et (France, Belgique).",
+      "Non. Une seule ligne de 4 valeurs pour 2 colonnes : erreur.",
+      "Non. Un texte n'est pas une table."
     ],
     retenir: "Petite correspondance ponctuelle : JOIN (VALUES …)."
   },
@@ -1761,17 +1760,17 @@ LEARNSQL.questions.m05 = [
     q: "Une colonne contient 'A1;B2;C3' (codes séparés). Comment joindre chaque code à la table article ?",
     choixCode: true,
     choix: [
-      "JOIN article a ON a.code = t.codes",
+      "JOIN article a ON t.codes LIKE '%' + a.code + '%'",
       "CROSS APPLY STRING_SPLIT(t.codes, ';') s JOIN article a ON a.code = s.value",
-      "JOIN article a ON t.codes LIKE a.code",
-      "Impossible"
+      "CROSS APPLY STRING_SPLIT(t.codes, ',') s JOIN article a ON a.code = s.value",
+      "JOIN article a ON a.code IN (t.codes)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. 'A1;B2;C3' n'est pas un code.",
+      "Non. 'A1' trouverait aussi 'A12' : correspondances fausses. Et c'est lent.",
       "Oui. On découpe en lignes, puis on joint chaque morceau. (Mieux : ne pas stocker de listes dans une colonne.)",
-      "Non. Sans %, ce LIKE est une égalité.",
-      "Non."
+      "Non. Le séparateur est ; et pas , : rien n'est découpé.",
+      "Non. IN (t.codes) compare au texte entier 'A1;B2;C3'."
     ],
     retenir: "Liste dans une colonne : STRING_SPLIT + jointure. Et corrige le modèle si possible."
   },
@@ -1779,15 +1778,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q98", dialecte: "SQL Server",
     q: "Le plan d'exécution affiche l'avertissement « No Join Predicate ». Que veut-il dire ?",
     choix: [
-      "Tout va bien",
-      "Une jointure n'a pas de condition : produit cartésien probable",
-      "Il manque un index",
-      "La requête est trop longue"
+      "Tout va bien, simple information",
+      "Une jointure sans condition",
+      "Il manque un index sur une table",
+      "La requête est trop longue à compiler"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Souvent un ON oublié ou mal écrit. Vérifie chaque jointure.",
+      "Non. C'est un vrai signal d'alerte.",
+      "Oui. Produit cartésien probable : souvent un ON oublié ou mal écrit. Vérifie chaque jointure.",
       "Non. C'est un autre avertissement.",
       "Non."
     ],
@@ -1797,17 +1796,17 @@ LEARNSQL.questions.m05 = [
     id: "m05-q99", dialecte: "Standard",
     q: "Barème de remise : 0-999 et 1000-4999. Une commande fait 999,50 €. Elle disparaît avec INNER JOIN tranche ON montant BETWEEN mini AND maxi. Pourquoi ?",
     choix: [
-      "Bug",
-      "999,50 tombe entre 999 et 1000 : aucune tranche ne le contient (trou dans le barème)",
-      "Le montant est NULL",
-      "Il faut un FULL JOIN"
+      "Un bug de BETWEEN avec les décimales",
+      "Un trou entre 999 et 1000",
+      "Le montant de la commande est NULL",
+      "Il faut un FULL JOIN sur les tranches"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Définis les tranches sans trou : mini <= montant AND montant < mini_suivant. Et utilise LEFT JOIN pour voir les oubliés.",
-      "Non.",
-      "Non."
+      "Non. BETWEEN marche très bien.",
+      "Oui. 999,50 n'est dans aucune tranche. Définis les tranches sans trou : mini <= montant AND montant < mini_suivant. Et utilise LEFT JOIN pour voir les oubliés.",
+      "Non. Le montant vaut 999,50.",
+      "Non. Le problème vient du barème."
     ],
     retenir: "Tranches : bornes [mini ; maxi[ sans trou ni chevauchement."
   },
@@ -1815,15 +1814,15 @@ LEARNSQL.questions.m05 = [
     id: "m05-q100", dialecte: "Standard",
     q: "Quelle méthode est la plus sûre pour écrire une requête avec beaucoup de jointures ?",
     choix: [
-      "Tout écrire d'un coup puis exécuter",
-      "Partir de la table qui a le grain voulu, ajouter les jointures une par une, et vérifier le nombre de lignes à chaque étape",
-      "Mettre DISTINCT dès le début",
-      "Utiliser seulement des INNER JOIN"
+      "Tout écrire d'un coup, puis exécuter",
+      "Ajouter les jointures une par une, en comptant",
+      "Mettre DISTINCT dès le début, par sécurité",
+      "N'utiliser que des INNER JOIN, plus sûrs"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Impossible de savoir quelle jointure a créé un problème.",
-      "Oui. Si le nombre de lignes change sans raison, la dernière jointure ajoutée est fautive.",
+      "Oui. Pars de la table qui a le grain voulu, ajoute une jointure à la fois, et vérifie le nombre de lignes. S'il change sans raison, la dernière jointure ajoutée est fautive.",
       "Non. DISTINCT cache les problèmes.",
       "Non. On perdrait des lignes sans s'en rendre compte."
     ],
