@@ -16,7 +16,7 @@ LEARNSQL.questions.m07 = [
   },
   {
     id: "m07-q02", dialecte: "Standard",
-    q: "Même situation (3 + 3 lignes, une en commun). Combien de lignes donne A UNION B ?",
+    q: "A contient 3 lignes, B contient 3 lignes, dont une identique à une ligne de A. Combien de lignes donne A UNION B ?",
     choix: ["6", "5", "4", "3"],
     bonne: 1,
     pourquoi: [

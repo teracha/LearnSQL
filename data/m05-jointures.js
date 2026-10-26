@@ -1207,7 +1207,7 @@ LEARNSQL.questions.m05 = [
   },
   {
     id: "m05-q73", dialecte: "Standard",
-    q: "Même situation (ERP 100, EDI 98, 95 communes). Combien manque-t-il de commandes dans l'EDI, et dans l'ERP ?",
+    q: "ERP : 100 commandes. EDI : 98 commandes. 95 sont communes. Combien manque-t-il de commandes dans l'EDI, et dans l'ERP ?",
     choix: ["5 dans l'EDI, 3 dans l'ERP", "3 dans l'EDI, 5 dans l'ERP", "2 et 2", "5 et 5"],
     bonne: 0,
     pourquoi: [

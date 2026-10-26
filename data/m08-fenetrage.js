@@ -152,7 +152,7 @@ LEARNSQL.questions.m08 = [
   },
   {
     id: "m08-q10", dialecte: "Standard",
-    q: "Mêmes valeurs (500, 300, 300, 100). Que donne RANK() OVER (ORDER BY ca DESC) ?",
+    q: "Valeurs de CA triées : 500, 300, 300, 100. Que donne RANK() OVER (ORDER BY ca DESC) ?",
     choix: ["1, 2, 3, 4", "1, 2, 2, 4", "1, 2, 2, 3", "1, 1, 2, 3"],
     bonne: 1,
     pourquoi: [
@@ -165,7 +165,7 @@ LEARNSQL.questions.m08 = [
   },
   {
     id: "m08-q11", dialecte: "Standard",
-    q: "Mêmes valeurs (500, 300, 300, 100). Que donne DENSE_RANK() OVER (ORDER BY ca DESC) ?",
+    q: "Valeurs de CA triées : 500, 300, 300, 100. Que donne DENSE_RANK() OVER (ORDER BY ca DESC) ?",
     choix: ["1, 2, 3, 4", "1, 2, 2, 4", "1, 2, 2, 3", "1, 1, 1, 2"],
     bonne: 2,
     pourquoi: [

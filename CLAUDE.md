@@ -81,6 +81,7 @@ Règles pour écrire des questions :
 - Si un thème n'a pas 100 cas vraiment différents, s'arrêter avant et le signaler : pas de questions de remplissage.
 - Un QCM tire 10 questions dans la réserve : d'abord les jamais vues, puis les ratées (`TAILLE_QCM` dans `js/app.js`).
 - Varier les angles : une même notion doit revenir dans plusieurs situations, pour que l'élève apprenne la règle et pas la réponse.
+- Chaque question doit se suffire à elle-même : le tirage est aléatoire (jamais « Même situation… »).
 - Des pièges réels, vus en entreprise. Pas de questions de pure mémoire.
 - Chaque `pourquoi` commence par « Oui. » ou « Non. » puis explique en 1 ou 2 phrases.
 - Signaler les différences SQL Server / Snowflake quand elles existent.

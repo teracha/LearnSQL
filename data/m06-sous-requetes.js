@@ -134,7 +134,7 @@ LEARNSQL.questions.m06 = [
   },
   {
     id: "m06-q09", dialecte: "Standard",
-    q: "Rappel : la sous-requête contient un client_id NULL. Que renvoie WHERE id NOT IN (SELECT client_id FROM commande) ?",
+    q: "La sous-requête contient un client_id NULL. Que renvoie WHERE id NOT IN (SELECT client_id FROM commande) ?",
     choix: ["Les clients sans commande", "Aucune ligne", "Tous les clients", "Une erreur"],
     bonne: 1,
     pourquoi: [

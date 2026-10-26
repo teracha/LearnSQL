@@ -293,7 +293,7 @@ LEARNSQL.questions.m09 = [
   },
   {
     id: "m09-q19", dialecte: "Snowflake",
-    q: "Même besoin sur Snowflake : quelle syntaxe ?",
+    q: "Sur Snowflake, comment mettre à jour le prix des articles à partir d'une table de tarifs ?",
     choixCode: true,
     choix: [
       "UPDATE article a SET prix = t.prix FROM tarif t WHERE t.code = a.code",
@@ -514,7 +514,7 @@ LEARNSQL.questions.m09 = [
   },
   {
     id: "m09-q32", dialecte: "Snowflake",
-    q: "Même besoin sur Snowflake : quelle syntaxe ?",
+    q: "Sur Snowflake, comment supprimer les lignes de commande des commandes annulées (jointure avec commande) ?",
     choixCode: true,
     choix: [
       "DELETE FROM ligne_cde l USING commande c WHERE c.id = l.cde_id AND c.statut = 'ANNULEE'",
