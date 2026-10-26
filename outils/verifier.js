@@ -10,7 +10,8 @@ for (const f of fs.readdirSync(path.join(racine, 'data')).filter(f => /^m\d\d-.*
 const MAX_PLUS_LONGUE = 30;   // % max de questions où la bonne réponse est la plus longue
 const MAX_PLUS_COURTE = 40;   // % max où elle est la plus courte (l'excès inverse est aussi un indice)
 const MIN_EXTREME = 10;       // % min plus longue ET plus courte : sinon on élimine les extrêmes sans réfléchir
-const ECART = 1.5;            // bonne réponse 1,5 fois plus longue que tous les autres choix = indice évident
+const ECART = 1.5;            // bonne réponse 1,5 fois plus longue que tous les autres choix…
+const ECART_MIN = 10;         // …et d'au moins 10 caractères = indice évident
 
 const filtre = process.argv[2];
 const ids = new Set(), textes = new Map();
@@ -33,7 +34,7 @@ for (const [m, qs] of Object.entries(LEARNSQL.questions)) {
     const l = q.choix.map(c => c.length), b = l[q.bonne], autres = l.filter((_, i) => i !== q.bonne);
     if (autres.every(x => b > x)) longue++;
     if (autres.every(x => b < x)) courte++;
-    if (b >= ECART * Math.max(...autres)) ecarts.push(q.id);
+    if (b >= ECART * Math.max(...autres) && b - Math.max(...autres) >= ECART_MIN) ecarts.push(q.id);
   });
   const pl = Math.round(100 * longue / qs.length), pc = Math.round(100 * courte / qs.length);
   const ok = pl <= MAX_PLUS_LONGUE && pc <= MAX_PLUS_COURTE && pl >= MIN_EXTREME && pc >= MIN_EXTREME && ecarts.length === 0;

@@ -503,17 +503,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q28", dialecte: "SQL Server",
     q: "DATEPART(weekday, date) renvoie-t-il toujours 1 pour un lundi ?",
     choix: [
-      "Oui, toujours",
-      "Non, ça dépend du réglage SET DATEFIRST (et donc de la langue)",
-      "Non, le lundi vaut toujours 2",
-      "Oui, mais seulement en français"
+      "Oui, toujours, quelle que soit la langue",
+      "Non, ça dépend du réglage DATEFIRST",
+      "Non, le lundi vaut toujours 2 sur SQL Server",
+      "Oui, mais seulement sur une base en français"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le 1er jour de la semaine est un réglage.",
-      "Oui. En anglais (US), la semaine commence le dimanche. Le lundi vaut alors 2. En français, il vaut 1.",
+      "Oui. SET DATEFIRST (lié à la langue) fixe le 1er jour de la semaine. En anglais (US), la semaine commence le dimanche : le lundi vaut 2. En français, il vaut 1.",
       "Non. Ce n'est vrai qu'avec le réglage US.",
-      "Non. « Seulement en français » est trop fort : c'est le réglage DATEFIRST qui décide."
+      "Non. C'est le réglage DATEFIRST de la session qui décide, pas la base."
     ],
     retenir: "Jour de la semaine : le résultat dépend de DATEFIRST. Ne le code pas en dur."
   },
@@ -722,17 +722,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q40", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie CONCAT_WS(';', 'A', NULL, 'C') ?",
     choix: [
-      "'A;C' partout",
+      "'A;C' sur SQL Server et sur Snowflake",
       "'A;C' sur SQL Server, NULL sur Snowflake",
-      "NULL partout",
-      "'A;;C' partout"
+      "NULL sur SQL Server et sur Snowflake",
+      "'A;;C' sur SQL Server, NULL sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake renvoie NULL dès qu'un argument est NULL.",
       "Oui. SQL Server ignore les NULL. Snowflake : enveloppe chaque valeur dans COALESCE (et gère le séparateur).",
       "Non. SQL Server ignore les NULL.",
-      "Non. Le NULL n'est pas remplacé par du vide."
+      "Non. SQL Server ignore les NULL : pas de double séparateur."
     ],
     retenir: "CONCAT_WS + NULL : ignoré par SQL Server, fatal sur Snowflake."
   },
@@ -741,17 +741,17 @@ LEARNSQL.questions.m03 = [
     q: "Un export CSV est cassé : des libellés contiennent des retours à la ligne. Comment les enlever ?",
     choixCode: true,
     choix: [
-      "TRIM(libelle)",
+      "REPLACE(libelle, CHAR(13) + CHAR(10), ' ')",
       "REPLACE(REPLACE(libelle, CHAR(13), ' '), CHAR(10), ' ')",
-      "UPPER(libelle)",
-      "LEFT(libelle, 100)"
+      "REPLACE(REPLACE(libelle, CHAR(9), ' '), CHAR(32), ' ')",
+      "TRIM(REPLACE(libelle, CHAR(13), ''))"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. TRIM n'enlève que des espaces aux extrémités.",
+      "Non. Ne remplace que la paire CR + LF : un saut de ligne seul (CHAR(10)) reste.",
       "Oui. CHAR(13) = retour chariot, CHAR(10) = saut de ligne. On les remplace par un espace.",
-      "Non.",
-      "Non."
+      "Non. CHAR(9) = tabulation, CHAR(32) = espace : les retours à la ligne restent.",
+      "Non. Les sauts de ligne CHAR(10) restent."
     ],
     retenir: "Caractères invisibles : CHAR(13), CHAR(10), CHAR(9) (tabulation)."
   },
@@ -868,15 +868,15 @@ LEARNSQL.questions.m03 = [
     id: "m03-q48", dialecte: "SQL Server",
     q: "Que penser de FORMAT(montant, 'N2', 'fr-FR') dans une requête de 5 millions de lignes ?",
     choix: [
-      "Parfait, c'est rapide",
-      "Le résultat est joli ('1 234,50') mais FORMAT est lent, et renvoie du texte. Formate plutôt dans l'outil de restitution",
-      "Erreur : 'fr-FR' n'existe pas",
-      "Il arrondit à l'entier"
+      "Parfait : FORMAT est rapide et pratique",
+      "Lent, et renvoie du texte : formate dans l'outil",
+      "Erreur : la culture 'fr-FR' n'existe pas sur SQL Server",
+      "Il arrondit à l'entier : les centimes sont perdus"
     ],
     bonne: 1,
     pourquoi: [
       "Non. FORMAT passe par .NET : très lent sur de gros volumes.",
-      "Oui. Et un texte ne se trie plus comme un nombre. Laisse Power BI ou Excel formater.",
+      "Oui. FORMAT passe par .NET : très lent sur des millions de lignes. Et un texte ne se trie plus comme un nombre. Laisse Power BI ou Excel formater.",
       "Non. La culture 'fr-FR' existe.",
       "Non. N2 = 2 décimales."
     ],
@@ -906,17 +906,17 @@ LEARNSQL.questions.m03 = [
     q: "Une date est stockée en UTC. Comment l'afficher à l'heure de Paris (heure d'été comprise) ?",
     choixCode: true,
     choix: [
-      "DATEADD(hour, 1, d)",
+      "d AT TIME ZONE 'Romance Standard Time' AT TIME ZONE 'UTC'",
       "d AT TIME ZONE 'UTC' AT TIME ZONE 'Romance Standard Time'",
-      "CONVERT(datetime, d, 103)",
-      "d + '01:00'"
+      "SWITCHOFFSET(CAST(d AS datetimeoffset), '+01:00')",
+      "DATEADD(hour, 1, d) AT TIME ZONE 'Romance Standard Time'"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Faux pendant l'heure d'été (+2 h).",
+      "Non. C'est l'inverse : on dit que d est à l'heure de Paris, puis on le convertit en UTC.",
       "Oui. On dit d'abord que d est en UTC, puis on convertit vers le fuseau de Paris (nom Windows). L'heure d'été est gérée.",
-      "Non. 103 est un format d'affichage.",
-      "Non."
+      "Non. Décalage fixe de +1 h : faux pendant l'heure d'été (+2 h).",
+      "Non. On ajoute 1 h à la main, puis on colle le fuseau : faux en été."
     ],
     retenir: "Fuseaux horaires : AT TIME ZONE (SQL Server 2016+)."
   },
@@ -926,16 +926,16 @@ LEARNSQL.questions.m03 = [
     choixCode: true,
     choix: [
       "CONVERT_TIMEZONE('UTC', 'Europe/Paris', ts)",
-      "ts AT TIME ZONE 'Paris'",
-      "DATEADD(hour, 1, ts)",
-      "TO_TIMESTAMP(ts, 'Paris')"
+      "CONVERT_TIMEZONE('Europe/Paris', 'UTC', ts)",
+      "ts AT TIME ZONE 'Europe/Paris'",
+      "TO_TIMESTAMP_TZ(ts, 'Europe/Paris')"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Fuseau source, fuseau cible, valeur. L'heure d'été est gérée.",
+      "Non. C'est l'inverse : de Paris vers UTC.",
       "Non. Ce n'est pas la syntaxe Snowflake.",
-      "Non. Faux en été.",
-      "Non."
+      "Non. TO_TIMESTAMP_TZ ne convertit pas d'un fuseau à l'autre : son 2e argument est un format."
     ],
     retenir: "Snowflake : CONVERT_TIMEZONE(source, cible, ts)."
   },
@@ -1072,17 +1072,17 @@ LEARNSQL.questions.m03 = [
     q: "Quelle expression donne l'âge exact (en années révolues) au jour @d ?",
     choixCode: true,
     choix: [
-      "DATEDIFF(year, naissance, @d)",
+      "DATEDIFF(year, naissance, @d) - CASE WHEN DATEADD(year, DATEDIFF(year, naissance, @d), naissance) < @d THEN 1 ELSE 0 END",
       "DATEDIFF(year, naissance, @d) - CASE WHEN DATEADD(year, DATEDIFF(year, naissance, @d), naissance) > @d THEN 1 ELSE 0 END",
       "DATEDIFF(day, naissance, @d) / 365",
       "YEAR(@d) - YEAR(naissance)"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Faux si l'anniversaire n'est pas encore passé cette année.",
+      "Non. Le test est inversé : on retire 1 quand l'anniversaire est déjà passé.",
       "Oui. On retire 1 si l'anniversaire de l'année n'est pas encore arrivé.",
       "Non. Faux à cause des années bissextiles.",
-      "Non. Même erreur que DATEDIFF(year)."
+      "Non. Même erreur que DATEDIFF(year) : l'anniversaire n'est peut-être pas passé."
     ],
     retenir: "Âge / ancienneté : corrige DATEDIFF(year) si la date anniversaire n'est pas passée."
   },
@@ -1090,16 +1090,16 @@ LEARNSQL.questions.m03 = [
     id: "m03-q60", dialecte: "SQL Server",
     q: "DATEDIFF(millisecond, d1, d2) renvoie une erreur de dépassement sur un écart d'un mois. Pourquoi ?",
     choix: [
-      "Les millisecondes n'existent pas",
-      "DATEDIFF renvoie un INT, trop petit. Utilise DATEDIFF_BIG",
-      "Il faut DATEADD",
-      "Les dates sont NULL"
+      "Les millisecondes ne sont pas gérées par DATEDIFF",
+      "Un INT est trop petit : DATEDIFF_BIG",
+      "Il faut DATEADD pour les petites unités",
+      "Une des deux dates est NULL, d'où l'erreur"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Un INT dépasse après environ 24 jours en millisecondes. DATEDIFF_BIG renvoie un BIGINT.",
-      "Non.",
+      "Non. millisecond est une unité valide.",
+      "Oui. DATEDIFF renvoie un INT, qui dépasse après environ 24 jours en millisecondes. DATEDIFF_BIG renvoie un BIGINT.",
+      "Non. DATEADD ajoute une durée, il ne calcule pas un écart.",
       "Non. Avec NULL, le résultat serait NULL, pas une erreur."
     ],
     retenir: "Grands écarts en petites unités : DATEDIFF_BIG."
@@ -1255,17 +1255,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q69", dialecte: "SQL Server",
     q: "Que renvoie SELECT 'Cde ' + 42; sur SQL Server ?",
     choix: [
-      "'Cde 42'",
-      "Erreur : impossible de convertir 'Cde ' en entier",
-      "42",
-      "NULL"
+      "'Cde 42' : le nombre est collé au texte",
+      "Une erreur de conversion",
+      "42 : le texte est simplement ignoré",
+      "NULL, car les types sont différents"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Avec +, l'entier est prioritaire.",
-      "Oui. SQL Server essaie de transformer 'Cde ' en nombre. Utilise CONCAT, ou CAST(42 AS varchar(10)).",
-      "Non.",
-      "Non."
+      "Oui. Avec +, l'entier est prioritaire : SQL Server essaie de transformer 'Cde ' en nombre. Utilise CONCAT, ou CAST(42 AS varchar(10)).",
+      "Non. SQL Server n'ignore pas le texte : il essaie de le convertir.",
+      "Non. Il y a une erreur, pas un NULL."
     ],
     retenir: "Texte + nombre avec + : risque d'erreur. CONCAT est plus sûr."
   },
@@ -1291,10 +1291,10 @@ LEARNSQL.questions.m03 = [
     id: "m03-q71", dialecte: "SQL Server",
     q: "Que renvoie CAST(123456.78 AS decimal(5,2)) ?",
     choix: [
-      "123.45",
-      "999.99",
+      "123.45 (coupé à 5 chiffres)",
+      "999.99 (la valeur maximale)",
       "Une erreur de dépassement",
-      "NULL"
+      "NULL, car la valeur ne tient pas"
     ],
     bonne: 2,
     pourquoi: [
@@ -1381,17 +1381,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q76", dialecte: "SQL Server",
     q: "Pourquoi éviter le type MONEY de SQL Server pour les calculs ?",
     choix: [
-      "Il est trop gros",
-      "Il n'a que 4 décimales : divisions et calculs en chaîne peuvent donner des arrondis faux",
-      "Il n'accepte pas l'euro",
-      "Il est réservé aux banques"
+      "Il prend trop de place sur le disque",
+      "Ses 4 décimales faussent certains calculs",
+      "Il n'accepte pas le symbole de l'euro",
+      "Il est réservé aux applications bancaires"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. Les résultats intermédiaires sont arrondis à 4 décimales. DECIMAL avec une précision choisie est plus sûr.",
+      "Non. 8 octets, comme un BIGINT.",
+      "Oui. Les résultats intermédiaires (divisions, calculs en chaîne) sont arrondis à 4 décimales. DECIMAL avec une précision choisie est plus sûr.",
       "Non. Le type ne connaît pas les devises.",
-      "Non."
+      "Non. N'importe qui peut l'utiliser."
     ],
     retenir: "Montants : DECIMAL plutôt que MONEY."
   },
@@ -1399,16 +1399,16 @@ LEARNSQL.questions.m03 = [
     id: "m03-q77", dialecte: "SQL Server",
     q: "Que donne SELECT 2147483647 + 1; ?",
     choix: [
-      "2147483648",
+      "2147483648, sans problème",
       "Une erreur de dépassement (INT)",
-      "0",
-      "-2147483648"
+      "0, le compteur repart à zéro",
+      "-2147483648, le nombre « boucle »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le résultat ne tient pas dans un INT.",
       "Oui. 2 147 483 647 est le plus grand INT. Pour plus grand : BIGINT.",
-      "Non.",
+      "Non. SQL Server ne repart pas à zéro : il signale l'erreur.",
       "Non. SQL Server ne « boucle » pas : il signale l'erreur."
     ],
     retenir: "INT max ≈ 2,1 milliards. Au-delà : BIGINT."
@@ -1418,17 +1418,17 @@ LEARNSQL.questions.m03 = [
     q: "Que se passe-t-il quand stock vaut NULL ?",
     code: "SELECT CASE WHEN stock IS NULL THEN 'N/A' ELSE stock END\nFROM article;   -- stock est un INT",
     choix: [
-      "Ça affiche 'N/A'",
-      "Erreur : impossible de convertir 'N/A' en INT",
-      "Ça affiche NULL",
-      "Ça affiche 0"
+      "Ça affiche 'N/A' pour les stocks inconnus",
+      "Erreur : 'N/A' n'est pas un INT",
+      "Ça affiche NULL, car 'N/A' est ignoré",
+      "Ça affiche 0 à la place de 'N/A'"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un CASE n'a qu'un seul type de résultat.",
-      "Oui. Le type le plus fort (INT) l'emporte. Écris ELSE CAST(stock AS varchar(10)).",
-      "Non.",
-      "Non."
+      "Oui. Un CASE n'a qu'un type de résultat : le plus fort (INT) l'emporte. Écris ELSE CAST(stock AS varchar(10)).",
+      "Non. Il y a une erreur.",
+      "Non. Il y a une erreur."
     ],
     retenir: "Toutes les branches d'un CASE doivent être du même type."
   },
@@ -1438,15 +1438,15 @@ LEARNSQL.questions.m03 = [
     choix: [
       "'inconnu'",
       "Erreur de conversion",
-      "NULL",
-      "0"
+      "NULL, car qte est NULL",
+      "0, la valeur par défaut d'un INT"
     ],
     bonne: 1,
     pourquoi: [
       "Non. COALESCE renvoie le type le plus fort de ses arguments : INT.",
       "Oui. 'inconnu' doit devenir un INT : impossible. Convertis qte en texte d'abord.",
-      "Non.",
-      "Non."
+      "Non. COALESCE essaie bien de remplacer le NULL : c'est là que ça plante.",
+      "Non. Un INT n'a pas de valeur par défaut ici."
     ],
     retenir: "COALESCE : arguments de types compatibles."
   },
@@ -1491,17 +1491,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q82", dialecte: "SQL Server + Snowflake",
     q: "Que renvoie GREATEST(10, NULL, 30) ?",
     choix: [
-      "30 partout",
+      "30 sur SQL Server 2022 et sur Snowflake",
       "30 sur SQL Server 2022, NULL sur Snowflake",
-      "NULL partout",
-      "Une erreur partout"
+      "NULL sur SQL Server 2022 et sur Snowflake",
+      "NULL sur SQL Server 2022, 30 sur Snowflake"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Snowflake renvoie NULL dès qu'un argument est NULL.",
       "Oui. SQL Server 2022 ignore les NULL. Snowflake non : protège avec COALESCE.",
       "Non. SQL Server ignore les NULL.",
-      "Non. GREATEST existe sur les deux (SQL Server depuis 2022)."
+      "Non. C'est l'inverse."
     ],
     retenir: "GREATEST / LEAST + NULL : ignoré (SQL Server), contagieux (Snowflake)."
   },
@@ -1527,17 +1527,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q84", dialecte: "SQL Server + Snowflake",
     q: "Tu veux détecter si une ligne a changé entre deux chargements, sans comparer 30 colonnes une par une. Quelle technique ?",
     choix: [
-      "Comparer les longueurs",
-      "Calculer une empreinte (hash) des colonnes : HASHBYTES('SHA2_256', …) sur SQL Server, SHA2() ou HASH() sur Snowflake",
-      "Comparer les id",
-      "Comparer les dates de création"
+      "Comparer la longueur totale des colonnes",
+      "Comparer une empreinte (hash) des colonnes",
+      "Comparer les id des lignes entre les deux chargements",
+      "Comparer les dates de création des lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Deux valeurs différentes peuvent avoir la même longueur.",
-      "Oui. Même empreinte = mêmes données (en pratique). Pense à gérer les NULL et les séparateurs dans la concaténation.",
+      "Oui. HASHBYTES('SHA2_256', …) sur SQL Server, SHA2() ou HASH() sur Snowflake. Même empreinte = mêmes données (en pratique). Pense à gérer les NULL et les séparateurs dans la concaténation.",
       "Non. L'id ne change pas quand les données changent.",
-      "Non."
+      "Non. La date de création ne change pas quand on modifie la ligne."
     ],
     retenir: "Détection de changement : comparer des empreintes (hash)."
   },
@@ -1546,34 +1546,34 @@ LEARNSQL.questions.m03 = [
     q: "Comment générer un identifiant unique (GUID) ?",
     choix: [
       "NEWID() sur SQL Server, UUID_STRING() sur Snowflake",
-      "RAND() partout",
-      "ROW_NUMBER() partout",
-      "GETDATE() partout"
+      "RAND() sur SQL Server, RANDOM() sur Snowflake",
+      "ROW_NUMBER() sur SQL Server et sur Snowflake",
+      "UUID_STRING() sur SQL Server, NEWID() sur Snowflake"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une nouvelle valeur unique à chaque appel, sur chaque ligne.",
-      "Non. RAND n'est pas unique.",
+      "Non. Un nombre aléatoire n'est pas garanti unique.",
       "Non. ROW_NUMBER n'est unique que dans la requête.",
-      "Non. Plusieurs lignes ont la même date."
+      "Non. C'est l'inverse."
     ],
     retenir: "GUID : NEWID() (SQL Server), UUID_STRING() (Snowflake)."
   },
   {
     id: "m03-q86", dialecte: "Standard",
-    q: "Un SIRET '00123456700018' est converti en entier. Que se passe-t-il ?",
+    q: "Un SIRET '00123456700018' est converti en BIGINT. Que se passe-t-il ?",
     choix: [
-      "Rien de grave",
-      "Les zéros du début disparaissent : 123456700018",
-      "Erreur",
-      "Il devient NULL"
+      "Rien : le SIRET reste le même",
+      "Les zéros du début disparaissent",
+      "Erreur : le nombre est trop grand",
+      "Il devient NULL, car il commence par 0"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le code est abîmé.",
-      "Oui. Un nombre n'a pas de zéros devant. Les identifiants (SIRET, code postal, EAN) se stockent en texte.",
-      "Non. La conversion marche… et c'est le problème.",
-      "Non."
+      "Oui. On obtient 123456700018 : un nombre n'a pas de zéros devant. Les identifiants (SIRET, code postal, EAN) se stockent en texte.",
+      "Non. Il tient dans un BIGINT. La conversion marche… et c'est le problème.",
+      "Non. La conversion réussit."
     ],
     retenir: "Un code n'est pas un nombre : stocke-le en texte."
   },
@@ -1619,15 +1619,15 @@ LEARNSQL.questions.m03 = [
     id: "m03-q89", dialecte: "SQL Server",
     q: "Sur SQL Server, FORMAT(d, 'dd/mm/yyyy') affiche '26/05/2026' pour le 26 octobre à 14:05. Pourquoi ?",
     choix: [
-      "Bug de SQL Server",
-      "En format .NET, mm = minutes. Le mois s'écrit MM",
-      "La date est fausse",
-      "Il faut 'fr-FR'"
+      "Un bug de SQL Server avec les dates",
+      "mm = minutes ; le mois s'écrit MM",
+      "La date stockée en base est fausse",
+      "Il manque la culture 'fr-FR'"
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
-      "Oui. 'dd/MM/yyyy' : MM majuscules pour le mois. Piège inverse de Snowflake !",
+      "Non. C'est le comportement normal.",
+      "Oui. En format .NET, mm = minutes. Écris 'dd/MM/yyyy' : MM majuscules pour le mois. Piège inverse de Snowflake !",
       "Non. 05 = les minutes.",
       "Non. La culture ne change pas ce code."
     ],
@@ -1692,17 +1692,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q93", dialecte: "Standard",
     q: "Comment compter les jours ouvrés (sans week-ends ni jours fériés) entre deux dates ?",
     choix: [
-      "DATEDIFF(weekday, d1, d2)",
-      "Avec une table calendrier qui indique les jours ouvrés, et un COUNT",
-      "DATEDIFF(day, d1, d2) * 5 / 7",
-      "Impossible en SQL"
+      "DATEDIFF(weekday, d1, d2), qui saute les week-ends",
+      "Avec une table calendrier et un COUNT",
+      "DATEDIFF(day, d1, d2) * 5 / 7, arrondi",
+      "Impossible en SQL, il faut Excel"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. weekday ne compte pas les jours ouvrés.",
-      "Oui. La table calendrier (une ligne par jour, avec est_ouvre) gère aussi les fériés et les ponts.",
+      "Non. weekday compte des jours, sans sauter les week-ends ni les fériés.",
+      "Oui. La table calendrier (une ligne par jour, avec une colonne est_ouvre) gère aussi les fériés et les ponts.",
       "Non. Approximation fausse.",
-      "Non."
+      "Non. Une table calendrier le fait très bien."
     ],
     retenir: "Jours ouvrés : table calendrier."
   },
@@ -1729,17 +1729,17 @@ LEARNSQL.questions.m03 = [
     q: "Un fichier donne '1.234,50' (format français avec séparateur de milliers). Comment obtenir '1234.50' avant conversion ?",
     choixCode: true,
     choix: [
-      "REPLACE(x, ',', '.')",
+      "REPLACE(REPLACE(x, ',', '.'), '.', '')",
       "REPLACE(REPLACE(x, '.', ''), ',', '.')",
-      "REPLACE(x, '.', ',')",
-      "TRIM(x)"
+      "REPLACE(REPLACE(x, '.', ','), ',', '.')",
+      "REPLACE(x, '.', '')"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Ça donne '1.234.50' : invalide.",
+      "Non. Mauvais ordre : la virgule devient un point, puis tous les points sont supprimés : '123450'.",
       "Oui. D'abord on enlève les points des milliers, ensuite la virgule devient un point. L'ordre compte !",
-      "Non.",
-      "Non."
+      "Non. Les points deviennent des virgules, puis toutes les virgules des points : '1.234.50'.",
+      "Non. Il reste la virgule : '1234,50'."
     ],
     retenir: "Format français : enlever les milliers, puis virgule → point."
   },
@@ -1784,17 +1784,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q98", dialecte: "SQL Server",
     q: "Pour 'PISCINE' (sans tiret), que donne LEFT(code, CHARINDEX('-', code) - 1) ?",
     choix: [
-      "'PISCINE'",
-      "''",
+      "'PISCINE' : tout le texte",
+      "'' : un texte vide, sans erreur",
       "Une erreur : longueur négative",
-      "NULL"
+      "NULL, car le tiret est absent"
     ],
     bonne: 2,
     pourquoi: [
-      "Non.",
-      "Non.",
+      "Non. LEFT reçoit -1 : ce n'est pas valide.",
+      "Non. LEFT reçoit -1 : ce n'est pas valide.",
       "Oui. CHARINDEX vaut 0, donc LEFT(code, -1) : erreur. Protège : CASE WHEN CHARINDEX(…) > 0 …",
-      "Non."
+      "Non. Il y a une erreur."
     ],
     retenir: "CHARINDEX peut renvoyer 0 : protège les LEFT / SUBSTRING qui l'utilisent."
   },
@@ -1821,17 +1821,17 @@ LEARNSQL.questions.m03 = [
     id: "m03-q100", dialecte: "SQL Server",
     q: "Pourquoi COALESCE((SELECT … sous-requête lourde …), 0) peut-il être plus lent que prévu sur SQL Server ?",
     choix: [
-      "COALESCE est toujours lent",
-      "COALESCE est transformé en CASE : la sous-requête peut être exécutée deux fois",
-      "Le 0 force un scan",
-      "Il n'y a aucune différence"
+      "COALESCE est toujours plus lent qu'ISNULL",
+      "La sous-requête peut s'exécuter deux fois",
+      "Le 0 force un parcours complet de la table",
+      "Aucune différence avec ISNULL, jamais"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas sur des colonnes simples.",
-      "Oui. CASE WHEN (sous-requête) IS NOT NULL THEN (sous-requête) ELSE 0. ISNULL n'a pas ce défaut.",
-      "Non.",
-      "Non."
+      "Oui. COALESCE est transformé en CASE : CASE WHEN (sous-requête) IS NOT NULL THEN (sous-requête) ELSE 0 END. ISNULL n'a pas ce défaut.",
+      "Non. Le 0 n'a aucun effet sur la lecture.",
+      "Non. Il y a une différence avec une sous-requête."
     ],
     retenir: "COALESCE + sous-requête : risque de double exécution. ISNULL ou variable."
   }
