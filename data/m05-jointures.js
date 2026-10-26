@@ -506,5 +506,1177 @@ LEARNSQL.questions.m05 = [
       "Non. C'est permis partout."
     ],
     retenir: "OR dans un ON : valide mais lent. Pense à UNION ou à deux jointures."
+  },
+  {
+    id: "m05-q31", dialecte: "Standard",
+    q: "Tu écris seulement JOIN, sans préciser le type. De quelle jointure s'agit-il ?",
+    choix: ["LEFT JOIN", "INNER JOIN", "FULL JOIN", "CROSS JOIN"],
+    bonne: 1,
+    pourquoi: [
+      "Non. LEFT doit être écrit.",
+      "Oui. JOIN seul = INNER JOIN. Écris INNER pour être clair.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "JOIN = INNER JOIN."
+  },
+  {
+    id: "m05-q32", dialecte: "Standard",
+    q: "LEFT OUTER JOIN et LEFT JOIN sont-ils différents ?",
+    choix: ["Oui, OUTER garde plus de lignes", "Non, c'est la même chose", "Oui, OUTER est plus rapide", "Oui, sur Snowflake"],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. OUTER est facultatif. Pareil pour RIGHT et FULL.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "LEFT JOIN = LEFT OUTER JOIN."
+  },
+  {
+    id: "m05-q33", dialecte: "Standard",
+    q: "Pour chaque ligne de commande, tu veux le nom du client et le libellé de l'article. Quelles jointures ?",
+    choix: [
+      "ligne_cde → article seulement",
+      "ligne_cde → commande → client, et ligne_cde → article",
+      "client → article directement",
+      "Un CROSS JOIN entre les 4 tables"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le client est sur la commande, pas sur la ligne.",
+      "Oui. On suit les clés : la ligne connaît sa commande et son article ; la commande connaît son client.",
+      "Non. Il n'y a pas de lien direct client-article.",
+      "Non."
+    ],
+    retenir: "Pour joindre, suis le chemin des clés étrangères."
+  },
+  {
+    id: "m05-q34", dialecte: "Standard",
+    q: "Que donne SELECT id FROM client cl JOIN commande co ON co.client_id = cl.id; ?",
+    choix: [
+      "Les id des clients",
+      "Erreur : nom de colonne ambigu « id »",
+      "Les id des commandes",
+      "Les deux colonnes id"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le moteur ne choisit pas pour toi.",
+      "Oui. Les deux tables ont une colonne id. Préfixe : cl.id ou co.id.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Avec plusieurs tables, préfixe chaque colonne par son alias."
+  },
+  {
+    id: "m05-q35", dialecte: "Standard",
+    q: "Tu écris par erreur ON co.id = cl.id au lieu de ON co.client_id = cl.id. Que se passe-t-il ?",
+    choix: [
+      "Une erreur",
+      "Aucune erreur, mais des associations fausses : la commande n° 5 est reliée au client n° 5",
+      "Aucune ligne",
+      "Le moteur corrige"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les deux colonnes existent et ont le même type.",
+      "Oui. Bug silencieux et dangereux. Relis toujours tes ON.",
+      "Non. Il y aura des correspondances, mais fausses.",
+      "Non."
+    ],
+    retenir: "Un mauvais ON ne fait pas d'erreur : il donne des résultats faux."
+  },
+  {
+    id: "m05-q36", dialecte: "Standard",
+    q: "Pour trouver les clients sans commande, tu écris LEFT JOIN … WHERE co.date_livraison IS NULL. Quel est le problème ?",
+    choix: [
+      "Aucun",
+      "date_livraison peut être NULL même quand la commande existe : tu ramènes aussi des clients qui ont des commandes non livrées",
+      "Erreur de syntaxe",
+      "IS NULL ne marche pas après un LEFT JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Teste une colonne qui ne peut pas être NULL quand la ligne existe : la clé (co.id).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Anti-jointure : teste IS NULL sur la clé de droite, pas sur une colonne facultative."
+  },
+  {
+    id: "m05-q37", dialecte: "Standard",
+    q: "client LEFT JOIN commande LEFT JOIN ligne_cde : que deviennent les clients sans commande ?",
+    choix: ["Ils disparaissent", "Ils restent, avec des NULL pour la commande et les lignes", "Ils apparaissent en double", "Erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Que des LEFT : rien ne les retire.",
+      "Oui. Une chaîne de LEFT JOIN garde la table de départ.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Chaîne de LEFT JOIN = la 1re table est toujours complète."
+  },
+  {
+    id: "m05-q38", dialecte: "SQL Server",
+    q: "Tu veux tous les clients, avec leurs commandes QUI ONT au moins une ligne. Quelle écriture garde bien tous les clients ?",
+    choixCode: true,
+    choix: [
+      "client cl LEFT JOIN commande co ON … INNER JOIN ligne_cde li ON li.cde_id = co.id",
+      "client cl LEFT JOIN (commande co INNER JOIN ligne_cde li ON li.cde_id = co.id) ON co.client_id = cl.id",
+      "client cl INNER JOIN commande co ON … LEFT JOIN ligne_cde li ON …",
+      "client cl CROSS JOIN commande co"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. L'INNER JOIN final retire les clients sans commande.",
+      "Oui. Les parenthèses font d'abord la jointure interne commande-ligne, puis le LEFT JOIN depuis client. Une CTE fait la même chose, plus lisiblement.",
+      "Non. Le 1er INNER JOIN retire les clients sans commande.",
+      "Non."
+    ],
+    retenir: "Jointure interne « à l'intérieur » d'un LEFT : parenthèses ou CTE."
+  },
+  {
+    id: "m05-q39", dialecte: "Standard",
+    q: "Tu veux créer une ligne de stock à 0 pour chaque article dans chaque dépôt. Quelle jointure ?",
+    choix: ["INNER JOIN", "LEFT JOIN", "CROSS JOIN article × depot", "FULL JOIN"],
+    bonne: 2,
+    pourquoi: [
+      "Non. Il n'y a pas de clé commune.",
+      "Non.",
+      "Oui. Toutes les combinaisons article × dépôt.",
+      "Non."
+    ],
+    retenir: "Générer toutes les combinaisons : CROSS JOIN."
+  },
+  {
+    id: "m05-q40", dialecte: "Standard",
+    q: "Un CROSS JOIN entre deux tables de 10 000 lignes renvoie combien de lignes ?",
+    choix: ["20 000", "10 000", "100 millions", "1 million"],
+    bonne: 2,
+    pourquoi: [
+      "Non. On multiplie, on n'additionne pas.",
+      "Non.",
+      "Oui. 10 000 × 10 000. Un CROSS JOIN oublié peut bloquer un serveur.",
+      "Non."
+    ],
+    retenir: "CROSS JOIN = produit des tailles. Attention aux volumes."
+  },
+  {
+    id: "m05-q41", dialecte: "Standard",
+    q: "Tu cherches les paires d'articles achetés dans la même commande. Quelle auto-jointure ?",
+    choixCode: true,
+    choix: [
+      "l1.cde_id = l2.cde_id",
+      "l1.cde_id = l2.cde_id AND l1.article < l2.article",
+      "l1.article = l2.article",
+      "l1.cde_id <> l2.cde_id"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Chaque article serait associé à lui-même, et chaque paire apparaîtrait deux fois.",
+      "Oui. Même commande, et article1 < article2 : chaque paire une seule fois.",
+      "Non. Ça relie les ventes du même article.",
+      "Non."
+    ],
+    retenir: "Paires uniques : même groupe + a < b."
+  },
+  {
+    id: "m05-q42", dialecte: "Standard",
+    q: "Tu joins commande et tarif ON co.date_cde BETWEEN t.debut AND t.fin. Certaines commandes apparaissent deux fois. Pourquoi ?",
+    choix: [
+      "BETWEEN est buggé",
+      "Des périodes de tarif se chevauchent : la date tombe dans deux tarifs",
+      "Les dates sont NULL",
+      "Il manque DISTINCT"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Contrôle les chevauchements (début1 <= fin2 AND début2 <= fin1) dans la table des tarifs.",
+      "Non. Une date NULL ne joindrait rien.",
+      "Non. DISTINCT cacherait le problème."
+    ],
+    retenir: "Jointure sur période : les périodes ne doivent pas se chevaucher."
+  },
+  {
+    id: "m05-q43", dialecte: "SQL Server",
+    q: "Que penser de ON a.libelle LIKE '%' + m.mot_cle + '%' ?",
+    choix: [
+      "Interdit",
+      "Permis, mais très lent sur de gros volumes : chaque ligne est comparée à chaque mot-clé",
+      "Aussi rapide qu'une égalité",
+      "Ça ne marche qu'en LEFT JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est valide.",
+      "Oui. Pas d'index possible. Pour du volume : précalculer une table de correspondance.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Jointure LIKE : possible, mais lente."
+  },
+  {
+    id: "m05-q44", dialecte: "Standard",
+    q: "Quel est le défaut de ON LEFT(a.code, 6) = b.code ?",
+    choix: [
+      "Aucun",
+      "La fonction sur la colonne empêche l'utilisation de l'index sur a.code",
+      "Erreur de syntaxe",
+      "Ça fait un CROSS JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Même règle que dans WHERE. Mieux : stocker le code à 6 caractères dans une colonne (calculée et indexée).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Pas de fonction sur les colonnes de jointure (si possible)."
+  },
+  {
+    id: "m05-q45", dialecte: "SQL Server + Snowflake",
+    q: "Des codes ont un espace à la fin dans une table ('A1 ') et pas dans l'autre ('A1'). La jointure marche sur SQL Server. Et après migration sur Snowflake ?",
+    choix: ["Elle marche aussi", "Elle ne trouve plus ces correspondances", "Erreur", "Elle double les lignes"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Snowflake compte les espaces de fin.",
+      "Oui. 'A1 ' ≠ 'A1' sur Snowflake. Nettoie avec TRIM au chargement.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Migration : TRIM des clés texte, sinon jointures perdues."
+  },
+  {
+    id: "m05-q46", dialecte: "Snowflake",
+    q: "Sur Snowflake, la table A a le code 'abc12', la table B 'ABC12'. La jointure ON a.code = b.code les relie-t-elle ?",
+    choix: ["Oui", "Non", "Seulement en LEFT JOIN", "Seulement avec USING"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Snowflake est sensible à la casse.",
+      "Oui, elle ne les relie pas. Normalise avec UPPER au chargement (ou dans le ON, mais c'est plus lent).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Snowflake : casse différente = pas de jointure."
+  },
+  {
+    id: "m05-q47", dialecte: "Standard",
+    q: "Quelle requête donne les id des clients sans commande ?",
+    choixCode: true,
+    choix: [
+      "SELECT id FROM client INTERSECT SELECT client_id FROM commande",
+      "SELECT id FROM client EXCEPT SELECT client_id FROM commande",
+      "SELECT id FROM client UNION SELECT client_id FROM commande",
+      "SELECT client_id FROM commande EXCEPT SELECT id FROM client"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ceux qui ont des commandes.",
+      "Oui. Les id de client, moins ceux qui apparaissent dans commande. Pas de piège NULL.",
+      "Non.",
+      "Non. Ce sont les commandes orphelines (client inexistant)."
+    ],
+    retenir: "Anti-jointure sur des clés : EXCEPT marche aussi."
+  },
+  {
+    id: "m05-q48", dialecte: "Standard",
+    q: "client LEFT JOIN commande … WHERE co.id IS NOT NULL équivaut à quoi ?",
+    choix: ["Un LEFT JOIN", "Un INNER JOIN", "Un CROSS JOIN", "Une anti-jointure"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les clients sans commande sont retirés.",
+      "Oui. On ne garde que les lignes qui ont une correspondance : c'est un INNER JOIN, en plus compliqué.",
+      "Non.",
+      "Non. Ce serait IS NULL."
+    ],
+    retenir: "LEFT JOIN + IS NOT NULL à droite = INNER JOIN."
+  },
+  {
+    id: "m05-q49", dialecte: "Standard",
+    q: "Que renvoie cette requête ?",
+    code: "SELECT cl.nom, co.num_cde\nFROM client cl\nLEFT JOIN commande co\n  ON co.client_id = cl.id\n AND cl.pays = 'FR';",
+    choix: [
+      "Seulement les clients français",
+      "TOUS les clients ; seuls les français ont leurs commandes, les autres ont NULL",
+      "Une erreur",
+      "Les commandes françaises seulement"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Piège : une condition sur la table de GAUCHE dans le ON ne filtre pas la gauche.",
+      "Oui. Le LEFT JOIN garde toutes les lignes de gauche. Pour filtrer les clients : WHERE cl.pays = 'FR'.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "LEFT JOIN : filtre de gauche dans WHERE, filtre de droite dans ON."
+  },
+  {
+    id: "m05-q50", dialecte: "Standard",
+    q: "erp FULL OUTER JOIN edi … WHERE edi.statut = 'RECU'. Que deviennent les commandes présentes seulement dans l'ERP ?",
+    choix: ["Elles restent", "Elles disparaissent", "Elles sont doublées", "Erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Pour elles, edi.statut est NULL : le WHERE les retire.",
+      "Oui. Le FULL JOIN perd une partie de son intérêt. Mets la condition dans le ON, ou ajoute OR edi.num IS NULL.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "FULL JOIN + WHERE sur un côté = lignes de l'autre côté perdues."
+  },
+  {
+    id: "m05-q51", dialecte: "Standard",
+    q: "Rapprochement ERP / EDI : tu veux les manquants ET les montants différents. Quel filtre après le FULL OUTER JOIN ?",
+    choixCode: true,
+    choix: [
+      "WHERE e.montant <> d.montant",
+      "WHERE e.num IS NULL OR d.num IS NULL OR e.montant <> d.montant",
+      "WHERE e.num = d.num",
+      "WHERE e.montant = d.montant"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les manquants ont un montant NULL : <> les élimine.",
+      "Oui. Manquant d'un côté, manquant de l'autre, ou écart de montant.",
+      "Non. Ce sont les correspondances.",
+      "Non. Ce sont les lignes identiques."
+    ],
+    retenir: "Rapprochement complet : manquants des deux côtés + écarts."
+  },
+  {
+    id: "m05-q52", dialecte: "Standard",
+    q: "La table libelle_article a une ligne par langue (FR, EN, DE). Comment obtenir le libellé français sans dupliquer les articles ?",
+    choixCode: true,
+    choix: [
+      "JOIN libelle_article l ON l.article_id = a.id",
+      "LEFT JOIN libelle_article l ON l.article_id = a.id AND l.langue = 'FR'",
+      "JOIN libelle_article l ON l.langue = 'FR'",
+      "SELECT DISTINCT …"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. 3 lignes par article.",
+      "Oui. La langue dans le ON : une seule correspondance. LEFT pour garder les articles sans libellé FR.",
+      "Non. Il manque le lien avec l'article : quasi CROSS JOIN.",
+      "Non. Ça cache le problème."
+    ],
+    retenir: "Table de référence multi-lignes : complète la clé dans le ON."
+  },
+  {
+    id: "m05-q53", dialecte: "Standard",
+    q: "La table prix_achat garde l'historique des prix par article. Tu veux le DERNIER prix de chaque article. Quelle méthode ?",
+    choix: [
+      "JOIN prix_achat ON article_id",
+      "Numéroter avec ROW_NUMBER() OVER (PARTITION BY article_id ORDER BY date_prix DESC) et garder 1",
+      "MAX(prix)",
+      "DISTINCT article_id"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Tous les prix historiques sont ramenés.",
+      "Oui. Ou OUTER APPLY (SELECT TOP (1) … ORDER BY date_prix DESC) sur SQL Server.",
+      "Non. Le plus haut prix, pas le dernier.",
+      "Non."
+    ],
+    retenir: "Dernière valeur d'un historique : ROW_NUMBER ou APPLY TOP (1)."
+  },
+  {
+    id: "m05-q54", dialecte: "SQL Server",
+    q: "Que fait cette requête ?",
+    code: "SELECT a.code, p.prix\nFROM article a\nOUTER APPLY (\n  SELECT TOP (1) prix\n  FROM prix_achat x\n  WHERE x.article_id = a.id\n  ORDER BY x.date_prix DESC\n) p;",
+    choix: [
+      "Erreur : TOP interdit dans APPLY",
+      "Chaque article avec son dernier prix d'achat, ou NULL s'il n'en a pas",
+      "Seulement les articles avec un prix",
+      "Tous les prix de chaque article"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. TOP + ORDER BY dans APPLY : c'est un usage typique.",
+      "Oui. OUTER APPLY garde les articles sans prix (comme un LEFT JOIN).",
+      "Non. Ce serait CROSS APPLY.",
+      "Non. TOP (1) n'en garde qu'un."
+    ],
+    retenir: "OUTER APPLY + TOP (1) + ORDER BY : la dernière valeur, ligne par ligne."
+  },
+  {
+    id: "m05-q55", dialecte: "Snowflake",
+    q: "Sur Snowflake, à quoi sert LATERAL FLATTEN(input => t.doc:lignes) dans un FROM ?",
+    choix: [
+      "À trier les lignes",
+      "À créer une ligne par élément du tableau JSON « lignes », reliée à sa ligne d'origine",
+      "À supprimer les doublons",
+      "À compresser la table"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. LATERAL veut dire « pour chaque ligne de t ». FLATTEN déplie le tableau.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "LATERAL FLATTEN : déplier un tableau JSON en lignes."
+  },
+  {
+    id: "m05-q56", dialecte: "SQL Server",
+    q: "Une vue fait LEFT JOIN vers une table par sa clé unique. Ta requête n'utilise aucune colonne de cette table. Que peut faire SQL Server ?",
+    choix: [
+      "Rien, il fait la jointure",
+      "Supprimer la jointure du plan : elle ne change ni le nombre de lignes ni le résultat",
+      "Une erreur",
+      "Transformer en INNER JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. L'optimiseur est plus malin.",
+      "Oui. C'est l'élimination de jointure. Pour ça, la clé de droite doit être déclarée unique (PK ou UNIQUE).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Contraintes déclarées = l'optimiseur peut simplifier."
+  },
+  {
+    id: "m05-q57", dialecte: "Standard",
+    q: "Pour joindre sur (societe, num_cde), quelle écriture est la meilleure ?",
+    choixCode: true,
+    choix: [
+      "ON CONCAT(a.societe, '-', a.num_cde) = CONCAT(b.societe, '-', b.num_cde)",
+      "ON a.societe = b.societe AND a.num_cde = b.num_cde",
+      "ON a.num_cde = b.num_cde",
+      "ON a.societe = b.societe"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ça marche, mais les fonctions empêchent les index.",
+      "Oui. Une égalité par colonne de la clé. Clair et rapide.",
+      "Non. Mélange les sociétés.",
+      "Non. Quasi produit cartésien par société."
+    ],
+    retenir: "Clé composée : une égalité par colonne, reliées par AND."
+  },
+  {
+    id: "m05-q58", dialecte: "Standard",
+    q: "Pourquoi éviter de joindre deux tables sur le nom du client ?",
+    choix: [
+      "Le texte est interdit dans un ON",
+      "Homonymes, fautes de frappe, changements de nom : correspondances fausses ou manquées",
+      "C'est plus lent qu'un CROSS JOIN",
+      "Aucune raison"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Joins sur un identifiant stable : id, code client, SIRET.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Joins sur des identifiants, pas sur des libellés."
+  },
+  {
+    id: "m05-q59", dialecte: "Standard",
+    q: "Avant de joindre une table de référence, comment vérifier que la clé y est bien unique ?",
+    choixCode: true,
+    choix: [
+      "SELECT COUNT(*) FROM ref",
+      "SELECT cle, COUNT(*) FROM ref GROUP BY cle HAVING COUNT(*) > 1",
+      "SELECT DISTINCT cle FROM ref",
+      "SELECT MAX(cle) FROM ref"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le total ne dit rien sur les doublons.",
+      "Oui. Si ça renvoie des lignes, la jointure va multiplier tes données.",
+      "Non. Ça cache les doublons.",
+      "Non."
+    ],
+    retenir: "Contrôle avant jointure : GROUP BY clé HAVING COUNT(*) > 1."
+  },
+  {
+    id: "m05-q60", dialecte: "Standard",
+    q: "Des ventes ont un code client inconnu de la table client. Avec un INNER JOIN, le CA total baisse. Bonne pratique en entrepôt de données ?",
+    choix: [
+      "Supprimer ces ventes",
+      "LEFT JOIN, et rattacher les ventes orphelines à un client « Inconnu » pour ne pas perdre de CA",
+      "Ignorer le problème",
+      "Utiliser CROSS JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le CA serait faux.",
+      "Oui. Le total reste juste, et les orphelins sont visibles pour être corrigés.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Ne perds jamais de faits à cause d'une jointure : membre « Inconnu »."
+  },
+  {
+    id: "m05-q61", dialecte: "SQL Server",
+    q: "date_cde est un DATETIME, calendrier.jour une DATE. Comment joindre ?",
+    choixCode: true,
+    choix: [
+      "ON cal.jour = co.date_cde",
+      "ON cal.jour = CAST(co.date_cde AS date)",
+      "ON cal.jour LIKE co.date_cde",
+      "ON DAY(cal.jour) = DAY(co.date_cde)"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Seules les commandes de minuit pile correspondent.",
+      "Oui. On retire l'heure. (Encore mieux : stocker une colonne DATE dans la table de faits.)",
+      "Non.",
+      "Non. Mélange tous les mois."
+    ],
+    retenir: "Datetime vers calendrier : CAST(… AS date)."
+  },
+  {
+    id: "m05-q62", dialecte: "Standard",
+    q: "La dimension client garde l'historique (une ligne par version, avec debut et fin). Comment rattacher une vente à la version du client valable à la date de vente ?",
+    choixCode: true,
+    choix: [
+      "ON d.code = f.client_code",
+      "ON d.code = f.client_code AND f.date_vente >= d.debut AND f.date_vente < d.fin",
+      "ON d.code = f.client_code AND d.actuel = 1",
+      "ON f.date_vente = d.debut"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Une ligne par version : doublons.",
+      "Oui. Le code ET la période de validité. C'est la jointure sur une dimension historisée (SCD type 2).",
+      "Non. Toutes les ventes prennent la version actuelle : l'historique est perdu.",
+      "Non."
+    ],
+    retenir: "Dimension historisée : clé + période de validité dans le ON."
+  },
+  {
+    id: "m05-q63", dialecte: "Standard",
+    q: "Tu veux, par commande, le nombre de lignes et les frais de port, sans doubler les frais. Quelle approche ?",
+    choix: [
+      "Joindre commande et lignes, puis SUM(frais_port) et COUNT(*)",
+      "Compter les lignes dans une sous-requête (GROUP BY cde_id), puis joindre ce résultat à commande",
+      "Utiliser SUM(DISTINCT frais_port)",
+      "Utiliser CROSS JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les frais sont répétés sur chaque ligne.",
+      "Oui. Une ligne par commande de chaque côté : relation 1-1, pas de doublon.",
+      "Non. Deux commandes avec les mêmes frais seraient comptées une fois.",
+      "Non."
+    ],
+    retenir: "Agrège le côté « N » avant de le joindre au côté « 1 »."
+  },
+  {
+    id: "m05-q64", dialecte: "SQL Server",
+    q: "Le plan montre un Nested Loops avec, à l'intérieur, un Scan d'une table de 2 millions de lignes, exécuté 50 000 fois. Que soupçonner ?",
+    choix: [
+      "Tout est normal",
+      "Il manque un index sur la colonne de jointure de la table intérieure",
+      "Il faut ajouter DISTINCT",
+      "La table est trop petite"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. 50 000 lectures complètes : catastrophe.",
+      "Oui. Avec un index, chaque boucle ferait un Seek au lieu d'un Scan.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Nested Loops : la table intérieure doit avoir un index sur la clé de jointure."
+  },
+  {
+    id: "m05-q65", dialecte: "SQL Server",
+    q: "Sur SQL Server, une clé étrangère crée-t-elle automatiquement un index sur la colonne (ex. commande.client_id) ?",
+    choix: ["Oui", "Non : il faut le créer soi-même, et c'est souvent utile pour les jointures", "Oui, un index cluster", "Seulement sur Snowflake"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Seule la clé primaire crée un index automatiquement.",
+      "Oui. Index les colonnes de clés étrangères souvent jointes ou filtrées.",
+      "Non.",
+      "Non. Snowflake n'a pas d'index."
+    ],
+    retenir: "Clé étrangère ≠ index. Pense à indexer les FK."
+  },
+  {
+    id: "m05-q66", dialecte: "Snowflake",
+    q: "Sur Snowflake, une grosse jointure est lente. Quelles pistes sont adaptées ?",
+    choix: [
+      "Créer des index",
+      "Regarder le Query Profile (débordement sur disque, explosion de lignes), filtrer tôt, ou prendre un warehouse plus grand",
+      "Ajouter NOLOCK",
+      "Changer de collation"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Snowflake n'a pas d'index.",
+      "Oui. « Bytes spilled » = mémoire insuffisante : warehouse plus grand. Lignes explosées : vérifier les clés.",
+      "Non. N'existe pas sur Snowflake.",
+      "Non."
+    ],
+    retenir: "Snowflake lent : Query Profile d'abord."
+  },
+  {
+    id: "m05-q67", dialecte: "SQL Server",
+    q: "dbo.f_cdes_client(@id) est une fonction table. Comment l'appeler pour chaque client ?",
+    choixCode: true,
+    choix: [
+      "client JOIN dbo.f_cdes_client(cl.id)",
+      "client cl CROSS APPLY dbo.f_cdes_client(cl.id) f",
+      "client cl WHERE dbo.f_cdes_client(cl.id)",
+      "Impossible"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Un JOIN ne peut pas passer une colonne de gauche en paramètre.",
+      "Oui. APPLY appelle la fonction pour chaque ligne de gauche. OUTER APPLY pour garder les clients sans résultat.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Fonction table avec un paramètre venant d'une ligne : APPLY."
+  },
+  {
+    id: "m05-q68", dialecte: "Standard",
+    q: "a INNER JOIN b ON 1 = 1 équivaut à quoi ?",
+    choix: ["Un INNER JOIN normal", "Un CROSS JOIN", "Aucune ligne", "Une erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Il n'y a pas de lien entre les tables.",
+      "Oui. La condition est toujours vraie : toutes les combinaisons.",
+      "Non. Ce serait 1 = 0.",
+      "Non."
+    ],
+    retenir: "ON 1 = 1 = CROSS JOIN déguisé."
+  },
+  {
+    id: "m05-q69", dialecte: "Standard",
+    q: "Que renvoie client LEFT JOIN commande ON co.client_id = cl.id AND 1 = 0 ?",
+    choix: ["Aucune ligne", "Tous les clients, avec des colonnes de commande toutes NULL", "Une erreur", "Toutes les commandes"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Le LEFT JOIN garde la gauche quoi qu'il arrive.",
+      "Oui. La condition n'est jamais vraie : aucune correspondance, mais les clients restent.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "LEFT JOIN : même un ON impossible garde la table de gauche."
+  },
+  {
+    id: "m05-q70", dialecte: "SQL Server",
+    q: "Une très vieille requête utilise WHERE a.id *= b.id. Que se passe-t-il sur un SQL Server récent ?",
+    choix: ["Ça marche comme un LEFT JOIN", "Erreur : cette syntaxe de jointure externe n'est plus supportée", "Ça fait un INNER JOIN", "Ça multiplie"],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'était le cas il y a longtemps.",
+      "Oui. *= et =* ont été supprimés. Réécris avec LEFT JOIN … ON.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "*= est mort : LEFT JOIN … ON."
+  },
+  {
+    id: "m05-q71", dialecte: "Standard",
+    q: "L'ERP stocke le code client '0042', le fichier EDI '42' (texte). La jointure ne trouve rien. Pourquoi ?",
+    choix: [
+      "Bug",
+      "En texte, '0042' ≠ '42'. Il faut normaliser le format (compléter avec des zéros, ou convertir les deux)",
+      "Il faut un LEFT JOIN",
+      "Il faut DISTINCT"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Choisis un format de référence et applique-le au chargement (ex. RIGHT('0000' + code, 4)).",
+      "Non. Toujours aucune correspondance.",
+      "Non."
+    ],
+    retenir: "Clés en texte : même format des deux côtés (zéros, espaces, casse)."
+  },
+  {
+    id: "m05-q72", dialecte: "Standard",
+    q: "ERP : 100 commandes. EDI : 98 commandes. 95 sont communes. Combien de lignes donne le FULL OUTER JOIN sur le numéro ?",
+    choix: ["95", "98", "100", "103"],
+    bonne: 3,
+    pourquoi: [
+      "Non. C'est l'INNER JOIN.",
+      "Non.",
+      "Non. C'est le LEFT JOIN depuis l'ERP.",
+      "Oui. 95 communes + 5 seulement dans l'ERP + 3 seulement dans l'EDI = 103."
+    ],
+    retenir: "FULL = communs + uniques à gauche + uniques à droite."
+  },
+  {
+    id: "m05-q73", dialecte: "Standard",
+    q: "Même situation (ERP 100, EDI 98, 95 communes). Combien manque-t-il de commandes dans l'EDI, et dans l'ERP ?",
+    choix: ["5 dans l'EDI, 3 dans l'ERP", "3 dans l'EDI, 5 dans l'ERP", "2 et 2", "5 et 5"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. 100 - 95 = 5 absentes de l'EDI. 98 - 95 = 3 absentes de l'ERP.",
+      "Non. C'est l'inverse.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Manquants = total d'un côté - communs."
+  },
+  {
+    id: "m05-q74", dialecte: "Snowflake",
+    q: "Sur Snowflake, JOIN ligne USING (societe, num_cde) est-il valide ?",
+    choix: ["Oui, USING accepte plusieurs colonnes", "Non, une seule colonne", "Non, USING n'existe pas", "Seulement en LEFT JOIN"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Les colonnes doivent avoir le même nom des deux côtés.",
+      "Non.",
+      "Non. Il existe sur Snowflake (pas sur SQL Server).",
+      "Non."
+    ],
+    retenir: "USING (col1, col2) : jointure sur des colonnes de même nom."
+  },
+  {
+    id: "m05-q75", dialecte: "Snowflake",
+    q: "Sur Snowflake, pourquoi éviter NATURAL JOIN ?",
+    choix: [
+      "Il n'existe pas",
+      "Il joint sur TOUTES les colonnes de même nom : une colonne commune comme date_maj fausse la jointure",
+      "Il est lent",
+      "Il fait un CROSS JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Il existe.",
+      "Oui. Les colonnes de jointure sont implicites. Une colonne ajoutée plus tard peut tout casser.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "NATURAL JOIN : à éviter. Écris toujours la condition."
+  },
+  {
+    id: "m05-q76", dialecte: "Standard",
+    q: "Ces deux écritures donnent-elles le même résultat ?",
+    code: "-- A\nclient cl LEFT JOIN commande co\n  ON co.client_id = cl.id AND co.statut = 'OK'\n\n-- B\nclient cl LEFT JOIN (SELECT * FROM commande WHERE statut = 'OK') co\n  ON co.client_id = cl.id",
+    choix: ["Oui", "Non, B perd les clients sans commande OK", "Non, A est une erreur", "Non, B double les lignes"],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Dans les deux cas, on filtre la table de droite avant la jointure. Tous les clients restent.",
+      "Non. Le LEFT JOIN garde tous les clients.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Filtre de droite : dans le ON ou dans une sous-requête. Pas dans le WHERE."
+  },
+  {
+    id: "m05-q77", dialecte: "SQL Server",
+    q: "Comment trouver les clients sans commande depuis 6 mois ?",
+    choixCode: true,
+    choix: [
+      "LEFT JOIN commande co ON co.client_id = cl.id WHERE co.date_cde < DATEADD(month, -6, GETDATE())",
+      "LEFT JOIN commande co ON co.client_id = cl.id AND co.date_cde >= DATEADD(month, -6, GETDATE()) WHERE co.id IS NULL",
+      "INNER JOIN commande … WHERE date_cde < DATEADD(month, -6, GETDATE())",
+      "WHERE date_cde IS NULL"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ça trouve les clients qui ont une VIEILLE commande, même s'ils en ont aussi des récentes.",
+      "Oui. On cherche des commandes récentes dans le ON ; aucune trouvée = client inactif. (NOT EXISTS marche aussi.)",
+      "Non. Même erreur.",
+      "Non."
+    ],
+    retenir: "« Pas de X récent » : condition de période dans le ON + IS NULL."
+  },
+  {
+    id: "m05-q78", dialecte: "Standard",
+    q: "Un article peut avoir plusieurs fournisseurs, et un fournisseur plusieurs articles. Comment les relier ?",
+    choix: [
+      "Une colonne fournisseur_id dans article",
+      "Une table de liaison article_fournisseur (article_id, fournisseur_id), et deux jointures",
+      "Une colonne avec la liste des fournisseurs séparés par des virgules",
+      "Un CROSS JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Un seul fournisseur possible par article.",
+      "Oui. Relation plusieurs-à-plusieurs = table de liaison. Elle peut porter le prix d'achat, le délai…",
+      "Non. Impossible à joindre proprement.",
+      "Non. Toutes les combinaisons, même fausses."
+    ],
+    retenir: "Plusieurs-à-plusieurs : table de liaison."
+  },
+  {
+    id: "m05-q79", dialecte: "Standard",
+    q: "Tu veux le détail des commandes des clients dont le CA total dépasse 50 000 €. Quelle structure ?",
+    choix: [
+      "WHERE SUM(montant) > 50000",
+      "Joindre commande à une sous-requête (client_id … GROUP BY client_id HAVING SUM(montant) > 50000)",
+      "HAVING montant > 50000",
+      "ORDER BY SUM(montant)"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Agrégat dans WHERE : erreur.",
+      "Oui. La sous-requête donne la liste des gros clients ; la jointure ramène leurs commandes. (IN ou EXISTS aussi.)",
+      "Non. Filtre chaque commande, pas le total.",
+      "Non."
+    ],
+    retenir: "Filtrer le détail selon un total : joindre à une sous-requête agrégée."
+  },
+  {
+    id: "m05-q80", dialecte: "Standard",
+    q: "Une auto-jointure salarie → manager donne le N+1. Comment obtenir toute la chaîne (N+1, N+2, … jusqu'au PDG) ?",
+    choix: [
+      "Une auto-jointure suffit",
+      "Une CTE récursive",
+      "Un CROSS JOIN",
+      "Un GROUP BY"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Une auto-jointure = un seul niveau. Il faudrait en écrire autant que de niveaux.",
+      "Oui. La CTE récursive remonte tous les niveaux, quel que soit leur nombre (module 6).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Hiérarchie de profondeur variable : CTE récursive."
+  },
+  {
+    id: "m05-q81", dialecte: "Standard",
+    q: "Une commande a adresse_livraison_id et adresse_facturation_id, qui pointent toutes deux vers la table adresse. Comment afficher les deux villes ?",
+    choixCode: true,
+    choix: [
+      "JOIN adresse a ON a.id = co.adresse_livraison_id OR a.id = co.adresse_facturation_id",
+      "JOIN adresse al ON al.id = co.adresse_livraison_id JOIN adresse af ON af.id = co.adresse_facturation_id",
+      "JOIN adresse a ON a.id = co.id",
+      "Impossible en une requête"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Deux lignes par commande, et on ne sait plus laquelle est laquelle.",
+      "Oui. Deux alias pour la même table, un par rôle. (LEFT JOIN si une adresse peut manquer.)",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Même table, deux rôles : deux jointures, deux alias."
+  },
+  {
+    id: "m05-q82", dialecte: "Standard",
+    q: "Tu veux le mois de commande ET le mois de livraison via la table calendrier. Combien de jointures vers calendrier ?",
+    choix: ["Une seule", "Deux, avec deux alias", "Aucune", "Une, avec OR"],
+    bonne: 1,
+    pourquoi: [
+      "Non. Une seule ligne de calendrier ne peut pas être les deux dates à la fois.",
+      "Oui. cal_cde et cal_liv : c'est une « dimension à plusieurs rôles ».",
+      "Non.",
+      "Non. Doublons et confusion."
+    ],
+    retenir: "Plusieurs dates = plusieurs jointures vers le calendrier."
+  },
+  {
+    id: "m05-q83", dialecte: "Standard",
+    q: "Certains articles n'ont pas de taux de TVA dans la table tva. Comment appliquer 20 % par défaut ?",
+    choixCode: true,
+    choix: [
+      "INNER JOIN tva t … puis t.taux",
+      "LEFT JOIN tva t … puis COALESCE(t.taux, 0.20)",
+      "LEFT JOIN tva t … puis t.taux",
+      "CROSS JOIN tva"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les articles sans taux disparaissent.",
+      "Oui. LEFT JOIN garde tous les articles ; COALESCE met la valeur par défaut.",
+      "Non. Le taux reste NULL : calcul NULL.",
+      "Non."
+    ],
+    retenir: "Valeur par défaut : LEFT JOIN + COALESCE."
+  },
+  {
+    id: "m05-q84", dialecte: "Standard",
+    q: "Ces deux requêtes sont-elles équivalentes ?",
+    code: "-- A\nLEFT JOIN commande co ON co.client_id = cl.id AND co.statut = 'X'\n\n-- B\nLEFT JOIN commande co ON co.client_id = cl.id\nWHERE co.statut = 'X' OR co.statut IS NULL",
+    choix: [
+      "Oui",
+      "Non : B perd les clients qui ont des commandes, mais aucune au statut X",
+      "Non : A est une erreur",
+      "Non : B double les lignes"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Piège classique.",
+      "Oui. Dans B, ces clients ont des lignes avec un autre statut : le WHERE les retire toutes. Dans A, ils restent avec des NULL.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "« OR IS NULL » dans le WHERE ne remplace pas une condition dans le ON."
+  },
+  {
+    id: "m05-q85", dialecte: "Standard",
+    q: "Pour comparer chaque relevé de stock au relevé précédent, une auto-jointure sur « la date précédente » est lente. Quelle alternative ?",
+    choix: ["Un CROSS JOIN", "La fonction de fenêtrage LAG", "Un DISTINCT", "Un UNION"],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. LAG(qte) OVER (PARTITION BY article ORDER BY date) lit la ligne précédente sans jointure (module 8).",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Ligne précédente / suivante : LAG / LEAD plutôt qu'une auto-jointure."
+  },
+  {
+    id: "m05-q86", dialecte: "Standard",
+    q: "Un cumul calculé par auto-jointure (a.date >= b.date, puis SUM) devient très lent quand la table grossit. Pourquoi ?",
+    choix: [
+      "SUM est lent",
+      "Chaque ligne est jointe à toutes les précédentes : le travail croît comme n² (« jointure triangulaire »)",
+      "Il manque DISTINCT",
+      "Les dates sont mal indexées"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. 10 000 lignes ≈ 50 millions de combinaisons. Utilise SUM() OVER (ORDER BY … ROWS …).",
+      "Non.",
+      "Non. Même avec index, le volume explose."
+    ],
+    retenir: "Cumul : fonction de fenêtrage, pas auto-jointure triangulaire."
+  },
+  {
+    id: "m05-q87", dialecte: "Snowflake",
+    q: "Sur Snowflake, la table t a une colonne VARIANT doc contenant {\"client_id\": 42}. Comment joindre proprement à client.id (NUMBER) ?",
+    choixCode: true,
+    choix: [
+      "ON t.doc = c.id",
+      "ON t.doc:client_id::NUMBER = c.id",
+      "ON t.doc.client_id = c.id",
+      "ON t.client_id = c.id"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. doc est tout le document JSON.",
+      "Oui. : pour extraire le champ, :: pour le convertir. Comparaison fiable et typée.",
+      "Non. Le point sert aux noms d'objets ; pour le JSON, on utilise :.",
+      "Non. Cette colonne n'existe pas."
+    ],
+    retenir: "Jointure sur un champ JSON : col:champ::TYPE."
+  },
+  {
+    id: "m05-q88", dialecte: "SQL Server",
+    q: "Que penser d'un indice de jointure comme INNER HASH JOIN dans une requête ?",
+    choix: [
+      "À mettre partout pour aller plus vite",
+      "À éviter sauf cas précis : il force aussi l'ordre des jointures et empêche l'optimiseur de s'adapter",
+      "Obligatoire sur les grosses tables",
+      "Interdit"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Ce qui est rapide aujourd'hui peut être lent quand les volumes changent.",
+      "Oui. Corrige plutôt la cause (index, statistiques, écriture de la requête).",
+      "Non.",
+      "Non. C'est permis."
+    ],
+    retenir: "Indices de jointure : dernier recours."
+  },
+  {
+    id: "m05-q89", dialecte: "SQL Server",
+    q: "Comment joindre une table de la base Divalto et une de la base Reporting, sur le même serveur SQL Server ?",
+    choixCode: true,
+    choix: [
+      "C'est impossible",
+      "Avec des noms en 3 parties : Divalto.dbo.client JOIN Reporting.dbo.ca …",
+      "Avec un serveur lié obligatoire",
+      "Avec USE dans la requête"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. base.schéma.table. Attention aux collations différentes entre bases.",
+      "Non. Serveur lié seulement pour un AUTRE serveur.",
+      "Non."
+    ],
+    retenir: "Même serveur, autre base : base.schéma.table."
+  },
+  {
+    id: "m05-q90", dialecte: "SQL Server",
+    q: "Une jointure vers un serveur lié (SRV.base.dbo.grosse_table) est très lente. Quelle piste ?",
+    choix: [
+      "Ajouter DISTINCT",
+      "Filtrer côté distant avec OPENQUERY, pour ne rapatrier que les lignes utiles",
+      "Ajouter un ORDER BY",
+      "Utiliser CROSS JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Sinon, SQL Server peut rapatrier toute la table distante avant de joindre. Ou copier d'abord les données utiles dans une table locale.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Serveur lié : faire filtrer le serveur distant (OPENQUERY)."
+  },
+  {
+    id: "m05-q91", dialecte: "Snowflake",
+    q: "Sur Snowflake, peut-on joindre des tables de deux bases différentes du même compte ?",
+    choix: ["Non", "Oui, avec les noms complets BASE.SCHEMA.TABLE", "Oui, avec un serveur lié", "Seulement par copie"],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Le stockage est partagé : pas besoin de serveur lié ni de copie.",
+      "Non. Pas de serveur lié sur Snowflake.",
+      "Non."
+    ],
+    retenir: "Snowflake : jointure entre bases = noms en 3 parties."
+  },
+  {
+    id: "m05-q92", dialecte: "Standard",
+    q: "La clé 'A' apparaît 3 fois à gauche et 2 fois à droite. Combien de lignes 'A' donne l'INNER JOIN ?",
+    choix: ["2", "3", "5", "6"],
+    bonne: 3,
+    pourquoi: [
+      "Non.",
+      "Non.",
+      "Non. On ne les additionne pas.",
+      "Oui. Chaque ligne de gauche avec chaque ligne de droite : 3 × 2 = 6."
+    ],
+    retenir: "Doublons des deux côtés = multiplication."
+  },
+  {
+    id: "m05-q93", dialecte: "Standard",
+    q: "Une commande a client_id = NULL. Que devient-elle dans commande LEFT JOIN client ON cl.id = co.client_id ?",
+    choix: ["Elle disparaît", "Elle reste, avec les colonnes client à NULL", "Elle est reliée à tous les clients", "Erreur"],
+    bonne: 1,
+    pourquoi: [
+      "Non. C'est la table de gauche : elle est gardée.",
+      "Oui. Pas de correspondance (NULL ne se joint jamais), mais la ligne reste.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "LEFT JOIN : une clé NULL à gauche = ligne gardée, droite NULL."
+  },
+  {
+    id: "m05-q94", dialecte: "Standard",
+    q: "Tu veux les articles vendus au moins une fois en 2026, avec leur CA 2026. Quelle structure ?",
+    choix: [
+      "article LEFT JOIN ligne … sans filtre",
+      "article INNER JOIN ligne (filtrée sur 2026) … GROUP BY article",
+      "article CROSS JOIN ligne",
+      "NOT EXISTS"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Garde aussi les articles jamais vendus, et toutes les années.",
+      "Oui. INNER car on veut seulement les articles vendus ; GROUP BY pour le CA.",
+      "Non.",
+      "Non. Ce serait les articles jamais vendus."
+    ],
+    retenir: "Choisis le type de jointure selon la question : « au moins un » = INNER."
+  },
+  {
+    id: "m05-q95", dialecte: "Standard",
+    q: "Tu compares le stock d'hier et d'aujourd'hui, par article. Un article peut apparaître ou disparaître. Quelle requête ?",
+    choixCode: true,
+    choix: [
+      "hier INNER JOIN auj ON article, puis auj.qte - hier.qte",
+      "hier FULL OUTER JOIN auj ON article, puis COALESCE(auj.qte, 0) - COALESCE(hier.qte, 0)",
+      "hier LEFT JOIN auj, puis auj.qte - hier.qte",
+      "hier UNION auj"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Les nouveaux et les disparus sont perdus.",
+      "Oui. FULL garde tous les articles ; COALESCE traite l'absence comme 0.",
+      "Non. Les nouveaux articles sont perdus.",
+      "Non. Empile sans comparer."
+    ],
+    retenir: "Comparer deux photos : FULL OUTER JOIN + COALESCE(…, 0)."
+  },
+  {
+    id: "m05-q96", dialecte: "SQL Server",
+    q: "Tu veux traduire des codes pays en libellés sans créer de table. Quelle écriture ?",
+    choixCode: true,
+    choix: [
+      "JOIN (VALUES ('FR', 'France'), ('BE', 'Belgique')) AS m(code, libelle) ON m.code = cl.pays",
+      "JOIN 'FR=France, BE=Belgique' ON …",
+      "CASE seulement, pas de jointure possible",
+      "JOIN pays_temp"
+    ],
+    bonne: 0,
+    pourquoi: [
+      "Oui. Une table en dur, jointe comme une vraie table. (Un CASE marche aussi pour quelques valeurs.)",
+      "Non.",
+      "Non. VALUES permet la jointure.",
+      "Non. Cette table n'existe pas."
+    ],
+    retenir: "Petite correspondance ponctuelle : JOIN (VALUES …)."
+  },
+  {
+    id: "m05-q97", dialecte: "SQL Server",
+    q: "Une colonne contient 'A1;B2;C3' (codes séparés). Comment joindre chaque code à la table article ?",
+    choixCode: true,
+    choix: [
+      "JOIN article a ON a.code = t.codes",
+      "CROSS APPLY STRING_SPLIT(t.codes, ';') s JOIN article a ON a.code = s.value",
+      "JOIN article a ON t.codes LIKE a.code",
+      "Impossible"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. 'A1;B2;C3' n'est pas un code.",
+      "Oui. On découpe en lignes, puis on joint chaque morceau. (Mieux : ne pas stocker de listes dans une colonne.)",
+      "Non. Sans %, ce LIKE est une égalité.",
+      "Non."
+    ],
+    retenir: "Liste dans une colonne : STRING_SPLIT + jointure. Et corrige le modèle si possible."
+  },
+  {
+    id: "m05-q98", dialecte: "SQL Server",
+    q: "Le plan d'exécution affiche l'avertissement « No Join Predicate ». Que veut-il dire ?",
+    choix: [
+      "Tout va bien",
+      "Une jointure n'a pas de condition : produit cartésien probable",
+      "Il manque un index",
+      "La requête est trop longue"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Souvent un ON oublié ou mal écrit. Vérifie chaque jointure.",
+      "Non. C'est un autre avertissement.",
+      "Non."
+    ],
+    retenir: "« No Join Predicate » = CROSS JOIN probablement involontaire."
+  },
+  {
+    id: "m05-q99", dialecte: "Standard",
+    q: "Barème de remise : 0-999 et 1000-4999. Une commande fait 999,50 €. Elle disparaît avec INNER JOIN tranche ON montant BETWEEN mini AND maxi. Pourquoi ?",
+    choix: [
+      "Bug",
+      "999,50 tombe entre 999 et 1000 : aucune tranche ne le contient (trou dans le barème)",
+      "Le montant est NULL",
+      "Il faut un FULL JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non.",
+      "Oui. Définis les tranches sans trou : mini <= montant AND montant < mini_suivant. Et utilise LEFT JOIN pour voir les oubliés.",
+      "Non.",
+      "Non."
+    ],
+    retenir: "Tranches : bornes [mini ; maxi[ sans trou ni chevauchement."
+  },
+  {
+    id: "m05-q100", dialecte: "Standard",
+    q: "Quelle méthode est la plus sûre pour écrire une requête avec beaucoup de jointures ?",
+    choix: [
+      "Tout écrire d'un coup puis exécuter",
+      "Partir de la table qui a le grain voulu, ajouter les jointures une par une, et vérifier le nombre de lignes à chaque étape",
+      "Mettre DISTINCT dès le début",
+      "Utiliser seulement des INNER JOIN"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Impossible de savoir quelle jointure a créé un problème.",
+      "Oui. Si le nombre de lignes change sans raison, la dernière jointure ajoutée est fautive.",
+      "Non. DISTINCT cache les problèmes.",
+      "Non. On perdrait des lignes sans s'en rendre compte."
+    ],
+    retenir: "Une jointure à la fois, et un COUNT(*) à chaque étape."
   }
 ];

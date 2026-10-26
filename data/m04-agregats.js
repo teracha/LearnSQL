@@ -110,7 +110,7 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. On enlève les lignes avant de les regrouper. C'est clair et efficace.",
       "Non. HAVING agit sur les groupes. statut n'est pas une colonne du groupe.",
-      "Possible, mais plus lourd. Utile seulement si tu veux aussi garder les annulées dans une autre colonne.",
+      "Non. Possible, mais plus lourd. Utile seulement si tu veux aussi garder les annulées dans une autre colonne.",
       "Non. ORDER BY ne filtre pas."
     ],
     retenir: "Filtre au plus tôt : dans WHERE, avant GROUP BY."
@@ -126,7 +126,7 @@ LEARNSQL.questions.m04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Possible, mais il faut ensuite les assembler. Pas efficace.",
+      "Non. Possible, mais il faut ensuite les assembler. Pas efficace.",
       "Oui. C'est l'agrégation conditionnelle. Une seule lecture de la table, une colonne par année.",
       "Non. Ça donne une ligne par client ET par année, pas côte à côte.",
       "Non. Une ligne ne peut pas avoir 2 années en même temps : 0 ligne."
