@@ -129,14 +129,14 @@ LEARNSQL.questions.m15 = [
     id: "m15-q08", dialecte: "Standard",
     q: "Pourquoi un entrepôt de données (pour l'analyse) est-il souvent DÉnormalisé ?",
     choix: [
-      "Par erreur de conception",
+      "Pour éviter les doublons",
       "Pour des requêtes simples et rapides",
       "Pour économiser de la place",
       "Pour faciliter la saisie des données"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un choix voulu.",
+      "Non. Au contraire : dénormaliser répète des données ; on l'accepte pour des requêtes simples.",
       "Oui. Moins de jointures, des dimensions « à plat » faciles à comprendre. Les données sont chargées par des traitements contrôlés, pas saisies : le risque d'incohérence est maîtrisé.",
       "Non. Il en prend un peu plus.",
       "Non. Les données ne sont pas saisies dans l'entrepôt."
@@ -255,14 +255,14 @@ LEARNSQL.questions.m15 = [
     id: "m15-q15", dialecte: "Standard",
     q: "Dans un ERP, pourquoi sépare-t-on l'en-tête de commande et les lignes de commande ?",
     choix: [
-      "Par habitude des éditeurs",
+      "Pour séparer les droits d'accès",
       "Infos communes vs lignes multiples",
       "Pour accélérer Power BI",
       "Parce que la norme EDI l'impose aux ERP"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est une vraie raison de modèle : la relation 1-N.",
+      "Non. Les droits ne sont pas la raison : une commande a des infos communes et plusieurs lignes.",
       "Oui. Les infos de l'en-tête (client, date, adresse) sont communes ; les lignes (article, quantité, prix) sont multiples : relation 1-N. Même structure dans les messages EDI (ORDERS : en-tête + lignes).",
       "Non. C'est une question de modèle, pas de Power BI.",
       "Non. L'EDI a la même structure, mais ne l'impose pas."
@@ -312,14 +312,14 @@ LEARNSQL.questions.m15 = [
       "Une colonne prix qu'on écrase",
       "Des prix datés (début, fin)",
       "Une colonne de prix par année",
-      "Un fichier Excel partagé"
+      "Une table d'historique des prix, sans dates"
     ],
     bonne: 1,
     pourquoi: [
       "Non. On perd l'historique.",
       "Oui. Une table tarif (article, prix, date_debut, date_fin) : un prix par période de validité. Prix à une date : debut <= @d AND (fin IS NULL OR fin >= @d).",
       "Non. Pas de prix en cours d'année ; colonnes ajoutées sans fin.",
-      "Non. Hors de la base, sans contrôle."
+      "Non. Sans dates, on ne sait pas quel prix valait à quel moment."
     ],
     retenir: "Valeurs dans le temps : périodes de validité."
   },
@@ -438,14 +438,14 @@ LEARNSQL.questions.m15 = [
       "Pour avoir plus de lignes",
       "On peut agréger un détail",
       "C'est obligatoire en BI",
-      "Pour l'export vers Excel"
+      "Pour réduire la taille de l'entrepôt"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le volume n'est pas le but.",
       "Oui. On peut toujours agréger un détail ; on ne peut jamais retrouver le détail à partir d'un total. Les besoins évoluent : le détail rend le modèle durable.",
       "Non. C'est un choix, pas une obligation.",
-      "Non. Ce n'est pas la raison."
+      "Non. Le grain fin prend plus de place ; on le choisit car on peut toujours agréger."
     ],
     retenir: "Grain fin = analyses futures possibles."
   },
@@ -527,14 +527,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "C'est obligatoire dans Power BI",
       "Filtres et DAX simples, plus rapide",
-      "Pour les couleurs des visuels",
+      "Il ne gère pas plus de 2 niveaux",
       "Il n'a aucune préférence"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Mais c'est fortement recommandé.",
       "Oui. Filtres simples (des dimensions vers les faits), calculs DAX plus simples, meilleures performances, modèle compréhensible. C'est la recommandation officielle de Microsoft.",
-      "Non. Rien à voir avec les couleurs.",
+      "Non. Il gère les flocons, mais les filtres et le DAX deviennent plus lourds.",
       "Non. Il est conçu pour l'étoile."
     ],
     retenir: "Power BI = étoile."
@@ -615,14 +615,14 @@ LEARNSQL.questions.m15 = [
     id: "m15-q35", dialecte: "Standard",
     q: "Dans une dimension SCD 2, à quoi sert la colonne actuel (1 / 0) ?",
     choix: [
-      "À rien, c'est décoratif",
+      "À savoir si le client est encore actif",
       "Trouver vite la version en cours",
       "À trier les versions par date",
       "À supprimer les anciennes versions"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Elle évite de tester les dates.",
+      "Non. Elle dit quelle version est en cours, pas si le client achète encore.",
       "Oui. Trouver vite la version en cours de chaque client, sans tester les dates. Les colonnes date_debut, date_fin, actuel vont ensemble.",
       "Non. Elle ne trie rien.",
       "Non. Elle ne supprime rien."
@@ -743,15 +743,15 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Inutile pour l'analyse",
       "Comparer les saisons d'une année à l'autre",
-      "Pour afficher la météo du jour",
-      "Pour planifier les vacances du personnel"
+      "Pour calculer les jours fériés",
+      "La date suffit : on filtre par mois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La saison est clé pour une activité piscine.",
       "Oui. Comparer facilement les saisons (haute / basse) et les mêmes périodes d'une année à l'autre. Les attributs métier spécifiques donnent de la valeur à la dimension date.",
-      "Non. La météo ne se stocke pas dans le calendrier.",
-      "Non. Ce n'est pas le but de la dimension date."
+      "Non. Les fériés ont leur propre colonne ; la saison sert à comparer les saisons entre elles.",
+      "Non. Possible, mais chaque rapport doit refaire le calcul ; la colonne évite les écarts."
     ],
     retenir: "Dimension date : ajouter les notions métier."
   },
@@ -903,14 +903,14 @@ LEARNSQL.questions.m15 = [
     id: "m15-q51", dialecte: "Standard",
     q: "À quoi sert une « matrice en bus » (processus en lignes, dimensions en colonnes) au début d'un projet d'entrepôt ?",
     choix: [
-      "À dessiner le réseau",
+      "À lister les tables de l'ERP",
       "Voir les dimensions partagées",
       "À choisir le matériel serveur",
       "À planifier les sauvegardes"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un outil de modélisation.",
+      "Non. Elle ne liste pas les tables sources : elle croise processus et dimensions.",
       "Oui. Voir quels processus (ventes, achats, stock…) partagent quelles dimensions, pour planifier un entrepôt cohérent, processus par processus. Outil de cadrage très utile pour un chef de projet data.",
       "Non. C'est un outil de modélisation.",
       "Non. C'est un outil de modélisation."
@@ -977,14 +977,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Elles sont interdites",
       "Filtres ambigus et lenteurs",
-      "Elles sont payantes",
+      "Elles empêchent l'actualisation",
       "Elles suppriment des données"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Elles sont permises.",
       "Oui. Chemins de filtre ambigus, résultats surprenants, lenteurs. Filtre simple : dimension → faits. À utiliser seulement dans un cas précis et maîtrisé.",
-      "Non. Elles sont gratuites.",
+      "Non. L'actualisation marche ; le risque, ce sont des filtres ambigus et des lenteurs.",
       "Non. Elles ne suppriment rien."
     ],
     retenir: "Power BI : relations unidirectionnelles."
@@ -1013,14 +1013,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Les ventes ont des doublons",
       "La clé de dim_client n'est pas unique",
-      "Un bug de Power BI",
+      "Les types de clé sont différents",
       "Trop de lignes dans les ventes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le côté « N » peut avoir des doublons.",
       "Oui. Ex. un même code client dans deux sociétés, ou deux versions SCD 2 sur le même code. Utiliser la clé technique unique (client_sk), ou corriger les doublons.",
-      "Non. C'est une règle normale.",
+      "Non. Un type différent donne un autre message ; ici, la clé côté client a des doublons.",
       "Non. Le volume n'est pas la cause."
     ],
     retenir: "Côté « 1 » d'une relation = clé unique."
@@ -1230,14 +1230,14 @@ LEARNSQL.questions.m15 = [
       "Impossible en SQL",
       "Une table d'audit",
       "Des captures d'écran",
-      "Un mail à chaque changement"
+      "Une colonne date_modif dans la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une table d'audit le permet.",
       "Oui. Qui, quand, ancienne valeur, nouvelle valeur ; alimentée par trigger, par OUTPUT ou par une table temporelle. Exigence fréquente des audits et des commissaires aux comptes.",
       "Non. Pas exploitable.",
-      "Non. Pas exploitable."
+      "Non. Elle garde la dernière date, pas l'ancienne valeur ni l'historique."
     ],
     retenir: "Données sensibles : piste d'audit."
   },
@@ -1265,14 +1265,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Aucune, deux mots pour la même chose",
       "Indépendant vs lié à un moteur",
-      "Le physique est fait sur papier",
+      "Le logique est fait par le métier seul",
       "Le logique contient les index"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Logique = indépendant du moteur ; physique = lié.",
       "Oui. Logique : entités, attributs, relations, indépendamment du moteur. Physique : tables, types, index, contraintes pour un moteur précis (SQL Server, Snowflake). Le même modèle logique peut donner deux modèles physiques.",
-      "Non. Les deux sont des modèles, sur papier ou non.",
+      "Non. Le métier aide, mais la différence est : indépendant ou lié à un moteur.",
       "Non. Les index sont dans le physique."
     ],
     retenir: "Logique = quoi. Physique = comment, sur quel moteur."
@@ -1319,14 +1319,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "À la version actuelle du client",
       "À la version valide à la date de vente",
-      "Au hasard parmi les versions",
+      "À la version créée le jour du chargement",
       "À aucune, la vente est rejetée"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le commercial de septembre serait faux.",
       "Oui. En joignant sur la période de validité. Les faits « en retard » se rattachent selon leur date métier, pas la date de chargement.",
-      "Non. Le rattachement doit être juste.",
+      "Non. Le chargement est en octobre ; la vente, en septembre, garde l'ancien commercial.",
       "Non. La vente est valide."
     ],
     retenir: "Faits en retard : rattacher selon la date métier."
@@ -1409,14 +1409,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Dans la même table de faits",
       "Deux faits, un niveau commun",
-      "Répartir le budget au hasard",
+      "Répartir le budget sur chaque article",
       "Ne pas modéliser le budget"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Grains incompatibles.",
       "Oui. Deux tables de faits, chacune à son grain, reliées à des dimensions communes au niveau partagé (mois, famille). La comparaison se fait au niveau commun.",
-      "Non. La répartition doit suivre une règle métier.",
+      "Non. Possible, mais la répartition est inventée ; mieux vaut un niveau commun.",
       "Non. Le budget est utile à comparer."
     ],
     retenir: "Réel et budget : deux faits, un niveau commun."
@@ -1499,14 +1499,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Inutile, c'est la même chose",
       "Manque anormal vs sans objet",
-      "Pour avoir plus de lignes",
+      "Pour Power BI, qui refuse les NULL",
       "Pour Power BI uniquement"
     ],
     bonne: 1,
     pourquoi: [
       "Non. L'un est une anomalie, l'autre est normal.",
       "Oui. Inconnu = l'information devrait exister mais manque (erreur à corriger). Non applicable = elle n'a pas de sens (ex. pas de commercial pour une vente web). Les rapports de qualité ne remontent que les vrais « inconnus ».",
-      "Non. Ce n'est pas le but.",
+      "Non. Power BI accepte les NULL (« vide ») ; le but est de dire pourquoi la valeur manque.",
       "Non. Utile dans tous les outils."
     ],
     retenir: "-1 inconnu (anomalie), -2 non applicable (normal)."
@@ -1589,14 +1589,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Pour avoir plus de fichiers",
       "Mêmes chiffres dans tous les rapports",
-      "Pour les couleurs communes",
+      "Pour réduire le coût des licences",
       "C'est obligatoire dans Power BI"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le but est la cohérence.",
       "Oui. Une seule définition des mesures et des relations, réutilisée par tous les rapports. Fin des « deux CA différents » dans deux rapports.",
-      "Non. Le but est la cohérence des chiffres.",
+      "Non. Les licences restent les mêmes ; le but est d'avoir les mêmes chiffres partout.",
       "Non. C'est un choix."
     ],
     retenir: "Modèle sémantique partagé = une vérité."
@@ -1607,14 +1607,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Tout recharger chaque nuit, toujours",
       "Un repère de dernier chargement",
-      "Deviner les lignes modifiées",
+      "Comparer chaque ligne avec la veille",
       "Charger une ligne sur deux"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Possible pour de petites tables, coûteux pour les grandes.",
       "Oui. Une colonne de date de modification (ou rowversion, ou une capture de changements) : ne prendre que ce qui a changé depuis le dernier chargement réussi.",
-      "Non. Il faut un repère fiable.",
+      "Non. Ça marche, mais il faut tout relire : on perd le gain de l'incrémental.",
       "Non. Il manquerait des lignes."
     ],
     retenir: "Incrémental : repère de dernier chargement."
@@ -1625,14 +1625,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Oui, comme une modification",
       "Non, pas du tout",
-      "Seulement le lundi",
+      "Oui, si la ligne est marquée supprimée",
       "Oui, avec un DISTINCT"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Elle n'a plus de date.",
       "Oui. Une ligne supprimée n'a plus de date. Il faut une suppression logique, une table de suppressions, une capture de changements, ou une comparaison complète régulière. Point souvent oublié.",
-      "Non. Le jour ne change rien.",
+      "Non. Ici la ligne est vraiment supprimée : il n'y a plus de date à lire.",
       "Non. DISTINCT ne retrouve pas une ligne supprimée."
     ],
     retenir: "Les suppressions doivent être détectées autrement."
@@ -1644,14 +1644,14 @@ LEARNSQL.questions.m15 = [
       "Faire confiance au chargement",
       "Des rapprochements automatiques",
       "Demander aux utilisateurs",
-      "Regarder un rapport au hasard"
+      "Vérifier qu'aucun chargement n'a échoué"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un chargement peut se tromper.",
       "Oui. Nombres de lignes et totaux (CA, quantités) par période, comparés entre source et entrepôt. Un écart déclenche une alerte avant que les décideurs ne voient un chiffre faux.",
       "Non. Ils voient l'erreur trop tard.",
-      "Non. Pas assez systématique."
+      "Non. Un chargement réussi peut quand même oublier des lignes ; il faut comparer les totaux."
     ],
     retenir: "Rapprochement source / entrepôt : automatique et régulier."
   },
@@ -1716,14 +1716,14 @@ LEARNSQL.questions.m15 = [
       "Une colonne liste dans article",
       "Une table parent-composant-quantité",
       "Un article par composant sans lien",
-      "Un fichier Excel partagé"
+      "Une colonne parent_id dans article"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Contraire à la 1FN.",
       "Oui. (article_parent, article_composant, quantite) : elle relie la table article à elle-même. Les niveaux multiples se parcourent avec une CTE récursive.",
       "Non. On perd la composition du kit.",
-      "Non. Hors de la base."
+      "Non. Un composant entre dans plusieurs kits, avec une quantité : il faut une table à part."
     ],
     retenir: "Nomenclature : table parent-composant-quantité."
   },
@@ -1733,14 +1733,14 @@ LEARNSQL.questions.m15 = [
     choix: [
       "Aucun, c'est le modèle le plus souple",
       "Ni types, ni contraintes, lent",
-      "Il est trop rapide",
+      "Il oblige à créer une table par attribut",
       "Il est interdit en SQL"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Souple en apparence, coûteux en pratique.",
       "Oui. Pas de types, pas de contraintes, requêtes très compliquées (une jointure par attribut) et lentes. Souple en apparence, coûteux en pratique.",
-      "Non. Il est lent.",
+      "Non. C'est l'inverse : une seule table pour tout, d'où l'absence de types.",
       "Non. Il est permis."
     ],
     retenir: "EAV = anti-modèle dans la plupart des cas."
@@ -1767,14 +1767,14 @@ LEARNSQL.questions.m15 = [
     id: "m15-q99", dialecte: "Standard",
     q: "Avant de modéliser un nouveau besoin d'analyse, quelles questions poser au métier ?",
     choix: [
-      "Quelle couleur pour le rapport ?",
+      "Quelles tables de l'ERP charger ?",
       "Décisions, indicateurs, axes, détail",
       "Quel serveur utiliser ?",
       "Combien de pages de rapport ?"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Secondaire.",
+      "Non. Ça vient après ; d'abord, quelles décisions et quels indicateurs.",
       "Oui. Quelles décisions ? Quels indicateurs, avec quelle définition ? Par quels axes ? À quel niveau de détail ? Avec quel historique ? Ces réponses donnent le grain, les faits, les dimensions et le type de SCD.",
       "Non. Question technique, pas métier.",
       "Non. Secondaire."

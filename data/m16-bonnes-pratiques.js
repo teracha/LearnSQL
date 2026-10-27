@@ -223,14 +223,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Ajouter de la mémoire au serveur",
       "Une seule requête UPDATE avec jointure",
-      "Lancer le curseur la nuit",
+      "Ajouter un index sur la table article",
       "Découper en 10 curseurs en parallèle"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le problème est le traitement ligne par ligne.",
       "Oui. `UPDATE a SET a.prix = a.prix * t.coef FROM dbo.article a JOIN dbo.tarif_hausse t ON t.famille = a.famille` : une requête ensembliste fait le même travail en quelques secondes.",
-      "Non. On cache le problème, on ne le règle pas.",
+      "Non. Le curseur lit chaque ligne une à une ; l'index ne change pas cela.",
       "Non. Plus complexe, et risque de blocages."
     ],
     retenir: "Curseur lent → une requête ensembliste."
@@ -1039,14 +1039,14 @@ LEARNSQL.questions.m16 = [
     id: "m16-q58", dialecte: "SQL Server",
     q: "Après un INSERT dans `commande`, `@@IDENTITY` renvoie un id inattendu. La table a un trigger qui écrit dans une table d'audit (avec son propre IDENTITY). Explication ?",
     choix: [
-      "Bug de SQL Server",
+      "Une autre session a inséré au même moment",
       "Il inclut l'id créé par le trigger",
       "Le trigger a supprimé la commande",
       "L'audit a pris l'id de la commande"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Comportement documenté.",
+      "Non. @@IDENTITY est propre à la session ; c'est le trigger qui a créé un id.",
       "Oui. `@@IDENTITY` renvoie le dernier id créé dans la session, y compris par le trigger. `SCOPE_IDENTITY()` renvoie celui de ta propre instruction. Le code a pu marcher des années, jusqu'à l'ajout du trigger.",
       "Non. La commande existe.",
       "Non. Chaque table a ses propres id."
@@ -1078,14 +1078,14 @@ LEARNSQL.questions.m16 = [
       "Aucun, c'est le même jour",
       "Après minuit, « hier » change",
       "GETDATE() est interdit dans un traitement",
-      "GETDATE() renvoie toujours minuit"
+      "GETDATE() est figé au début du lot"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Après minuit, ce n'est plus le même jour.",
       "Oui. Certaines instructions s'exécutent après minuit : elles calculent un autre « hier ». Capturer la date une seule fois : `DECLARE @hier DATE = DATEADD(day, -1, CAST(GETDATE() AS DATE));` puis utiliser @hier partout.",
       "Non. GETDATE() est permis.",
-      "Non. Il renvoie la date et l'heure."
+      "Non. Il est relu à chaque appel ; c'est pour cela que la date peut changer."
     ],
     retenir: "Date de référence : capturée une fois."
   },
@@ -1115,14 +1115,14 @@ LEARNSQL.questions.m16 = [
       "À compter les factures de la table",
       "Vérifier qu'1 seule ligne a changé",
       "À accélérer l'UPDATE",
-      "À rien, @@ROWCOUNT vaut toujours 1"
+      "À compter les lignes du ROLLBACK"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il donne le nombre de lignes touchées par la dernière instruction.",
       "Oui. Sinon tout est annulé. Protection contre un WHERE trop large (ou une facture introuvable).",
       "Non. Il contrôle, il n'accélère pas.",
-      "Non. Il vaut le nombre de lignes touchées."
+      "Non. @@ROWCOUNT est lu juste après l'UPDATE, avant le ROLLBACK."
     ],
     retenir: "Contrôler le nombre de lignes avant COMMIT."
   },
@@ -1150,14 +1150,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Aucun, la transaction s'est validée seule",
       "Transaction ouverte : verrous gardés",
-      "Le serveur a redémarré",
+      "Les statistiques sont périmées",
       "SSMS a supprimé les données"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas de validation automatique.",
       "Oui. Ses verrous bloquent les autres. Vérifier avec `@@TRANCOUNT` (dans sa fenêtre) ou `DBCC OPENTRAN`. Réflexe : toujours finir par COMMIT ou ROLLBACK.",
-      "Non. La transaction est toujours ouverte.",
+      "Non. Elles ralentissent les requêtes, mais ne bloquent personne.",
       "Non. Rien n'est supprimé ; tout est bloqué."
     ],
     retenir: "Transaction ouverte = verrous gardés."
@@ -1204,14 +1204,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Rien, on fera attention",
       "Sauvegarder les lignes avant",
-      "Faire une capture d'écran",
+      "Activer NOLOCK sur la table",
       "Noter les anciens prix sur papier"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une erreur arrive vite.",
       "Oui. Ex. `SELECT … INTO dbo.svg_article_20261026 FROM dbo.article WHERE …` avant l'UPDATE. En cas d'erreur, un UPDATE depuis cette table restaure les anciennes valeurs.",
-      "Non. Inexploitable pour 3 000 lignes.",
+      "Non. NOLOCK change la lecture, pas l'écriture : il ne permet pas de revenir en arrière.",
       "Non. Inexploitable pour 3 000 lignes."
     ],
     retenir: "Correction massive : sauvegarde des lignes avant."
@@ -1240,14 +1240,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Rien, il a marché",
       "Un test sur une copie récente",
-      "Des commentaires en anglais",
+      "Un BEGIN TRAN au début du script",
       "Un ORDER BY final"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La chance n'est pas un test.",
       "Oui. Sur une copie récente des données (recette), pour vérifier le résultat et la durée avant la production. Sur Snowflake, un clone (`CLONE`) donne une copie de test en quelques secondes.",
-      "Non. La langue n'est pas le problème.",
+      "Non. Utile, mais ça ne remplace pas un test sur une copie récente.",
       "Non. Rien à voir avec le tri."
     ],
     retenir: "Tester sur une copie avant la production."
@@ -1328,14 +1328,14 @@ LEARNSQL.questions.m16 = [
     id: "m16-q74", dialecte: "SQL Server",
     q: "Pourquoi écrire `IF @@TRANCOUNT > 0 ROLLBACK;` plutôt que `ROLLBACK;` seul dans un bloc CATCH ?",
     choix: [
-      "Par habitude, sans raison",
+      "ROLLBACK seul ne marche pas en CATCH",
       "Éviter une 2e erreur sans transaction",
       "Pour valider la transaction",
       "Pour accélérer le ROLLBACK"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Il évite une 2e erreur.",
+      "Non. Il marche s'il y a une transaction ; sans transaction, il lève une 2e erreur.",
       "Oui. L'erreur a pu arriver avant le BEGIN TRAN, ou la transaction est déjà annulée : un ROLLBACK sans transaction ouverte provoque une nouvelle erreur, qui masquerait la vraie cause.",
       "Non. ROLLBACK ne valide jamais.",
       "Non. Il ne change pas la vitesse."
@@ -1420,14 +1420,14 @@ LEARNSQL.questions.m16 = [
     id: "m16-q79", dialecte: "Standard",
     q: "Pourquoi versionner les scripts SQL (vues, procédures) dans Git ?",
     choix: [
-      "Pour faire comme les développeurs",
+      "Pour déployer automatiquement en production",
       "Historique, relecture, retour arrière",
       "Pour que SQL Server soit plus rapide",
       "Git remplace les sauvegardes de la base"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est une vraie protection.",
+      "Non. Git ne déploie rien seul ; il garde l'historique et permet la relecture.",
       "Oui. Historique (qui, quand, pourquoi), relecture avant déploiement, retour à une version précédente, et même script en recette puis en production. Sans Git, la « vraie » version est celle de la production… que personne n'a relue.",
       "Non. Git ne touche pas au serveur.",
       "Non. Git garde le code, pas les données."
@@ -1440,14 +1440,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Aucun, tout est au même endroit",
       "Trop de responsabilités : découper",
-      "Elle est trop rapide",
+      "Elle doit être dans un job SQL Agent",
       "Il faut la transformer en vue"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Difficile à lire, tester et relancer.",
       "Oui. Difficile à lire, à tester et à relancer en partie. Découper en procédures (une par étape), appelées par une procédure chef d'orchestre. Si la purge plante, on peut la relancer seule.",
-      "Non. La vitesse n'est pas le problème.",
+      "Non. Le job peut l'appeler, mais le problème reste : trop de rôles dans une procédure.",
       "Non. Une vue ne peut pas modifier de données."
     ],
     retenir: "Une procédure = une responsabilité."
@@ -1568,14 +1568,14 @@ LEARNSQL.questions.m16 = [
       "Tout dans dbo",
       "Un schéma par couche",
       "Une base par table",
-      "Des préfixes de couleurs"
+      "Des préfixes de table (stg_, rpt_)"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Mélange et droits difficiles à gérer.",
       "Oui. `stg`, `dwh`, `rpt`, et des droits par schéma (`GRANT SELECT ON SCHEMA::rpt TO role_bi`). Les utilisateurs Power BI ne voient que `rpt`.",
       "Non. Ingérable.",
-      "Non. Un préfixe ne gère pas les droits."
+      "Non. Ça aide à lire, mais on ne peut pas donner des droits par préfixe ; par schéma, oui."
     ],
     retenir: "Un schéma par couche, des droits par schéma."
   },
@@ -1603,14 +1603,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Aucun, c'est le réglage conseillé",
       "Jusqu'à 1 h payée pour rien",
-      "Le warehouse ne redémarrera pas",
+      "Le warehouse s'arrête trop souvent",
       "Les requêtes seront fausses"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Trop long pour un usage ponctuel.",
       "Oui. Après chaque requête, le warehouse reste allumé jusqu'à une heure pour rien : ces minutes sont facturées. Un AUTO_SUSPEND de 60 secondes suffit souvent ; avec AUTO_RESUME, il redémarre tout seul.",
-      "Non. AUTO_RESUME le redémarre.",
+      "Non. 3 600 s, c'est 1 heure : il s'arrête trop rarement.",
       "Non. Les résultats restent justes."
     ],
     retenir: "Snowflake : AUTO_SUSPEND court."
@@ -1693,14 +1693,14 @@ LEARNSQL.questions.m16 = [
     choix: [
       "Rien, agrandir directement",
       "Le Query Profile",
-      "La couleur de l'interface",
+      "Le cache de résultats",
       "Le nombre d'utilisateurs connectés"
     ],
     bonne: 1,
     pourquoi: [
       "Non. On paie plus pour une requête peut-être mal écrite.",
       "Oui. Partitions lues sur le total (élagage), débordement sur disque (spilling), jointure qui multiplie les lignes. Ça se corrige dans la requête, pas avec un plus gros warehouse.",
-      "Non. Sans rapport avec la vitesse.",
+      "Non. Le cache évite de relancer une requête identique ; il n'explique pas sa lenteur.",
       "Non. Sans rapport avec cette requête."
     ],
     retenir: "Query Profile avant de payer plus."
@@ -1730,14 +1730,14 @@ LEARNSQL.questions.m16 = [
       "Impossible après un DELETE",
       "Avec le Time Travel (`AT`)",
       "Avec UNDROP TABLE tarif",
-      "En redémarrant le warehouse"
+      "Avec une sauvegarde de la nuit"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Possible tant qu'on est dans la durée de conservation (1 jour par défaut).",
       "Oui. `INSERT INTO tarif SELECT * FROM tarif AT(OFFSET => -60*30);` (l'état d'il y a 30 minutes). Ou une copie : `CREATE TABLE tarif_svg CLONE tarif AT(OFFSET => -1800);`",
       "Non. UNDROP sert pour une table supprimée (DROP), pas vidée.",
-      "Non. Le warehouse ne garde pas de données."
+      "Non. Snowflake n'a pas de sauvegarde à restaurer ; le Time Travel la remplace."
     ],
     retenir: "Snowflake : Time Travel pour revenir en arrière."
   },
