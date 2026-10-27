@@ -568,7 +568,7 @@ LEARNSQL.questions.m03 = [
       "Non. Ce serait UPPER.",
       "Oui. INITCAP met une majuscule au début de chaque mot. SQL Server n'a pas d'équivalent direct.",
       "Non. Chaque mot reçoit sa majuscule.",
-      "Non."
+      "Non. INITCAP change le texte : il ne le renvoie pas tel quel."
     ],
     retenir: "Snowflake : INITCAP pour « Première Lettre En Majuscule »."
   },
@@ -604,7 +604,7 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. Ce serait LEFT.",
       "Oui. Les 4 derniers caractères.",
-      "Non.",
+      "Non. '2026' est au milieu : RIGHT prend la fin.",
       "Non. On prend 4 caractères, zéros compris."
     ],
     retenir: "RIGHT(texte, n) = les n derniers caractères."
@@ -659,7 +659,7 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. Le texte est découpé.",
       "Oui. STRING_SPLIT est une fonction table : une ligne par morceau. L'ordre n'est garanti qu'avec le 3e paramètre (SQL Server 2022).",
-      "Non.",
+      "Non. STRING_SPLIT découpe en plusieurs lignes, il ne colle pas les morceaux.",
       "Non. Disponible depuis SQL Server 2016."
     ],
     retenir: "STRING_SPLIT = un texte → plusieurs lignes."
@@ -675,10 +675,10 @@ LEARNSQL.questions.m03 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le '0' est répété 3 fois.",
       "Oui. REPLICATE répète un texte n fois. (Snowflake : REPEAT.)",
       "Non. Le résultat est un texte.",
-      "Non."
+      "Non. 3 est le nombre de répétitions, pas le résultat."
     ],
     retenir: "REPLICATE (SQL Server) / REPEAT (Snowflake)."
   },
@@ -695,8 +695,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. STUFF supprime avant d'insérer.",
       "Oui. À partir de la position 2, on supprime 3 caractères (BCD), puis on insère 'X'.",
-      "Non.",
-      "Non."
+      "Non. On commence à la position 2, donc juste après le A.",
+      "Non. Le A (position 1) est gardé."
     ],
     retenir: "STUFF(texte, début, nb_à_supprimer, à_insérer)."
   },
@@ -712,8 +712,8 @@ LEARNSQL.questions.m03 = [
     bonne: 0,
     pourquoi: [
       "Oui. TRANSLATE remplace chaque caractère de la 2e liste par celui de même position dans la 3e. Un seul appel au lieu de deux REPLACE.",
-      "Non.",
-      "Non.",
+      "Non. TRANSLATE remplace bien les - et les /.",
+      "Non. Le - est remplacé par un point, pas supprimé.",
       "Non. Disponible sur SQL Server 2017+ et Snowflake."
     ],
     retenir: "TRANSLATE : remplacer plusieurs caractères en une fois."
@@ -766,7 +766,7 @@ LEARNSQL.questions.m03 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. 1 serait une position, pas un code de caractère.",
       "Oui. Le code du caractère. Utile pour repérer un caractère invisible dans une donnée.",
       "Non. ASCII renvoie un nombre.",
       "Non. 97, c'est 'a' minuscule."
@@ -786,8 +786,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. C'est LEN, le nombre de caractères.",
       "Oui. NVARCHAR utilise 2 octets par caractère : 3 × 2 = 6.",
-      "Non.",
-      "Non."
+      "Non. 3 caractères × 2 octets = 6, pas 4.",
+      "Non. N'abc' n'est pas NULL : DATALENGTH donne une taille."
     ],
     retenir: "NVARCHAR = 2 octets par caractère (en général)."
   },
@@ -805,7 +805,7 @@ LEARNSQL.questions.m03 = [
       "Non. Une valeur inconnue n'a pas une longueur de 0.",
       "Oui. Presque toutes les fonctions renvoient NULL quand on leur donne NULL.",
       "Non. Ce n'est pas le mot « NULL ».",
-      "Non."
+      "Non. LEN accepte NULL : il renvoie NULL."
     ],
     retenir: "Fonction(NULL) = NULL, sauf exceptions (COALESCE, CONCAT sur SQL Server…)."
   },
@@ -840,8 +840,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non sur SQL Server en CI. (Oui sur Snowflake, sensible à la casse.)",
       "Oui. REPLACE suit la collation : en CI, 'A' et 'a' sont « égaux », les deux sont remplacés.",
-      "Non.",
-      "Non."
+      "Non. Le 'a' est bien remplacé.",
+      "Non. C'est l'inverse : en CI, les deux lettres sont remplacées."
     ],
     retenir: "REPLACE suit la collation sur SQL Server."
   },
@@ -953,7 +953,7 @@ LEARNSQL.questions.m03 = [
       "Oui. La valeur est stockée telle quelle, sans fuseau. LTZ = fuseau de la session, TZ = fuseau stocké avec la valeur.",
       "Non. Rien n'oblige à l'UTC : c'est une convention à respecter soi-même.",
       "Non. C'est TIMESTAMP_LTZ.",
-      "Non."
+      "Non. NTZ veut dire « No Time Zone », rien à voir avec la précision."
     ],
     retenir: "Snowflake : NTZ (sans fuseau), LTZ (session), TZ (fuseau stocké)."
   },
@@ -1008,7 +1008,7 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Oui. WEEKISO suit la norme ISO, comme en France. (WEEK dépend d'un paramètre de session.)",
       "Non. Cette fonction n'existe pas.",
-      "Non.",
+      "Non. DATEPART est du SQL Server ; Snowflake utilise WEEKISO.",
       "Non. C'est Excel."
     ],
     retenir: "Snowflake : WEEKISO(d)."
@@ -1045,7 +1045,7 @@ LEARNSQL.questions.m03 = [
       "Non. Pas de débordement.",
       "Oui. Le 31 février n'existe pas : SQL Server prend le dernier jour de février.",
       "Non. Date impossible.",
-      "Non."
+      "Non. SQL Server ajuste au dernier jour du mois, sans erreur."
     ],
     retenir: "DATEADD(month) ajuste au dernier jour du mois si besoin. Attention aux échéances."
   },
@@ -1063,7 +1063,7 @@ LEARNSQL.questions.m03 = [
       "Non. Un seul jour d'écart, mais…",
       "Oui. On passe de janvier à février : une frontière de mois franchie.",
       "Non. DATEDIFF renvoie un entier.",
-      "Non."
+      "Non. La 2e date est après la 1re : le résultat est positif."
     ],
     retenir: "DATEDIFF compte les frontières, pas les durées."
   },
@@ -1137,7 +1137,7 @@ LEARNSQL.questions.m03 = [
       "Oui. Le format AAAAMMJJ est compris quelle que soit la langue.",
       "Non. CAST suffit pour ce format.",
       "Non. Ce format ne dépend pas de la langue.",
-      "Non."
+      "Non. Les tirets ne sont pas nécessaires : AAAAMMJJ est le format le plus sûr."
     ],
     retenir: "'AAAAMMJJ' : le format de date sûr sur SQL Server."
   },
@@ -1209,7 +1209,7 @@ LEARNSQL.questions.m03 = [
     bonne: 2,
     pourquoi: [
       "Non. Pas de correction automatique.",
-      "Non.",
+      "Non. TRY_CONVERT ne déborde pas sur mars : il renvoie NULL.",
       "Oui. Le 31 février n'existe pas : TRY_CONVERT renvoie NULL au lieu de planter.",
       "Non. Ce serait CONVERT."
     ],
@@ -1229,7 +1229,7 @@ LEARNSQL.questions.m03 = [
       "Non. La virgule est comprise comme séparateur décimal en français.",
       "Oui. PARSE comprend les formats d'une culture. Mais il est lent (passe par .NET).",
       "Non. La conversion réussit.",
-      "Non."
+      "Non. TRY_PARSE ne plante pas : au pire, il renvoie NULL."
     ],
     retenir: "TRY_PARSE … USING 'fr-FR' : pratique, mais lent sur de gros volumes."
   },
@@ -1246,8 +1246,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Oui. CONCAT convertit tout en texte. Pas besoin de CAST.",
       "Non. C'est + qui pose problème.",
-      "Non.",
-      "Non."
+      "Non. Le texte 'Cde ' est gardé.",
+      "Non. Aucune valeur n'est NULL ; et CONCAT ignore les NULL."
     ],
     retenir: "CONCAT convertit automatiquement en texte."
   },
@@ -1318,7 +1318,7 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. -2 n'est pas 2 décimales.",
       "Oui. Une longueur négative arrondit avant la virgule : aux centaines.",
-      "Non.",
+      "Non. Ça serait un arrondi à l'unité, pas aux centaines.",
       "Non. 34 arrondi aux centaines donne 00."
     ],
     retenir: "ROUND(x, -2) = arrondi à la centaine."
@@ -1336,7 +1336,7 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. C'est l'arrondi normal.",
       "Oui. Le 3e paramètre à 1 demande une troncature : on coupe sans arrondir.",
-      "Non.",
+      "Non. On garde 2 décimales, on coupe juste après.",
       "Non. Le 3e paramètre existe sur SQL Server."
     ],
     retenir: "ROUND(x, n, 1) = tronquer (SQL Server). Snowflake : TRUNC(x, n)."
@@ -1355,7 +1355,7 @@ LEARNSQL.questions.m03 = [
       "Non. TRUNC ne fait pas d'arrondi.",
       "Oui. On coupe après 2 décimales.",
       "Non. On garde 2 décimales.",
-      "Non."
+      "Non. TRUNC avec des décimales existe sur Snowflake."
     ],
     retenir: "Snowflake : TRUNC(nombre, n) coupe sans arrondir."
   },
@@ -1372,8 +1372,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. -2 est plus grand que -2.5.",
       "Oui. FLOOR donne l'entier juste en dessous. Pour un nombre négatif, c'est -3.",
-      "Non.",
-      "Non."
+      "Non. Le signe moins est gardé.",
+      "Non. FLOOR renvoie un entier."
     ],
     retenir: "FLOOR = vers le bas, CEILING = vers le haut. Attention aux négatifs (avoirs)."
   },
@@ -1482,8 +1482,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Oui. Équivalent de COALESCE(x, 0).",
       "Non. NULLIFZERO fait l'inverse : 0 devient NULL (pratique contre la division par zéro).",
-      "Non.",
-      "Non."
+      "Non. Cette fonction n'existe pas.",
+      "Non. Cette fonction n'existe pas."
     ],
     retenir: "Snowflake : ZEROIFNULL et NULLIFZERO."
   },
@@ -1518,8 +1518,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. L'index commence à 1.",
       "Oui. CHOOSE prend la valeur à la position donnée.",
-      "Non.",
-      "Non."
+      "Non. 'Or' est en position 3.",
+      "Non. 2 est l'index : CHOOSE renvoie la valeur à cette place."
     ],
     retenir: "CHOOSE(n, a, b, c) : la n-ième valeur (à partir de 1)."
   },
@@ -1592,7 +1592,7 @@ LEARNSQL.questions.m03 = [
       "Oui. TO_VARCHAR (ou TO_CHAR) avec un format.",
       "Non. Syntaxe SQL Server.",
       "Non. FORMAT n'existe pas sur Snowflake.",
-      "Non."
+      "Non. CAST ne prend pas de format."
     ],
     retenir: "Snowflake : TO_VARCHAR / TO_CHAR(date, 'format')."
   },
@@ -1611,7 +1611,7 @@ LEARNSQL.questions.m03 = [
       "Oui. HH24 = heures sur 24 h, MI = minutes.",
       "Non. MM = le MOIS. Tu obtiendrais 14:10 en octobre.",
       "Non. Même problème : mm = mois.",
-      "Non."
+      "Non. H et M seuls ne sont pas des formats Snowflake valides pour ça."
     ],
     retenir: "Snowflake : MI = minutes, MM = mois."
   },
@@ -1646,7 +1646,7 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. Ce serait EOMONTH sans 2e paramètre.",
       "Oui. Le 2e paramètre décale le mois : -1 = fin du mois précédent.",
-      "Non.",
+      "Non. EOMONTH renvoie toujours une fin de mois.",
       "Non. Ce serait +1."
     ],
     retenir: "EOMONTH(d, n) : fin du mois décalé de n mois."
@@ -1662,10 +1662,10 @@ LEARNSQL.questions.m03 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On ajoute 1 jour à la fin du mois PRÉCÉDENT.",
       "Oui. Fin du mois précédent + 1 jour = 1er du mois. Astuce classique avant SQL Server 2022.",
-      "Non.",
-      "Non."
+      "Non. On part de la fin du mois précédent, pas de d.",
+      "Non. EOMONTH(d, -1) recule d'un mois, il n'avance pas."
     ],
     retenir: "1er du mois = lendemain de la fin du mois précédent."
   },
@@ -1684,7 +1684,7 @@ LEARNSQL.questions.m03 = [
       "Oui. Nouvelle fonction de SQL Server 2022 (sans _).",
       "Non. C'est la syntaxe Snowflake (avec _).",
       "Non. Syntaxe Oracle.",
-      "Non."
+      "Non. Cette fonction n'existe pas."
     ],
     retenir: "DATETRUNC (SQL Server 2022) / DATE_TRUNC (Snowflake)."
   },
@@ -1719,8 +1719,8 @@ LEARNSQL.questions.m03 = [
     pourquoi: [
       "Non. Ce serait DATEADD(month, 1, …).",
       "Oui. ADD_MONTHS garde la « fin de mois » : le 28 février est le dernier jour, le résultat est le dernier jour de mars.",
-      "Non.",
-      "Non."
+      "Non. ADD_MONTHS reste en mars, au dernier jour.",
+      "Non. ADD_MONTHS fonctionne sur cette date."
     ],
     retenir: "Snowflake : ADD_MONTHS conserve la fin de mois, DATEADD non."
   },
@@ -1758,7 +1758,7 @@ LEARNSQL.questions.m03 = [
       "Oui. LTRIM accepte les caractères à retirer. (SQL Server 2022 aussi.)",
       "Non. TRIM enlève les espaces par défaut.",
       "Non. Ça enlèverait aussi les zéros au milieu : '1020' → '12'.",
-      "Non."
+      "Non. Ça garde les 3 premiers caractères : '000'."
     ],
     retenir: "LTRIM(texte, '0') : enlever les zéros de tête."
   },
@@ -1776,7 +1776,7 @@ LEARNSQL.questions.m03 = [
       "Non. Demander plus que la longueur n'est pas une erreur.",
       "Oui. On prend ce qui existe à partir de la position 2.",
       "Non. Pas d'espaces ajoutés.",
-      "Non."
+      "Non. Le texte existe à la position 2 : le résultat n'est pas NULL."
     ],
     retenir: "SUBSTRING trop long = on prend jusqu'à la fin."
   },
@@ -1813,7 +1813,7 @@ LEARNSQL.questions.m03 = [
       "Non. C'est l'inverse : NULL devient vide.",
       "Oui. Vide ou blanc → NULL. Les données sont plus propres.",
       "Non. Ne change rien.",
-      "Non."
+      "Non. C'est l'inverse : NULL devient vide, et le reste devient NULL."
     ],
     retenir: "Vide → NULL : NULLIF(TRIM(x), '')."
   },
