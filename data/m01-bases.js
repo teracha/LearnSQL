@@ -740,7 +740,7 @@ LEARNSQL.questions.m01 = [
     pourquoi: [
       "Non. Ce serait (10 + 5) * 2.",
       "Oui. La multiplication passe avant l'addition : 10 + 10 = 20.",
-      "Non.",
+      "Non. Aucun ordre de calcul ne donne 25 : c'est 20 ou 30.",
       "Non. C'est valide."
     ],
     retenir: "Priorités des maths : * et / avant + et -. Mets des parenthèses."
@@ -1178,7 +1178,7 @@ LEARNSQL.questions.m01 = [
       "Non. Ce serait un tri de nombres.",
       "Oui. Tri de texte : caractère par caractère. '10' commence par '1', il passe avant '2'.",
       "Non. C'est un tri décroissant.",
-      "Non."
+      "Non. Aucun tri ne donne cet ordre : ni texte, ni nombre."
     ],
     retenir: "Des nombres stockés en texte se trient mal. ORDER BY CAST(code AS int) ou un vrai type numérique."
   },
@@ -1360,7 +1360,7 @@ LEARNSQL.questions.m01 = [
     pourquoi: [
       "Non. Les noms sans guillemets sont mis en majuscules.",
       "Oui. Power BI ou Excel verront NOM. Pour garder la casse : AS \"nom\".",
-      "Non.",
+      "Non. Snowflake ne met pas de majuscule seulement au début : tout passe en majuscules.",
       "Non. Le nom de la table n'apparaît pas."
     ],
     retenir: "Snowflake renvoie les noms de colonnes en MAJUSCULES (sauf guillemets)."
@@ -1414,9 +1414,9 @@ LEARNSQL.questions.m01 = [
     bonne: 0,
     pourquoi: [
       "Oui. Les crochets sont seulement utiles pour les noms spéciaux. Ici, ils ne changent rien.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Les crochets entourent juste le nom : aucune copie n'est créée.",
+      "Non. Les crochets ne posent aucun verrou.",
+      "Non. Les crochets ne changent pas les droits : c'est la même table."
     ],
     retenir: "[dbo].[client] = dbo.client. Les crochets protègent les noms spéciaux."
   },
@@ -1451,8 +1451,8 @@ LEARNSQL.questions.m01 = [
     pourquoi: [
       "Oui. Snowflake accepte TOP, en plus de LIMIT. Pratique pour migrer du code SQL Server.",
       "Non. TOP est accepté.",
-      "Non.",
-      "Non."
+      "Non. TOP marche avec ou sans ORDER BY.",
+      "Non. PERCENT est une option de TOP, pas une obligation."
     ],
     retenir: "Snowflake accepte TOP n et LIMIT n."
   },
@@ -1543,7 +1543,7 @@ LEARNSQL.questions.m01 = [
       "Non. Tout ce qui suit -- sur la ligne est un commentaire.",
       "Oui. « , ville » est en commentaire. Pratique pour désactiver une colonne pendant un test.",
       "Non. FROM est sur la ligne suivante, donc valide.",
-      "Non."
+      "Non. La colonne nom n'est pas en commentaire : elle est renvoyée."
     ],
     retenir: "-- commente jusqu'à la fin de la ligne seulement."
   },
@@ -1707,7 +1707,7 @@ LEARNSQL.questions.m01 = [
       "Non. SQL Server voit NULL comme la plus petite valeur.",
       "Oui. Plus petite valeur + tri décroissant = à la fin.",
       "Non. ORDER BY ne supprime rien.",
-      "Non."
+      "Non. Les NULL sont regroupés à un bout du tri, jamais au milieu."
     ],
     retenir: "SQL Server : NULL = plus petite valeur. ASC → en tête, DESC → en fin."
   },
@@ -1743,8 +1743,8 @@ LEARNSQL.questions.m01 = [
     pourquoi: [
       "Oui. SQL Server ignore les espaces de fin quand il compare : les deux valeurs sont « égales ».",
       "Non sur SQL Server. (Snowflake, lui, renverrait 2 lignes.)",
-      "Non.",
-      "Non."
+      "Non. DISTINCT garde toujours au moins une ligne s'il y a des données.",
+      "Non. La requête est valide : DISTINCT accepte ces valeurs."
     ],
     retenir: "SQL Server : 'ABC' = 'ABC '. Snowflake : différents."
   },
@@ -1815,9 +1815,9 @@ LEARNSQL.questions.m01 = [
     bonne: 2,
     pourquoi: [
       "Non. La requête ne s'exécute pas.",
-      "Non.",
+      "Non. La requête ne s'exécute pas : LIMIT doit venir après ORDER BY.",
       "Oui. LIMIT se place après ORDER BY, tout à la fin.",
-      "Non."
+      "Non. La requête ne s'exécute pas du tout."
     ],
     retenir: "Snowflake : … ORDER BY … LIMIT n. LIMIT en dernier."
   },
