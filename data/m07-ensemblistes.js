@@ -464,14 +464,14 @@ LEARNSQL.questions.m07 = [
       "(A UNION B) INTERSECT C",
       "A UNION (B INTERSECT C)",
       "Erreur",
-      "Au hasard"
+      "De gauche à droite"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce n'est pas de gauche à droite ici.",
       "Oui. INTERSECT est prioritaire sur UNION et EXCEPT. Mets des parenthèses pour être clair.",
       "Non. La requête est valide.",
-      "Non. L'ordre est fixe : INTERSECT d'abord."
+      "Non. INTERSECT est prioritaire : il est évalué d'abord."
     ],
     retenir: "INTERSECT passe avant UNION / EXCEPT. Parenthèses conseillées."
   },

@@ -1619,14 +1619,14 @@ LEARNSQL.questions.m03 = [
     id: "m03-q89", dialecte: "SQL Server",
     q: "Sur SQL Server, FORMAT(d, 'dd/mm/yyyy') affiche '26/05/2026' pour le 26 octobre à 14:05. Pourquoi ?",
     choix: [
-      "Un bug de SQL Server avec les dates",
+      "La date est stockée en UTC",
       "mm = minutes ; le mois s'écrit MM",
       "La date stockée en base est fausse",
       "Il manque la culture 'fr-FR'"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement normal.",
+      "Non. Ce n'est pas un fuseau : mm veut dire minutes.",
       "Oui. En format .NET, mm = minutes. Écris 'dd/MM/yyyy' : MM majuscules pour le mois. Piège inverse de Snowflake !",
       "Non. 05 = les minutes.",
       "Non. La culture ne change pas ce code."
@@ -1695,14 +1695,14 @@ LEARNSQL.questions.m03 = [
       "DATEDIFF(weekday, d1, d2), qui saute les week-ends",
       "Avec une table calendrier et un COUNT",
       "DATEDIFF(day, d1, d2) * 5 / 7, arrondi",
-      "Impossible en SQL, il faut Excel"
+      "NETWORKDAYS(d1, d2), comme dans Excel"
     ],
     bonne: 1,
     pourquoi: [
       "Non. weekday compte des jours, sans sauter les week-ends ni les fériés.",
       "Oui. La table calendrier (une ligne par jour, avec une colonne est_ouvre) gère aussi les fériés et les ponts.",
       "Non. Approximation fausse.",
-      "Non. Une table calendrier le fait très bien."
+      "Non. NETWORKDAYS est une fonction Excel : elle n'existe pas en SQL Server."
     ],
     retenir: "Jours ouvrés : table calendrier."
   },

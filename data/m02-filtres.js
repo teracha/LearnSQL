@@ -1405,14 +1405,14 @@ LEARNSQL.questions.m02 = [
     id: "m02-q77", dialecte: "SQL Server",
     q: "WHERE DATENAME(weekday, date_cde) IN ('Saturday', 'Sunday') ne trouve rien sur ton serveur. Pourquoi ?",
     choix: [
-      "Personne ne commande le samedi ni le dimanche",
+      "Il faut écrire 'Sat' et 'Sun', en abrégé",
       "DATENAME répond en français : 'samedi'",
       "DATENAME n'existe pas sur SQL Server",
       "Il faut écrire les jours en majuscules"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un problème technique.",
+      "Non. DATENAME renvoie le nom complet, dans la langue de la session.",
       "Oui. DATENAME dépend de la langue de la session : en français, il renvoie 'samedi', 'dimanche'. Code fragile !",
       "Non. Elle existe.",
       "Non. Le problème est la langue, pas la casse."
@@ -1555,14 +1555,14 @@ LEARNSQL.questions.m02 = [
     id: "m02-q85", dialecte: "SQL Server",
     q: "ISNUMERIC('$') renvoie 1. Pourquoi ne pas utiliser ISNUMERIC pour contrôler des montants ?",
     choix: [
-      "C'est un bug, corrigé dans les versions récentes",
+      "Il ne connaît que le format américain",
       "Il accepte des valeurs non convertibles en DECIMAL",
       "Il est trop lent sur les grosses tables d'import",
       "Il n'accepte que des entiers, pas les décimales"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement normal, documenté.",
+      "Non. Le problème n'est pas le format : il accepte des caractères seuls comme '$'.",
       "Oui. ISNUMERIC répond « convertible vers AU MOINS un type numérique » : '$', '-', '1e5', '.' passent. Préfère TRY_CAST vers le type voulu.",
       "Non. La vitesse n'est pas le problème.",
       "Non. Il accepte aussi les décimales."
@@ -1613,14 +1613,14 @@ LEARNSQL.questions.m02 = [
     choix: [
       "C'est normal : = NULL équivaut à IS NULL",
       "Elle a été créée avec SET ANSI_NULLS OFF",
-      "C'est un bug de SQL Server, corrigé depuis",
+      "La colonne a un DEFAULT NULL",
       "La colonne est NOT NULL, donc rien ne change"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En standard, = NULL ne marche jamais.",
       "Oui. Avec ANSI_NULLS OFF, = NULL se comporte comme IS NULL. Réglage obsolète : corrige en IS NULL.",
-      "Non. C'est un réglage, pas un bug.",
+      "Non. Un DEFAULT ne change pas la comparaison ; c'est l'option ANSI_NULLS OFF.",
       "Non. Le problème vient du réglage de la procédure."
     ],
     retenir: "= NULL qui « marche » = ANSI_NULLS OFF. À corriger."

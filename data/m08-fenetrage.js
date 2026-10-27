@@ -442,14 +442,14 @@ LEARNSQL.questions.m08 = [
     id: "m08-q25", dialecte: "SQL Server",
     q: "LAST_VALUE(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) renvoie la date de la ligne elle-même. Pourquoi ?",
     choix: [
-      "Un bug connu de SQL Server",
+      "LAST_VALUE ignore le PARTITION BY",
       "Le cadre s'arrête à la ligne courante",
       "Il manque DESC dans le ORDER BY",
       "LAST_VALUE n'existe pas sur SQL Server"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement normal, à cause du cadre par défaut.",
+      "Non. La partition est respectée ; c'est le cadre qui s'arrête à la ligne courante.",
       "Oui. Le cadre par défaut va du début jusqu'à la ligne courante : la « dernière » de la fenêtre, c'est elle. Précise : ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING. Ou FIRST_VALUE avec ORDER BY … DESC.",
       "Non. Ce serait une autre solution, mais pas l'explication.",
       "Non. LAST_VALUE existe sur SQL Server."
@@ -1329,14 +1329,14 @@ LEARNSQL.questions.m08 = [
     choix: [
       "Seulement à cause du ORDER BY final",
       "La fenêtre a besoin de lignes triées",
-      "C'est un bug de l'optimiseur",
+      "Les statistiques sont périmées",
       "Les fenêtres trient toujours tout deux fois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Pas seulement.",
       "Oui. La fenêtre a besoin des lignes triées par PARTITION BY + ORDER BY ; sans index adapté, SQL Server trie. Un index sur ces colonnes supprime souvent ce tri.",
-      "Non. C'est normal : la fenêtre a besoin de lignes triées.",
+      "Non. Elles faussent les estimations, pas le besoin de trier.",
       "Non. Un tri suffit, pas deux."
     ],
     retenir: "Sort avant une fenêtre = index manquant sur (partition, ordre)."
@@ -1402,14 +1402,14 @@ LEARNSQL.questions.m08 = [
       "À la fin",
       "Au début",
       "Elles sont exclues",
-      "Au hasard"
+      "Avec le numéro 0"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait le cas sur Snowflake.",
       "Oui. NULL = plus petite valeur sur SQL Server. Gère-les : ORDER BY CASE WHEN d IS NULL THEN 1 ELSE 0 END, d.",
       "Non. ROW_NUMBER numérote toutes les lignes.",
-      "Non. L'ordre est fixe : NULL vient en premier."
+      "Non. Chaque ligne reçoit un numéro à partir de 1, NULL compris."
     ],
     retenir: "Les NULL suivent la règle de tri du moteur, aussi dans OVER."
   },

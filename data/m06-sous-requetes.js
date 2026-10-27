@@ -1199,14 +1199,14 @@ LEARNSQL.questions.m06 = [
     id: "m06-q66", dialecte: "SQL Server",
     q: "Pourquoi NOT IN sur une colonne qui accepte NULL donne-t-il souvent un plan plus compliqué que NOT EXISTS ?",
     choix: [
-      "C'est un bug connu de SQL Server",
+      "NOT IN ne peut pas utiliser d'index",
       "Il doit chercher un NULL dans la liste",
       "NOT IN n'utilise jamais aucun index",
       "Aucune différence : c'est le même plan"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est voulu : il respecte la logique des NULL.",
+      "Non. Il le peut ; le travail en plus vient de la recherche des NULL.",
       "Oui. Le moteur doit vérifier en plus s'il existe un NULL dans la liste, pour respecter la logique à 3 valeurs. Résultat piégeux ET travail en plus. NOT EXISTS évite les deux.",
       "Non. NOT IN peut utiliser un index ; le travail en plus vient des NULL.",
       "Non. Le plan de NOT IN est plus compliqué."
@@ -1330,14 +1330,14 @@ LEARNSQL.questions.m06 = [
     choix: [
       "Parce que ROW_NUMBER est trop lent",
       "La fenêtre est calculée après le WHERE",
-      "Parce que c'est plus joli et plus lisible",
+      "Parce que ROW_NUMBER exige un GROUP BY",
       "Ce n'est pas nécessaire, WHERE suffit"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est une question d'ordre de calcul, pas de vitesse.",
       "Oui. Les fonctions de fenêtrage sont calculées au SELECT, après WHERE : WHERE rn = 1 dans la même requête = erreur. On filtre au niveau du dessus.",
-      "Non. C'est une obligation.",
+      "Non. ROW_NUMBER n'a pas besoin de GROUP BY.",
       "Non. Sur SQL Server, WHERE refuse les fenêtres. (Snowflake a QUALIFY.)"
     ],
     retenir: "Filtrer une fenêtre : niveau du dessus (ou QUALIFY sur Snowflake)."

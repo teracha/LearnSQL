@@ -1778,14 +1778,14 @@ LEARNSQL.questions.m04 = [
     id: "m04-q97", dialecte: "Standard",
     q: "Tu importes un fichier Excel de ventes. Le CA calculé est le double du CA réel. Cause probable ?",
     choix: [
-      "Un bug de SUM sur les fichiers de plus de 1 Go",
+      "Des avoirs importés avec le mauvais signe",
       "Des lignes « Total » ont été importées",
       "Les NULL, comptés deux fois par SUM",
       "Le format des dates, mal converti"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. SUM n'a pas de limite de taille de fichier.",
+      "Non. Un mauvais signe fausse le total, mais ne le double pas exactement.",
       "Oui. Le fichier contient des lignes « Total » ou « Sous-total » : elles sont additionnées avec le détail. Filtre-les à l'import.",
       "Non. SUM ignore les NULL : ils ne doublent rien.",
       "Non. Une date mal convertie ne double pas les montants."

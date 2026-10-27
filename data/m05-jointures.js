@@ -261,14 +261,14 @@ LEARNSQL.questions.m05 = [
       "Le LEFT JOIN ajoute des lignes vides",
       "Certains clients ont plusieurs adresses",
       "Il y a des clients sans adresse",
-      "C'est un bug du moteur"
+      "Des adresses sans client"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un client sans adresse donne 1 ligne, pas plus.",
       "Oui. Un client avec 3 adresses donne 3 lignes. Filtre l'adresse voulue (ex. type = 'FACTURATION') dans le ON.",
       "Non. Ça ne change pas le nombre de lignes : on garde 1 ligne avec des NULL.",
-      "Non. C'est le fonctionnement normal."
+      "Non. Une adresse sans client n'apparaît pas dans client LEFT JOIN adresse."
     ],
     retenir: "Plus de lignes après une jointure = plusieurs correspondances à droite. Vérifie l'unicité de la clé."
   },
@@ -499,14 +499,14 @@ LEARNSQL.questions.m05 = [
       "C'est normal pour une jointure sur 1 million",
       "Une jointure qui « explose » (clé non unique)",
       "Le warehouse est trop petit pour cette jointure",
-      "Un bug d'affichage du Query Profile"
+      "Un warehouse trop petit pour la jointure"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce n'est pas normal.",
       "Oui. Une condition manquante ou une clé non unique multiplie les lignes : Snowflake appelle ça une « exploding join ». Vérifie le ON et l'unicité des clés.",
       "Non. La taille du warehouse change la vitesse, pas le nombre de lignes.",
-      "Non. Le profil est fiable."
+      "Non. La taille change la vitesse, pas le nombre de lignes produites."
     ],
     retenir: "Plus de lignes en sortie qu'en entrée = jointure qui explose. Vérifie les clés."
   },
@@ -1283,14 +1283,14 @@ LEARNSQL.questions.m05 = [
     id: "m05-q71", dialecte: "Standard",
     q: "L'ERP stocke le code client '0042', le fichier EDI '42' (texte). La jointure ne trouve rien. Pourquoi ?",
     choix: [
-      "Un bug de l'ERP ou du connecteur EDI",
+      "Un espace invisible après '42'",
       "'0042' ≠ '42' : formats différents",
       "Il faut un LEFT JOIN pour les trouver",
       "Il faut un DISTINCT sur les codes"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un problème de format.",
+      "Non. Possible ailleurs, mais ici c'est le zéro de tête qui manque.",
       "Oui. En texte, '0042' ≠ '42'. Choisis un format de référence et applique-le au chargement (ex. RIGHT('0000' + code, 4)).",
       "Non. Toujours aucune correspondance.",
       "Non. Toujours aucune correspondance."
@@ -1796,14 +1796,14 @@ LEARNSQL.questions.m05 = [
     id: "m05-q99", dialecte: "Standard",
     q: "Barème de remise : 0-999 et 1000-4999. Une commande fait 999,50 €. Elle disparaît avec INNER JOIN tranche ON montant BETWEEN mini AND maxi. Pourquoi ?",
     choix: [
-      "Un bug de BETWEEN avec les décimales",
+      "BETWEEN exclut les bornes 999 et 1000",
       "Un trou entre 999 et 1000",
       "Le montant de la commande est NULL",
       "Il faut un FULL JOIN sur les tranches"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. BETWEEN marche très bien.",
+      "Non. BETWEEN inclut ses bornes ; 999,50 tombe entre les deux tranches.",
       "Oui. 999,50 n'est dans aucune tranche. Définis les tranches sans trou : mini <= montant AND montant < mini_suivant. Et utilise LEFT JOIN pour voir les oubliés.",
       "Non. Le montant vaut 999,50.",
       "Non. Le problème vient du barème."
