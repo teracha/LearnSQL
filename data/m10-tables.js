@@ -10,10 +10,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un index est facultatif.",
       "Oui. Le reste (NULL / NOT NULL, DEFAULT, contraintes) est facultatif… mais conseillé.",
-      "Non.",
-      "Non."
+      "Non. DEFAULT est facultatif.",
+      "Non. Une clé étrangère est facultative."
     ],
     retenir: "Colonne = nom + type (+ NULL / NOT NULL)."
   },
@@ -49,7 +49,7 @@ LEARNSQL.questions.m10 = [
       "Non. Plein en quelques secondes.",
       "Non. 2,1 milliards : atteint en 3 ans et demi. Changer de type ensuite est très lourd.",
       "Oui. Pas de risque de dépassement.",
-      "Non."
+      "Non. TINYINT s'arrête à 255."
     ],
     retenir: "Table qui grossit vite : BIGINT pour l'id."
   },
@@ -67,7 +67,7 @@ LEARNSQL.questions.m10 = [
       "Non. Les décimales seraient perdues.",
       "Oui. Exact, avec 3 décimales.",
       "Non. Impossible de calculer proprement.",
-      "Non."
+      "Non. BIT ne stocke que 0 ou 1."
     ],
     retenir: "Quantité fractionnaire : DECIMAL, pas INT."
   },
@@ -82,9 +82,9 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. FLOAT peut stocker de très grands nombres.",
       "Oui. Les sommes peuvent avoir des écarts de centimes : 0,1 n'est pas représentable exactement en binaire. Montants = DECIMAL.",
-      "Non.",
+      "Non. FLOAT accepte les nombres négatifs.",
       "Non. Il est permis, mais inadapté."
     ],
     retenir: "Argent : DECIMAL. FLOAT : mesures scientifiques."
@@ -102,8 +102,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. CHAR a une longueur fixe.",
       "Oui. CHAR complète avec des espaces. VARCHAR, lui, garde la longueur réelle.",
-      "Non.",
-      "Non."
+      "Non. Une valeur courte est complétée, pas mise à NULL.",
+      "Non. Une valeur plus courte est acceptée."
     ],
     retenir: "CHAR = longueur fixe (espaces ajoutés). VARCHAR = longueur variable."
   },
@@ -120,8 +120,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Les libellés varient : espaces inutiles.",
       "Oui. Code pays 'FR', devise 'EUR' : CHAR(2), CHAR(3), longueur fixe, pas de surcoût.",
-      "Non.",
-      "Non."
+      "Non. Les adresses varient beaucoup en longueur.",
+      "Non. Pour des codes de longueur fixe, CHAR convient."
     ],
     retenir: "CHAR pour les codes de longueur fixe."
   },
@@ -136,10 +136,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. NVARCHAR stocke l'Unicode, VARCHAR non.",
       "Oui. Tous les alphabets, avec en général 2 octets par caractère. VARCHAR dépend de la collation (page de codes) : certains caractères étrangers sont perdus.",
-      "Non.",
-      "Non."
+      "Non. L'âge du type n'est pas la différence.",
+      "Non. NVARCHAR va jusqu'à 4 000 caractères, ou MAX."
     ],
     retenir: "Caractères étrangers possibles : NVARCHAR."
   },
@@ -154,10 +154,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. VARCHAR(MAX) est permis.",
       "Oui. Une colonne MAX ne peut pas être clé d'index, peut être stockée hors de la ligne, et cache la vraie taille attendue. Choisis une longueur réaliste : c'est aussi un contrôle de qualité.",
-      "Non.",
-      "Non."
+      "Non. MAX va jusqu'à 2 Go.",
+      "Non. Elle se modifie normalement."
     ],
     retenir: "Longueur juste = performance + contrôle. MAX seulement si nécessaire."
   },
@@ -172,10 +172,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sur Snowflake, la longueur ne change pas la vitesse.",
       "Oui. Sur Snowflake, la longueur n'influence pas les performances : elle refuse seulement les valeurs trop longues. Différent de SQL Server. Une longueur reste utile pour documenter et contrôler.",
-      "Non.",
-      "Non."
+      "Non. VARCHAR sans longueur est permis.",
+      "Non. Même vitesse pour les jointures."
     ],
     retenir: "Snowflake : la longueur des VARCHAR est un contrôle, pas une optimisation."
   },
@@ -190,10 +190,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake n'a pas de types d'entier à taille fixe.",
       "Oui. INT, BIGINT, SMALLINT… sont tous des alias de NUMBER(38,0).",
-      "Non.",
-      "Non."
+      "Non. INT reste un nombre exact.",
+      "Non. INT est un nombre, pas un texte."
     ],
     retenir: "Snowflake : tous les entiers = NUMBER(38,0)."
   },
@@ -228,8 +228,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. DATETIME n'a pas cette précision.",
       "Oui. DATETIME arrondit à 1/300 s : .999 devient la seconde suivante… donc le lendemain ! Raison de plus pour filtrer avec < lendemain.",
-      "Non.",
-      "Non."
+      "Non. DATETIME arrondit .999 vers le haut.",
+      "Non. La valeur est acceptée et arrondie."
     ],
     retenir: "DATETIME arrondit : '23:59:59.999' = jour suivant."
   },
@@ -247,8 +247,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Pas de fuseau.",
       "Oui. Utile pour des flux internationaux. (Snowflake : TIMESTAMP_TZ.)",
-      "Non.",
-      "Non."
+      "Non. DATE n'a ni heure ni fuseau.",
+      "Non. TIME n'a ni date ni fuseau."
     ],
     retenir: "Date + fuseau : DATETIMEOFFSET (SQL Server), TIMESTAMP_TZ (Snowflake)."
   },
@@ -265,8 +265,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. L'heure inutile crée des pièges de filtre.",
       "Oui. 3 octets, pas d'heure, pas de piège.",
-      "Non.",
-      "Non."
+      "Non. Un texte accepte des dates fausses.",
+      "Non. On perd les fonctions de date."
     ],
     retenir: "Pas d'heure utile : type DATE."
   },
@@ -284,7 +284,7 @@ LEARNSQL.questions.m10 = [
       "Non. Il est unique.",
       "Oui. Chaque insertion tombe au milieu de l'index : la table se fragmente et ralentit. Préfère un INT/BIGINT IDENTITY, ou NEWSEQUENTIALID() si un GUID est obligatoire.",
       "Non. 16 octets : 4 fois un INT.",
-      "Non."
+      "Non. Il est permis comme clé primaire."
     ],
     retenir: "Clé cluster : étroite et croissante. Pas de GUID aléatoire."
   },
@@ -299,10 +299,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un vrai contrôle des données.",
       "Oui. Et l'optimiseur peut faire de meilleurs plans. Un NULL qui ne devrait pas exister est un bug qui arrive tôt ou tard.",
-      "Non.",
-      "Non."
+      "Non. NOT NULL ajoute un contrôle, il n'accélère pas l'INSERT.",
+      "Non. Seulement les colonnes vraiment obligatoires."
     ],
     retenir: "Obligatoire métier = NOT NULL en base."
   },
@@ -320,7 +320,7 @@ LEARNSQL.questions.m10 = [
       "Non. Une table n'a pas d'ordre garanti.",
       "Oui. Elle identifie chaque ligne de façon sûre.",
       "Non. Une clé peut être un texte.",
-      "Non."
+      "Non. La clé peut être de tout type, pas seulement du texte."
     ],
     retenir: "PRIMARY KEY = unique + NOT NULL."
   },
@@ -335,10 +335,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle crée aussi un index.",
       "Oui. Si la table n'en a pas déjà un : la table est rangée selon la clé primaire. On peut choisir NONCLUSTERED si besoin.",
-      "Non.",
-      "Non."
+      "Non. Elle ne crée pas de vue.",
+      "Non. L'index unique suffit : pas de trigger."
     ],
     retenir: "SQL Server : PRIMARY KEY = index cluster par défaut."
   },
@@ -356,8 +356,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Une table n'a qu'UNE clé primaire.",
       "Oui. Clé composée : c'est le couple qui doit être unique.",
-      "Non.",
-      "Non."
+      "Non. Syntaxe invalide.",
+      "Non. Une clé composée est permise."
     ],
     retenir: "Clé composée : PRIMARY KEY (col1, col2)."
   },
@@ -393,8 +393,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Pas sur SQL Server. (La norme SQL, elle, autorise plusieurs NULL dans une colonne UNIQUE.)",
       "Oui. SQL Server n'accepte qu'un seul NULL dans une contrainte UNIQUE. Solution : un index unique filtré … WHERE email IS NOT NULL.",
-      "Non.",
-      "Non."
+      "Non. Un INSERT n'écrase jamais une autre ligne.",
+      "Non. SQL Server ne change pas la valeur."
     ],
     retenir: "SQL Server UNIQUE : un seul NULL. Index filtré pour en autoriser plusieurs."
   },
@@ -428,10 +428,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La colonne visée doit être unique.",
       "Oui. La colonne (ou le groupe) référencée doit identifier une seule ligne.",
-      "Non.",
-      "Non."
+      "Non. La colonne visée doit être unique.",
+      "Non. Une FK pointe vers une table."
     ],
     retenir: "FK → PK ou UNIQUE."
   },
@@ -446,10 +446,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une FK ne vérifie que les valeurs renseignées.",
       "Oui. Une FK ne vérifie que les valeurs renseignées. Pour interdire : NOT NULL en plus de la FK.",
-      "Non.",
-      "Non."
+      "Non. Le NULL n'est pas comparé.",
+      "Non. Un NULL n'est pas contrôlé par la FK."
     ],
     retenir: "FK + NULL autorisé = référence facultative. Obligatoire ? Ajoute NOT NULL."
   },
@@ -466,8 +466,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Piège classique.",
       "Oui. Un CHECK ne refuse que si la condition est FAUSSE, et NULL > 0 est « inconnu ». Pour refuser aussi NULL : NOT NULL sur la colonne.",
-      "Non.",
-      "Non."
+      "Non. Une colonne numérique accepte NULL.",
+      "Non. Même règle pour INSERT et UPDATE."
     ],
     retenir: "CHECK laisse passer NULL. Ajoute NOT NULL si besoin."
   },
@@ -503,9 +503,9 @@ LEARNSQL.questions.m10 = [
     bonne: 0,
     pourquoi: [
       "Oui. Un CHECK peut comparer deux colonnes de la même ligne.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. UNIQUE empêche les doublons, il ne compare pas les dates.",
+      "Non. DEFAULT donne une valeur de départ, il ne contrôle rien.",
+      "Non. Un CHECK le fait."
     ],
     retenir: "CHECK multi-colonnes : règles de cohérence sur la ligne."
   },
@@ -520,10 +520,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est facultatif.",
       "Oui. Les noms automatiques sont illisibles (FK__commande__clien__3B75D760) et différents d'une base à l'autre. Un nom clair aide à comprendre l'erreur et à écrire DROP CONSTRAINT dans un script.",
-      "Non.",
-      "Non."
+      "Non. Le nom ne change pas la vitesse.",
+      "Non. Le tri des contraintes n'a pas d'intérêt."
     ],
     retenir: "Contraintes nommées : pk_, fk_, uq_, ck_, df_."
   },
@@ -557,10 +557,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le message parle de données, pas de syntaxe.",
       "Oui. Des lignes existantes pointent vers des valeurs absentes de la table parente. Trouve-les avec NOT EXISTS, corrige-les, puis ajoute la contrainte.",
       "Non. Une table vide n'a aucun orphelin : ça marcherait.",
-      "Non."
+      "Non. Une FK n'a pas besoin d'index pour être créée."
     ],
     retenir: "Avant d'ajouter une FK : nettoyer les orphelins."
   },
@@ -575,9 +575,9 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. NOCHECK laisse des données non vérifiées.",
       "Oui. Les données existantes n'ont pas été vérifiées : l'optimiseur ne peut plus s'en servir. Réactive avec ALTER TABLE t WITH CHECK CHECK CONSTRAINT fk_… pour revérifier.",
-      "Non.",
+      "Non. La FK existe toujours.",
       "Non. Les nouveaux le sont."
     ],
     retenir: "Après un chargement : WITH CHECK CHECK CONSTRAINT pour des contraintes fiables."
@@ -611,10 +611,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les outils et l'optimiseur peuvent s'en servir.",
       "Oui. Le modèle est documenté, les outils (Power BI, modélisation) lisent les relations, et certaines optimisations en profitent. Mais écris aussi des contrôles de qualité dans tes chargements.",
-      "Non.",
-      "Non."
+      "Non. Elles ne sont pas vérifiées : aucun effet sur la vitesse.",
+      "Non. C'est facultatif."
     ],
     retenir: "Snowflake : déclarer les clés (documentation) + contrôler soi-même."
   },
@@ -629,10 +629,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce n'est pas une limite de lignes.",
       "Oui. IDENTITY(départ, pas) : 1000, 1010, 1020…",
-      "Non.",
-      "Non."
+      "Non. Les valeurs se suivent, elles ne sont pas tirées au hasard.",
+      "Non. IDENTITY n'est pas aléatoire."
     ],
     retenir: "IDENTITY(départ, pas)."
   },
@@ -649,8 +649,8 @@ LEARNSQL.questions.m10 = [
     bonne: 0,
     pourquoi: [
       "Oui. La prochaine valeur sera 5001. Attention à ne pas créer de doublons avec des id existants.",
-      "Non.",
-      "Non.",
+      "Non. On ne modifie pas IDENTITY avec UPDATE.",
+      "Non. Cette commande n'existe pas.",
       "Non. TRUNCATE remet au départ, mais vide la table."
     ],
     retenir: "Recaler IDENTITY : DBCC CHECKIDENT … RESEED."
@@ -668,9 +668,9 @@ LEARNSQL.questions.m10 = [
     bonne: 0,
     pourquoi: [
       "Oui. AUTOINCREMENT (ou IDENTITY) avec départ et pas en option. Valeurs uniques, mais pas forcément sans trou.",
-      "Non.",
+      "Non. IDENTITY_INSERT est une option SQL Server.",
       "Non. PostgreSQL.",
-      "Non."
+      "Non. AUTO n'est pas un mot-clé Snowflake."
     ],
     retenir: "Snowflake : AUTOINCREMENT / IDENTITY, ou une SEQUENCE."
   },
@@ -686,10 +686,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle stocke la valeur.",
       "Oui. La valeur est calculée à l'écriture et stockée : lecture rapide, et on peut l'indexer. Sans PERSISTED, elle est calculée à chaque lecture.",
       "Non. C'est le cas sans PERSISTED.",
-      "Non."
+      "Non. Une colonne calculée ne se modifie pas."
     ],
     retenir: "Colonne calculée PERSISTED : stockée, indexable."
   },
@@ -725,8 +725,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. SQL Server refuse.",
       "Oui. SQL Server refuse : des données seraient tronquées. Vérifie d'abord : SELECT MAX(LEN(col)). Corrige les données si besoin.",
-      "Non.",
-      "Non."
+      "Non. SQL Server refuse le changement.",
+      "Non. SQL Server contrôle la longueur."
     ],
     retenir: "Réduire une colonne : vérifier MAX(LEN) avant."
   },
@@ -743,8 +743,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. AFTER, c'est MySQL.",
       "Oui. Pour réordonner, il faut recréer la table. L'ordre physique n'a pas d'importance : liste les colonnes dans l'ordre voulu dans tes SELECT et tes vues.",
-      "Non.",
-      "Non."
+      "Non. Cette option n'existe pas.",
+      "Non. SQL Server ajoute toujours à la fin."
     ],
     retenir: "Nouvelle colonne = à la fin. L'ordre se gère dans les SELECT."
   },
@@ -760,8 +760,8 @@ LEARNSQL.questions.m10 = [
     bonne: 0,
     pourquoi: [
       "Oui. sp_rename 'dbo.client.ville', 'commune', 'COLUMN' sur SQL Server ; ALTER TABLE client RENAME COLUMN ville TO commune sur Snowflake. Attention : les vues, procédures et rapports qui utilisent l'ancien nom vont casser.",
-      "Non.",
-      "Non.",
+      "Non. UPDATE modifie des données, pas des noms.",
+      "Non. Cette syntaxe n'existe pas.",
       "Non. C'est l'inverse."
     ],
     retenir: "Renommer : sp_rename (SQL Server), RENAME COLUMN (Snowflake). Vérifier les dépendances."
@@ -777,10 +777,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les clés et index ne sont pas copiés.",
       "Oui. Seulement les colonnes, leurs types, NULL/NOT NULL et la propriété IDENTITY. Clés, index, valeurs par défaut et triggers sont à recréer.",
-      "Non.",
-      "Non."
+      "Non. Les index ne sont pas copiés.",
+      "Non. Aucune contrainte n'est copiée."
     ],
     retenir: "SELECT INTO = structure de base + données. Pas les contraintes."
   },
@@ -795,10 +795,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. OR REPLACE remplace sans erreur.",
       "Oui. Les données actuelles disparaissent (récupérables seulement via Time Travel). Très dangereux dans un script de déploiement. Pour ajouter une colonne : ALTER TABLE.",
-      "Non.",
-      "Non."
+      "Non. Toute la table est remplacée, vide.",
+      "Non. OR REPLACE remplace la table."
     ],
     retenir: "CREATE OR REPLACE TABLE = DROP + CREATE. Danger."
   },
@@ -816,8 +816,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Oui. Rien n'est fait si elle existe : script relançable sans perte.",
       "Non. Ça écrase la table existante.",
-      "Non.",
-      "Non."
+      "Non. ONLY n'existe pas ici.",
+      "Non. Cette syntaxe n'existe pas."
     ],
     retenir: "Relançable sans perte : CREATE TABLE IF NOT EXISTS."
   },
@@ -832,10 +832,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. TRANSIENT n'a pas de Fail-safe.",
       "Oui. Pas de Fail-safe (7 jours de protection) et un Time Travel limité : moins de coût de stockage, moins de protection. Idéal pour les tables de chargement qu'on peut recréer.",
       "Non. C'est TEMPORARY.",
-      "Non."
+      "Non. PERMANENT est modifiable."
     ],
     retenir: "Snowflake : TEMPORARY (session), TRANSIENT (sans Fail-safe), PERMANENT."
   },
@@ -850,10 +850,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. ## donne une table visible par toutes les sessions.",
       "Oui. #client est visible seulement par ta session ; ##client par toutes les sessions. ## est rarement une bonne idée : conflits de noms et de données entre utilisateurs.",
       "Non. Elle disparaît quand plus personne ne l'utilise.",
-      "Non."
+      "Non. Pas de différence de taille."
     ],
     retenir: "# = privée. ## = globale (à éviter)."
   },
@@ -868,10 +868,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les schémas aident à ranger et à gérer les droits.",
       "Oui. Ranger par usage (chargement, référentiel, rapports) et donner des droits par schéma. Ex. les utilisateurs Power BI ont seulement le droit de lire le schéma rpt.",
-      "Non.",
-      "Non."
+      "Non. Un schéma ne trie rien.",
+      "Non. Un schéma ne compresse rien."
     ],
     retenir: "Schémas = rangement + sécurité."
   },
@@ -886,10 +886,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une vue simple ne copie rien.",
       "Oui. Une vue simple est exécutée à chaque lecture. Les vues « matérialisées » / « indexées » sont l'exception : elles stockent le résultat.",
-      "Non.",
-      "Non."
+      "Non. Une vue simple n'a pas de cache.",
+      "Non. Elle ne stocke pas d'index."
     ],
     retenir: "Vue = requête enregistrée, pas une copie."
   },
@@ -906,7 +906,7 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Pas directement.",
       "Oui. On ne peut plus modifier ou supprimer les colonnes utilisées par la vue sans d'abord modifier la vue. Obligatoire pour une vue indexée.",
-      "Non.",
+      "Non. Le schéma de la vue ne change pas.",
       "Non. Sauf si on lui ajoute un index cluster."
     ],
     retenir: "SCHEMABINDING = lien fort vue ↔ tables."
@@ -922,10 +922,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SCHEMABINDING et un index cluster unique sont nécessaires.",
       "Oui. WITH SCHEMABINDING, puis un index cluster UNIQUE sur la vue : le résultat est stocké et maintenu à chaque modification des tables (coût en écriture).",
-      "Non.",
-      "Non."
+      "Non. SQL Server maintient la vue lui-même.",
+      "Non. Une ## table n'est pas une vue indexée."
     ],
     retenir: "Vue indexée = SCHEMABINDING + index cluster unique."
   },
@@ -940,10 +940,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est la vue normale.",
       "Oui. Le résultat est maintenu automatiquement (édition Enterprise, sur une seule table, avec un coût de maintenance). Utile pour des agrégats très souvent lus.",
-      "Non.",
-      "Non."
+      "Non. Elle est permanente.",
+      "Non. Snowflake la maintient automatiquement."
     ],
     retenir: "Vue matérialisée Snowflake : rapide en lecture, coût de maintenance, limitée."
   },
@@ -958,10 +958,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle ne chiffre rien.",
       "Oui. Les utilisateurs voient le résultat, pas le SQL ni les tables derrière (utile en partage de données).",
       "Non. Elle peut même être un peu plus lente.",
-      "Non."
+      "Non. Les utilisateurs autorisés lisent les données."
     ],
     retenir: "SECURE VIEW = définition cachée."
   },
@@ -976,10 +976,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La liste des colonnes est figée à la création.",
       "Oui. SQL Server garde la liste de colonnes de la création : il faut sp_refreshview (ou recréer la vue). Encore une raison de lister les colonnes dans une vue.",
-      "Non.",
-      "Non."
+      "Non. La vue fonctionne, sans la nouvelle colonne.",
+      "Non. Rien ne se met à jour tout seul."
     ],
     retenir: "Vue avec * : colonnes figées à la création."
   },
@@ -994,9 +994,9 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On perd la donnée pour tout le monde.",
       "Oui. On donne les droits sur la vue, pas sur la table : la vue sert de « fenêtre » de sécurité.",
-      "Non.",
+      "Non. On perd la donnée pour tout le monde.",
       "Non. Trop lourd pour ce besoin."
     ],
     retenir: "Vue = contrôle de ce qui est visible."
@@ -1014,8 +1014,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Ce serait le cas sans CHECK OPTION.",
       "Oui. CHECK OPTION interdit les modifications contraires au filtre de la vue.",
-      "Non.",
-      "Non."
+      "Non. CHECK OPTION refuse avec une erreur.",
+      "Non. La vue ne change pas."
     ],
     retenir: "WITH CHECK OPTION : on ne sort pas une ligne de la vue en la modifiant."
   },
@@ -1052,8 +1052,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Oui. Les valeurs par défaut se remplissent à l'insertion.",
       "Non. Risque d'oubli.",
-      "Non.",
-      "Non."
+      "Non. IDENTITY donne un numéro, pas l'auteur ni la date.",
+      "Non. Des DEFAULT le font."
     ],
     retenir: "Colonnes d'audit : DEFAULT SYSDATETIME() / SUSER_SNAME()."
   },
@@ -1070,8 +1070,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Erreur fréquente.",
       "Oui. Pour l'UPDATE : l'application, un trigger, ou une table temporelle. Pense-y dès la conception.",
-      "Non.",
-      "Non."
+      "Non. DEFAULT ne sert qu'à l'INSERT.",
+      "Non. Même règle sur Snowflake."
     ],
     retenir: "DEFAULT = à la création seulement."
   },
@@ -1088,8 +1088,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Au contraire.",
       "Oui. Elle est stable, courte et uniforme, même si la donnée métier change ou est saisie en retard. Un SIRET peut changer, être faux, ou absent au début : garde-le en UNIQUE à côté.",
-      "Non.",
-      "Non."
+      "Non. Un numéro technique n'est pas plus lisible.",
+      "Non. On garde les contraintes (UNIQUE sur le SIRET)."
     ],
     retenir: "PK technique stable + UNIQUE sur la clé naturelle."
   },
@@ -1104,10 +1104,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les calculs sont exacts et rapides.",
       "Oui. Calculs exacts et rapides ; mais risque d'erreur si quelqu'un oublie de diviser par 100. DECIMAL est en général plus simple pour tous. Documente le choix s'il est fait.",
-      "Non.",
-      "Non."
+      "Non. Un entier accepte les négatifs.",
+      "Non. 1250 centimes gardent les centimes."
     ],
     retenir: "Centimes en entier : possible, mais DECIMAL est plus clair."
   },
@@ -1141,10 +1141,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pour la clé du calendrier, c'est courant.",
       "Oui. Lisible et compacte pour la clé de la table calendrier ; mais les vraies dates restent en type DATE dans la dimension. Dans une base de gestion (ERP), une date reste une DATE.",
-      "Non.",
-      "Non."
+      "Non. Dans un ERP, une date reste une DATE.",
+      "Non. Un texte est plus lourd et sans contrôle."
     ],
     retenir: "Clé date AAAAMMJJ : en entrepôt, pour la dimension calendrier."
   },
@@ -1159,10 +1159,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On ne peut plus joindre ni contrôler.",
       "Oui. Impossible de joindre, filtrer, compter ou contrôler proprement : il faut une table enfant (une ligne par valeur). C'est contraire à la 1re forme normale.",
-      "Non.",
-      "Non."
+      "Non. La longueur n'est pas le vrai problème.",
+      "Non. Le ; est permis dans un texte."
     ],
     retenir: "Une valeur par case. Liste = table enfant."
   },
@@ -1198,8 +1198,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Possible, mais il faudrait le convertir à chaque lecture.",
       "Oui. VARIANT (et ses cousins OBJECT, ARRAY) : on lit avec col:chemin::type.",
-      "Non.",
-      "Non."
+      "Non. BINARY stocke des octets.",
+      "Non. TEXT est un VARCHAR sur Snowflake."
     ],
     retenir: "Snowflake : JSON → VARIANT."
   },
@@ -1214,10 +1214,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Par défaut, c'est NTZ.",
       "Oui. Par défaut (paramètre TIMESTAMP_TYPE_MAPPING). Sois explicite pour éviter les surprises.",
-      "Non.",
-      "Non."
+      "Non. Par défaut, c'est NTZ.",
+      "Non. L'heure est gardée."
     ],
     retenir: "Snowflake : écris TIMESTAMP_NTZ / LTZ / TZ explicitement."
   },
@@ -1234,9 +1234,9 @@ LEARNSQL.questions.m10 = [
     bonne: 0,
     pourquoi: [
       "Oui. Jusqu'à 90 jours en édition Enterprise. Plus long = plus de stockage.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Le paramètre s'appelle DATA_RETENTION_TIME_IN_DAYS.",
+      "Non. Cette commande n'existe pas.",
+      "Non. Un ALTER TABLE le règle."
     ],
     retenir: "DATA_RETENTION_TIME_IN_DAYS = durée de Time Travel."
   },
@@ -1253,8 +1253,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Pas d'index sur Snowflake.",
       "Oui. CLUSTER BY définit une clé de clustering : Snowflake réorganise les micro-partitions selon date_cde pour mieux filtrer (coût en crédits). À réserver aux très grosses tables.",
-      "Non.",
-      "Non."
+      "Non. L'affichage a toujours besoin d'ORDER BY.",
+      "Non. La table reste une seule table."
     ],
     retenir: "CLUSTER BY = meilleur pruning, pour les très grosses tables."
   },
@@ -1269,10 +1269,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas d'index sur Snowflake.",
       "Oui. Pas d'index sur les tables standard. L'optimisation passe par le pruning des micro-partitions et, si besoin, une clé de clustering.",
-      "Non.",
-      "Non."
+      "Non. Ce serait CLUSTER BY.",
+      "Non. Snowflake renvoie une erreur."
     ],
     retenir: "Snowflake : pas de CREATE INDEX (tables standard)."
   },
@@ -1287,10 +1287,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les partitions restent dans la même base.",
       "Oui. On gère la table par morceaux : archiver ou supprimer un mois entier instantanément (SWITCH), maintenance par partie. Pour les performances, le bon index compte plus.",
-      "Non.",
-      "Non."
+      "Non. Les index restent nécessaires.",
+      "Non. Le partitionnement ne trie pas les requêtes."
     ],
     retenir: "Partitionnement SQL Server : surtout pour gérer / archiver par tranche."
   },
@@ -1305,10 +1305,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Gain souvent important d'espace et de lectures.",
       "Oui. Moins d'espace et souvent moins de lectures, contre un peu plus de calcul processeur. Intéressant pour les tables volumineuses peu modifiées.",
       "Non. La compression est sans perte.",
-      "Non."
+      "Non. La table reste modifiable."
     ],
     retenir: "Compression : moins de disque, un peu plus de CPU."
   },
@@ -1323,10 +1323,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une table peut être un heap.",
       "Oui. On peut ajouter des index après le chargement si nécessaire. Pour les tables « permanentes » souvent lues et modifiées, un index cluster reste conseillé.",
-      "Non.",
-      "Non."
+      "Non. Le jour n'a pas d'importance.",
+      "Non. C'est permis."
     ],
     retenir: "Heap : correct pour du chargement temporaire."
   },
@@ -1344,7 +1344,7 @@ LEARNSQL.questions.m10 = [
       "Non. Trop petit, et le + et le 0 de tête sont perdus.",
       "Non. Le 0 de tête et le + sont perdus.",
       "Oui. Ce n'est pas un nombre : on ne calcule jamais dessus.",
-      "Non."
+      "Non. On ne calcule pas sur un téléphone, et le + est perdu."
     ],
     retenir: "Si on ne calcule pas dessus, ce n'est pas un nombre."
   },
@@ -1362,7 +1362,7 @@ LEARNSQL.questions.m10 = [
       "Non. Zéros perdus, et des codes contiennent des lettres (UK, Canada, Corse).",
       "Non. Trop strict : formats étrangers différents.",
       "Oui. Texte, longueur variable.",
-      "Non."
+      "Non. Zéros de tête et lettres perdus."
     ],
     retenir: "Codes postaux : texte, longueur variable."
   },
@@ -1379,8 +1379,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. 0,0375 deviendrait 0,04 : erreur sur 10 000 vis.",
       "Oui. Prix unitaires précis ; les montants totaux peuvent rester en 2 décimales.",
-      "Non.",
-      "Non."
+      "Non. Les décimales seraient perdues.",
+      "Non. FLOAT est approché."
     ],
     retenir: "Prix unitaires fins : plus de décimales que les montants."
   },
@@ -1398,7 +1398,7 @@ LEARNSQL.questions.m10 = [
       "Non. Mélanger les deux crée des erreurs × 100.",
       "Oui. Choisis UNE convention, documente-la, et adapte le type (DECIMAL(5,2) pour 20,00 ; DECIMAL(5,4) pour 0,2000).",
       "Non. Les deux conventions existent : l'important est d'en choisir une.",
-      "Non."
+      "Non. Impossible de calculer avec du texte."
     ],
     retenir: "Pourcentages : une convention unique et documentée."
   },
@@ -1413,10 +1413,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un choix voulu.",
       "Oui. Toutes les lignes du fichier entrent, même invalides ; on les contrôle et on les convertit avant la table cible. Une date mal formée ne fait pas échouer tout le chargement.",
-      "Non.",
-      "Non."
+      "Non. Ça ne fait pas gagner de place.",
+      "Non. Ce n'est pas obligatoire."
     ],
     retenir: "stg en texte → contrôle → conversion → cible typée."
   },
@@ -1433,9 +1433,9 @@ LEARNSQL.questions.m10 = [
     bonne: 0,
     pourquoi: [
       "Oui. SQL Server 2016+ et Snowflake.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. FORCE n'existe pas ici.",
+      "Non. DELETE ne supprime pas une table.",
+      "Non. Cette syntaxe n'existe pas."
     ],
     retenir: "DROP TABLE IF EXISTS."
   },
@@ -1450,10 +1450,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle n'existe pas pour les tables.",
       "Oui. Pour une table, on teste son existence (IF OBJECT_ID(…) IS NULL) ou on utilise ALTER TABLE. Une table contient des données : on ne la « remplace » pas.",
-      "Non.",
-      "Non."
+      "Non. Seulement pour vues, procédures, fonctions.",
+      "Non. FORCE n'existe pas ici."
     ],
     retenir: "Table : pas de CREATE OR ALTER. Évolution par ALTER TABLE."
   },
@@ -1489,7 +1489,7 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Oui. sp_rename 'dbo.ancien', 'nouveau' sur SQL Server ; ALTER TABLE ancien RENAME TO nouveau sur Snowflake. Vérifie toujours les dépendances (vues, procédures, flux ETL, rapports).",
       "Non. C'est l'inverse.",
-      "Non.",
+      "Non. Cette syntaxe n'existe pas.",
       "Non. Possible, mais pas obligatoire."
     ],
     retenir: "Renommer = casser les dépendances. Vérifier avant."
@@ -1505,10 +1505,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les dépendances se consultent.",
       "Oui. Affiche les dépendances (SSMS, sys.sql_expression_dependencies), et pense aux flux et rapports externes : ils ne sont pas visibles dans la base, demande aux équipes.",
-      "Non.",
-      "Non."
+      "Non. Trop risqué.",
+      "Non. Le nom ne dit pas qui l'utilise."
     ],
     retenir: "Analyse d'impact avant toute modification de structure."
   },
@@ -1526,7 +1526,7 @@ LEARNSQL.questions.m10 = [
       "Non. Il faudrait des crochets ou guillemets partout.",
       "Oui. En minuscules ou PascalCase, de façon cohérente (date_creation) : lisible, portable (SQL Server, Snowflake, outils), sans pièges.",
       "Non. Illisible.",
-      "Non."
+      "Non. Mélanger les styles crée des erreurs."
     ],
     retenir: "Noms : sans espace, sans accent, cohérents."
   },
@@ -1541,9 +1541,9 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les deux moteurs le permettent dans la base.",
       "Oui. Snowflake : COMMENT ON COLUMN t.col IS '…' ; SQL Server : propriété étendue MS_Description (sp_addextendedproperty). Les outils de documentation et certains outils BI lisent ces descriptions.",
-      "Non.",
+      "Non. Un nom trop long devient illisible.",
       "Non. C'est l'inverse."
     ],
     retenir: "Dictionnaire de données : commentaires en base."
@@ -1559,10 +1559,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse.",
       "Oui. SQL Server n'accepte pas les clés étrangères entre bases : contrôle par traitement ou trigger. Fréquent avec les ERP « multi-dossiers ».",
-      "Non.",
-      "Non."
+      "Non. Un synonyme ne permet pas de FK.",
+      "Non. Une FK ne vise pas une vue."
     ],
     retenir: "Pas de FK entre bases différentes (SQL Server)."
   },
@@ -1577,10 +1577,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le CHECK ne voit que la ligne.",
       "Oui. Pour une autre table : clé étrangère, trigger ou contrôle applicatif. (Une fonction dans un CHECK le permet techniquement, mais c'est fragile et lent.)",
-      "Non.",
-      "Non."
+      "Non. Un JOIN est interdit dans un CHECK.",
+      "Non. Snowflake n'applique même pas les CHECK."
     ],
     retenir: "CHECK = règles sur la ligne elle-même."
   },
@@ -1597,8 +1597,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Les données ne sont plus protégées.",
       "Oui. WITH CHECK CHECK CONSTRAINT ALL contrôle les données chargées et garde des contraintes fiables. Si des lignes sont invalides, la réactivation échoue : tu sais qu'il faut corriger.",
-      "Non.",
-      "Non."
+      "Non. On perd toute protection.",
+      "Non. Ça ne réactive rien."
     ],
     retenir: "Contraintes désactivées = à réactiver WITH CHECK."
   },
@@ -1613,10 +1613,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle les bloque.",
       "Oui. Les deux bloquent les doublons (la contrainte crée un index). La contrainte exprime une règle métier ; l'index permet des options (filtre, INCLUDE).",
-      "Non.",
-      "Non."
+      "Non. Même vitesse.",
+      "Non. Le choix exprime une intention différente."
     ],
     retenir: "UNIQUE : contrainte (règle) ou index (options)."
   },
@@ -1631,9 +1631,9 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le message parle d'une colonne nullable.",
       "Oui. Une clé primaire exige des colonnes NOT NULL : ALTER TABLE t ALTER COLUMN code VARCHAR(20) NOT NULL; puis la PK.",
-      "Non.",
+      "Non. Le message parle d'une colonne nullable.",
       "Non. Une PK peut être un texte."
     ],
     retenir: "Clé primaire = colonnes NOT NULL."
@@ -1649,10 +1649,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Doublons et lignes impossibles à cibler.",
       "Oui. Doublons possibles, impossible de cibler une ligne précise pour la corriger, problèmes avec les outils de réplication et de synchronisation. Toute table « métier » doit avoir une clé.",
-      "Non.",
-      "Non."
+      "Non. Elle reste modifiable.",
+      "Non. Elle peut avoir des index."
     ],
     retenir: "Table métier = une clé primaire."
   },
@@ -1670,7 +1670,7 @@ LEARNSQL.questions.m10 = [
       "Non. Ce serait CASCADE.",
       "Oui. Si le commercial est supprimé, ses commandes restent, mais commercial_id devient NULL. La colonne doit accepter NULL.",
       "Non. C'est le comportement par défaut (NO ACTION).",
-      "Non."
+      "Non. Les commandes sont vraiment modifiées."
     ],
     retenir: "ON DELETE : NO ACTION (défaut), CASCADE, SET NULL."
   },
@@ -1705,8 +1705,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Ça existe dans d'autres bases (PostgreSQL), pas sur SQL Server.",
       "Oui. SQL Server n'a pas de contraintes différées : rendre une des colonnes NULLable, insérer, puis mettre à jour. Ou revoir le modèle : une dépendance circulaire est souvent le signe d'un modèle à simplifier.",
-      "Non.",
-      "Non."
+      "Non. Chaque INSERT est vérifié tout de suite.",
+      "Non. Une colonne NULL temporaire suffit."
     ],
     retenir: "Références circulaires : à éviter ; sinon NULL temporaire."
   },
@@ -1723,8 +1723,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Rien à voir avec #table.",
       "Oui. SQL Server garde l'historique de chaque modification dans une table d'historique, interrogeable avec FOR SYSTEM_TIME AS OF. Idéal pour l'audit : « que valait ce tarif le 1er mars ? ».",
-      "Non.",
-      "Non."
+      "Non. Elle garde l'historique, elle ne trie pas.",
+      "Non. Elle garde, elle ne supprime pas."
     ],
     retenir: "Table temporelle = historique automatique."
   },
@@ -1739,10 +1739,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Surtout agrandir.",
       "Oui. Snowflake permet surtout d'agrandir (VARCHAR plus long, plus de précision). Pour changer de type : nouvelle colonne, conversion, puis échange. Prévoir les types dès la conception évite ces migrations.",
       "Non. Toujours limité.",
-      "Non."
+      "Non. FORCE n'existe pas ici."
     ],
     retenir: "Snowflake : changements de type limités. Bien typer dès le départ."
   },
@@ -1759,8 +1759,8 @@ LEARNSQL.questions.m10 = [
     pourquoi: [
       "Non. Beaucoup de fonctions texte ne marchent pas dessus.",
       "Oui. Ces types sont obsolètes : migre vers VARCHAR(MAX) / NVARCHAR(MAX). Même chose pour IMAGE → VARBINARY(MAX).",
-      "Non.",
-      "Non."
+      "Non. Un texte n'est pas un nombre.",
+      "Non. On perdrait les données."
     ],
     retenir: "TEXT / NTEXT / IMAGE : obsolètes → (N)VARCHAR(MAX) / VARBINARY(MAX)."
   },
@@ -1775,10 +1775,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est la base de la qualité des données.",
       "Oui. Contrôle automatique des données, tris et calculs justes, meilleures performances ; changer un type plus tard coûte cher. Le type est la première règle de qualité.",
-      "Non.",
-      "Non."
+      "Non. VARCHAR accepte des valeurs fausses.",
+      "Non. Le nombre de lignes ne change pas."
     ],
     retenir: "Le bon type dès le départ."
   },
@@ -1793,10 +1793,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ces colonnes répétées sont un défaut.",
       "Oui. Des groupes de colonnes répétés : il faut une table adresse (une ligne par adresse). Le nombre d'adresses devient illimité, et les requêtes restent simples.",
-      "Non.",
-      "Non."
+      "Non. Il en faut une table, pas plus de colonnes.",
+      "Non. Des index ne règlent pas la conception."
     ],
     retenir: "Colonnes numérotées (x_1, x_2…) = table enfant manquante."
   },
@@ -1811,10 +1811,10 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas de contrôle de type ni d'index.",
       "Oui. Types justes, NOT NULL quand c'est obligatoire, clé primaire, UNIQUE sur la clé métier, FK, CHECK, DEFAULT, noms clairs : la base protège elle-même la qualité des données.",
-      "Non.",
-      "Non."
+      "Non. La base ne protège plus les données.",
+      "Non. Ni types ni contraintes."
     ],
     retenir: "Une bonne table se défend toute seule."
   }
