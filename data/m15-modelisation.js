@@ -12,8 +12,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Rien ne met les autres commandes à jour.",
       "Oui. Si on en oublie une, les données deviennent incohérentes (anomalie de mise à jour). Une information doit être stockée à un seul endroit.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est bloqué ; le risque est l'incohérence.",
+      "Non. Rien n'est supprimé."
     ],
     retenir: "Information répétée = risque d'incohérence."
   },
@@ -48,8 +48,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Le client disparaît avec elle.",
       "Oui. Toutes les informations du client (anomalie de suppression). Supprimer une commande ne devrait pas effacer un client.",
-      "Non.",
-      "Non."
+      "Non. Seule la ligne est supprimée.",
+      "Non. Les index ne sont pas touchés."
     ],
     retenir: "Anomalie de suppression = on perd plus que voulu."
   },
@@ -64,10 +64,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La 1FN parle des valeurs, pas des clés étrangères.",
       "Oui. Une seule valeur par case : pas de liste ni de groupe de colonnes répétées. 'A1;B2;C3' dans une colonne, ou tel1, tel2, tel3 : non conforme.",
-      "Non.",
-      "Non."
+      "Non. La casse n'a rien à voir.",
+      "Non. Les index n'ont rien à voir."
     ],
     retenir: "1FN = valeurs atomiques, pas de répétition."
   },
@@ -82,9 +82,9 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. libelle_article dépend d'une partie de la clé.",
       "Oui. Il ne dépend pas de toute la clé : il est répété et peut devenir incohérent. En pratique : le libellé va dans la table article. (Sauf si on veut garder le libellé « au moment de la commande » : c'est alors un choix voulu.)",
-      "Non.",
+      "Non. qte dépend bien de toute la clé.",
       "Non. Une commande a plusieurs lignes : num_cde seul n'est pas unique."
     ],
     retenir: "2FN = chaque colonne dépend de TOUTE la clé."
@@ -103,7 +103,7 @@ LEARNSQL.questions.m15 = [
       "Non. Chaque case a une seule valeur.",
       "Oui. Dépendance « transitive » entre deux colonnes non clés (ville dépend de code_postal). En théorie : une table des codes postaux. En pratique, on accepte souvent cette redondance pour les adresses.",
       "Non. La clé (id) n'est pas composée.",
-      "Non."
+      "Non. La ville dépend du code postal : 3FN non respectée."
     ],
     retenir: "3FN = pas de dépendance entre colonnes non clés."
   },
@@ -120,7 +120,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Les lectures demandent plus de jointures.",
       "Oui. Chaque information à un seul endroit, intégrité garantie. C'est un système transactionnel (OLTP) : beaucoup de petites écritures.",
-      "Non.",
+      "Non. Pour les rapports, on dénormalise plutôt.",
       "Non. Normaliser crée plutôt plus de tables."
     ],
     retenir: "OLTP = normalisé, pour écrire juste."
@@ -136,10 +136,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un choix voulu.",
       "Oui. Moins de jointures, des dimensions « à plat » faciles à comprendre. Les données sont chargées par des traitements contrôlés, pas saisies : le risque d'incohérence est maîtrisé.",
       "Non. Il en prend un peu plus.",
-      "Non."
+      "Non. Les données ne sont pas saisies dans l'entrepôt."
     ],
     retenir: "OLAP = dénormalisé, pour lire vite."
   },
@@ -154,10 +154,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une clé candidate identifie les lignes de sa propre table.",
       "Oui. Une colonne (ou un groupe) qui pourrait servir de clé primaire. Ex. id, SIRET, email. On en choisit une comme PK ; les autres deviennent des clés alternatives (UNIQUE).",
-      "Non.",
-      "Non."
+      "Non. Elle n'est pas supprimée.",
+      "Non. Elle doit être unique."
     ],
     retenir: "Clés candidates : une devient PK, les autres UNIQUE."
   },
@@ -192,8 +192,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Réservé au N-N.",
       "Oui. Soit des colonnes dans la table client, soit une table séparée dont la clé est aussi client_id (PK + FK). Table séparée si les données sont facultatives, volumineuses ou sensibles.",
-      "Non.",
-      "Non."
+      "Non. Contraire à la 1FN.",
+      "Non. C'est possible de deux façons."
     ],
     retenir: "1-1 : mêmes colonnes, ou table avec la même clé."
   },
@@ -226,9 +226,9 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. 0,N veut dire de zéro à plusieurs.",
       "Oui. Minimum 0 (prospect sans commande), maximum N.",
-      "Non.",
+      "Non. On parle des commandes d'un client.",
       "Non. Ce serait la relation commande-ligne."
     ],
     retenir: "Cardinalités : minimum, maximum."
@@ -244,10 +244,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Par défaut, une colonne accepte NULL.",
       "Oui. client_id NOT NULL + clé étrangère vers client. NOT NULL = obligatoire ; FK = qui existe.",
-      "Non.",
-      "Non."
+      "Non. Un index ne rend pas la valeur obligatoire.",
+      "Non. Ça ne garantit pas la présence d'un client."
     ],
     retenir: "Obligatoire = NOT NULL + FK."
   },
@@ -262,9 +262,9 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une vraie raison de modèle : la relation 1-N.",
       "Oui. Les infos de l'en-tête (client, date, adresse) sont communes ; les lignes (article, quantité, prix) sont multiples : relation 1-N. Même structure dans les messages EDI (ORDERS : en-tête + lignes).",
-      "Non.",
+      "Non. C'est une question de modèle, pas de Power BI.",
       "Non. L'EDI a la même structure, mais ne l'impose pas."
     ],
     retenir: "Document = en-tête (1) + lignes (N)."
@@ -280,10 +280,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La clé sert à distinguer, pas à trier.",
       "Oui. Le même code client ou numéro de pièce peut exister dans plusieurs sociétés : la clé doit les distinguer. Toute jointure doit alors inclure la société.",
-      "Non.",
-      "Non."
+      "Non. C'est très fréquent.",
+      "Non. Ce n'est pas la raison principale."
     ],
     retenir: "Multi-sociétés : la société fait partie de la clé."
   },
@@ -300,7 +300,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Les anciennes factures changeraient.",
       "Oui. Copier le prix unitaire dans la ligne au moment de la facturation. Redondance VOULUE : c'est une « photo » à la date du document.",
-      "Non.",
+      "Non. Les prix doivent pouvoir changer.",
       "Non. Une facture émise ne change plus."
     ],
     retenir: "Documents : figer les valeurs du moment."
@@ -318,8 +318,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. On perd l'historique.",
       "Oui. Une table tarif (article, prix, date_debut, date_fin) : un prix par période de validité. Prix à une date : debut <= @d AND (fin IS NULL OR fin >= @d).",
-      "Non.",
-      "Non."
+      "Non. Pas de prix en cours d'année ; colonnes ajoutées sans fin.",
+      "Non. Hors de la base, sans contrôle."
     ],
     retenir: "Valeurs dans le temps : périodes de validité."
   },
@@ -334,10 +334,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un taux change dans le temps.",
       "Oui. Une table de taux (devise, date, taux) et, sur les ventes, le montant en devise d'origine + éventuellement le montant converti. On garde la vérité et une conversion traçable.",
-      "Non.",
-      "Non."
+      "Non. On perd la valeur d'origine.",
+      "Non. Une colonne par devise : ajout sans fin."
     ],
     retenir: "Devises : montant d'origine + table de taux datée."
   },
@@ -352,10 +352,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une colonne par unité : ajout sans fin.",
       "Oui. Une unité de référence pour l'article, une table de conversion (article, unité, coefficient), et toujours la quantité avec son unité. Sinon, additionner cartons et pièces donne des totaux faux.",
-      "Non.",
-      "Non."
+      "Non. On perd les ventes à l'unité.",
+      "Non. Totaux faux entre cartons et pièces."
     ],
     retenir: "Quantité = valeur + unité, avec conversions."
   },
@@ -372,8 +372,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Ça, ce sont les dimensions.",
       "Oui. Les mesures (montants, quantités) et les clés vers les dimensions. Une ligne = un événement ou une mesure, au grain choisi.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas une donnée d'analyse.",
+      "Non. Ce n'est pas une donnée d'analyse."
     ],
     retenir: "Faits = mesures + clés."
   },
@@ -390,8 +390,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Ce sont des mesures (faits).",
       "Oui. Les descriptions qui servent à filtrer et regrouper : qui, quoi, où, quand (client, article, date, dépôt…).",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas une donnée d'analyse.",
+      "Non. Une dimension contient des descriptions."
     ],
     retenir: "Dimensions = axes d'analyse."
   },
@@ -406,10 +406,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le sens d'une ligne.",
       "Oui. Ce que représente exactement une ligne (ex. une ligne de facture ; un article par jour et par dépôt). C'est la première décision à prendre et à écrire.",
-      "Non.",
-      "Non."
+      "Non. C'est le sens d'une ligne.",
+      "Non. C'est le sens d'une ligne."
     ],
     retenir: "Grain = sens d'une ligne de faits."
   },
@@ -424,10 +424,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les totaux seraient comptés deux fois.",
       "Oui. Une somme compte deux fois les montants. Une table de faits = un seul grain.",
-      "Non.",
-      "Non."
+      "Non. Il y a plus de lignes, pas moins.",
+      "Non. Les dimensions restent."
     ],
     retenir: "Un grain par table de faits."
   },
@@ -442,10 +442,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le volume n'est pas le but.",
       "Oui. On peut toujours agréger un détail ; on ne peut jamais retrouver le détail à partir d'un total. Les besoins évoluent : le détail rend le modèle durable.",
-      "Non.",
-      "Non."
+      "Non. C'est un choix, pas une obligation.",
+      "Non. Ce n'est pas la raison."
     ],
     retenir: "Grain fin = analyses futures possibles."
   },
@@ -460,10 +460,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le montant HT s'additionne sur tous les axes.",
       "Oui. On peut le sommer par client, par mois, par article, sans erreur. C'est la mesure idéale.",
-      "Non.",
-      "Non."
+      "Non. Il s'additionne sur tous les axes.",
+      "Non. Il s'additionne sur tous les axes."
     ],
     retenir: "Additive = sommable sur toutes les dimensions."
   },
@@ -481,7 +481,7 @@ LEARNSQL.questions.m15 = [
       "Non. 100 en janvier + 100 en février ≠ 200 en stock.",
       "Oui. On peut le sommer par dépôt, mais pas sur plusieurs mois (on prend le dernier, ou la moyenne). Dans Power BI : LASTNONBLANK / CLOSINGBALANCE plutôt que SUM sur le temps.",
       "Non. On peut le sommer par dépôt ou par article.",
-      "Non."
+      "Non. Sur les mois, c'est justement non additif."
     ],
     retenir: "Stock, solde : semi-additifs."
   },
@@ -499,7 +499,7 @@ LEARNSQL.questions.m15 = [
       "Non. Un taux ne s'additionne pas.",
       "Oui. Marge et CA sont additifs ; le taux se calcule au moment de l'analyse : SUM(marge) / SUM(ca). Les ratios se recalculent à partir de leurs composants.",
       "Non. Les composants sont nécessaires.",
-      "Non."
+      "Non. Un texte ne se calcule pas."
     ],
     retenir: "Non additif : stocker numérateur et dénominateur."
   },
@@ -514,10 +514,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les dimensions sont organisées différemment.",
       "Oui. Étoile : dimensions à plat (famille et gamme dans dim_article). Flocon : dimensions normalisées en plusieurs tables (article → famille → gamme). L'étoile est en général préférée pour Power BI.",
       "Non. Coïncidence de nom.",
-      "Non."
+      "Non. Les deux ont une table de faits."
     ],
     retenir: "Étoile = dimensions à plat (préféré). Flocon = dimensions éclatées."
   },
@@ -534,8 +534,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Mais c'est fortement recommandé.",
       "Oui. Filtres simples (des dimensions vers les faits), calculs DAX plus simples, meilleures performances, modèle compréhensible. C'est la recommandation officielle de Microsoft.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec les couleurs.",
+      "Non. Il est conçu pour l'étoile."
     ],
     retenir: "Power BI = étoile."
   },
@@ -550,10 +550,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle simplifie la gestion de l'historique.",
       "Oui. Gérer l'historique (plusieurs versions du même client), mélanger plusieurs sources, et rester stable si le code métier change. Le code ERP reste une colonne de la dimension (clé naturelle).",
       "Non. Le code ERP reste visible dans la dimension.",
-      "Non."
+      "Non. C'est une bonne pratique partout."
     ],
     retenir: "Dimension : clé technique + clé métier."
   },
@@ -570,8 +570,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. C'est le type 2.",
       "Oui. Toutes les ventes, même anciennes, sont rattachées à la nouvelle ville. Simple, mais pas d'historique. Adapté aux corrections (faute de frappe).",
-      "Non.",
-      "Non."
+      "Non. La valeur change : elle est écrasée.",
+      "Non. Les ventes restent."
     ],
     retenir: "SCD 1 = on écrase."
   },
@@ -588,7 +588,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. C'est le type 1.",
       "Oui. Ancienne ligne fermée (date de fin) ; nouvelle ligne (nouvelle clé technique, date de début). Les ventes passées restent liées à l'ancien commercial, les nouvelles au nouveau.",
-      "Non.",
+      "Non. L'historique serait perdu.",
       "Non. C'est le type 3."
     ],
     retenir: "SCD 2 = nouvelle version, historique complet."
@@ -607,7 +607,7 @@ LEARNSQL.questions.m15 = [
       "Non. C'est le type 2.",
       "Oui. Dans deux colonnes (ex. region_actuelle, region_precedente). Utile pour comparer « avant / après » une réorganisation, sans historique complet.",
       "Non. C'est le type 1.",
-      "Non."
+      "Non. Seulement deux colonnes."
     ],
     retenir: "SCD 3 = valeur actuelle + précédente."
   },
@@ -622,10 +622,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle évite de tester les dates.",
       "Oui. Trouver vite la version en cours de chaque client, sans tester les dates. Les colonnes date_debut, date_fin, actuel vont ensemble.",
-      "Non.",
-      "Non."
+      "Non. Elle ne trie rien.",
+      "Non. Elle ne supprime rien."
     ],
     retenir: "SCD 2 : debut, fin, actuel."
   },
@@ -642,8 +642,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. NULL est aussi utilisé.",
       "Oui. Les jointures et filtres par période (date BETWEEN debut AND fin) marchent sans cas particulier pour NULL. Un choix de convention, à documenter.",
-      "Non.",
-      "Non."
+      "Non. La raison est la simplicité des filtres.",
+      "Non. Même place."
     ],
     retenir: "Fin ouverte : 9999-12-31 simplifie les filtres."
   },
@@ -660,8 +660,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Pas d'historique utile.",
       "Oui. Type 0 (ou 1 pour corriger une erreur) : elle ne change pas dans le temps. Le type se choisit colonne par colonne selon le besoin métier.",
-      "Non.",
-      "Non."
+      "Non. Une date de naissance ne change pas.",
+      "Non. Elle a sa place dans la dimension client."
     ],
     retenir: "Type de SCD = choix par colonne."
   },
@@ -694,10 +694,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il est créé, pas supprimé.",
       "Oui. Créée avec seulement le code, quand un fait arrive avant sa dimension ; complétée au prochain chargement. Mieux que « Inconnu » : la vente est déjà rattachée au bon client.",
-      "Non.",
-      "Non."
+      "Non. C'est un membre provisoire.",
+      "Non. Rien à voir avec les droits."
     ],
     retenir: "Dimension en retard : membre provisoire."
   },
@@ -712,10 +712,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La dimension date ajoute des attributs et les jours sans vente.",
       "Oui. Elle porte tous les attributs utiles (semaine ISO, mois, trimestre, année fiscale, jour ouvré, férié, saison) et contient tous les jours, même sans vente. Indispensable pour l'intelligence temporelle de Power BI.",
-      "Non.",
-      "Non."
+      "Non. Les dates restent en type DATE.",
+      "Non. C'est un besoin d'analyse."
     ],
     retenir: "Dimension date = indispensable."
   },
@@ -733,7 +733,7 @@ LEARNSQL.questions.m15 = [
       "Non. Calcul répété et risque d'écarts.",
       "Oui. Colonnes annee_fiscale, mois_fiscal, trimestre_fiscal : la règle est écrite une fois.",
       "Non. Répété des millions de fois.",
-      "Non."
+      "Non. L'exercice fiscal se modélise dans la dimension date."
     ],
     retenir: "Calendrier fiscal : dans la dimension date."
   },
@@ -748,10 +748,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La saison est clé pour une activité piscine.",
       "Oui. Comparer facilement les saisons (haute / basse) et les mêmes périodes d'une année à l'autre. Les attributs métier spécifiques donnent de la valeur à la dimension date.",
-      "Non.",
-      "Non."
+      "Non. La météo ne se stocke pas dans le calendrier.",
+      "Non. Ce n'est pas le but de la dimension date."
     ],
     retenir: "Dimension date : ajouter les notions métier."
   },
@@ -768,8 +768,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Inutile.",
       "Oui. Une seule table calendrier, reliée trois fois (dimension « à rôles multiples »). Dans Power BI : une relation active, les autres inactives (USERELATIONSHIP), ou des copies de la table.",
-      "Non.",
-      "Non."
+      "Non. La dimension date apporte les attributs.",
+      "Non. Une seule table calendrier suffit."
     ],
     retenir: "Plusieurs dates = une dimension, plusieurs rôles."
   },
@@ -786,7 +786,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. C'est normal.",
       "Oui. Utile pour regrouper les lignes d'une même facture, sans autre attribut à décrire.",
-      "Non.",
+      "Non. Il n'y a pas de clé étrangère.",
       "Non. Un numéro ne se somme pas, mais ce n'est pas une mesure."
     ],
     retenir: "N° de document dans les faits = dimension dégénérée."
@@ -805,7 +805,7 @@ LEARNSQL.questions.m15 = [
       "Non. Modèle encombré.",
       "Oui. Junk dimension : elle contient les combinaisons existantes de ces indicateurs. Une seule clé dans les faits.",
       "Non. Possible pour 1 ou 2, mais alourdit les faits.",
-      "Non."
+      "Non. Ils sont utiles pour l'analyse."
     ],
     retenir: "Petits indicateurs : junk dimension."
   },
@@ -820,10 +820,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Conforme veut dire partagée.",
       "Oui. Une dimension partagée par plusieurs tables de faits (ventes, achats, stock), avec le même sens et les mêmes clés. On peut alors croiser ventes et stock par article sans incohérence.",
-      "Non.",
-      "Non."
+      "Non. Elle contient des données.",
+      "Non. Elle est permanente."
     ],
     retenir: "Dimension conforme = partagée, même définition."
   },
@@ -840,8 +840,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Ce serait les mouvements.",
       "Oui. Periodic snapshot : une ligne par article, par dépôt, par mois. On mesure un état à intervalle régulier.",
-      "Non.",
-      "Non."
+      "Non. Le stock est une mesure.",
+      "Non. Pour un processus à étapes."
     ],
     retenir: "État régulier = periodic snapshot."
   },
@@ -858,8 +858,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Les délais entre étapes seraient difficiles à calculer.",
       "Oui. Une ligne par commande, mise à jour à chaque étape, avec une date par étape. Les délais se calculent facilement (expédition - commande).",
-      "Non.",
-      "Non."
+      "Non. Une ligne par mois ne suit pas chaque commande.",
+      "Non. Une table accumulative le fait."
     ],
     retenir: "Processus à étapes = accumulating snapshot."
   },
@@ -876,8 +876,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Les articles non vendus n'y sont pas.",
       "Oui. Table de faits « sans faits » (factless) : article × promotion × période, sans montant. Elle enregistre une couverture ou un événement, sans mesure.",
-      "Non.",
-      "Non."
+      "Non. Elle ne contient pas les promotions.",
+      "Non. Un index n'enregistre pas d'événement."
     ],
     retenir: "Événement sans mesure = factless fact."
   },
@@ -894,7 +894,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Grains et mesures incompatibles.",
       "Oui. Ventes, achats, stock : reliées par des dimensions conformes. On parle de « constellation » de faits.",
-      "Non.",
+      "Non. Une table par processus, pas par client.",
       "Non. Les rapports partagent les mêmes faits."
     ],
     retenir: "Un processus = une table de faits."
@@ -910,10 +910,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un outil de modélisation.",
       "Oui. Voir quels processus (ventes, achats, stock…) partagent quelles dimensions, pour planifier un entrepôt cohérent, processus par processus. Outil de cadrage très utile pour un chef de projet data.",
-      "Non.",
-      "Non."
+      "Non. C'est un outil de modélisation.",
+      "Non. C'est un outil de modélisation."
     ],
     retenir: "Matrice en bus = carte processus × dimensions."
   },
@@ -930,7 +930,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. C'est le flocon.",
       "Oui. gamme, famille, sous_famille sur chaque ligne d'article. Les répétitions sont acceptées : la dimension reste simple et rapide.",
-      "Non.",
+      "Non. La table de faits contient des mesures et des clés.",
       "Non. Ce serait encore du flocon."
     ],
     retenir: "Hiérarchie = colonnes dans la dimension."
@@ -946,10 +946,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On l'aplatit en colonnes.",
       "Oui. Calculer, à partir de la relation parent-enfant, des colonnes niveau1, niveau2… ou un chemin, par exemple avec une CTE récursive. Les niveaux manquants reprennent souvent la valeur du parent.",
       "Non. Trop limité pour les filtres.",
-      "Non."
+      "Non. Trop de tables et de jointures."
     ],
     retenir: "Hiérarchie irrégulière : aplatir en colonnes de niveaux."
   },
@@ -966,8 +966,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. CA doublé.",
       "Oui. Table « pont » (vente, commercial, part) : on multiplie le montant par la part pour l'analyse par commercial. La somme des parts vaut 100 % : le total reste juste.",
-      "Non.",
-      "Non."
+      "Non. Sa part serait perdue.",
+      "Non. Impossible de répartir le montant."
     ],
     retenir: "Dimension multi-valuée : table pont + coefficient."
   },
@@ -982,10 +982,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elles sont permises.",
       "Oui. Chemins de filtre ambigus, résultats surprenants, lenteurs. Filtre simple : dimension → faits. À utiliser seulement dans un cas précis et maîtrisé.",
-      "Non.",
-      "Non."
+      "Non. Elles sont gratuites.",
+      "Non. Elles ne suppriment rien."
     ],
     retenir: "Power BI : relations unidirectionnelles."
   },
@@ -1002,8 +1002,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Source fréquente de totaux faux.",
       "Oui. Créer une vraie dimension avec des valeurs uniques, ou une table pont. Le plus souvent, une dimension a des doublons de clé.",
-      "Non.",
-      "Non."
+      "Non. Les deux tables sont utiles.",
+      "Non. Ça ne règle pas les doublons."
     ],
     retenir: "Plusieurs-à-plusieurs dans Power BI = alerte de modélisation."
   },
@@ -1020,8 +1020,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Le côté « N » peut avoir des doublons.",
       "Oui. Ex. un même code client dans deux sociétés, ou deux versions SCD 2 sur le même code. Utiliser la clé technique unique (client_sk), ou corriger les doublons.",
-      "Non.",
-      "Non."
+      "Non. C'est une règle normale.",
+      "Non. Le volume n'est pas la cause."
     ],
     retenir: "Côté « 1 » d'une relation = clé unique."
   },
@@ -1036,10 +1036,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On perd de l'historique utile.",
       "Oui. Par ex. mois × famille × région, en gardant le détail pour les analyses fines. Les agrégats précalculés sont un outil classique de performance.",
-      "Non.",
-      "Non."
+      "Non. Ça ne réduit pas les lignes lues.",
+      "Non. Impossible de calculer avec du texte."
     ],
     retenir: "Visuels agrégés : table agrégée."
   },
@@ -1054,10 +1054,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce sont des structures de données.",
       "Oui. Hub : les clés métier (un client). Link : les relations entre hubs (client-commande). Satellite : les attributs descriptifs historisés. Modèle très souple pour intégrer et historiser de nombreuses sources.",
-      "Non.",
-      "Non."
+      "Non. Ce sont des structures de données.",
+      "Non. Ce sont des structures de données."
     ],
     retenir: "Data Vault : hubs, links, satellites."
   },
@@ -1072,9 +1072,9 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On les combine souvent.",
       "Oui. Data Vault pour la couche d'intégration et d'historique ; étoile pour la couche de restitution (Power BI). Data Vault est difficile à requêter directement.",
-      "Non.",
+      "Non. L'étoile sert à la restitution.",
       "Non. Difficile à requêter directement."
     ],
     retenir: "Intégration (Vault) → restitution (étoile)."
@@ -1090,9 +1090,9 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans règle, le modèle devient illisible.",
       "Oui. dim_client, fct_ventes, stg_… pour le chargement, et des noms de colonnes identiques pour la même notion partout. Un utilisateur doit comprendre le modèle sans documentation lourde.",
-      "Non.",
+      "Non. Illisible.",
       "Non. Les noms techniques de l'ERP sont souvent obscurs : on les traduit."
     ],
     retenir: "Noms clairs et cohérents."
@@ -1108,10 +1108,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça définit le sens des données.",
       "Oui. Définir chaque donnée et chaque indicateur (sens, source, règle de calcul, propriétaire) pour que tout le monde parle de la même chose. Ex. « CA » : HT ? net des avoirs ? date de facture ou de livraison ?",
-      "Non.",
-      "Non."
+      "Non. Jamais de mot de passe.",
+      "Non. Le code ne dit pas le sens métier."
     ],
     retenir: "Dictionnaire = une définition par indicateur."
   },
@@ -1126,10 +1126,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça ne règle pas la définition.",
       "Oui. Faire valider une définition unique du CA par les métiers, la documenter et l'implémenter une seule fois (dans le modèle). Un sujet de gouvernance avant d'être un sujet technique.",
-      "Non.",
-      "Non."
+      "Non. Le problème continue.",
+      "Non. L'écart vient de la définition."
     ],
     retenir: "Un indicateur = une définition validée = un calcul."
   },
@@ -1146,7 +1146,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Le CA d'un client serait éclaté.",
       "Oui. Gestion des données de référence : une table de correspondance des codes, et un référentiel client « maître ». On relie les identifiants de chaque système à un identifiant unique.",
-      "Non.",
+      "Non. Le CRM a des données utiles.",
       "Non. Les noms s'écrivent de mille façons."
     ],
     retenir: "Multi-systèmes : référentiel et table de correspondance."
@@ -1164,8 +1164,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Les id sont différents d'un système à l'autre.",
       "Oui. Comparer des attributs stables et normalisés (SIRET, TVA intracommunautaire, email, nom + code postal nettoyés), puis valider avec le métier. On construit une fiche de référence (golden record).",
-      "Non.",
-      "Non."
+      "Non. Ça ne dit pas si c'est le même client.",
+      "Non. Des règles de comparaison le permettent."
     ],
     retenir: "Dédoublonnage : identifiants légaux + validation métier."
   },
@@ -1180,10 +1180,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque message est un document.",
       "Oui. ORDERS → commande ; DESADV → expédition / livraison ; INVOIC → facture. Chaque message a un en-tête et des lignes. Le numéro de commande d'origine relie les documents.",
-      "Non.",
-      "Non."
+      "Non. En-tête et lignes séparés.",
+      "Non. Commandes, livraisons, factures."
     ],
     retenir: "EDI : chaque message = un document du processus."
   },
@@ -1198,10 +1198,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On peut en avoir besoin en cas de litige.",
       "Oui. En cas de litige ou d'erreur d'intégration, on peut relire et rejouer le message d'origine. Couche « brute » : on ne perd jamais la source.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas le but.",
+      "Non. Ça en prend plus."
     ],
     retenir: "Garder la source brute = pouvoir rejouer."
   },
@@ -1218,8 +1218,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. On perd les dates de passage.",
       "Oui. (commande, statut, date_statut, utilisateur), en plus du statut actuel sur la commande. On peut mesurer les délais entre étapes.",
-      "Non.",
-      "Non."
+      "Non. Une colonne par jour : ajout sans fin.",
+      "Non. Une table d'historique suffit."
     ],
     retenir: "Suivre un processus : table d'historique des statuts."
   },
@@ -1234,10 +1234,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une table d'audit le permet.",
       "Oui. Qui, quand, ancienne valeur, nouvelle valeur ; alimentée par trigger, par OUTPUT ou par une table temporelle. Exigence fréquente des audits et des commissaires aux comptes.",
-      "Non.",
-      "Non."
+      "Non. Pas exploitable.",
+      "Non. Pas exploitable."
     ],
     retenir: "Données sensibles : piste d'audit."
   },
@@ -1254,8 +1254,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Les ventes passées perdraient leur article.",
       "Oui. Attribut statut (actif / arrêté) et éventuellement une date d'arrêt : les ventes passées en ont besoin. On ne supprime pas de membres d'une dimension.",
-      "Non.",
-      "Non."
+      "Non. On perd son vrai nom.",
+      "Non. On crée des doublons."
     ],
     retenir: "Dimension : on désactive, on ne supprime pas."
   },
@@ -1270,10 +1270,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Logique = indépendant du moteur ; physique = lié.",
       "Oui. Logique : entités, attributs, relations, indépendamment du moteur. Physique : tables, types, index, contraintes pour un moteur précis (SQL Server, Snowflake). Le même modèle logique peut donner deux modèles physiques.",
-      "Non.",
-      "Non."
+      "Non. Les deux sont des modèles, sur papier ou non.",
+      "Non. Les index sont dans le physique."
     ],
     retenir: "Logique = quoi. Physique = comment, sur quel moteur."
   },
@@ -1290,8 +1290,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. On risque de coder une mauvaise compréhension du métier.",
       "Oui. Le modèle conceptuel se valide avec les utilisateurs, en langage métier.",
-      "Non.",
-      "Non."
+      "Non. Le métier vient d'abord.",
+      "Non. L'ordre évite de coder une mauvaise compréhension."
     ],
     retenir: "Métier d'abord, technique ensuite."
   },
@@ -1309,7 +1309,7 @@ LEARNSQL.questions.m15 = [
       "Non. Doublons entre sociétés.",
       "Oui. Une clé technique client_sk, et société + code comme clé métier (unique ensemble). Les faits ne portent que client_sk : jointures simples.",
       "Non. Possible, mais moins propre qu'une clé technique.",
-      "Non."
+      "Non. Doublons entre sociétés."
     ],
     retenir: "Clé métier composée → clé technique unique."
   },
@@ -1326,8 +1326,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Le commercial de septembre serait faux.",
       "Oui. En joignant sur la période de validité. Les faits « en retard » se rattachent selon leur date métier, pas la date de chargement.",
-      "Non.",
-      "Non."
+      "Non. Le rattachement doit être juste.",
+      "Non. La vente est valide."
     ],
     retenir: "Faits en retard : rattacher selon la date métier."
   },
@@ -1344,7 +1344,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Recalculer le passé à partir des mouvements est complexe et fragile.",
       "Oui. Une ligne par client (ou facture) et par fin de mois, avec le montant dû par tranche d'âge. On fige l'état à chaque clôture.",
-      "Non.",
+      "Non. L'encours est une mesure.",
       "Non. On ne pourrait pas revoir les mois passés."
     ],
     retenir: "État à date de clôture : photo périodique."
@@ -1362,8 +1362,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Ils seraient comptés plusieurs fois.",
       "Oui. Les répartir sur les lignes (au prorata du montant, par exemple), ou les mettre dans une table de faits au grain facture. La règle de répartition se valide avec le métier.",
-      "Non.",
-      "Non."
+      "Non. Les frais font partie du coût.",
+      "Non. Ce n'est pas une information client."
     ],
     retenir: "Montant d'en-tête dans des faits « ligne » : répartir ou autre grain."
   },
@@ -1381,7 +1381,7 @@ LEARNSQL.questions.m15 = [
       "Non. 300 € au total.",
       "Oui. La répartir au prorata du montant de chaque ligne, en gérant l'arrondi pour que la somme fasse exactement 100 €. Le dernier centime va souvent sur la plus grosse ligne.",
       "Non. La marge par article serait faussée.",
-      "Non."
+      "Non. La marge serait fausse."
     ],
     retenir: "Répartition au prorata + gestion de l'arrondi."
   },
@@ -1399,7 +1399,7 @@ LEARNSQL.questions.m15 = [
       "Non. Impossible de consolider facilement.",
       "Oui. En devise d'origine ET en devise du groupe (EUR), avec le taux utilisé, pour comparer et consolider. Préciser aussi la règle : taux du jour, du mois, budgétaire…",
       "Non. On perd la valeur d'origine.",
-      "Non."
+      "Non. Impossible de calculer avec du texte."
     ],
     retenir: "Multi-devises : origine + groupe + taux."
   },
@@ -1416,8 +1416,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Grains incompatibles.",
       "Oui. Deux tables de faits, chacune à son grain, reliées à des dimensions communes au niveau partagé (mois, famille). La comparaison se fait au niveau commun.",
-      "Non.",
-      "Non."
+      "Non. La répartition doit suivre une règle métier.",
+      "Non. Le budget est utile à comparer."
     ],
     retenir: "Réel et budget : deux faits, un niveau commun."
   },
@@ -1432,7 +1432,7 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une date au 1er du mois le permet.",
       "Oui. Stocker dans le budget une date du mois (ex. le 1er) reliée au calendrier, et ne l'analyser qu'au niveau mois ou au-dessus. Un filtre sur un jour précis n'a pas de sens pour le budget.",
       "Non. Possible (répartition), mais c'est un autre choix métier.",
       "Non. « Janvier » de quelle année ?"
@@ -1452,8 +1452,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. La dimension date exploserait (des millions de lignes).",
       "Oui. Une dimension « heure » séparée (24 ou 1 440 lignes), en plus de la dimension date. Deux petites dimensions plutôt qu'une énorme.",
-      "Non.",
-      "Non."
+      "Non. Une dimension heure le permet.",
+      "Non. 24 colonnes : inutilisable."
     ],
     retenir: "Date et heure : deux dimensions."
   },
@@ -1468,10 +1468,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La dimension grossit trop.",
       "Oui. Sortir cet attribut très changeant dans une « mini-dimension » reliée directement aux faits (ou le traiter en type 1). On évite une nouvelle version complète du client à chaque petit changement.",
-      "Non.",
-      "Non."
+      "Non. On perd de l'information utile.",
+      "Non. Ajout de colonnes sans fin."
     ],
     retenir: "Attribut qui change souvent : mini-dimension."
   },
@@ -1486,10 +1486,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Recalculé partout, avec des écarts.",
       "Oui. Type 1 si on veut seulement le classement actuel, type 2 si on veut analyser les ventes selon le classement de l'époque. Le choix dépend de la question métier.",
-      "Non.",
-      "Non."
+      "Non. Le classement décrit l'article.",
+      "Non. On le stocke pour l'analyse."
     ],
     retenir: "Attribut calculé : le type SCD dépend de la question."
   },
@@ -1504,10 +1504,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'un est une anomalie, l'autre est normal.",
       "Oui. Inconnu = l'information devrait exister mais manque (erreur à corriger). Non applicable = elle n'a pas de sens (ex. pas de commercial pour une vente web). Les rapports de qualité ne remontent que les vrais « inconnus ».",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas le but.",
+      "Non. Utile dans tous les outils."
     ],
     retenir: "-1 inconnu (anomalie), -2 non applicable (normal)."
   },
@@ -1522,10 +1522,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On voit « (Vide) », peu clair.",
       "Oui. Une valeur « (Vide) » peu claire. Mieux : remplacer par un libellé explicite comme « Non renseignée » lors du chargement. Un rapport doit être compréhensible sans connaître la technique.",
-      "Non.",
-      "Non."
+      "Non. Pas d'erreur.",
+      "Non. Les ventes restent."
     ],
     retenir: "Dimensions : pas de NULL affiché, des libellés clairs."
   },
@@ -1542,8 +1542,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Un NULL ne se joint jamais : la ligne peut disparaître d'un rapport.",
       "Oui. Utiliser les membres -1 / -2 : toutes les jointures retrouvent une ligne de dimension, et les totaux restent justes.",
-      "Non.",
-      "Non."
+      "Non. Aucune clé ne doit être NULL.",
+      "Non. Un NULL fait disparaître des lignes."
     ],
     retenir: "Faits : clés NOT NULL, membres spéciaux."
   },
@@ -1558,10 +1558,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un ERP est fait pour saisir, pas pour analyser.",
       "Oui. Modèle incompréhensible, beaucoup de jointures, calculs complexes et lents : il manque une couche de restitution en étoile. Normalisé pour stocker ; en étoile pour analyser.",
       "Non.",
-      "Non."
+      "Non. Plus de jointures : plus lent."
     ],
     retenir: "Restitution = étoile, pas la copie de l'ERP."
   },
@@ -1578,8 +1578,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Pratique pour certains usages précis (export, data science).",
       "Oui. Simple à interroger ; mais très large, beaucoup de répétitions, historique et mises à jour des descriptions difficiles. Pour Power BI, l'étoile reste généralement meilleure.",
-      "Non.",
-      "Non."
+      "Non. Elle est rigide et répétitive.",
+      "Non. Elle est permise."
     ],
     retenir: "Table unique : simple, mais rigide."
   },
@@ -1594,10 +1594,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le but est la cohérence.",
       "Oui. Une seule définition des mesures et des relations, réutilisée par tous les rapports. Fin des « deux CA différents » dans deux rapports.",
-      "Non.",
-      "Non."
+      "Non. Le but est la cohérence des chiffres.",
+      "Non. C'est un choix."
     ],
     retenir: "Modèle sémantique partagé = une vérité."
   },
@@ -1614,8 +1614,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Possible pour de petites tables, coûteux pour les grandes.",
       "Oui. Une colonne de date de modification (ou rowversion, ou une capture de changements) : ne prendre que ce qui a changé depuis le dernier chargement réussi.",
-      "Non.",
-      "Non."
+      "Non. Il faut un repère fiable.",
+      "Non. Il manquerait des lignes."
     ],
     retenir: "Incrémental : repère de dernier chargement."
   },
@@ -1630,10 +1630,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle n'a plus de date.",
       "Oui. Une ligne supprimée n'a plus de date. Il faut une suppression logique, une table de suppressions, une capture de changements, ou une comparaison complète régulière. Point souvent oublié.",
-      "Non.",
-      "Non."
+      "Non. Le jour ne change rien.",
+      "Non. DISTINCT ne retrouve pas une ligne supprimée."
     ],
     retenir: "Les suppressions doivent être détectées autrement."
   },
@@ -1648,10 +1648,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un chargement peut se tromper.",
       "Oui. Nombres de lignes et totaux (CA, quantités) par période, comparés entre source et entrepôt. Un écart déclenche une alerte avant que les décideurs ne voient un chiffre faux.",
-      "Non.",
-      "Non."
+      "Non. Ils voient l'erreur trop tard.",
+      "Non. Pas assez systématique."
     ],
     retenir: "Rapprochement source / entrepôt : automatique et régulier."
   },
@@ -1666,10 +1666,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le total peut devenir faux.",
       "Oui. Redondance : si une ligne change sans mise à jour du total, l'en-tête devient faux. Dénormalisation acceptée pour la performance, à condition d'être maîtrisée (procédure, trigger, contrôle).",
-      "Non.",
-      "Non."
+      "Non. La lecture est même plus rapide.",
+      "Non. Il est permis."
     ],
     retenir: "Total stocké = à maintenir cohérent."
   },
@@ -1686,8 +1686,8 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Nombre limité et colonnes répétées.",
       "Oui. Une table adresse (client, type, rue, cp, ville…) ; et une copie de l'adresse utilisée sur chaque document. Le document garde l'adresse « du moment ».",
-      "Non.",
-      "Non."
+      "Non. Un client a souvent plusieurs adresses.",
+      "Non. Pas de contrôle ni de requête possible."
     ],
     retenir: "Adresses : table dédiée + copie sur les documents."
   },
@@ -1702,9 +1702,9 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Colonnes ajoutées sans fin.",
       "Oui. Un article modèle et des variantes (ou un article par variante, avec des attributs puissance et tension). Analyses possibles par modèle ou par variante.",
-      "Non.",
+      "Non. Pas de filtre fiable.",
       "Non. Impossible de gérer le stock par variante."
     ],
     retenir: "Variantes : modèle + attributs."
@@ -1720,10 +1720,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Contraire à la 1FN.",
       "Oui. (article_parent, article_composant, quantite) : elle relie la table article à elle-même. Les niveaux multiples se parcourent avec une CTE récursive.",
-      "Non.",
-      "Non."
+      "Non. On perd la composition du kit.",
+      "Non. Hors de la base."
     ],
     retenir: "Nomenclature : table parent-composant-quantité."
   },
@@ -1738,10 +1738,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Souple en apparence, coûteux en pratique.",
       "Oui. Pas de types, pas de contraintes, requêtes très compliquées (une jointure par attribut) et lentes. Souple en apparence, coûteux en pratique.",
-      "Non.",
-      "Non."
+      "Non. Il est lent.",
+      "Non. Il est permis."
     ],
     retenir: "EAV = anti-modèle dans la plupart des cas."
   },
@@ -1756,10 +1756,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Lourd et difficile à maintenir.",
       "Oui. Les attributs communs en colonnes, les spécifiques dans une colonne JSON (VARIANT sur Snowflake). Les attributs souvent filtrés peuvent ensuite devenir de vraies colonnes.",
       "Non. Pas de types, et des requêtes complexes.",
-      "Non."
+      "Non. Elles sont utiles."
     ],
     retenir: "Attributs variables : colonnes communes + JSON."
   },
@@ -1774,10 +1774,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Secondaire.",
       "Oui. Quelles décisions ? Quels indicateurs, avec quelle définition ? Par quels axes ? À quel niveau de détail ? Avec quel historique ? Ces réponses donnent le grain, les faits, les dimensions et le type de SCD.",
-      "Non.",
-      "Non."
+      "Non. Question technique, pas métier.",
+      "Non. Secondaire."
     ],
     retenir: "Recueil du besoin : décisions, indicateurs, axes, détail, historique."
   },
@@ -1792,10 +1792,10 @@ LEARNSQL.questions.m15 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un ERP n'est pas fait pour l'analyse.",
       "Oui. Définir le grain, séparer faits (mesures) et dimensions (axes), gérer l'historique, utiliser des clés techniques et des membres spéciaux, partager des dimensions conformes. C'est la méthode de Kimball.",
-      "Non.",
-      "Non."
+      "Non. Rigide et répétitif.",
+      "Non. Le modèle doit être conçu."
     ],
     retenir: "Grain, faits, dimensions, historique, conformité."
   }
