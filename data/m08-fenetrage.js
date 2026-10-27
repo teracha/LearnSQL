@@ -10,9 +10,9 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. GROUP BY donne une ligne par groupe ; OVER garde toutes les lignes.",
       "Oui. Avec OVER, on a le détail ET le total sur la même ligne.",
-      "Non.",
+      "Non. Pas toujours : ça dépend des données et des index.",
       "Non. C'est l'inverse."
     ],
     retenir: "GROUP BY réduit. OVER garde les lignes."
@@ -29,7 +29,7 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce serait la colonne montant elle-même.",
       "Oui. Le total de toutes les commandes, répété sur chaque ligne. OVER () = la fenêtre est tout le résultat (après WHERE).",
       "Non. Pas de ORDER BY : pas de cumul.",
       "Non. OVER () = tout le résultat."
@@ -50,8 +50,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Sans OVER, SUM est un agrégat : erreur (montant non groupé).",
       "Oui. Le total est calculé par la fenêtre ; 100.0 évite la division entière.",
-      "Non.",
-      "Non."
+      "Non. Diviser par le nombre de lignes ne donne pas une part du total.",
+      "Non. Cette fonction n'existe pas."
     ],
     retenir: "Part du total : x * 100.0 / SUM(x) OVER ()."
   },
@@ -68,7 +68,7 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. PARTITION BY ne trie pas.",
       "Oui. Comme un GROUP BY, mais les lignes restent.",
-      "Non.",
+      "Non. Toutes les lignes restent, doublons compris.",
       "Non. Les lignes ne sont pas fusionnées."
     ],
     retenir: "PARTITION BY = « par … », sans fusionner."
@@ -88,7 +88,7 @@ LEARNSQL.questions.m08 = [
       "Non. C'est la part dans le total général.",
       "Oui. Le dénominateur est le total du client.",
       "Non. ORDER BY ferait un cumul.",
-      "Non."
+      "Non. Diviser par un identifiant n'a aucun sens."
     ],
     retenir: "Part dans le groupe : PARTITION BY groupe."
   },
@@ -103,10 +103,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Avec ORDER BY, SUM devient un cumul.",
       "Oui. Chaque ligne additionne les lignes jusqu'à elle : avec ORDER BY, la fenêtre va « du début jusqu'à la ligne courante ».",
       "Non. L'ORDER BY de la fenêtre ne trie pas l'affichage.",
-      "Non."
+      "Non. ORDER BY est permis dans OVER."
     ],
     retenir: "ORDER BY dans OVER = calcul cumulatif."
   },
@@ -123,8 +123,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Il sert seulement au calcul de la fenêtre.",
       "Oui. Il sert seulement au calcul de la fenêtre. Le résultat est souvent trié par hasard, mais rien ne le garantit : ajoute un ORDER BY à la fin de la requête.",
-      "Non.",
-      "Non."
+      "Non. La règle est la même pour toutes les fonctions.",
+      "Non. Même règle sur Snowflake."
     ],
     retenir: "ORDER BY de la fenêtre ≠ ORDER BY du résultat."
   },
@@ -161,7 +161,7 @@ LEARNSQL.questions.m08 = [
       "Non. C'est RANK.",
       "Oui. Un numéro unique par ligne, même pour les ex aequo (ordre entre eux arbitraire).",
       "Non. C'est DENSE_RANK.",
-      "Non."
+      "Non. On trie par CA décroissant : le plus gros a le numéro 1."
     ],
     retenir: "ROW_NUMBER : toujours unique."
   },
@@ -179,7 +179,7 @@ LEARNSQL.questions.m08 = [
       "Non. C'est ROW_NUMBER.",
       "Oui. Ex aequo au même rang, puis un trou (pas de 3).",
       "Non. C'est DENSE_RANK.",
-      "Non."
+      "Non. 500 et 300 sont différents : ils n'ont pas le même rang."
     ],
     retenir: "RANK : ex aequo, puis trou."
   },
@@ -194,10 +194,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non.",
+      "Non. C'est ROW_NUMBER.",
       "Non. C'est RANK.",
       "Oui. Ex aequo au même rang, sans trou.",
-      "Non."
+      "Non. 500 et 300 sont différents : ils n'ont pas le même rang."
     ],
     retenir: "DENSE_RANK : ex aequo, sans trou."
   },
@@ -215,7 +215,7 @@ LEARNSQL.questions.m08 = [
       "Non. Exactement 3 lignes : des ex aequo seraient coupés.",
       "Non. Après des ex aequo, le rang 3 peut manquer.",
       "Oui. Les 3 premières valeurs distinctes, avec tous les ex aequo.",
-      "Non."
+      "Non. NTILE découpe en 3 groupes de même taille, il ne classe pas."
     ],
     retenir: "Top 3 des valeurs : DENSE_RANK."
   },
@@ -233,7 +233,7 @@ LEARNSQL.questions.m08 = [
       "Non. Entre ex aequo, l'ordre est arbitraire.",
       "Oui. Entre ex aequo, l'ordre est arbitraire. ORDER BY date_cde, id : numéros stables et reproductibles.",
       "Non. Toujours pas garanti.",
-      "Non."
+      "Non. Les dates en double sont permises."
     ],
     retenir: "ROW_NUMBER stable = ORDER BY unique (ajoute l'id)."
   },
@@ -251,7 +251,7 @@ LEARNSQL.questions.m08 = [
       "Non. 4 groupes sont demandés.",
       "Oui. 10 / 4 = 2 reste 2 : les 2 premiers groupes ont une ligne de plus.",
       "Non. Les plus gros groupes viennent en premier.",
-      "Non."
+      "Non. Les lignes en plus vont aux premiers groupes."
     ],
     retenir: "NTILE(n) : n groupes presque égaux, les premiers un peu plus gros."
   },
@@ -266,10 +266,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. NTILE donne un numéro de groupe, pas un comptage.",
       "Oui. Les 25 % les plus gros = groupe 1, etc. Segmentation rapide en tranches de taille égale (en nombre de clients).",
-      "Non.",
-      "Non."
+      "Non. NTILE ne cherche pas les doublons.",
+      "Non. NTILE ne calcule pas de moyenne."
     ],
     retenir: "NTILE = découpage en tranches égales en nombre de lignes."
   },
@@ -286,8 +286,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. C'est LEAD.",
       "Oui. LAG = la valeur de la ligne d'avant.",
-      "Non.",
-      "Non."
+      "Non. Ce serait SUM(ca) OVER (ORDER BY mois).",
+      "Non. Ce serait AVG(ca) OVER (…)."
     ],
     retenir: "LAG = avant. LEAD = après."
   },
@@ -304,8 +304,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Sauf si on le demande.",
       "Oui. Pas de ligne avant. LAG(ca, 1, 0) donne 0 par défaut.",
-      "Non.",
-      "Non."
+      "Non. LAG ne revient pas au début : il donne NULL.",
+      "Non. LAG renvoie NULL, sans erreur."
     ],
     retenir: "LAG / LEAD hors limites = NULL (ou la valeur par défaut donnée)."
   },
@@ -322,8 +322,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Le 2e paramètre (1) est le décalage.",
       "Oui. LAG(expression, décalage, valeur_par_défaut).",
-      "Non.",
-      "Non."
+      "Non. Le 0 est la valeur par défaut, pas un multiplicateur.",
+      "Non. Ces 3 paramètres sont valides."
     ],
     retenir: "LAG(x, n, défaut)."
   },
@@ -357,10 +357,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. LAG compte des lignes, pas des mois.",
       "Oui. LAG compte des LIGNES, pas des mois. Un mois sans vente décale tout : LAG(…, 12) remonte trop loin. Pars d'un calendrier complet (LEFT JOIN).",
-      "Non.",
-      "Non."
+      "Non. Le nombre de clients ne joue pas.",
+      "Non. Un index ne change pas le résultat."
     ],
     retenir: "LAG compte des lignes : bouche les trous avec un calendrier."
   },
@@ -378,8 +378,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. La commande précédente peut être celle d'un autre client.",
       "Oui. Le LAG reste dans les lignes du client.",
-      "Non.",
-      "Non."
+      "Non. Ça groupe par date, pas par client.",
+      "Non. Ça donne le client précédent, pas sa commande."
     ],
     retenir: "LAG par entité : PARTITION BY entité."
   },
@@ -431,10 +431,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Trié par date croissante, la première est la plus ancienne.",
       "Oui. La date de 1re commande du client, sur chaque ligne : la première valeur de la fenêtre, dans l'ordre demandé.",
-      "Non.",
-      "Non."
+      "Non. FIRST_VALUE renvoie la première de la fenêtre.",
+      "Non. La valeur est répétée sur toutes les lignes du client."
     ],
     retenir: "FIRST_VALUE = 1re valeur de la fenêtre."
   },
@@ -449,10 +449,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le comportement normal, à cause du cadre par défaut.",
       "Oui. Le cadre par défaut va du début jusqu'à la ligne courante : la « dernière » de la fenêtre, c'est elle. Précise : ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING. Ou FIRST_VALUE avec ORDER BY … DESC.",
       "Non. Ce serait une autre solution, mais pas l'explication.",
-      "Non."
+      "Non. LAST_VALUE existe sur SQL Server."
     ],
     retenir: "LAST_VALUE : précise le cadre jusqu'à UNBOUNDED FOLLOWING."
   },
@@ -470,8 +470,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. C'est le cas sans ORDER BY.",
       "Oui. Du début jusqu'à la ligne courante, ex aequo compris (RANGE).",
-      "Non.",
-      "Non."
+      "Non. Ce cadre ne prend que la ligne d'avant.",
+      "Non. Avec ORDER BY, le cadre s'arrête à la ligne courante."
     ],
     retenir: "Avec ORDER BY, cadre par défaut = RANGE … CURRENT ROW."
   },
@@ -488,8 +488,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Ce serait avec ROWS.",
       "Oui. Surprise fréquente. Utilise ROWS UNBOUNDED PRECEDING (avec un critère de départage).",
-      "Non.",
-      "Non."
+      "Non. Les montants ne sont pas NULL : le cumul non plus.",
+      "Non. Les dates en double sont permises."
     ],
     retenir: "Cumul ligne à ligne : ROWS, pas le RANGE par défaut."
   },
@@ -508,7 +508,7 @@ LEARNSQL.questions.m08 = [
       "Non. 4 lignes au total.",
       "Oui. 2 avant + la ligne courante = 3 mois.",
       "Non. Les mois suivants.",
-      "Non."
+      "Non. Cette écriture n'est pas valide."
     ],
     retenir: "Moyenne mobile sur n : ROWS BETWEEN n-1 PRECEDING AND CURRENT ROW."
   },
@@ -523,7 +523,7 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans les jours vides, la fenêtre couvre plus de 7 jours.",
       "Oui. La fenêtre prend 7 LIGNES : sans les jours vides, elle couvre plus de 7 jours. Pars d'un calendrier complet : LEFT JOIN + COALESCE(ca, 0), puis la fenêtre.",
       "Non. Aucune erreur.",
       "Non. Une ligne absente n'est pas un 0."
@@ -541,10 +541,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake l'accepte, SQL Server non.",
       "Oui. Avec RANGE, SQL Server accepte seulement UNBOUNDED et CURRENT ROW. Pour un décalage en nombre, utilise ROWS (et un calendrier complet).",
-      "Non.",
-      "Non."
+      "Non. Même avec des dates, SQL Server refuse.",
+      "Non. PARTITION BY ne change rien à cette règle."
     ],
     retenir: "SQL Server : RANGE limité à UNBOUNDED / CURRENT ROW."
   },
@@ -563,7 +563,7 @@ LEARNSQL.questions.m08 = [
       "Oui. Une ligne avant, une après, plus la courante.",
       "Non. Pas centré.",
       "Non. Cumul.",
-      "Non."
+      "Non. Le mois en cours et les 2 suivants : pas centré."
     ],
     retenir: "FOLLOWING = lignes après la courante."
   },
@@ -581,7 +581,7 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Inclut la ligne courante.",
       "Oui. Du début jusqu'à la ligne d'avant. NULL pour la 1re ligne.",
-      "Non.",
+      "Non. Ce sont les lignes d'après, pas celles d'avant.",
       "Non. Seulement la ligne d'avant et la courante."
     ],
     retenir: "« Avant moi » : … AND 1 PRECEDING."
@@ -599,8 +599,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Ce serait OVER ().",
       "Oui. Le plus haut historique à date : un maximum « courant ». Utile pour repérer les nouveaux records (ca = record).",
-      "Non.",
-      "Non."
+      "Non. Le MAX regarde tous les mois jusque-là.",
+      "Non. MAX accepte ORDER BY dans OVER."
     ],
     retenir: "MAX cumulatif = record à date."
   },
@@ -617,8 +617,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. C'est ROW_NUMBER.",
       "Oui. Affiché sur chacune de ses lignes. Pratique pour filtrer ensuite (ex. clients avec une seule commande).",
-      "Non.",
-      "Non."
+      "Non. PARTITION BY client_id compte par client.",
+      "Non. Ça compte les lignes du client, souvent plus de 1."
     ],
     retenir: "COUNT(*) OVER (PARTITION BY x) = taille du groupe."
   },
@@ -651,10 +651,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La requête ne s'exécute pas.",
       "Oui. Les fonctions de fenêtrage sont permises seulement dans SELECT et ORDER BY. Passe par une CTE.",
-      "Non.",
-      "Non."
+      "Non. La requête ne s'exécute pas.",
+      "Non. C'est une erreur, pas 0 ligne."
     ],
     retenir: "Fenêtre : SELECT et ORDER BY seulement (SQL Server)."
   },
@@ -669,10 +669,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. HAVING refuse les fenêtres, comme WHERE.",
       "Oui, c'est interdit. Même règle que WHERE : passe par un niveau au-dessus.",
-      "Non.",
-      "Non."
+      "Non. Aucune fenêtre n'est permise dans HAVING.",
+      "Non. GROUP BY ne change pas la règle."
     ],
     retenir: "Pas de fenêtre dans WHERE, GROUP BY ni HAVING."
   },
@@ -688,10 +688,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non.",
-      "Non.",
+      "Non. WHERE est calculé avant les fenêtres.",
+      "Non. HAVING est calculé avant les fenêtres.",
       "Oui. Elle s'écrit après HAVING. Ex. QUALIFY ROW_NUMBER() OVER (…) = 1.",
-      "Non."
+      "Non. FILTER n'existe pas pour ça sur Snowflake."
     ],
     retenir: "Snowflake : QUALIFY."
   },
@@ -727,8 +727,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Sinon on pourrait les filtrer dans WHERE.",
       "Oui. Au moment du SELECT : elles voient les lignes déjà filtrées et regroupées.",
-      "Non.",
-      "Non."
+      "Non. Elles sont calculées au SELECT, avant le tri final.",
+      "Non. Elles ont besoin des lignes : elles viennent après FROM."
     ],
     retenir: "FROM → WHERE → GROUP BY → HAVING → fenêtres (SELECT) → ORDER BY."
   },
@@ -745,8 +745,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Le WHERE a déjà retiré les autres années.",
       "Oui. La fenêtre travaille sur les lignes restantes après le WHERE.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide.",
+      "Non. Pas d'ORDER BY dans OVER : pas de cumul."
     ],
     retenir: "Les fenêtres voient seulement les lignes qui ont passé le WHERE."
   },
@@ -763,8 +763,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Ici, c'est permis : la fenêtre s'applique APRÈS le GROUP BY.",
       "Oui. Le SUM intérieur est le total du client ; SUM(…) OVER () fait le total de ces totaux, car la fenêtre s'applique APRÈS le GROUP BY. Parfait pour la part de chaque client.",
-      "Non.",
-      "Non."
+      "Non. Le résultat est juste : c'est le total de tous les clients.",
+      "Non. Valide aussi sur SQL Server."
     ],
     retenir: "Avec GROUP BY : fenêtre sur des agrégats = SUM(SUM(x)) OVER ()."
   },
@@ -876,7 +876,7 @@ LEARNSQL.questions.m08 = [
       "Non. LAG IS NULL = la PREMIÈRE commande.",
       "Oui. LEAD(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) IS NULL isole la dernière commande ; on regarde ensuite si elle a plus d'un an. (MAX + GROUP BY marche aussi.)",
       "Non. La commande la plus ancienne de toute la table.",
-      "Non."
+      "Non. NTILE découpe en groupes égaux, sans regarder les dates."
     ],
     retenir: "Dernière commande = LEAD IS NULL (ou ROW_NUMBER DESC = 1)."
   },
@@ -911,9 +911,9 @@ LEARNSQL.questions.m08 = [
     bonne: 0,
     pourquoi: [
       "Oui. Les fenêtres sont permises dans ORDER BY.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. ORDER BY accepte les fenêtres.",
+      "Non. C'est permis directement.",
+      "Non. Valide aussi sur SQL Server."
     ],
     retenir: "Fenêtre permise dans SELECT et ORDER BY."
   },
@@ -930,8 +930,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non sur SQL Server. (Snowflake l'accepte, sans ORDER BY dans la fenêtre.)",
       "Oui. Astuce : DENSE_RANK() OVER (PARTITION BY client_id ORDER BY article_id) + DENSE_RANK() OVER (… ORDER BY article_id DESC) - 1.",
-      "Non.",
-      "Non."
+      "Non. La requête ne s'exécute pas.",
+      "Non. C'est une erreur, pas NULL."
     ],
     retenir: "SQL Server : pas de COUNT(DISTINCT) OVER. Astuce des deux DENSE_RANK."
   },
@@ -947,9 +947,9 @@ LEARNSQL.questions.m08 = [
     bonne: 0,
     pourquoi: [
       "Oui. Snowflake l'accepte tant que la fenêtre n'a pas d'ORDER BY.",
-      "Non.",
+      "Non. Snowflake l'accepte, sans ORDER BY dans la fenêtre.",
       "Non. C'est justement sans ORDER BY.",
-      "Non."
+      "Non. QUALIFY n'est pas nécessaire."
     ],
     retenir: "Snowflake : COUNT(DISTINCT) OVER (PARTITION BY …) possible."
   },
@@ -964,10 +964,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse une fenêtre dans SET.",
       "Oui. Passe par une CTE : WITH x AS (SELECT rang, ROW_NUMBER() OVER (ORDER BY date_cde) AS rn FROM commande) UPDATE x SET rang = rn;",
-      "Non.",
-      "Non."
+      "Non. SQL Server refuse : rien n'est modifié.",
+      "Non. C'est une erreur, pas un UPDATE vide."
     ],
     retenir: "Écrire un résultat de fenêtre : CTE puis UPDATE de la CTE."
   },
@@ -982,10 +982,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une fenêtre dans un agrégat est interdite.",
       "Oui. Calcule la fenêtre dans une CTE, puis agrège au niveau du dessus.",
-      "Non.",
-      "Non."
+      "Non. La requête ne s'exécute pas.",
+      "Non. C'est une erreur, pas NULL."
     ],
     retenir: "Pas d'agrégat sur une fenêtre au même niveau : CTE."
   },
@@ -1002,8 +1002,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Fenêtre dans une fenêtre : interdit.",
       "Oui. Une fenêtre par étape : on calcule l'évolution avec LAG dans une CTE, puis RANK() sur cette colonne.",
-      "Non.",
-      "Non."
+      "Non. C'est possible en deux étapes.",
+      "Non. GROUP BY ne remplace pas les fenêtres ici."
     ],
     retenir: "Fenêtre sur un résultat de fenêtre : deux étapes."
   },
@@ -1018,7 +1018,7 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. GROUP BY fait la même chose, plus simplement.",
       "Oui. Le résultat est juste, mais on calcule sur chaque ligne puis on supprime les doublons : du travail en trop. GROUP BY client_id fait la même chose plus simplement et plus vite.",
       "Non. C'est valide.",
       "Non. Le résultat est juste."
@@ -1134,7 +1134,7 @@ LEARNSQL.questions.m08 = [
       "Non. Lent et inutile.",
       "Oui. 1) drapeau = CASE WHEN DATEDIFF(minute, LAG(ts) OVER (ORDER BY ts), ts) > 30 THEN 1 ELSE 0 END ; 2) session = SUM(drapeau) OVER (ORDER BY ts ROWS UNBOUNDED PRECEDING). Le cumul des drapeaux donne un numéro de session.",
       "Non. NTILE découpe en nombre de lignes, pas en durée.",
-      "Non."
+      "Non. Ça groupe par minute de l'heure, sans regarder les pauses."
     ],
     retenir: "Numéroter des événements : drapeau 0/1, puis SUM cumulatif."
   },
@@ -1187,9 +1187,9 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'astuce COUNT cumulé + MAX marche avant 2022.",
       "Oui. grp = COUNT(prix) OVER (ORDER BY jour ROWS UNBOUNDED PRECEDING) ; puis MAX(prix) OVER (PARTITION BY grp). COUNT(prix) n'augmente que sur les valeurs non NULL : les NULL restent dans le groupe de la dernière valeur.",
-      "Non.",
+      "Non. Ça donne le total de toute la table.",
       "Non. Et s'il y a trois NULL de suite ?"
     ],
     retenir: "Remplir vers le bas : COUNT cumulatif = groupe, puis MAX du groupe."
@@ -1205,10 +1205,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce serait ca / SUM(ca) OVER ().",
       "Oui. De 0 (premier) à 1 (dernier) : (rang - 1) / (nombre de lignes - 1).",
-      "Non.",
-      "Non."
+      "Non. Ce serait un rang, pas un pourcentage.",
+      "Non. PERCENT_RANK ne regarde que le rang, pas le max."
     ],
     retenir: "PERCENT_RANK = position relative entre 0 et 1."
   },
@@ -1225,8 +1225,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Oui. La proportion de lignes dont le CA est inférieur ou égal à celui de la ligne. Ex. 0,8 = 80 % des clients font un CA inférieur ou égal.",
       "Non. Ce serait SUM OVER.",
-      "Non.",
-      "Non."
+      "Non. Ce serait STDEV.",
+      "Non. Ce serait RANK ou ROW_NUMBER."
     ],
     retenir: "CUME_DIST = part des lignes ≤ la ligne courante."
   },
@@ -1279,10 +1279,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce serait RANK.",
       "Oui. Entre 0 et 1. Raccourci de ca / SUM(ca) OVER (PARTITION BY region).",
-      "Non.",
-      "Non."
+      "Non. Ce serait SUM avec ORDER BY.",
+      "Non. C'est une fonction de calcul, pas un envoi."
     ],
     retenir: "Snowflake : RATIO_TO_REPORT = part dans le total."
   },
@@ -1298,7 +1298,7 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La fenêtre nommée existe seulement dans cette requête.",
       "Oui. On nomme la fenêtre une seule fois et on la réutilise dans plusieurs fonctions : moins de répétition, moins d'erreurs de copier-coller.",
       "Non. Ce serait QUALIFY (Snowflake).",
       "Non. Valide depuis SQL Server 2022."
@@ -1336,8 +1336,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Pas seulement.",
       "Oui. La fenêtre a besoin des lignes triées par PARTITION BY + ORDER BY ; sans index adapté, SQL Server trie. Un index sur ces colonnes supprime souvent ce tri.",
-      "Non.",
-      "Non."
+      "Non. C'est normal : la fenêtre a besoin de lignes triées.",
+      "Non. Un tri suffit, pas deux."
     ],
     retenir: "Sort avant une fenêtre = index manquant sur (partition, ordre)."
   },
@@ -1352,10 +1352,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. ROWS change le résultat avec des ex aequo, et la vitesse.",
       "Oui. ROWS ne regroupe pas les ex aequo, et il est généralement plus rapide : RANGE peut utiliser une table de travail sur disque.",
-      "Non.",
-      "Non."
+      "Non. RANGE est le cadre par défaut d'un cumul.",
+      "Non. Le cadre ne trie pas l'affichage."
     ],
     retenir: "Cumul : ROWS UNBOUNDED PRECEDING, explicitement."
   },
@@ -1372,8 +1372,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Ce serait LAG(statut, 2).",
       "Oui. Le 2e paramètre est le décalage.",
-      "Non.",
-      "Non."
+      "Non. Le décalage part de la ligne courante.",
+      "Non. Le 2 est un décalage de lignes."
     ],
     retenir: "LEAD(x, n) = n lignes plus loin."
   },
@@ -1391,7 +1391,7 @@ LEARNSQL.questions.m08 = [
       "Non. La partition l'en empêche.",
       "Oui. LAG ne sort jamais de sa partition.",
       "Non. Sauf valeur par défaut.",
-      "Non."
+      "Non. LAG regarde la ligne d'avant, pas la ligne elle-même."
     ],
     retenir: "LAG / LEAD restent dans leur partition."
   },
@@ -1408,8 +1408,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Ce serait le cas sur Snowflake.",
       "Oui. NULL = plus petite valeur sur SQL Server. Gère-les : ORDER BY CASE WHEN d IS NULL THEN 1 ELSE 0 END, d.",
-      "Non.",
-      "Non."
+      "Non. ROW_NUMBER numérote toutes les lignes.",
+      "Non. L'ordre est fixe : NULL vient en premier."
     ],
     retenir: "Les NULL suivent la règle de tri du moteur, aussi dans OVER."
   },
@@ -1428,7 +1428,7 @@ LEARNSQL.questions.m08 = [
       "Non. Un numéro différent par ligne.",
       "Oui. Toutes les lignes du même client ont le même numéro, sans trou.",
       "Non. Toujours 1.",
-      "Non."
+      "Non. Le nombre total de lignes, partout."
     ],
     retenir: "Numéro de groupe : DENSE_RANK() OVER (ORDER BY clé)."
   },
@@ -1485,7 +1485,7 @@ LEARNSQL.questions.m08 = [
       "Non. Classement global, tous mois mélangés.",
       "Oui. Un classement qui repart à 1 chaque mois.",
       "Non. Ça classe les mois de chaque commercial.",
-      "Non."
+      "Non. NTILE découpe en 12 groupes, il ne classe pas par mois."
     ],
     retenir: "« Par … » = PARTITION BY. « Selon … » = ORDER BY."
   },
@@ -1503,7 +1503,7 @@ LEARNSQL.questions.m08 = [
       "Non. Un seul vendeur, même en cas d'égalité.",
       "Oui. Tous les vendeurs à égalité au 1er rang.",
       "Non. Tout le monde.",
-      "Non."
+      "Non. LAG donne la valeur d'avant, pas un classement."
     ],
     retenir: "Avec ex aequo : RANK = 1. Sans : ROW_NUMBER = 1."
   },
@@ -1573,10 +1573,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. LISTAGG … OVER existe sur Snowflake, pas STRING_AGG … OVER sur SQL Server.",
       "Oui. STRING_AGG n'est pas une fonction de fenêtrage sur SQL Server. Fais un GROUP BY dans une sous-requête puis une jointure. (Snowflake, lui, accepte LISTAGG … OVER.)",
-      "Non.",
-      "Non."
+      "Non. ORDER BY ne rend pas la fenêtre possible.",
+      "Non. SQL Server 2022 ne l'accepte pas non plus."
     ],
     retenir: "Concaténer par fenêtre : LISTAGG OVER (Snowflake) ; GROUP BY + jointure (SQL Server)."
   },
@@ -1652,7 +1652,7 @@ LEARNSQL.questions.m08 = [
       "Oui. 11 mois avant + le mois en cours = 12 mois.",
       "Non. 13 mois.",
       "Non. CA de l'année civile.",
-      "Non."
+      "Non. Le total de toute la période, sur chaque ligne."
     ],
     retenir: "Glissant sur n périodes : n-1 PRECEDING."
   },
@@ -1686,10 +1686,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une fenêtre dans une fenêtre est interdite.",
       "Oui. Deux étapes : RANK … PARTITION BY mois, puis LAG(rang) OVER (PARTITION BY client ORDER BY mois) pour comparer au rang précédent.",
-      "Non.",
-      "Non."
+      "Non. NTILE découpe, il ne compare pas les mois.",
+      "Non. Possible, mais lourd : LAG du rang est plus simple."
     ],
     retenir: "Évolution d'un rang : RANK, puis LAG du rang."
   },
@@ -1704,10 +1704,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La numérotation est faite avant le filtre.",
       "Oui. La numérotation a été faite sur TOUTES les commandes, avant ton filtre : les rn du client 42 ont des trous. Ajoute PARTITION BY client_id pour une numérotation par client.",
-      "Non.",
-      "Non."
+      "Non. On peut filtrer une vue numérotée.",
+      "Non. Un index ne change pas la numérotation."
     ],
     retenir: "Filtre avant ou après une fenêtre : résultats différents."
   },
@@ -1741,10 +1741,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. NTILE coupe en nombre de clients, pas en CA.",
       "Oui. NTILE découpe en NOMBRE de clients, pas en CA : le 1er décile peut faire 60 % du CA. Pour des tranches de CA, utilise le % cumulé (analyse ABC).",
       "Non. Même trié, chaque groupe a 100 clients, pas 10 % du CA.",
-      "Non."
+      "Non. PARTITION BY est facultatif."
     ],
     retenir: "NTILE = parts égales en lignes. % cumulé = parts en valeur."
   },
@@ -1778,10 +1778,10 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque ordre différent peut demander un tri.",
       "Oui. Chaque ordre différent peut demander un tri. Regroupe les fenêtres qui partagent le même OVER : elles sont calculées ensemble.",
-      "Non.",
-      "Non."
+      "Non. Il n'y a pas de limite à 3.",
+      "Non. Des OVER différents ne peuvent pas être fusionnés."
     ],
     retenir: "Mêmes OVER = un seul tri. OVER différents = plusieurs tris."
   },
@@ -1798,7 +1798,7 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Pas d'index sur Snowflake.",
       "Oui. Réduis les données avant la fenêtre (filtre, colonnes utiles) ou prends un warehouse plus grand : la mémoire ne suffit pas.",
-      "Non.",
+      "Non. NOLOCK n'existe pas sur Snowflake, et ORDER BY ajoute du travail.",
       "Non. Le débordement ralentit fortement."
     ],
     retenir: "Spilling = mémoire insuffisante : filtrer tôt ou warehouse plus grand."
@@ -1817,7 +1817,7 @@ LEARNSQL.questions.m08 = [
       "Non. Pas ligne par ligne.",
       "Oui. Le total final reste juste, mais les cumuls intermédiaires entre ex aequo peuvent changer d'une exécution à l'autre. Ajoute un départage : ORDER BY date_cde, id.",
       "Non. Le total ne change pas.",
-      "Non."
+      "Non. Les dates en double sont permises."
     ],
     retenir: "Cumul stable = ORDER BY unique dans OVER."
   },
@@ -1834,8 +1834,8 @@ LEARNSQL.questions.m08 = [
     pourquoi: [
       "Non. Pour une ligne par groupe, GROUP BY est plus simple.",
       "Oui. Quand tu as besoin du détail ET d'une information de groupe (total, rang, précédent, cumul) sur la même ligne. Résumé = GROUP BY. Détail + contexte = fenêtre.",
-      "Non.",
-      "Non."
+      "Non. GROUP BY perd le détail des lignes.",
+      "Non. Les fenêtres existent sur les deux moteurs."
     ],
     retenir: "Résumé : GROUP BY. Détail + contexte : OVER."
   }
