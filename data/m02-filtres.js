@@ -569,7 +569,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. NULL = NULL n'est pas vrai.",
       "Oui. NULL = NULL donne « inconnu ». Aucune ligne ne passe.",
-      "Non.",
+      "Non. NULL = NULL n'est jamais vrai, même sur une ligne pleine de NULL.",
       "Non. C'est valide."
     ],
     retenir: "Même NULL = NULL n'est pas vrai."
@@ -605,8 +605,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. Pour ça, il faut IS NOT NULL.",
       "Oui. Toute comparaison avec NULL donne « inconnu ». Rien ne passe.",
-      "Non.",
-      "Non."
+      "Non. <> NULL donne « inconnu » : aucune ligne ne passe.",
+      "Non. Pour les lignes sans date, il faut IS NULL."
     ],
     retenir: "« A une valeur » = IS NOT NULL. Jamais <> NULL."
   },
@@ -623,8 +623,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. VRAI OU inconnu = VRAI. Une seule condition vraie suffit avec OR.",
       "Non. Le OR est satisfait par pays = 'FR'.",
-      "Non.",
-      "Non."
+      "Non. La remise n'a pas d'importance : pays = 'FR' suffit avec OR.",
+      "Non. La syntaxe est valide."
     ],
     retenir: "VRAI OR inconnu = VRAI. FAUX OR inconnu = inconnu."
   },
@@ -641,7 +641,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. pays = 'FR' est FAUX. FAUX AND inconnu = FAUX. NOT FAUX = VRAI : la ligne passe.",
       "Non. Ici, le NULL ne bloque pas, grâce au FAUX.",
-      "Non.",
+      "Non. La syntaxe est valide.",
       "Non. C'est la logique standard."
     ],
     retenir: "FAUX AND inconnu = FAUX. La logique à 3 valeurs n'élimine pas toujours les NULL."
@@ -659,8 +659,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. Les 10 NULL ne passent pas.",
       "Oui. 100 - 30 'X' - 10 NULL = 60. C'est pour ça que « X » + « pas X » ne fait pas 100.",
-      "Non.",
-      "Non."
+      "Non. 30, ce sont les 'X' : ils sont justement exclus.",
+      "Non. Les 30 'X' et les 10 NULL ne passent pas."
     ],
     retenir: "= 'X' + <> 'X' ≠ total s'il y a des NULL."
   },
@@ -677,8 +677,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. id = 1 est VRAI. Avec IN (donc des OR), une égalité vraie suffit.",
       "Non. Le NULL bloque seulement avec NOT IN.",
-      "Non.",
-      "Non."
+      "Non. Un NULL dans une liste IN est permis.",
+      "Non. Même règle sur SQL Server et Snowflake."
     ],
     retenir: "IN + NULL : sans danger. NOT IN + NULL : danger."
   },
@@ -695,8 +695,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. NULL <> 'A' donne « inconnu ».",
       "Oui, elle ne passe pas. Pour la garder : OR categorie IS NULL.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide : la ligne est juste exclue.",
+      "Non. La liste n'est pas vide ici, et le NULL exclut la ligne."
     ],
     retenir: "NOT IN exclut aussi les lignes où la colonne est NULL."
   },
@@ -713,7 +713,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. NULL LIKE … donne « inconnu », et NOT inconnu reste inconnu.",
       "Oui. Comme pour <>, les NULL sont éliminés.",
-      "Non.",
+      "Non. La requête est valide.",
       "Non. Même règle partout."
     ],
     retenir: "LIKE et NOT LIKE excluent les NULL."
@@ -825,8 +825,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. Sans heure, pas de piège : le 31 vaut exactement '20260131'. Le piège existe seulement avec DATETIME.",
       "Non. BETWEEN inclut les bornes.",
-      "Non.",
-      "Non."
+      "Non. BETWEEN inclut aussi la borne de début.",
+      "Non. Le format 'AAAAMMJJ' est valide."
     ],
     retenir: "BETWEEN sur DATE : OK. Sur DATETIME : préfère >= et <."
   },
@@ -843,8 +843,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. C'est l'intérieur de l'intervalle, sans les bornes.",
       "Oui. NOT BETWEEN = qte < 10 OR qte > 20. Les bornes 10 et 20 sont exclues.",
-      "Non.",
-      "Non."
+      "Non. 10 et 20 sont justement exclus par NOT BETWEEN.",
+      "Non. 10 est exclu (c'est une borne), et les valeurs > 20 manquent."
     ],
     retenir: "NOT BETWEEN a AND b = < a OR > b."
   },
@@ -879,8 +879,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. IN teste seulement « est dans la liste ». Les doublons de la liste ne dupliquent rien.",
       "Non. C'est ce que ferait une jointure.",
-      "Non.",
-      "Non."
+      "Non. Le client est bien dans la liste : il apparaît une fois.",
+      "Non. Des doublons dans la liste IN ne gênent pas."
     ],
     retenir: "IN / EXISTS ne créent pas de doublons. JOIN, oui."
   },
@@ -954,7 +954,7 @@ LEARNSQL.questions.m02 = [
       "Non. En général oui, mais CAST de DATETIME vers DATE est un cas spécial.",
       "Oui. SQL Server transforme ce filtre en plage. Les autres fonctions (YEAR, CONVERT…) n'ont pas cette chance.",
       "Non. Snowflake n'a pas d'index.",
-      "Non."
+      "Non. NOLOCK change les verrous, pas l'usage de l'index."
     ],
     retenir: "Exception utile : CAST(datetime AS date) = … reste SARGable sur SQL Server."
   },
@@ -972,8 +972,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. Une ligne NULL ne peut pas valoir 'OK'. Le ISNULL ne sert à rien, et il empêche l'index.",
       "Non. Ça cherche les NULL.",
-      "Non.",
-      "Non."
+      "Non. Ça garde aussi 'KO', 'EN COURS'… tout sauf le vide.",
+      "Non. Le ISNULL est inutile : on peut l'enlever."
     ],
     retenir: "ISNULL inutile dans un test d'égalité avec une valeur précise."
   },
@@ -1083,8 +1083,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. AS = Accent Sensitive : é ≠ e.",
       "Oui, il ne le trouve pas. Avec une collation AI (Accent Insensitive), il le trouverait.",
-      "Non.",
-      "Non."
+      "Non. CI = Case Insensitive : la casse ne joue pas, l'accent si.",
+      "Non. La requête est valide : elle ne trouve juste rien."
     ],
     retenir: "CI/CS = casse. AI/AS = accents. French_CI_AS : casse ignorée, accents comptés."
   },
@@ -1103,7 +1103,7 @@ LEARNSQL.questions.m02 = [
       "Oui. EQUAL_NULL traite NULL comme une valeur. Équivalent : a IS NOT DISTINCT FROM b.",
       "Non. NULL = NULL donne « inconnu ».",
       "Non. NULLIF renvoie une valeur, pas un booléen.",
-      "Non."
+      "Non. COALESCE renvoie la première valeur non NULL, pas VRAI / FAUX."
     ],
     retenir: "Snowflake : EQUAL_NULL(a, b) = égalité qui gère les NULL."
   },
@@ -1120,7 +1120,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. Ça, c'est > ANY.",
       "Oui. Supérieur à TOUTES les valeurs = supérieur au maximum.",
-      "Non.",
+      "Non. ALL compare à chaque valeur, pas à leur moyenne.",
       "Non. ALL existe sur les deux moteurs."
     ],
     retenir: "> ALL = > MAX. > ANY = > MIN."
@@ -1138,8 +1138,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. Piège : c'est l'inverse.",
       "Oui. « Plus grand que tous les éléments d'une liste vide » est vrai (rien ne le contredit). Toutes les lignes passent.",
-      "Non.",
-      "Non."
+      "Non. Une sous-requête vide est permise.",
+      "Non. La condition donne VRAI, pas NULL."
     ],
     retenir: "> ALL (liste vide) = VRAI pour tout le monde."
   },
@@ -1175,8 +1175,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. SQL Server ignore les espaces de fin : '   ' devient '' pour la comparaison.",
       "Non sur SQL Server. (Oui sur Snowflake.)",
-      "Non.",
-      "Non."
+      "Non. La comparaison est valide.",
+      "Non. Aucune des deux valeurs n'est NULL."
     ],
     retenir: "SQL Server : WHERE col = '' trouve aussi les textes faits seulement d'espaces."
   },
@@ -1230,9 +1230,9 @@ LEARNSQL.questions.m02 = [
     bonne: 2,
     pourquoi: [
       "Non. La requête ne s'exécute pas.",
-      "Non.",
+      "Non. La requête ne s'exécute pas.",
       "Oui. IN exige au moins une valeur. L'appli doit gérer le cas « liste vide ».",
-      "Non."
+      "Non. C'est une erreur, pas un résultat NULL."
     ],
     retenir: "IN () vide = erreur. À gérer avant d'envoyer la requête."
   },
@@ -1248,7 +1248,7 @@ LEARNSQL.questions.m02 = [
     bonne: 0,
     pourquoi: [
       "Oui. Les deux écritures sont équivalentes, NULL compris.",
-      "Non.",
+      "Non. NOT (statut IN …) et statut NOT IN … sont la même chose.",
       "Non. Le comportement avec NULL est le même dans les deux cas.",
       "Non. Les deux sont valides."
     ],
@@ -1267,7 +1267,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. Ce serait vrai pour des nombres.",
       "Oui. Comparaison de texte, caractère par caractère : '9' > '1'. Convertis : TRY_CAST(montant_txt AS decimal(10,2)) > 100.",
-      "Non.",
+      "Non. Comparer deux textes est permis.",
       "Non. Même règle partout."
     ],
     retenir: "Nombres en texte = comparaisons fausses. Convertis avant de comparer."
@@ -1286,7 +1286,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. Ça demande que le libellé commence par PISC.",
       "Oui. CHARINDEX > 0 = « contient ». Les deux lisent toute la table.",
-      "Non.",
+      "Non. Ça demande un libellé exactement égal à 'PISC'.",
       "Non. Ça demande que le libellé finisse par PISC."
     ],
     retenir: "« Contient » : LIKE '%x%' ou CHARINDEX(x, col) > 0."
@@ -1305,8 +1305,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. STARTSWITH (et ENDSWITH, CONTAINS) existent sur Snowflake. LIKE 'PIS%' marche aussi.",
       "Non. Cette fonction n'existe pas.",
-      "Non.",
-      "Non."
+      "Non. Cette fonction n'existe pas.",
+      "Non. PREFIX n'existe pas : on écrirait LEFT(code, 3) = 'PIS'."
     ],
     retenir: "Snowflake : STARTSWITH, ENDSWITH, CONTAINS."
   },
@@ -1471,8 +1471,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. DATE_TRUNC coupe la date au début de l'année.",
       "Non. Syntaxe SQL Server. (DATE_FROM_PARTS existe sur Snowflake, avec des _.)",
-      "Non.",
-      "Non."
+      "Non. YEAR() a besoin d'une date entre les parenthèses.",
+      "Non. 'YEAR' est un simple texte, pas une date."
     ],
     retenir: "Snowflake : DATE_TRUNC('year' | 'month' | 'week', CURRENT_DATE)."
   },
@@ -1510,7 +1510,7 @@ LEARNSQL.questions.m02 = [
       "Non. Trop restrictif.",
       "Oui. Chacune commence avant que l'autre finisse. Couvre tous les cas, y compris une période incluse dans l'autre.",
       "Non. Rate le cas où la période 2 commence pendant la période 1.",
-      "Non."
+      "Non. Deux périodes peuvent se chevaucher sans finir le même jour."
     ],
     retenir: "Chevauchement : début1 <= fin2 AND début2 <= fin1."
   },
@@ -1527,8 +1527,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. montant <= NULL est inconnu.",
       "Oui. Une borne NULL rend tout le BETWEEN inconnu. Gère le cas : (@max IS NULL OR montant <= @max).",
-      "Non.",
-      "Non."
+      "Non. La borne NULL ne laisse rien passer.",
+      "Non. Une variable NULL est permise : la requête renvoie 0 ligne."
     ],
     retenir: "Une borne NULL dans BETWEEN = 0 ligne."
   },
@@ -1676,7 +1676,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Oui. Attention : LEN ignore les espaces de fin. Pour les voir, DATALENGTH.",
       "Non. Compare le code au nombre 6.",
-      "Non.",
+      "Non. Ça cherche les codes sans le chiffre 6, pas la longueur.",
       "Non. SIZE n'existe pas."
     ],
     retenir: "Contrôle de longueur : LEN (SQL Server), LENGTH (Snowflake)."
@@ -1806,8 +1806,8 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. La requête ne s'exécute pas.",
       "Oui. WHERE travaille ligne par ligne, avant le calcul des agrégats.",
-      "Non.",
-      "Non."
+      "Non. La requête ne s'exécute pas.",
+      "Non. Ce n'est pas un résultat vide : c'est une erreur."
     ],
     retenir: "Pas d'agrégat dans WHERE. HAVING ou sous-requête."
   },
