@@ -31,7 +31,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Le moteur ne choisit pas.",
       "Oui. Une sous-requête scalaire doit renvoyer au plus 1 ligne. Sinon : erreur à l'exécution.",
-      "Non.",
+      "Non. Le moteur n'additionne rien : il s'arrête sur une erreur.",
       "Non. Il y a une erreur."
     ],
     retenir: "Sous-requête scalaire : 1 ligne max, sinon erreur."
@@ -47,10 +47,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Aucune ligne donne NULL, pas 0.",
       "Oui. Pas de ligne = NULL. Pense à COALESCE si tu calcules avec.",
       "Non. Zéro ligne n'est pas une erreur.",
-      "Non."
+      "Non. Aucune ligne donne NULL, pas un texte vide."
     ],
     retenir: "Sous-requête scalaire vide = NULL."
   },
@@ -84,10 +84,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. GROUP BY et HAVING n'ont rien à voir avec la corrélation.",
       "Oui. Elle utilise une colonne de la requête extérieure. Ex. WHERE co.client_id = c.id : c vient de la requête du dessus.",
       "Non. Une sous-requête dans FROM n'est pas corrélée (sauf avec APPLY / LATERAL).",
-      "Non."
+      "Non. Une sous-requête corrélée peut renvoyer une seule valeur."
     ],
     retenir: "Corrélée = elle regarde la ligne en cours de la requête extérieure."
   },
@@ -160,7 +160,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Le NULL casse le NOT IN.",
       "Oui. id <> NULL est inconnu pour tout le monde : rien ne passe.",
-      "Non.",
+      "Non. Le NULL ne laisse passer personne.",
       "Non. Aucune erreur pour te prévenir."
     ],
     retenir: "NOT IN + un seul NULL = 0 ligne."
@@ -215,7 +215,7 @@ LEARNSQL.questions.m06 = [
       "Non. Les colonnes ne sont pas lues.",
       "Oui. EXISTS ne regarde pas les colonnes, seulement s'il y a des lignes. SELECT 1 est juste une convention lisible.",
       "Non. Même une ligne avec NULL compte comme une ligne.",
-      "Non."
+      "Non. Toutes les écritures sont acceptées : SELECT 1 est une convention."
     ],
     retenir: "EXISTS ignore le contenu du SELECT."
   },
@@ -233,8 +233,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Piège : la sous-requête n'est pas reliée au client.",
       "Oui. Il manque co.client_id = c.id. Le EXISTS est vrai pour tout le monde.",
-      "Non.",
-      "Non."
+      "Non. Il existe une commande 2026 : EXISTS est vrai.",
+      "Non. La requête est valide, elle est juste mal reliée."
     ],
     retenir: "EXISTS sans lien avec la ligne extérieure = vrai ou faux pour toutes les lignes."
   },
@@ -267,7 +267,7 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. DISTINCT ne vérifie pas d'où vient la colonne.",
       "Oui. Avec a.client_id, une colonne absente provoque une vraie erreur.",
       "Non. Ça ne règle rien, et NOT IN a ses propres pièges.",
       "Non. Les sous-requêtes sont utiles."
@@ -285,9 +285,9 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un JOIN n'oblige pas à utiliser IN ou EXISTS.",
       "Oui. IN / EXISTS ne créent pas de doublons : pas besoin de DISTINCT avec une semi-jointure.",
-      "Non.",
+      "Non. Rien n'interdit de joindre ces deux tables.",
       "Non. Il y a une vraie différence."
     ],
     retenir: "« Ceux qui ont au moins un… » : IN / EXISTS, pas JOIN + DISTINCT."
@@ -305,7 +305,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Il ne compte pas.",
       "Oui. Une seule ligne suffit pour répondre « oui ».",
-      "Non.",
+      "Non. La vitesse vient de l'arrêt à la 1re ligne, pas d'un cache.",
       "Non. Il cherche la première ligne QUI CORRESPOND."
     ],
     retenir: "EXISTS s'arrête au premier résultat."
@@ -325,7 +325,7 @@ LEARNSQL.questions.m06 = [
       "Non. Ça marche, mais on compte tout alors qu'une seule ligne suffit.",
       "Oui. Plus clair et souvent plus efficace.",
       "Non. Même résultat, mais l'intention et parfois le coût diffèrent.",
-      "Non."
+      "Non. commande n'est pas une colonne du client."
     ],
     retenir: "Existence : EXISTS, pas COUNT(*) > 0."
   },
@@ -378,9 +378,9 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans alias, la requête ne s'exécute pas.",
       "Oui. La table dérivée doit avoir un alias : … FROM (SELECT …) AS t.",
-      "Non.",
+      "Non. Sans alias, la requête ne s'exécute pas.",
       "Non. Il y a une erreur."
     ],
     retenir: "Sous-requête dans FROM : alias obligatoire (SQL Server)."
@@ -396,9 +396,9 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans nom de colonne, la requête ne s'exécute pas.",
       "Oui. Chaque colonne d'une table dérivée doit avoir un nom : YEAR(date_cde) AS annee.",
-      "Non.",
+      "Non. Sans nom de colonne, la requête ne s'exécute pas.",
       "Non. SQL Server ne donne pas de nom tout seul ici : erreur."
     ],
     retenir: "Table dérivée : chaque colonne nommée."
@@ -418,7 +418,7 @@ LEARNSQL.questions.m06 = [
       "Non. SQL Server refuse : c'est une erreur.",
       "Oui. Une sous-requête est un ensemble, sans ordre : SQL Server refuse ORDER BY sans TOP. Le tri se met dans la requête finale.",
       "Non. SQL Server refuse : c'est une erreur.",
-      "Non."
+      "Non. SQL Server refuse : rien n'est renvoyé."
     ],
     retenir: "ORDER BY : dans la requête finale seulement."
   },
@@ -436,8 +436,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. L'alias n'existe pas encore dans WHERE.",
       "Oui. Dans la requête extérieure, ttc est une vraie colonne de t.",
-      "Non.",
-      "Non."
+      "Non. HAVING ne voit pas non plus l'alias, et il n'y a pas de GROUP BY.",
+      "Non. Il manque le FROM, et l'alias n'existe pas dans WHERE."
     ],
     retenir: "Réutiliser un alias : l'envelopper dans une table dérivée ou une CTE."
   },
@@ -453,10 +453,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le mot-clé est WITH, pas CTE.",
       "Oui. WITH nom AS (requête), puis la requête qui l'utilise.",
-      "Non.",
-      "Non."
+      "Non. WITH se place avant la requête.",
+      "Non. DECLARE sert aux variables."
     ],
     retenir: "WITH nom AS ( … ) SELECT … FROM nom."
   },
@@ -471,7 +471,7 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le ; ne change pas la vitesse.",
       "Oui. L'instruction précédente doit finir par ; : le ; devant WITH protège si on l'a oublié. Sinon : erreur de syntaxe près de WITH. Mieux : finir toutes les instructions par ;.",
       "Non. Un commentaire commence par --.",
       "Non. Une CTE récursive s'écrit comme les autres sur SQL Server."
@@ -492,7 +492,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Un seul WITH.",
       "Oui. Un WITH, puis les CTE séparées par des virgules.",
-      "Non.",
+      "Non. Chaque CTE a son propre AS (…).",
       "Non. Le ; termine l'instruction : b ne verrait plus a."
     ],
     retenir: "Un seul WITH, CTE séparées par des virgules."
@@ -509,8 +509,8 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. Une CTE peut utiliser celles définies AVANT elle. C'est ce qui permet d'avancer étape par étape.",
-      "Non.",
-      "Non.",
+      "Non. Une CTE voit celles écrites avant elle.",
+      "Non. C'est possible dans une CTE normale.",
       "Non. Valide partout."
     ],
     retenir: "Une CTE voit les CTE précédentes."
@@ -526,7 +526,7 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La CTE n'existe que pour la requête qui la suit.",
       "Oui. La CTE n'existe que pour la requête qui la suit directement. Pour réutiliser un résultat : table temporaire ou vue.",
       "Non. Il y a une erreur.",
       "Non. Il y a une erreur."
@@ -546,8 +546,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. SQL Server ne matérialise pas les CTE.",
       "Oui. Si c'est coûteux : stocker le résultat dans une table temporaire #t.",
-      "Non.",
-      "Non."
+      "Non. Une CTE utilisée deux fois est permise.",
+      "Non. SQL Server ne stocke pas le résultat d'une CTE."
     ],
     retenir: "SQL Server : CTE = texte réutilisé, pas résultat stocké."
   },
@@ -565,7 +565,7 @@ LEARNSQL.questions.m06 = [
       "Non. C'est valide.",
       "Oui. La liste (annee, ca) donne les noms des colonnes, au lieu de mettre des alias dans le SELECT. Pratique et lisible.",
       "Non. Une CTE ne crée pas de table.",
-      "Non."
+      "Non. La liste entre parenthèses donne des noms, pas un tri."
     ],
     retenir: "WITH nom (col1, col2) AS (…) : noms des colonnes dans l'en-tête."
   },
@@ -580,10 +580,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La vue est enregistrée dans la base ; la CTE disparaît après la requête.",
       "Oui. Vue = objet permanent dans la base, réutilisable et partagé. CTE = étape temporaire d'une requête.",
       "Non. Les deux sont « dépliées » dans la requête.",
-      "Non."
+      "Non. Une vue peut contenir des jointures."
     ],
     retenir: "Vue = permanente. CTE = locale à une requête."
   },
@@ -598,10 +598,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle est souvent plus rapide quand on relit le résultat.",
       "Oui. Calculée une fois, lue plusieurs fois, avec des statistiques (et des index possibles) qui aident l'optimiseur.",
       "Non. #t est privée à la session.",
-      "Non."
+      "Non. Lire une #table pose des verrous comme une table normale."
     ],
     retenir: "Résultat intermédiaire réutilisé ou volumineux : #table."
   },
@@ -616,10 +616,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse ORDER BY sans TOP dans une CTE.",
       "Oui. Même règle que les tables dérivées et les vues. Trie dans la requête finale.",
       "Non. SQL Server refuse.",
-      "Non."
+      "Non. SQL Server refuse : il n'y a pas de résultat."
     ],
     retenir: "Pas d'ORDER BY dans une CTE (sauf avec TOP)."
   },
@@ -656,7 +656,7 @@ LEARNSQL.questions.m06 = [
       "Non. Sur SQL Server, une CTE simple (une table) est modifiable.",
       "Oui. La modification est appliquée à la table d'origine.",
       "Non. Seulement les lignes de la CTE.",
-      "Non."
+      "Non. La CTE ne copie rien : on modifie la table d'origine."
     ],
     retenir: "UPDATE / DELETE via une CTE = modifie la table de base."
   },
@@ -689,10 +689,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La lisibilité et le débogage sont un vrai gain.",
       "Oui. On lit de haut en bas, avec un nom parlant pour chaque étape. Même résultat, mais compréhensible et facile à déboguer.",
       "Non. Sur SQL Server, le plan est souvent le même.",
-      "Non."
+      "Non. Une CTE n'est récursive que si elle s'appelle elle-même."
     ],
     retenir: "CTE = lisibilité. Une étape, un nom."
   },
@@ -707,10 +707,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce sont les parties de toute requête, pas de la récursion.",
       "Oui. L'ancre (point de départ) donne les premières lignes ; la partie récursive part des lignes précédentes pour trouver les suivantes. Reliées par UNION ALL.",
-      "Non.",
-      "Non."
+      "Non. Ce sont des filtres, pas les parties d'une récursion.",
+      "Non. Une CTE récursive est une seule CTE, en deux parties."
     ],
     retenir: "Récursive = ancre UNION ALL partie récursive."
   },
@@ -725,10 +725,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La limite par défaut de SQL Server est 100 niveaux, pas 10.",
       "Oui. Quand la partie récursive ne renvoie plus aucune ligne. Si les données bouclent, elle ne s'arrête pas toute seule.",
       "Non. Si l'ancre est vide, elle ne commence même pas.",
-      "Non."
+      "Non. Elle s'arrête seule quand plus rien n'est trouvé."
     ],
     retenir: "Fin de récursion = plus de nouvelles lignes."
   },
@@ -743,10 +743,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La limite compte les niveaux, pas les lignes.",
       "Oui. C'est la limite par défaut de SQL Server : hiérarchie très profonde, ou boucle dans les données. Vérifie d'abord s'il y a une boucle. Si la profondeur est normale : OPTION (MAXRECURSION n).",
-      "Non.",
-      "Non."
+      "Non. Le message parle de niveaux de récursion, pas d'erreurs.",
+      "Non. La limite compte les niveaux, pas le temps."
     ],
     retenir: "MAXRECURSION par défaut = 100 niveaux."
   },
@@ -761,10 +761,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. 0 veut dire « pas de limite ».",
       "Oui. Attention : une boucle dans les données tournera sans fin. Préfère une limite raisonnable (ex. 1000) ou un garde-fou sur le niveau.",
-      "Non.",
-      "Non."
+      "Non. MAXRECURSION ne limite pas le nombre de lignes.",
+      "Non. Elle enlève une limite, elle n'accélère rien."
     ],
     retenir: "MAXRECURSION 0 = sans limite. À utiliser avec un garde-fou."
   },
@@ -779,10 +779,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. B renvoie vers A : la boucle continue.",
       "Oui. Elle tourne en boucle jusqu'à la limite de récursion (ou sans fin). Garde-fou : un compteur de niveau (WHERE niveau < 20), ou un chemin et un test « déjà visité ».",
       "Non. Le moteur ne détecte pas les cycles tout seul.",
-      "Non."
+      "Non. Elle tourne et renvoie des lignes, jusqu'à l'erreur de limite."
     ],
     retenir: "Données en boucle = récursion infinie. Prévois un garde-fou."
   },
@@ -798,7 +798,7 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. Une colonne n'a pas exactement le même type (ou la même longueur) des deux côtés. Ex. chemin VARCHAR(50) dans l'ancre, VARCHAR(100) après concaténation. Fais un CAST identique des deux côtés.",
-      "Non.",
+      "Non. L'erreur parle de types, pas d'alias.",
       "Non. Une table vide ne crée pas d'erreur de type.",
       "Non. La récursion exige UNION ALL."
     ],
@@ -836,8 +836,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. SQL Server refuse.",
       "Oui. UNION ALL obligatoire entre l'ancre et la partie récursive.",
-      "Non.",
-      "Non."
+      "Non. DISTINCT ne remplace pas UNION ALL ici.",
+      "Non. La règle vaut quel que soit le nombre de niveaux."
     ],
     retenir: "CTE récursive (SQL Server) : UNION ALL."
   },
@@ -852,7 +852,7 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server interdit les jointures externes dans la partie récursive.",
       "Oui. Seulement des jointures internes dans la partie récursive.",
       "Non. RIGHT JOIN est aussi une jointure externe.",
       "Non. TOP est aussi interdit dans la partie récursive."
@@ -891,7 +891,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. 4 + 6 = 10, faux.",
       "Oui. On multiplie la quantité du parent par celle du composant : 4 × 6 = 24.",
-      "Non.",
+      "Non. MAX garde une seule valeur : 6, pas 24.",
       "Non. Agrégat interdit dans la partie récursive."
     ],
     retenir: "Nomenclature : quantités multipliées de niveau en niveau."
@@ -909,7 +909,7 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. Le sommet n'a pas de manager. La partie récursive descend ensuite vers les subordonnés.",
-      "Non.",
+      "Non. Personne n'est son propre manager : ça ne trouve personne.",
       "Non. Rien ne garantit que le PDG ait l'id 1.",
       "Non. Ce sont tous les autres."
     ],
@@ -930,7 +930,7 @@ LEARNSQL.questions.m06 = [
       "Non. Ça descend vers les subordonnés.",
       "Oui. On cherche la personne dont l'id est le manager de la ligne précédente : on monte d'un niveau.",
       "Non. On retrouverait la même personne : boucle.",
-      "Non."
+      "Non. Un CROSS JOIN relie tout le monde : la chaîne est perdue."
     ],
     retenir: "Monter : s.id = r.manager_id. Descendre : s.manager_id = r.id."
   },
@@ -968,7 +968,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Oui. SELECT value FROM GENERATE_SERIES(1, 100). Plus simple qu'une CTE récursive.",
       "Non. Python.",
-      "Non.",
+      "Non. Cette fonction n'existe pas sur SQL Server.",
       "Non. Snowflake a GENERATOR, avec une autre syntaxe."
     ],
     retenir: "SQL Server 2022 : GENERATE_SERIES(début, fin [, pas])."
@@ -1005,9 +1005,9 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. WITH RECURSIVE nom (colonnes) AS (ancre UNION ALL récursion). Lisible et standard.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Cette syntaxe n'existe pas.",
+      "Non. RECURSIVE se place après WITH.",
+      "Non. Cette syntaxe n'existe pas."
     ],
     retenir: "Snowflake : WITH RECURSIVE."
   },
@@ -1041,9 +1041,9 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une réécriture en jointure ou en fenêtre suffit.",
       "Oui. Une jointure sur une sous-requête agrégée, ou une fonction de fenêtrage. Snowflake gère moins de formes de sous-requêtes corrélées. Les jointures et les fenêtres marchent toujours.",
-      "Non.",
+      "Non. DISTINCT ne change pas le type de sous-requête.",
       "Non. Pas suffisant."
     ],
     retenir: "Snowflake : préfère jointures et fenêtres aux sous-requêtes corrélées."
@@ -1079,9 +1079,9 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. Il en faudrait deux, donc deux lectures. APPLY renvoie plusieurs colonnes en une seule fois.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Une sous-requête peut aussi lire un prix.",
+      "Non. Les sous-requêtes scalaires sont permises dans SELECT.",
+      "Non. Deux sous-requêtes = deux lectures ; APPLY en fait une."
     ],
     retenir: "Plusieurs colonnes « par ligne » : APPLY plutôt que plusieurs sous-requêtes."
   },
@@ -1099,7 +1099,7 @@ LEARNSQL.questions.m06 = [
       "Non. SUM sur rien = NULL.",
       "Oui. Écris COALESCE((SELECT SUM(…) …), 0) si tu veux 0.",
       "Non. La valeur est remplacée.",
-      "Non."
+      "Non. La sous-requête renvoie NULL, sans erreur."
     ],
     retenir: "UPDATE avec sous-requête : prévois le cas « rien trouvé »."
   },
@@ -1154,7 +1154,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. NULL = n'importe quoi est inconnu.",
       "Oui, elle ne passe pas. Une valeur NULL n'est jamais « dans » une liste.",
-      "Non.",
+      "Non. Un NULL dans IN est permis : la ligne est juste exclue.",
       "Non. Même là, NULL = NULL n'est pas vrai."
     ],
     retenir: "NULL IN (…) n'est jamais vrai."
@@ -1172,8 +1172,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. b.ref = NULL n'est jamais vrai.",
       "Oui. Aucune ligne ne vérifie b.ref = NULL : EXISTS est faux.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide.",
+      "Non. b.ref = NULL n'est jamais vrai : aucune ligne trouvée."
     ],
     retenir: "Clé NULL : aucune correspondance, même avec EXISTS."
   },
@@ -1188,10 +1188,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un opérateur normal du plan.",
       "Oui. Une jointure qui garde les lignes de gauche ayant au moins une correspondance, sans les dupliquer. L'optimiseur transforme IN / EXISTS en semi-jointure. NOT EXISTS devient une « Anti Semi Join ».",
       "Non. Un LEFT JOIN garde aussi les lignes sans correspondance.",
-      "Non."
+      "Non. C'est une jointure qui s'arrête dès la 1re correspondance."
     ],
     retenir: "EXISTS / IN = semi-jointure. NOT EXISTS = anti-semi-jointure."
   },
@@ -1206,9 +1206,9 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est voulu : il respecte la logique des NULL.",
       "Oui. Le moteur doit vérifier en plus s'il existe un NULL dans la liste, pour respecter la logique à 3 valeurs. Résultat piégeux ET travail en plus. NOT EXISTS évite les deux.",
-      "Non.",
+      "Non. NOT IN peut utiliser un index ; le travail en plus vient des NULL.",
       "Non. Le plan de NOT IN est plus compliqué."
     ],
     retenir: "Encore une raison de préférer NOT EXISTS."
@@ -1226,8 +1226,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. C'est un mythe.",
       "Oui. L'optimiseur produit souvent le même plan : IN, EXISTS et JOIN sont transformés en opérations équivalentes. Choisis l'écriture la plus claire, puis vérifie le plan si besoin.",
-      "Non.",
-      "Non."
+      "Non. Pas toujours : souvent, le plan est le même.",
+      "Non. Sur SQL Server aussi, le plan est souvent le même."
     ],
     retenir: "Lisibilité d'abord. Le plan d'exécution tranche."
   },
@@ -1245,8 +1245,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. La moyenne est calculée par client, grâce à la corrélation.",
       "Oui. Chaque commande est comparée à la moyenne de son propre client.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide.",
+      "Non. Seules celles au-dessus de la moyenne de leur client passent."
     ],
     retenir: "Sous-requête corrélée = comparaison « à son propre groupe »."
   },
@@ -1283,7 +1283,7 @@ LEARNSQL.questions.m06 = [
       "Non. Une correction devra être faite deux fois : risque d'oubli.",
       "Oui. Écrit une fois, nommé, réutilisé. (Sur SQL Server, il peut être calculé deux fois : #table si c'est lourd.)",
       "Non. Possible, mais lourd pour un besoin ponctuel.",
-      "Non."
+      "Non. Un curseur traite ligne par ligne : lent, et sans rapport."
     ],
     retenir: "Ne duplique pas une sous-requête : CTE."
   },
@@ -1299,8 +1299,8 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. CREATE VIEW v AS WITH x AS (…) SELECT … FROM x;",
-      "Non.",
-      "Non.",
+      "Non. CREATE VIEW … AS WITH … est valide.",
+      "Non. Toute CTE est permise dans une vue.",
       "Non. Valide sur les deux."
     ],
     retenir: "WITH est permis dans une vue."
@@ -1335,7 +1335,7 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une question d'ordre de calcul, pas de vitesse.",
       "Oui. Les fonctions de fenêtrage sont calculées au SELECT, après WHERE : WHERE rn = 1 dans la même requête = erreur. On filtre au niveau du dessus.",
       "Non. C'est une obligation.",
       "Non. Sur SQL Server, WHERE refuse les fenêtres. (Snowflake a QUALIFY.)"
@@ -1375,8 +1375,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Oui. Snowflake permet de réutiliser un alias dans le même SELECT et dans le WHERE.",
       "Non sur Snowflake. (Oui sur SQL Server.)",
-      "Non.",
-      "Non."
+      "Non. Le WHERE marche aussi avec l'alias sur Snowflake.",
+      "Non. Snowflake connaît déjà ttc quand il calcule tva."
     ],
     retenir: "Snowflake évite beaucoup de tables dérivées grâce aux alias réutilisables."
   },
@@ -1413,8 +1413,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Les deux commandes ont la date maximale.",
       "Oui. Cette méthode garde les ex aequo. ROW_NUMBER, lui, en garderait une seule.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide.",
+      "Non. La date maximale existe : ses commandes sont gardées."
     ],
     retenir: "Jointure sur MAX = garde les ex aequo."
   },
@@ -1449,9 +1449,9 @@ LEARNSQL.questions.m06 = [
     bonne: 0,
     pourquoi: [
       "Oui. C'est valide. Une jointure + GROUP BY est souvent plus lisible.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. ORDER BY accepte une sous-requête scalaire.",
+      "Non. TOP n'est pas nécessaire.",
+      "Non. Valide aussi sur SQL Server."
     ],
     retenir: "Une sous-requête scalaire peut servir de critère de tri."
   },
@@ -1466,10 +1466,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse une sous-requête dans GROUP BY.",
       "Oui. Calcule d'abord la valeur dans une table dérivée ou une CTE, puis groupe dessus.",
-      "Non.",
-      "Non."
+      "Non. Aucune sous-requête n'est permise dans GROUP BY.",
+      "Non. HAVING ne lève pas cette interdiction."
     ],
     retenir: "Pas de sous-requête dans GROUP BY : passe par une étape avant."
   },
@@ -1486,8 +1486,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Les WITH imbriqués sont refusés.",
       "Oui. WITH a AS (…), b AS (… FROM a …) : même effet, à plat. Les WITH imbriqués sont refusés.",
-      "Non.",
-      "Non."
+      "Non. Même règle : les WITH imbriqués sont refusés.",
+      "Non. Même règle dans une vue."
     ],
     retenir: "Pas de WITH dans un WITH : enchaîne les CTE."
   },
@@ -1505,7 +1505,7 @@ LEARNSQL.questions.m06 = [
       "Non. Elle sert aussi de garde-fou.",
       "Oui. À savoir à quelle profondeur est chaque ligne, et à limiter la récursion (WHERE niveau < 10). Utile pour l'affichage (indentation).",
       "Non. Rien n'est trié sans ORDER BY.",
-      "Non."
+      "Non. Un compteur de niveau n'enlève pas les doublons."
     ],
     retenir: "Compteur de niveau : profondeur + garde-fou."
   },
@@ -1538,10 +1538,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une #table est supprimée automatiquement à la fin de la procédure.",
       "Oui. Elle est supprimée automatiquement (ou à la fin de la session si créée hors procédure). Un DROP explicite reste une bonne pratique dans les scripts.",
       "Non. GO ne la supprime pas.",
-      "Non."
+      "Non. Aucune durée fixe : elle vit le temps de la procédure."
     ],
     retenir: "#table : vit le temps de la procédure ou de la session."
   },
@@ -1556,10 +1556,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une variable table n'a pas cette limite.",
       "Oui. L'optimiseur sous-estime souvent son nombre de lignes. Avant SQL Server 2019, l'estimation était souvent 1 ligne. Pour du volume : #table.",
       "Non. Les deux types peuvent utiliser tempdb.",
-      "Non."
+      "Non. On peut encore la modifier."
     ],
     retenir: "Petit volume : @table. Gros volume : #table."
   },
@@ -1577,8 +1577,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Oui. La CTE est suivie d'un SELECT … INTO.",
       "Non. WITH ne se met pas dans une sous-requête.",
-      "Non.",
-      "Non."
+      "Non. CREATE … AS n'existe pas sur SQL Server.",
+      "Non. Syntaxe inventée."
     ],
     retenir: "WITH … SELECT … INTO #t FROM …"
   },
@@ -1593,10 +1593,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans index, chaque jointure lit toute la table.",
       "Oui. Une table temporaire peut être indexée comme une vraie table : crée l'index après le chargement.",
       "Non. La CTE serait recalculée 4 fois.",
-      "Non."
+      "Non. DISTINCT ajoute du travail sans aider la jointure."
     ],
     retenir: "#table réutilisée souvent : indexe-la."
   },
@@ -1613,8 +1613,8 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. IN n'en crée pas.",
       "Oui. L'optimiseur l'ignore souvent, mais il n'apporte rien.",
-      "Non.",
-      "Non."
+      "Non. Souvent ignoré, il n'accélère pas.",
+      "Non. IN marche très bien sans DISTINCT."
     ],
     retenir: "DISTINCT dans un IN : inutile."
   },
@@ -1667,10 +1667,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les taux évoluent : un taux réduit peut être ajouté.",
       "Oui. Avec un taux réduit en plus, la sous-requête renverrait 2 lignes : erreur. Sois précis (WHERE pays = 'FR' AND type = 'NORMAL') ou utilise IN si plusieurs valeurs sont possibles.",
-      "Non.",
-      "Non."
+      "Non. Deux lignes donnent une erreur, pas NULL.",
+      "Non. Le risque est une erreur, pas la lenteur."
     ],
     retenir: "Sous-requête avec = : garantis une seule ligne, sinon elle cassera un jour."
   },
@@ -1685,10 +1685,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. GROUP BY regroupe : il ne crée pas de lignes.",
       "Oui. jour BETWEEN debut AND fin : une ligne par jour. C'est souvent le plus simple et le plus rapide. (Une CTE récursive qui ajoute 1 jour marche aussi.)",
-      "Non.",
-      "Non."
+      "Non. DISTINCT enlève des lignes : il n'en crée pas.",
+      "Non. PIVOT change des lignes en colonnes : il ne crée pas les jours manquants."
     ],
     retenir: "Période → jours : calendrier (ou CTE récursive)."
   },
@@ -1703,10 +1703,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SUM() OVER fait le même calcul en une seule passe.",
       "Oui. Chaque ligne relit toutes les lignes précédentes. SUM() OVER (ORDER BY date) fait le cumul en une seule passe.",
       "Non. Le résultat est juste, c'est la vitesse qui pose problème.",
-      "Non."
+      "Non. La syntaxe est valide."
     ],
     retenir: "Cumul : fonction de fenêtrage, pas sous-requête corrélée."
   },
@@ -1723,7 +1723,7 @@ LEARNSQL.questions.m06 = [
     pourquoi: [
       "Non. Illisible et difficile à déboguer.",
       "Oui. Chaque étape a un nom et un rôle. On peut afficher chaque étape pour vérifier.",
-      "Non.",
+      "Non. Des curseurs traitent ligne par ligne : lent et long à écrire.",
       "Non. Trop lourd pour un traitement ponctuel."
     ],
     retenir: "Traitement en étapes : une CTE par étape."
@@ -1739,10 +1739,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On perdrait l'avantage des étapes nommées.",
       "Oui. Remplace le SELECT final par SELECT * FROM etape2 (puis etape1…) pour voir chaque résultat intermédiaire. C'est le gros avantage des CTE.",
-      "Non.",
-      "Non."
+      "Non. DISTINCT cache les erreurs au lieu de les montrer.",
+      "Non. SQL Server refuse ORDER BY sans TOP dans une CTE."
     ],
     retenir: "Déboguer une chaîne de CTE : afficher les étapes une par une."
   },
@@ -1757,9 +1757,9 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Utilisée une fois, la CTE donne le même plan.",
       "Oui. Les deux sont intégrées de la même façon dans le plan. Choisis pour la lisibilité.",
-      "Non.",
+      "Non. Elle est intégrée au plan, rien n'est stocké.",
       "Non. Pas sur SQL Server."
     ],
     retenir: "CTE ou table dérivée : même plan en général. Lisibilité d'abord."
@@ -1831,10 +1831,10 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pour un gros résultat réutilisé, une #table est meilleure.",
       "Oui. EXISTS pour « existe-t-il », CTE pour découper en étapes lisibles, #table pour un gros résultat réutilisé, vue pour une logique partagée et permanente.",
-      "Non.",
-      "Non."
+      "Non. Pour un simple test d'existence, EXISTS suffit.",
+      "Non. Une vue est permanente : trop lourde pour un besoin ponctuel."
     ],
     retenir: "EXISTS, CTE, #table, vue : chacun son rôle."
   }
