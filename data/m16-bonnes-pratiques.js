@@ -83,7 +83,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La longueur n'est pas le problème.",
       "Oui. Si une procédure système porte un jour le même nom, ton code peut casser. C'est la recommandation de Microsoft. Préfère `p_` ou `usp_`, ou pas de préfixe.",
       "Non. Elles en ont autant que les autres.",
       "Non. Il l'accepte : c'est pour ça que le piège existe."
@@ -137,7 +137,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Encore moins lisible.",
       "Oui. `WITH ventes AS (…), marges AS (…)` : on lit de haut en bas, comme une recette. Attention : sur SQL Server, une CTE n'est pas plus rapide, juste plus lisible.",
       "Non. Ça peut changer le résultat.",
       "Non. Plus lent et plus long."
@@ -174,10 +174,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il faut des crochets partout.",
       "Oui. Il faut des crochets partout, les erreurs de frappe sont fréquentes, et certains outils gèrent mal les espaces. Préfère `date_commande`, `code_client` : sans espace, sans accent, sans mot réservé.",
       "Non. Elles peuvent l'être.",
-      "Non."
+      "Non. Elles acceptent NULL comme les autres."
     ],
     retenir: "Noms sans espace, sans accent, sans mot réservé."
   },
@@ -301,10 +301,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le nom ne change pas la vitesse.",
       "Oui. Une fonction scalaire est souvent exécutée une fois par ligne, comme une mini-boucle cachée (SQL Server 2019 sait parfois l'intégrer, mais pas toujours). Souvent, une jointure vers une table de libellés fait la même chose bien plus vite.",
       "Non. Elles sont permises.",
-      "Non."
+      "Non. Le tri n'est pas en cause."
     ],
     retenir: "Fonction scalaire = boucle cachée."
   },
@@ -322,7 +322,7 @@ LEARNSQL.questions.m16 = [
       "Non. Encore pire.",
       "Oui. `RETURNS TABLE AS RETURN SELECT …`, utilisée avec CROSS APPLY, ou une jointure directe. La fonction en ligne est intégrée à la requête, comme une vue avec paramètres.",
       "Non. Toujours ligne par ligne.",
-      "Non."
+      "Non. ORDER BY dans une vue ne garantit rien, et n'accélère pas."
     ],
     retenir: "Fonction scalaire lente → fonction table en ligne."
   },
@@ -337,7 +337,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Leur fonctionnement est très différent.",
       "Oui. L'en ligne est un seul SELECT intégré à la requête. La multi-instructions remplit une table intermédiaire, et le moteur estime souvent mal son nombre de lignes. Mauvaise estimation = mauvais plan.",
       "Non. C'est souvent l'inverse.",
       "Non. Elle en a."
@@ -375,8 +375,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Les colonnes sont lues et transférées.",
       "Oui. Lectures inutiles, pas d'index couvrant possible, et le rapport peut casser ou changer si la table évolue. Liste les 6 colonnes utiles.",
-      "Non.",
-      "Non."
+      "Non. Elle lit 80 colonnes au lieu de 6.",
+      "Non. Power BI lit les vues."
     ],
     retenir: "Lister les colonnes utiles."
   },
@@ -394,7 +394,7 @@ LEARNSQL.questions.m16 = [
       "Non. C'est ce qu'on croit, et c'est faux.",
       "Oui. La vue garde la liste de colonnes du jour de sa création, jusqu'à `sp_refreshview` ou un `ALTER VIEW`. Et si une colonne est supprimée de la table, la vue peut renvoyer une erreur ou des colonnes décalées.",
       "Non. Pas d'erreur dans ce cas : c'est plus sournois.",
-      "Non."
+      "Non. La vue existe toujours."
     ],
     retenir: "Vue en SELECT * : colonnes figées à la création."
   },
@@ -427,7 +427,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Impossible : l'ERP sert pendant la journée.",
       "Oui. Sur la base : les lecteurs lisent la dernière version validée, sans être bloqués. Données justes et pas de blocage. À tester : cela utilise davantage tempdb.",
       "Non. Plus de blocages, pas moins.",
       "Non. Verrou exclusif : bloque tout le monde."
@@ -464,10 +464,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le problème est la conversion de la colonne.",
       "Oui. SQL Server convertit la COLONNE en nombre pour chaque ligne : l'index ne sert plus, et un code contenant une lettre (ex. « C123 ») provoque une erreur de conversion. Écrire `code_client = '12345'` : même type des deux côtés.",
-      "Non.",
-      "Non."
+      "Non. Le tri n'a rien à voir.",
+      "Non. L'index est sain."
     ],
     retenir: "Comparer des valeurs du même type que la colonne."
   },
@@ -503,8 +503,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. `LIKE 'POMPE%'` (sans % au début) utilise l'index.",
       "Oui. Il faut lire tous les libellés. Pour chercher un mot au milieu d'un texte, on regarde la recherche en texte intégral (full-text).",
-      "Non.",
-      "Non."
+      "Non. La casse ne change rien ici.",
+      "Non. LIKE s'écrit comme on veut."
     ],
     retenir: "% au début = pas de recherche dans l'index."
   },
@@ -540,8 +540,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. C'est le réflexe, mais SQL Server complète la chaîne courte avec des espaces avant de comparer.",
       "Oui. SQL Server ignore les espaces de fin dans une comparaison avec =. Écrire `RTRIM(code) = 'A12'` est donc inutile, et empêche l'index. Attention : sur Snowflake, les espaces de fin comptent avec =.",
-      "Non.",
-      "Non."
+      "Non. Deux textes se comparent sans conversion.",
+      "Non. Aucune valeur n'est NULL."
     ],
     retenir: "SQL Server : espaces de fin ignorés par =."
   },
@@ -556,10 +556,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils sont permis.",
       "Oui. Un seul plan est gardé pour toutes les combinaisons de paramètres : bon pour un cas, mauvais pour les autres. Solutions : `OPTION (RECOMPILE)` ou du SQL dynamique paramétré qui n'ajoute que les filtres utiles.",
-      "Non.",
-      "Non."
+      "Non. OR est permis.",
+      "Non. DISTINCT ne change pas le plan."
     ],
     retenir: "Recherche « fourre-tout » : RECOMPILE ou SQL dynamique paramétré."
   },
@@ -574,7 +574,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les résultats sont les mêmes ; c'est le plan qui change.",
       "Oui. SSMS et l'application n'ont pas les mêmes options (ex. `ARITHABORT`) : deux plans différents en cache, compilés pour des paramètres différents (« reniflage » de paramètres). Comparer les deux plans.",
       "Non. Possible, mais ce n'est pas la cause classique.",
       "Non. Pas « toujours » : regarder le plan d'abord."
@@ -594,7 +594,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Mythe : les deux sont dans tempdb. Et la variable table n'a pas de statistiques sur ses colonnes.",
       "Oui. Elle a des statistiques et peut être indexée : le moteur estime mieux le nombre de lignes. La variable table convient aux petits volumes.",
-      "Non.",
+      "Non. La #table a des statistiques, la variable table non.",
       "Non. Risque de conflits entre utilisateurs, et nettoyage à gérer."
     ],
     retenir: "Gros volume intermédiaire → #table."
@@ -630,8 +630,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Ça coûte, surtout sur gros volume.",
       "Oui. Coût de tri ou de hachage inutile, et le jour où des doublons apparaîtront, DISTINCT cachera le bug. On veut voir les doublons pour comprendre leur cause.",
-      "Non.",
-      "Non."
+      "Non. La clé garantit déjà l'unicité.",
+      "Non. Il ajoute du travail."
     ],
     retenir: "DISTINCT « par sécurité » = mauvaise sécurité."
   },
@@ -666,8 +666,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Un index sur une seule colonne aide rarement une requête complexe.",
       "Oui. Chaque INSERT, UPDATE ou DELETE doit maintenir 40 index : écritures lentes, stockage multiplié, et la plupart ne servent jamais. On crée les index à partir des requêtes réelles.",
-      "Non.",
-      "Non."
+      "Non. Chaque index coûte à l'écriture.",
+      "Non. Ils restent jusqu'à ce qu'on les supprime."
     ],
     retenir: "Index : selon les requêtes, pas par principe."
   },
@@ -684,8 +684,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Seule la clé primaire (et UNIQUE) crée un index automatiquement.",
       "Oui. Sinon les jointures commande-lignes et les suppressions de commandes deviennent lentes : une suppression doit vérifier les lignes, et sans index c'est un scan complet.",
-      "Non.",
-      "Non."
+      "Non. Il n'est jamais créé automatiquement.",
+      "Non. Sans index, jointures et suppressions sont lentes."
     ],
     retenir: "Clé étrangère : penser à l'indexer."
   },
@@ -702,7 +702,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. C'est son fonctionnement normal.",
       "Oui. Le moteur lit et jette 200 000 lignes avant de renvoyer les 50 voulues. Mieux : partir de la dernière clé affichée (`WHERE id > @dernier_id ORDER BY id`) : chaque page coûte pareil.",
-      "Non.",
+      "Non. Le moteur lit toujours les 200 000 lignes avant.",
       "Non. OFFSET exige ORDER BY, et la pagination n'aurait plus de sens."
     ],
     retenir: "Pagination profonde → pagination par clé."
@@ -721,7 +721,7 @@ LEARNSQL.questions.m16 = [
       "Non. Pas forcément : c'est la requête qui ne passe pas à l'échelle.",
       "Oui. Tester avec un volume réaliste, et lire le plan d'exécution (lignes estimées / réelles) avant la mise en production. Un scan invisible sur 10 000 lignes devient un drame sur 40 millions.",
       "Non. Ça ne change pas le plan.",
-      "Non."
+      "Non. NOLOCK ne change pas le plan."
     ],
     retenir: "Tester à volume réel, lire le plan."
   },
@@ -739,7 +739,7 @@ LEARNSQL.questions.m16 = [
       "Non. Le vrai risque est un résultat faux.",
       "Oui. On cache la cause (souvent une jointure 1-N oubliée), et DISTINCT peut aussi fusionner deux lignes réelles identiques. Il faut trouver la table qui multiplie les lignes, et corriger la jointure.",
       "Non. Pas garanti, et ce n'est pas le problème.",
-      "Non."
+      "Non. Les totaux peuvent être faux."
     ],
     retenir: "Doublons : chercher la cause, pas DISTINCT."
   },
@@ -754,10 +754,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Des clients existent : le problème vient du NULL.",
       "Oui. Au moins une commande a `client_id` NULL : `NOT IN` avec un NULL dans la liste ne renvoie jamais rien. Utiliser `NOT EXISTS (SELECT 1 FROM commande co WHERE co.client_id = c.id)`.",
       "Non. Elle marche, sauf avec un NULL.",
-      "Non."
+      "Non. Un index ne change pas le résultat."
     ],
     retenir: "NOT IN + sous-requête → NOT EXISTS."
   },
@@ -775,7 +775,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Le LEFT JOIN est correct ; c'est le WHERE qui l'annule.",
       "Oui. Pour un client sans commande, `cde.date_cde` est NULL : le WHERE l'élimine. Le filtre doit aller dans le ON : `LEFT JOIN commande cde ON cde.client_id = cli.id AND cde.date_cde >= '20260101'`.",
-      "Non.",
+      "Non. RIGHT JOIN garderait les commandes, pas les clients.",
       "Non. 'AAAAMMJJ' est le format sûr."
     ],
     retenir: "LEFT JOIN : filtre de droite dans le ON."
@@ -810,7 +810,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SUM fait son travail ; c'est la jointure qui multiplie.",
       "Oui. Le montant d'en-tête est répété sur chaque ligne : une commande de 3 lignes est comptée 3 fois. Soit on somme les lignes, soit on somme les en-têtes sans joindre les lignes.",
       "Non. Le problème vient de la jointure.",
       "Non. Elle en multiplie."
@@ -831,7 +831,7 @@ LEARNSQL.questions.m16 = [
       "Non. Même avec des emails vides, = NULL ne renvoie rien.",
       "Oui. Toute comparaison avec NULL donne « inconnu ». Il faut écrire `WHERE email IS NULL`.",
       "Non. Ça cherche le texte « NULL ».",
-      "Non."
+      "Non. NULL existe ; il se teste avec IS NULL."
     ],
     retenir: "NULL se teste avec IS NULL."
   },
@@ -849,7 +849,7 @@ LEARNSQL.questions.m16 = [
       "Non. Ça peut sembler marcher, puis changer un jour (nouvel index, parallélisme).",
       "Oui. Sans ORDER BY, l'ordre n'est pas garanti. Il faut `ORDER BY date_cde DESC`.",
       "Non. Même avec une clé primaire, rien n'est garanti sans ORDER BY.",
-      "Non."
+      "Non. Sans ORDER BY, aucun ordre n'est garanti."
     ],
     retenir: "TOP sans ORDER BY = résultat au hasard."
   },
@@ -865,10 +865,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le 31 après minuit est exclu.",
       "Oui. La borne de fin vaut 31/01 à 00:00:00 : les commandes du 31 à 14 h sont exclues. Écrire `date_cde >= '20260101' AND date_cde < '20260201'`.",
       "Non. Le 1er janvier à partir de 00:00 est inclus.",
-      "Non."
+      "Non. Le jour de la semaine n'a rien à voir."
     ],
     retenir: "Période : >= début ET < lendemain de la fin."
   },
@@ -886,7 +886,7 @@ LEARNSQL.questions.m16 = [
       "Non. C'est ce qu'on attend… mais pas avec DATETIME en français.",
       "Oui. Pour le type DATETIME, ce format dépend de la langue. Le format 'AAAAMMJJ' (`'20260102'`) est toujours compris de la même façon. Avec DATE et DATETIME2, '2026-01-02' n'a pas ce problème.",
       "Non. La date est valide dans les deux sens.",
-      "Non."
+      "Non. Le format est compris jour-mois."
     ],
     retenir: "Dates en dur : 'AAAAMMJJ'."
   },
@@ -904,7 +904,7 @@ LEARNSQL.questions.m16 = [
       "Non. SQL Server divise deux entiers en entier.",
       "Oui. Division entière sur SQL Server ; sur SQL Server, écrire `nb_retours * 1.0 / nb_ventes`. Piège classique lors d'une migration : les résultats changent.",
       "Non. Snowflake renvoie 0,25.",
-      "Non."
+      "Non. Diviser deux entiers est permis."
     ],
     retenir: "SQL Server : entier / entier = entier."
   },
@@ -921,7 +921,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. C'est l'inverse : COUNT(*) compte toutes les lignes, même pleines de NULL.",
       "Oui. `COUNT(*)` compte toutes les lignes ; `COUNT(email)` ignore les NULL. Attention aux emails vides ('') : ils ne sont pas NULL et seront comptés.",
-      "Non.",
+      "Non. COUNT marche avec WHERE.",
       "Non. Cette syntaxe n'existe pas."
     ],
     retenir: "COUNT(*) = lignes. COUNT(col) = valeurs non NULL."
@@ -955,7 +955,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La règle de l'ERP fait foi.",
       "Oui. La règle d'arrondi est une règle métier, à reproduire exactement dans le SQL. Arrondir avant ou après la somme ne donne pas le même résultat. Il faut savoir où l'ERP arrondit.",
       "Non. Le rapport doit suivre la règle, pas l'inverse par principe.",
       "Non. En comptabilité, 1 centime d'écart doit être expliqué."
@@ -1030,8 +1030,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Ça marche en test… et pas en production avec plusieurs utilisateurs.",
       "Oui. Si un autre utilisateur insère une commande au même moment, on récupère SON id. Utiliser `SCOPE_IDENTITY()` ou `OUTPUT inserted.id`. Sinon, on lierait les lignes au mauvais en-tête.",
-      "Non.",
-      "Non."
+      "Non. MAX marche sur les id.",
+      "Non. L'INSERT n'est fait qu'une fois."
     ],
     retenir: "Nouvel id : SCOPE_IDENTITY() ou OUTPUT, jamais MAX."
   },
@@ -1048,7 +1048,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Comportement documenté.",
       "Oui. `@@IDENTITY` renvoie le dernier id créé dans la session, y compris par le trigger. `SCOPE_IDENTITY()` renvoie celui de ta propre instruction. Le code a pu marcher des années, jusqu'à l'ajout du trigger.",
-      "Non.",
+      "Non. La commande existe.",
       "Non. Chaque table a ses propres id."
     ],
     retenir: "SCOPE_IDENTITY(), pas @@IDENTITY."
@@ -1064,7 +1064,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il y en a : c'est le tri texte qui les cache.",
       "Oui. Comparaison de textes, caractère par caractère : '1' < '9', donc '10' < '9'. Stocker des nombres dans un type numérique, ou compléter avec des zéros ('009', '010').",
       "Non. Il marche, mais dans l'ordre alphabétique.",
       "Non. Sans guillemets, conversion implicite de la colonne."
@@ -1082,9 +1082,9 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Après minuit, ce n'est plus le même jour.",
       "Oui. Certaines instructions s'exécutent après minuit : elles calculent un autre « hier ». Capturer la date une seule fois : `DECLARE @hier DATE = DATEADD(day, -1, CAST(GETDATE() AS DATE));` puis utiliser @hier partout.",
-      "Non.",
+      "Non. GETDATE() est permis.",
       "Non. Il renvoie la date et l'heure."
     ],
     retenir: "Date de référence : capturée une fois."
@@ -1102,7 +1102,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Trop tard si le WHERE est faux.",
       "Oui. Exactement le même WHERE, pour vérifier le nombre et le contenu des lignes. Si le SELECT montre 12 lignes alors qu'on en attend 3, on s'arrête.",
-      "Non.",
+      "Non. On vérifie avant, pas après.",
       "Non. Aucun rapport."
     ],
     retenir: "SELECT d'abord, avec le même WHERE."
@@ -1121,8 +1121,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Il donne le nombre de lignes touchées par la dernière instruction.",
       "Oui. Sinon tout est annulé. Protection contre un WHERE trop large (ou une facture introuvable).",
-      "Non.",
-      "Non."
+      "Non. Il contrôle, il n'accélère pas.",
+      "Non. Il vaut le nombre de lignes touchées."
     ],
     retenir: "Contrôler le nombre de lignes avant COMMIT."
   },
@@ -1157,8 +1157,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Pas de validation automatique.",
       "Oui. Ses verrous bloquent les autres. Vérifier avec `@@TRANCOUNT` (dans sa fenêtre) ou `DBCC OPENTRAN`. Réflexe : toujours finir par COMMIT ou ROLLBACK.",
-      "Non.",
-      "Non."
+      "Non. La transaction est toujours ouverte.",
+      "Non. Rien n'est supprimé ; tout est bloqué."
     ],
     retenir: "Transaction ouverte = verrous gardés."
   },
@@ -1175,7 +1175,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. C'est le danger : pas d'alerte.",
       "Oui. Aucune erreur : l'article prend un des deux prix, sans qu'on sache lequel. Vérifier avant que la source est unique sur la clé de jointure (GROUP BY code HAVING COUNT(*) > 1).",
-      "Non.",
+      "Non. Aucun calcul de moyenne.",
       "Non. L'ordre n'est pas garanti."
     ],
     retenir: "UPDATE avec jointure : source unique sur la clé."
@@ -1209,10 +1209,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une erreur arrive vite.",
       "Oui. Ex. `SELECT … INTO dbo.svg_article_20261026 FROM dbo.article WHERE …` avant l'UPDATE. En cas d'erreur, un UPDATE depuis cette table restaure les anciennes valeurs.",
       "Non. Inexploitable pour 3 000 lignes.",
-      "Non."
+      "Non. Inexploitable pour 3 000 lignes."
     ],
     retenir: "Correction massive : sauvegarde des lignes avant."
   },
@@ -1229,8 +1229,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Possible, mais lourd et risqué si les données bougent entre les deux.",
       "Oui. `OUTPUT deleted.prix, inserted.prix INTO dbo.journal_prix` : `deleted` = avant, `inserted` = après, dans la même instruction.",
-      "Non.",
-      "Non."
+      "Non. ORDER BY n'a rien à voir.",
+      "Non. OUTPUT le fait dans la même instruction."
     ],
     retenir: "OUTPUT = trace de la modification."
   },
@@ -1245,10 +1245,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La chance n'est pas un test.",
       "Oui. Sur une copie récente des données (recette), pour vérifier le résultat et la durée avant la production. Sur Snowflake, un clone (`CLONE`) donne une copie de test en quelques secondes.",
-      "Non.",
-      "Non."
+      "Non. La langue n'est pas le problème.",
+      "Non. Rien à voir avec le tri."
     ],
     retenir: "Tester sur une copie avant la production."
   },
@@ -1281,7 +1281,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. TRUNCATE est permis.",
       "Oui. La table est référencée par une clé étrangère (ex. depuis ligne_cde) : TRUNCATE est refusé dans ce cas. TRUNCATE remet aussi le compteur IDENTITY à zéro et n'accepte pas de WHERE. À réserver aux tables de chargement.",
       "Non. TRUNCATE est justement rapide sur les grandes tables.",
       "Non. TRUNCATE n'accepte pas de WHERE."
@@ -1302,7 +1302,7 @@ LEARNSQL.questions.m16 = [
       "Non. Pas sans XACT_ABORT.",
       "Oui. La transaction peut rester ouverte sur la connexion, avec ses verrous, et bloquer les autres utilisateurs. Avec `SET XACT_ABORT ON` en tête de procédure, l'interruption annule la transaction.",
       "Non. L'exécution est arrêtée.",
-      "Non."
+      "Non. Rien n'est validé tout seul."
     ],
     retenir: "Procédure avec transaction : SET XACT_ABORT ON."
   },
@@ -1319,7 +1319,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. On validerait une transaction en erreur.",
       "Oui. À la fin du CATCH (et idéalement une écriture dans une table de log), pour que l'erreur remonte au job. Une erreur « avalée » est pire qu'une erreur visible : personne n'est prévenu.",
-      "Non.",
+      "Non. Un TRY de plus ne remonte pas l'erreur.",
       "Non. RETURN 0 dit même « succès »."
     ],
     retenir: "CATCH : annuler, tracer, puis THROW."
@@ -1335,10 +1335,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il évite une 2e erreur.",
       "Oui. L'erreur a pu arriver avant le BEGIN TRAN, ou la transaction est déjà annulée : un ROLLBACK sans transaction ouverte provoque une nouvelle erreur, qui masquerait la vraie cause.",
       "Non. ROLLBACK ne valide jamais.",
-      "Non."
+      "Non. Il ne change pas la vitesse."
     ],
     retenir: "ROLLBACK seulement si une transaction est ouverte."
   },
@@ -1355,8 +1355,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. C'est une protection utile.",
       "Oui. La source contient plusieurs lignes pour la même clé cible : il faut la dédoublonner avant. Contrairement à UPDATE … FROM, MERGE refuse ce cas au lieu de choisir au hasard.",
-      "Non.",
-      "Non."
+      "Non. Une cible vide ne cause pas cette erreur.",
+      "Non. MERGE n'a pas d'ORDER BY."
     ],
     retenir: "MERGE : source unique sur la clé."
   },
@@ -1373,8 +1373,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Un déploiement doit pouvoir être rejoué.",
       "Oui. Le script devient relançable. Disponible depuis SQL Server 2016 SP1. Sur Snowflake : `CREATE OR REPLACE VIEW`.",
-      "Non.",
-      "Non."
+      "Non. On perdrait toutes les données.",
+      "Non. Les rapports qui l'utilisent casseraient."
     ],
     retenir: "Scripts relançables (idempotents)."
   },
@@ -1427,9 +1427,9 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une vraie protection.",
       "Oui. Historique (qui, quand, pourquoi), relecture avant déploiement, retour à une version précédente, et même script en recette puis en production. Sans Git, la « vraie » version est celle de la production… que personne n'a relue.",
-      "Non.",
+      "Non. Git ne touche pas au serveur.",
       "Non. Git garde le code, pas les données."
     ],
     retenir: "Le code SQL est du code : Git."
@@ -1445,9 +1445,9 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Difficile à lire, tester et relancer.",
       "Oui. Difficile à lire, à tester et à relancer en partie. Découper en procédures (une par étape), appelées par une procédure chef d'orchestre. Si la purge plante, on peut la relancer seule.",
-      "Non.",
+      "Non. La vitesse n'est pas le problème.",
       "Non. Une vue ne peut pas modifier de données."
     ],
     retenir: "Une procédure = une responsabilité."
@@ -1465,8 +1465,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. COUNT(*) fonctionne toujours.",
       "Oui. Moins de trafic, et certains programmes appelants ne confondent plus ces messages avec un résultat. Bonne pratique standard en tête de procédure.",
-      "Non.",
-      "Non."
+      "Non. Il masque les messages, il ne compte pas.",
+      "Non. Les modifications restent permises."
     ],
     retenir: "Procédure : SET NOCOUNT ON."
   },
@@ -1481,10 +1481,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. En recette, on lit la base de production.",
       "Oui. En recette, les procédures lisent quand même la base de PRODUCTION. Utiliser un synonyme (`CREATE SYNONYM dbo.erp_client FOR …`) défini différemment dans chaque environnement.",
       "Non. Elle marche… sur la mauvaise base.",
-      "Non."
+      "Non. Ils sont permis."
     ],
     retenir: "Pas de nom de base en dur : synonymes."
   },
@@ -1503,7 +1503,7 @@ LEARNSQL.questions.m16 = [
       "Non. Le vrai danger est la sécurité.",
       "Oui. Si @nom contient `x'; DROP TABLE dbo.client; --`, la commande est exécutée. Utiliser `sp_executesql` avec un paramètre : `EXEC sp_executesql N'SELECT … WHERE nom = @nom', N'@nom NVARCHAR(100)', @nom = @nom;`",
       "Non. Ils sont corrects : c'est bien le contenu de @nom qui pose problème.",
-      "Non."
+      "Non. EXEC est permis."
     ],
     retenir: "SQL dynamique : paramètres, jamais de concaténation de saisies."
   },
@@ -1521,7 +1521,7 @@ LEARNSQL.questions.m16 = [
       "Non. Injection possible.",
       "Oui. Vérifier que la table existe (liste autorisée ou `OBJECT_ID`), et l'entourer avec `QUOTENAME(@table)` : crochets ajoutés, caractères dangereux neutralisés.",
       "Non. Aucune protection.",
-      "Non."
+      "Non. NOLOCK ne protège pas de l'injection."
     ],
     retenir: "Nom d'objet dynamique : liste autorisée + QUOTENAME."
   },
@@ -1554,10 +1554,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La règle devient invisible.",
       "Oui. Personne ne la voit en lisant le code de l'application ou des procédures : comportements « magiques ». Les triggers conviennent à l'audit ou à des contrôles simples ; les règles métier vont dans des procédures visibles.",
-      "Non.",
-      "Non."
+      "Non. Pas forcément.",
+      "Non. Ils sont permis."
     ],
     retenir: "Logique métier : visible, pas cachée dans un trigger."
   },
@@ -1574,8 +1574,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Mélange et droits difficiles à gérer.",
       "Oui. `stg`, `dwh`, `rpt`, et des droits par schéma (`GRANT SELECT ON SCHEMA::rpt TO role_bi`). Les utilisateurs Power BI ne voient que `rpt`.",
-      "Non.",
-      "Non."
+      "Non. Ingérable.",
+      "Non. Un préfixe ne gère pas les droits."
     ],
     retenir: "Un schéma par couche, des droits par schéma."
   },
@@ -1590,7 +1590,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le code ne dit pas l'objectif ni les règles.",
       "Oui. Son objectif, ses paramètres, les règles métier clés et la référence du ticket ou de la spécification. Le détail des modifications, lui, est dans Git.",
       "Non. C'est le rôle de Git.",
       "Non. Jamais de mot de passe dans le code."
@@ -1608,10 +1608,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Trop long pour un usage ponctuel.",
       "Oui. Après chaque requête, le warehouse reste allumé jusqu'à une heure pour rien : ces minutes sont facturées. Un AUTO_SUSPEND de 60 secondes suffit souvent ; avec AUTO_RESUME, il redémarre tout seul.",
-      "Non.",
-      "Non."
+      "Non. AUTO_RESUME le redémarre.",
+      "Non. Les résultats restent justes."
     ],
     retenir: "Snowflake : AUTO_SUSPEND court."
   },
@@ -1626,7 +1626,7 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un choix.",
       "Oui. Les usages ne se gênent pas, et on sait combien coûte chacun (chargement, BI, exploration). Chaque warehouse a sa taille et son suivi de crédits.",
       "Non. Le stockage est séparé du calcul.",
       "Non. Tous lisent les mêmes données."
@@ -1646,7 +1646,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Trop tard.",
       "Oui. Avec un quota de crédits : alerte à 80 %, suspension du warehouse à 100 %. On peut aussi limiter la durée des requêtes (`STATEMENT_TIMEOUT_IN_SECONDS`).",
-      "Non.",
+      "Non. Lourd, et pas automatique.",
       "Non. N'existe pas sur Snowflake."
     ],
     retenir: "Resource monitor = garde-fou financier."
@@ -1662,10 +1662,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Moins de colonnes, moins de données lues.",
       "Oui. Seules les colonnes demandées sont lues. Moins de colonnes = moins de données lues = moins de temps de warehouse.",
-      "Non.",
-      "Non."
+      "Non. Il est permis.",
+      "Non. Toute requête consomme."
     ],
     retenir: "Snowflake : ne lire que les colonnes utiles."
   },
@@ -1680,10 +1680,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake ne les supprime pas.",
       "Oui. Ex. `SELECT code, COUNT(*) FROM client GROUP BY code HAVING COUNT(*) > 1`, et les orphelins avec un LEFT JOIN. Sur les tables standard, Snowflake n'applique pas PRIMARY KEY, UNIQUE ni FOREIGN KEY (seul NOT NULL est appliqué).",
       "Non. Elle ne serait toujours pas appliquée.",
-      "Non."
+      "Non. Des contrôles suffisent."
     ],
     retenir: "Snowflake : contraintes déclaratives → contrôles à écrire."
   },
@@ -1700,8 +1700,8 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. On paie plus pour une requête peut-être mal écrite.",
       "Oui. Partitions lues sur le total (élagage), débordement sur disque (spilling), jointure qui multiplie les lignes. Ça se corrige dans la requête, pas avec un plus gros warehouse.",
-      "Non.",
-      "Non."
+      "Non. Sans rapport avec la vitesse.",
+      "Non. Sans rapport avec cette requête."
     ],
     retenir: "Query Profile avant de payer plus."
   },
@@ -1737,7 +1737,7 @@ LEARNSQL.questions.m16 = [
       "Non. Possible tant qu'on est dans la durée de conservation (1 jour par défaut).",
       "Oui. `INSERT INTO tarif SELECT * FROM tarif AT(OFFSET => -60*30);` (l'état d'il y a 30 minutes). Ou une copie : `CREATE TABLE tarif_svg CLONE tarif AT(OFFSET => -1800);`",
       "Non. UNDROP sert pour une table supprimée (DROP), pas vidée.",
-      "Non."
+      "Non. Le warehouse ne garde pas de données."
     ],
     retenir: "Snowflake : Time Travel pour revenir en arrière."
   },
@@ -1752,10 +1752,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Trop risqué.",
       "Oui. `CREATE DATABASE recette CLONE prod;` : copie instantanée, qui ne coûte du stockage que pour les données modifiées ensuite. Un des grands atouts de Snowflake.",
       "Non. Long et inutile.",
-      "Non."
+      "Non. Un clone est instantané."
     ],
     retenir: "Snowflake : CLONE pour tester."
   },
@@ -1773,7 +1773,7 @@ LEARNSQL.questions.m16 = [
       "Non. On paie la conservation de données jetables.",
       "Oui. Pas de Fail-safe (et Time Travel court), donc moins de stockage payé pour des données qu'on peut recharger. Les tables métier, elles, restent permanentes.",
       "Non. Une table TEMPORARY n'existe que dans la session qui l'a créée.",
-      "Non."
+      "Non. Une table TRANSIENT suffit."
     ],
     retenir: "Données rechargeables → TRANSIENT."
   },
@@ -1788,10 +1788,10 @@ LEARNSQL.questions.m16 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il n'y a pas de telle limite.",
       "Oui. Snowflake est fait pour de gros lots : chaque petite instruction a un coût fixe (et crée de petits fichiers). Charger par fichier (`COPY INTO`) ou par lots.",
       "Non. Pas d'index sur les tables standard.",
-      "Non."
+      "Non. La taille n'est pas la cause."
     ],
     retenir: "Snowflake : charger par lots."
   },
@@ -1809,7 +1809,7 @@ LEARNSQL.questions.m16 = [
       "Non. « Juste par hasard » est le pire bug : invisible jusqu'au jour où il coûte cher.",
       "Oui. Vérifier les cas limites (NULL, doublons, période vide), le volume réel et le plan, la relecture, et la version dans Git. Juste, lisible, performante, sûre, maintenable : le niveau attendu d'un senior.",
       "Non. Rapide ne veut pas dire juste.",
-      "Non."
+      "Non. Des commentaires ne prouvent pas que c'est juste."
     ],
     retenir: "Juste, lisible, rapide, sûre, maintenable."
   }

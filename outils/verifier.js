@@ -1,5 +1,5 @@
 // Contrôle des questions. Usage (depuis la racine du dépôt) : node outils/verifier.js [mXX]
-// Vérifie le format, puis la longueur des choix : on ne doit pas pouvoir
+// Vérifie le format (dont : chaque « Non. » explique pourquoi), puis la longueur des choix : on ne doit pas pouvoir
 // deviner la bonne réponse parce qu'elle est la plus longue (ou la plus courte).
 global.window = global;
 const fs = require('fs'), path = require('path');
@@ -27,6 +27,7 @@ for (const [m, qs] of Object.entries(LEARNSQL.questions)) {
     if (new Set(q.choix).size !== 4) { console.log('ERREUR choix en double', q.id); erreurs++; }
     if (!/^Oui/.test(q.pourquoi[q.bonne])) { console.log('ALERTE « Oui » manquant', q.id); alertes++; }
     q.pourquoi.forEach((p, j) => { if (j !== q.bonne && !/^Non/.test(p)) { console.log('ALERTE « Non » manquant', q.id, j); alertes++; } });
+    q.pourquoi.forEach((p, j) => { if (/^(Oui|Non)\.?$/.test(p.trim())) { console.log('ALERTE explication vide', q.id, j); alertes++; } });
     if (/^(Même|Mêmes|Rappel|Idem)/.test(q.q)) { console.log('ALERTE dépend d\'une autre question', q.id); alertes++; }
     const k = q.q + (q.code || '');
     if (textes.has(k)) { console.log('ALERTE question identique', q.id, textes.get(k)); alertes++; }

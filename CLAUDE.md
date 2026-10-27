@@ -83,7 +83,7 @@ Règles pour écrire des questions :
 - Varier les angles : une même notion doit revenir dans plusieurs situations, pour que l'élève apprenne la règle et pas la réponse.
 - Chaque question doit se suffire à elle-même : le tirage est aléatoire (jamais « Même situation… »).
 - Des pièges réels, vus en entreprise. Pas de questions de pure mémoire.
-- Chaque `pourquoi` commence par « Oui. » ou « Non. » puis explique en 1 ou 2 phrases.
+- Chaque `pourquoi` commence par « Oui. » ou « Non. » puis explique en 1 ou 2 phrases. Jamais « Non. » seul.
 - **La longueur ne doit jamais trahir la bonne réponse.** Les 4 choix ont une longueur proche.
   La bonne réponse est tantôt la plus courte, tantôt au milieu, tantôt la plus longue.
   Le détail va dans l'explication « Oui. », pas dans le choix.
