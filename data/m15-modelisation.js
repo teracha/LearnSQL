@@ -1560,7 +1560,7 @@ LEARNSQL.questions.m15 = [
     pourquoi: [
       "Non. Un ERP est fait pour saisir, pas pour analyser.",
       "Oui. Modèle incompréhensible, beaucoup de jointures, calculs complexes et lents : il manque une couche de restitution en étoile. Normalisé pour stocker ; en étoile pour analyser.",
-      "Non.",
+      "Non. Les jointures ne protègent rien : les droits, si.",
       "Non. Plus de jointures : plus lent."
     ],
     retenir: "Restitution = étoile, pas la copie de l'ERP."
