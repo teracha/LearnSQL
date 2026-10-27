@@ -1363,7 +1363,7 @@ LEARNSQL.questions.m13 = [
     bonne: 1,
     pourquoi: [
       "Non. SQL Server.",
-      "Oui.",
+      "Oui. CALL lance une procédure sur Snowflake ; EXEC est réservé à SQL Server.",
       "Non. RUN n'existe pas sur Snowflake.",
       "Non. SELECT appelle une fonction, pas une procédure."
     ],
