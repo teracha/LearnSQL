@@ -14,8 +14,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. UNION ALL ne supprime rien.",
       "Oui. UNION ALL empile tout, doublons compris.",
-      "Non.",
-      "Non."
+      "Non. Ce serait le nombre de lignes de A seul.",
+      "Non. 1, c'est seulement la ligne commune."
     ],
     retenir: "UNION ALL = tout empiler, sans dédoublonner."
   },
@@ -32,8 +32,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. UNION supprime les doublons.",
       "Oui. La ligne commune n'apparaît qu'une fois.",
-      "Non.",
-      "Non."
+      "Non. Une seule ligne est en double : 6 - 1 = 5.",
+      "Non. Ce serait le nombre de lignes de A seul."
     ],
     retenir: "UNION = UNION ALL + suppression des doublons."
   },
@@ -50,8 +50,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. UNION dédoublonne tout le résultat, pas seulement entre A et B.",
       "Oui. Les doublons internes à A sont aussi supprimés.",
-      "Non.",
-      "Non."
+      "Non. A n'est pas vide : il reste une ligne.",
+      "Non. Une union avec une table vide est valide."
     ],
     retenir: "UNION supprime TOUS les doublons, même ceux d'une seule partie."
   },
@@ -87,7 +87,7 @@ LEARNSQL.questions.m07 = [
       "Oui. Seule la valeur 3 est présente des deux côtés.",
       "Non. INTERSECT renvoie un résultat sans doublon.",
       "Non. Ce sont les valeurs NON communes.",
-      "Non."
+      "Non. La valeur 3 est des deux côtés."
     ],
     retenir: "INTERSECT = présent des deux côtés, sans doublon."
   },
@@ -105,7 +105,7 @@ LEARNSQL.questions.m07 = [
       "Non. EXCEPT supprime aussi les doublons du résultat.",
       "Oui. Ce qui est dans A et pas dans B, sans doublon.",
       "Non. C'est B EXCEPT A.",
-      "Non."
+      "Non. 4 n'est pas dans A : EXCEPT ne le renvoie pas."
     ],
     retenir: "EXCEPT = dans le 1er, pas dans le 2e, sans doublon."
   },
@@ -122,8 +122,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. C'est A EXCEPT B.",
       "Oui. L'ordre compte : B EXCEPT A ≠ A EXCEPT B.",
-      "Non.",
-      "Non."
+      "Non. 3 est aussi dans A : il est retiré.",
+      "Non. 4 n'est pas dans A : il reste."
     ],
     retenir: "EXCEPT n'est pas symétrique."
   },
@@ -141,7 +141,7 @@ LEARNSQL.questions.m07 = [
       "Non. UNION chercherait des doublons inexistants : travail inutile. Pire : deux ventes identiques mais réelles seraient fusionnées.",
       "Oui. Plus rapide, et aucune ligne réelle n'est perdue.",
       "Non. Le résultat et le coût peuvent différer.",
-      "Non."
+      "Non. INTERSECT garde ce qui est commun : ici, rien."
     ],
     retenir: "Par défaut : UNION ALL."
   },
@@ -158,7 +158,7 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. UNION les voit comme des doublons.",
       "Oui. Danger de UNION sur des données de détail : des lignes réelles disparaissent.",
-      "Non.",
+      "Non. Des lignes identiques ne causent pas d'erreur.",
       "Non. Une ligne reste."
     ],
     retenir: "UNION sur des faits = risque de perdre des lignes réelles."
@@ -174,9 +174,9 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque table est lue une fois ; le coût vient du dédoublonnage.",
       "Oui. Il doit comparer toutes les lignes pour trouver les doublons. Sur de gros volumes, ce travail en plus est important.",
-      "Non.",
+      "Non. Il compare les lignes, il ne crée pas d'index.",
       "Non. Le dédoublonnage coûte vraiment."
     ],
     retenir: "UNION = UNION ALL + un tri ou un hachage."
@@ -194,8 +194,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Le moteur ne complète pas.",
       "Oui. Toutes les parties doivent avoir le même nombre de colonnes. Ajoute NULL AS libelle dans la 2e.",
-      "Non.",
-      "Non."
+      "Non. Le moteur refuse : rien n'est renvoyé.",
+      "Non. La requête ne s'exécute pas : c'est une erreur."
     ],
     retenir: "Même nombre de colonnes dans chaque partie."
   },
@@ -230,7 +230,7 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Oui. Les noms viennent de la PREMIÈRE requête.",
       "Non. Les alias des parties suivantes sont ignorés.",
-      "Non.",
+      "Non. L'alias ref remplace le nom code.",
       "Non. Une seule colonne."
     ],
     retenir: "Noms de colonnes = ceux de la 1re requête."
@@ -248,7 +248,7 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Un ORDER BY dans chaque partie est refusé.",
       "Oui. Il trie le résultat complet.",
-      "Non.",
+      "Non. Un ORDER BY avant UNION ALL est refusé.",
       "Non. Il est permis, à la fin."
     ],
     retenir: "UNION : un seul ORDER BY, à la fin."
@@ -265,10 +265,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La requête ne s'exécute pas.",
       "Oui. ORDER BY ne peut pas être placé avant UNION.",
       "Non. La requête ne s'exécute pas.",
-      "Non."
+      "Non. La requête ne s'exécute pas."
     ],
     retenir: "ORDER BY au milieu d'une UNION = erreur."
   },
@@ -286,8 +286,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Oui. Le tri utilise les noms du résultat, donc ceux de la 1re requête.",
       "Non. Les tables des parties ne sont plus visibles à ce niveau.",
-      "Non.",
-      "Non."
+      "Non. Les tables des parties ne sont plus visibles à ce niveau.",
+      "Non. Les alias de la 2e partie sont ignorés."
     ],
     retenir: "ORDER BY final : noms (ou positions) de la 1re requête."
   },
@@ -306,7 +306,7 @@ LEARNSQL.questions.m07 = [
       "Non. Le 1er ORDER BY est mal placé : erreur.",
       "Oui. Chaque TOP + ORDER BY est enfermé dans une table dérivée.",
       "Non. 10 au total, pas 5 par année.",
-      "Non."
+      "Non. C'est possible avec deux tables dérivées."
     ],
     retenir: "TOP + ORDER BY par partie : tables dérivées."
   },
@@ -323,8 +323,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Souvent vrai en pratique, jamais garanti.",
       "Oui. Ajoute une colonne (1 pour A, 2 pour B) et trie dessus : SELECT 1 AS ordre, … UNION ALL SELECT 2, … ORDER BY ordre.",
-      "Non.",
-      "Non."
+      "Non. SQL Server ne le garantit pas non plus.",
+      "Non. Aucun ordre n'est garanti, dans un sens ou dans l'autre."
     ],
     retenir: "Ordre des parties : à forcer avec une colonne de tri."
   },
@@ -340,10 +340,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. INTO ne se met pas à la fin.",
       "Oui. INTO se met dans la PREMIÈRE requête ; tout le résultat de l'union y va.",
-      "Non.",
-      "Non."
+      "Non. INTO se place après la liste du SELECT.",
+      "Non. SELECT … INTO fonctionne avec un UNION ALL."
     ],
     retenir: "SELECT … INTO + UNION : INTO dans la 1re partie."
   },
@@ -379,8 +379,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Pour UNION, deux NULL sont considérés comme égaux.",
       "Oui. Contrairement au =, les opérateurs ensemblistes traitent NULL = NULL.",
-      "Non.",
-      "Non."
+      "Non. Les deux lignes existent : il en reste une.",
+      "Non. Les NULL sont permis dans un UNION."
     ],
     retenir: "UNION / INTERSECT / EXCEPT : NULL = NULL."
   },
@@ -395,10 +395,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils diffèrent sur les NULL et les doublons.",
       "Oui. INTERSECT considère NULL = NULL et ne renvoie pas de doublons. Le JOIN rate les NULL et peut multiplier les lignes : une ville NULL des deux côtés est trouvée par INTERSECT, pas par le JOIN.",
-      "Non.",
-      "Non."
+      "Non. Le JOIN rate les NULL et peut créer des doublons.",
+      "Non. INTERSECT accepte plusieurs colonnes."
     ],
     retenir: "INTERSECT compare des lignes entières, NULL compris."
   },
@@ -413,10 +413,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. EXCEPT compare toutes les colonnes, pas seulement la clé.",
       "Oui. EXCEPT compare toutes les colonnes ; NOT EXISTS compare seulement ce que tu mets dans le WHERE (souvent la clé). EXCEPT trouve aussi les lignes MODIFIÉES (même code, ville différente).",
       "Non. C'est EXCEPT qui dédoublonne.",
-      "Non."
+      "Non. EXCEPT compare autant de colonnes qu'on veut."
     ],
     retenir: "EXCEPT = lignes différentes. NOT EXISTS sur la clé = clés absentes."
   },
@@ -433,8 +433,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Le piège du NULL ne touche pas EXCEPT.",
       "Oui. EXCEPT traite les NULL comme des valeurs normales : c'est une alternative sûre à NOT IN.",
-      "Non.",
-      "Non."
+      "Non. Un NULL ne provoque pas d'erreur avec EXCEPT.",
+      "Non. EXCEPT gère les NULL sur les deux moteurs."
     ],
     retenir: "EXCEPT n'a pas le piège NULL de NOT IN."
   },
@@ -451,9 +451,9 @@ LEARNSQL.questions.m07 = [
     bonne: 0,
     pourquoi: [
       "Oui. MINUS (hérité d'Oracle) = EXCEPT. SQL Server ne connaît que EXCEPT.",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Ce mot-clé n'existe pas.",
+      "Non. Ce mot-clé n'existe pas.",
+      "Non. Cette syntaxe n'existe pas."
     ],
     retenir: "Snowflake : EXCEPT = MINUS."
   },
@@ -470,8 +470,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Ce n'est pas de gauche à droite ici.",
       "Oui. INTERSECT est prioritaire sur UNION et EXCEPT. Mets des parenthèses pour être clair.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide.",
+      "Non. L'ordre est fixe : INTERSECT d'abord."
     ],
     retenir: "INTERSECT passe avant UNION / EXCEPT. Parenthèses conseillées."
   },
@@ -486,10 +486,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Même priorité = de gauche à droite.",
       "Oui. De gauche à droite. Les lignes de A présentes dans C sont donc aussi retirées.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide.",
+      "Non. On lit de gauche à droite : UNION d'abord."
     ],
     retenir: "Même priorité = de gauche à droite. Parenthèses pour éviter les surprises."
   },
@@ -526,7 +526,7 @@ LEARNSQL.questions.m07 = [
       "Non. Pas forcément.",
       "Oui. Attention : EXCEPT dédoublonne. Compare aussi COUNT(*) pour vérifier les doublons.",
       "Non. Une ligne en double dans v1 seulement ne serait pas détectée.",
-      "Non."
+      "Non. 0 ligne est un résultat, pas une erreur."
     ],
     retenir: "Recette : EXCEPT dans les deux sens + comparer les COUNT(*)."
   },
@@ -653,9 +653,9 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. UNION fusionne aussi des lignes réelles identiques.",
       "Oui. UNION fusionne des lignes identiques légitimes, et le dédoublonnage coûte cher. Préfère LEFT JOIN UNION ALL (B sans correspondance), ou un vrai FULL OUTER JOIN.",
-      "Non.",
+      "Non. La syntaxe est valide.",
       "Non. Elles apparaissent une fois."
     ],
     retenir: "Évite UNION pour reconstituer un FULL JOIN."
@@ -671,7 +671,7 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. UNION supprime déjà les doublons.",
       "Oui. UNION supprime déjà tous les doublons.",
       "Non. C'est valide.",
       "Non. Ça ajoute du travail."
@@ -689,10 +689,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les deux parties n'ont plus le même nombre de colonnes.",
       "Oui. Le nombre de colonnes diffère (erreur) ou les colonnes se décalent. Liste toujours les colonnes, dans le même ordre, dans chaque partie.",
-      "Non.",
-      "Non."
+      "Non. Une vue ne modifie pas les tables.",
+      "Non. SELECT * ne s'adapte pas des deux côtés."
     ],
     retenir: "UNION : jamais de SELECT *, liste les colonnes."
   },
@@ -710,7 +710,7 @@ LEARNSQL.questions.m07 = [
       "Non. Les types sont compatibles : pas d'erreur.",
       "Oui. L'union se fait par POSITION, pas par nom : les villes et les noms se retrouvent dans les mêmes colonnes.",
       "Non. Le moteur ne regarde pas les noms.",
-      "Non."
+      "Non. Toutes les lignes sont gardées, mais mélangées."
     ],
     retenir: "UNION associe les colonnes par position, pas par nom."
   },
@@ -725,10 +725,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'erreur parle de collation, pas de type.",
       "Oui. Les deux parties viennent de bases avec des collations différentes. Ajoute COLLATE sur une des colonnes (ex. nom COLLATE French_CI_AS).",
-      "Non.",
-      "Non."
+      "Non. ORDER BY ne règle pas un conflit de collation.",
+      "Non. Les NULL ne causent pas de conflit de collation."
     ],
     retenir: "UNION entre bases : attention aux collations."
   },
@@ -743,10 +743,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le type le plus large est choisi : rien n'est coupé.",
       "Oui. SQL Server choisit un type qui peut contenir toutes les valeurs : VARCHAR(50).",
-      "Non.",
-      "Non."
+      "Non. Deux VARCHAR de tailles différentes sont compatibles.",
+      "Non. La règle est la même pour UNION et UNION ALL."
     ],
     retenir: "UNION : type résultat = le plus large."
   },
@@ -761,10 +761,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le type le plus précis gagne : DECIMAL.",
       "Oui. Le type le plus précis l'emporte.",
-      "Non.",
-      "Non."
+      "Non. Deux nombres donnent un nombre.",
+      "Non. INT et DECIMAL sont compatibles."
     ],
     retenir: "INT + DECIMAL dans une UNION = DECIMAL."
   },
@@ -781,8 +781,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Refusé par SQL Server dans ce cas.",
       "Oui. Chaque tour ajoute ses lignes à celles des tours précédents.",
-      "Non.",
-      "Non."
+      "Non. INTERSECT garderait seulement le commun : pas de récursion.",
+      "Non. EXCEPT retirerait des lignes : pas de récursion."
     ],
     retenir: "Récursion = UNION ALL."
   },
@@ -799,7 +799,7 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Ça donnerait les combinaisons.",
       "Oui. Un GROUP BY region UNION ALL un GROUP BY annee, mais calculé en une seule lecture. Même résultat (avec NULL dans la colonne non groupée), en plus efficace.",
-      "Non.",
+      "Non. GROUPING SETS empile les groupes, il ne les croise pas.",
       "Non. ROLLUP ajoute aussi region × annee et le total."
     ],
     retenir: "GROUPING SETS = plusieurs GROUP BY empilés, en une passe."
@@ -815,10 +815,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. UNION ALL marche, mais lit la table 12 fois.",
       "Oui. UNION ALL lit la table 12 fois ; CROSS APPLY la lit une seule fois. Même résultat, beaucoup moins de lectures.",
-      "Non.",
-      "Non."
+      "Non. CROSS APPLY ne dédoublonne rien.",
+      "Non. 1 lecture au lieu de 12 : grosse différence."
     ],
     retenir: "Dépivoter : une lecture avec CROSS APPLY (VALUES …)."
   },
@@ -854,7 +854,7 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Ce WHERE ne s'applique qu'à la dernière partie.",
       "Oui. Chaque WHERE agit sur sa partie. Ou on enveloppe l'union : WITH u AS (… UNION ALL …) SELECT * FROM u WHERE annee = 2024.",
-      "Non.",
+      "Non. ORDER BY trie, il ne filtre pas.",
       "Non. Il ne vaut que pour sa partie."
     ],
     retenir: "Un WHERE dans une UNION ne vaut que pour sa partie."
@@ -874,7 +874,7 @@ LEARNSQL.questions.m07 = [
       "Non. Tous les SIRET des deux sociétés.",
       "Oui. Présents des deux côtés.",
       "Non. Ceux de la société 1 seulement.",
-      "Non."
+      "Non. Tous les SIRET des deux sociétés, avec doublons."
     ],
     retenir: "Commun = INTERSECT."
   },
@@ -893,7 +893,7 @@ LEARNSQL.questions.m07 = [
       "Non. Ceux qui ont du stock.",
       "Oui. Dans le catalogue, absents du stock.",
       "Non. Du stock sur des articles hors catalogue (anomalie intéressante, mais autre question).",
-      "Non."
+      "Non. Tous les codes des deux tables."
     ],
     retenir: "Absent de B : A EXCEPT B."
   },
@@ -911,8 +911,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. On compare deux nombres, pas des codes.",
       "Oui. On enveloppe l'EXCEPT, puis on compte.",
-      "Non.",
-      "Non."
+      "Non. EXCEPT n'est pas un mot de COUNT.",
+      "Non. On ne soustrait pas deux tables avec un moins."
     ],
     retenir: "Compter un résultat ensembliste : l'envelopper dans une sous-requête."
   },
@@ -927,10 +927,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse EXCEPT ALL.",
       "Oui. Seulement EXCEPT, qui dédoublonne. Pour comparer avec les doublons : numérote les lignes (ROW_NUMBER par clé) avant l'EXCEPT.",
-      "Non.",
-      "Non."
+      "Non. DISTINCT dédoublonne, il ne garde pas les doublons.",
+      "Non. EXCEPT ALL n'existe nulle part sur SQL Server."
     ],
     retenir: "SQL Server : pas d'EXCEPT ALL / INTERSECT ALL."
   },
@@ -946,9 +946,9 @@ LEARNSQL.questions.m07 = [
     bonne: 0,
     pourquoi: [
       "Oui. Mêmes règles : nombre de colonnes, types compatibles, association par position.",
-      "Non.",
+      "Non. Ils ont exactement les mêmes règles.",
       "Non. Les noms ne comptent pas.",
-      "Non."
+      "Non. EXCEPT a aussi ces règles."
     ],
     retenir: "Tous les opérateurs ensemblistes : mêmes règles de colonnes."
   },
@@ -983,8 +983,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Pas si les contraintes sont en place et fiables.",
       "Oui. Grâce aux contraintes CHECK (vue partitionnée), l'optimiseur sait que les autres tables ne peuvent pas contenir 2026.",
-      "Non.",
-      "Non."
+      "Non. La vue est valide : c'est une vue partitionnée.",
+      "Non. Il lit la table qui peut contenir 2026."
     ],
     retenir: "Vue UNION ALL + CHECK = tables ignorées quand le filtre les exclut."
   },
@@ -999,10 +999,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. UNION supprime les doublons : il en reste 3.",
       "Oui. UNION ALL double tout ; UNION supprime les doublons.",
-      "Non.",
-      "Non."
+      "Non. UNION ALL garde tout : 6 lignes.",
+      "Non. C'est l'inverse."
     ],
     retenir: "UNION ALL additionne, UNION dédoublonne."
   },
@@ -1019,8 +1019,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. INTERSECT dédoublonne.",
       "Oui. Les lignes distinctes de A : 2.",
-      "Non.",
-      "Non."
+      "Non. A a 2 lignes distinctes, pas 1.",
+      "Non. INTERSECT ne multiplie pas les lignes."
     ],
     retenir: "A INTERSECT A = DISTINCT A."
   },
@@ -1035,10 +1035,10 @@ LEARNSQL.questions.m07 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Tout ce qui est dans A est retiré.",
       "Oui. Tout ce qui est dans A est dans A.",
-      "Non.",
-      "Non."
+      "Non. EXCEPT dédoublonne et retire tout.",
+      "Non. La requête est valide."
     ],
     retenir: "A EXCEPT A = vide."
   },
@@ -1074,8 +1074,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Possible, mais plus long et trois lectures.",
       "Oui. Une seule requête : CASE WHEN e.code IS NULL THEN 'EDI seul' WHEN d.code IS NULL THEN 'ERP seul' ELSE 'Les deux' END.",
-      "Non.",
-      "Non."
+      "Non. UNION réunit les codes, sans dire d'où ils viennent.",
+      "Non. CROSS JOIN combine tout, sans comparer."
     ],
     retenir: "Statut de rapprochement par ligne : FULL OUTER JOIN + CASE."
   },
@@ -1092,8 +1092,8 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Coûteux et risqué sur des données de détail.",
       "Oui. UNION seulement pour dédoublonner ; INTERSECT / EXCEPT pour comparer des listes ou des tables. Et toujours : colonnes listées, même ordre, mêmes types.",
-      "Non.",
-      "Non."
+      "Non. EXCEPT sert à comparer, pas à empiler.",
+      "Non. Ils sont utiles et sûrs, bien utilisés."
     ],
     retenir: "UNION ALL par défaut. Comparaisons : EXCEPT / INTERSECT."
   }
