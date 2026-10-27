@@ -349,14 +349,14 @@ LEARNSQL.questions.m11 = [
     choix: [
       "Supprimer les index des tables",
       "Activer READ_COMMITTED_SNAPSHOT",
-      "Redémarrer le serveur chaque heure",
+      "Ajouter des index sur les tables",
       "Lancer les rapports la nuit seulement"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sans index, les verrous et les blocages augmentent.",
       "Oui. RCSI : les lectures lisent la dernière version validée, sans bloquer ni être bloquées. Coût : versions stockées dans tempdb. À valider avec l'éditeur de l'ERP.",
-      "Non. Ça coupe tout le monde, sans régler la cause.",
+      "Non. Les index réduisent les verrous, mais les lecteurs et les écrivains se gênent encore.",
       "Non. Possible, mais pas toujours acceptable."
     ],
     retenir: "Lecteurs vs écrivains : RCSI plutôt que NOLOCK."
@@ -549,14 +549,14 @@ LEARNSQL.questions.m11 = [
       "À lire plus vite les lignes",
       "À réserver une ligne qu'on va modifier",
       "À supprimer la ligne verrouillée",
-      "À rien, c'est un ancien verrou"
+      "À bloquer aussi les lectures simples"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il ne rend pas la lecture plus rapide.",
       "Oui. Les autres peuvent lire, mais personne d'autre ne peut la réserver. Évite un type de deadlock : deux sessions qui lisent puis veulent écrire s'attendent mutuellement.",
       "Non. Un verrou ne supprime rien.",
-      "Non. Il est toujours utilisé."
+      "Non. Un verrou U laisse lire avec un verrou S ; il bloque seulement un autre U ou X."
     ],
     retenir: "UPDLOCK : « je lis pour modifier »."
   },
@@ -564,14 +564,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q32", dialecte: "SQL Server",
     q: "Pourquoi SQL Server pose-t-il des verrous « d'intention » (IS, IX) sur la table et la page quand on verrouille une ligne ?",
     choix: [
-      "Pour rien, c'est historique",
+      "Pour verrouiller toute la table à la place",
       "Pour signaler un verrou à l'intérieur",
       "Pour trier les lignes verrouillées par id",
       "Pour compresser la table verrouillée"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Ils ont un vrai rôle.",
+      "Non. Le verrou d'intention ne bloque pas la table : il signale juste un verrou plus bas.",
       "Oui. Une demande de verrou sur toute la table sait tout de suite qu'elle doit attendre : pas besoin de parcourir toutes les lignes.",
       "Non. Un verrou ne trie rien.",
       "Non. Un verrou ne compresse rien."
@@ -749,14 +749,14 @@ LEARNSQL.questions.m11 = [
       "Elle s'arrête instantanément",
       "Un ROLLBACK, parfois aussi long",
       "Les modifications sont validées",
-      "Le serveur SQL redémarre"
+      "Elle finit son travail, puis s'arrête"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le ROLLBACK prend du temps.",
       "Oui. Sa transaction est annulée, ce qui peut prendre aussi longtemps que le travail déjà fait. Pendant l'annulation, les verrous restent posés : KILL n'est jamais anodin.",
       "Non. KILL annule la transaction.",
-      "Non. Seule la session est arrêtée."
+      "Non. KILL n'attend pas la fin : il annule tout ce qui n'est pas validé."
     ],
     retenir: "KILL = ROLLBACK, parfois long."
   },
@@ -839,14 +839,14 @@ LEARNSQL.questions.m11 = [
     choix: [
       "Aucun, c'est le fonctionnement normal",
       "Les verrous restent posés pendant l'attente",
-      "Le clic de l'utilisateur est trop rapide",
+      "La transaction expire au bout de 30 s",
       "Le serveur refuse la transaction"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les verrous bloquent les autres pendant l'attente.",
       "Oui. L'utilisateur peut partir déjeuner : la transaction reste ouverte et bloque tout le monde. Règle : jamais d'attente humaine dans une transaction.",
-      "Non. Le problème est l'attente, pas la vitesse.",
+      "Non. Il n'y a pas d'expiration par défaut : elle reste ouverte tant que personne ne clique.",
       "Non. Le serveur l'accepte."
     ],
     retenir: "Jamais d'interaction utilisateur pendant une transaction."
@@ -1020,14 +1020,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q57", dialecte: "SQL Server",
     q: "Pourquoi SQL Server écrit-il d'abord dans le journal (log) avant de modifier les pages de données ?",
     choix: [
-      "Pour rien, c'est historique",
+      "Pour accélérer les lectures",
       "Pour rejouer ou annuler après incident",
       "Pour compresser les pages de données",
       "Pour trier les modifications"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est la garantie de cohérence.",
+      "Non. Les lectures n'utilisent pas le journal ; il sert à rejouer ou annuler.",
       "Oui. C'est la journalisation anticipée : le journal est la vraie garantie de cohérence. Il faut le sauvegarder et le surveiller.",
       "Non. Le journal ne compresse rien.",
       "Non. Le journal ne trie rien."
@@ -1167,14 +1167,14 @@ LEARNSQL.questions.m11 = [
       "Rien à faire, c'est actif",
       "Base + session : deux réglages",
       "Ajouter WITH (NOLOCK) partout",
-      "Redémarrer le service SQL Server"
+      "SET TRANSACTION ISOLATION LEVEL SNAPSHOT seul"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il faut l'activer sur la base.",
       "Oui. ALLOW_SNAPSHOT_ISOLATION ON sur la base, puis SET TRANSACTION ISOLATION LEVEL SNAPSHOT dans la session.",
       "Non. NOLOCK donne des lectures sales.",
-      "Non. Un redémarrage n'est pas nécessaire."
+      "Non. Il faut aussi activer ALLOW_SNAPSHOT_ISOLATION sur la base."
     ],
     retenir: "SNAPSHOT : autoriser (base) + demander (session)."
   },
@@ -1182,14 +1182,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q66", dialecte: "SQL Server",
     q: "ALTER DATABASE … SET READ_COMMITTED_SNAPSHOT ON reste bloqué sans fin. Pourquoi ?",
     choix: [
-      "Un bug connu de cette commande",
+      "Il faut redémarrer le serveur avant",
       "Il doit être seul sur la base",
       "Le disque de tempdb est plein à 100 %",
       "Il manque un index sur la base"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Il attend que les autres connexions partent.",
+      "Non. Pas besoin de redémarrage ; il attend que les autres sessions quittent la base.",
       "Oui. D'autres connexions sont ouvertes. Fenêtre de maintenance, ou WITH ROLLBACK IMMEDIATE (coupe les autres). À planifier avec les utilisateurs et l'éditeur de l'ERP.",
       "Non. Ce n'est pas tempdb qui bloque.",
       "Non. Rien à voir avec les index."
@@ -1218,14 +1218,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q68", dialecte: "SQL Server",
     q: "Un rapport enchaîne 5 SELECT (CA, marge, stock…) pendant que l'ERP travaille. Les chiffres ne « tombent » pas juste entre eux. Pourquoi, et quelle solution ?",
     choix: [
-      "Un bug de calcul dans le rapport",
+      "Les arrondis diffèrent entre les SELECT",
       "Chaque SELECT voit un autre moment",
       "Il faut ajouter NOLOCK partout",
       "Il faut tout faire en un seul SELECT"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Chaque SELECT voit un moment différent.",
+      "Non. Les arrondis ne créent pas de tels écarts ; chaque SELECT lit un autre moment.",
       "Oui. En niveau SNAPSHOT, les 5 SELECT de la transaction voient la même photo. Ou calcule le rapport sur une copie figée (entrepôt de données).",
       "Non. Pire.",
       "Non. Pas toujours possible."
@@ -1257,14 +1257,14 @@ LEARNSQL.questions.m11 = [
       "Impossible sans outil payant",
       "Le « blocked process report »",
       "Mettre NOLOCK sur les tables",
-      "Regarder l'écran en continu"
+      "Regarder sp_who2 de temps en temps"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les Extended Events sont inclus dans SQL Server.",
       "Oui. Règle « blocked process threshold » à 20 et capture l'événement blocked_process_report (Extended Events) : le rapport donne la requête bloquée et la bloquante, même la nuit.",
       "Non. NOLOCK cache, il ne mesure pas.",
-      "Non. Impossible la nuit."
+      "Non. On voit le blocage du moment, pas ceux d'hier : rien n'est enregistré."
     ],
     retenir: "Blocages longs : blocked process report."
   },
@@ -1330,14 +1330,14 @@ LEARNSQL.questions.m11 = [
       "Aucun lien avec les deadlocks",
       "Scan de commande : trop de verrous",
       "Les index causent les deadlocks",
-      "C'est un bug de SQL Server"
+      "La suppression du client verrouille la base"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le scan verrouille beaucoup trop.",
       "Oui. Pour vérifier la clé étrangère, SQL Server parcourt toute la table commande et verrouille beaucoup plus que nécessaire. Un index sur la colonne de FK réduit fortement les verrous.",
       "Non. Ici, c'est le manque d'index.",
-      "Non. C'est un comportement normal."
+      "Non. Elle ne verrouille pas la base ; c'est le scan de commande qui pose trop de verrous."
     ],
     retenir: "FK sans index = scans + verrous + deadlocks."
   },
@@ -1454,14 +1454,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q81", dialecte: "Standard",
     q: "Comment rendre un traitement par lots « reprenable » après une panne ?",
     choix: [
-      "Le relancer depuis le début en espérant",
+      "Tout mettre dans une seule transaction",
       "Enregistrer le dernier lot validé",
       "Désactiver le journal pendant le traitement",
       "Mettre NOLOCK sur la table cible"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Risque de doublons.",
+      "Non. Après la panne, tout est annulé : il faut quand même tout refaire.",
       "Oui. Note dans une table de suivi le dernier lot validé (ex. dernier id traité), dans la même transaction que le lot, et repars de là.",
       "Non. Impossible, et dangereux.",
       "Non. NOLOCK ne gère pas la reprise."
@@ -1526,14 +1526,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q85", dialecte: "SQL Server",
     q: "TRUNCATE TABLE stg_import reste bloqué alors que personne ne modifie cette table. Pourquoi ?",
     choix: [
-      "Un bug connu de TRUNCATE sur les tables vides",
+      "TRUNCATE est bloqué par la clé primaire",
       "Une lecture en cours bloque TRUNCATE",
       "La table est déjà vide",
       "Il manque un index sur la table"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement normal.",
+      "Non. Une clé primaire ne gêne pas TRUNCATE ; c'est une lecture en cours.",
       "Oui. TRUNCATE demande un verrou de modification de structure (Sch-M) : même une simple lecture en cours le bloque. Cherche une requête de lecture (ou une transaction ouverte) sur cette table.",
       "Non. Vide ou pas, il attend le verrou.",
       "Non. Rien à voir avec les index."
@@ -1581,14 +1581,14 @@ LEARNSQL.questions.m11 = [
     id: "m11-q88", dialecte: "SQL Server",
     q: "Une procédure appelée à l'intérieur d'une transaction fait ROLLBACK. L'appelant reçoit l'erreur 266. Pourquoi ?",
     choix: [
-      "Un bug des procédures imbriquées",
+      "Le COMMIT de l'appelant arrive trop tôt",
       "Le ROLLBACK a tout annulé, appelant compris",
       "La procédure n'existe pas dans la base",
       "Un problème de droits sur la procédure"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement documenté.",
+      "Non. L'appelant n'a pas encore fait COMMIT ; c'est le ROLLBACK qui a tout annulé.",
       "Oui. Le ROLLBACK de la procédure a annulé TOUTE la transaction de l'appelant : le nombre de transactions n'est plus le même qu'avant l'appel.",
       "Non. L'erreur 266 parle du nombre de transactions.",
       "Non. Rien à voir avec les droits."

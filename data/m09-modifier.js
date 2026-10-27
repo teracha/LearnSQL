@@ -868,14 +868,14 @@ LEARNSQL.questions.m09 = [
     choix: [
       "Aucun : MERGE est protégé contre ça",
       "Doublon possible : ajouter HOLDLOCK",
-      "Le serveur s'arrête pour protéger",
+      "Le 2e attend, puis met à jour la ligne",
       "Le 2e MERGE est refusé, sans erreur"
     ],
     bonne: 1,
     pourquoi: [
       "Non. MERGE n'est pas protégé par défaut contre la concurrence.",
       "Oui. Les deux peuvent voir la ligne absente et tenter d'insérer : doublon ou violation de clé. WITH (HOLDLOCK) sur la cible (niveau SERIALIZABLE) évite ce cas.",
-      "Non. Le serveur ne s'arrête pas.",
+      "Non. Sans HOLDLOCK, rien ne le fait attendre : les deux voient « absent » et insèrent.",
       "Non. Le 2e MERGE peut insérer un doublon, ou planter."
     ],
     retenir: "Upsert concurrent : MERGE … WITH (HOLDLOCK)."
@@ -1052,14 +1052,14 @@ LEARNSQL.questions.m09 = [
     choix: [
       "Non, il faut toujours un COMMIT",
       "Oui, autocommit par défaut",
-      "Seulement le soir, en traitement",
+      "Seulement si la session est en mode batch",
       "Seulement pour les petites tables"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Seulement si tu as ouvert une transaction avec BEGIN.",
       "Oui. Par défaut, chaque instruction est validée automatiquement, comme sur SQL Server. Pour pouvoir annuler : BEGIN … COMMIT / ROLLBACK.",
-      "Non. L'heure ne change rien.",
+      "Non. Il n'y a pas de « mode batch » : l'autocommit est le défaut partout.",
       "Non. La taille de la table ne change rien."
     ],
     retenir: "Autocommit par défaut : chaque instruction est définitive."
@@ -1123,14 +1123,14 @@ LEARNSQL.questions.m09 = [
     id: "m09-q62", dialecte: "SQL Server",
     q: "Un DELETE de 500 000 lignes bloque toute la table pour les autres utilisateurs. Pourquoi ?",
     choix: [
-      "Un bug connu des gros DELETE",
+      "DELETE verrouille toujours toute la table",
       "L'escalade de verrous vers la table",
       "DELETE verrouille toujours la base",
       "À cause des NULL dans les colonnes supprimées"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un comportement normal de SQL Server.",
+      "Non. Il commence par des verrous de ligne ; c'est le nombre de verrous qui fait monter à la table.",
       "Oui. Au-delà d'environ 5 000 verrous, SQL Server remplace les verrous de lignes par un verrou sur toute la table. Supprimer par lots de quelques milliers de lignes évite l'escalade.",
       "Non. DELETE ne verrouille pas toute la base.",
       "Non. Les NULL ne jouent aucun rôle."
@@ -1418,14 +1418,14 @@ LEARNSQL.questions.m09 = [
       "Les supprimer pour de vrai de la base",
       "Une vue qui filtre actif = 1",
       "Ajouter DISTINCT dans les rapports",
-      "Prévenir les utilisateurs par mail"
+      "Un filtre actif = 1 dans chaque rapport"
     ],
     bonne: 1,
     pourquoi: [
       "Non. On perd l'historique.",
       "Oui. Une vue v_client_actif (WHERE actif = 1) utilisée par tous les rapports : la règle est écrite une fois, au bon endroit.",
       "Non. DISTINCT ne retire pas les clients inactifs.",
-      "Non. Le rapport resterait faux."
+      "Non. Ça marche, mais on l'oublie au prochain rapport : la vue le fait une fois pour toutes."
     ],
     retenir: "Suppression logique : une vue qui filtre, pour ne jamais l'oublier."
   },
@@ -1505,14 +1505,14 @@ LEARNSQL.questions.m09 = [
     id: "m09-q83", dialecte: "Standard",
     q: "Comment éviter de charger deux fois le même fichier si le traitement est relancé ?",
     choix: [
-      "Espérer que ça n'arrive pas",
+      "Vider la table cible avant chaque chargement",
       "Un journal des fichiers déjà chargés",
       "Ajouter DISTINCT au chargement",
       "Supprimer le fichier avant de charger"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un traitement doit pouvoir être relancé sans risque.",
+      "Non. Ça supprime aussi les fichiers d'avant, déjà chargés.",
       "Oui. Une table des fichiers traités (nom, date, nombre de lignes), vérifiée avant de charger : le traitement devient « idempotent ». (COPY INTO de Snowflake le fait tout seul.)",
       "Non. DISTINCT ne voit pas ce qui est déjà chargé.",
       "Non. On perd la source, sans savoir ce qui a été chargé."
@@ -1541,14 +1541,14 @@ LEARNSQL.questions.m09 = [
     id: "m09-q85", dialecte: "Snowflake",
     q: "Sur Snowflake, après DELETE FROM t (tout supprimer), un COPY INTO du même fichier ne recharge rien. Pourquoi ?",
     choix: [
-      "Un bug de COPY INTO après un DELETE",
+      "Le DELETE a aussi effacé le stage",
       "COPY INTO se souvient des fichiers",
       "Le fichier est devenu vide",
       "Il faut un warehouse plus grand"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est voulu : COPY INTO évite les doubles chargements.",
+      "Non. DELETE ne touche que la table ; le fichier est toujours dans le stage.",
       "Oui. COPY INTO garde la mémoire des fichiers déjà chargés. DELETE n'efface pas cette mémoire ; TRUNCATE, si. Utilise TRUNCATE, ou l'option FORCE = TRUE (avec prudence).",
       "Non. Le fichier n'a pas changé.",
       "Non. La taille du warehouse ne joue pas."
@@ -1577,14 +1577,14 @@ LEARNSQL.questions.m09 = [
     id: "m09-q87", dialecte: "SQL Server",
     q: "Un écran modifie un client avec UPDATE … WHERE id = @id AND version = @version_lue. @@ROWCOUNT vaut 0. Que s'est-il passé ?",
     choix: [
-      "Un bug de l'écran de saisie",
+      "La transaction a été annulée",
       "Quelqu'un a modifié le client entre-temps",
       "Le client n'a pas de numéro de version",
       "La table client est verrouillée en lecture"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement voulu.",
+      "Non. Une annulation donne une erreur ; 0 ligne veut dire que le WHERE n'a rien trouvé.",
       "Oui. La version ne correspond plus : c'est le « verrouillage optimiste » (souvent avec une colonne rowversion). On prévient l'utilisateur au lieu d'écraser.",
       "Non. La version existe ; elle a juste changé.",
       "Non. Un verrou ferait attendre, pas renvoyer 0 ligne."
@@ -1598,14 +1598,14 @@ LEARNSQL.questions.m09 = [
       "OUTPUT est interdit dans un UPDATE",
       "Avec un trigger, OUTPUT exige INTO",
       "Le trigger supprime les lignes",
-      "Un bug corrigé dans SQL Server 2022"
+      "Le trigger interdit toute modification"
     ],
     bonne: 1,
     pourquoi: [
       "Non. OUTPUT est permis dans un UPDATE.",
       "Oui. SQL Server refuse OUTPUT sans INTO si la table a des triggers actifs. Avec INTO (vers une variable table ou #table), ça fonctionne.",
       "Non. Le trigger ne supprime rien.",
-      "Non. Règle documentée."
+      "Non. Le trigger se déclenche normalement ; seul OUTPUT sans INTO pose problème."
     ],
     retenir: "Table avec trigger : OUTPUT … INTO obligatoire."
   },

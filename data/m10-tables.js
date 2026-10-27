@@ -292,14 +292,14 @@ LEARNSQL.questions.m10 = [
     id: "m10-q17", dialecte: "Standard",
     q: "Pourquoi déclarer NOT NULL dès qu'une valeur est obligatoire ?",
     choix: [
-      "Pour la décoration du modèle",
+      "Pour réduire la taille de la table",
       "La base refuse les lignes incomplètes",
       "Pour accélérer les INSERT",
       "C'est obligatoire pour toutes les colonnes"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un vrai contrôle des données.",
+      "Non. Le gain de place est minime ; le vrai but est de refuser les lignes incomplètes.",
       "Oui. Et l'optimiseur peut faire de meilleurs plans. Un NULL qui ne devrait pas exister est un bug qui arrive tôt ou tard.",
       "Non. NOT NULL ajoute un contrôle, il n'accélère pas l'INSERT.",
       "Non. Seulement les colonnes vraiment obligatoires."
@@ -679,14 +679,14 @@ LEARNSQL.questions.m10 = [
     q: "À quoi sert une colonne calculée PERSISTED ?",
     code: "ALTER TABLE ligne_cde ADD montant AS (qte * prix) PERSISTED;",
     choix: [
-      "À rien, c'est une option décorative",
+      "Elle se met à jour une fois par nuit",
       "Stockée : lecture rapide, indexable",
       "Elle est recalculée à chaque lecture",
       "Elle peut être modifiée à la main"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Elle stocke la valeur.",
+      "Non. Elle se met à jour à chaque modification de qte ou prix.",
       "Oui. La valeur est calculée à l'écriture et stockée : lecture rapide, et on peut l'indexer. Sans PERSISTED, elle est calculée à chaque lecture.",
       "Non. C'est le cas sans PERSISTED.",
       "Non. Une colonne calculée ne se modifie pas."
@@ -1406,14 +1406,14 @@ LEARNSQL.questions.m10 = [
     id: "m10-q78", dialecte: "Standard",
     q: "Pourquoi les tables de chargement (stg) ont-elles souvent toutes leurs colonnes en VARCHAR ?",
     choix: [
-      "Par paresse des développeurs",
+      "Les VARCHAR se chargent plus vite",
       "Accepter tout, puis contrôler",
       "Pour gagner de la place sur le disque",
       "C'est obligatoire pour un import"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un choix voulu.",
+      "Non. La vitesse change peu ; le but est de ne rien rejeter à l'arrivée.",
       "Oui. Toutes les lignes du fichier entrent, même invalides ; on les contrôle et on les convertit avant la table cible. Une date mal formée ne fait pas échouer tout le chargement.",
       "Non. Ça ne fait pas gagner de place.",
       "Non. Ce n'est pas obligatoire."
@@ -1500,14 +1500,14 @@ LEARNSQL.questions.m10 = [
     choix: [
       "Impossible, il faut deviner",
       "Dépendances SSMS + équipes ETL et BI",
-      "Supprimer et attendre les plaintes",
+      "Chercher le nom dans les procédures",
       "Regarder le nom de la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les dépendances se consultent.",
       "Oui. Affiche les dépendances (SSMS, sys.sql_expression_dependencies), et pense aux flux et rapports externes : ils ne sont pas visibles dans la base, demande aux équipes.",
-      "Non. Trop risqué.",
+      "Non. Utile, mais incomplet : les rapports, l'ETL et le SQL dynamique ne sont pas vus.",
       "Non. Le nom ne dit pas qui l'utilise."
     ],
     retenir: "Analyse d'impact avant toute modification de structure."
@@ -1591,14 +1591,14 @@ LEARNSQL.questions.m10 = [
       "Rien, elles se réactivent seules",
       "Les réactiver WITH CHECK",
       "Les supprimer définitivement",
-      "Redémarrer le serveur SQL"
+      "Les réactiver WITH NOCHECK"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les données ne sont plus protégées.",
       "Oui. WITH CHECK CHECK CONSTRAINT ALL contrôle les données chargées et garde des contraintes fiables. Si des lignes sont invalides, la réactivation échoue : tu sais qu'il faut corriger.",
       "Non. On perd toute protection.",
-      "Non. Ça ne réactive rien."
+      "Non. Elles sont actives, mais les lignes déjà chargées ne sont pas vérifiées : elles restent « non fiables »."
     ],
     retenir: "Contraintes désactivées = à réactiver WITH CHECK."
   },
@@ -1768,14 +1768,14 @@ LEARNSQL.questions.m10 = [
     id: "m10-q98", dialecte: "Standard",
     q: "Pourquoi est-il préférable de typer correctement dès la création, plutôt que « tout en VARCHAR, on verra » ?",
     choix: [
-      "Pour la beauté du modèle",
+      "Pour gagner de la place sur le disque",
       "Contrôle, calculs justes, performance",
       "Ce n'est pas préférable, VARCHAR suffit",
       "Pour économiser des lignes"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est la base de la qualité des données.",
+      "Non. C'est un bonus ; le vrai gain : contrôle, calculs justes, performance.",
       "Oui. Contrôle automatique des données, tris et calculs justes, meilleures performances ; changer un type plus tard coûte cher. Le type est la première règle de qualité.",
       "Non. VARCHAR accepte des valeurs fausses.",
       "Non. Le nombre de lignes ne change pas."
