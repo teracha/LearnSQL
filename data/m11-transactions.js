@@ -10,10 +10,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une transaction protège, elle n'accélère pas.",
       "Oui. Les deux réussissent ensemble ou sont annulés ensemble : c'est l'atomicité.",
-      "Non.",
-      "Non."
+      "Non. Une transaction ne trie rien.",
+      "Non. Sans transaction, un seul des deux UPDATE peut passer."
     ],
     retenir: "Transaction = tout ou rien."
   },
@@ -28,10 +28,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce ne sont pas les bons mots.",
       "Oui. Tout ou rien ; règles respectées ; transactions qui ne se gênent pas ; une fois validé, c'est enregistré.",
-      "Non.",
-      "Non."
+      "Non. Ce ne sont pas les bons mots.",
+      "Non. ACID décrit les garanties d'une transaction."
     ],
     retenir: "ACID = Atomicité, Cohérence, Isolation, Durabilité."
   },
@@ -48,8 +48,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Sauf si IMPLICIT_TRANSACTIONS est activé.",
       "Oui. Mode autocommit : chaque instruction est sa propre transaction.",
-      "Non.",
-      "Non."
+      "Non. Il est déjà validé : la fin de session ne l'annule pas.",
+      "Non. Sans BEGIN TRAN, il a sa propre transaction automatique."
     ],
     retenir: "Par défaut : chaque instruction est validée seule."
   },
@@ -64,10 +64,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non.",
+      "Non. Deux BEGIN TRAN ont été faits.",
       "Non. Chaque BEGIN TRAN ajoute 1.",
       "Oui. Mais ce n'est pas vraiment deux transactions indépendantes.",
-      "Non."
+      "Non. Imbriquer des BEGIN TRAN est permis."
     ],
     retenir: "@@TRANCOUNT = niveau d'imbrication."
   },
@@ -84,8 +84,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Piège des transactions « imbriquées ».",
       "Oui. Seul le dernier COMMIT (de 1 à 0) valide vraiment : les transactions imbriquées ne sont pas de vraies sous-transactions.",
-      "Non.",
-      "Non."
+      "Non. Il n'existe pas de vraie transaction intérieure.",
+      "Non. Le COMMIT est accepté : il fait juste baisser le compteur."
     ],
     retenir: "Seul le COMMIT le plus extérieur valide."
   },
@@ -102,8 +102,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Erreur fréquente.",
       "Oui. TOUT est annulé depuis le premier BEGIN TRAN. Pour une annulation partielle : SAVE TRANSACTION.",
-      "Non.",
-      "Non."
+      "Non. Un ROLLBACK sans nom annule tout.",
+      "Non. Le ROLLBACK est valide."
     ],
     retenir: "ROLLBACK = tout annuler, quel que soit le niveau."
   },
@@ -118,10 +118,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Seul COMMIT valide.",
       "Oui. ROLLBACK TRANSACTION point1 annule seulement ce qui suit, et la transaction reste ouverte.",
       "Non. Rien à voir avec un BACKUP.",
-      "Non."
+      "Non. La transaction reste ouverte."
     ],
     retenir: "SAVE TRANSACTION = point de retour partiel."
   },
@@ -136,10 +136,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il agit seulement quand une erreur arrive.",
       "Oui. Toute erreur d'exécution annule automatiquement la transaction entière. Sans lui, certaines erreurs laissent la transaction ouverte et les instructions suivantes continuent.",
-      "Non.",
-      "Non."
+      "Non. Les transactions restent permises.",
+      "Non. Il ne change pas la vitesse."
     ],
     retenir: "Procédure qui modifie : SET XACT_ABORT ON en tête."
   },
@@ -157,7 +157,7 @@ LEARNSQL.questions.m11 = [
       "Non. Ce serait 0.",
       "Oui. 1 = validable, 0 = pas de transaction, -1 = ouverte mais seulement ROLLBACK possible.",
       "Non. Ce serait 1.",
-      "Non."
+      "Non. XACT_STATE renvoie un état, pas une erreur."
     ],
     retenir: "XACT_STATE : 1 validable, 0 aucune, -1 condamnée."
   },
@@ -191,10 +191,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque instruction attend désormais un COMMIT.",
       "Oui. Elle reste ouverte jusqu'à un COMMIT explicite (même un SELECT en ouvre une). Certains outils activent ce mode : un oubli de COMMIT bloque alors tout le monde.",
       "Non. C'est l'inverse.",
-      "Non."
+      "Non. Les verrous restent posés plus longtemps."
     ],
     retenir: "IMPLICIT_TRANSACTIONS ON = COMMIT obligatoire, sinon blocages."
   },
@@ -209,10 +209,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sur SQL Server, il peut être annulé.",
       "Oui. La plupart des ordres de structure (DDL) sont transactionnels sur SQL Server. Pratique pour les scripts de déploiement : tout ou rien.",
-      "Non.",
-      "Non."
+      "Non. Les CREATE aussi peuvent être annulés.",
+      "Non. Que la table soit vide ou non ne change rien."
     ],
     retenir: "SQL Server : DDL annulable dans une transaction."
   },
@@ -229,8 +229,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Grosse différence avec SQL Server.",
       "Oui. Sur Snowflake, un ordre de structure (DDL) valide implicitement la transaction en cours. Garde les DDL en dehors des transactions de données.",
-      "Non.",
-      "Non."
+      "Non. Snowflake l'accepte, mais valide la transaction.",
+      "Non. Le CREATE est validé, comme l'INSERT."
     ],
     retenir: "Snowflake : un DDL fait un COMMIT implicite."
   },
@@ -264,10 +264,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake n'en propose qu'un.",
       "Oui. Une requête voit les données validées au moment où elle démarre. Les lectures ne bloquent jamais.",
-      "Non.",
-      "Non."
+      "Non. Snowflake ne propose pas SERIALIZABLE.",
+      "Non. Pas de lecture sale sur Snowflake."
     ],
     retenir: "Snowflake : READ COMMITTED seulement."
   },
@@ -300,10 +300,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. « Sale » veut dire non validée, pas mal saisie.",
       "Oui. Modifiées par une autre transaction, peut-être annulée ensuite. Possible en READ UNCOMMITTED / NOLOCK : le chiffre lu peut n'avoir jamais existé.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec la vitesse.",
+      "Non. Rien à voir avec les index."
     ],
     retenir: "Lecture sale = lire du non validé."
   },
@@ -318,10 +318,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il change vraiment la façon de lire.",
       "Oui. Pas d'attente, mais lectures sales, lignes manquées ou doublées possibles. Équivaut à READ UNCOMMITTED : dangereux pour des chiffres comptables.",
       "Non. Il y a des risques réels.",
-      "Non."
+      "Non. C'est l'inverse : il ne pose pas de verrou de lecture."
     ],
     retenir: "NOLOCK = rapide mais potentiellement faux."
   },
@@ -336,9 +336,9 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est possible si la ligne bouge pendant la lecture.",
       "Oui. Si la ligne est déplacée (division de page), elle peut être lue deux fois ou pas du tout. NOLOCK peut fausser les totaux, pas seulement lire du « sale ».",
-      "Non.",
+      "Non. DISTINCT n'a rien à voir.",
       "Non. Snowflake n'a pas NOLOCK."
     ],
     retenir: "NOLOCK peut doubler ou perdre des lignes."
@@ -354,9 +354,9 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans index, les verrous et les blocages augmentent.",
       "Oui. RCSI : les lectures lisent la dernière version validée, sans bloquer ni être bloquées. Coût : versions stockées dans tempdb. À valider avec l'éditeur de l'ERP.",
-      "Non.",
+      "Non. Ça coupe tout le monde, sans régler la cause.",
       "Non. Possible, mais pas toujours acceptable."
     ],
     retenir: "Lecteurs vs écrivains : RCSI plutôt que NOLOCK."
@@ -375,7 +375,7 @@ LEARNSQL.questions.m11 = [
       "Non. Pas de lecture sale.",
       "Oui. Le moteur garde l'ancienne version le temps de la transaction.",
       "Non. Plus d'attente pour les lectures.",
-      "Non."
+      "Non. Une lecture ne crée pas de conflit avec RCSI."
     ],
     retenir: "RCSI : on lit la dernière version validée."
   },
@@ -390,10 +390,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le journal sert à la reprise, pas aux versions.",
       "Oui. Surveiller la taille de tempdb, surtout avec de longues transactions.",
-      "Non.",
-      "Non."
+      "Non. La table garde seulement la version actuelle.",
+      "Non. Elles sont bien gardées, dans tempdb."
     ],
     retenir: "Versionnement = tempdb."
   },
@@ -408,10 +408,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La lecture se fait, mais donne une autre valeur.",
       "Oui. Lire deux fois la même ligne dans une transaction et obtenir deux valeurs, car une autre transaction l'a modifiée entre-temps. Possible en READ COMMITTED ; REPEATABLE READ l'empêche.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec les index.",
+      "Non. Le SELECT est valide."
     ],
     retenir: "Non répétable = même ligne, valeur différente."
   },
@@ -426,10 +426,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le fantôme est une ligne qui apparaît.",
       "Oui. Relancer le même SELECT dans une transaction et voir apparaître des lignes insérées par une autre transaction. Seul SERIALIZABLE (ou SNAPSHOT) l'empêche.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec les NULL.",
+      "Non. Rien à voir avec les doublons."
     ],
     retenir: "Fantôme = nouvelle ligne qui apparaît."
   },
@@ -462,10 +462,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce n'est pas le défaut : il lit des données non validées.",
       "Oui. Avec verrous. (Sur Azure SQL Database, RCSI est activé par défaut.)",
-      "Non.",
-      "Non."
+      "Non. Trop strict pour être le défaut.",
+      "Non. Ce n'est pas le défaut."
     ],
     retenir: "Défaut SQL Server : READ COMMITTED."
   },
@@ -480,10 +480,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SNAPSHOT empêche d'écraser en silence.",
       "Oui. Erreur 3960 de conflit de mise à jour. SNAPSHOT protège contre les mises à jour perdues, mais l'application doit gérer la relance.",
-      "Non.",
-      "Non."
+      "Non. Elle reçoit une erreur, elle n'écrase pas.",
+      "Non. Une ligne n'a qu'une valeur."
     ],
     retenir: "SNAPSHOT : conflit d'écriture = erreur, à relancer."
   },
@@ -498,10 +498,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ici, chacun lit une valeur validée.",
       "Oui. (Lost update.) Solution : UPDATE stock SET qte = qte - 3 (calcul dans l'UPDATE), ou verrou UPDLOCK à la lecture.",
-      "Non.",
-      "Non."
+      "Non. Aucune nouvelle ligne n'apparaît.",
+      "Non. Personne n'attend l'autre : les deux écrivent."
     ],
     retenir: "Lire puis écrire = risque de mise à jour perdue."
   },
@@ -519,8 +519,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Entre la lecture et l'écriture, quelqu'un peut modifier.",
       "Oui. Le calcul et la vérification se font dans la même instruction, sous verrou.",
-      "Non.",
-      "Non."
+      "Non. Une valeur fixe écrase le calcul des autres.",
+      "Non. NOLOCK lit, il ne modifie rien."
     ],
     retenir: "Faire le calcul DANS l'UPDATE."
   },
@@ -535,10 +535,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les verrous ne se classent pas par vitesse.",
       "Oui. S pour lire : plusieurs lecteurs possibles. X pour écrire : un seul. Un X bloque tout le monde ; plusieurs S peuvent coexister.",
-      "Non.",
-      "Non."
+      "Non. Ces types n'existent pas.",
+      "Non. Il n'existe pas de verrou par colonne."
     ],
     retenir: "S = lecture partagée. X = écriture exclusive."
   },
@@ -553,10 +553,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il ne rend pas la lecture plus rapide.",
       "Oui. Les autres peuvent lire, mais personne d'autre ne peut la réserver. Évite un type de deadlock : deux sessions qui lisent puis veulent écrire s'attendent mutuellement.",
-      "Non.",
-      "Non."
+      "Non. Un verrou ne supprime rien.",
+      "Non. Il est toujours utilisé."
     ],
     retenir: "UPDLOCK : « je lis pour modifier »."
   },
@@ -571,10 +571,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils ont un vrai rôle.",
       "Oui. Une demande de verrou sur toute la table sait tout de suite qu'elle doit attendre : pas besoin de parcourir toutes les lignes.",
-      "Non.",
-      "Non."
+      "Non. Un verrou ne trie rien.",
+      "Non. Un verrou ne compresse rien."
     ],
     retenir: "Verrous d'intention = panneau « occupé à l'intérieur »."
   },
@@ -589,10 +589,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le verrou devient plus large, pas plus rapide.",
       "Oui. Quand une instruction pose trop de verrous de lignes (environ 5 000), SQL Server les remplace par un verrou sur toute la table : moins de mémoire, mais tous les autres sont bloqués.",
-      "Non.",
-      "Non."
+      "Non. Le deadlock est autre chose.",
+      "Non. Ce n'est pas une erreur, c'est automatique."
     ],
     retenir: "Escalade : beaucoup de verrous de lignes → verrou de table."
   },
@@ -609,7 +609,7 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. N'a pas d'effet sur un DELETE.",
       "Oui. Chaque lot reste sous le seuil, et les autres peuvent travailler entre deux lots.",
-      "Non.",
+      "Non. DISTINCT n'est pas permis dans un DELETE.",
       "Non. Impossible."
     ],
     retenir: "Purges : lots < 5 000 lignes."
@@ -625,9 +625,9 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce sont deux situations différentes.",
       "Oui. Blocage : une session attend qu'une autre finisse (ça se résout tout seul). Deadlock : deux sessions s'attendent mutuellement, sans fin : le moteur en tue une.",
-      "Non.",
+      "Non. Sans le moteur, un deadlock ne finirait jamais.",
       "Non. C'est une attente."
     ],
     retenir: "Blocage = attente. Deadlock = attente circulaire."
@@ -643,10 +643,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sa transaction est annulée.",
       "Oui. L'application (ou la procédure) peut relancer la transaction.",
-      "Non.",
-      "Non."
+      "Non. C'est une vraie erreur.",
+      "Non. La session continue ; seule la transaction est annulée."
     ],
     retenir: "Deadlock : erreur 1205, transaction annulée → relancer."
   },
@@ -661,10 +661,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chacune tient ce que l'autre veut.",
       "Oui. Chacune tient une table et attend l'autre. Règle : toujours accéder aux tables dans le même ordre.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est lu avant validation.",
+      "Non. Aucune ligne n'apparaît."
     ],
     retenir: "Même ordre d'accès aux tables = moins de deadlocks."
   },
@@ -681,8 +681,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. C'est l'inverse.",
       "Oui. Transactions courtes, même ordre d'accès aux tables, bons index (moins de lignes verrouillées), niveau d'isolation adapté.",
-      "Non.",
-      "Non."
+      "Non. NOLOCK ne protège pas les écritures.",
+      "Non. Les triggers rallongent les transactions."
     ],
     retenir: "Court, ordonné, bien indexé."
   },
@@ -697,10 +697,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. system_health les enregistre par défaut.",
       "Oui. Elle enregistre les deadlocks par défaut. Le graphe montre les sessions, les requêtes et les ressources en cause.",
-      "Non.",
-      "Non."
+      "Non. Windows ne garde pas le graphe des deadlocks.",
+      "Non. sys.tables liste les tables."
     ],
     retenir: "Deadlocks : session system_health."
   },
@@ -737,7 +737,7 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Oui. Affiche la session et l'heure de début : souvent la coupable d'un blocage ou d'un journal qui grossit.",
       "Non. Seulement pour ta propre session.",
-      "Non.",
+      "Non. sp_help décrit les objets, pas les transactions.",
       "Non. Syntaxe Snowflake."
     ],
     retenir: "DBCC OPENTRAN : la plus vieille transaction ouverte."
@@ -753,10 +753,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le ROLLBACK prend du temps.",
       "Oui. Sa transaction est annulée, ce qui peut prendre aussi longtemps que le travail déjà fait. Pendant l'annulation, les verrous restent posés : KILL n'est jamais anodin.",
-      "Non.",
-      "Non."
+      "Non. KILL annule la transaction.",
+      "Non. Seule la session est arrêtée."
     ],
     retenir: "KILL = ROLLBACK, parfois long."
   },
@@ -771,10 +771,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle empêche de vider le journal.",
       "Oui. Le journal ne peut pas être vidé au-delà de la plus vieille transaction active : tout ce qui suit est conservé. Disque plein possible.",
-      "Non.",
-      "Non."
+      "Non. Elle ne compresse rien.",
+      "Non. Le journal n'est jamais supprimé."
     ],
     retenir: "Transaction longue = journal qui gonfle."
   },
@@ -789,10 +789,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça limite l'attente, pas la durée des verrous.",
       "Oui. Au lieu d'attendre sans fin, l'instruction échoue (erreur 1222) après 5 secondes. Utile pour un traitement qui préfère échouer vite.",
-      "Non.",
-      "Non."
+      "Non. Ça ne valide rien.",
+      "Non. Ça agit dès l'instruction."
     ],
     retenir: "LOCK_TIMEOUT : limiter l'attente des verrous."
   },
@@ -826,10 +826,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un seul verrou sur toute la table.",
       "Oui. Moins de verrous à gérer, et parfois une journalisation réduite. Pour des chargements de nuit, quand personne d'autre n'utilise la table.",
-      "Non.",
-      "Non."
+      "Non. C'est un verrou, pas une lecture sans verrou.",
+      "Non. L'INSERT démarre quand la table est libre."
     ],
     retenir: "TABLOCK : chargement massif, table pour soi seul."
   },
@@ -844,10 +844,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les verrous bloquent les autres pendant l'attente.",
       "Oui. L'utilisateur peut partir déjeuner : la transaction reste ouverte et bloque tout le monde. Règle : jamais d'attente humaine dans une transaction.",
-      "Non.",
-      "Non."
+      "Non. Le problème est l'attente, pas la vitesse.",
+      "Non. Le serveur l'accepte."
     ],
     retenir: "Jamais d'interaction utilisateur pendant une transaction."
   },
@@ -862,10 +862,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Moins de lignes lues = moins de verrous.",
       "Oui. Sans index, un UPDATE … WHERE doit parcourir (et souvent verrouiller) beaucoup plus de lignes ; avec un index, il ne touche que les lignes visées.",
-      "Non.",
-      "Non."
+      "Non. Les verrous de lecture restent.",
+      "Non. Un index ne gère pas les transactions."
     ],
     retenir: "Bons index = moins de verrous."
   },
@@ -880,10 +880,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il garde les verrous jusqu'à la fin.",
       "Oui. Comme en SERIALIZABLE, pour cette table. Utile pour un « insérer si absent » sûr, mais augmente les blocages.",
-      "Non.",
-      "Non."
+      "Non. C'est l'inverse.",
+      "Non. Il ne valide rien."
     ],
     retenir: "HOLDLOCK = SERIALIZABLE sur une table."
   },
@@ -898,10 +898,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les lectures Snowflake ne posent pas de verrou.",
       "Oui. Les lectures ne bloquent pas les écritures et ne sont pas bloquées par elles : chaque requête lit une version cohérente. Les conflits concernent surtout les écritures entre elles.",
-      "Non.",
-      "Non."
+      "Non. L'heure ne change rien.",
+      "Non. Rien à voir avec le warehouse."
     ],
     retenir: "Snowflake : lecteurs et écrivains ne se bloquent pas."
   },
@@ -916,10 +916,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Deux UPDATE sur la même table s'attendent souvent.",
       "Oui. Les UPDATE / DELETE / MERGE sur une même table s'attendent souvent ; les INSERT / COPY se gênent peu. Évite de lancer plusieurs traitements de modification sur la même table en même temps.",
       "Non. Elle attend (jusqu'au délai LOCK_TIMEOUT).",
-      "Non."
+      "Non. Les modifications ne se mélangent pas."
     ],
     retenir: "Snowflake : écritures concurrentes sur une table = attente."
   },
@@ -991,10 +991,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un COMMIT devient nécessaire.",
       "Oui. Chaque modification ouvre une transaction qui reste ouverte jusqu'à un COMMIT ou ROLLBACK. Comme IMPLICIT_TRANSACTIONS sur SQL Server : attention aux oublis.",
-      "Non.",
-      "Non."
+      "Non. Les modifications restent permises.",
+      "Non. Aucun effet sur la vitesse."
     ],
     retenir: "AUTOCOMMIT = FALSE : COMMIT obligatoire."
   },
@@ -1009,10 +1009,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le journal est écrit sur disque avant la réponse.",
       "Oui. La validation est écrite dans le journal sur disque avant de répondre ; au redémarrage, les données sont rejouées. C'est la durabilité (le D de ACID).",
-      "Non.",
-      "Non."
+      "Non. Une transaction est tout ou rien.",
+      "Non. Rien à voir avec les index."
     ],
     retenir: "COMMIT confirmé = données durables."
   },
@@ -1027,10 +1027,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est la garantie de cohérence.",
       "Oui. C'est la journalisation anticipée : le journal est la vraie garantie de cohérence. Il faut le sauvegarder et le surveiller.",
-      "Non.",
-      "Non."
+      "Non. Le journal ne compresse rien.",
+      "Non. Le journal ne trie rien."
     ],
     retenir: "Journal d'abord, données ensuite."
   },
@@ -1045,10 +1045,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les dernières transactions peuvent être perdues en cas de panne.",
       "Oui. Le COMMIT répond avant que le journal soit écrit sur disque : les dernières transactions peuvent être perdues en cas de panne. À réserver à des données reconstructibles.",
-      "Non.",
-      "Non."
+      "Non. C'est l'inverse : moins sûr.",
+      "Non. Le journal existe toujours."
     ],
     retenir: "Durabilité différée = plus vite, moins sûr."
   },
@@ -1063,9 +1063,9 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Seulement ta session.",
       "Oui. Jusqu'à ce que tu le changes (ou la fin de la session / procédure). Les autres sessions ne sont pas concernées.",
-      "Non.",
+      "Non. Il dure jusqu'à nouvel ordre.",
       "Non. Pour une table : un indicateur WITH (…)."
     ],
     retenir: "Niveau d'isolation = réglage de session."
@@ -1081,10 +1081,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Seulement cette table.",
       "Oui. Réglage très ciblé.",
-      "Non.",
-      "Non."
+      "Non. Seulement cette table.",
+      "Non. Seulement la table où il est écrit."
     ],
     retenir: "Indicateur de table = une table, une requête."
   },
@@ -1101,7 +1101,7 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Ce serait REPEATABLE READ.",
       "Oui. Juste le temps de lire chaque ligne (ou page), puis il les relâche. D'où les lectures non répétables : la ligne peut changer juste après.",
-      "Non.",
+      "Non. Le verrou est relâché tout de suite.",
       "Non. Il en pose, brièvement."
     ],
     retenir: "READ COMMITTED : verrous de lecture très courts."
@@ -1117,10 +1117,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ton verrou de lecture la fait attendre.",
       "Oui. Tu gardes ton verrou de lecture jusqu'au bout : plus de cohérence pour toi, plus d'attente pour les autres.",
-      "Non.",
-      "Non."
+      "Non. Il n'y a pas de copie en REPEATABLE READ.",
+      "Non. Elle attend, sans erreur immédiate."
     ],
     retenir: "REPEATABLE READ : lectures verrouillées jusqu'à la fin."
   },
@@ -1135,10 +1135,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La plage lue est verrouillée.",
       "Oui. SERIALIZABLE verrouille aussi la « plage » lue, pour empêcher les fantômes (verrous key-range, efficaces avec un index sur client_id).",
-      "Non.",
-      "Non."
+      "Non. Elle attend, sans erreur.",
+      "Non. L'INSERT n'est pas déplacé."
     ],
     retenir: "SERIALIZABLE : même les insertions dans la plage lue attendent."
   },
@@ -1153,10 +1153,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La portée diffère.",
       "Oui. RCSI : chaque INSTRUCTION voit une photo cohérente. SNAPSHOT : toute la TRANSACTION voit la même photo, du début à la fin. Utile pour un rapport en plusieurs requêtes.",
       "Non. Les deux évitent les blocages lecture / écriture.",
-      "Non."
+      "Non. RCSI est une option de SQL Server."
     ],
     retenir: "RCSI = cohérent par instruction. SNAPSHOT = cohérent par transaction."
   },
@@ -1171,10 +1171,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il faut l'activer sur la base.",
       "Oui. ALLOW_SNAPSHOT_ISOLATION ON sur la base, puis SET TRANSACTION ISOLATION LEVEL SNAPSHOT dans la session.",
-      "Non.",
-      "Non."
+      "Non. NOLOCK donne des lectures sales.",
+      "Non. Un redémarrage n'est pas nécessaire."
     ],
     retenir: "SNAPSHOT : autoriser (base) + demander (session)."
   },
@@ -1189,10 +1189,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il attend que les autres connexions partent.",
       "Oui. D'autres connexions sont ouvertes. Fenêtre de maintenance, ou WITH ROLLBACK IMMEDIATE (coupe les autres). À planifier avec les utilisateurs et l'éditeur de l'ERP.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas tempdb qui bloque.",
+      "Non. Rien à voir avec les index."
     ],
     retenir: "Activer RCSI : opération exclusive, à planifier."
   },
@@ -1209,8 +1209,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Risque faible mais réel.",
       "Oui. Du code qui comptait sur un blocage pour se protéger (lire puis écrire) peut maintenant lire une ancienne valeur et créer des incohérences : il doit utiliser UPDLOCK ou faire le calcul dans l'UPDATE.",
-      "Non.",
-      "Non."
+      "Non. Les requêtes continuent de marcher.",
+      "Non. Les index ne sont pas touchés."
     ],
     retenir: "RCSI change le comportement : tester avant."
   },
@@ -1225,7 +1225,7 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque SELECT voit un moment différent.",
       "Oui. En niveau SNAPSHOT, les 5 SELECT de la transaction voient la même photo. Ou calcule le rapport sur une copie figée (entrepôt de données).",
       "Non. Pire.",
       "Non. Pas toujours possible."
@@ -1246,7 +1246,7 @@ LEARNSQL.questions.m11 = [
       "Non. Ce serait plutôt PAGEIOLATCH.",
       "Oui. Problème de blocages : cherche les transactions longues et les requêtes sans bon index.",
       "Non. Ce serait plutôt SOS_SCHEDULER_YIELD.",
-      "Non."
+      "Non. Des attentes de verrous élevées signalent des blocages."
     ],
     retenir: "Attentes LCK_M_* = blocages."
   },
@@ -1261,10 +1261,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les Extended Events sont inclus dans SQL Server.",
       "Oui. Règle « blocked process threshold » à 20 et capture l'événement blocked_process_report (Extended Events) : le rapport donne la requête bloquée et la bloquante, même la nuit.",
-      "Non.",
-      "Non."
+      "Non. NOLOCK cache, il ne mesure pas.",
+      "Non. Impossible la nuit."
     ],
     retenir: "Blocages longs : blocked process report."
   },
@@ -1282,8 +1282,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Oui. Le moteur choisit en priorité la session de priorité basse. Le traitement doit savoir se relancer.",
       "Non. C'est l'inverse.",
-      "Non.",
-      "Non."
+      "Non. NOLOCK ne choisit pas la victime.",
+      "Non. DEADLOCK_PRIORITY le permet."
     ],
     retenir: "DEADLOCK_PRIORITY LOW = je me sacrifie en premier."
   },
@@ -1300,8 +1300,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Les données ne sont pas écrites.",
       "Oui. Dans le CATCH, si ERROR_NUMBER() = 1205, attendre un peu et relancer la transaction (quelques tentatives maximum).",
-      "Non.",
-      "Non."
+      "Non. NOLOCK ne protège pas les écritures.",
+      "Non. On perd la cohérence des données."
     ],
     retenir: "Deadlock = relance automatique (limitée)."
   },
@@ -1316,10 +1316,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chacune garde son verrou S : elles s'attendent.",
       "Oui. Chacune attend que l'autre relâche son S. UPDLOCK à la lecture l'évite : la 2e attend dès la lecture, pas de cycle.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est lu avant validation.",
+      "Non. Une ligne ne peut pas être modifiée par deux sessions à la fois."
     ],
     retenir: "Lire pour modifier : UPDLOCK évite le deadlock de conversion."
   },
@@ -1334,10 +1334,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le scan verrouille beaucoup trop.",
       "Oui. Pour vérifier la clé étrangère, SQL Server parcourt toute la table commande et verrouille beaucoup plus que nécessaire. Un index sur la colonne de FK réduit fortement les verrous.",
-      "Non.",
-      "Non."
+      "Non. Ici, c'est le manque d'index.",
+      "Non. C'est un comportement normal."
     ],
     retenir: "FK sans index = scans + verrous + deadlocks."
   },
@@ -1352,10 +1352,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils choisissent le niveau du verrou.",
       "Oui. Ils demandent un niveau de verrou précis au lieu de laisser SQL Server choisir. À utiliser rarement.",
-      "Non.",
-      "Non."
+      "Non. Ils ne valident rien.",
+      "Non. Ils ne trient rien."
     ],
     retenir: "ROWLOCK / PAGLOCK : forcer la granularité (rarement utile)."
   },
@@ -1370,10 +1370,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. TABLE escalade vers toute la table.",
       "Oui. Les autres partitions restent accessibles. Utile quand un traitement travaille sur un mois pendant que les utilisateurs lisent les autres.",
       "Non. Ce serait DISABLE (et encore, pas totalement).",
-      "Non."
+      "Non. Il réduit la portée du verrou."
     ],
     retenir: "Partition + LOCK_ESCALATION = AUTO : escalade limitée à la partition."
   },
@@ -1390,8 +1390,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. C'est possible par table.",
       "Oui. Des millions de verrous de lignes consomment beaucoup de mémoire : risque pour tout le serveur. Mieux vaut traiter par lots.",
-      "Non.",
-      "Non."
+      "Non. Les transactions restent.",
+      "Non. La mémoire utilisée peut exploser."
     ],
     retenir: "Désactiver l'escalade : en dernier recours."
   },
@@ -1425,10 +1425,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Deux approches opposées.",
       "Oui. Pessimiste : on verrouille avant de modifier (attente). Optimiste : on ne verrouille pas, on vérifie au moment d'écrire que personne n'a changé la donnée (version). Optimiste si conflits rares, pessimiste s'ils sont fréquents.",
-      "Non.",
-      "Non."
+      "Non. NOLOCK n'est pas une gestion des conflits.",
+      "Non. Optimiste = ne pas verrouiller."
     ],
     retenir: "Pessimiste = verrouiller. Optimiste = vérifier la version."
   },
@@ -1445,7 +1445,7 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Possible si le volume est maîtrisé, mais risqué.",
       "Oui. En général par lots : journal plus petit, moins de verrous. Mais il faut alors pouvoir reprendre proprement après une erreur au milieu : c'est un compromis.",
-      "Non.",
+      "Non. Chaque INSERT a quand même sa transaction automatique.",
       "Non. Beaucoup trop lent."
     ],
     retenir: "Gros volumes : lots + reprise possible."
@@ -1463,8 +1463,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Risque de doublons.",
       "Oui. Note dans une table de suivi le dernier lot validé (ex. dernier id traité), dans la même transaction que le lot, et repars de là.",
-      "Non.",
-      "Non."
+      "Non. Impossible, et dangereux.",
+      "Non. NOLOCK ne gère pas la reprise."
     ],
     retenir: "Point de reprise enregistré avec chaque lot."
   },
@@ -1479,10 +1479,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle demande une coordination entre serveurs.",
       "Oui. Plus lente, plus fragile, à éviter si possible. Préfère copier les données puis traiter localement, ou découpler par une file d'échange.",
-      "Non.",
-      "Non."
+      "Non. C'est permis, mais lourd.",
+      "Non. Aucun lien avec NOLOCK."
     ],
     retenir: "Transactions multi-serveurs : à éviter."
   },
@@ -1497,10 +1497,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Même transaction : tout est annulé.",
       "Oui. Le trigger s'exécute dans la même transaction que l'instruction : l'erreur annule tout.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est mis en attente.",
+      "Non. Il n'est pas inséré du tout."
     ],
     retenir: "Trigger = même transaction que l'instruction."
   },
@@ -1515,10 +1515,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La transaction dure plus longtemps.",
       "Oui. Il rallonge la transaction de chaque INSERT / UPDATE. Un trigger doit être court : les traitements lourds se font en différé (file d'attente, traitement planifié).",
-      "Non.",
-      "Non."
+      "Non. Il ne supprime pas de verrou.",
+      "Non. Il ne change pas le niveau d'isolation."
     ],
     retenir: "Triggers courts, sinon transactions longues."
   },
@@ -1533,10 +1533,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le comportement normal.",
       "Oui. TRUNCATE demande un verrou de modification de structure (Sch-M) : même une simple lecture en cours le bloque. Cherche une requête de lecture (ou une transaction ouverte) sur cette table.",
-      "Non.",
-      "Non."
+      "Non. Vide ou pas, il attend le verrou.",
+      "Non. Rien à voir avec les index."
     ],
     retenir: "TRUNCATE / ALTER : verrou Sch-M, bloqué par tout le monde."
   },
@@ -1573,7 +1573,7 @@ LEARNSQL.questions.m11 = [
       "Non. Tu pourrais valider un test.",
       "Oui. Tu avais laissé une transaction ouverte : vérifie son contenu avant de choisir valider ou annuler. Ce message signale aussi que tu bloquais peut-être d'autres utilisateurs.",
       "Non. Pas toujours non plus.",
-      "Non."
+      "Non. Il faut décider : le contenu est peut-être important."
     ],
     retenir: "Ce message = une transaction oubliée."
   },
@@ -1588,10 +1588,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le comportement documenté.",
       "Oui. Le ROLLBACK de la procédure a annulé TOUTE la transaction de l'appelant : le nombre de transactions n'est plus le même qu'avant l'appel.",
-      "Non.",
-      "Non."
+      "Non. L'erreur 266 parle du nombre de transactions.",
+      "Non. Rien à voir avec les droits."
     ],
     retenir: "Erreur 266 = ROLLBACK intérieur qui casse la transaction extérieure."
   },
@@ -1608,8 +1608,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Annule tout.",
       "Oui. Si @@TRANCOUNT > 0 à l'entrée : SAVE TRANSACTION point_proc, et en cas d'erreur ROLLBACK TRANSACTION point_proc. Sinon, elle ouvre sa propre transaction.",
-      "Non.",
-      "Non."
+      "Non. SAVE TRANSACTION le permet.",
+      "Non. Ça validerait un travail incomplet."
     ],
     retenir: "Procédure imbriquée : point de sauvegarde."
   },
@@ -1624,10 +1624,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Requêtes lourdes = verrous et charge.",
       "Oui. Requêtes lourdes = verrous et charge sur l'ERP. Mieux : alimenter un entrepôt (ou une copie de lecture) et y brancher Power BI.",
-      "Non.",
-      "Non."
+      "Non. Des chiffres faux possibles.",
+      "Non. Le besoin métier reste."
     ],
     retenir: "Analyse sur une copie, pas sur l'ERP en direct."
   },
@@ -1642,10 +1642,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas de lecture sale sur le secondaire.",
       "Oui. Les lectures ne bloquent pas la réplication. Les indicateurs de verrou sont ignorés sur le secondaire.",
-      "Non.",
-      "Non."
+      "Non. Les lectures ne bloquent pas la réplication.",
+      "Non. Une lecture a bien une isolation."
     ],
     retenir: "Réplica lisible = SNAPSHOT automatique."
   },
@@ -1662,8 +1662,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Impossible : une écriture pose toujours des verrous exclusifs.",
       "Oui. NOLOCK n'est pas autorisé sur la table cible d'une modification : il ne concerne que les lectures.",
-      "Non.",
-      "Non."
+      "Non. La requête ne s'exécute pas.",
+      "Non. SQL Server refuse, il n'ignore pas."
     ],
     retenir: "NOLOCK : jamais sur la cible d'une écriture."
   },
@@ -1678,10 +1678,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Deux sessions peuvent passer le test en même temps.",
       "Oui. Deux sessions peuvent passer le test en même temps. La vraie garantie est une contrainte UNIQUE en base ; le test reste utile pour un message clair.",
       "Non. Pire.",
-      "Non."
+      "Non. Le risque reste la nuit."
     ],
     retenir: "Unicité garantie = contrainte UNIQUE, pas un SELECT avant."
   },
@@ -1696,10 +1696,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le pire moment.",
       "Oui. Planifie-le hors des heures de saisie, et découpe-le en lots si possible : souvent la solution la plus simple et la plus efficace.",
-      "Non.",
-      "Non."
+      "Non. Des chiffres faux possibles dans l'ERP.",
+      "Non. Impossible, et dangereux."
     ],
     retenir: "Traitements lourds : hors heures de saisie, par lots."
   },
@@ -1735,8 +1735,8 @@ LEARNSQL.questions.m11 = [
     pourquoi: [
       "Non. Elle est très rapide.",
       "Oui. Une valeur prise puis annulée est perdue. Une table compteur dans la même transaction n'en laisse pas (elle est annulée avec la transaction), mais les factures se créent alors une par une.",
-      "Non.",
-      "Non."
+      "Non. Elle compte très bien.",
+      "Non. Elle existe sur les deux moteurs."
     ],
     retenir: "Sans trou = compteur transactionnel. Rapide = SEQUENCE (avec trous)."
   },
@@ -1751,10 +1751,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La requête voit l'état du départ.",
       "Oui. Une requête voit les données telles qu'elles étaient à son démarrage : le résultat ne mélange jamais deux moments.",
-      "Non.",
-      "Non."
+      "Non. Le warehouse ne change rien.",
+      "Non. Elle continue normalement."
     ],
     retenir: "Snowflake : une requête = une photo cohérente."
   },
@@ -1769,10 +1769,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils sont relâchés tout de suite.",
       "Oui. Les sessions en attente peuvent continuer : d'où l'importance de terminer vite ses transactions.",
-      "Non.",
-      "Non."
+      "Non. Un verrou appartient à une transaction.",
+      "Non. Ils sont relâchés."
     ],
     retenir: "Fin de transaction = verrous libérés."
   },
@@ -1787,10 +1787,10 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ces chiffres doivent être justes.",
       "Oui. Ex. ordre de grandeur d'une table de logs, quand un résultat un peu faux est sans conséquence. Jamais pour des chiffres qui servent à décider, facturer ou payer.",
-      "Non.",
-      "Non."
+      "Non. Ces chiffres doivent être justes.",
+      "Non. Ces chiffres doivent être justes."
     ],
     retenir: "NOLOCK : seulement quand l'exactitude n'a pas d'importance."
   },
@@ -1805,9 +1805,9 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Longues = blocages ; NOLOCK = chiffres faux.",
       "Oui. Courtes, même ordre d'accès, gestion d'erreur (XACT_ABORT, TRY/CATCH), pas d'attente humaine dedans, bons index, isolation adaptée. La plupart des blocages viennent d'un oubli de ces règles.",
-      "Non.",
+      "Non. On perd le « tout ou rien ».",
       "Non. Trop de blocages."
     ],
     retenir: "Courtes, ordonnées, protégées, bien indexées."
