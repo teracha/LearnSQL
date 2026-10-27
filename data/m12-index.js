@@ -12,8 +12,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. C'est la table elle-même.",
       "Oui. Les lignes sont rangées selon la clé de l'index. Comme un dictionnaire rangé par ordre alphabétique : le classement EST le livre.",
-      "Non.",
-      "Non."
+      "Non. Un index appartient à une seule table.",
+      "Non. Il est stocké sur disque, comme la table."
     ],
     retenir: "Index cluster = la table rangée selon une clé."
   },
@@ -30,7 +30,7 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Elle peut en avoir un (sinon c'est un « heap »).",
       "Oui. Les lignes ne peuvent être rangées que d'une seule façon.",
-      "Non.",
+      "Non. Les lignes ne peuvent être rangées que d'une façon.",
       "Non. C'est vrai pour les index non cluster (jusqu'à 999)."
     ],
     retenir: "Un seul index cluster par table."
@@ -46,9 +46,9 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un index non cluster est actif.",
       "Oui. Triée sur ses colonnes clés, elle pointe vers les lignes de la table, comme l'index à la fin d'un livre. On cherche dans l'index, puis on va lire la ligne si besoin.",
-      "Non.",
+      "Non. Il a au moins une colonne clé.",
       "Non. C'est l'index cluster."
     ],
     retenir: "Non cluster = annuaire à part, avec des renvois."
@@ -64,10 +64,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un heap n'a justement pas d'index cluster.",
       "Oui. Les lignes sont stockées sans ordre. Correct pour du chargement en masse ; pour une table métier souvent lue, on préfère un index cluster.",
-      "Non.",
-      "Non."
+      "Non. Un heap est une table normale.",
+      "Non. Une vue n'est pas un heap."
     ],
     retenir: "Heap = table sans index cluster."
   },
@@ -82,10 +82,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une clé longue alourdit tous les index ; aléatoire, elle fragmente.",
       "Oui. Ex. id IDENTITY. La clé cluster est recopiée dans tous les index non cluster : elle doit être petite.",
-      "Non.",
-      "Non."
+      "Non. Un texte est large et peut changer.",
+      "Non. Une clé cluster doit être stable et non NULL."
     ],
     retenir: "Clé cluster : étroite, unique, stable, croissante."
   },
@@ -100,10 +100,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle est copiée dans chaque index non cluster.",
       "Oui. Chaque index non cluster contient la clé cluster comme « adresse » de la ligne. Clé de 4 octets vs 120 octets : énorme différence sur des millions de lignes.",
-      "Non.",
-      "Non."
+      "Non. Ils restent actifs.",
+      "Non. L'ordre n'est pas le problème : c'est la taille."
     ],
     retenir: "La clé cluster voyage dans chaque index non cluster."
   },
@@ -118,10 +118,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils lisent des quantités très différentes.",
       "Oui. Seek : accès direct aux lignes voulues. Scan : parcours de tout l'index (ou d'une grande partie). Comme chercher un mot dans un dictionnaire, ou le lire en entier.",
-      "Non.",
-      "Non."
+      "Non. Pas toujours : ça dépend du nombre de lignes voulues.",
+      "Non. C'est l'inverse."
     ],
     retenir: "Seek = accès direct. Scan = lecture complète."
   },
@@ -136,10 +136,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pour beaucoup de lignes, un scan est souvent meilleur.",
       "Oui. Pour une petite table, ou quand on veut une grande partie des lignes, un scan est souvent plus rapide que des seeks + lookups.",
-      "Non.",
-      "Non."
+      "Non. L'heure ne change rien.",
+      "Non. IDENTITY ne change rien."
     ],
     retenir: "Scan ≠ problème. Scan inattendu sur peu de lignes = problème."
   },
@@ -154,10 +154,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une lecture de colonnes manquantes.",
       "Oui. Après un seek dans un index non cluster, on va chercher les colonnes manquantes dans l'index cluster. Un lookup par ligne trouvée : coûteux s'il y en a beaucoup.",
       "Non. Même s'il apparaît avec une boucle (Nested Loops).",
-      "Non."
+      "Non. Il ne trie rien."
     ],
     retenir: "Key Lookup = colonnes manquantes dans l'index."
   },
@@ -191,10 +191,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La clé est triée et sert à chercher ; INCLUDE non.",
       "Oui. La clé est triée et sert à chercher / trier. INCLUDE est seulement stocké en bout d'index pour éviter les lookups. Filtre et tri → clé ; colonnes affichées → INCLUDE.",
-      "Non.",
-      "Non."
+      "Non. C'est l'inverse.",
+      "Non. INCLUDE est permis."
     ],
     retenir: "Clé = chercher/trier. INCLUDE = transporter."
   },
@@ -209,10 +209,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un index couvrant devrait contenir toutes les colonnes.",
       "Oui. SELECT * demande TOUTES les colonnes : aucun index non cluster ne les contient toutes, donc lookups ou scan. Demande seulement les colonnes utiles.",
-      "Non.",
-      "Non."
+      "Non. Les index restent actifs.",
+      "Non. SELECT * ne trie rien."
     ],
     retenir: "SELECT * = pas d'index couvrant."
   },
@@ -249,8 +249,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. La plage sur date_cde d'abord empêche de chercher efficacement sur statut.",
       "Oui. Égalité d'abord, puis plage : le seek va directement au bon endroit.",
-      "Non.",
-      "Non."
+      "Non. montant n'est pas dans le filtre.",
+      "Non. L'ordre des colonnes compte beaucoup."
     ],
     retenir: "Colonnes d'égalité d'abord, colonne de plage ensuite."
   },
@@ -267,8 +267,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Ce n'est pas la fonction elle-même qui est lente.",
       "Oui. SQL Server doit calculer YEAR pour chaque ligne. Écris date_cde >= '20260101' AND date_cde < '20270101'.",
-      "Non.",
-      "Non."
+      "Non. Une colonne date peut être indexée.",
+      "Non. La fonction empêche vraiment le seek."
     ],
     retenir: "Fonction sur la colonne = pas de seek."
   },
@@ -283,10 +283,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un vrai problème : l'index devient peu utile.",
       "Oui. SQL Server convertit la colonne pour la comparer à une valeur d'un autre type. Aligne le type de la valeur ou du paramètre sur celui de la colonne.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec le nombre de lignes.",
+      "Non. ORDER BY n'a rien à voir."
     ],
     retenir: "CONVERT_IMPLICIT sur une colonne = types à aligner."
   },
@@ -301,10 +301,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. <> est permis.",
       "Oui. « Différent de » correspond souvent à presque toute la table : un scan est plus efficace. Si possible, filtre sur les valeurs voulues (IN ('OUVERT', 'EN_COURS')), ou utilise un index filtré.",
-      "Non.",
-      "Non."
+      "Non. Une colonne texte peut être indexée.",
+      "Non. Le moteur choisit souvent un scan."
     ],
     retenir: "<> et NOT : souvent un scan."
   },
@@ -319,10 +319,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une proportion de lignes.",
       "Oui. Peu de lignes = très sélectif = index très utile. Un filtre sur le numéro de commande est très sélectif ; sur le pays 'FR' (90 % des lignes), pas du tout.",
-      "Non.",
-      "Non."
+      "Non. Un seul filtre peut être très sélectif.",
+      "Non. La longueur du texte ne compte pas."
     ],
     retenir: "Index utile = filtre sélectif."
   },
@@ -337,10 +337,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le filtre garde 99 % des lignes.",
       "Oui. Un scan est plus efficace. L'index serait utile pour WHERE actif = 0 (1 %), et un index filtré … WHERE actif = 0 encore mieux.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est obligatoire.",
+      "Non. C'est permis."
     ],
     retenir: "Index sur une valeur très fréquente = peu utile."
   },
@@ -355,10 +355,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le WHERE qui filtre l'affichage.",
       "Oui. Plus petit, il ne contient que les commandes ouvertes : rapide pour les requêtes qui ciblent ces lignes. Idéal quand on interroge souvent une petite partie d'une grosse table.",
-      "Non.",
-      "Non."
+      "Non. Un index ne supprime aucune ligne.",
+      "Non. Il ne contient que les commandes ouvertes."
     ],
     retenir: "Index filtré = index sur un sous-ensemble utile."
   },
@@ -373,10 +373,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le plan ne connaît pas la valeur de @statut.",
       "Oui. Au moment du plan, SQL Server ne sait pas que @statut vaudra 'OUVERT'. Piège des index filtrés : écris la valeur en dur, ou OPTION (RECOMPILE).",
-      "Non.",
-      "Non."
+      "Non. Le type ne change rien.",
+      "Non. Un paramètre est permis."
     ],
     retenir: "Index filtré + paramètre = souvent ignoré."
   },
@@ -393,9 +393,9 @@ LEARNSQL.questions.m12 = [
     bonne: 0,
     pourquoi: [
       "Oui. Onglet Messages : « lectures logiques » par table. Moins = mieux. (STATISTICS TIME donne le CPU et la durée.)",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Ça compte les lignes, pas les pages.",
+      "Non. sp_help décrit la table.",
+      "Non. Ça masque le message « n lignes »."
     ],
     retenir: "STATISTICS IO : les lectures logiques, la vraie mesure."
   },
@@ -410,10 +410,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle se mesure, mais elle varie.",
       "Oui. La durée dépend du cache, de la charge et du réseau ; les lectures logiques sont stables pour une même requête et des mêmes données.",
-      "Non.",
-      "Non."
+      "Non. La raison est la stabilité.",
+      "Non. Rien n'est obligatoire."
     ],
     retenir: "Optimiser = réduire les lectures logiques."
   },
@@ -428,10 +428,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le réel ajoute les vrais nombres de lignes.",
       "Oui. L'estimé est calculé sans exécuter ; le réel donne le nombre de lignes réellement traitées. Comparer lignes estimées et lignes réelles révèle les problèmes d'estimation.",
-      "Non.",
-      "Non."
+      "Non. Le réel est le plus fiable.",
+      "Non. C'est l'inverse."
     ],
     retenir: "Plan réel : estimées vs réelles = diagnostic."
   },
@@ -446,10 +446,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un écart énorme fausse le plan.",
       "Oui. Statistiques périmées, parameter sniffing, variable table, fonction… L'optimiseur a choisi une stratégie pour 1 ligne (ex. boucles) : catastrophique pour 2 millions.",
-      "Non.",
-      "Non."
+      "Non. Les chiffres sont réels.",
+      "Non. Un index en trop ne crée pas cet écart."
     ],
     retenir: "Écart énorme estimé / réel = cause n°1 des plans lents."
   },
@@ -464,10 +464,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les données partent de droite.",
       "Oui. Les données partent des tables à droite et remontent vers le SELECT à gauche (et de haut en bas). L'épaisseur des flèches indique le nombre de lignes.",
-      "Non.",
-      "Non."
+      "Non. Le sens est de droite à gauche.",
+      "Non. Le sens compte pour comprendre le plan."
     ],
     retenir: "Plan : de droite à gauche, flèches épaisses = beaucoup de lignes."
   },
@@ -485,7 +485,7 @@ LEARNSQL.questions.m12 = [
       "Non. Les suggestions sont souvent redondantes ou trop larges.",
       "Oui. Vérifie les index existants (doublons), l'ordre des colonnes, le coût en écriture, puis décide. Une suggestion ne voit qu'une requête, pas toute la charge.",
       "Non. Elle peut être très utile.",
-      "Non."
+      "Non. Une suggestion d'index ne demande pas ça."
     ],
     retenir: "Index manquant suggéré = piste, pas ordre."
   },
@@ -500,10 +500,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça n'a rien à voir avec les connexions.",
       "Oui. Un résumé de la répartition des valeurs, qui permet à l'optimiseur d'estimer le nombre de lignes. Bonnes statistiques = bonnes estimations = bons plans.",
-      "Non.",
-      "Non."
+      "Non. Ça décrit les données, pas les temps.",
+      "Non. Ça n'a rien à voir avec les droits."
     ],
     retenir: "Statistiques = carte des données pour l'optimiseur."
   },
@@ -537,10 +537,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les estimations deviennent fausses.",
       "Oui. Une requête sur les dernières dates est estimée à presque 0 ligne alors qu'il y en a beaucoup : plan inadapté. Mets à jour les statistiques après chargement (les versions récentes de l'estimateur gèrent mieux ce cas).",
-      "Non.",
-      "Non."
+      "Non. Les données sont bien là.",
+      "Non. Aucune erreur, juste un mauvais plan."
     ],
     retenir: "Données récentes hors statistiques = sous-estimation."
   },
@@ -555,10 +555,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Rien à voir avec la sécurité.",
       "Oui. SQL Server construit le plan d'une procédure avec les valeurs du 1er appel, puis le réutilise. Excellent en général ; mauvais si les valeurs sont très différentes (petit client vs énorme client).",
-      "Non.",
-      "Non."
+      "Non. Le type est juste.",
+      "Non. Ce n'est pas un index."
     ],
     retenir: "Plan calculé au 1er appel, réutilisé ensuite."
   },
@@ -573,10 +573,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le serveur ne se fatigue pas.",
       "Oui. Le plan a été recompilé avec un paramètre atypique et ne convient pas aux appels suivants. Vérifie dans Query Store si le plan a changé.",
-      "Non.",
-      "Non."
+      "Non. Les index ne disparaissent pas seuls.",
+      "Non. C'est un comportement connu."
     ],
     retenir: "Lenteur intermittente = pense au plan qui change."
   },
@@ -591,10 +591,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. NOLOCK ne change pas le plan.",
       "Oui. OPTION (RECOMPILE), OPTIMIZE FOR, forcer un bon plan avec Query Store, ou réécrire / séparer les cas. RECOMPILE coûte du CPU à chaque appel.",
-      "Non.",
-      "Non."
+      "Non. Lourd, et ça ne règle pas la cause.",
+      "Non. La RAM ne corrige pas un mauvais plan."
     ],
     retenir: "Sniffing : RECOMPILE, OPTIMIZE FOR, Query Store."
   },
@@ -609,10 +609,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'estimation devient moyenne.",
       "Oui. SQL Server ne connaît pas la valeur d'une variable locale au moment du plan. Parfois utilisé exprès contre le sniffing, mais l'estimation devient « moyenne » pour tout le monde.",
       "Non. Sauf avec OPTION (RECOMPILE).",
-      "Non."
+      "Non. C'est valide."
     ],
     retenir: "Variable locale = estimation moyenne."
   },
@@ -627,10 +627,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il enregistre les plans et leurs performances.",
       "Oui. Il enregistre les requêtes, leurs plans et leurs performances : on voit quand un plan a changé et on peut forcer l'ancien. L'outil n°1 pour « c'était rapide hier ».",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas une sauvegarde.",
+      "Non. Il ne crée pas d'index."
     ],
     retenir: "Query Store = boîte noire des performances."
   },
@@ -645,10 +645,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les outils du serveur donnent les chiffres.",
       "Oui. Query Store (requêtes les plus consommatrices) ou sys.dm_exec_query_stats trié par total_worker_time. On optimise d'abord ce qui coûte le plus au total.",
-      "Non.",
-      "Non."
+      "Non. sp_help décrit une table.",
+      "Non. Ça donne la version."
     ],
     retenir: "Optimiser les plus gros consommateurs d'abord."
   },
@@ -682,10 +682,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il coûte à chaque écriture sans rien apporter.",
       "Oui. Il coûte à chaque écriture sans jamais aider une lecture. Vérifie qu'il ne sert pas à une contrainte (UNIQUE) ou à un traitement rare (clôture annuelle).",
-      "Non.",
-      "Non."
+      "Non. Doubler le problème.",
+      "Non. Il est inutile : le reconstruire coûte pour rien."
     ],
     retenir: "Index jamais lu mais souvent écrit = candidat à la suppression."
   },
@@ -700,10 +700,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. B sert déjà aux mêmes recherches.",
       "Oui. B commence par client_id et peut servir aux mêmes recherches. Doublons d'index = coût d'écriture et d'espace pour rien (sauf cas particuliers : unicité, taille).",
-      "Non.",
-      "Non."
+      "Non. Un 3e index ajoute du coût.",
+      "Non. B sert plus de requêtes que A."
     ],
     retenir: "Un index dont la clé est le début d'un autre = souvent redondant."
   },
@@ -718,10 +718,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque index ralentit les écritures.",
       "Oui. Chaque index ralentit INSERT / UPDATE / DELETE et prend de la place ; des index sur une seule colonne servent rarement aux vraies requêtes.",
-      "Non.",
-      "Non."
+      "Non. C'est permis, mais mauvais.",
+      "Non. L'index cluster reste."
     ],
     retenir: "Index sur mesure, pas « au cas où »."
   },
@@ -736,10 +736,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un index peut fournir l'ordre.",
       "Oui. Si un index a date_cde en clé, SQL Server lit les lignes déjà triées : pas d'opérateur Sort. Un index peut être lu dans les deux sens. Très utile avec TOP (n).",
-      "Non.",
-      "Non."
+      "Non. DISTINCT ajoute un tri ou un hachage.",
+      "Non. NOLOCK ne change pas l'ordre."
     ],
     retenir: "Index sur la colonne de tri = pas de Sort."
   },
@@ -754,10 +754,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Avec l'index, on lit 10 lignes ; sans, tout.",
       "Oui. Avec l'index, on lit les 10 premières entrées et on s'arrête. Sans, il faut tout lire et tout trier pour trouver les 10 plus récentes.",
-      "Non.",
-      "Non."
+      "Non. TOP n'est pas lent ; c'est le tri complet.",
+      "Non. Un index se lit dans les deux sens."
     ],
     retenir: "TOP + ORDER BY + index = lecture minimale."
   },
@@ -774,8 +774,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. C'est une jointure.",
       "Oui. Agrégat sur des données déjà triées : les lignes arrivent groupées dans l'ordre, pas besoin de table de hachage.",
-      "Non.",
-      "Non."
+      "Non. Un lookup n'agrège pas.",
+      "Non. Un spool n'agrège pas."
     ],
     retenir: "Données triées sur la clé de GROUP BY = Stream Aggregate."
   },
@@ -790,10 +790,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un ralentissement réel.",
       "Oui. La mémoire accordée n'a pas suffi : SQL Server a dû écrire dans tempdb, beaucoup plus lent. Souvent dû à une sous-estimation du nombre de lignes.",
-      "Non.",
-      "Non."
+      "Non. tempdb n'est pas plein.",
+      "Non. ORDER BY ne règle rien ici."
     ],
     retenir: "Spill = mémoire insuffisante, souvent à cause d'une mauvaise estimation."
   },
@@ -808,10 +808,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il fonctionne, mais moins bien.",
       "Oui. Après beaucoup d'insertions / suppressions, les pages ne sont plus dans l'ordre physique ou sont peu remplies. Effet surtout sur les gros scans ; peu sur les seeks.",
-      "Non.",
-      "Non."
+      "Non. Un index appartient à une table.",
+      "Non. Il existe toujours."
     ],
     retenir: "Fragmentation = pages en désordre ou peu remplies."
   },
@@ -826,10 +826,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Coûteux et inutile.",
       "Oui. Entre ~5 et 30 % : REORGANIZE ; au-delà de ~30 % : REBUILD (seuils indicatifs). Sur des disques rapides, mettre à jour les statistiques est souvent plus important.",
-      "Non.",
-      "Non."
+      "Non. Les gros scans en souffrent.",
+      "Non. On perdrait leur aide."
     ],
     retenir: "REORGANIZE (léger) / REBUILD (complet)."
   },
@@ -844,10 +844,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. REBUILD recalcule aussi les statistiques.",
       "Oui. Avec un échantillon complet. Parfois, l'amélioration ressentie après un REBUILD vient surtout des statistiques mises à jour.",
-      "Non.",
-      "Non."
+      "Non. Il ne touche pas aux données.",
+      "Non. Il reconstruit l'index, pas la table."
     ],
     retenir: "REBUILD = défragmentation + statistiques fraîches."
   },
@@ -862,10 +862,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas de limite de lignes.",
       "Oui. Pour les futures insertions, et limiter les divisions de pages. Utile pour les index où l'on insère « au milieu » ; inutile pour une clé croissante.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas une compression.",
+      "Non. Il ne trie rien."
     ],
     retenir: "FILLFACTOR = espace libre réservé dans les pages."
   },
@@ -880,10 +880,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle fait 16 octets.",
       "Oui. Chaque nouvelle ligne s'insère à un endroit aléatoire : divisions de pages permanentes. Une clé croissante ajoute toujours à la fin.",
-      "Non.",
-      "Non."
+      "Non. Elle est unique.",
+      "Non. UNIQUEIDENTIFIER n'est pas un texte."
     ],
     retenir: "Clé aléatoire = fragmentation."
   },
@@ -916,10 +916,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Coûteux, et peu utile pour des agrégats.",
       "Oui. Stockage par colonnes, compression forte, traitement par lots : idéal pour l'analyse.",
-      "Non.",
-      "Non."
+      "Non. Chaque requête lirait tout en ligne à ligne.",
+      "Non. L'id n'aide pas les agrégats."
     ],
     retenir: "Analyse sur gros volume : columnstore."
   },
@@ -934,10 +934,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Fait pour parcourir beaucoup de lignes.",
       "Oui. Le columnstore est fait pour parcourir beaucoup de lignes. Pour des accès ponctuels, un index classique (rowstore) est meilleur. Saisie / consultation unitaire = rowstore ; analyse = columnstore.",
-      "Non.",
-      "Non."
+      "Non. La taille n'est pas le critère.",
+      "Non. Il est excellent pour l'analyse."
     ],
     retenir: "Rowstore pour l'unitaire, columnstore pour l'analytique."
   },
@@ -952,10 +952,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il stocke par colonnes, pour l'analyse.",
       "Oui. Faire des analyses rapides directement sur la table opérationnelle, tout en gardant l'index classique pour la saisie. Coût : un peu plus de travail à chaque écriture.",
-      "Non.",
-      "Non."
+      "Non. L'ERP reste en place.",
+      "Non. Les verrous restent."
     ],
     retenir: "Columnstore non cluster = analyse sur une table opérationnelle."
   },
@@ -970,9 +970,9 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une colonne calculée indexée le permet.",
       "Oui. Ajoute prefixe AS LEFT(code, 3) PERSISTED et indexe-la : SQL Server peut faire correspondre l'expression de la requête à la colonne calculée indexée.",
-      "Non.",
+      "Non. NOLOCK ne change pas le plan.",
       "Non. La fonction autour de code empêche le seek."
     ],
     retenir: "Fonction incontournable dans un filtre : colonne calculée indexée."
@@ -990,8 +990,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Recalculée à chaque lecture.",
       "Oui. Le résultat agrégé est stocké et maintenu à chaque modification (coût en écriture).",
-      "Non.",
-      "Non."
+      "Non. Une CTE est recalculée à chaque fois.",
+      "Non. Elle disparaît après la requête."
     ],
     retenir: "Agrégat lu très souvent : vue indexée (ou table de synthèse)."
   },
@@ -1008,8 +1008,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Le % au début empêche le seek.",
       "Oui. Index full-text et CONTAINS : index de mots, recherche rapide, formes de mots…",
-      "Non.",
-      "Non."
+      "Non. Le % au début empêche toujours le seek.",
+      "Non. NOLOCK ne rend pas la recherche plus rapide."
     ],
     retenir: "Recherche de mots : full-text, pas LIKE '%…%'."
   },
@@ -1024,10 +1024,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'autre côté du OR n'a pas d'index.",
       "Oui. Pour un OR, chaque côté doit pouvoir utiliser un index ; sinon, un scan est inévitable. (Puis éventuellement réécrire en UNION.)",
-      "Non.",
-      "Non."
+      "Non. montant n'est pas filtré.",
+      "Non. On perdrait le seek côté client."
     ],
     retenir: "OR : chaque condition doit avoir son index."
   },
@@ -1042,10 +1042,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle s'exécute une fois par ligne.",
       "Oui. Comme une boucle, et elle empêche le parallélisme. SQL Server 2019 sait « intégrer » certaines fonctions. Sinon : réécrire en jointure ou en fonction table inline.",
-      "Non.",
-      "Non."
+      "Non. Elle ne verrouille pas tout.",
+      "Non. Les index restent."
     ],
     retenir: "Fonction scalaire = exécution ligne par ligne."
   },
@@ -1060,10 +1060,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle est permise.",
       "Oui. L'optimiseur utilise une estimation fixe (1 ou 100 lignes). Préfère une fonction table inline (un seul RETURN SELECT), traitée comme une vue.",
-      "Non.",
-      "Non."
+      "Non. Elle ne trie rien.",
+      "Non. Ses colonnes sont typées."
     ],
     retenir: "Fonction table : inline plutôt que multi-instructions."
   },
@@ -1080,8 +1080,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. C'est MAXDOP = 1.",
       "Oui. Avec 5, beaucoup de petites requêtes passent en parallèle inutilement : surcoût et contention. Le parallélisme est réservé aux requêtes vraiment lourdes.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec les sauvegardes.",
+      "Non. Ce n'est pas un réglage de mémoire."
     ],
     retenir: "Seuil de parallélisme par défaut trop bas."
   },
@@ -1098,8 +1098,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Couper le parallélisme peut ralentir les gros traitements.",
       "Oui. Elles traduisent l'activité parallèle : ce sont les requêtes lourdes derrière qu'il faut examiner (souvent mieux indexables).",
-      "Non.",
-      "Non."
+      "Non. Ça ne règle rien.",
+      "Non. Ça concerne le parallélisme."
     ],
     retenir: "CXPACKET = symptôme du parallélisme, pas une cause."
   },
@@ -1114,10 +1114,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce serait PAGEIOLATCH.",
       "Oui. De la mémoire pour trier ou hacher : souvent des requêtes qui en demandent trop à cause de mauvaises estimations. Corriger les estimations et les tris inutiles réduit ces demandes.",
-      "Non.",
-      "Non."
+      "Non. Ce serait LCK_M_*.",
+      "Non. Ce serait ASYNC_NETWORK_IO."
     ],
     retenir: "RESOURCE_SEMAPHORE = attente de mémoire de travail."
   },
@@ -1132,10 +1132,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un plan par valeur remplit le cache.",
       "Oui. Le cache se remplit de plans à usage unique, et chaque requête est compilée. Paramètre les requêtes ; l'option « optimize for ad hoc workloads » limite les dégâts.",
       "Non. Sauf cas simples.",
-      "Non."
+      "Non. Elles s'exécutent."
     ],
     retenir: "Requêtes paramétrées = plans réutilisés."
   },
@@ -1150,10 +1150,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Plan réutilisé et pas d'injection.",
       "Oui. Le plan est réutilisé (même texte, valeurs en paramètres) ET on évite l'injection SQL : performance et sécurité.",
-      "Non.",
-      "Non."
+      "Non. EXEC est permis.",
+      "Non. Il est plus long, mais plus sûr."
     ],
     retenir: "SQL dynamique : sp_executesql + paramètres."
   },
@@ -1168,10 +1168,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le plan change : estimation moyenne.",
       "Oui. Le plan n'est pas construit pour la valeur du 1er appel : stable, mais pas optimal pour les valeurs extrêmes.",
       "Non. Ce serait RECOMPILE.",
-      "Non."
+      "Non. Les index restent."
     ],
     retenir: "OPTIMIZE FOR UNKNOWN = plan moyen et stable."
   },
@@ -1186,10 +1186,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On perd le cache, sans rien corriger.",
       "Oui. Correctif immédiat, réversible. Ensuite, cherche la cause à froid : statistiques, index, réécriture.",
-      "Non.",
-      "Non."
+      "Non. Trop risqué.",
+      "Non. NOLOCK ne change pas le plan."
     ],
     retenir: "Régression de plan : forcer le bon plan (Query Store)."
   },
@@ -1204,10 +1204,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le nouvel estimateur change des plans.",
       "Oui. Le niveau de compatibilité change l'estimateur de cardinalité : certains plans changent. Query Store aide à comparer et corriger ; active-le avant de monter le niveau.",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec le réseau.",
+      "Non. C'est un effet connu."
     ],
     retenir: "Montée de compatibilité = plans qui peuvent changer."
   },
@@ -1222,10 +1222,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il ne simplifie pas toujours.",
       "Oui. Plans très complexes, jointures inutiles ramenées des vues intermédiaires, estimations difficiles. Pour un rapport critique, une requête directe sur les tables est souvent bien plus rapide.",
-      "Non.",
-      "Non."
+      "Non. Une vue n'est pas mise en cache.",
+      "Non. Une vue n'est indexée que si on le demande."
     ],
     retenir: "Vues imbriquées = plans lourds."
   },
@@ -1242,8 +1242,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Ce serait LCK_M_*.",
       "Oui. Le serveur attend de lire des pages sur disque : trop de lectures (index manquants, scans) ou pas assez de mémoire. Réduire les lectures est souvent plus efficace qu'acheter du disque.",
-      "Non.",
-      "Non."
+      "Non. Ce serait ASYNC_NETWORK_IO.",
+      "Non. Ce serait CXPACKET."
     ],
     retenir: "PAGEIOLATCH = lectures disque."
   },
@@ -1258,10 +1258,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le cache.",
       "Oui. À la 2e exécution, les pages sont en cache : plus de lectures disque. Compare toujours à « cache chaud » ou « cache froid » de façon cohérente.",
-      "Non.",
-      "Non."
+      "Non. Rien n'a été créé.",
+      "Non. Le serveur garde les pages en mémoire."
     ],
     retenir: "1re exécution lente, 2e rapide = cache."
   },
@@ -1276,10 +1276,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. En production, tout le monde ralentit.",
       "Oui. En production, tout le monde subirait des lectures disque massives. Utile pour mesurer à « cache froid », mais pas en production.",
-      "Non.",
-      "Non."
+      "Non. Elle est permise.",
+      "Non. Le jour ne change rien."
     ],
     retenir: "Vider le cache : test uniquement."
   },
@@ -1294,10 +1294,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Plus de pages et de mémoire.",
       "Oui. Plus d'octets par ligne = moins de lignes par page = plus de pages à lire, et plus de mémoire réservée pour les tris (estimée sur la taille déclarée).",
-      "Non.",
-      "Non."
+      "Non. Les INSERT marchent.",
+      "Non. Rien à voir avec les doublons."
     ],
     retenir: "Types justes = moins de lectures, moins de mémoire."
   },
@@ -1312,10 +1312,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un comportement normal.",
       "Oui. SQL Server les a créées sur des colonnes filtrées sans index, pour mieux estimer : c'est l'option AUTO_CREATE_STATISTICS, activée par défaut.",
-      "Non.",
-      "Non."
+      "Non. Elles sont créées par le moteur.",
+      "Non. Elles viennent des filtres."
     ],
     retenir: "_WA_Sys_ = statistiques automatiques."
   },
@@ -1330,10 +1330,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il suppose les colonnes indépendantes.",
       "Oui. L'optimiseur suppose les colonnes plutôt indépendantes et multiplie à peu près les probabilités : le résultat est trop petit. Des statistiques multi-colonnes peuvent aider.",
-      "Non.",
-      "Non."
+      "Non. Les textes ont des statistiques.",
+      "Non. NOLOCK ne change pas l'estimation."
     ],
     retenir: "Colonnes corrélées = estimations faussées."
   },
@@ -1348,10 +1348,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pour des données inégales, l'échantillon peut tromper.",
       "Oui. Données très inégalement réparties : on lit toutes les lignes. Plus long à calculer, mais plus précis.",
-      "Non.",
-      "Non."
+      "Non. Beaucoup trop coûteux.",
+      "Non. Il les recalcule."
     ],
     retenir: "FULLSCAN = statistiques précises, plus longues à calculer."
   },
@@ -1366,10 +1366,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La mise à jour est automatique.",
       "Oui. Après un nombre de modifications qui diminue en proportion quand la table grossit (seuil dynamique), lors de la requête suivante. Avant, il fallait 20 % de lignes modifiées.",
-      "Non.",
-      "Non."
+      "Non. Pas selon l'heure.",
+      "Non. Beaucoup trop coûteux."
     ],
     retenir: "Mise à jour auto : seuil dynamique, mais pas instantanée."
   },
@@ -1384,10 +1384,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il y a une limite de taille.",
       "Oui. 1 700 octets pour un non cluster (900 pour un cluster) : 2 000 caractères Unicode peuvent dépasser. Une telle colonne peut aller en INCLUDE.",
-      "Non.",
-      "Non."
+      "Non. Un texte court est permis.",
+      "Non. Un INCLUDE suffit."
     ],
     retenir: "Clé d'index : taille limitée."
   },
@@ -1402,10 +1402,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est permis en INCLUDE.",
       "Oui. Mais cela peut beaucoup grossir l'index : à faire seulement si c'est vraiment utile.",
-      "Non.",
-      "Non."
+      "Non. Le contenu ne change rien.",
+      "Non. C'est permis en index classique."
     ],
     retenir: "MAX : en INCLUDE possible, jamais en clé."
   },
@@ -1420,10 +1420,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il sait qu'une égalité = 1 ligne.",
       "Oui. Estimations exactes et plans plus simples. En plus, l'unicité protège les données.",
       "Non. Plutôt l'inverse (vérification).",
-      "Non."
+      "Non. Les statistiques restent."
     ],
     retenir: "Ce qui est unique doit être déclaré unique."
   },
@@ -1438,10 +1438,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il sait que 'DE' est impossible.",
       "Oui. Il comprend que c'est impossible. Les contraintes fiables (trusted) servent aussi à l'optimisation : encore une raison de les réactiver WITH CHECK.",
-      "Non.",
-      "Non."
+      "Non. Un SELECT ne viole pas un CHECK.",
+      "Non. L'optimiseur ne crée pas d'index."
     ],
     retenir: "Contraintes fiables = informations pour l'optimiseur."
   },
@@ -1458,8 +1458,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Seulement si le filtre ne porte pas sur la clé de partition.",
       "Oui. C'est l'élimination de partitions, à condition de filtrer directement sur la colonne de partition (sans fonction).",
-      "Non.",
-      "Non."
+      "Non. Le filtre est valide.",
+      "Non. Il lit, il ne fusionne rien."
     ],
     retenir: "Filtrer sur la clé de partition = partitions ignorées."
   },
@@ -1474,10 +1474,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce ne sont pas des doublons.",
       "Oui. Devenues trop grandes, elles sont déplacées ailleurs avec un pointeur à l'ancienne place : lectures en plus. Solution : ALTER TABLE … REBUILD, ou un index cluster.",
-      "Non.",
-      "Non."
+      "Non. Ce ne sont pas des lignes supprimées.",
+      "Non. Rien à voir avec les index."
     ],
     retenir: "Heap + UPDATE = forwarded records."
   },
@@ -1492,10 +1492,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le comportement normal d'un heap.",
       "Oui. Sur un heap, les pages vidées ne sont pas toujours libérées (sauf DELETE avec TABLOCK ou reconstruction). Les scans continuent de les lire.",
-      "Non.",
-      "Non."
+      "Non. Elles sont bien supprimées.",
+      "Non. Il a réussi."
     ],
     retenir: "Heap vidé par DELETE : pages parfois conservées."
   },
@@ -1510,10 +1510,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Mémoire ou disque.",
       "Oui. Logiques : pages lues (en mémoire). Physiques : pages qu'il a fallu chercher sur le disque. On optimise les logiques ; les physiques dépendent du cache.",
-      "Non.",
-      "Non."
+      "Non. Le réseau n'est pas compté.",
+      "Non. Ce ne sont pas des erreurs."
     ],
     retenir: "Logiques = travail. Physiques = disque."
   },
@@ -1528,10 +1528,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une unité interne.",
       "Oui. Une unité de l'optimiseur pour comparer des plans, basée sur des estimations. Avec de mauvaises estimations, ce coût est faux aussi : mesure le réel (IO, temps).",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas un temps.",
+      "Non. Ce n'est pas un nombre de pages."
     ],
     retenir: "Coût estimé ≠ temps réel."
   },
@@ -1548,8 +1548,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Un seek peut lire énormément.",
       "Oui. Le seek ne trouve que sur client_id ; statut est un prédicat résiduel. Ajouter statut dans la clé aiderait. Regarde toujours « lignes lues » vs « lignes renvoyées ».",
-      "Non.",
-      "Non."
+      "Non. L'index marche ; il lui manque statut.",
+      "Non. NOLOCK ne change pas le seek."
     ],
     retenir: "Seek ≠ efficace : vérifier le prédicat résiduel."
   },
@@ -1564,10 +1564,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un choix voulu.",
       "Oui. Au-delà d'un certain nombre de lignes, des milliers de lookups coûtent plus cher qu'un scan (« point de bascule »). Avec un index couvrant, le seek redevient intéressant.",
-      "Non.",
-      "Non."
+      "Non. Il est actif.",
+      "Non. Les statistiques sont bonnes : 30 %."
     ],
     retenir: "Trop de lookups = scan préféré. Solution : couvrir."
   },
@@ -1582,10 +1582,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il trie ou hache tout le résultat.",
       "Oui. De tout le résultat, pour trouver les doublons. Inutile si les lignes sont déjà uniques ; et il cache souvent un problème de jointure.",
-      "Non.",
-      "Non."
+      "Non. Les index restent.",
+      "Non. Il ne verrouille pas plus."
     ],
     retenir: "DISTINCT = tri ou hachage. Pas « par sécurité »."
   },
@@ -1603,7 +1603,7 @@ LEARNSQL.questions.m12 = [
       "Non. Un seul plan pour toutes les combinaisons : souvent mauvais.",
       "Oui. On construit uniquement les conditions remplies, avec sp_executesql et des paramètres (ou OPTION (RECOMPILE)) : chaque combinaison a son plan adapté, sans injection.",
       "Non. Ingérable (1 024 combinaisons).",
-      "Non."
+      "Non. NOLOCK ne donne pas de meilleur plan."
     ],
     retenir: "Recherche multicritère : SQL dynamique paramétré."
   },
@@ -1618,10 +1618,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Plus de place et plus d'écritures.",
       "Oui. Espace, mémoire et coût d'écriture doublés. Un index sert des requêtes précises : si toutes les colonnes sont utiles, repense l'index cluster.",
-      "Non.",
-      "Non."
+      "Non. C'est l'inverse.",
+      "Non. Il n'y a pas de limite à 10."
     ],
     retenir: "Index trop larges = table dupliquée."
   },
@@ -1636,10 +1636,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Écritures lentes, peu d'utilité.",
       "Oui. Les requêtes les plus fréquentes et les plus coûteuses (Query Store), puis peu d'index bien pensés qui en servent plusieurs.",
-      "Non.",
-      "Non."
+      "Non. Chaque base a ses requêtes.",
+      "Non. Les suggestions se recoupent."
     ],
     retenir: "Index guidés par la charge réelle."
   },
@@ -1654,10 +1654,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le volume change les plans.",
       "Oui. Les plans et les coûts changent avec le volume. Une copie anonymisée de la production est l'idéal pour les tests de performance.",
-      "Non.",
-      "Non."
+      "Non. Les données sont nécessaires.",
+      "Non. Ils doivent juste être réalistes."
     ],
     retenir: "Tests de performance = volumes réalistes."
   },
@@ -1672,10 +1672,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans mesure, impossible de prouver un gain.",
       "Oui. Lectures, CPU, durée, plan : pour pouvoir prouver le gain ensuite. Sans mesure de départ, impossible de dire si on a amélioré ou empiré.",
-      "Non.",
-      "Non."
+      "Non. Le cache serait vidé : mesures fausses.",
+      "Non. On doit d'abord mesurer."
     ],
     retenir: "Mesurer avant, mesurer après."
   },
@@ -1690,10 +1690,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La raison est de savoir ce qui marche.",
       "Oui. Trois changements d'un coup : impossible de savoir lequel compte, ni lequel a cassé autre chose.",
-      "Non.",
-      "Non."
+      "Non. Rien n'est obligatoire.",
+      "Non. Rien à voir avec les index."
     ],
     retenir: "Une modification à la fois."
   },
@@ -1708,10 +1708,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Beaucoup se recoupent ou coûtent cher.",
       "Oui. Beaucoup se recoupent ou coûtent cher en écriture : garde ceux qui ont un vrai gain mesuré. Les outils automatiques sont des aides, pas des décideurs.",
       "Non. Certains peuvent être bons.",
-      "Non."
+      "Non. Ils servent peut-être d'autres requêtes."
     ],
     retenir: "Suggestions automatiques = à trier."
   },
@@ -1728,8 +1728,8 @@ LEARNSQL.questions.m12 = [
     pourquoi: [
       "Non. Impossible.",
       "Oui. Configure tempdb avec plusieurs fichiers de données de même taille : les allocations sont réparties, moins de contention (réglage fait par le DBA).",
-      "Non.",
-      "Non."
+      "Non. NOLOCK ne règle pas l'allocation.",
+      "Non. Elles sont utiles ; on configure tempdb."
     ],
     retenir: "tempdb : plusieurs fichiers de données."
   },
@@ -1744,10 +1744,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Exécuté 250 000 fois, c'est souvent trop.",
       "Oui. Une fois par ligne extérieure : s'il fait un scan, c'est catastrophique. Il faut un seek à l'intérieur, ou un autre type de jointure.",
-      "Non.",
-      "Non."
+      "Non. Ce ne sont pas des erreurs.",
+      "Non. C'est un nombre d'exécutions."
     ],
     retenir: "Regarder le nombre d'exécutions dans les boucles."
   },
@@ -1762,10 +1762,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il accélère les agrégats et jointures.",
       "Oui. Le moteur traite des paquets de lignes au lieu d'une ligne à la fois : agrégats et jointures beaucoup plus rapides, même sans columnstore (selon l'édition).",
-      "Non.",
-      "Non."
+      "Non. Rien à voir avec les sauvegardes.",
+      "Non. Rien à voir avec les verrous."
     ],
     retenir: "Batch mode = analytique accélérée."
   },
@@ -1780,10 +1780,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les tables ne changent pas.",
       "Oui. Le choix entre Hash Join et Nested Loops est fait pendant l'exécution, selon le nombre réel de lignes : limite les dégâts d'une mauvaise estimation (en mode batch).",
-      "Non.",
-      "Non."
+      "Non. Elle a une condition ON.",
+      "Non. C'est une fonction voulue."
     ],
     retenir: "Adaptive Join = choix de jointure à l'exécution."
   },
@@ -1798,10 +1798,10 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Trop d'index ralentissent les écritures.",
       "Oui. Trouver les plus gros consommateurs, lire le plan réel, corriger la cause (filtre SARGable, index adapté, statistiques, réécriture), puis re-mesurer. Méthode reproductible.",
       "Non. Parfois utile, mais rarement la cause.",
-      "Non."
+      "Non. Des chiffres faux possibles."
     ],
     retenir: "Mesurer → comprendre → corriger la cause → mesurer."
   }
