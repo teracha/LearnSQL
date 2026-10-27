@@ -10,7 +10,7 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La liste de colonnes ne change pas la vitesse.",
       "Oui. Si une colonne est ajoutée ou déplacée, l'INSERT sans liste casse ou remplit les mauvaises colonnes. Avec la liste, il reste juste.",
       "Non. C'est facultatif… mais indispensable en pratique.",
       "Non. Une table n'a pas d'ordre."
@@ -30,9 +30,9 @@ LEARNSQL.questions.m09 = [
     bonne: 0,
     pourquoi: [
       "Oui. Plusieurs lignes séparées par des virgules. (SQL Server : 1 000 lignes max par VALUES.)",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. Les lignes se séparent par des virgules, pas par AND.",
+      "Non. Cette syntaxe n'existe pas.",
+      "Non. Un seul VALUES peut contenir plusieurs lignes."
     ],
     retenir: "VALUES (…), (…), (…) : plusieurs lignes."
   },
@@ -47,10 +47,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse au-delà de 1 000 lignes.",
       "Oui. Découpe en plusieurs INSERT, ou charge un fichier (BULK INSERT), ou passe par une table de chargement.",
       "Non. Rien n'est inséré.",
-      "Non."
+      "Non. C'est une simple erreur de syntaxe."
     ],
     retenir: "VALUES : 1 000 lignes max (SQL Server)."
   },
@@ -68,8 +68,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. SELECT INTO crée une nouvelle table : erreur si elle existe.",
       "Oui. INSERT … SELECT ajoute dans une table existante.",
-      "Non.",
-      "Non."
+      "Non. UPDATE modifie des lignes existantes, il n'en ajoute pas.",
+      "Non. Cette commande n'existe pas sur SQL Server."
     ],
     retenir: "Ajouter dans une table existante : INSERT INTO … SELECT."
   },
@@ -86,7 +86,7 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. La valeur par défaut s'applique.",
       "Oui. Colonne absente de l'INSERT = valeur DEFAULT.",
-      "Non.",
+      "Non. Une colonne avec DEFAULT peut être omise.",
       "Non. C'est le DEFAULT de la colonne qui s'applique."
     ],
     retenir: "Colonne omise = DEFAULT (ou NULL s'il n'y en a pas)."
@@ -123,8 +123,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. NULL insère NULL, pas la valeur par défaut.",
       "Oui. Le mot-clé DEFAULT.",
-      "Non.",
-      "Non."
+      "Non. '' insère un texte vide.",
+      "Non. AUTO n'est pas un mot-clé SQL."
     ],
     retenir: "DEFAULT dans VALUES = valeur par défaut. NULL = NULL."
   },
@@ -139,10 +139,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans IDENTITY_INSERT, SQL Server refuse.",
       "Oui. On ne peut pas insérer une valeur explicite dans une colonne IDENTITY, sauf avec SET IDENTITY_INSERT client ON. Il sert aux reprises de données : à désactiver juste après.",
       "Non. SQL Server ne l'ignore pas en silence.",
-      "Non."
+      "Non. SQL Server refuse l'INSERT : le compteur ne bouge pas."
     ],
     retenir: "Forcer un id IDENTITY : SET IDENTITY_INSERT table ON (ponctuel)."
   },
@@ -195,10 +195,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le message parle d'une valeur coupée.",
       "Oui. Ex. 60 caractères dans un VARCHAR(50). Depuis SQL Server 2019, le message peut indiquer la table, la colonne et la valeur.",
-      "Non.",
-      "Non."
+      "Non. Ce serait une erreur « cannot insert NULL ».",
+      "Non. Le type va, c'est la longueur qui dépasse."
     ],
     retenir: "« would be truncated » = valeur trop longue pour la colonne."
   },
@@ -213,10 +213,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une table n'a pas d'ordre de lecture garanti.",
       "Oui. Une table n'a pas d'ordre : seul un ORDER BY à la lecture garantit l'ordre. (L'ORDER BY de l'INSERT peut seulement influencer l'ordre d'attribution des IDENTITY.)",
       "Non. L'ordre de lecture n'est toujours pas garanti.",
-      "Non."
+      "Non. Même règle sur Snowflake."
     ],
     retenir: "L'ordre d'insertion ne garantit pas l'ordre de lecture."
   },
@@ -234,8 +234,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Oui. La table #t doit exister, avec les bonnes colonnes.",
       "Non. On ne fait pas un FROM sur une procédure.",
-      "Non.",
-      "Non."
+      "Non. Cette syntaxe n'existe pas.",
+      "Non. INSERT … EXEC fait exactement ça."
     ],
     retenir: "INSERT INTO … EXEC procédure."
   },
@@ -250,10 +250,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans WHERE, toutes les lignes sont modifiées.",
       "Oui. Sans WHERE, toutes les lignes sont modifiées. Erreur classique et grave.",
       "Non. Aucune protection par défaut.",
-      "Non."
+      "Non. Toutes les lignes sont modifiées."
     ],
     retenir: "UPDATE sans WHERE = toute la table."
   },
@@ -268,10 +268,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Trop tard si le WHERE est faux.",
       "Oui. Écris d'abord un SELECT avec le même WHERE, vérifie les lignes et leur nombre, puis fais l'UPDATE dans une transaction : tu peux annuler (ROLLBACK).",
-      "Non.",
-      "Non."
+      "Non. NOLOCK sert à lire, et il ne protège pas l'UPDATE.",
+      "Non. Deux fois = +10 % au lieu de +5 %."
     ],
     retenir: "SELECT → vérifier → BEGIN TRAN → UPDATE → vérifier → COMMIT."
   },
@@ -289,8 +289,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Un seul SET.",
       "Oui. Un SET, les affectations séparées par des virgules.",
-      "Non.",
-      "Non."
+      "Non. Il manque les valeurs, et ce n'est pas une syntaxe SQL Server.",
+      "Non. Un seul SET peut changer plusieurs colonnes."
     ],
     retenir: "UPDATE … SET a = …, b = … WHERE …"
   },
@@ -307,8 +307,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Ce serait le cas en programmation ligne par ligne.",
       "Oui. Toutes les expressions du SET utilisent les valeurs d'AVANT la modification : l'échange fonctionne.",
-      "Non.",
-      "Non."
+      "Non. Les valeurs d'avant sont utilisées : a reçoit 2.",
+      "Non. L'instruction est valide."
     ],
     retenir: "Dans un SET, tout est calculé avec les anciennes valeurs."
   },
@@ -345,8 +345,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Oui. Snowflake : UPDATE cible SET … FROM source WHERE condition.",
       "Non. Syntaxe SQL Server.",
-      "Non.",
-      "Non."
+      "Non. Cette syntaxe n'existe pas sur Snowflake.",
+      "Non. UPDATE … FROM le permet."
     ],
     retenir: "Snowflake : UPDATE t SET … FROM s WHERE …"
   },
@@ -363,8 +363,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. C'est le piège : aucun message.",
       "Oui. L'article prend l'un des deux prix : résultat imprévisible. Vérifie l'unicité de la source avant (GROUP BY … HAVING COUNT(*) > 1).",
-      "Non.",
-      "Non."
+      "Non. SQL Server ne calcule pas de moyenne : il prend un des deux.",
+      "Non. L'article est bien modifié, avec un des deux prix."
     ],
     retenir: "UPDATE avec jointure : source unique par clé, sinon résultat au hasard."
   },
@@ -400,8 +400,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Toutes les lignes sont mises à jour (pas de WHERE).",
       "Oui. CASE sans ELSE = NULL ; prix * NULL = NULL. Catastrophe silencieuse.",
-      "Non.",
-      "Non."
+      "Non. La requête est valide : c'est ce qui la rend dangereuse.",
+      "Non. Sans ELSE, CASE donne NULL, pas 1."
     ],
     retenir: "UPDATE + CASE sans ELSE = données effacées."
   },
@@ -434,10 +434,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. 0 ligne modifiée n'est pas une erreur.",
       "Oui. Vérifie @@ROWCOUNT si tu t'attends à exactement 1 ligne.",
       "Non. Ce serait un « upsert » (MERGE).",
-      "Non."
+      "Non. Le WHERE limite l'UPDATE : aucune ligne ne correspond."
     ],
     retenir: "0 ligne modifiée n'est pas une erreur : contrôle-le toi-même."
   },
@@ -490,10 +490,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La ligne est quand même écrite et journalisée.",
       "Oui. La ligne est écrite, journalisée, et les triggers se déclenchent quand même. D'où l'intérêt de filtrer les lignes qui changent vraiment.",
-      "Non.",
-      "Non."
+      "Non. SQL Server l'accepte.",
+      "Non. La ligne est modifiée sur place."
     ],
     retenir: "Ne réécris pas des valeurs identiques : filtre les vrais changements."
   },
@@ -508,10 +508,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. OUTPUT renvoie les valeurs avant et après.",
       "Oui. Pour chaque ligne modifiée : deleted = avant, inserted = après. Idéal pour un journal des modifications.",
-      "Non.",
-      "Non."
+      "Non. OUTPUT montre, il n'annule rien.",
+      "Non. L'UPDATE modifie les lignes sur place."
     ],
     retenir: "OUTPUT deleted.* / inserted.* = avant / après."
   },
@@ -547,8 +547,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Ce serait DROP TABLE.",
       "Oui. Toutes les lignes sont supprimées, la structure reste. Erreur aussi grave qu'un UPDATE sans WHERE.",
-      "Non.",
-      "Non."
+      "Non. Aucune protection par défaut.",
+      "Non. Sans WHERE, toutes les lignes sont supprimées."
     ],
     retenir: "DELETE sans WHERE = table vidée."
   },
@@ -603,7 +603,7 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Ce ne serait pas une erreur.",
       "Oui. La clé étrangère protège l'intégrité : on ne supprime pas un client qui a des commandes. Supprime d'abord les enfants, ou désactive le client (actif = 0).",
-      "Non.",
+      "Non. Un verrou ferait attendre, pas cette erreur.",
       "Non. TRUNCATE est aussi refusé."
     ],
     retenir: "Clé étrangère = on ne supprime pas un parent qui a des enfants."
@@ -619,10 +619,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le comportement par défaut (NO ACTION).",
       "Oui. Supprimer un client supprime automatiquement toutes ses commandes. Pratique… et dangereux : une suppression peut effacer beaucoup de données sans prévenir.",
       "Non. Ce serait ON DELETE SET NULL.",
-      "Non."
+      "Non. CASCADE agit vraiment sur les données."
     ],
     retenir: "ON DELETE CASCADE : suppression en chaîne. À utiliser avec prudence."
   },
@@ -637,9 +637,9 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce n'est pas une question de vitesse.",
       "Oui. On garde les factures et commandes liées, et on peut revenir en arrière : c'est la « suppression logique ». Les requêtes filtrent ensuite sur actif = 1.",
-      "Non.",
+      "Non. DELETE est permis, mais on perd l'historique.",
       "Non. Ça en prend plus."
     ],
     retenir: "Suppression logique (actif = 0) : historique préservé."
@@ -655,10 +655,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils diffèrent : WHERE, triggers, IDENTITY, vitesse.",
       "Oui. TRUNCATE vide tout très vite (pas de WHERE), remet l'IDENTITY à zéro et ne déclenche pas les triggers DELETE. DELETE supprime ligne par ligne (journalisé, triggers, WHERE possible).",
       "Non. C'est DROP.",
-      "Non."
+      "Non. TRUNCATE est bien plus rapide pour tout vider."
     ],
     retenir: "DELETE = lignes choisies. TRUNCATE = tout, vite, compteur remis à zéro."
   },
@@ -675,8 +675,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Idée reçue fréquente.",
       "Oui. Sur SQL Server, TRUNCATE est transactionnel : BEGIN TRAN; TRUNCATE …; ROLLBACK; et les données reviennent.",
-      "Non.",
-      "Non."
+      "Non. NOLOCK sert à lire, il ne change rien ici.",
+      "Non. IDENTITY ne change pas le ROLLBACK."
     ],
     retenir: "SQL Server : TRUNCATE peut être annulé dans une transaction."
   },
@@ -693,8 +693,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. SQL Server ne regarde pas si la table enfant est vide.",
       "Oui. Une table référencée par une clé étrangère ne peut pas être vidée par TRUNCATE, même si la table enfant est vide. Utilise DELETE, ou supprime temporairement la clé étrangère.",
-      "Non.",
-      "Non."
+      "Non. TRUNCATE ne touche que la table nommée.",
+      "Non. TRUNCATE ne désactive rien : il est refusé."
     ],
     retenir: "TRUNCATE interdit sur une table référencée par une FK."
   },
@@ -712,7 +712,7 @@ LEARNSQL.questions.m09 = [
       "Non. Les lignes seulement.",
       "Non. Les lignes seulement.",
       "Oui. La table disparaît complètement : colonnes, index, droits.",
-      "Non."
+      "Non. DROP TABLE supprime aussi la structure."
     ],
     retenir: "DELETE / TRUNCATE = vider. DROP = détruire."
   },
@@ -746,10 +746,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les deux tables restent ; seule la cible change.",
       "Oui. Compare une source à une cible, puis met à jour, insère ou supprime selon les correspondances : un « upsert » en une instruction.",
-      "Non.",
-      "Non."
+      "Non. UNION empile un résultat, il ne modifie pas de table.",
+      "Non. MERGE modifie des données, il ne trie rien."
     ],
     retenir: "MERGE = synchroniser une cible avec une source."
   },
@@ -782,10 +782,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans ;, le MERGE est refusé.",
       "Oui. C'est l'une des rares instructions où le ; est obligatoire.",
-      "Non.",
-      "Non."
+      "Non. Le MERGE est refusé en entier.",
+      "Non. C'est une erreur, pas un oubli silencieux."
     ],
     retenir: "MERGE … ; (point-virgule obligatoire)."
   },
@@ -802,8 +802,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. C'est côté source.",
       "Oui. Une ligne cible correspond à plusieurs lignes source. Dédoublonne la source (ROW_NUMBER = 1) avant le MERGE.",
-      "Non.",
-      "Non."
+      "Non. Une clause manquante ne crée pas cette erreur.",
+      "Non. Un verrou ferait attendre, pas cette erreur."
     ],
     retenir: "MERGE : source unique par clé, sinon erreur."
   },
@@ -818,7 +818,7 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Cette condition est facultative.",
       "Oui. Moins d'écritures, journal plus utile. WHEN MATCHED AND condition THEN UPDATE. (Attention aux NULL dans la condition.)",
       "Non. C'est WHEN NOT MATCHED BY TARGET.",
       "Non. C'est WHEN NOT MATCHED BY SOURCE."
@@ -836,10 +836,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une source incomplète supprime des lignes valides.",
       "Oui. Si la source est incomplète (fichier tronqué, filtre oublié), les lignes absentes sont supprimées de la cible. Un fichier vide = table cible vidée. Contrôle le volume de la source avant.",
-      "Non.",
-      "Non."
+      "Non. Le DELETE agit sur la cible, pas sur la source.",
+      "Non. La clause marche sans clé primaire."
     ],
     retenir: "BY SOURCE DELETE : vérifie que la source est complète."
   },
@@ -875,8 +875,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. MERGE n'est pas protégé par défaut contre la concurrence.",
       "Oui. Les deux peuvent voir la ligne absente et tenter d'insérer : doublon ou violation de clé. WITH (HOLDLOCK) sur la cible (niveau SERIALIZABLE) évite ce cas.",
-      "Non.",
-      "Non."
+      "Non. Le serveur ne s'arrête pas.",
+      "Non. Le 2e MERGE peut insérer un doublon, ou planter."
     ],
     retenir: "Upsert concurrent : MERGE … WITH (HOLDLOCK)."
   },
@@ -910,10 +910,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake refuse de choisir : erreur.",
       "Oui. Paramètre ERROR_ON_NONDETERMINISTIC_MERGE = TRUE par défaut. Dédoublonne la source (QUALIFY).",
-      "Non.",
-      "Non."
+      "Non. MERGE n'additionne rien.",
+      "Non. Les deux lignes correspondent à une ligne existante : pas d'insertion."
     ],
     retenir: "MERGE Snowflake : source dédoublonnée, sinon erreur."
   },
@@ -949,8 +949,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Ce serait INSERT INTO.",
       "Oui. Une seule opération : pratique pour recharger complètement une table.",
-      "Non.",
-      "Non."
+      "Non. La table est vidée, pas mise à jour.",
+      "Non. OVERWRITE marche sur les tables."
     ],
     retenir: "INSERT OVERWRITE = remplacer tout le contenu."
   },
@@ -967,8 +967,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Extrêmement lent.",
       "Oui. Dépose le fichier dans un stage, puis COPY INTO : chargement en masse, en parallèle, et Snowflake se souvient des fichiers déjà chargés.",
-      "Non.",
-      "Non."
+      "Non. Ligne par ligne : beaucoup trop lent.",
+      "Non. Ligne par ligne : beaucoup trop lent."
     ],
     retenir: "Snowflake : fichiers → stage → COPY INTO."
   },
@@ -983,10 +983,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque petit INSERT a un coût fixe.",
       "Oui. Snowflake est fait pour les traitements en masse. Regroupe les lignes en lots, ou passe par des fichiers + COPY, ou Snowpipe pour le flux continu.",
-      "Non.",
-      "Non."
+      "Non. Il n'y a pas de limite à 1 000.",
+      "Non. Rien n'est perdu : c'est juste lent et cher."
     ],
     retenir: "Snowflake : écrire en lots, pas ligne par ligne."
   },
@@ -1001,9 +1001,9 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque partition touchée est réécrite en entier.",
       "Oui. Les micro-partitions ne sont pas modifiables : chaque partition touchée est réécrite entièrement. Parfois, recréer la table (CREATE TABLE … AS SELECT) est plus efficace.",
-      "Non.",
+      "Non. Snowflake ne verrouille pas toute la base.",
       "Non. Pas d'index sur Snowflake."
     ],
     retenir: "Snowflake : UPDATE = réécriture de micro-partitions."
@@ -1059,8 +1059,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Seulement si tu as ouvert une transaction avec BEGIN.",
       "Oui. Par défaut, chaque instruction est validée automatiquement, comme sur SQL Server. Pour pouvoir annuler : BEGIN … COMMIT / ROLLBACK.",
-      "Non.",
-      "Non."
+      "Non. L'heure ne change rien.",
+      "Non. La taille de la table ne change rien."
     ],
     retenir: "Autocommit par défaut : chaque instruction est définitive."
   },
@@ -1096,8 +1096,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Pas automatiquement pour beaucoup d'erreurs.",
       "Oui. La 2e échoue mais les autres peuvent s'exécuter puis être validées : données incohérentes. Mets SET XACT_ABORT ON en tête : la moindre erreur annule toute la transaction.",
-      "Non.",
-      "Non."
+      "Non. La 1re instruction est déjà exécutée.",
+      "Non. La session continue."
     ],
     retenir: "Modifications en plusieurs étapes : SET XACT_ABORT ON."
   },
@@ -1112,10 +1112,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le verrou reste jusqu'au COMMIT ou ROLLBACK.",
       "Oui. Les autres utilisateurs (ERP, rapports) sont bloqués : cause fréquente de blocages. Vérifie SELECT @@TRANCOUNT avant de partir.",
-      "Non.",
-      "Non."
+      "Non. Aucune validation automatique.",
+      "Non. Pas d'annulation automatique après un délai."
     ],
     retenir: "Jamais de transaction ouverte sans surveillance."
   },
@@ -1130,10 +1130,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un comportement normal de SQL Server.",
       "Oui. Au-delà d'environ 5 000 verrous, SQL Server remplace les verrous de lignes par un verrou sur toute la table. Supprimer par lots de quelques milliers de lignes évite l'escalade.",
-      "Non.",
-      "Non."
+      "Non. DELETE ne verrouille pas toute la base.",
+      "Non. Les NULL ne jouent aucun rôle."
     ],
     retenir: "Gros DELETE / UPDATE : par lots, pour éviter le verrou de table."
   },
@@ -1148,7 +1148,7 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. @id ne garde qu'une seule ligne.",
       "Oui. Le trigger est appelé UNE fois pour les 50 lignes : @id ne contient qu'une ligne. Bug classique : un trigger doit traiter inserted comme une table (INSERT … SELECT FROM inserted).",
       "Non. Une fois par instruction, pas par ligne.",
       "Non. Pas d'erreur : c'est pour ça que c'est dangereux."
@@ -1168,8 +1168,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Dans un UPDATE, chaque ligne modifiée est dans les deux.",
       "Oui. On les joint sur la clé pour comparer avant / après.",
-      "Non.",
-      "Non."
+      "Non. Elles contiennent les lignes modifiées.",
+      "Non. Seulement les lignes modifiées."
     ],
     retenir: "UPDATE : deleted = avant, inserted = après."
   },
@@ -1184,10 +1184,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse.",
       "Oui. Une modification via une vue ne doit toucher qu'une table de base (sauf trigger INSTEAD OF).",
-      "Non.",
-      "Non."
+      "Non. SQL Server refuse tout l'INSERT.",
+      "Non. Une vue n'est jamais recréée toute seule."
     ],
     retenir: "Modifier via une vue : une seule table de base."
   },
@@ -1202,10 +1202,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SQL Server refuse.",
       "Oui. On ne peut pas écrire dans une colonne calculée : elle se calcule toute seule à partir des autres colonnes.",
       "Non. SQL Server refuse.",
-      "Non."
+      "Non. La formule ne change pas."
     ],
     retenir: "Colonne calculée = jamais dans un INSERT / UPDATE."
   },
@@ -1222,8 +1222,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Ce n'est pas une date.",
       "Oui. Elle change automatiquement à chaque modification de la ligne. Utile pour les chargements incrémentaux et pour détecter des modifications concurrentes.",
-      "Non.",
-      "Non."
+      "Non. Ce serait ROW_NUMBER ou IDENTITY.",
+      "Non. rowversion ne chiffre rien."
     ],
     retenir: "rowversion = compteur auto de modification de ligne."
   },
@@ -1239,10 +1239,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Des parenthèses vides sont refusées.",
       "Oui. Une ligne avec toutes les valeurs par défaut.",
-      "Non.",
-      "Non."
+      "Non. Il manque la partie VALUES.",
+      "Non. Syntaxe inventée."
     ],
     retenir: "INSERT INTO t DEFAULT VALUES."
   },
@@ -1257,10 +1257,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le message parle de la clé primaire.",
       "Oui. Une ligne avec la même clé existe déjà (ou la source contient deux fois la même clé). Vérifie les doublons de la source et ce qui existe déjà dans la cible.",
       "Non. Ce serait « would be truncated ».",
-      "Non."
+      "Non. Ce serait une erreur de conversion."
     ],
     retenir: "Violation de PK = clé déjà présente."
   },
@@ -1277,8 +1277,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. C'est le comportement sans l'option.",
       "Oui. Simple avertissement. Pratique… mais des données peuvent être perdues sans que personne ne le remarque.",
-      "Non.",
-      "Non."
+      "Non. Les anciennes lignes restent ; les doublons sont ignorés.",
+      "Non. Rien n'est vidé."
     ],
     retenir: "IGNORE_DUP_KEY : doublons ignorés en silence. À utiliser en connaissance de cause."
   },
@@ -1312,10 +1312,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'ordre n'est pas garanti : ROW_NUMBER est sûr.",
       "Oui. C'est la « mise à jour bizarre » (quirky update) : non documentée, l'ordre de traitement des lignes n'est pas garanti. Utilise ROW_NUMBER() dans une CTE.",
       "Non. C'est permis, mais pas fiable.",
-      "Non."
+      "Non. ROW_NUMBER fait mieux."
     ],
     retenir: "Numéroter : ROW_NUMBER, pas de variable dans un UPDATE."
   },
@@ -1332,8 +1332,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. C'est le comportement par défaut (NO ACTION).",
       "Oui. Si client.id change, les commandes sont mises à jour avec la nouvelle valeur. Mais modifier une clé primaire est rarement une bonne idée : préfère une clé technique qui ne change jamais.",
-      "Non.",
-      "Non."
+      "Non. Ce serait ON DELETE CASCADE.",
+      "Non. Les commandes sont vraiment modifiées."
     ],
     retenir: "Une clé primaire ne devrait jamais changer."
   },
@@ -1386,10 +1386,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est facultatif.",
       "Oui. Le serveur respire : les autres requêtes passent entre deux lots. Moins d'impact sur les utilisateurs de l'ERP.",
-      "Non.",
-      "Non."
+      "Non. Une pause ne permet pas d'annuler.",
+      "Non. Une pause ne trie rien."
     ],
     retenir: "Purge en journée : petits lots + pauses."
   },
@@ -1404,10 +1404,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une vue n'accélère pas la recherche.",
       "Oui. La colonne de clé étrangère. Pour chaque client supprimé, SQL Server cherche ses commandes. Sans index : lecture complète à chaque fois.",
-      "Non.",
-      "Non."
+      "Non. Un trigger ajoute du travail.",
+      "Non. Une contrainte CHECK n'accélère pas la recherche."
     ],
     retenir: "Index sur les colonnes de clé étrangère : aussi utile pour les DELETE du parent."
   },
@@ -1424,8 +1424,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. On perd l'historique.",
       "Oui. Une vue v_client_actif (WHERE actif = 1) utilisée par tous les rapports : la règle est écrite une fois, au bon endroit.",
-      "Non.",
-      "Non."
+      "Non. DISTINCT ne retire pas les clients inactifs.",
+      "Non. Le rapport resterait faux."
     ],
     retenir: "Suppression logique : une vue qui filtre, pour ne jamais l'oublier."
   },
@@ -1443,7 +1443,7 @@ LEARNSQL.questions.m09 = [
       "Non. Les lignes tout juste insérées seraient ensuite mises à jour pour rien.",
       "Oui. UPDATE … FROM source pour les lignes existantes, puis INSERT … SELECT … WHERE NOT EXISTS pour les nouvelles. Souvent plus lisible qu'un MERGE. À mettre dans une transaction.",
       "Non. Possible, mais on perd les id, l'historique, et on déclenche les contraintes.",
-      "Non."
+      "Non. UPDATE puis INSERT des absents le fait."
     ],
     retenir: "Upsert simple : UPDATE existants, puis INSERT nouveaux."
   },
@@ -1458,10 +1458,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elles sont insérées, car NULL ne correspond à rien.",
       "Oui. NULL ne correspond jamais à la cible (NULL ≠ NULL) : ces lignes sont réinsérées à chaque exécution, en doublon. Filtre ou corrige les clés NULL avant.",
-      "Non.",
-      "Non."
+      "Non. Une clé NULL dans la source est permise.",
+      "Non. NULL ne correspond à aucune ligne."
     ],
     retenir: "Clés NULL dans un MERGE = doublons à chaque passage."
   },
@@ -1478,8 +1478,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Une ligne fausse va directement en production.",
       "Oui. Charger dans une table de chargement (stg), contrôler (formats, doublons, références), isoler les rejets, puis MERGE vers la cible. Le « sas » : rien n'entre sans être vérifié.",
-      "Non.",
-      "Non."
+      "Non. Une source fausse effacerait les bonnes données.",
+      "Non. Les erreurs arrivent en production avant d'être vues."
     ],
     retenir: "Intégration : stg → contrôles → rejets → cible."
   },
@@ -1496,7 +1496,7 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Personne ne saura qu'il manque des données.",
       "Oui. Avec la raison du rejet, et on ne charge que les lignes valides. Les rejets sont visibles, corrigeables et rejouables.",
-      "Non.",
+      "Non. Des données fausses arriveraient dans les rapports.",
       "Non. Possible pour certains flux critiques, mais pas une règle générale."
     ],
     retenir: "Rejets : tracés, expliqués, rejouables."
@@ -1512,10 +1512,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un traitement doit pouvoir être relancé sans risque.",
       "Oui. Une table des fichiers traités (nom, date, nombre de lignes), vérifiée avant de charger : le traitement devient « idempotent ». (COPY INTO de Snowflake le fait tout seul.)",
-      "Non.",
-      "Non."
+      "Non. DISTINCT ne voit pas ce qui est déjà chargé.",
+      "Non. On perd la source, sans savoir ce qui a été chargé."
     ],
     retenir: "Chargement relançable : journal des fichiers traités."
   },
@@ -1530,10 +1530,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un INSERT par ligne est très lent.",
       "Oui. Chargement en masse (BULK INSERT, l'outil bcp, ou un flux ETL en mode « bulk ») : beaucoup plus rapide.",
-      "Non.",
-      "Non."
+      "Non. Un curseur est ligne par ligne : lent.",
+      "Non. Impossible pour un gros fichier."
     ],
     retenir: "Fichiers volumineux : BULK INSERT / bcp."
   },
@@ -1548,10 +1548,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est voulu : COPY INTO évite les doubles chargements.",
       "Oui. COPY INTO garde la mémoire des fichiers déjà chargés. DELETE n'efface pas cette mémoire ; TRUNCATE, si. Utilise TRUNCATE, ou l'option FORCE = TRUE (avec prudence).",
-      "Non.",
-      "Non."
+      "Non. Le fichier n'a pas changé.",
+      "Non. La taille du warehouse ne joue pas."
     ],
     retenir: "Snowflake : TRUNCATE efface aussi l'historique de chargement, DELETE non."
   },
@@ -1566,9 +1566,9 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les deux lectures peuvent se faire en même temps.",
       "Oui. Les deux lisent le même stock et décrémentent. Lis avec WITH (UPDLOCK) dans la transaction, ou fais UPDATE … WHERE qte >= @besoin : vérification et modification en une seule étape.",
-      "Non.",
+      "Non. Les deux sessions passent.",
       "Non. Pire."
     ],
     retenir: "Lire puis modifier : verrouiller à la lecture (UPDLOCK), ou tout faire dans l'UPDATE."
@@ -1584,9 +1584,9 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le comportement voulu.",
       "Oui. La version ne correspond plus : c'est le « verrouillage optimiste » (souvent avec une colonne rowversion). On prévient l'utilisateur au lieu d'écraser.",
-      "Non.",
+      "Non. La version existe ; elle a juste changé.",
       "Non. Un verrou ferait attendre, pas renvoyer 0 ligne."
     ],
     retenir: "Verrouillage optimiste : WHERE version = lue, puis contrôle de @@ROWCOUNT."
@@ -1602,9 +1602,9 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. OUTPUT est permis dans un UPDATE.",
       "Oui. SQL Server refuse OUTPUT sans INTO si la table a des triggers actifs. Avec INTO (vers une variable table ou #table), ça fonctionne.",
-      "Non.",
+      "Non. Le trigger ne supprime rien.",
       "Non. Règle documentée."
     ],
     retenir: "Table avec trigger : OUTPUT … INTO obligatoire."
@@ -1620,10 +1620,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'ordre d'attribution des IDENTITY est garanti.",
       "Oui. Seulement ça. La lecture, elle, aura toujours besoin d'un ORDER BY.",
-      "Non.",
-      "Non."
+      "Non. La lecture a besoin d'un ORDER BY.",
+      "Non. Le stockage ne suit pas cet ordre."
     ],
     retenir: "INSERT … ORDER BY : ordre des IDENTITY garanti, pas l'ordre de lecture."
   },
@@ -1638,10 +1638,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle est indépendante des tables.",
       "Oui. On peut obtenir le numéro AVANT d'insérer, et le partager entre plusieurs tables (ex. pièces de plusieurs types). Snowflake a aussi des SEQUENCE.",
       "Non. Des trous restent possibles.",
-      "Non."
+      "Non. Une SEQUENCE donne des numéros, elle ne trie rien."
     ],
     retenir: "SEQUENCE = compteur autonome, réutilisable."
   },
@@ -1658,8 +1658,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Pas forcément.",
       "Oui. Un redémarrage du serveur ou des transactions annulées créent des trous : normal pour IDENTITY. Ne l'utilise jamais pour une numérotation légale sans trou (factures).",
-      "Non.",
-      "Non."
+      "Non. Les trous sont normaux.",
+      "Non. Ça risque de créer des doublons."
     ],
     retenir: "IDENTITY peut avoir des trous. Numérotation légale : autre mécanisme."
   },
@@ -1676,8 +1676,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Aucune trace, aucun contrôle.",
       "Oui. Un script écrit, relu, testé sur une copie, lié à un ticket, avec un plan de retour arrière. Traçabilité et sécurité.",
-      "Non.",
-      "Non."
+      "Non. Lent, et source d'erreurs.",
+      "Non. On prévient avant."
     ],
     retenir: "Correction en production = script + ticket + test + retour arrière."
   },
@@ -1715,7 +1715,7 @@ LEARNSQL.questions.m09 = [
       "Non. Ça écrit le texte « NULL » : 4 lettres !",
       "Oui. NULL sans apostrophes. (Pour un texte vide : '' , ce n'est pas la même chose.)",
       "Non. IS NULL sert à tester, pas à affecter.",
-      "Non."
+      "Non. Syntaxe inventée."
     ],
     retenir: "Affecter NULL : = NULL. Tester NULL : IS NULL."
   },
@@ -1751,7 +1751,7 @@ LEARNSQL.questions.m09 = [
       "Non. Plus lent, sans avantage ici.",
       "Oui. Plus rapide, moins de journal. Idéal pour les tables de chargement (sans clé étrangère entrante).",
       "Non. La structure, les droits et les index seraient perdus.",
-      "Non."
+      "Non. UPDATE modifie, il ne vide pas la table."
     ],
     retenir: "Table de chargement : TRUNCATE avant rechargement."
   },
@@ -1787,8 +1787,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Seulement le total.",
       "Oui. OUTPUT $action INTO une table, puis COUNT par action. Ex. 120 INSERT, 45 UPDATE, 3 DELETE : un vrai compte rendu.",
-      "Non.",
-      "Non."
+      "Non. MERGE peut renvoyer le détail avec OUTPUT $action.",
+      "Non. MERGE n'a pas de mode test."
     ],
     retenir: "Compte rendu d'un MERGE : OUTPUT $action."
   },
@@ -1805,8 +1805,8 @@ LEARNSQL.questions.m09 = [
     pourquoi: [
       "Non. Atomicité = tout ou rien.",
       "Oui. Relancer = même résultat. Ex. INSERT … WHERE NOT EXISTS, MERGE, UPDATE vers une valeur cible.",
-      "Non.",
-      "Non."
+      "Non. La normalisation concerne la structure des tables.",
+      "Non. La cardinalité est un nombre de lignes."
     ],
     retenir: "Idempotent = relançable sans doublon ni dégât."
   },
@@ -1821,10 +1821,10 @@ LEARNSQL.questions.m09 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Une erreur peut être grave avant d'être vue.",
       "Oui. Vérifier la base (DB_NAME), écrire le SELECT, compter, sauvegarder, transaction, contrôler @@ROWCOUNT, puis COMMIT. Ces réflexes évitent la plupart des catastrophes.",
-      "Non.",
-      "Non."
+      "Non. On perd la protection des données.",
+      "Non. NOLOCK peut lire des données fausses."
     ],
     retenir: "Base, SELECT, compte, sauvegarde, transaction, contrôle, COMMIT."
   }
