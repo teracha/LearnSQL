@@ -402,7 +402,7 @@ LEARNSQL.questions.m04 = [
       "Non. Piège : COUNT compte aussi les 0, car 0 n'est pas NULL.",
       "Oui. COUNT compte toutes les valeurs non NULL : les 1 et les 0. Enlève le ELSE 0, ou utilise SUM.",
       "Non. On ne compte pas les « non livrés » ici.",
-      "Non."
+      "Non. Les 1 et les 0 ne sont pas NULL : tout est compté."
     ],
     retenir: "Compter selon une condition : COUNT(CASE … THEN 1 END) sans ELSE, ou SUM(CASE … THEN 1 ELSE 0 END)."
   },
@@ -569,7 +569,7 @@ LEARNSQL.questions.m04 = [
       "Non. Sans GROUP BY, un agrégat renvoie toujours une ligne.",
       "Oui. COUNT ne renvoie jamais NULL : 0 s'il n'y a rien.",
       "Non. C'est SUM, MAX, AVG… qui renvoient NULL sur du vide.",
-      "Non."
+      "Non. COUNT(*) sur une table vide est valide."
     ],
     retenir: "COUNT sur du vide = 0. Les autres agrégats = NULL."
   },
@@ -586,8 +586,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. Sans GROUP BY, toujours une ligne.",
       "Oui. Maximum de rien = inconnu = NULL.",
-      "Non.",
-      "Non."
+      "Non. MAX de rien donne NULL, pas 0.",
+      "Non. MAX ne renvoie que des valeurs de la table."
     ],
     retenir: "MIN / MAX / SUM / AVG sur du vide = NULL."
   },
@@ -605,7 +605,7 @@ LEARNSQL.questions.m04 = [
       "Non. Avec GROUP BY, il faut au moins une ligne pour former un groupe.",
       "Oui. Pas de lignes = pas de groupes = pas de résultat. Différent du cas sans GROUP BY !",
       "Non. Le moteur ne connaît pas les pays sans lignes.",
-      "Non."
+      "Non. La requête est valide : elle ne renvoie juste rien."
     ],
     retenir: "Sans GROUP BY : toujours 1 ligne. Avec GROUP BY : 0 ligne si rien."
   },
@@ -640,8 +640,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. A et B. Les NULL ne sont jamais comptés par COUNT(col).",
       "Non. NULL n'est pas compté.",
-      "Non.",
-      "Non."
+      "Non. DISTINCT enlève le doublon 'A', et le NULL n'est pas compté.",
+      "Non. A et B sont deux valeurs différentes."
     ],
     retenir: "COUNT(DISTINCT col) ignore les NULL."
   },
@@ -659,8 +659,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. Donne 3 : le NULL est ignoré.",
       "Oui. (4 + 2 + 0) / 3 = 2. Choix métier : est-ce vraiment un 0 ?",
-      "Non.",
-      "Non."
+      "Non. Il faut diviser par 3 réponses, pas par 2.",
+      "Non. Ça donne 9 : une somme, pas une moyenne."
     ],
     retenir: "AVG ignore les NULL. COALESCE si l'absence doit compter."
   },
@@ -677,8 +677,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. Somme de valeurs toutes inconnues = NULL.",
       "Oui. Dans un rapport, écris COALESCE(SUM(remise), 0).",
-      "Non.",
-      "Non."
+      "Non. SUM accepte les NULL : il renvoie NULL.",
+      "Non. Ce serait COUNT(*)."
     ],
     retenir: "SUM de NULL uniquement = NULL."
   },
@@ -696,7 +696,7 @@ LEARNSQL.questions.m04 = [
       "Non. Le NULL change le premier calcul.",
       "Oui. Ligne 1 : 10 + NULL = NULL, ignoré par SUM. Il reste 10. Deuxième : 15 + 5 = 20.",
       "Non. SUM ignore la ligne NULL, il ne renvoie pas NULL.",
-      "Non."
+      "Non. SUM(port) vaut 5 : il ignore le NULL."
     ],
     retenir: "Additionner avant ou après SUM change le résultat s'il y a des NULL."
   },
@@ -731,9 +731,9 @@ LEARNSQL.questions.m04 = [
     bonne: 0,
     pourquoi: [
       "Oui. Les groupes sont les mêmes. Seul l'ordre d'affichage peut changer (et il n'est pas garanti sans ORDER BY).",
-      "Non.",
-      "Non.",
-      "Non."
+      "Non. L'ordre des colonnes ne change pas les groupes.",
+      "Non. Les NULL forment un groupe, dans les deux cas.",
+      "Non. Même règle sur tous les moteurs."
     ],
     retenir: "L'ordre des colonnes dans GROUP BY ne change pas les groupes."
   },
@@ -750,7 +750,7 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. Souvent c'est le cas par hasard, mais rien ne le garantit.",
       "Oui. Le moteur peut grouper par hachage : l'ordre est alors quelconque. Ajoute ORDER BY.",
-      "Non.",
+      "Non. SQL Server ne le garantit pas non plus.",
       "Non. Pas de garantie non plus."
     ],
     retenir: "GROUP BY ne trie pas. ORDER BY trie."
@@ -807,7 +807,7 @@ LEARNSQL.questions.m04 = [
       "Non. Mélange les années.",
       "Oui. Chaque date devient le 1er de son mois. Une seule colonne, triable, avec l'année.",
       "Non. Mélange les années aussi.",
-      "Non."
+      "Non. Ça groupe par jour du mois (1 à 31), en mélangeant les mois."
     ],
     retenir: "DATE_TRUNC('month', d) : le mois, année comprise."
   },
@@ -880,8 +880,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. DISTINCT s'applique aux lignes du résultat, pas aux montants additionnés.",
       "Oui. Chaque client n'apparaît déjà qu'une fois. DISTINCT est inutile.",
-      "Non.",
-      "Non."
+      "Non. DISTINCT ne trie rien.",
+      "Non. DISTINCT avec GROUP BY est valide, juste inutile."
     ],
     retenir: "GROUP BY + DISTINCT sur les mêmes colonnes = DISTINCT inutile."
   },
@@ -974,7 +974,7 @@ LEARNSQL.questions.m04 = [
       "Non. Ce ORDER BY trierait les lignes du résultat, pas l'intérieur de la liste.",
       "Oui. WITHIN GROUP (ORDER BY …) trie les valeurs dans le texte. (Snowflake : LISTAGG … WITHIN GROUP aussi.)",
       "Non. Syntaxe invalide sur SQL Server.",
-      "Non."
+      "Non. CONCAT ne regroupe pas plusieurs lignes."
     ],
     retenir: "Liste triée : STRING_AGG(…) WITHIN GROUP (ORDER BY …)."
   },
@@ -990,9 +990,9 @@ LEARNSQL.questions.m04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On contourne la limite avec varchar(max).",
       "Oui. Le résultat suit le type d'entrée. En varchar(max), plus de limite de 8000.",
-      "Non.",
+      "Non. CONCAT ne regroupe pas plusieurs lignes.",
       "Non. Ça peut réduire, mais pas régler le problème."
     ],
     retenir: "STRING_AGG long : convertir l'entrée en varchar(max)."
@@ -1011,7 +1011,7 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. LISTAGG accepte DISTINCT. (Sur SQL Server, STRING_AGG ne l'accepte pas : dédoublonne avant, dans une sous-requête.)",
       "Non. STRING_AGG n'est pas la fonction Snowflake.",
-      "Non.",
+      "Non. DISTINCT se place dans les parenthèses.",
       "Non. MySQL."
     ],
     retenir: "Snowflake : LISTAGG(DISTINCT …)."
@@ -1048,7 +1048,7 @@ LEARNSQL.questions.m04 = [
       "Non. Ce sont les lignes de détail seulement.",
       "Non. Il manque le total général.",
       "Oui. 6 détails + 2 sous-totaux par région + 1 total général = 9.",
-      "Non."
+      "Non. 6 + 2 + 1 = 9, pas 11."
     ],
     retenir: "ROLLUP (a, b) = détail + sous-totaux de a + total."
   },
@@ -1160,7 +1160,7 @@ LEARNSQL.questions.m04 = [
       "Non. La médiane est la valeur du milieu, pour des nombres.",
       "Oui. MODE renvoie la valeur la plus fréquente. Sur SQL Server : GROUP BY + COUNT + TOP (1).",
       "Non. MAX = dernière valeur dans l'ordre.",
-      "Non."
+      "Non. TOP n'est pas une fonction d'agrégat."
     ],
     retenir: "Snowflake : MODE(col) = valeur la plus fréquente."
   },
@@ -1455,8 +1455,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. Une seule grosse commande tire la moyenne vers le haut.",
       "Oui. La médiane résiste aux valeurs extrêmes.",
-      "Non.",
-      "Non."
+      "Non. 5000 € est la valeur extrême, pas le panier typique.",
+      "Non. La somme donne le total, pas un panier."
     ],
     retenir: "Valeurs extrêmes : préfère la médiane à la moyenne."
   },
@@ -1473,7 +1473,7 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Non. COUNT(region) ne compte pas les NULL.",
       "Oui. 12 lignes, mais 0 région renseignée.",
-      "Non.",
+      "Non. COUNT(*) compte les 12 lignes, même si region est NULL.",
       "Non. COUNT ne renvoie jamais NULL."
     ],
     retenir: "Groupe NULL : COUNT(*) > 0 mais COUNT(col) = 0."
@@ -1491,8 +1491,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. On trie les pays du plus fréquent au moins fréquent, sans afficher le nombre.",
       "Non. Ce n'est pas obligatoire.",
-      "Non.",
-      "Non."
+      "Non. ORDER BY accepte un agrégat après GROUP BY.",
+      "Non. Valide aussi sur SQL Server."
     ],
     retenir: "ORDER BY peut utiliser un agrégat absent du SELECT."
   },
@@ -1509,8 +1509,8 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. Une constante n'a pas besoin d'être groupée.",
       "Non. La règle concerne les colonnes, pas les constantes.",
-      "Non.",
-      "Non."
+      "Non. Sans colonne à grouper, pas besoin de GROUP BY.",
+      "Non. DISTINCT n'est pas nécessaire."
     ],
     retenir: "Constante + agrégat : permis sans GROUP BY."
   },
@@ -1545,9 +1545,9 @@ LEARNSQL.questions.m04 = [
     bonne: 0,
     pourquoi: [
       "Oui. ANY_VALUE prend une valeur quelconque du groupe : parfait quand elles sont toutes égales.",
-      "Non.",
+      "Non. FIRST n'existe pas comme agrégat sur Snowflake.",
       "Non. nom n'est ni groupé ni agrégé : erreur.",
-      "Non."
+      "Non. DISTINCT ne remplace pas une fonction d'agrégat."
     ],
     retenir: "Snowflake : ANY_VALUE(col). SQL Server : MAX(col) ou ajouter col au GROUP BY."
   },
@@ -1583,7 +1583,7 @@ LEARNSQL.questions.m04 = [
       "Non. L'arrondi ligne par ligne perd des centimes.",
       "Oui. 0,33 × 3 = 0,99 ; arrondi du total 0,999 = 1,00. Écart classique entre facture et comptabilité.",
       "Non. C'est l'inverse.",
-      "Non."
+      "Non. Arrondir le total 0,999 donne 1,00."
     ],
     retenir: "Arrondir avant ou après la somme change le résultat. Suis la règle de ta compta."
   },
@@ -1695,7 +1695,7 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. ET logique sur toutes les lignes : vrai seulement si toutes sont vraies.",
       "Non. OU logique : vrai si au moins une est livrée.",
-      "Non.",
+      "Non. On ne somme pas des booléens sur Snowflake.",
       "Non. MAX d'un booléen = au moins un vrai."
     ],
     retenir: "Snowflake : BOOLAND_AGG = toutes, BOOLOR_AGG = au moins une."
@@ -1730,7 +1730,7 @@ LEARNSQL.questions.m04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake lit ses métadonnées, sans lire la table.",
       "Oui. Snowflake connaît le nombre de lignes de chaque micro-partition : réponse presque instantanée. SQL Server doit parcourir un index (sys.partitions donne une estimation rapide).",
       "Non. C'est l'inverse.",
       "Non. COUNT(*) sans WHERE est valide."
@@ -1751,7 +1751,7 @@ LEARNSQL.questions.m04 = [
     pourquoi: [
       "Oui. 157 → 100, 42 → 0, 230 → 200. Chaque tranche est un groupe.",
       "Non. Un groupe par montant exact.",
-      "Non.",
+      "Non. Ça garde presque chaque montant exact : pas de tranches.",
       "Non. Le reste : 157 et 257 seraient ensemble."
     ],
     retenir: "Tranches régulières : FLOOR(x / largeur) * largeur."
@@ -1785,7 +1785,7 @@ LEARNSQL.questions.m04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. SUM n'a pas de limite de taille de fichier.",
       "Oui. Le fichier contient des lignes « Total » ou « Sous-total » : elles sont additionnées avec le détail. Filtre-les à l'import.",
       "Non. SUM ignore les NULL : ils ne doublent rien.",
       "Non. Une date mal convertie ne double pas les montants."
@@ -1806,7 +1806,7 @@ LEARNSQL.questions.m04 = [
       "Non. Ce serait AVG.",
       "Oui. Le stock est une mesure « semi-additive » : on ne l'additionne pas dans le temps. On prend le dernier mois, ou la moyenne.",
       "Non. Le stock actuel = le dernier mois.",
-      "Non."
+      "Non. Le stock n'est pas un volume de ventes."
     ],
     retenir: "Stock, solde : pas de SUM dans le temps. Dernière valeur ou moyenne."
   },
