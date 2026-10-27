@@ -83,8 +83,8 @@ LEARNSQL.questions.m05 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non.",
-      "Non.",
+      "Non. Ce serait le nombre de lignes de A seul.",
+      "Non. Ce serait le nombre de lignes de B seul.",
       "Non. On ne les additionne pas.",
       "Oui. CROSS JOIN associe chaque ligne de A à chaque ligne de B : 3 × 5 = 15."
     ],
@@ -560,8 +560,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. LEFT doit être écrit.",
       "Oui. JOIN seul = INNER JOIN. Écris INNER pour être clair.",
-      "Non.",
-      "Non."
+      "Non. FULL doit être écrit.",
+      "Non. CROSS doit être écrit, et il n'a pas de ON."
     ],
     retenir: "JOIN = INNER JOIN."
   },
@@ -576,10 +576,10 @@ LEARNSQL.questions.m05 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. OUTER est juste un mot facultatif : même résultat.",
       "Oui. OUTER est facultatif. Pareil pour RIGHT et FULL.",
-      "Non.",
-      "Non."
+      "Non. Le mot OUTER ne change rien au plan.",
+      "Non. Même chose sur Snowflake."
     ],
     retenir: "LEFT JOIN = LEFT OUTER JOIN."
   },
@@ -688,7 +688,7 @@ LEARNSQL.questions.m05 = [
       "Non. L'INNER JOIN final retire les clients sans commande.",
       "Oui. Les parenthèses font d'abord la jointure interne commande-ligne, puis le LEFT JOIN depuis client. Une CTE fait la même chose, plus lisiblement.",
       "Non. Le 1er INNER JOIN retire les clients sans commande.",
-      "Non."
+      "Non. Toutes les combinaisons client × commande, sans lien."
     ],
     retenir: "Jointure interne « à l'intérieur » d'un LEFT : parenthèses ou CTE."
   },
@@ -722,9 +722,9 @@ LEARNSQL.questions.m05 = [
     bonne: 2,
     pourquoi: [
       "Non. On multiplie, on n'additionne pas.",
-      "Non.",
+      "Non. Chaque ligne est combinée avec les 10 000 autres.",
       "Oui. 10 000 × 10 000. Un CROSS JOIN oublié peut bloquer un serveur.",
-      "Non."
+      "Non. 10 000 × 10 000 = 100 millions."
     ],
     retenir: "CROSS JOIN = produit des tailles. Attention aux volumes."
   },
@@ -832,8 +832,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Snowflake est sensible à la casse.",
       "Oui, elle ne les relie pas. Normalise avec UPPER au chargement (ou dans le ON, mais c'est plus lent).",
-      "Non.",
-      "Non."
+      "Non. Le type de jointure ne change pas la comparaison des codes.",
+      "Non. USING compare aussi avec =, casse comprise."
     ],
     retenir: "Snowflake : casse différente = pas de jointure."
   },
@@ -851,7 +851,7 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Ceux qui ont des commandes.",
       "Oui. Les id de client, moins ceux qui apparaissent dans commande. Pas de piège NULL.",
-      "Non.",
+      "Non. UNION réunit les deux listes : il n'enlève rien.",
       "Non. Ce sont les commandes orphelines (client inexistant)."
     ],
     retenir: "Anti-jointure sur des clés : EXCEPT marche aussi."
@@ -869,7 +869,7 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Les clients sans commande sont retirés.",
       "Oui. On ne garde que les lignes qui ont une correspondance : c'est un INNER JOIN, en plus compliqué.",
-      "Non.",
+      "Non. Le ON relie toujours les tables : ce n'est pas un produit cartésien.",
       "Non. Ce serait IS NULL."
     ],
     retenir: "LEFT JOIN + IS NOT NULL à droite = INNER JOIN."
@@ -906,8 +906,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Pour elles, edi.statut est NULL : le WHERE les retire.",
       "Oui. Le FULL JOIN perd une partie de son intérêt. Mets la condition dans le ON, ou ajoute OR edi.num IS NULL.",
-      "Non.",
-      "Non."
+      "Non. Un WHERE retire des lignes, il ne les double pas.",
+      "Non. La requête est valide."
     ],
     retenir: "FULL JOIN + WHERE sur un côté = lignes de l'autre côté perdues."
   },
@@ -1110,7 +1110,7 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Seules les commandes de minuit pile correspondent.",
       "Oui. On retire l'heure. (Encore mieux : stocker une colonne DATE dans la table de faits.)",
-      "Non.",
+      "Non. LIKE compare des textes : ça ne retire pas l'heure.",
       "Non. Mélange tous les mois."
     ],
     retenir: "Datetime vers calendrier : CAST(… AS date)."
@@ -1165,7 +1165,7 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. 50 000 lectures complètes : catastrophe.",
       "Oui. Sur la colonne de jointure : avec un index, chaque boucle ferait un Seek au lieu d'un Scan.",
-      "Non.",
+      "Non. DISTINCT ne change pas la façon de lire la table intérieure.",
       "Non. Le problème est la table intérieure."
     ],
     retenir: "Nested Loops : la table intérieure doit avoir un index sur la clé de jointure."
@@ -1220,8 +1220,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Un JOIN ne peut pas passer une colonne de gauche en paramètre.",
       "Oui. APPLY appelle la fonction pour chaque ligne de gauche. OUTER APPLY pour garder les clients sans résultat.",
-      "Non.",
-      "Non."
+      "Non. Une fonction table ne s'utilise pas dans WHERE.",
+      "Non. CROSS APPLY est fait pour ça."
     ],
     retenir: "Fonction table avec un paramètre venant d'une ligne : APPLY."
   },
@@ -1239,7 +1239,7 @@ LEARNSQL.questions.m05 = [
       "Non. Il n'y a pas de lien entre les tables.",
       "Oui. La condition est toujours vraie : toutes les combinaisons.",
       "Non. Ce serait 1 = 0.",
-      "Non."
+      "Non. ON 1 = 1 est une condition valide."
     ],
     retenir: "ON 1 = 1 = CROSS JOIN déguisé."
   },
@@ -1309,7 +1309,7 @@ LEARNSQL.questions.m05 = [
     bonne: 3,
     pourquoi: [
       "Non. C'est l'INNER JOIN.",
-      "Non.",
+      "Non. 98, c'est le total de l'EDI seul.",
       "Non. C'est le LEFT JOIN depuis l'ERP.",
       "Oui. 95 communes + 5 seulement dans l'ERP + 3 seulement dans l'EDI = 103."
     ],
@@ -1328,8 +1328,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Oui. 100 - 95 = 5 absentes de l'EDI. 98 - 95 = 3 absentes de l'ERP.",
       "Non. C'est l'inverse.",
-      "Non.",
-      "Non."
+      "Non. Il faut partir des 95 communes : 100 - 95 et 98 - 95.",
+      "Non. L'EDI a 98 commandes : il en manque 3 dans l'ERP, pas 5."
     ],
     retenir: "Manquants = total d'un côté - communs."
   },
@@ -1383,8 +1383,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Oui. Dans les deux cas, on filtre la table de droite avant la jointure. Tous les clients restent.",
       "Non. Le LEFT JOIN garde tous les clients.",
-      "Non.",
-      "Non."
+      "Non. Une condition en plus dans le ON est valide.",
+      "Non. La sous-requête filtre seulement : elle ne crée pas de doublons."
     ],
     retenir: "Filtre de droite : dans le ON ou dans une sous-requête. Pas dans le WHERE."
   },
@@ -1403,7 +1403,7 @@ LEARNSQL.questions.m05 = [
       "Non. Ça trouve les clients qui ont une VIEILLE commande, même s'ils en ont aussi des récentes.",
       "Oui. On cherche des commandes récentes dans le ON ; aucune trouvée = client inactif. (NOT EXISTS marche aussi.)",
       "Non. Même erreur.",
-      "Non."
+      "Non. date_cde n'est presque jamais NULL : ça ne trouve pas les inactifs."
     ],
     retenir: "« Pas de X récent » : condition de période dans le ON + IS NULL."
   },
@@ -1456,8 +1456,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Une auto-jointure = un seul niveau. Il faudrait en écrire autant que de niveaux.",
       "Oui. La CTE récursive remonte tous les niveaux, quel que soit leur nombre (module 6).",
-      "Non.",
-      "Non."
+      "Non. Un CROSS JOIN combine tout, sans suivre la chaîne.",
+      "Non. GROUP BY regroupe, il ne remonte pas une hiérarchie."
     ],
     retenir: "Hiérarchie de profondeur variable : CTE récursive."
   },
@@ -1475,8 +1475,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Deux lignes par commande, et on ne sait plus laquelle est laquelle.",
       "Oui. Deux alias pour la même table, un par rôle. (LEFT JOIN si une adresse peut manquer.)",
-      "Non.",
-      "Non."
+      "Non. On compare l'adresse à l'id de la commande : aucun sens.",
+      "Non. Deux jointures vers la même table suffisent."
     ],
     retenir: "Même table, deux rôles : deux jointures, deux alias."
   },
@@ -1493,7 +1493,7 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. Une seule ligne de calendrier ne peut pas être les deux dates à la fois.",
       "Oui. cal_cde et cal_liv : c'est une « dimension à plusieurs rôles ».",
-      "Non.",
+      "Non. Sans jointure, on n'a pas le mois du calendrier.",
       "Non. Doublons et confusion."
     ],
     retenir: "Plusieurs dates = plusieurs jointures vers le calendrier."
@@ -1656,7 +1656,7 @@ LEARNSQL.questions.m05 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake joint plusieurs bases du même compte sans problème.",
       "Oui. Le stockage est partagé : pas besoin de serveur lié ni de copie.",
       "Non. Pas de serveur lié sur Snowflake.",
       "Non. Aucune copie n'est nécessaire."
@@ -1674,8 +1674,8 @@ LEARNSQL.questions.m05 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non.",
-      "Non.",
+      "Non. 2, c'est le nombre de lignes à droite seulement.",
+      "Non. 3, c'est le nombre de lignes à gauche seulement.",
       "Non. On ne les additionne pas.",
       "Oui. Chaque ligne de gauche avec chaque ligne de droite : 3 × 2 = 6."
     ],
@@ -1694,8 +1694,8 @@ LEARNSQL.questions.m05 = [
     pourquoi: [
       "Non. C'est la table de gauche : elle est gardée.",
       "Oui. Pas de correspondance (NULL ne se joint jamais), mais la ligne reste.",
-      "Non.",
-      "Non."
+      "Non. NULL ne se joint à aucun client.",
+      "Non. Une clé NULL est permise dans une jointure."
     ],
     retenir: "LEFT JOIN : une clé NULL à gauche = ligne gardée, droite NULL."
   },
@@ -1788,7 +1788,7 @@ LEARNSQL.questions.m05 = [
       "Non. C'est un vrai signal d'alerte.",
       "Oui. Produit cartésien probable : souvent un ON oublié ou mal écrit. Vérifie chaque jointure.",
       "Non. C'est un autre avertissement.",
-      "Non."
+      "Non. L'avertissement parle d'une condition de jointure manquante."
     ],
     retenir: "« No Join Predicate » = CROSS JOIN probablement involontaire."
   },
