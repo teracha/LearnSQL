@@ -77,14 +77,14 @@ LEARNSQL.questions.m14 = [
     choix: [
       "À limiter les requêtes à 60 secondes",
       "L'arrêter après 60 s sans activité",
-      "À le redémarrer toutes les minutes",
+      "À le relancer après 60 s d'attente",
       "À limiter le warehouse à 60 utilisateurs"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce serait STATEMENT_TIMEOUT_IN_SECONDS.",
       "Oui. On ne paie plus quand il ne sert pas. Avec AUTO_RESUME = TRUE, il redémarre tout seul à la prochaine requête.",
-      "Non. Il s'arrête ; il ne redémarre qu'à la prochaine requête.",
+      "Non. Il redémarre dès qu'une requête arrive, sans attendre.",
       "Non. Ce n'est pas une limite d'utilisateurs."
     ],
     retenir: "AUTO_SUSPEND court + AUTO_RESUME = pas de crédits gaspillés."
@@ -201,14 +201,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q12", dialecte: "Snowflake",
     q: "Pourquoi une requête contenant CURRENT_TIMESTAMP() ne profite-t-elle pas du cache de résultats ?",
     choix: [
-      "Un bug connu de Snowflake",
+      "Les fonctions ne sont jamais mises en cache",
       "Le résultat dépend du moment",
       "Elle est trop longue à mettre en cache",
       "Elle n'utilise pas de warehouse"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est voulu : le résultat change à chaque instant.",
+      "Non. UPPER ou ROUND n'empêchent pas le cache ; seul ce qui dépend du moment.",
       "Oui. Snowflake ne peut pas réutiliser un ancien résultat. Les fonctions non déterministes empêchent la réutilisation. Remplace par une date fixe si possible.",
       "Non. La taille n'est pas la raison.",
       "Non. La raison est le moment, pas le warehouse."
@@ -309,14 +309,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q18", dialecte: "Snowflake",
     q: "Pourquoi les données chargées chaque jour par date sont-elles naturellement bien « rangées » pour un filtre sur la date de chargement ?",
     choix: [
-      "Par hasard, sans raison particulière",
+      "Snowflake trie les données à chaque chargement",
       "Chaque partition couvre peu de dates",
       "Grâce à un index automatique sur la date",
       "Ce n'est pas le cas"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. L'ordre de chargement explique ce rangement.",
+      "Non. Il ne trie pas : il range dans l'ordre d'arrivée, donc par date.",
       "Oui. Les nouvelles micro-partitions contiennent les nouvelles dates : chaque partition couvre une petite plage, le pruning marche bien. « Clustering naturel ». Un filtre sur une autre colonne (ex. client) n'en profite pas.",
       "Non. Pas d'index sur Snowflake.",
       "Non. C'est le cas grâce à l'ordre de chargement."
@@ -532,14 +532,14 @@ LEARNSQL.questions.m14 = [
       "Un autre nom du Time Travel",
       "7 jours de plus, via le support",
       "Une sauvegarde manuelle planifiée",
-      "Un antivirus sur les fichiers chargés"
+      "Une copie dans une autre région"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il vient après le Time Travel.",
       "Oui. 7 jours de protection supplémentaires APRÈS le Time Travel, accessibles seulement par le support Snowflake en cas de sinistre. Pas un outil du quotidien. Les tables TRANSIENT n'en ont pas.",
       "Non. Il est automatique.",
-      "Non. Rien à voir avec la sécurité antivirus."
+      "Non. Ça, c'est la réplication ; le Fail-safe reste dans la même région."
     ],
     retenir: "Fail-safe : 7 jours, via le support uniquement."
   },
@@ -861,14 +861,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q48", dialecte: "Snowflake",
     q: "Qu'est-ce qu'un STREAM sur Snowflake ?",
     choix: [
-      "Un flux vidéo de supervision",
+      "Un chargement continu de fichiers",
       "Le suivi des changements d'une table",
       "Un type de warehouse en continu",
       "Une copie de la table, mise à jour en continu"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Rien à voir avec la vidéo.",
+      "Non. Ça, c'est Snowpipe ; un STREAM suit les changements d'une table.",
       "Oui. Il enregistre les changements (insertions, modifications, suppressions) d'une table depuis la dernière lecture. Capture de changements (CDC) : idéal pour des traitements incrémentaux.",
       "Non. Ce n'est pas un warehouse.",
       "Non. Il ne copie pas les données, il garde un repère."
@@ -1299,14 +1299,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q72", dialecte: "Snowflake",
     q: "Après un gros UPDATE sur une table, pourquoi le stockage facturé augmente-t-il ?",
     choix: [
-      "Un bug de facturation",
+      "Les micro-partitions sont compressées",
       "Anciennes versions conservées",
       "L'UPDATE double toujours la table",
       "Le cache de résultats est facturé"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le Time Travel.",
+      "Non. La compression réduit le stockage ; il augmente car les anciennes versions restent.",
       "Oui. Les micro-partitions réécrites remplacent les anciennes, mais les anciennes restent pour le Time Travel et le Fail-safe. Elles disparaissent à la fin des périodes de rétention.",
       "Non. Pas toujours le double.",
       "Non. Le cache de résultats n'est pas facturé ainsi."
@@ -1447,14 +1447,14 @@ LEARNSQL.questions.m14 = [
     choix: [
       "Il ne l'est pas",
       "Les données y sont stockées",
-      "Pour la langue de l'interface",
+      "Pour la vitesse de l'interface web",
       "Pour le fuseau horaire par défaut"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les données y sont stockées.",
       "Oui. Conformité (RGPD, contrats), latence, et certains coûts de transfert. Question à valider avec le DPO et la DSI dès le début du projet.",
-      "Non. La langue ne dépend pas de la région.",
+      "Non. L'interface change peu ; c'est l'endroit où les données sont stockées qui compte.",
       "Non. Le fuseau se règle à part."
     ],
     retenir: "Région = où vivent les données."
@@ -1553,14 +1553,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q86", dialecte: "Snowflake",
     q: "Pourquoi organiser un entrepôt Snowflake en couches (brut → nettoyé → modèle métier) ?",
     choix: [
-      "Pour faire joli",
+      "Pour avoir moins de tables",
       "Rôles clairs, recalcul, tests",
       "C'est obligatoire sur Snowflake",
       "Pour économiser du stockage"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Chaque couche a un rôle utile.",
+      "Non. Il y en a même plus ; le gain est la clarté, le recalcul et les tests.",
       "Oui. Chaque couche a un rôle clair : on peut recalculer à partir du brut, tester chaque étape, et les rapports ne lisent que des données propres. Souvent RAW / STAGING / CORE / MART (ou bronze / argent / or).",
       "Non. C'est une bonne pratique.",
       "Non. Ça en prend un peu plus."
@@ -1571,14 +1571,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q87", dialecte: "Snowflake",
     q: "Des horodatages TIMESTAMP_LTZ s'affichent avec 1 ou 2 heures d'écart selon les utilisateurs. Pourquoi ?",
     choix: [
-      "Un bug d'affichage",
+      "Le cache de résultats est périmé",
       "Le fuseau de la session",
       "Les données sont fausses",
       "Le warehouse est à l'étranger"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le fuseau de la session.",
+      "Non. Le cache renvoie les mêmes valeurs ; c'est le fuseau de la session qui change l'affichage.",
       "Oui. LTZ s'affiche dans le fuseau de la SESSION (paramètre TIMEZONE) : chaque utilisateur peut avoir un réglage différent. Fixe ALTER SESSION SET TIMEZONE = 'Europe/Paris' (ou au niveau du compte / de l'utilisateur), et choisis le bon type.",
       "Non. La valeur stockée est juste.",
       "Non. Le warehouse ne change pas l'affichage."
@@ -1608,14 +1608,14 @@ LEARNSQL.questions.m14 = [
     id: "m14-q89", dialecte: "Snowflake",
     q: "Qu'est-ce que Snowpark ?",
     choix: [
-      "Un parc d'attractions",
+      "L'interface web de Snowflake",
       "Du Python dans Snowflake",
       "Un type de warehouse Python",
       "Un format de fichier Parquet"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est une bibliothèque de code.",
+      "Non. L'interface web s'appelle Snowsight ; Snowpark, c'est du code (Python…) dans Snowflake.",
       "Oui. Une bibliothèque pour écrire des traitements de données en Python (ou Java / Scala) exécutés dans Snowflake. Les données ne sortent pas : le code vient à elles.",
       "Non. C'est une bibliothèque, pas un warehouse.",
       "Non. Ce n'est pas un format."
@@ -1628,14 +1628,14 @@ LEARNSQL.questions.m14 = [
     choix: [
       "Le charger tel quel, en un seul COPY",
       "Le découper en fichiers moyens",
-      "Le convertir en Excel avant",
+      "Le compresser en ZIP",
       "Utiliser un warehouse XS"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un seul gros fichier = un seul fil de chargement.",
       "Oui. Environ 100 à 250 Mo compressés : Snowflake les charge en parallèle. Le parallélisme du warehouse est alors pleinement utilisé.",
-      "Non. Excel est limité et plus lourd.",
+      "Non. Snowflake ne lit pas le ZIP ; et même en GZIP, un seul gros fichier reste lent.",
       "Non. Un petit warehouse charge moins en parallèle."
     ],
     retenir: "Chargement : beaucoup de fichiers moyens > un énorme."
@@ -1759,14 +1759,14 @@ LEARNSQL.questions.m14 = [
       "Oui, inclus dans le prix",
       "Non, ils consomment",
       "Seulement en Enterprise",
-      "Gratuits la nuit seulement"
+      "Seulement Snowpipe consomme"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ils consomment des crédits.",
       "Oui. Ce sont des services « serverless » qui consomment des crédits, à surveiller comme les warehouses. Les coûts apparaissent dans les vues d'historique de consommation.",
       "Non. Ils consomment des crédits partout.",
-      "Non. L'heure ne change rien."
+      "Non. Les trois consomment des crédits."
     ],
     retenir: "Services serverless = crédits aussi."
   },

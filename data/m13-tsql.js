@@ -112,14 +112,14 @@ LEARNSQL.questions.m13 = [
     id: "m13-q07", dialecte: "SQL Server",
     q: "Pourquoi les messages PRINT d'un long traitement n'apparaissent-ils qu'à la fin ?",
     choix: [
-      "Un bug connu de SSMS",
+      "PRINT n'est affiché qu'après un GO",
       "Ils sont mis en mémoire tampon",
       "PRINT attend la fin de la transaction",
       "PRINT s'affiche seulement en cas d'erreur"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un comportement normal du tampon.",
+      "Non. Le lot n'a pas besoin de finir par GO : c'est la mémoire tampon qui retarde.",
       "Oui. Pour un affichage immédiat : RAISERROR('message', 0, 1) WITH NOWAIT. Gravité 0 = simple information, pas une erreur.",
       "Non. Le tampon existe même sans transaction.",
       "Non. PRINT s'affiche toujours, mais en retard."
@@ -663,14 +663,14 @@ LEARNSQL.questions.m13 = [
       "Ils sont interdits en production",
       "Ils traitent ligne par ligne : lent",
       "Ils suppriment des données",
-      "Ils verrouillent toujours toute la base"
+      "Ils ne marchent pas avec les jointures"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ils sont permis.",
       "Oui. Beaucoup plus lent qu'une requête sur l'ensemble des lignes. 100 000 lignes en curseur : minutes. En une requête : secondes.",
       "Non. Ils ne suppriment rien.",
-      "Non. Ils ne verrouillent pas toute la base."
+      "Non. Un curseur peut parcourir n'importe quel SELECT ; le problème, c'est la lenteur."
     ],
     retenir: "Curseur = ligne par ligne = lent."
   },
@@ -954,14 +954,14 @@ LEARNSQL.questions.m13 = [
       "C'est plus court à écrire",
       "On maîtrise types, NULL et clé",
       "SELECT INTO est interdit en procédure",
-      "SELECT INTO verrouille toute la base"
+      "SELECT INTO ne copie pas les données"
     ],
     bonne: 1,
     pourquoi: [
       "Non. C'est plus long à écrire.",
       "Oui. On maîtrise les types, NULL / NOT NULL, et on peut ajouter une clé ; SELECT INTO déduit les types (parfois trop larges ou faux). SELECT INTO reste pratique pour des besoins simples.",
       "Non. SELECT INTO est permis.",
-      "Non. Il ne verrouille pas toute la base."
+      "Non. Il les copie bien ; mais les types, NULL et clés sont devinés."
     ],
     retenir: "#table : structure explicite = moins de surprises."
   },
@@ -1242,14 +1242,14 @@ LEARNSQL.questions.m13 = [
     id: "m13-q69", dialecte: "SQL Server",
     q: "Une procédure renvoie un résultat faux. Méthode simple pour trouver l'étape fautive ?",
     choix: [
-      "Tout réécrire depuis le début",
+      "Lire la procédure jusqu'à trouver l'erreur",
       "Afficher chaque étape",
       "Ajouter NOLOCK partout",
       "Relancer jusqu'à ce que ça marche"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Trop long ; on ne sait pas où est l'erreur.",
+      "Non. Possible, mais long : afficher le résultat de chaque étape va plus vite.",
       "Oui. Ajouter temporairement des SELECT (ou PRINT) des tables intermédiaires et des variables après chaque étape. Penser à les retirer ensuite (ou les conditionner à un paramètre @debug).",
       "Non. NOLOCK ne corrige pas un calcul.",
       "Non. Un résultat faux reste faux."

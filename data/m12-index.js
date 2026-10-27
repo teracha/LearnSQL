@@ -147,14 +147,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q09", dialecte: "SQL Server",
     q: "Qu'est-ce qu'un « Key Lookup » dans un plan ?",
     choix: [
-      "Une recherche de mot de passe",
+      "Une recherche dans un index non cluster",
       "Un aller-retour vers l'index cluster",
       "Une jointure entre deux tables",
       "Un tri des lignes trouvées"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est une lecture de colonnes manquantes.",
+      "Non. Ça, c'est le Seek ; le Key Lookup va ensuite chercher les autres colonnes dans l'index cluster.",
       "Oui. Après un seek dans un index non cluster, on va chercher les colonnes manquantes dans l'index cluster. Un lookup par ligne trouvée : coûteux s'il y en a beaucoup.",
       "Non. Même s'il apparaît avec une boucle (Nested Loops).",
       "Non. Il ne trie rien."
@@ -441,14 +441,14 @@ LEARNSQL.questions.m12 = [
     choix: [
       "Tout va bien, c'est normal",
       "Une estimation complètement fausse",
-      "Un bug d'affichage du plan",
+      "Le plan réel n'a pas fini de compter",
       "Un index en trop sur la table"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un écart énorme fausse le plan.",
       "Oui. Statistiques périmées, parameter sniffing, variable table, fonction… L'optimiseur a choisi une stratégie pour 1 ligne (ex. boucles) : catastrophique pour 2 millions.",
-      "Non. Les chiffres sont réels.",
+      "Non. Le plan réel affiche les vrais nombres en fin d'exécution : l'écart est réel.",
       "Non. Un index en trop ne crée pas cet écart."
     ],
     retenir: "Écart énorme estimé / réel = cause n°1 des plans lents."
@@ -548,14 +548,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q31", dialecte: "SQL Server",
     q: "Qu'est-ce que le « parameter sniffing » ?",
     choix: [
-      "Un piratage du serveur",
+      "L'analyse des paramètres par l'audit",
       "Plan du 1er appel, réutilisé ensuite",
       "Une erreur de type de paramètre",
       "Un type d'index spécial"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Rien à voir avec la sécurité.",
+      "Non. Ce n'est pas de l'audit : le plan du 1er appel est gardé pour tous les suivants.",
       "Oui. SQL Server construit le plan d'une procédure avec les valeurs du 1er appel, puis le réutilise. Excellent en général ; mauvais si les valeurs sont très différentes (petit client vs énorme client).",
       "Non. Le type est juste.",
       "Non. Ce n'est pas un index."
@@ -566,17 +566,17 @@ LEARNSQL.questions.m12 = [
     id: "m12-q32", dialecte: "SQL Server",
     q: "Une procédure est rapide le matin et très lente l'après-midi, sans changement de données. Hypothèse ?",
     choix: [
-      "Le serveur est fatigué en fin de journée",
+      "Plus d'utilisateurs l'après-midi",
       "Le plan a changé (parameter sniffing)",
       "Les index ont disparu à midi",
-      "Un bug de SQL Server"
+      "Le cache de données est vidé à midi"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Le serveur ne se fatigue pas.",
+      "Non. La charge joue un peu, mais pas « rapide / très lent » sans changement : le plan a changé.",
       "Oui. Le plan a été recompilé avec un paramètre atypique et ne convient pas aux appels suivants. Vérifie dans Query Store si le plan a changé.",
       "Non. Les index ne disparaissent pas seuls.",
-      "Non. C'est un comportement connu."
+      "Non. SQL Server ne vide pas son cache à heure fixe."
     ],
     retenir: "Lenteur intermittente = pense au plan qui change."
   },
@@ -1179,14 +1179,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q66", dialecte: "SQL Server",
     q: "Le Query Store montre qu'une requête avait un bon plan hier et un mauvais aujourd'hui. Correction rapide ?",
     choix: [
-      "Redémarrer le serveur SQL",
+      "Mettre à jour les statistiques",
       "Forcer l'ancien plan dans Query Store",
       "Supprimer et recréer la table",
       "Ajouter NOLOCK à la requête"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. On perd le cache, sans rien corriger.",
+      "Non. Ça peut aider, mais sans garantie de retrouver le bon plan ; forcer l'ancien plan est immédiat.",
       "Oui. Correctif immédiat, réversible. Ensuite, cherche la cause à froid : statistiques, index, réécriture.",
       "Non. Trop risqué.",
       "Non. NOLOCK ne change pas le plan."
@@ -1251,17 +1251,17 @@ LEARNSQL.questions.m12 = [
     id: "m12-q70", dialecte: "SQL Server",
     q: "Une requête prend 20 s à la 1re exécution, 2 s à la 2e. Pourquoi ?",
     choix: [
-      "Un bug de la 1re exécution",
+      "Les statistiques sont créées au 1er appel",
       "Les pages sont déjà en mémoire",
       "Les index ont été créés entre-temps",
-      "Le serveur a appris la requête"
+      "Le plan est compilé au 1er appel"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le cache.",
+      "Non. Ça peut coûter un peu, pas 18 secondes ; ce sont les pages lues sur le disque.",
       "Oui. À la 2e exécution, les pages sont en cache : plus de lectures disque. Compare toujours à « cache chaud » ou « cache froid » de façon cohérente.",
       "Non. Rien n'a été créé.",
-      "Non. Le serveur garde les pages en mémoire."
+      "Non. La compilation prend des millisecondes, pas 18 secondes."
     ],
     retenir: "1re exécution lente, 2e rapide = cache."
   },
@@ -1272,14 +1272,14 @@ LEARNSQL.questions.m12 = [
       "Oui, partout, sans risque",
       "Seulement sur un serveur de test",
       "Jamais, la commande est interdite",
-      "Seulement le lundi matin"
+      "Oui, si on le fait la nuit"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En production, tout le monde ralentit.",
       "Oui. En production, tout le monde subirait des lectures disque massives. Utile pour mesurer à « cache froid », mais pas en production.",
       "Non. Elle est permise.",
-      "Non. Le jour ne change rien."
+      "Non. Même la nuit, tout le serveur relit ses données sur le disque ensuite."
     ],
     retenir: "Vider le cache : test uniquement."
   },
@@ -1305,14 +1305,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q73", dialecte: "SQL Server",
     q: "Tu vois des statistiques nommées _WA_Sys_… sur une table. D'où viennent-elles ?",
     choix: [
-      "D'un virus sur le serveur",
+      "Des index créés par l'assistant de réglage",
       "Des statistiques automatiques",
       "D'une ancienne sauvegarde",
       "D'un index supprimé récemment"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un comportement normal.",
+      "Non. L'assistant crée des index, pas ces statistiques _WA_Sys_.",
       "Oui. SQL Server les a créées sur des colonnes filtrées sans index, pour mieux estimer : c'est l'option AUTO_CREATE_STATISTICS, activée par défaut.",
       "Non. Elles sont créées par le moteur.",
       "Non. Elles viennent des filtres."
@@ -1323,14 +1323,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q74", dialecte: "SQL Server",
     q: "WHERE ville = 'Lyon' AND code_postal LIKE '69%' est fortement sous-estimé. Pourquoi ?",
     choix: [
-      "Un bug de l'estimateur",
+      "LIKE empêche toute estimation",
       "Les colonnes sont liées",
       "Les textes n'ont pas de statistiques",
       "Il manque NOLOCK sur la table"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Il suppose les colonnes indépendantes.",
+      "Non. LIKE '69%' s'estime bien ; le souci est de multiplier deux filtres liés.",
       "Oui. L'optimiseur suppose les colonnes plutôt indépendantes et multiplie à peu près les probabilités : le résultat est trop petit. Des statistiques multi-colonnes peuvent aider.",
       "Non. Les textes ont des statistiques.",
       "Non. NOLOCK ne change pas l'estimation."
@@ -1485,14 +1485,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q83", dialecte: "SQL Server",
     q: "Après un gros DELETE sur une table heap, elle occupe toujours autant de place. Pourquoi ?",
     choix: [
-      "Un bug de SQL Server",
+      "Le journal garde les lignes supprimées",
       "Les pages vides restent allouées",
       "Les données sont seulement cachées",
       "Le DELETE a échoué sans message"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est le comportement normal d'un heap.",
+      "Non. Le journal est un autre fichier ; ici, ce sont les pages vides de la table.",
       "Oui. Sur un heap, les pages vidées ne sont pas toujours libérées (sauf DELETE avec TABLOCK ou reconstruction). Les scans continuent de les lire.",
       "Non. Elles sont bien supprimées.",
       "Non. Il a réussi."
@@ -1557,14 +1557,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q87", dialecte: "SQL Server",
     q: "Pour un filtre qui renvoie 30 % de la table, SQL Server fait un scan alors qu'un index existe. Pourquoi ?",
     choix: [
-      "Un bug de l'optimiseur",
+      "Le scan est toujours plus rapide",
       "Trop de lookups : le scan coûte moins",
       "L'index est désactivé",
       "Les statistiques sont trop parfaites"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est un choix voulu.",
+      "Non. Pour quelques lignes, l'index gagne ; à 30 %, ce sont les lookups qui coûtent trop.",
       "Oui. Au-delà d'un certain nombre de lignes, des milliers de lookups coûtent plus cher qu'un scan (« point de bascule »). Avec un index couvrant, le seek redevient intéressant.",
       "Non. Il est actif.",
       "Non. Les statistiques sont bonnes : 30 %."
@@ -1650,14 +1650,14 @@ LEARNSQL.questions.m12 = [
       "La production est cassée",
       "Tester avec des volumes réalistes",
       "Il faut moins de données en production",
-      "Les tests ne servent à rien"
+      "Ajouter de la mémoire au serveur"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le volume change les plans.",
       "Oui. Les plans et les coûts changent avec le volume. Une copie anonymisée de la production est l'idéal pour les tests de performance.",
       "Non. Les données sont nécessaires.",
-      "Non. Ils doivent juste être réalistes."
+      "Non. Ça cache le problème un temps ; il faut tester avec des volumes réalistes."
     ],
     retenir: "Tests de performance = volumes réalistes."
   },
@@ -1667,14 +1667,14 @@ LEARNSQL.questions.m12 = [
     choix: [
       "Créer des index tout de suite",
       "Mesurer l'état de départ",
-      "Redémarrer le serveur pour repartir",
+      "Mettre à jour toutes les statistiques",
       "Réécrire toute la requête"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sans mesure, impossible de prouver un gain.",
       "Oui. Lectures, CPU, durée, plan : pour pouvoir prouver le gain ensuite. Sans mesure de départ, impossible de dire si on a amélioré ou empiré.",
-      "Non. Le cache serait vidé : mesures fausses.",
+      "Non. Ça peut aider, mais sans mesure de départ, on ne saura pas si ça a changé quelque chose.",
       "Non. On doit d'abord mesurer."
     ],
     retenir: "Mesurer avant, mesurer après."
@@ -1683,14 +1683,14 @@ LEARNSQL.questions.m12 = [
     id: "m12-q94", dialecte: "Standard",
     q: "Pourquoi ne changer qu'une seule chose à la fois quand on optimise ?",
     choix: [
-      "Par paresse, c'est plus simple à faire",
+      "Pour éviter de bloquer la production",
       "Pour savoir ce qui a eu de l'effet",
       "C'est obligatoire dans SSMS",
       "Pour économiser des index"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. La raison est de savoir ce qui marche.",
+      "Non. Ce n'est pas le but ; on veut savoir quel changement a eu de l'effet.",
       "Oui. Trois changements d'un coup : impossible de savoir lequel compte, ni lequel a cassé autre chose.",
       "Non. Rien n'est obligatoire.",
       "Non. Rien à voir avec les index."
