@@ -10,10 +10,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce sont des composants matériels, pas les couches Snowflake.",
       "Oui. Stockage (les données), calcul (les warehouses), services cloud (connexion, optimisation, métadonnées, sécurité). Stockage et calcul sont séparés : on peut les faire grandir indépendamment.",
       "Non. Il n'y a pas d'index sur Snowflake.",
-      "Non."
+      "Non. Ce n'est pas l'architecture de Snowflake."
     ],
     retenir: "Stockage / calcul / services cloud, séparés."
   },
@@ -30,7 +30,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Piège de vocabulaire.",
       "Oui. Un groupe de ressources de calcul qui exécute les requêtes ; il ne contient pas de données. Les données sont dans le stockage ; le warehouse est le « moteur » qui les lit.",
-      "Non.",
+      "Non. Un warehouse ne contient aucune donnée.",
       "Non. Ça, c'est un stage."
     ],
     retenir: "Warehouse = puissance de calcul, pas de stockage."
@@ -46,10 +46,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La puissance et le coût doublent.",
       "Oui. Deux fois plus de puissance de calcul, et deux fois plus de crédits par heure. Chaque taille double. Une requête qui passe de 10 min à 5 min coûte à peu près pareil.",
       "Non. Le stockage ne dépend pas du warehouse.",
-      "Non."
+      "Non. La taille ne limite pas les utilisateurs."
     ],
     retenir: "Taille × 2 = puissance × 2 = crédits/heure × 2."
   },
@@ -64,10 +64,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La facturation est à la seconde.",
       "Oui. À la seconde, avec un minimum de 60 secondes à chaque démarrage (ou reprise). Un warehouse qui démarre pour une requête de 2 s coûte 60 s.",
-      "Non.",
-      "Non."
+      "Non. C'est le temps allumé qui compte.",
+      "Non. Pas de forfait : on paie l'usage."
     ],
     retenir: "Facturation à la seconde, minimum 60 s par démarrage."
   },
@@ -84,8 +84,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ce serait STATEMENT_TIMEOUT_IN_SECONDS.",
       "Oui. On ne paie plus quand il ne sert pas. Avec AUTO_RESUME = TRUE, il redémarre tout seul à la prochaine requête.",
-      "Non.",
-      "Non."
+      "Non. Il s'arrête ; il ne redémarre qu'à la prochaine requête.",
+      "Non. Ce n'est pas une limite d'utilisateurs."
     ],
     retenir: "AUTO_SUSPEND court + AUTO_RESUME = pas de crédits gaspillés."
   },
@@ -102,8 +102,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. C'est permis.",
       "Oui. Chaque redémarrage coûte au moins 60 s et vide le cache local : pour des requêtes fréquentes, ça peut coûter plus et ralentir. Trouver le bon équilibre selon l'usage (souvent 60 à 300 s).",
-      "Non.",
-      "Non."
+      "Non. Le stockage ne dépend pas du warehouse.",
+      "Non. Un warehouse arrêté ne bloque pas les tables."
     ],
     retenir: "AUTO_SUSPEND : équilibre entre coût et cache."
   },
@@ -120,7 +120,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Les clusters supplémentaires aident quand il y a beaucoup de requêtes en même temps, pas une seule grosse.",
       "Oui. Plus de puissance pour UNE requête. (Mais vérifie d'abord le Query Profile : la requête est peut-être mal écrite.)",
-      "Non.",
+      "Non. Ça règle l'arrêt, pas la puissance.",
       "Non. Pas d'index."
     ],
     retenir: "Grosse requête : plus grande taille."
@@ -138,7 +138,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Cher, et pas forcément efficace pour beaucoup de petites requêtes.",
       "Oui. Scale out : des clusters s'ajoutent automatiquement quand la file s'allonge. MIN_CLUSTER_COUNT / MAX_CLUSTER_COUNT (édition Enterprise).",
-      "Non.",
+      "Non. Moins de puissance, plus d'attente.",
       "Non. Ingérable et très cher."
     ],
     retenir: "Beaucoup d'utilisateurs : multi-cluster."
@@ -154,7 +154,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un choix, pas une obligation.",
       "Oui. Les traitements ne se gênent pas, chaque usage a sa taille adaptée, et on voit le coût de chaque usage. Le chargement de nuit ne ralentit pas les tableaux de bord.",
       "Non. Le stockage ne dépend pas du warehouse.",
       "Non. Le cache de résultats est commun à tout le compte."
@@ -172,9 +172,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un resource monitor le fait.",
       "Oui. Un quota de crédits et des actions (alerte, suspension) à certains seuils. Ex. alerte à 80 %, suspension à 100 %. Indispensable pour maîtriser le budget.",
-      "Non.",
+      "Non. On perd l'outil, et ce n'est pas automatique.",
       "Non. 0 = jamais de suspension."
     ],
     retenir: "Budget : resource monitor."
@@ -190,9 +190,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le résultat est déjà en cache.",
       "Oui. Il renvoie le résultat du cache, presque instantanément, sans même démarrer le warehouse. Conditions : 24 h, même texte de requête, données inchangées, mêmes droits.",
-      "Non.",
+      "Non. Relancer une requête est normal.",
       "Non. Pas besoin du warehouse : le cache de résultats est dans les services cloud."
     ],
     retenir: "Cache de résultats : même requête + mêmes données = gratuit et instantané."
@@ -208,10 +208,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est voulu : le résultat change à chaque instant.",
       "Oui. Snowflake ne peut pas réutiliser un ancien résultat. Les fonctions non déterministes empêchent la réutilisation. Remplace par une date fixe si possible.",
-      "Non.",
-      "Non."
+      "Non. La taille n'est pas la raison.",
+      "Non. La raison est le moment, pas le warehouse."
     ],
     retenir: "Fonctions « du moment » = pas de cache de résultats."
   },
@@ -226,10 +226,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Deux caches différents.",
       "Oui. Résultats : réponse complète réutilisée (services cloud, 24 h). Local : données déjà lues gardées sur le warehouse tant qu'il tourne. Suspendre le warehouse vide le cache local, pas le cache de résultats.",
-      "Non.",
-      "Non."
+      "Non. Il disparaît quand le warehouse s'arrête.",
+      "Non. Il est dans les services cloud."
     ],
     retenir: "Deux caches : résultats (global) et local (warehouse)."
   },
@@ -246,7 +246,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Pas d'index.",
       "Oui. Snowflake connaît ces valeurs dans les métadonnées de chaque micro-partition : pas besoin de lire les données. Requêtes « métadonnées seules », souvent sans warehouse.",
-      "Non.",
+      "Non. Il lit les métadonnées, pas un cache.",
       "Non. Le résultat est exact, pas estimé."
     ],
     retenir: "COUNT / MIN / MAX sans filtre : métadonnées."
@@ -262,9 +262,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas d'index sur Snowflake.",
       "Oui. Un bloc de stockage immuable (environ 50 à 500 Mo non compressés), rangé par colonnes, avec des métadonnées (min, max…). Snowflake découpe automatiquement chaque table.",
-      "Non.",
+      "Non. C'est un bloc de stockage permanent.",
       "Non. Le découpage est automatique."
     ],
     retenir: "Micro-partition = bloc immuable + métadonnées."
@@ -280,10 +280,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il saute des partitions à la lecture.",
       "Oui. Sauter les micro-partitions qui ne peuvent pas contenir les lignes recherchées, grâce à leur min / max. C'est le principal levier de performance sur Snowflake.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas une compression.",
+      "Non. Ce n'est pas un tri."
     ],
     retenir: "Pruning = ne lire que les partitions utiles."
   },
@@ -301,7 +301,7 @@ LEARNSQL.questions.m14 = [
       "Non. 98 % des partitions sont lues.",
       "Oui. Les dates sont dispersées dans toutes les partitions (ou le filtre empêche le pruning). Vérifie le filtre (fonction sur la colonne ?) ; si la table est énorme et toujours filtrée ainsi, une clé de clustering peut aider.",
       "Non. Pas de statistiques à gérer sur Snowflake.",
-      "Non."
+      "Non. Elles sont lues car elles peuvent contenir la date."
     ],
     retenir: "Scanned ≈ total = pruning inefficace."
   },
@@ -316,10 +316,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'ordre de chargement explique ce rangement.",
       "Oui. Les nouvelles micro-partitions contiennent les nouvelles dates : chaque partition couvre une petite plage, le pruning marche bien. « Clustering naturel ». Un filtre sur une autre colonne (ex. client) n'en profite pas.",
-      "Non.",
-      "Non."
+      "Non. Pas d'index sur Snowflake.",
+      "Non. C'est le cas grâce à l'ordre de chargement."
     ],
     retenir: "Ordre de chargement = rangement naturel."
   },
@@ -337,7 +337,7 @@ LEARNSQL.questions.m14 = [
       "Non. Le reclustering automatique consomme des crédits.",
       "Oui. Plusieurs To, souvent filtrées sur les mêmes colonnes, quand le pruning est mauvais. Mesurer avant / après le gain sur les requêtes et le coût de maintenance.",
       "Non. Inutile.",
-      "Non."
+      "Non. Utile sur de très grosses tables."
     ],
     retenir: "Clustering : très grosses tables, filtres réguliers."
   },
@@ -391,8 +391,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Le débordement distant est très lent.",
       "Oui. La mémoire du warehouse ne suffit pas : réduire les données traitées (filtres, colonnes) ou augmenter la taille du warehouse. Souvent, un filtre plus tôt ou une jointure mieux écrite suffit.",
-      "Non.",
-      "Non."
+      "Non. Pas d'index sur Snowflake.",
+      "Non. Ça ne règle pas le manque de mémoire."
     ],
     retenir: "Spilling = mémoire insuffisante."
   },
@@ -407,10 +407,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ça dépend de la requête.",
       "Oui. Souvent TableScan (trop de partitions lues) ou une jointure qui explose (plus de lignes en sortie qu'en entrée). Le profil donne le pourcentage de temps par opérateur : commence par le plus gros.",
-      "Non.",
-      "Non."
+      "Non. Ça dépend de la requête.",
+      "Non. Il donne le temps de chaque opérateur."
     ],
     retenir: "Query Profile : attaquer l'opérateur le plus coûteux."
   },
@@ -425,10 +425,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est permis, mais coûteux.",
       "Oui. Stockage en colonnes : Snowflake ne lit que les colonnes demandées. Avec *, il lit tout : plus de données, plus de temps, plus de crédits. Lister 5 colonnes peut diviser fortement le volume lu.",
-      "Non.",
-      "Non."
+      "Non. Le cache marche toujours.",
+      "Non. Il ne trie rien."
     ],
     retenir: "Colonnes listées = moins de données lues."
   },
@@ -443,10 +443,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas avec un tri ou un agrégat.",
       "Oui. Avec un ORDER BY ou un agrégat, Snowflake doit souvent tout lire avant de garder 10 lignes. Pour explorer à moindre coût : SAMPLE, ou filtrer sur une date.",
       "Non. Sans tri, il peut s'arrêter tôt.",
-      "Non."
+      "Non. Les vues n'ont rien à voir."
     ],
     retenir: "LIMIT ne garantit pas une lecture réduite."
   },
@@ -500,10 +500,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Cette syntaxe n'existe pas.",
       "Oui. Possible tant qu'on est dans la période de Time Travel. Marche aussi pour un schéma ou une base.",
-      "Non.",
-      "Non."
+      "Non. Le DROP est validé depuis hier.",
+      "Non. UNDROP le permet pendant le Time Travel."
     ],
     retenir: "DROP par erreur : UNDROP."
   },
@@ -518,10 +518,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce n'est pas la durée par défaut.",
       "Oui. 90 jours en édition Enterprise. Réglable par table, schéma ou base (DATA_RETENTION_TIME_IN_DAYS). Plus long = plus de stockage.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas la durée par défaut.",
+      "Non. Il y a 1 jour par défaut."
     ],
     retenir: "Time Travel : 1 jour par défaut, 90 max (Enterprise)."
   },
@@ -536,10 +536,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il vient après le Time Travel.",
       "Oui. 7 jours de protection supplémentaires APRÈS le Time Travel, accessibles seulement par le support Snowflake en cas de sinistre. Pas un outil du quotidien. Les tables TRANSIENT n'en ont pas.",
-      "Non.",
-      "Non."
+      "Non. Il est automatique.",
+      "Non. Rien à voir avec la sécurité antivirus."
     ],
     retenir: "Fail-safe : 7 jours, via le support uniquement."
   },
@@ -554,9 +554,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le clone est instantané : rien n'est copié.",
       "Oui. La nouvelle base partage les données de prod ; seules les modifications futures prennent de la place. « Zéro copie » : parfait pour un environnement de test réaliste.",
-      "Non.",
+      "Non. Le clone contient les données.",
       "Non. Le clone est modifiable, indépendamment de prod."
     ],
     retenir: "CLONE = copie instantanée, stockage partagé."
@@ -591,10 +591,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le clone n'a pas cet historique.",
       "Oui. Un COPY INTO sur le clone pourrait recharger des fichiers déjà présents. Point d'attention pour les tests de chargement sur un environnement cloné.",
-      "Non.",
-      "Non."
+      "Non. Il n'a pas cet historique.",
+      "Non. Même règle partout."
     ],
     retenir: "Clone : pas d'historique de chargement."
   },
@@ -609,10 +609,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un emplacement de fichiers.",
       "Oui. Un emplacement de fichiers (interne à Snowflake ou externe : S3, Azure, GCS) d'où l'on charge et où l'on décharge des données. Fichiers → stage → COPY INTO table.",
       "Non. Ce n'est pas une table.",
-      "Non."
+      "Non. Un warehouse ne stocke pas de fichiers."
     ],
     retenir: "Stage = zone de fichiers."
   },
@@ -627,10 +627,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce sont des stages.",
       "Oui. @~ : le stage de l'utilisateur ; @%commande : le stage de la table commande ; @mon_stage : un stage nommé. Pour un flux d'entreprise, on préfère un stage nommé, avec un format de fichier défini.",
       "Non. Ce sont des zones dans Snowflake.",
-      "Non."
+      "Non. Ce sont des stages."
     ],
     retenir: "@~ utilisateur, @%table, @stage nommé."
   },
@@ -646,10 +646,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il faut le décrire.",
       "Oui. CSV, séparateur ;, entête, encodage, format de date… réutilisé dans les COPY. Ex. CREATE FILE FORMAT ff_csv_fr TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1 …",
-      "Non.",
-      "Non."
+      "Non. Il décrit le fichier, il ne compresse pas.",
+      "Non. Il ne trie rien."
     ],
     retenir: "FILE FORMAT : décrire le fichier une seule fois."
   },
@@ -666,8 +666,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Seulement avec ON_ERROR = CONTINUE.",
       "Oui. ON_ERROR = ABORT_STATEMENT par défaut. On peut choisir CONTINUE (ignorer les lignes en erreur) ou SKIP_FILE (ignorer le fichier).",
-      "Non.",
-      "Non."
+      "Non. Il ne corrige rien.",
+      "Non. Il arrête tout par défaut."
     ],
     retenir: "COPY : ON_ERROR = ABORT_STATEMENT par défaut."
   },
@@ -701,10 +701,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils sont sautés.",
       "Oui. Snowflake garde l'historique de chargement (64 jours) et saute les fichiers déjà chargés. Chargement naturellement relançable. FORCE = TRUE pour forcer (avec prudence).",
-      "Non.",
-      "Non."
+      "Non. Tous les fichiers déjà chargés sont sautés.",
+      "Non. Pas d'erreur : ils sont sautés."
     ],
     retenir: "COPY INTO : pas de double chargement (64 jours)."
   },
@@ -719,9 +719,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est un chargement automatique.",
       "Oui. Dès qu'un fichier arrive dans le stage, il est chargé (sans warehouse à gérer). Idéal pour des flux réguliers (fichiers EDI qui arrivent au fil de la journée).",
-      "Non.",
+      "Non. Ce n'est pas un connecteur.",
       "Non. Ça ressemble plutôt au partage de données."
     ],
     retenir: "Snowpipe = chargement au fil de l'eau."
@@ -775,10 +775,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Sans conversion, c'est un VARIANT.",
       "Oui. Sans conversion, le résultat est un VARIANT (affiché \"Dupont\" avec guillemets) ; avec ::STRING, c'est un vrai texte comparable et joignable. Toujours typer ce qu'on extrait d'un JSON.",
-      "Non.",
-      "Non."
+      "Non. Le but est d'avoir un vrai texte.",
+      "Non. Il ne compresse rien."
     ],
     retenir: "Extraire du JSON = convertir (::)."
   },
@@ -813,10 +813,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas de type JSON sur Snowflake.",
       "Oui. (TRY_PARSE_JSON renvoie NULL si le texte est mal formé.)",
       "Non. TO_JSON fait l'inverse : VARIANT → texte.",
-      "Non."
+      "Non. Cette fonction n'existe pas."
     ],
     retenir: "Texte → JSON : PARSE_JSON."
   },
@@ -850,10 +850,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les clés JSON respectent la casse.",
       "Oui. Les clés JSON tiennent compte de la casse : doc:Nom et doc:nom sont différents. Contrairement aux noms de colonnes sans guillemets.",
-      "Non.",
-      "Non."
+      "Non. La casse compte toujours.",
+      "Non. Rien à voir avec le warehouse."
     ],
     retenir: "Clés JSON : sensibles à la casse."
   },
@@ -868,9 +868,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Rien à voir avec la vidéo.",
       "Oui. Il enregistre les changements (insertions, modifications, suppressions) d'une table depuis la dernière lecture. Capture de changements (CDC) : idéal pour des traitements incrémentaux.",
-      "Non.",
+      "Non. Ce n'est pas un warehouse.",
       "Non. Il ne copie pas les données, il garde un repère."
     ],
     retenir: "STREAM = changements depuis la dernière consommation."
@@ -888,8 +888,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Un simple SELECT ne le consomme pas.",
       "Oui. Quand il est utilisé dans une instruction de modification (INSERT, MERGE…) validée. Si la transaction est annulée, le stream garde ses changements : rien n'est perdu.",
-      "Non.",
-      "Non."
+      "Non. Il est vidé quand il est utilisé, pas selon l'heure.",
+      "Non. Il est vidé par un DML validé."
     ],
     retenir: "Stream consommé par un DML validé."
   },
@@ -904,9 +904,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elle est permanente.",
       "Oui. Une table définie par une requête, que Snowflake rafraîchit automatiquement avec un délai maximum choisi (TARGET_LAG). Remplace souvent des combinaisons stream + task.",
-      "Non.",
+      "Non. Ses colonnes sont fixes.",
       "Non. Le résultat est stocké."
     ],
     retenir: "Dynamic table = requête matérialisée, rafraîchie automatiquement."
@@ -924,8 +924,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ce n'est pas le modèle Snowflake.",
       "Oui. Puis on attribue les rôles aux utilisateurs : contrôle d'accès par rôles (RBAC). Un nouvel arrivant reçoit simplement le bon rôle.",
-      "Non.",
-      "Non."
+      "Non. Un warehouse ne reçoit pas de droits sur les données.",
+      "Non. Les droits portent sur les tables, mais sont donnés à des rôles."
     ],
     retenir: "Droits → rôles → utilisateurs."
   },
@@ -942,8 +942,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Rôle le plus puissant, à réserver à l'administration du compte.",
       "Oui. SECURITYADMIN gère les droits, USERADMIN les utilisateurs et rôles, PUBLIC est donné à tout le monde.",
-      "Non.",
-      "Non."
+      "Non. PUBLIC est donné à tout le monde.",
+      "Non. USERADMIN gère les utilisateurs et rôles."
     ],
     retenir: "Objets : SYSADMIN. Droits : SECURITYADMIN. Compte : ACCOUNTADMIN."
   },
@@ -958,9 +958,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. La vitesse est la même.",
       "Oui. Il a tous les pouvoirs (facturation, sécurité…) : une erreur peut coûter très cher. Et les objets créés lui appartiennent. Moindre privilège : chacun le rôle juste nécessaire, et MFA sur ACCOUNTADMIN.",
-      "Non.",
+      "Non. Aucun coût en plus.",
       "Non. Il hérite des autres rôles système."
     ],
     retenir: "ACCOUNTADMIN : rarement, et protégé."
@@ -976,9 +976,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il faut le rattacher à la main.",
       "Oui. Les administrateurs gardent la main sur les objets créés par ce rôle. Un rôle « orphelin » crée des objets que personne d'autre ne peut gérer.",
-      "Non.",
+      "Non. Les rôles ne reçoivent pas de stockage.",
       "Non. Les warehouses se donnent par GRANT USAGE."
     ],
     retenir: "Rôles personnalisés : rattachés à SYSADMIN."
@@ -996,8 +996,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ingérable.",
       "Oui. Des rôles d'accès (lecture / écriture par schéma) regroupés dans des rôles métier (ANALYSTE_VENTES, ETL…) attribués aux personnes. Les droits techniques sont définis une fois.",
-      "Non.",
-      "Non."
+      "Non. Beaucoup trop de pouvoirs.",
+      "Non. Aucune séparation des droits."
     ],
     retenir: "Rôles d'accès + rôles métier."
   },
@@ -1050,10 +1050,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Pas d'index sur Snowflake.",
       "Oui. Le droit USAGE sur la base PROD et sur le schéma VENTES : pour atteindre une table, il faut pouvoir « entrer » dans la base et le schéma.",
-      "Non.",
-      "Non."
+      "Non. Lire ne demande pas DELETE.",
+      "Non. Le message parle de droits."
     ],
     retenir: "Lire une table = USAGE base + USAGE schéma + SELECT table."
   },
@@ -1070,8 +1070,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ce n'est pas la personne.",
       "Oui. Le RÔLE actif au moment de la création ; on peut transférer avec GRANT OWNERSHIP. D'où l'importance d'utiliser le bon rôle quand on crée des objets.",
-      "Non.",
-      "Non."
+      "Non. Le warehouse ne possède rien.",
+      "Non. Chaque objet a un rôle propriétaire."
     ],
     retenir: "Propriétaire = rôle actif à la création."
   },
@@ -1086,7 +1086,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Doublons et maintenance lourde.",
       "Oui. Une politique de masquage attachée à la colonne, qui teste CURRENT_ROLE(). Elle s'applique partout, même aux nouvelles requêtes (édition Enterprise).",
       "Non. Pas de triggers sur Snowflake.",
       "Non. Ingérable."
@@ -1106,7 +1106,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Le masquage concerne les colonnes.",
       "Oui. Politique d'accès aux lignes : les lignes non autorisées sont filtrées automatiquement selon l'utilisateur ou le rôle.",
-      "Non.",
+      "Non. Un warehouse ne filtre pas les lignes.",
       "Non. Doublons et maintenance lourde."
     ],
     retenir: "Filtrer les lignes par utilisateur : row access policy."
@@ -1122,7 +1122,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Le compte doit être protégé.",
       "Oui. Authentification forte (MFA / SSO), politiques réseau (adresses IP autorisées), comptes de service par clé, rôles minimaux. Les données dans le cloud doivent être protégées comme un serveur interne, voire plus.",
       "Non. Jamais.",
       "Non. Un utilisateur autorisé lit tout, chiffré ou non."
@@ -1142,7 +1142,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Possible, mais lourd et vite obsolète.",
       "Oui. Secure Data Sharing : il interroge les données directement, sans copie. Il paie son propre calcul ; les données restent à jour et sous ton contrôle (vue sécurisée filtrée).",
-      "Non.",
+      "Non. Il n'accède pas à ton réseau.",
       "Non. Copie vite obsolète."
     ],
     retenir: "Partenaire : partage sécurisé, sans copie."
@@ -1158,10 +1158,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Un reader account le permet.",
       "Oui. Un « reader account » créé et payé par ton entreprise, à travers lequel il consulte le partage. Attention : son calcul est facturé à ton compte.",
       "Non. Jamais.",
-      "Non."
+      "Non. Lourd et vite obsolète."
     ],
     retenir: "Partenaire sans compte : reader account."
   },
@@ -1176,10 +1176,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce sont des données, pas des warehouses.",
       "Oui. Des jeux de données (météo, données économiques…) partagés par des fournisseurs, directement dans son compte. Ex. croiser les ventes de piscines avec la météo, sans aucun chargement.",
-      "Non.",
-      "Non."
+      "Non. Ce n'est pas un magasin de licences.",
+      "Non. Ce n'est pas un téléchargement de logiciels."
     ],
     retenir: "Marketplace = données externes prêtes à l'emploi."
   },
@@ -1194,10 +1194,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Portée et durée différentes.",
       "Oui. INFORMATION_SCHEMA : par base, temps réel, historique court. ACCOUNT_USAGE : tout le compte, historique long (1 an), avec un délai de mise à jour. Pour un suivi des coûts sur plusieurs mois : ACCOUNT_USAGE.",
       "Non. Délai de quelques dizaines de minutes à quelques heures.",
-      "Non."
+      "Non. Il est inclus."
     ],
     retenir: "Temps réel : INFORMATION_SCHEMA. Historique : ACCOUNT_USAGE."
   },
@@ -1288,10 +1288,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les versions gardées prennent de la place.",
       "Oui. Les anciennes versions sont gardées 90 jours (+ 7 jours de Fail-safe) : le stockage peut être bien plus grand que la table. Pour une table rechargée, une rétention courte ou une table TRANSIENT est plus économique.",
-      "Non.",
-      "Non."
+      "Non. Il augmente.",
+      "Non. Elles restent récupérables un temps."
     ],
     retenir: "Time Travel long + réécritures = stockage qui gonfle."
   },
@@ -1306,10 +1306,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le Time Travel.",
       "Oui. Les micro-partitions réécrites remplacent les anciennes, mais les anciennes restent pour le Time Travel et le Fail-safe. Elles disparaissent à la fin des périodes de rétention.",
-      "Non.",
-      "Non."
+      "Non. Pas toujours le double.",
+      "Non. Le cache de résultats n'est pas facturé ainsi."
     ],
     retenir: "Modifier = anciennes versions gardées un temps."
   },
@@ -1345,8 +1345,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ce serait « blocked ».",
       "Oui. Le warehouse était déjà occupé par d'autres requêtes : plus de place pour une de plus. Solutions : multi-cluster, warehouse dédié, ou étaler les traitements.",
-      "Non.",
-      "Non."
+      "Non. File d'attente = warehouse occupé.",
+      "Non. File d'attente = warehouse occupé."
     ],
     retenir: "Queued = warehouse saturé."
   },
@@ -1361,10 +1361,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. DirectQuery consomme à chaque clic.",
       "Oui. Import : Snowflake travaille seulement lors des rafraîchissements planifiés. DirectQuery : chaque clic lance des requêtes, le warehouse tourne beaucoup plus. DirectQuery se justifie pour des données très volumineuses ou très fraîches.",
-      "Non.",
-      "Non."
+      "Non. Chaque requête consomme.",
+      "Non. Import est permis."
     ],
     retenir: "Import = coût maîtrisé. DirectQuery = coût à chaque clic."
   },
@@ -1381,7 +1381,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Plus cher.",
       "Oui. Tables agrégées (ou dynamic tables) pour les visuels, modèle en étoile, mode Import ou composite, warehouse dédié avec AUTO_SUSPEND. Moins de données lues par clic = moins de crédits.",
-      "Non.",
+      "Non. Le besoin reste.",
       "Non. Pas d'index sur Snowflake."
     ],
     retenir: "DirectQuery : pré-agréger et bien modéliser."
@@ -1416,10 +1416,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ce serait du partage de données.",
       "Oui. Une table qui lit directement des fichiers restés dans un stockage externe (S3, Azure), sans les charger. Pratique pour explorer, mais plus lente qu'une table chargée.",
-      "Non.",
-      "Non."
+      "Non. Elle est permanente.",
+      "Non. Elle lit des fichiers externes."
     ],
     retenir: "Table externe = interroger des fichiers sans les charger."
   },
@@ -1436,8 +1436,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Disponible partout.",
       "Oui. Comme le Time Travel jusqu'à 90 jours ou les politiques de masquage. Vérifie l'édition du compte avant de concevoir une solution.",
-      "Non.",
-      "Non."
+      "Non. Disponibles partout.",
+      "Non. Disponibles partout."
     ],
     retenir: "Certaines fonctions = édition Enterprise."
   },
@@ -1452,10 +1452,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les données y sont stockées.",
       "Oui. Conformité (RGPD, contrats), latence, et certains coûts de transfert. Question à valider avec le DPO et la DSI dès le début du projet.",
-      "Non.",
-      "Non."
+      "Non. La langue ne dépend pas de la région.",
+      "Non. Le fuseau se règle à part."
     ],
     retenir: "Région = où vivent les données."
   },
@@ -1470,10 +1470,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Elles sont chiffrées automatiquement.",
       "Oui. Au repos et pendant les transferts. Le chiffrement n'empêche pas un utilisateur autorisé de tout lire : les rôles restent essentiels.",
-      "Non.",
-      "Non."
+      "Non. C'est automatique.",
+      "Non. Toutes les données sont chiffrées."
     ],
     retenir: "Chiffrement automatique. Les droits restent la vraie protection."
   },
@@ -1488,10 +1488,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake gère index, statistiques, fichiers.",
       "Oui. Reconstruction d'index, mise à jour des statistiques, gestion des fichiers et du journal : Snowflake les gère. Reste à gérer : coûts, droits, qualité des données, conception des requêtes.",
-      "Non.",
-      "Non."
+      "Non. Snowflake les gère.",
+      "Non. Les sauvegardes sont gérées aussi (Time Travel, Fail-safe)."
     ],
     retenir: "Snowflake : peu de maintenance technique."
   },
@@ -1506,10 +1506,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Index, contraintes, coûts changent.",
       "Oui. Les index (n'existent plus), la casse et les espaces, les contraintes (non appliquées), les procédures, les fuseaux horaires, la stratégie de coûts. Une migration « copier-coller » donne souvent un système lent ou cher.",
-      "Non.",
-      "Non."
+      "Non. Bien plus que les noms.",
+      "Non. Il n'y a pas de serveur à gérer."
     ],
     retenir: "Migration = repenser, pas recopier."
   },
@@ -1524,9 +1524,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Des tests automatiques le permettent.",
       "Oui. Tests automatiques : unicité, non NULL, références existantes (à la main ou avec un outil comme dbt). Un test qui échoue arrête le traitement avant que les rapports ne soient faux.",
-      "Non.",
+      "Non. Les fichiers peuvent contenir des erreurs.",
       "Non. Pas d'index sur Snowflake."
     ],
     retenir: "Snowflake : qualité = tests automatiques."
@@ -1542,10 +1542,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. L'ordre des étapes change.",
       "Oui. ETL : on transforme avant de charger (dans un outil). ELT : on charge les données brutes dans Snowflake, puis on les transforme en SQL. L'ELT profite de la puissance de Snowflake et garde une trace des données brutes.",
-      "Non.",
-      "Non."
+      "Non. C'est l'usage le plus courant.",
+      "Non. ETL est plus ancien."
     ],
     retenir: "Snowflake favorise l'ELT."
   },
@@ -1560,9 +1560,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Chaque couche a un rôle utile.",
       "Oui. Chaque couche a un rôle clair : on peut recalculer à partir du brut, tester chaque étape, et les rapports ne lisent que des données propres. Souvent RAW / STAGING / CORE / MART (ou bronze / argent / or).",
-      "Non.",
+      "Non. C'est une bonne pratique.",
       "Non. Ça en prend un peu plus."
     ],
     retenir: "Couches : brut, nettoyé, métier."
@@ -1578,10 +1578,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est le fuseau de la session.",
       "Oui. LTZ s'affiche dans le fuseau de la SESSION (paramètre TIMEZONE) : chaque utilisateur peut avoir un réglage différent. Fixe ALTER SESSION SET TIMEZONE = 'Europe/Paris' (ou au niveau du compte / de l'utilisateur), et choisis le bon type.",
-      "Non.",
-      "Non."
+      "Non. La valeur stockée est juste.",
+      "Non. Le warehouse ne change pas l'affichage."
     ],
     retenir: "LTZ dépend du TIMEZONE de la session."
   },
@@ -1615,10 +1615,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. C'est une bibliothèque de code.",
       "Oui. Une bibliothèque pour écrire des traitements de données en Python (ou Java / Scala) exécutés dans Snowflake. Les données ne sortent pas : le code vient à elles.",
-      "Non.",
-      "Non."
+      "Non. C'est une bibliothèque, pas un warehouse.",
+      "Non. Ce n'est pas un format."
     ],
     retenir: "Snowpark = Python dans Snowflake."
   },
@@ -1635,8 +1635,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Un seul gros fichier = un seul fil de chargement.",
       "Oui. Environ 100 à 250 Mo compressés : Snowflake les charge en parallèle. Le parallélisme du warehouse est alors pleinement utilisé.",
-      "Non.",
-      "Non."
+      "Non. Excel est limité et plus lourd.",
+      "Non. Un petit warehouse charge moins en parallèle."
     ],
     retenir: "Chargement : beaucoup de fichiers moyens > un énorme."
   },
@@ -1651,9 +1651,9 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Snowflake lit le gzip directement.",
       "Oui. Snowflake lit directement les fichiers compressés (gzip, etc.), et le transfert est plus rapide. La compression est détectée automatiquement (ou précisée dans le FILE FORMAT).",
-      "Non.",
+      "Non. Il l'accepte.",
       "Non. C'est plutôt l'inverse."
     ],
     retenir: "Fichiers compressés : acceptés directement."
@@ -1669,10 +1669,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Il supprime les fichiers, pas les lignes.",
       "Oui. Supprime les fichiers du stage une fois chargés avec succès. Évite l'accumulation. Garde une archive ailleurs si tu dois pouvoir rejouer.",
-      "Non.",
-      "Non."
+      "Non. Il supprime les fichiers chargés.",
+      "Non. Le stage reste."
     ],
     retenir: "PURGE = TRUE : nettoyage du stage après chargement."
   },
@@ -1763,10 +1763,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Ils consomment des crédits.",
       "Oui. Ce sont des services « serverless » qui consomment des crédits, à surveiller comme les warehouses. Les coûts apparaissent dans les vues d'historique de consommation.",
-      "Non.",
-      "Non."
+      "Non. Ils consomment des crédits partout.",
+      "Non. L'heure ne change rien."
     ],
     retenir: "Services serverless = crédits aussi."
   },
@@ -1781,10 +1781,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. On paie même quand il ne sert pas.",
       "Oui. Warehouses par usage, bien dimensionnés, AUTO_SUSPEND court, resource monitors, timeouts, requêtes qui lisent peu, suivi régulier. Le coût Snowflake se pilote comme un budget de projet.",
-      "Non.",
-      "Non."
+      "Non. On paie pour rien.",
+      "Non. Plus de requêtes, plus de coût."
     ],
     retenir: "Coûts : taille juste, arrêt auto, quotas, requêtes efficaces, suivi."
   },
@@ -1799,10 +1799,10 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non.",
+      "Non. Les deux moteurs sont très différents.",
       "Oui. SQL Server : on optimise surtout avec des index. Snowflake : on lit moins (pruning, colonnes, filtres) et on ajuste la puissance de calcul, en sachant que tout se paie. Une requête lente est aussi une requête chère.",
-      "Non.",
-      "Non."
+      "Non. Une requête mal écrite reste lente et chère.",
+      "Non. SQL Server s'optimise surtout avec des index."
     ],
     retenir: "Snowflake : moins lire, calcul ajustable, coût visible."
   },
@@ -1819,8 +1819,8 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Le fonctionnement interne est très différent.",
       "Oui. Un entrepôt cloud où stockage et calcul sont séparés, sans index ni maintenance, avec Time Travel, clonage et partage, facturé à l'usage.",
-      "Non.",
-      "Non."
+      "Non. C'est un entrepôt de données.",
+      "Non. C'est un entrepôt, pas un outil ETL."
     ],
     retenir: "Snowflake : séparé, sans index, voyage dans le temps, payé à l'usage."
   }
