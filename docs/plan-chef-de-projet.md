@@ -100,7 +100,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 | 0. Démarrer | cp01 Bilan de départ · cp02 S'organiser et tenir sous pression |
 | A. Cadrer et piloter | cp03 Le rôle attendu par un DSI · cp04 Cadrer · cp05 Planifier · cp06 Choisir sa démarche · cp07 Gérer les risques · cp08 Piloter et reporter · cp09 Gouvernance et RACI · cp10 Demandes de changement |
 | B. Argent et prestataires | cp11 Budget et business case · cp12 Suivre le budget · cp13 Choisir un prestataire · cp14 Contracter · cp15 Piloter prestataires et éditeurs |
-| C. Posture et comportement | cp16 Diriger sans autorité · cp17 Communiquer selon le public · cp18 Dire non, arbitrer, gérer un conflit |
+| C. Posture et comportement | cp16 Diriger sans autorité · cp17 Communiquer : le bon message, les mots justes · cp18 Dire non, arbitrer, gérer un conflit |
 | D. Livrer et passer en run | cp19 La recette · cp20 La reprise de données · cp21 Bascule et go / no-go · cp22 Passage en run et clôture · cp23 Conduite du changement |
 | E. Vers DSI adjoint | cp24 Conformité · cp25 Portefeuille et priorisation · cp26 Manager une équipe · cp27 Budget SI annuel et direction générale |
 
