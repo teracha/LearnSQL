@@ -461,6 +461,8 @@
         (sec.resultat ? '<p class="muted">→ ' + fmt(sec.resultat) + '</p>' : '') +
         '<ul class="points">' + sec.points.map(function (p) { return '<li>' + fmt(p) + '</li>'; }).join('') + '</ul>' +
         (sec.retenir ? '<div class="feedback ok"><p><strong>À retenir :</strong> ' + fmt(sec.retenir) + '</p></div>' : '') +
+        (sec.source ? '<p class="muted">Source : <a href="' + esc(sec.source.url) + '" target="_blank" rel="noopener">' +
+          esc(sec.source.titre) + '</a></p>' : '') +
         '</div>';
     });
     if (c.differences && c.differences.length) {
