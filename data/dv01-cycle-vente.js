@@ -250,7 +250,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "retenir": "Pas de plafond dans la fiche client = pas de contrôle d'encours.",
     "source": {
-      "titre": "L'encours client : généralités de fonctionnement",
+      "titre": "Généralités de fonctionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704713049/G+n+ralit+s+de+fonctionnement"
     }
   },
@@ -273,7 +273,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "retenir": "Encours livraison = commandes + BL ouverts. Encours financier = côté comptable.",
     "source": {
-      "titre": "L'encours client : généralités de fonctionnement",
+      "titre": "Généralités de fonctionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704713049/G+n+ralit+s+de+fonctionnement"
     }
   },
@@ -296,7 +296,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "retenir": "Encours financier = ce qui est déjà facturé et pas encore réglé (comptabilité + factures non intégrées).",
     "source": {
-      "titre": "L'encours client : généralités de fonctionnement",
+      "titre": "Généralités de fonctionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704713049/G+n+ralit+s+de+fonctionnement"
     }
   },
@@ -319,7 +319,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "retenir": "Plafond direction = risque accepté par l'entreprise. Plafond assurance = couverture de l'assureur.",
     "source": {
-      "titre": "L'encours client : généralités de fonctionnement",
+      "titre": "Généralités de fonctionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704713049/G+n+ralit+s+de+fonctionnement"
     }
   },
@@ -411,7 +411,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "retenir": "Blocage pour encours : une coche dans le dossier, onglet Pièces. Les plafonds, eux, sont dans la fiche client.",
     "source": {
-      "titre": "L'encours client : généralités de fonctionnement",
+      "titre": "Généralités de fonctionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704713049/G+n+ralit+s+de+fonctionnement"
     }
   },
