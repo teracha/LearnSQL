@@ -5,8 +5,8 @@
 // Fil rouge DEMAT 2027 (fiche fil rouge de docs/plan-chef-de-projet.md, qui fait foi). DAF = sponsor ET manager de la
 // cheffe comptable. Tolérance du cadrage : ± 2 semaines par jalon (cp04). Report de la bascule à mi-juillet = décision du DAF.
 // Plan B (portail de la PA, prévu au contrat) lancé seul si le connecteur n'est pas livré au 15 mars. Aucun montant d'amende.
-// Anti-devinette : la bonne réponse est un extrême dans 10 questions sur 40 : le oui simple (q02, q10, q11, q12), céder (q27),
-// s'effacer (q31), le non net (q04, q06), l'action la plus forte quand elle se justifie (q17, q35). Ailleurs, elle est au milieu.
+// Anti-devinette : la bonne réponse est un extrême dans 9 questions sur 40 : le oui simple (q02, q10, q11, q12), céder (q27),
+// s'effacer (q31), le non net (q04, q06), l'action la plus forte quand elle se justifie (q35). Ailleurs, elle est au milieu.
 // « Chiffr », « prix », « coût », « options », « Non : », « DAF », « COPIL », des chiffres et des dates sont aussi dans des choix faux.
 LEARNSQL.questions.cp18 = [
   {
@@ -97,9 +97,9 @@ LEARNSQL.questions.cp18 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. La réception est obligatoire depuis le 1er septembre 2026 : l'entreprise est déjà en retard. Attendre juin, c'est 9 mois de plus hors la loi.",
+      "Non. La réception est obligatoire depuis le 1er septembre 2026 : l'entreprise est déjà en retard. Attendre juin, c'est encore 8 mois hors la loi.",
       "Oui. Un non légal, sans débat, avec la voie possible : la réception via le portail de la PA dès novembre. Sa crainte (la charge) se traite à part : une formation courte.",
-      "Non. On ne chiffre pas une option illégale : le DAF ne peut pas choisir de rester hors la loi 9 mois de plus.",
+      "Non. On ne chiffre pas une option illégale : le DAF ne peut pas choisir de rester hors la loi 8 mois de plus.",
       "Non. Le connecteur n'arrive qu'en mars : avancer l'émission est impossible. Tu bouleverses le projet pour un problème que le portail règle."
     ],
     retenir: "Ce qui est déjà obligatoire ne s'arbitre pas : on dit non, et on donne la voie possible tout de suite."
@@ -231,7 +231,7 @@ LEARNSQL.questions.cp18 = [
     bonne: 1,
     pourquoi: [
       "Non. Tu imposes un pilote à un site en plein pic, alors qu'un autre convient : les tests seront bâclés, et tu perds un allié.",
-      "Oui. Le choix du site est dans ta délégation, et deux autres conviennent : tu dis oui. Le COPIL a validé « 1 site », pas lequel.",
+      "Oui. Le choix du site est dans ta délégation, et deux autres conviennent : tu dis oui, puis tu l'annonces au COPIL. Il a validé « 1 site », pas lequel.",
       "Non. Rien à imposer : un autre dépôt convient. Tu fais monter au sponsor un choix qui est le tien.",
       "Non. Décaler le pilote décale la bascule : c'est la plus grosse solution, alors qu'un autre site suffit."
     ],
@@ -259,7 +259,7 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q14",
     dialecte: "Gestion de projet",
-    q: "La cheffe comptable doit signer le PV (procès-verbal) de recette des factures fournisseurs. Elle part 3 semaines : « Signe-le à ma place, tu as tout suivi. » Que fais-tu ?",
+    q: "La cheffe comptable doit signer le PV (procès-verbal) de recette des factures fournisseurs. Elle part 3 semaines, et la recette finit pendant son congé : « Signe-le à ma place, tu as tout suivi. » Que fais-tu ?",
     choix: [
       "Tu signes : elle te le demande, et tu connais le dossier",
       "Tu signes, et elle contresigne à son retour de congé",
@@ -270,10 +270,10 @@ LEARNSQL.questions.cp18 = [
     pourquoi: [
       "Non. La recette engage le métier : si une facture fournisseur est fausse après la bascule, c'est ta signature qu'on lira.",
       "Non. Pendant 3 semaines, personne de la compta n'a validé : le pilote démarre sur ta seule signature.",
-      "Oui. Signer pour le métier n'est pas ton rôle. Tu ouvres la bonne voie : elle signe avant de partir, ou désigne quelqu'un, avec l'accord du DAF.",
-      "Non. Trois semaines de retard, alors qu'une signature avant son départ, ou par une personne désignée, règle le problème."
+      "Oui. Signer pour le métier n'est pas ton rôle. La bonne voie : avant de partir, elle désigne par écrit quelqu'un de la compta, comme Julie. Le DAF, son manager, est informé.",
+      "Non. Trois semaines de retard pour une signature, alors qu'une personne désignée par elle règle le problème."
     ],
-    retenir: "Hors de ton rôle : non, avec la bonne voie. On ne signe pas à la place du métier."
+    retenir: "Hors de ton rôle : non, avec la bonne voie. On ne signe pas à la place du métier : c'est lui qui désigne qui signe."
   },
   {
     id: "cp18-q15",
@@ -302,35 +302,35 @@ LEARNSQL.questions.cp18 = [
       "Tu demandes au DG d'arbitrer : la date légale est en jeu",
       "Non : juin est validé, il ne bouge plus",
       "Tu acceptes, et tu en informes le DAF ensuite",
-      "Tu prépares 2 options chiffrées ; le DAF tranche"
+      "Tu prépares 3 options chiffrées ; le DAF tranche"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Le DAF, sponsor, n'a même pas été saisi : aller au DG, c'est sauter un niveau. Et la date légale tient encore.",
       "Non. Juin est validé, mais le sponsor peut le changer : ton rôle est de lui donner le prix, pas de fermer la porte.",
       "Non. Presque : tu préviens, mais après avoir décidé à sa place. Le report à mi-juillet est une décision du DAF.",
-      "Oui. Une date validée ne t'appartient pas. Options : juin avec un renfort, ou mi-juillet et moins de marge. Le DAF choisit."
+      "Oui. Une date validée ne t'appartient pas. Options : juin sans rien changer (compta chargée), juin avec un renfort, ou mi-juillet (moins de marge). Le DAF choisit."
     ],
     retenir: "Une date validée qui bouge : tu prépares les options et leur prix ; le sponsor tranche."
   },
   {
     id: "cp18-q17",
     dialecte: "Gestion de projet",
-    q: "Qui saisit le SIREN des nouveaux clients : l'ADV à la création, ou la compta à la 1re facture ? Les deux managers bloquent, malgré 2 réunions et tes options chiffrées. La procédure doit être prête lundi. Que fais-tu ?",
+    q: "Julie et Sophie se renvoient une tâche : lire chaque matin la liste des rejets de la PA (factures reçues et émises). Tu les as vues 2 fois, options posées : pas d'accord. La procédure doit être prête lundi. Que fais-tu ?",
     choix: [
-      "Une 3e réunion, avec les mêmes options, pour qu'ils s'accordent",
-      "Tu tranches toi-même : l'ADV, c'est plus logique",
-      "Compromis : l'ADV un mois, la compta le mois suivant",
-      "Tu les préviens, puis le DAF tranche sur tes options"
+      "Une 3e réunion avec elles deux, pour qu'elles s'accordent",
+      "Tu tranches toi-même, et tu l'écris dans la procédure",
+      "Tu les préviens, puis le DAF tranche sur tes options",
+      "Tu les préviens, puis leur cheffe tranche sur tes options"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Ils ont vu 2 fois les options : une 3e réunion rejoue le même désaccord, et lundi sera passé.",
-      "Non. Qui saisit quoi, c'est l'organisation de deux services : ce n'est pas ta décision, et celui qui perd ne l'appliquera pas.",
-      "Non. Une règle qui change chaque mois crée des erreurs : personne ne sait qui fait quoi, et des clients restent sans SIREN.",
-      "Oui. Chercher ensemble a été tenté, le temps manque, et la décision n'est pas à toi : celui qui a l'autorité tranche. Tu préviens les deux avant."
+      "Non. Elles ont vu 2 fois tes options : une 3e réunion rejoue le même désaccord, et lundi sera passé.",
+      "Non. Qui fait quoi dans la compta, c'est l'organisation d'un service : pas ta décision. Celle qui perd ne l'appliquera pas.",
+      "Non. Presque : il faut un arbitre, mais tu sautes leur manager. L'organisation de la compta, c'est la cheffe comptable qui la décide.",
+      "Oui. Chercher ensemble a été tenté, et lundi approche : celui qui a l'autorité tranche. Pour deux personnes d'un même service, c'est leur manager."
     ],
-    retenir: "Bloqués après de vrais essais, options posées, date proche : le sponsor tranche. Une 3e réunion ne changera rien."
+    retenir: "Bloqués après de vrais essais, date proche : celui qui a l'autorité tranche. Dans un même service, c'est le manager, pas le sponsor."
   },
   {
     id: "cp18-q18",
@@ -366,24 +366,24 @@ LEARNSQL.questions.cp18 = [
       "Non. Insister n'est pas un critère. Le rapport n'aide pas la bascule, et les rejets EDI resteraient.",
       "Non. 8 jours de travail dans 5 jours de place : la qualité paie en silence, et les rejets sortent pendant le pilote.",
       "Oui. Les rejets touchent un critère de succès (moins de 2 %) : « doit ». Le libellé tient dans le reste. Le rapport : « pas cette fois », écrit pour juillet.",
-      "Non. Trier dans ta capacité est ton travail : le DAF n'a pas tes critères, et il perd du temps sur un détail."
+      "Non. Ce tri tient dans ta capacité : c'est à toi de le faire. Le DAF ne tranche que si un demandeur le conteste."
     ],
     retenir: "Plusieurs demandes, peu de place : des critères, puis on écrit ce qui attend, avec une date."
   },
   {
     id: "cp18-q20",
     dialecte: "Gestion de projet",
-    q: "Tu classes en MoSCoW (doit, devrait, pourrait, pas cette fois) les 12 demandes de la compta pour la bascule. Avec la cheffe comptable, 10 finissent en « doit ». Que fais-tu ?",
+    q: "Tu classes en MoSCoW (doit, devrait, pourrait, pas cette fois) les 12 demandes de la compta pour la bascule. Avec la cheffe comptable, 10 finissent en « doit », soit 80 % de l'effort. Que fais-tu ?",
     choix: [
       "Tu gardes ce tri : la compta connaît son métier mieux que toi",
-      "Tu demandes au DAF de choisir les 4 à retirer",
+      "Tu retires toi-même 4 « doit », sans la compta",
       "Tu décales la bascule de 3 semaines pour tout faire tenir",
       "Tu refais le tri : « Sans elle, la bascule échoue-t-elle ? »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Si presque tout est « doit », rien ne protège la date : au moindre retard, on ne sait plus quoi lâcher.",
-      "Non. Le DAF n'a pas les critères métier pour trier : refais d'abord le tri avec la compta, il validera ensuite les « doit ».",
+      "Non. Presque : il faut refaire le tri, mais avec la compta. Seul, tu choisis ses priorités à sa place : elle ne l'appliquera pas.",
       "Non. Tu paies un mauvais tri avec 3 semaines de retard, alors qu'un vrai tri suffisait. Et une date validée n'est pas à toi.",
       "Oui. « Doit » = sans elle, la bascule échoue. Repère DSDM : pas plus d'environ 60 % de l'effort en « doit ». Le reste devient « devrait » ou « pourrait »."
     ],
@@ -411,7 +411,7 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q22",
     dialecte: "Gestion de projet",
-    q: "Tu prépares un arbitrage pour le DAF : la recette a 2 semaines de retard. Option A : un intérimaire, environ 4 000 €. Option B : bascule à mi-juillet. Ta recommandation et ta date limite sont prêtes. Que manque-t-il ?",
+    q: "Tu prépares un arbitrage pour le DAF : la recette a 2 semaines de retard. Option A : un intérimaire, environ 4 000 €. Option B : retirer les avoirs clients du pilote. Ta recommandation et ta date limite sont prêtes. Que manque-t-il ?",
     choix: [
       "L'option « ne rien changer », avec son prix : juin menacé",
       "Une 3e et une 4e option, pour qu'il ait plus de choix",
@@ -420,7 +420,7 @@ LEARNSQL.questions.cp18 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. « Ne rien changer » est aussi une option, avec un prix : ici, juin menacé. Sans elle, le DAF croit qu'attendre est gratuit.",
+      "Oui. « Ne rien changer » est aussi une option, avec un prix : ici, la recette glisse, et juin est menacé. Sans elle, le DAF croit qu'attendre est gratuit.",
       "Non. Plus d'options ne veut pas dire mieux : 2 ou 3 options claires se comparent, 4 ou 5 noient la décision.",
       "Non. Presque : il manque le prix de l'inaction. Le DAF peut être tenté d'« attendre un peu », sans savoir ce que ça coûte.",
       "Non. Le DAF décide sur des prix, pas sur l'historique : le détail va en annexe, s'il le demande."
@@ -478,7 +478,7 @@ LEARNSQL.questions.cp18 = [
     bonne: 0,
     pourquoi: [
       "Oui. Le sponsor peut choisir la qualité comme côté qui paie, s'il voit le risque : quels tests sautent, quels rejets possibles. Puis c'est décidé.",
-      "Non. La qualité est au centre du triangle : le sponsor peut la faire payer, s'il voit le risque. Ton rôle est de le lui montrer.",
+      "Non. Ce n'est pas à toi de refuser. L'agile (DSDM) ne touche jamais à la qualité ; ici, le sponsor le peut, s'il voit le risque. Ton rôle : le lui montrer.",
       "Non. Presque : il a choisi, mais sans voir quels tests sautent. Au 1er rejet, il découvrira un risque que tu connaissais.",
       "Non. La date légale n'est pas en jeu, et le sponsor a tranché : le DG n'a pas à rejuger. Tu montres le risque au DAF."
     ],
@@ -525,7 +525,7 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q28",
     dialecte: "Gestion de projet",
-    q: "Le consultant de l'intégrateur n'a plus que 2 jours avant le pilote. La compta et l'ADV veulent chacune ces 2 jours, pour des corrections « devrait » de même valeur. Il commence demain. Que fais-tu ?",
+    q: "Le consultant de l'intégrateur n'a plus que 2 jours avant le pilote. La compta et l'ADV veulent chacune ces 2 jours, pour 2 corrections « devrait » d'1 jour, toutes de même valeur. Il commence demain. Que fais-tu ?",
     choix: [
       "Un atelier de 2 h avec les deux, pour trouver mieux",
       "Un jour chacun, sur sa correction la plus utile",
@@ -620,21 +620,21 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q33",
     dialecte: "Gestion de projet",
-    q: "L'intégrateur réclame un avenant de 10 jours pour le numéro de commande AquaBleu : « Hors de mon lot. » Ton cahier des charges cite « les exigences EDI des clients de la grande distribution ». Que fais-tu d'abord ?",
+    q: "L'intégrateur réclame un avenant de 10 jours pour le numéro de commande AquaBleu : « Hors de mon lot. » Ton cahier des charges cite « les exigences EDI des clients de la grande distribution », sans détail. Que fais-tu d'abord ?",
     choix: [
       "Tu acceptes les 10 jours : le numéro de commande presse",
       "Non : le cahier des charges suffit, sans discussion",
       "Tu demandes au DAF d'appliquer des pénalités",
-      "Tu relis avec lui le cahier des charges et sa commande"
+      "Tu relis avec lui le cahier des charges et son devis signé"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Tu paies peut-être ce que le contrat couvre déjà : le budget glisse, et un avenant n'est pas à toi de l'accepter.",
-      "Non. Tu as peut-être raison, mais sans relire ensemble le texte, il campe sur sa position, et le travail s'arrête.",
+      "Non. Le texte est général : ta lecture n'est pas encore un fait partagé. Sans le relire ensemble, il campe sur sa position, et le travail s'arrête.",
       "Non. Il n'est pas en retard : il conteste un périmètre. Des pénalités ne règlent pas un désaccord de lecture.",
-      "Oui. D'abord des faits partagés : ce que dit le texte signé. Souvent, le désaccord porte sur une ligne. S'il reste un avenant, le DAF le signe."
+      "Oui. D'abord des faits partagés : les textes signés. Un texte général se lit de deux façons : on le relit ensemble. S'il reste un avenant, le DAF le signe."
     ],
-    retenir: "Un désaccord sur le contrat : on relit ensemble le texte signé, avant de payer, de refuser ou de punir."
+    retenir: "Un texte signé qui se lit de deux façons : on le relit ensemble, avant de payer, de refuser ou de punir."
   },
   {
     id: "cp18-q34",
@@ -708,7 +708,7 @@ LEARNSQL.questions.cp18 = [
       "Non. Tu disposes du temps de Marc, qui n'est ni à toi ni au commercial : son manager découvre une heure de moins par jour.",
       "Oui. « Oui, mais » : la demande coûte le temps d'un autre service. Son manager décide, en connaissant le prix.",
       "Non. Le COPIL pour l'heure quotidienne d'un assistant : c'est le responsable ADV qui dispose de son temps.",
-      "Non. Hors projet, peut-être, mais le besoin est réel : un refus sec t'empêche de le transmettre à celui qui décide."
+      "Non. Les rejets font partie du projet, et le besoin est réel : un refus sec t'empêche de le porter à celui qui décide."
     ],
     retenir: "« Oui, mais » : le prix va à celui qui décide. Pour le temps d'un service, c'est son manager."
   },
@@ -726,7 +726,7 @@ LEARNSQL.questions.cp18 = [
     pourquoi: [
       "Oui. Ce n'est ni ton projet, ni ton rôle : la bonne voie, c'est la cheffe comptable, qui décide du temps de Julie.",
       "Non. Tu disposes du temps de Julie sans sa cheffe : elle l'apprend après, et tu perds sa confiance.",
-      "Non. Personne n'a encore demandé à la cheffe comptable : imposer par le DAF, c'est sauter deux étapes.",
+      "Non. Personne n'a encore demandé à la cheffe comptable : passer par le DAF, c'est sauter une étape.",
       "Non. Tu prends une tâche qui revient chaque semaine, hors projet : ton temps part ailleurs, et la compta n'apprend rien."
     ],
     retenir: "Une demande hors de ton rôle : tu indiques qui décide, sans la porter toi-même."
@@ -734,39 +734,39 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q39",
     dialecte: "Gestion de projet",
-    q: "En pleine recette, le responsable ADV veut des relances automatiques des factures clients impayées : 5 jours d'intégrateur. Utile, mais sans lien avec la date légale. Que fais-tu ?",
+    q: "En pleine recette, le responsable ADV veut un écran Divalto du statut de chaque facture émise via la PA : 5 jours d'intégrateur. Utile, pas nécessaire à la bascule. L'intégrateur est pris par la recette. Que fais-tu ?",
     choix: [
       "Tu réponds : pas pendant la recette, noté pour juillet",
       "Tu acceptes, et la recette se serre un peu",
-      "Tu refuses : hors projet, et c'est définitif",
+      "Tu refuses : ce n'est pas un « doit », c'est définitif",
       "Tu donnes le coût des 5 jours, et le DAF choisit"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Bonne demande, mauvais moment : « pas maintenant », avec une date. La recette garde ses jours, et le besoin n'est pas perdu.",
-      "Non. Les jours de l'intégrateur sont pris par la recette : la serrer, c'est faire payer la qualité, pour une demande qui peut attendre.",
-      "Non. Le besoin est réel, et lié aux factures : le fermer pour toujours, c'est le pousser à contourner le projet.",
-      "Non. Rien ne presse : tu dérangerais le DAF en pleine recette, pour une demande qui peut attendre juillet."
+      "Oui. Bonne demande, mauvais moment : « pas maintenant », avec une date. La recette garde ses jours. En juillet, son prix ira au DAF.",
+      "Non. L'intégrateur est pris par la recette : la serrer, c'est faire payer la qualité, pour une demande qui peut attendre.",
+      "Non. Pas « doit » ne veut pas dire jamais : le besoin est réel. Fermé pour toujours, il reviendra par un autre chemin.",
+      "Non. Rien ne l'exige avant la bascule : tu ferais trancher le DAF pour rien, en pleine recette. Son prix ira au DAF en juillet."
     ],
-    retenir: "Bonne demande, mauvais moment : « pas maintenant », avec une date."
+    retenir: "Bonne demande, mauvais moment : « pas maintenant », avec une date. Le prix ira au décideur à ce moment-là."
   },
   {
     id: "cp18-q40",
     dialecte: "Gestion de projet",
-    q: "Le responsable d'un dépôt veut que l'intégrateur refasse ses étiquettes d'expédition dans Divalto, « tant qu'il est là ». Aucun lien avec les factures. Que fais-tu ?",
+    q: "Le responsable d'un dépôt : « Tant que l'intégrateur est là, qu'il refasse mes étiquettes d'expédition dans Divalto. 2 jours, pas plus. » Aucun lien avec les factures. Que fais-tu ?",
     choix: [
-      "Tu acceptes : quelques jours, et l'intégrateur est déjà là",
-      "Tu l'inscris en lot 2 du projet, après la bascule",
-      "Tu refuses : autre sujet, et tu l'orientes vers la DSI",
-      "Tu donnes le prix de l'ajout ; le DAF tranche en COPIL"
+      "Tu acceptes : 2 jours, et l'intégrateur est déjà là",
+      "Tu l'inscris au projet pour juillet, après la bascule",
+      "Non : autre sujet. Tu l'orientes vers la DSI, à part",
+      "Tu donnes le prix des 2 jours ; le DAF tranche en COPIL"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Sans lien avec l'objectif, ces jours sont pris sur ton budget et ta recette : personne ne les a choisis.",
-      "Non. Un « lot 2 » le fait entrer dans ton projet : tu promets un livrable sans lien avec l'objectif.",
-      "Oui. Sans lien avec l'objectif : non, sans chiffrer, et la bonne voie (une demande à part, à la DSI).",
+      "Non. Rien n'est gratuit : ces 2 jours en régie sont payés par ton budget, sans lien avec l'objectif, et personne ne les a choisis.",
+      "Non. Noté pour juillet, il entre dans ton projet : tu promets un livrable sans lien avec l'objectif.",
+      "Oui. Sans lien avec l'objectif, même petit : non, sans chiffrer, et la bonne voie (une demande à part, à la DSI).",
       "Non. On ne chiffre que ce qui sert l'objectif : tu fais perdre du temps au DAF et au COPIL."
     ],
-    retenir: "Sans lien avec l'objectif : non, et la bonne voie. On ne chiffre que ce qui sert l'objectif."
+    retenir: "Sans lien avec l'objectif, même petit et « tant qu'il est là » : non, et la bonne voie. Rien n'est gratuit."
   }
 ];

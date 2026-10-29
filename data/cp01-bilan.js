@@ -195,7 +195,7 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q11",
     "dialecte": "Gestion de projet",
-    "q": "À 2 semaines de la recette, le commercial demande : « Ajoutez aussi un tableau de suivi des factures rejetées pour mon équipe. » Que fais-tu ?",
+    "q": "À 2 semaines de la recette, le commercial insiste : « Il me faut un tableau de suivi des factures rejetées pour mon équipe, dès la bascule. » Que fais-tu ?",
     "choix": [
       "Tu dis oui : l'intégrateur l'ajoutera vite, c'est un petit développement",
       "Tu dis non : l'impact sur la recette est trop fort",
@@ -207,7 +207,7 @@ LEARNSQL.questions.cp01 = [
       "Non. « Vite » n'est jamais gratuit. Le délai et le budget glissent sans décision de personne.",
       "Non. Tu juges seul l'impact et tu fermes la porte. La demande a peut-être de la valeur : c'est au sponsor de trancher, chiffres en main.",
       "Non. Même « simple », l'ajout prend du temps à l'intégrateur et à la recette. Sans chiffrage ni décision du sponsor, le délai glisse en silence.",
-      "Oui. Chaque demande de changement est chiffrée (délai, coût, risque), arbitrée par le sponsor, puis tracée."
+      "Oui. Il l'exige pour la bascule : c'est une demande de changement. Elle est chiffrée (délai, coût, risque), arbitrée par le sponsor, puis tracée."
     ],
     "retenir": "Demande de changement : chiffrer, faire arbitrer par le sponsor, tracer la décision. → module cp10"
   },

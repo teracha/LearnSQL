@@ -34,19 +34,19 @@ LEARNSQL.cours.cp18 = {
         "Un côté bouge ? Un autre paie. « Même projet, même coût, un mois plus tôt » n'existe pas.",
         "Si personne ne choisit, la qualité paie (moins de tests), ou les gens (des heures en plus). En silence.",
         "Ici, la date légale (1er septembre 2027) ne bouge pas. La date de bascule, le coût et le périmètre se négocient.",
-        "Ta question réflexe : « Qu'est-ce qu'on lâche en échange ? » Au-delà de ta marge, le sponsor choisit le côté qui paie. Même la qualité, s'il voit le risque."
+        "Ta question réflexe : « Qu'est-ce qu'on lâche en échange ? » Au-delà de ta marge, le sponsor choisit le côté qui paie. Même la qualité, s'il voit le risque. (L'agile, lui, n'y touche pas : il retire du périmètre.)"
       ],
       retenir: "Rien n'est gratuit : quand un côté du triangle bouge, un autre paie, et le sponsor choisit lequel."
     },
     {
       titre: "Trier une demande : oui, oui mais, pas maintenant, non",
-      exemple: "Quatre demandes arrivent.\nSophie (comptable clients) : une fiche d'une page sur les codes de rejet. 1 heure de ton temps, utile à la formation. → Oui.\nLe DG (directeur général) : les 3 dépôts au pilote de mai, au lieu d'1. 2 semaines de plus, ou un renfort. → Oui, mais : le prix au COPIL (comité de pilotage), qui choisit.\nLe responsable de site : ses factures dans son tableau Power BI. Utile, pas urgent. → Pas maintenant : en juillet.\nMarc (ADV : administration des ventes) : renvoyer une facture émise, avec un autre prix, sous le même numéro. → Non : une facture émise ne se modifie pas. Sophie fait un avoir.",
+      exemple: "Quatre demandes arrivent.\nSophie (comptable clients) : une fiche d'une page sur les codes de rejet. 1 heure de ton temps, utile à la formation. → Oui.\nLe DG (directeur général) : les 3 dépôts au pilote de mai, au lieu d'1. 2 semaines de plus, ou un renfort. → Oui, mais : tu lui donnes le prix, DAF prévenu. Il choisit.\nLe responsable de site : ses factures dans son tableau Power BI. Utile, pas urgent. → Pas maintenant : en juillet.\nMarc (ADV : administration des ventes) : renvoyer une facture émise, avec un autre prix, sous le même numéro. → Non : une facture émise ne se modifie pas. Sophie fait un avoir.",
       points: [
         "Cinq questions, dans l'ordre : légal ? Dans ton rôle ? Utile à l'objectif ? Dans le périmètre ? Dans ta marge ?",
         "Illégal, hors de ton rôle, ou sans lien avec l'objectif : non, sans chiffrer. Une raison, et la bonne voie : un avoir, la bonne personne, un autre projet.",
         "Petit, utile, dans ta marge, et c'est à toi de décider : oui, tout simplement. Ce oui-là est la bonne réponse.",
         "Utile, mais il coûte (délai, argent, temps d'un autre service) : « oui, mais ». Le prix va à celui qui décide.",
-        "Bonne demande, mauvais moment : « pas maintenant », avec une date. Le circuit formel d'une demande de changement : module cp10."
+        "Bonne demande, mauvais moment : « pas maintenant », avec une date. Son prix ira au décideur à ce moment-là. Exigée avant la bascule, ou demandée par le sponsor ? Alors « oui, mais » (module cp10)."
       ],
       retenir: "Une demande se trie : oui, oui mais, pas maintenant, ou non. La loi et ton rôle d'abord, le prix ensuite."
     },
@@ -55,7 +55,7 @@ LEARNSQL.cours.cp18 = {
       exemple: "Julie (comptable fournisseurs) veut tester les avoirs mardi au lieu de jeudi, avec l'accord de sa cheffe. → Tu décides.\nL'intégrateur livre un lot avec 3 jours de retard. Ta marge de recette les couvre. → Tu replanifies, et tu le dis au point projet.\nLe responsable ADV veut 1 mois de pilote en plus : la bascule passerait en juillet. → Pas à toi : tu prépares l'arbitrage, le DAF tranche.",
       points: [
         "Ta délégation : l'ordre des tests, un créneau déjà accordé, un outil du projet, un écart dans ta tolérance (± 2 semaines par jalon, module cp04). Tu décides, puis tu informes.",
-        "Pas à toi : le périmètre, le budget, une date validée, un contrat. Là, le sponsor ou le COPIL tranche. Le temps ou l'organisation d'un autre service : son manager.",
+        "Pas à toi : le périmètre, le budget, une date validée, un contrat. Là, le sponsor ou le COPIL (comité de pilotage) tranche. Le temps ou l'organisation d'un autre service : son manager.",
         "Préparer un arbitrage : la question, 2 ou 3 options avec leur prix (délai, coût, risque), dont « ne rien changer », ta recommandation, une date limite.",
         "Monter un détail fait perdre du temps au sponsor, et lui apprend à décider à ta place. Ton point faible : avant de monter, demande-toi « est-ce dans ma délégation ? ».",
         "Le sponsor a tranché en connaissant le prix ? C'est décidé : tu appliques, et tu notes le risque, même si tu préférais l'autre option."
@@ -68,7 +68,7 @@ LEARNSQL.cours.cp18 = {
       points: [
         "Des critères écrits AVANT de comparer : loi, valeur, urgence (une date), risque si on ne fait rien, effort (en jours). Le rang du demandeur n'en est pas un.",
         "La loi n'est pas un critère qu'on pèse : c'est un filtre. Ce qui est obligatoire passe d'abord.",
-        "MoSCoW (technique de tri, issue de la méthode agile DSDM) : « doit » (sans lui, la bascule échoue), « devrait » (important, contournable), « pourrait » (confort), « pas cette fois » (écrit, avec une date).",
+        "MoSCoW : une technique de tri, popularisée par la méthode agile DSDM. « Doit » : sans lui, la bascule échoue. « Devrait » : important, contournable. « Pourrait » : confort. « Pas cette fois » : écrit, avec une date.",
         "Piège : tout mettre en « doit ». Repère DSDM : pas plus d'environ 60 % de l'effort en « doit ». Sinon, rien ne protège la date.",
         "Tu proposes le classement, avec les métiers. Le sponsor valide les « doit » et tranche en cas de désaccord. Entre deux projets : module cp25."
       ],
@@ -80,8 +80,8 @@ LEARNSQL.cours.cp18 = {
       points: [
         "S'effacer (éviter) : on recule, on reporte. Bon pour un enjeu mineur, un conflit qui n'est pas le tien, ou pour calmer. Mauvais si le problème grossit.",
         "Céder (apaiser) : on donne raison à l'autre. Bon si c'est peu important pour toi et important pour lui.",
-        "Compromis : chacun lâche une partie. Bon quand le temps presse, à valeur égale. Personne n'est content. Jamais sur la loi.",
-        "Imposer : celui qui a l'autorité tranche (le sponsor), ou la règle (la loi, le contrat). Bon en urgence, ou quand la règle existe. Il y a un perdant.",
+        "Compromis : chacun lâche une partie. Bon quand le temps presse, à valeur égale. Chacun n'est content qu'à moitié. Jamais sur la loi.",
+        "Imposer : celui qui a l'autorité tranche (toi dans ta délégation, le manager, le sponsor), ou la règle (la loi, le contrat). Bon en urgence, ou quand la règle existe. Il y a un perdant.",
         "Collaborer (résoudre) : chercher ensemble ce qui sert les deux. Souvent le meilleur, si l'enjeu compte et qu'on a le temps. (5 modes du PMBOK, d'après Thomas et Kilmann.)"
       ],
       retenir: "Collaborer est souvent le meilleur, pas toujours : la réponse dépend de l'enjeu, du temps, et de la règle."
