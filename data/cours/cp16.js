@@ -5,7 +5,7 @@
 // le 1er septembre 2026 ; émission obligatoire pour les PME au 1er septembre 2027, via une plateforme agréée (PA).
 // Point faible de l'élève (bilan) : il choisit la plus grosse solution (DG, COPIL, tout décaler) au lieu d'agir à son niveau.
 LEARNSQL.cours.cp16 = {
-  intro: "Sur un projet, presque personne ne dépend de toi, mais tu as besoin de leur temps. Ce module te donne une méthode : la bonne personne, une demande chiffrée, une escalade à petits pas, et des phrases prêtes à dire.",
+  intro: "Sur un projet, presque personne ne dépend de toi, mais tu as besoin de leur temps. Ce module te donne une méthode : la bonne personne, une demande chiffrée, une escalade à petits pas, des phrases prêtes à dire. Et savoir quand monter sans attendre.",
   sections: [
     {
       titre: "Partir de ton vécu : tu n'es le chef de personne",
@@ -45,13 +45,13 @@ LEARNSQL.cours.cp16 = {
     },
     {
       titre: "Le sponsor bloque : un signal, pas un mur",
-      exemple: "Le DAF refuse que la cheffe comptable passe 3 jours en recette en janvier : « La clôture annuelle passe avant. »\nTu penses : « Il est sponsor, il bloque : c'est un signal fort. » C'est vrai en partie.\nCe signal est une information : pour lui, la clôture compte plus que ta marge de 3 semaines.\nC'est justement pour ça que tu vas le voir avec le coût de chaque option. Pas chez le DG.",
+      exemple: "Le DAF refuse que la cheffe comptable passe 3 jours en recette en janvier : « La clôture annuelle passe avant. »\nTu penses : « Il est sponsor, il bloque : c'est un signal fort. » C'est vrai en partie.\nCe signal est une information : pour lui, la clôture compte plus que tes 2 semaines de marge.\nC'est justement pour ça que tu vas le voir avec le coût de chaque option. Pas chez le DG.",
       points: [
         "Le refus du sponsor te dit ses priorités. Ce n'est ni un abandon du projet, ni un blocage à contourner.",
         "Ta réponse : 2 ou 3 options chiffrées (décaler la recette, une autre personne, un intérimaire), avec ta recommandation.",
-        "Il tranche en connaissant le coût ? Tu appliques, même si tu préférais une autre option. Tu notes la décision et le risque.",
-        "Un désaccord n'est pas un blocage. On ne fait pas appel au DG d'une décision du sponsor.",
-        "Décision par défaut (« sans réponse le 15, on fait A ») : seulement si elle reste dans ton projet. Elle touche le travail d'un autre service ? Pas de défaut possible."
+        "Il DÉCIDE en connaissant le coût ? C'est une décision : tu appliques, même si tu préférais une autre option. Tu notes la décision et le risque. Pas d'appel au DG, tant que le coût ne change pas.",
+        "Il NE RÉPOND PAS, malgré une demande courte et une date limite ? Ce n'est plus une décision, c'est un blocage : niveau 4 de l'échelle (section suivante).",
+        "Décision par défaut (vue au cadrage, module cp04) : seulement si elle reste dans ton projet (ex. le modèle du PV de recette). Elle touche le travail d'un autre service ? Pas de défaut possible."
       ],
       retenir: "Le refus du sponsor est une information : réponds avec le coût de chaque option, puis laisse-le trancher."
     },
@@ -60,7 +60,7 @@ LEARNSQL.cours.cp16 = {
       exemple: "Niveau 1 : Marc (ADV) manque 2 ateliers. Tu lui parles : il est noyé sous les commandes du printemps.\nNiveau 2 : il refuse toujours. Tu le préviens, puis tu vois le responsable ADV avec une proposition chiffrée.\nNiveau 3 : le responsable ADV dit non, et la date légale est en jeu. Tu le préviens, puis tu demandes au DAF de trancher.\nNiveau 4 : le DAF ne répond pas, malgré une demande courte et une date limite dépassée. Tu le préviens, puis tu vas au DG.",
       points: [
         "1. La personne. 2. Son manager. 3. Le sponsor. 4. Au-dessus du sponsor (le DG).",
-        "Tu montes d'un niveau quand le niveau actuel dit non, ou ne répond pas malgré une demande claire et une date limite.",
+        "Tu montes d'un niveau quand le niveau actuel dit non, ou ne répond pas malgré une demande claire et une date limite. Sauf le sponsor : s'il dit non en connaissant le coût, c'est une décision, pas un blocage.",
         "Niveau 4 seulement si : demande courte faite, date limite dépassée, enjeu fort (une date légale). Et tu préviens le sponsor avant.",
         "À dire (au sponsor) : « Sans décision d'ici vendredi, je demanderai au DG d'arbitrer. Je préfère te le dire avant. »",
         "La taille de la réponse suit la taille du problème. Une semaine d'absence se prend sur la marge : pas de COPIL, pas de tout décaler."
@@ -69,15 +69,27 @@ LEARNSQL.cours.cp16 = {
     },
     {
       titre: "Crédit, alliés, et ce qu'on ne fait pas",
-      exemple: "Avant d'avoir besoin d'eux, tu rencontres la cheffe comptable et le responsable ADV : leurs contraintes, leurs pics.\nLe responsable ADV galère sur un export Divalto. Tu l'aides en 30 minutes.\nAu COPIL : « Grâce aux tests de Julie, 12 erreurs corrigées avant la bascule. » Sa cheffe est dans la salle.\nLe commercial te dit : « Fais les tests toi-même. » Tu refuses : c'est à la compta de valider son métier.",
+      exemple: "Avant d'avoir besoin d'eux, tu rencontres la cheffe comptable et le responsable ADV : leurs contraintes, leurs pics.\nLe responsable ADV galère sur un export Divalto. Tu l'aides en 30 minutes.\nAu COPIL : « Grâce aux tests de Julie, 12 erreurs corrigées avant la bascule. » Sa cheffe est dans la salle.\nJulie, débordée, te demande : « Tu peux faire mes tests ? » Tu refuses : c'est à la compta de valider son métier.",
       points: [
         "Construire du crédit, avant d'en avoir besoin : voir les managers tôt, tenir ses promesses (un atelier d'1 h finit à l'heure), rendre de petits services. 30 minutes d'aide n'élargissent pas le périmètre.",
         "Rendre visible : nomme la contribution des utilisateurs clés, devant leur manager. À dire : « Merci à Julie : 12 erreurs trouvées avant la bascule. »",
         "Un souci avec une personne (tests incomplets, absences) ? Parle-lui d'abord, en direct, avec des faits précis, et aide-la.",
-        "On ne fait pas : le travail à leur place (tests, règles métier), les heures en plus (même proposées), passer au-dessus de leur manager. À dire : « Je ne ferai pas tes tests. Je te prépare les cas, et je suis là mardi. »",
+        "On ne fait pas : le travail à leur place (tests, règles métier), accepter des heures en plus sans leur manager, passer au-dessus de leur manager. À dire (à Julie, l'utilisatrice clé) : « Je ne ferai pas tes tests. Je t'aide à préparer tes cas, et je suis là mardi. »",
         "On recadre, calmement : l'intégrateur qui contourne, le commercial qui coupe la parole à la compta, celui qui décide du planning d'un autre. À dire : « Ce point est à la compta. Julie, je t'écoute. »"
       ],
       retenir: "Ton crédit se gagne avant d'en avoir besoin, et se perd en faisant à leur place ou en passant au-dessus."
+    },
+    {
+      titre: "L'excès inverse : tout absorber",
+      exemple: "Le chef de projet du prestataire de la plateforme rate la date du contrat pour le connecteur Divalto.\nTu lui en parles, il promet le 15. Le 15, rien : 2e date ratée.\nTu ne relances pas une 3e fois. Tu le préviens, puis tu appelles son responsable de compte, contrat en main.\nEt tu informes le DAF : c'est lui qui a signé le contrat.",
+      points: [
+        "Ne jamais monter est aussi une erreur. Relancer, attendre, absorber : le problème grossit en silence, et la date légale approche.",
+        "Tu en as parlé, et ça recommence ? Tu montes. L'utilisateur clé absent une 3e fois : son manager. L'intégrateur recadré qui contourne encore : son responsable. Le prestataire qui rate 2 fois une date du contrat : son responsable de compte, et tu informes le DAF.",
+        "Un risque légal, ou une info qui change le coût d'une décision : le sponsor, tout de suite. Pas d'attente du COPIL.",
+        "Deux managers en désaccord, options chiffrées déjà posées, et la décision n'est pas à toi : le sponsor tranche. Une 3e réunion ne changera rien.",
+        "Ta décision par défaut, annoncée, dans ton projet, date passée : tu l'appliques et tu l'écris. À dire : « Sans remarque au 10, comme annoncé, ce modèle de PV est retenu. »"
+      ],
+      retenir: "Après une vraie tentative à ton niveau, monter vite n'est pas une faute : c'est ton travail."
     }
   ]
 };

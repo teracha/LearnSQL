@@ -28,12 +28,15 @@ const { chromium } = require('playwright');
   await p.check('[data-groupe="cp-demarrer"]');
   verifie('sous-thème Démarrer :', await info(), 'Choisis encore 1 module(s).');
   verifie('thème CP à moitié :', await etat('[data-groupe="chef-projet"]'), 'moitié');
+  // Nombre de modules lu dans la page (« · N module(s) ») : le test ne dépend pas du contenu publié.
+  const nbDe = g => p.$eval('.noeud:has(> .tete [data-groupe="' + g + '"]) > .tete small', s => parseInt(s.textContent.replace(/\D+/g, ''), 10));
+  const nCP = await nbDe('chef-projet'), nDV = await nbDe('divalto');
   await p.check('[data-groupe="chef-projet"]');
-  verifie('thème CP entier :', await info(), '2 modules choisis.');
+  verifie('thème CP entier :', await info(), nCP + ' modules choisis.');
   await p.check('[data-groupe="divalto"]');
-  verifie('+ Divalto :', await info(), '3 modules choisis.');
+  verifie('+ Divalto :', await info(), (nCP + nDV) + ' modules choisis.');
   verifie('scroll horizontal :', await p.evaluate(() => document.documentElement.scrollWidth), 390);
   await p.click('#lancer'); await p.waitForTimeout(200);
-  verifie('quiz :', (await p.textContent('#app')).includes('Révision · 3 modules') && !!(await p.$('.choice')), true);
+  verifie('quiz :', (await p.textContent('#app')).includes('Révision · ' + (nCP + nDV) + ' modules') && !!(await p.$('.choice')), true);
   console.log('errors', errs); await b.close();
 })();
