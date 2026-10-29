@@ -182,6 +182,9 @@
     var lien = document.getElementById("lien-compte");
     var s = lireSession();
     if (lien) lien.textContent = s ? "Compte ✓" : "Connexion";
+    var pied = document.getElementById("pied-compte");
+    if (pied) pied.innerHTML = s ? "Tes notes sont enregistrées dans ton compte." :
+      'Sans compte, tes notes restent dans ce navigateur. <a href="#/compte">Se connecter</a> pour les retrouver partout.';
   }
 
   // ---------- Outils ----------
