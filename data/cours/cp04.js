@@ -59,7 +59,7 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Parties prenantes et premiers risques",
-      exemple: "Sponsor : le DAF. Il décide et arbitre.\nParties prenantes : cheffe comptable, ADV (administration des ventes), commerciaux, intégrateur, PA,\nDSI (directeur des systèmes d'information), clients EDI.\nLe commercial dit : « Moi je veux juste que ça marche. » Tu lui demandes 15 minutes :\n« Quels sont les 3 cas qui ne doivent jamais casser ? » Tu traduis ses réponses en critères.\nRisques : PA en retard, clients EDI pas prêts, compta saturée en clôture.",
+      exemple: "Sponsor : le DAF. Il décide et arbitre.\nParties prenantes : cheffe comptable, ADV (administration des ventes), commerciaux, intégrateur, PA, DSI (directeur des systèmes d'information), clients EDI.\nLe commercial dit : « Moi je veux juste que ça marche. » Tu lui demandes 15 minutes :\n« Quels sont les 3 cas qui ne doivent jamais casser ? » Tu traduis ses réponses en critères.\nRisques : PA en retard, clients EDI pas prêts, compta saturée en clôture.",
       points: [
         "Parties prenantes : qui est touché, qui décide, qui est consulté ou informé. Le détail vient au module cp09 : le RACI (Réalise, Approuve, Consulté, Informé).",
         "Voir les métiers AVANT de faire valider. Une note écrite seul, sans la compta ni les ventes, fait découvrir les besoins en recette.",

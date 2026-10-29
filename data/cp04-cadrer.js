@@ -690,7 +690,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q39", dialecte: "Gestion de projet",
-    q: "Ta note DEMAT 2027 validée prévoit un budget de 60 à 90 k€. En novembre, les devis de la plateforme agréée (PA) et de l'intégrateur arrivent : 115 k€ au total. Le prochain COPIL est dans 3 semaines. Que fais-tu ?",
+    q: "Ta note DEMAT 2027 validée prévoit un budget de 60 à 90 k€. En novembre, les devis de la plateforme agréée (PA) et de l'intégrateur arrivent : 115 k€ au total. Prochain COPIL dans 3 semaines. Que fais-tu ?",
     choix: [
       "Tu le présentes au COPIL, avec le dossier complet",
       "Tu réduis le périmètre pour tenir les 90 k€",
@@ -744,7 +744,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q42", dialecte: "Gestion de projet",
-    q: "Le contrat prévoit le connecteur de la plateforme agréée (PA) au 1er mars. Ta note DEMAT 2027 : tolérance de ± 2 semaines par jalon. La PA annonce le 8 mars, et la recette commence le 16. Que fais-tu ?",
+    q: "Le contrat prévoit le connecteur de la plateforme agréée (PA) au 1er mars. Ta note DEMAT 2027 : tolérance de ± 2 semaines par jalon. La PA annonce le 8 mars, et la recette commence le 16 mars. Que fais-tu ?",
     choix: [
       "Tu préviens le DAF aujourd'hui, pour un avenant",
       "Tu décales aussi la bascule de juin d'une semaine",
