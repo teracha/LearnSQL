@@ -455,9 +455,12 @@
     var html = '<p class="muted">Cours · Module ' + numeroModule(id) + '</p>' +
       '<h1>' + esc(m.titre) + '</h1>' +
       '<p>' + fmt(c.intro) + '</p>';
+    // Hors SQL, l'exemple est une situation en texte : police normale, retour à la ligne.
+    var sql = chaineModule(id)[0] === "sql";
+    var balise = sql ? '<pre class="code">' : '<pre class="code texte">';
     c.sections.forEach(function (sec, i) {
       html += '<h2>' + (i + 1) + '. ' + esc(sec.titre) + '</h2><div class="card">' +
-        (sec.exemple ? '<p class="label">Exemple</p><pre class="code">' + esc(sec.exemple) + '</pre>' : '') +
+        (sec.exemple ? '<p class="label">Exemple</p>' + balise + (sql ? esc(sec.exemple) : fmt(sec.exemple)) + '</pre>' : '') +
         (sec.resultat ? '<p class="muted">→ ' + fmt(sec.resultat) + '</p>' : '') +
         '<ul class="points">' + sec.points.map(function (p) { return '<li>' + fmt(p) + '</li>'; }).join('') + '</ul>' +
         (sec.retenir ? '<div class="feedback ok"><p><strong>À retenir :</strong> ' + fmt(sec.retenir) + '</p></div>' : '') +

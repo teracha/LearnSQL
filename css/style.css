@@ -189,3 +189,4 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
 .parcours .fleche { font-size: 32px; color: var(--muted); }
 .lien { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
 details.card summary { cursor: pointer; }
+pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
