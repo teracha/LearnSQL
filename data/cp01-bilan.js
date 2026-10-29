@@ -24,21 +24,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q02",
     "dialecte": "Gestion de projet",
-    "q": "Tu as le projet DEMAT, deux petits projets et le run. Depuis un mois, tu dépasses de 30 % ton temps chaque semaine. Que fais-tu ?",
+    "q": "Point projet hebdomadaire, sans le DAF. L'intégrateur et Julie proposent d'ajouter les notes de frais au périmètre : « 5 jours, pas plus ». Prochain COPIL (comité de pilotage) dans 10 jours. Que fais-tu ?",
     "choix": [
-      "Tu tiens jusqu'à la mise en service, puis tu en parles à ton chef",
-      "Tu demandes à ton responsable un jour de télétravail pour te concentrer",
-      "Tu alertes ton responsable, chiffres et options en main",
-      "Tu dis non à toute nouvelle demande, de ton propre chef"
+      "Tu l'acceptes en séance : l'équipe projet est d'accord, c'est petit",
+      "Tu inscris l'ajout au COPIL, chiffré, et rien ne démarre d'ici là",
+      "L'intégrateur commence, et tu fais valider l'ajout au COPIL",
+      "Tu demandes au DAF un COPIL exceptionnel dès cette semaine"
     ],
-    "bonne": 2,
+    "bonne": 1,
     "pourquoi": [
-      "Non. Ton responsable découvrira le problème trop tard, quand des engagements seront déjà ratés.",
-      "Non. Tu gagnes du calme, pas du temps : 30 % de trop ne se règle pas ainsi. Ton responsable ne voit pas le vrai problème, ta charge.",
-      "Oui. Une alerte tôt, avec ta charge chiffrée et des options, permet à ton responsable de choisir les priorités.",
-      "Non. Les demandeurs ne comprennent pas tes refus. Tu abîmes la relation sans régler la charge."
+      "Non. Le point projet suit le travail, il ne change pas le périmètre. Les notes de frais sont hors périmètre : 5 jours en régie partent sans décision du DAF, qui les découvrira sur la facture.",
+      "Oui. Le point projet prépare, le COPIL décide du périmètre. Tu présentes l'ajout chiffré (jours, coût, impact sur le planning), le DAF tranche, et la décision est écrite au compte rendu.",
+      "Non. Bonne instance, mauvais moment : le travail démarre avant la décision. Si le COPIL refuse, les jours sont déjà facturés (régie), et le COPIL ne fait plus qu'entériner.",
+      "Non. 10 jours d'attente ne menacent pas la date légale. Un COPIL exceptionnel se garde pour une décision urgente : ici, la séance prévue suffit, et tu épuises le DAF pour rien."
     ],
-    "retenir": "Surcharge : alerter tôt, avec des faits et des options de ce qui peut glisser. → module cp02"
+    "retenir": "Chaque décision a son instance : le point projet suit et prépare, le COPIL tranche le périmètre, le budget et les dates. → module cp09"
   },
   {
     "id": "cp01-q03",
@@ -233,21 +233,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q13",
     "dialecte": "Gestion de projet",
-    "q": "Le DAF veut séparer investissement (CAPEX) et fonctionnement (OPEX). Où ranges-tu l'abonnement annuel à la plateforme agréée (PA) ?",
+    "q": "La plateforme agréée (PA) a un SLA (niveau de service) : portail rétabli en 4 h. En janvier : 3 pannes, dont une de 2 jours. Après la 1re, son chef de projet avait promis un correctif. Que fais-tu ?",
     "choix": [
-      "En investissement, car il est lié au projet",
-      "En fonctionnement : c'est un service, pas un bien",
-      "En investissement la 1re année, puis en fonctionnement",
-      "Hors budget SI, car c'est la compta qui l'utilise"
+      "Tu notes les 3 écarts au SLA et tu surveilles de près le mois de février",
+      "Tu revois son chef de projet avec les écarts au SLA, plan exigé",
+      "Tu portes les écarts au SLA à son responsable de compte, plan daté",
+      "Tu demandes au DAF de résilier le contrat et de changer de PA"
     ],
-    "bonne": 1,
+    "bonne": 2,
     "pourquoi": [
-      "Non. Le lien avec le projet ne suffit pas. Un abonnement payé chaque année est une charge, pas un investissement.",
-      "Oui. Un abonnement paie un service : c'est une charge (OPEX). Le développement du connecteur peut, lui, être immobilisé : à voir avec le contrôle de gestion.",
-      "Non. La nature de la dépense ne change pas avec l'année. Ce découpage fausse la comparaison des budgets.",
-      "Non. Tu réponds « qui paie », pas « quelle nature ». Chez la compta ou à la DSI, un abonnement reste une charge (OPEX)."
+      "Non. Tu constates sans agir : la PA n'a aucune raison de changer. En février, une 4e panne bloquera encore la réception des factures fournisseurs.",
+      "Non. Bon geste, mauvais niveau : il avait promis, et ça a recommencé. Une 2e promesse au même niveau ne vaut pas plus que la 1re.",
+      "Oui. Ça recommence après une promesse : tu montes d'un niveau chez la PA, en prévenant son chef de projet. Écarts mesurés contre le contrat, plan daté suivi en comité fournisseur, pénalités appliquées avec le DAF, qui a signé.",
+      "Non. Changer de PA en plein projet coûte des mois (contrat, connecteur) et met la date légale en danger. Tu n'as encore utilisé ni le contrat ni son responsable de compte."
     ],
-    "retenir": "Abonnement à un service = OPEX ; développement ou licence achetée = souvent CAPEX. → module cp11"
+    "retenir": "SLA raté de façon répétée : mesurer les écarts contre le contrat, exiger un plan daté, monter chez le fournisseur avant de penser à en changer. → module cp15"
   },
   {
     "id": "cp01-q14",
