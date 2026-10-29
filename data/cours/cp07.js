@@ -8,7 +8,7 @@
 // d'une action proportionnée (écrire le risque, former une suppléante). Le module traite ce cas (section 5),
 // sans tomber dans l'excès inverse : un risque majeur ou légal se dit au sponsor tout de suite (sections 6 et 7).
 LEARNSQL.cours.cp07 = {
-  intro: "Gérer les risques, c'est agir avant que le souci arrive, quand ça coûte encore peu. Ce module te donne un registre simple, 4 réponses possibles, et une règle : la réponse a la taille du risque. Ni plus grosse, ni plus petite.",
+  intro: "Gérer les risques, c'est agir avant que le souci arrive, quand ça coûte encore peu. Ce module te donne un registre simple, 4 réponses possibles, et une règle : la réponse a la taille du risque, ni plus grosse, ni plus petite.",
   sections: [
     {
       titre: "Partir de ton vécu : risque, problème, hypothèse",
@@ -16,31 +16,31 @@ LEARNSQL.cours.cp07 = {
       points: [
         "Risque = un événement incertain, pas encore arrivé, qui gênerait le projet : délai, coût, qualité.",
         "Problème = c'est arrivé. On ne l'évalue plus : on le traite, tout de suite.",
-        "Hypothèse = ce qu'on suppose vrai sans preuve (module cp04). Un doute ? Vérifie-la vite. Impossible à vérifier ? Écris-la en risque.",
+        "Hypothèse = ce qu'on suppose vrai sans preuve (module cp04). Un doute ? Vérifie-la vite. Impossible à vérifier ? Écris-la comme un risque.",
         "Gérer les risques = agir AVANT, quand une petite action suffit encore.",
-        "Ton réflexe à corriger : prendre la plus grosse solution. Ici, on proportionne la réponse. Mais on ne minimise pas un vrai danger."
+        "Ton réflexe à corriger : prendre la plus grosse solution. Ici, la réponse a la taille du risque. Mais un vrai danger ne se minimise pas."
       ],
       retenir: "Un risque se prépare avant ; un problème se traite maintenant."
     },
     {
       titre: "Trouver les risques : à plusieurs, et chez les gens",
-      exemple: "Atelier d'1 h : cheffe comptable, Julie (comptable fournisseurs), Sophie (comptable clients), responsable ADV, intégrateur Divalto, prestataire de la PA.\nQuestion posée : « Qu'est-ce qui peut nous empêcher d'émettre nos factures le 1er septembre 2027 ? »\nL'intégrateur raconte un autre client : la reprise des codes TVA avait coûté 3 semaines.\nJulie dit : « Les avoirs fournisseurs, seule la cheffe comptable sait les traiter. »",
+      exemple: "Atelier d'1 h : cheffe comptable, Julie (comptable fournisseurs), Sophie (comptable clients), responsable ADV (administration des ventes), intégrateur Divalto, prestataire de la PA.\nQuestion posée : « Qu'est-ce qui peut nous empêcher d'émettre nos factures le 1er septembre 2027 ? »\nL'intégrateur raconte un autre client : la reprise des codes TVA avait coûté 3 semaines.\nJulie dit : « Les avoirs fournisseurs, seule la cheffe comptable sait les traiter. »",
       points: [
-        "Atelier court, avec les métiers ET les prestataires. Seul à ton bureau, tu ne vois que les risques techniques.",
+        "Atelier court, avec les métiers ET les prestataires. Seul à ton bureau, tu ne vois que la technique.",
         "Retours d'expérience : tes projets passés, ceux de l'intégrateur, les autres clients de la PA.",
-        "Cherche les points uniques de défaillance : une seule personne qui sait, un seul consultant, un seul fichier. Si elle manque, tout s'arrête.",
+        "Cherche les points uniques de défaillance : une seule personne qui sait, un seul consultant, un seul fichier. S'il manque, tout s'arrête.",
         "Relis les hypothèses et les dépendances de la note de cadrage : prestataire, clients EDI (échange de données informatisé), congés, clôtures.",
-        "« On pourrait être en retard » n'est pas un risque : c'est une conséquence. Cherche la cause précise."
+        "« On pourrait être en retard » n'est pas un risque : c'est une conséquence. Cherche la cause précise. Ex. : « Seule la cheffe comptable sait traiter les avoirs. »"
       ],
       retenir: "Les risques se trouvent à plusieurs, et souvent chez les gens, pas dans la technique."
     },
     {
       titre: "Le registre : cause, risque, conséquence, et une note",
-      exemple: "Cause : seule la cheffe comptable connaît les cas d'avoirs fournisseurs, et elle est en congé 3 semaines pendant la recette.\nRisque : les avoirs ne sont pas testés à temps.\nConséquence : erreurs sur les avoirs après la bascule.\nProbabilité 3 × impact 2 = note 6. Propriétaire : la cheffe comptable. Action : former Julie avant le 15 mai. Revue : au point projet, tous les 15 jours.",
+      exemple: "Cause : seule la cheffe comptable connaît les cas d'avoirs fournisseurs, et elle est en congé 3 semaines pendant la recette.\nRisque : les avoirs ne sont pas testés à temps.\nConséquence : erreurs sur les avoirs après la bascule.\nNote : probabilité 3 (forte) × impact 2 (moyen) = 6. C'est une priorité.\nPropriétaire : la cheffe comptable. Action : former Julie avant le 15 mai. Revue : au point projet, tous les 15 jours.",
       points: [
         "Une ligne = cause → risque → conséquence. Phrase type : « Parce que [cause], il peut arriver que [risque], ce qui entraînerait [conséquence]. »",
-        "Probabilité (1 faible, 2 moyenne, 3 forte) × impact (1, 2, 3) = une note de 1 à 9. 6 ou 9 : priorité. 1 ou 2 : on accepte et on surveille de loin.",
-        "Exception : un impact fort sur une date légale se suit de près, même si la probabilité est faible.",
+        "Note = probabilité × impact. Chacun va de 1 (faible) à 3 (fort), en passant par 2 (moyen). La note va donc de 1 à 9.",
+        "Lire la note : 3 (forte) × 3 (fort) = 9, priorité. 3 × 2 = 6, priorité aussi. 1 (faible) × 2 (moyen) = 2 : on accepte et on surveille de loin. Exception : un impact fort sur une date légale se suit de près, même à 1 × 3 = 3.",
         "Propriétaire = UNE personne nommée, qui suit l'action. Pas « l'équipe ». Pas toi sur toutes les lignes.",
         "Chaque ligne a une action, une date et une prochaine revue. Sans action ni date, c'est une liste d'inquiétudes."
       ],
@@ -50,10 +50,10 @@ LEARNSQL.cours.cp07 = {
       titre: "Les 4 réponses : éviter, réduire, transférer, accepter",
       exemple: "Éviter : pas de bascule en août (congés, aucune marge). On la met en juin : ce risque disparaît.\nRéduire : former Julie aux avoirs. Le trou en recette devient peu probable.\nTransférer : une date et des pénalités de retard dans le contrat de la PA.\nAccepter : la PA peut augmenter ses prix au renouvellement. On garde une réserve dans le budget.",
       points: [
-        "Éviter = changer le plan pour que le risque n'existe plus. Ex. : bascule en juin, ou le connecteur standard plutôt qu'un développement spécifique jamais testé. Pour un risque inacceptable.",
+        "Éviter = changer le plan pour que le risque n'existe plus. Pour un risque inacceptable. Ex. : bascule en juin, ou le connecteur standard plutôt qu'un développement spécifique jamais testé.",
         "Réduire = baisser la probabilité ou l'impact : former une suppléante, documenter, tester plus tôt, un pilote sur 1 site.",
         "Transférer = faire porter la conséquence par un autre : contrat (pénalités), assurance. Attention : la pénalité paie, mais le retard reste chez toi.",
-        "Accepter = ne rien faire de plus, en le sachant. Pour un petit risque, ou quand rien n'est possible. Si l'impact compte : avec une réserve (temps, argent) ou un plan de repli.",
+        "Accepter = ne rien faire de plus, en le sachant. Pour un petit risque, ou quand rien n'est possible. L'impact compte ? Alors avec une réserve (temps, argent) ou un plan de repli.",
         "On combine souvent : transférer l'argent ET réduire le délai."
       ],
       retenir: "On évite l'inacceptable, on réduit le reste, on transfère l'argent, on accepte le petit."
@@ -76,9 +76,9 @@ LEARNSQL.cours.cp07 = {
       points: [
         "Déclencheur = un signal observable, avec une date. « Pas livré au 15 mars », pas « si ça sent mauvais ».",
         "Plan B = ce qu'on fait si le risque arrive. Préparé à froid, pas inventé dans l'urgence.",
-        "Revue courte et régulière, au point projet : la note change ? L'action est faite ? Risque écarté ? On le ferme.",
+        "Revue courte et régulière, au point projet. La note a changé ? L'action est faite ? Le risque est écarté ? Alors on le ferme.",
         "Un signal faible (2 jalons intermédiaires ratés) : remonte la probabilité tout de suite. N'attends pas la date finale.",
-        "Le risque arrive : il sort du registre, il devient un problème à traiter. Plan B déclenché, sponsor prévenu si la date ou le budget bougent."
+        "Le risque arrive : il sort du registre et devient un problème à traiter. Tu déclenches le plan B. La date ou le budget bougent ? Tu préviens le sponsor."
       ],
       retenir: "Un déclencheur clair décide pour toi : la date passe, le plan B part."
     },
@@ -86,8 +86,8 @@ LEARNSQL.cours.cp07 = {
       titre: "Parler d'un risque au sponsor : ni drame, ni silence",
       exemple: "Lundi, la PA annonce 2 mois de retard. Le COPIL est dans 3 semaines.\nAvec ce retard, la bascule tombe en août, sans marge avant le 1er septembre 2027.\nTu appelles le DAF le jour même : les faits, l'impact, 2 options, ta recommandation.\nÀ l'inverse, le risque « logo mal placé sur le PDF » attendra le compte rendu du COPIL.",
       points: [
-        "Quand : au COPIL pour les risques suivis. Le jour même pour un risque légal (même hors de ton périmètre, comme le e-reporting porté par le DAF), un risque majeur proche, ou s'il faut sa décision.",
-        "Comment : les faits, la probabilité, l'impact (date, coût), ce que tu fais déjà, ce que tu attends de lui.",
+        "Quand ? Au COPIL pour les risques suivis. Le jour même pour : un risque légal, un risque majeur proche, une décision à lui demander. Risque légal = même hors de ton périmètre. Ex. : le e-reporting (envoi au fisc des données de ventes hors facture électronique), porté par le DAF.",
+        "Comment ? Les faits, la probabilité, l'impact (date, coût), ce que tu fais déjà, ce que tu attends de lui.",
         "À dire : « Risque sur la date légale : la PA annonce 2 mois de retard. Je propose l'option B. J'ai besoin de ta décision d'ici vendredi. »",
         "Sans dramatiser : pas de « catastrophe », pas de COPIL extraordinaire pour un risque moyen.",
         "Sans cacher : un risque fort gardé pour toi « le temps de le régler » devient une surprise pour le sponsor. Sa confiance tombe."
