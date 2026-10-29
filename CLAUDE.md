@@ -113,6 +113,11 @@ Règles pour écrire des questions :
 Pour ajouter un module : créer `data/mXX-nom.js` avec `LEARNSQL.questions.mXX = [ ... ];`
 puis ajouter la ligne `<script src="data/mXX-nom.js"></script>` dans `index.html`.
 
+## Parcours Chef de projet SI
+
+Plan, fil rouge « DEMAT 2027 » et règles propres (modules courts, mises en situation, 30 à 50 cas par module) :
+`docs/plan-chef-de-projet.md`. Modules `cp01` à `cp27`.
+
 ## Questions Divalto
 
 - Source : la base documentaire du dépôt `teracha/Divalto_10`, en **lecture seule** (ne jamais la modifier ni y pousser).
