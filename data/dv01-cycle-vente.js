@@ -107,8 +107,8 @@ LEARNSQL.questions.dv01 = [
     "pourquoi": [
       "Non. Une adresse codifiée doit déjà exister dans le fichier des adresses des tiers.",
       "Oui. L'adresse manuelle est saisie librement, pour cette pièce seulement. C'est l'exemple donné par la doc.",
-      "Non. « Identique à » reprend une adresse déjà saisie en manuel sur une autre pièce.",
-      "Non. Ce serait l'adresse de facturation, pas celle du client final."
+      "Non. « Identique à » reprend une adresse déjà saisie en manuel. Ici, il n'y en a pas encore.",
+      "Non. « Identique à » reprend une adresse manuelle déjà saisie ; ici, aucune adresse manuelle n'existe encore."
     ],
     "retenir": "Adresse ponctuelle, inconnue de Divalto : type « Manuelle ».",
     "source": {
@@ -128,7 +128,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "bonne": 1,
     "pourquoi": [
-      "Non. Avec trois tiers fixes, un arrondi peut laisser quelques centimes non ventilés.",
+      "Non. Pour la dernière échéance, la doc utilise S : il prend tout ce qui reste, quoi qu'il arrive.",
       "Oui. « S » affecte le solde : la dernière échéance prend tout ce qui reste. C'est l'exemple de la doc.",
       "Non. 100 % reprendrait le montant total, en plus des deux premiers tiers.",
       "Non. La syntaxe du solde est « S », pas « R »."
@@ -213,7 +213,7 @@ LEARNSQL.questions.dv01 = [
     "dialecte": "Divalto 10.13",
     "q": "Tu veux qu'un client ne puisse commander QUE ses articles référencés. Que faut-il cocher ?",
     "choix": [
-      "Le contrôle dans le dossier ET la fiche client",
+      "Le contrôle dans le dossier et la fiche client",
       "Le contrôle dans la fiche client seulement",
       "Le contrôle dans chaque fiche article du client",
       "Le contrôle dans le dossier seulement, une fois"
@@ -262,14 +262,14 @@ LEARNSQL.questions.dv01 = [
       "Ses commandes et BL ouverts",
       "Ses factures non réglées en compta",
       "Ses factures assurées non réglées",
-      "Ses avoirs pas encore imprimés"
+      "Ses commandes assurées seulement"
     ],
     "bonne": 0,
     "pourquoi": [
       "Oui. L'encours livraison, c'est le portefeuille de commandes et de BL ouverts à date.",
       "Non. Ça, c'est l'encours financier (solde comptable + factures pas encore intégrées).",
       "Non. Ça, c'est l'encours assurance.",
-      "Non. Les avoirs ne forment pas un encours à part."
+      "Non. Ça, c'est l'encours livraison assurance (pièces avec « Assurer la pièce »)."
     ],
     "retenir": "Encours livraison = commandes + BL ouverts. Encours financier = côté comptable.",
     "source": {
@@ -285,14 +285,14 @@ LEARNSQL.questions.dv01 = [
       "Solde comptable + factures non intégrées",
       "Ses commandes et BL ouverts à date",
       "Ses factures assurées non réglées",
-      "Son plafond direction moins ses avoirs"
+      "Ses commandes non encore livrées"
     ],
     "bonne": 0,
     "pourquoi": [
       "Oui. C'est le solde du compte client en comptabilité, plus les factures en attente d'intégration comptable.",
       "Non. Ça, c'est l'encours livraison.",
       "Non. Ça, c'est l'encours assurance.",
-      "Non. Le plafond est une limite, pas un encours."
+      "Non. Les commandes ouvertes font partie de l'encours livraison."
     ],
     "retenir": "Encours financier = ce qui est déjà facturé et pas encore réglé (comptabilité + factures non intégrées).",
     "source": {
@@ -335,7 +335,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "bonne": 0,
     "pourquoi": [
-      "Oui. Le montant contrôlé est la somme de l'encours comptable et de l'encours livraison.",
+      "Oui. Le montant contrôlé = encours comptable (c'est l'encours financier) + encours de livraison.",
       "Non. Il manque la partie déjà facturée et non réglée.",
       "Non. Il manque les commandes et BL ouverts.",
       "Non. La commande s'ajoute à l'encours existant : on ne la regarde pas seule."
@@ -469,14 +469,14 @@ LEARNSQL.questions.dv01 = [
       "Des motifs par défaut (décomposition, cadeau)",
       "Un prix minimum pour chaque article",
       "Un commercial sur chaque ligne gratuite",
-      "Un plafond d'encours pour chaque client"
+      "Un motif sur chaque ligne déjà saisie"
     ],
     "bonne": 0,
     "pourquoi": [
       "Oui. Il faut un motif par défaut pour les décompositions et pour les cadeaux des remises seuil.",
       "Non. Le motif explique la gratuité ; il n'y a pas de prix minimum à saisir.",
       "Non. Le motif est lié à la ligne, pas au commercial.",
-      "Non. L'encours n'a pas de lien avec la gratuité."
+      "Non. Les motifs par défaut servent aux lignes générées (décomposition, cadeau). Les lignes saisies prennent le motif choisi."
     ],
     "retenir": "Motif de gratuité obligatoire → prévoir aussi les motifs par défaut (décomposition et cadeau), dossier onglet Pièces2.",
     "source": {
@@ -625,7 +625,7 @@ LEARNSQL.questions.dv01 = [
   {
     "id": "dv01-q28",
     "dialecte": "Divalto 10.13",
-    "q": "Un BL ne doit pas être facturé tant qu'il manque une information. Comment faire ?",
+    "q": "Un BL est livré, mais il ne doit pas encore être facturé. Comment le mettre de côté ?",
     "choix": [
       "Cocher « Attente d'informations »",
       "Supprimer le BL et le refaire",
@@ -635,7 +635,7 @@ LEARNSQL.questions.dv01 = [
     "bonne": 0,
     "pourquoi": [
       "Oui. Dans l'en-tête du BL, onglet Facturation-Impression, la case « Attente d'informations » le bloque pour la facturation.",
-      "Non. On perdrait le mouvement de stock déjà fait.",
+      "Non. Le BL est juste : il suffit de le bloquer, pas de le refaire.",
       "Non. On facturerait à 0 € : c'est une erreur, pas une attente.",
       "Non. Le blocage d'encours concerne les commandes, pas un BL à mettre en attente."
     ],
@@ -671,7 +671,7 @@ LEARNSQL.questions.dv01 = [
   {
     "id": "dv01-q30",
     "dialecte": "Divalto 10.13",
-    "q": "Une commande est livrée en 3 BL. Le client veut UNE facture pour cette commande. Quel mode de facturation dans sa fiche ?",
+    "q": "Une commande est livrée en 3 BL. Le client veut une facture par commande, jamais mélangée avec ses autres commandes. Quel mode de facturation dans sa fiche ?",
     "choix": [
       "Un BL par facture",
       "Une commande par facture",
@@ -717,7 +717,7 @@ LEARNSQL.questions.dv01 = [
   {
     "id": "dv01-q32",
     "dialecte": "Divalto 10.13",
-    "q": "Le port est un forfait de 10 € par livraison. Une commande part en 2 BL, regroupés sur une facture. Combien de port est facturé ?",
+    "q": "Le port est un forfait de 10 € sous 10 pièces. Une commande de 10 pièces part en 2 BL (3 puis 7), regroupés sur une facture. Combien de port est facturé ?",
     "choix": [
       "10 € : un seul forfait",
       "20 € : un forfait par BL",
@@ -726,8 +726,8 @@ LEARNSQL.questions.dv01 = [
     ],
     "bonne": 1,
     "pourquoi": [
-      "Non. Les frais de port de chaque BL sont repris.",
-      "Oui. En facturation différée, les frais de port se cumulent : 10 € pour chaque livraison.",
+      "Non. On pourrait croire à un seul forfait pour la commande de 10, mais chaque BL garde son port.",
+      "Oui. En facturation différée, les frais de port de chaque BL se cumulent : 10 € pour 3 pièces, puis 10 € pour 7. C'est l'exemple de la doc.",
       "Non. Le regroupement ne rend pas le port gratuit.",
       "Non. Le forfait n'est pas divisé entre les BL."
     ],
@@ -910,7 +910,7 @@ LEARNSQL.questions.dv01 = [
     ],
     "bonne": 0,
     "pourquoi": [
-      "Oui. Et dans l'autre sens, depuis la facture : Interrogation > Avoirs.",
+      "Oui. Dans l'autre sens, depuis la facture : Interrogation > Avoirs (avec l'option Affichage > « Afficher les avoirs associés » en V10.10).",
       "Non. Ça transforme une pièce, ça ne retrouve pas son origine.",
       "Non. Dupliquer crée une nouvelle pièce.",
       "Non. On cherche une facture, pas une commande."
@@ -947,7 +947,7 @@ LEARNSQL.questions.dv01 = [
   {
     "id": "dv01-q42",
     "dialecte": "Divalto 10.13",
-    "q": "Un client retourne un article défectueux, à détruire. Comment éviter qu'il revienne dans le stock ?",
+    "q": "Dans la saisie des retours clients, un article retourné est à détruire. Comment le saisir sans le remettre en stock ?",
     "choix": [
       "Un code opération sans mise à jour du stock",
       "Un avoir sans retour de marchandise",
@@ -957,7 +957,7 @@ LEARNSQL.questions.dv01 = [
     "bonne": 0,
     "pourquoi": [
       "Oui. Sur la ligne du retour, on met un code opération prévu pour la mise au rebut : « Mettre à jour le stock » se décoche.",
-      "Non. Ça marche pour l'argent, mais on perd la trace du retour physique.",
+      "Non. L'avoir sans retour ne passe pas par la saisie des retours : ici, l'article revient physiquement.",
       "Non. L'annulation remet la quantité en stock : c'est l'inverse du but.",
       "Non. La gratuité change le prix, pas le stock."
     ],

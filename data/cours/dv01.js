@@ -13,7 +13,7 @@ LEARNSQL.cours.dv01 = {
         "Quantité à 0 = la ligne n'est pas transformée. Elle reste en reliquat sur la pièce d'origine (si les reliquats sont gérés pour cette pièce).",
         "Supprimer une ligne = elle est supprimée sur les 2 pièces (avec confirmation). Ajouter une ligne = elle va seulement sur la nouvelle pièce.",
         "Sur une ligne : clic droit sur la quantité = stock et disponible de l'article. `Ctrl+R` = texte de ligne, `Ctrl+N` = note de ligne, `Ctrl+D` = libellé complémentaire.",
-        "Adresse « Manuelle » = saisie libre, pour cette pièce seulement (ex. : livrer le client de votre client). Autres types : Codifiée, ou « Identique à » (devis, commande, BL, facture), qui reprend une adresse manuelle déjà saisie sur la pièce."
+        "Adresse « Manuelle » = saisie libre, pour cette pièce seulement (ex. : livrer le client de votre client). Autres types : Codifiée, ou « Identique à » (devis, commande, BL, facture), qui reprend une adresse déjà saisie en manuel."
       ],
       retenir: "En transformation : 0 = reliquat, supprimer = sur les 2 pièces, ajouter = sur la nouvelle seulement.",
       source: { titre: "Création d'une commande de vente", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704712833/Cr+ation+d+une+commande+de+vente" }
@@ -40,7 +40,7 @@ LEARNSQL.cours.dv01 = {
         "On peut y ajouter une quantité minimale et un multiple de commande. Ils informent l'utilisateur à la saisie.",
         "Créer : fiche article, bouton `Référencement`. Voir tous les articles référencés d'un client : fiche client, bouton `Référencement`.",
         "Accepter SEULEMENT les articles référencés : cocher « Contrôler le référencement client » à 2 endroits. 1) Le dossier (`Fichiers / Organisation / Dossiers`, onglet « Pièces »). 2) La fiche client (onglet « Livraison et facturation »).",
-        "Client-groupe : avec la case du dossier (onglet « Pièces 2 »), on voit aussi les articles référencés sur la centrale du client. Ils ont un « G ».",
+        "Client-groupe : avec la case du dossier (onglet « Pièces 2 »), on trouve aussi en saisie les articles référencés sur la centrale du client. Dans la fiche client, bouton `Référencement`, case « Visualiser le référencement groupe » : ils ont un « G ».",
         "En saisie de pièce : `Interrogation` > « Fiche référencement » ouvre ou crée le référencement du couple client-article de la ligne."
       ],
       retenir: "Pour contrôler le référencement, il faut 2 coches : une dans le dossier, une dans la fiche client.",
@@ -51,9 +51,9 @@ LEARNSQL.cours.dv01 = {
       exemple: "Le pisciniste MARTIN a un plafond direction de 50 000 €.\n- Encours comptable : 30 000 €\n- Encours livraison : 25 000 €\n- Total : 55 000 € → dépassement → sa commande de liners peut être bloquée.",
       points: [
         "Plafonds : fiche client, onglet « Généralités », groupe « Encours en EUR ». Plafond direction = le risque maximum voulu pour ce client. Plafond assurance = la couverture de l'assurance.",
-        "Pas de plafond = pas de contrôle d'encours. Seules les pièces saisies APRÈS la mise en place des plafonds comptent. Elles sont cochées « pièce assurée » par défaut.",
-        "Encours financier = solde du compte client en comptabilité + factures en attente d'intégration comptable. Encours livraison = commandes et BL ouverts à date.",
-        "Divalto compare encours comptable + encours livraison au plafond (page « Gestion de l'encours client »). Pour bloquer : coche « Bloquer la commande si dépassement d'encours client », dans le dossier, onglet « Pièces ». Un message propose alors de bloquer la commande.",
+        "Pas de plafond = pas de contrôle d'encours. Toutes les pièces saisies après la mise en place des plafonds entrent dans le calcul de l'encours. Elles sont cochées « pièce assurée » par défaut.",
+        "Encours financier (appelé aussi encours comptable) = solde du compte client en comptabilité + factures en attente d'intégration comptable. Encours livraison = commandes et BL ouverts à date.",
+        "Divalto compare encours comptable + encours livraison au plafond direction, et les encours assurés au plafond assurance (page « Gestion de l'encours client »). Pour bloquer : coche « Bloquer la commande si dépassement d'encours client », dans le dossier, onglet « Pièces ». Un message propose alors de bloquer la commande.",
         "Commande bloquée : plus de livraison, préparation (WMS, BP), facture, OF, pièce interco ni contremarque. Elle sort du CBN. Déblocage : `Options` > « Modifier l'état de la pièce » > « Déblocage », avec le droit de confidentialité adapté (page « Gestion de l'encours client »).",
         "Encours faux ? Livraison : utilitaire `Commerce & Logistique / Utilitaires / Procédures de mise à jour / Mise à jour de l'encours de livraison`. Financier : calculé seul si « lié à Divalto Règlement » est coché dans le dossier comptable ; sinon, lancer souvent l'utilitaire de la Comptabilité « Mise à jour encours Divalto Commerce & logistique »."
       ],
@@ -78,7 +78,7 @@ LEARNSQL.cours.dv01 = {
       titre: "Le BL de vente",
       exemple: "Commande C-1001 (10 pompes) → « Valider en BL » → BL B-300 : les pompes sortent du stock. La pompe est suivie par lot → le n° de lot est obligatoire sur le BL.",
       points: [
-        "Le BL n'est pas obligatoire pour le client : c'est un service, il montre ce qui est livré. Mais c'est LUI qui génère les mouvements de stock.",
+        "Envoyer le BL au client n'est pas obligatoire : c'est un service, il montre ce qui est livré. Mais c'est le BL qui génère les mouvements de stock.",
         "Créer : depuis un devis ou une commande, `Validation` > « Valider en BL », ou `BL client / Validation de pièces en BL`. Sans numéro saisi : numérotation automatique. Saisie directe : `BL client / Saisie des BL`, comme un devis ou une commande.",
         "Écran de transformation : « quantité initiale » = quantité commandée. « Quantité livrée » = ce qui est en théorie dans le colis.",
         "Coche dossier « les articles doivent être en stock à la sortie » (onglet « Stock ») : sans quantité disponible, la ligne ne peut pas être saisie. Article suivi par lot ou série : la zone est obligatoire au BL (saisissable dès la commande).",
@@ -123,7 +123,7 @@ LEARNSQL.cours.dv01 = {
         "Créer : `Facture Client / Saisie des avoirs`, ou dupliquer la facture en cochant « Créer une pièce d'avoir ». Saisie comme une facture, seul le code opération change ; même compteur de numéros que les factures (page « La facture »).",
         "Le lien avec la facture d'origine est gardé dans les 2 cas : champ « Facture associée » (en-tête, onglet « Complément »). Saisi à la main en saisie directe, reporté seul en duplication. Le n° est imprimé sur l'avoir.",
         "Depuis l'avoir : `Interrogation` > « Facture d'origine ». Depuis la facture : `Interrogation` > « Avoirs ». En V10.10, ce dernier choix demande l'option `Affichage` > « Afficher les avoirs associés » (page « La facture »).",
-        "Contrôles du dossier (V10.8, onglet « Pièces », pavé « Gestion des avoirs ») : même devise, facture d'origine imprimée. « Contrôler le montant TTC de la pièce » : un avoir au TTC plus grand que la facture ne peut pas être validé. Les contrôles de quantité et de montant de ligne demandent aussi « Contrôler l'existence de la Ref » (page « La facture »).",
+        "Cases du dossier (V10.8, onglet « Pièces », pavé « Gestion des avoirs ») : montant TTC, frais de pied, existence de la Ref, quantité et montant de ligne (ces 2 derniers demandent « Contrôler l'existence de la Ref »). Ex. : avoir au TTC plus grand que la facture = refusé (page « La facture »). Dès qu'une case est cochée, 2 contrôles se font seuls : même devise, facture d'origine imprimée.",
         "Avec retour : la quantité retournée va en « Quantité livrée ». Sans retour : quantité livrée à 0, seul un flux financier est créé. Retour à détruire : dans `BL client / Saisie retour client`, mettre sur la ligne un code opération qui ne met pas à jour le stock (case « Ne pas mettre à jour le stock », script `gt_11338.sql`) (page « La facture »).",
         "Attention, contradiction : la page « La facture » dit encore « Il n'existe pas de mémorisation automatique d'un numéro de facture dans un avoir ». C'est une ancienne phrase : depuis la V10.6, le lien est gardé."
       ],
