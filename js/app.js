@@ -137,7 +137,14 @@
             var role = p && p[0] ? p[0].role : "agent";
             var cur = lireSession();
             if (cur && cur.role !== role) { cur.role = role; ecrireSession(cur); majNav(); }
-          }, function () { /* table profil absente : rôle agent */ });
+            return appelSupa("/rest/v1/membre?select=groupe(nom)&user_id=eq." + s.id, {}, s.access_token);
+          }).then(function (m) {
+            var cur = lireSession();
+            if (cur && m) {
+              cur.groupes = m.map(function (x) { return x.groupe && x.groupe.nom; }).filter(Boolean).sort();
+              ecrireSession(cur);
+            }
+          }, function () { /* tables d'équipe absentes : rôle agent, sans groupe */ });
         }).then(function () {
           etatSync = "Synchronisé à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
           return change;
@@ -724,7 +731,11 @@
     if (messageCompte) html += '<div class="card"><strong>' + esc(messageCompte) + '</strong></div>';
 
     if (s) {
+      var gr = s.groupes || [];
       html += '<p>Connecté avec <strong>' + esc(s.email) + '</strong>.</p>' +
+        '<div class="card"><p class="label">Rôle</p><p>' + esc(s.role || "agent") + '</p>' +
+        '<p class="label">' + (gr.length > 1 ? 'Mes groupes' : 'Mon groupe') + '</p><p>' +
+        (gr.length ? gr.map(esc).join(', ') : 'Pas encore de groupe. L\'admin va te ranger dans le bon.') + '</p></div>' +
         '<p class="muted">Ta progression est enregistrée en ligne. Connecte-toi avec la même adresse ' +
         'sur un autre appareil : tu la retrouves.</p>' +
         '<p class="muted" id="etat-sync">' + esc(etatSync) + '</p>' +
