@@ -12,7 +12,7 @@ LEARNSQL.questions.cp16 = [
     q: "Tu as besoin de Julie, comptable fournisseurs, 2 matinées par semaine pour la recette DEMAT 2027. Julie te dit : « Pour moi, c'est OK. » Que fais-tu ?",
     choix: [
       "Tu bloques les créneaux dans son agenda, c'est fait",
-      "Tu fais valider ces créneaux par sa cheffe comptable",
+      "Tu fais valider ces créneaux par sa cheffe",
       "Tu demandes au DAF de l'annoncer à toute l'équipe",
       "Tu lui demandes de prévenir elle-même sa cheffe"
     ],
@@ -32,13 +32,13 @@ LEARNSQL.questions.cp16 = [
     choix: [
       "Tu demandes au DAF d'imposer la présence de Julie",
       "Tu décales toute la recette d'un mois, par prudence",
-      "Tu fais toi-même les tests de Julie cette semaine",
+      "Tu fais toi-même les tests de Julie pendant la clôture",
       "Tu lui proposes d'autres créneaux, hors clôture"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Escalade trop tôt : tu n'as rien proposé. La cheffe comptable se sent court-circuitée, et le DAF te renverra vers elle.",
-      "Non. Un mois de retard pour une seule semaine bloquée : tu manges la marge avant la date légale sans raison.",
+      "Non. Un mois de retard pour une seule semaine bloquée : la bascule glisse, et tu manges la marge légale sans raison.",
       "Non. Tu testes un métier qui n'est pas le tien : la compta n'aura rien validé, et les erreurs sortiront après la bascule.",
       "Oui. Son refus porte sur une semaine, pas sur le projet. Une proposition précise hors clôture règle le problème à ton niveau."
     ],
@@ -89,7 +89,7 @@ LEARNSQL.questions.cp16 = [
     choix: [
       "Tu en parles avec Marc, pour savoir ce qui bloque",
       "Tu informes le responsable ADV, DAF en copie",
-      "Tu lui envoies les supports manqués, sans rien dire",
+      "Tu lui envoies les supports, sans rien dire",
       "Tu signales ses absences au prochain COPIL"
     ],
     bonne: 0,
@@ -108,7 +108,7 @@ LEARNSQL.questions.cp16 = [
     choix: [
       "Tu le préviens, puis tu demandes au DG d'arbitrer",
       "Tu le relances encore, avec un ton plus pressant",
-      "Tu écris : « Sans réponse, j'applique l'option A »",
+      "Tu écris : « Sans réponse, je prends l'option A »",
       "Tu décales la bascule de 2 mois, par sécurité"
     ],
     bonne: 0,
@@ -123,7 +123,7 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q07",
     dialecte: "Gestion de projet",
-    q: "Hier, tu as envoyé au DAF un long mail sur les créneaux de recette compta. Pas de réponse. Ton mail ne fixait aucune date limite. Que fais-tu ?",
+    q: "Hier, tu as envoyé au DAF un long mail sur les créneaux de recette compta. Pas de réponse. Ton mail ne fixait aucune échéance. Que fais-tu ?",
     choix: [
       "Tu écris au DG aujourd'hui : le sponsor ne suit plus",
       "Tu mets le sujet à l'ordre du jour du COPIL suivant",
@@ -134,7 +134,7 @@ LEARNSQL.questions.cp16 = [
     pourquoi: [
       "Non. Un jour sans réponse, sans date limite : aller au DG maintenant abîme ta relation avec le sponsor pour rien.",
       "Non. Attendre le COPIL fait perdre des semaines pour une question qui se règle en 15 minutes.",
-      "Non. Tu décales sur un simple silence d'un jour : la marge fond, et le DAF n'a même pas eu le temps de lire.",
+      "Non. Tu décales sur un simple silence d'un jour : la marge de recette fond, et le DAF n'a même pas eu le temps de lire.",
       "Oui. Une demande courte avec une date limite donne au DAF une chance réelle de répondre. Sans elle, tu ne pourras pas escalader plus tard."
     ],
     retenir: "Avant toute escalade : une demande courte, avec une date limite."
@@ -164,8 +164,8 @@ LEARNSQL.questions.cp16 = [
     q: "La recette compta a une semaine de retard. Julie, motivée, propose : « Je reste 2 soirs par semaine, ça ira plus vite. » Sa cheffe n'est pas au courant. Que fais-tu ?",
     choix: [
       "Tu acceptes et tu la remercies devant l'équipe",
-      "Tu refuses, et tu demandes un intérimaire au DAF",
-      "Tu la remercies, mais tu vois le retard avec sa cheffe",
+      "Tu refuses, et demandes un intérimaire au DAF",
+      "Tu la remercies, puis tu vois d'abord sa cheffe",
       "Tu acceptes, et tu préviens sa cheffe plus tard"
     ],
     bonne: 2,
@@ -203,7 +203,7 @@ LEARNSQL.questions.cp16 = [
     choix: [
       "Tu l'aides : 30 minutes, et un allié pour la suite",
       "Tu refuses : ce sujet est hors du périmètre",
-      "Tu l'aides, contre un engagement écrit de sa part",
+      "Tu l'aides 30 minutes, contre un engagement écrit",
       "Tu lui dis d'ouvrir un ticket au support Divalto"
     ],
     bonne: 0,
@@ -294,9 +294,9 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q16",
     dialecte: "Gestion de projet",
-    q: "Depuis 3 jours, des factures fournisseurs restent bloquées en anomalie dans Divalto. Julie sait les traiter, mais sa cheffe la garde sur la clôture. Elle a refusé tes 2 propositions : 1 h par jour, puis 30 min. Que fais-tu ?",
+    q: "Depuis 3 jours, des factures fournisseurs restent bloquées en anomalie dans Divalto. Julie sait les traiter. Sa cheffe la garde sur la clôture et a refusé tes 2 propositions : 1 h par jour, puis 30 min. Que fais-tu ?",
     choix: [
-      "Tu demandes à Julie de venir 1 h par jour quand même",
+      "Tu demandes à Julie de venir 1 h par jour, sans sa cheffe",
       "Tu attends la fin de la clôture, dans une semaine",
       "Tu préviens sa cheffe, puis demandes au DAF de trancher",
       "Tu demandes au DG d'imposer 1 h par jour de Julie"
@@ -334,7 +334,7 @@ LEARNSQL.questions.cp16 = [
     dialecte: "Gestion de projet",
     q: "Ta demande écrite au DAF avait une date limite, dépassée de 10 jours, malgré une relance. L'émission obligatoire de septembre 2027 est en jeu. Tu décides d'aller voir le DG. Que dis-tu d'abord au DAF ?",
     choix: [
-      "Rien : tu vas voir le DG, pour ne pas le froisser",
+      "Rien : tu y vas, pour ne pas le froisser",
       "« Je vais voir le DG, je te mets en copie »",
       "« Sans décision d'ici vendredi, je verrai le DG »",
       "« Tu peux encore décider, ou je reporte tout »"
@@ -351,7 +351,7 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q19",
     dialecte: "Gestion de projet",
-    q: "En atelier sur la validation des factures fournisseurs, le commercial coupe Julie à chaque phrase. Ce sujet relève de la compta, pas des ventes. Que fais-tu ?",
+    q: "En atelier sur la validation des factures fournisseurs, le commercial coupe Julie à chaque phrase. Ce sujet ne concerne pas les ventes. Que fais-tu ?",
     choix: [
       "Tu le laisses parler : il est pressé et influent",
       "Tu recadres : « Ce point est à la compta. Julie ? »",
@@ -372,7 +372,7 @@ LEARNSQL.questions.cp16 = [
     dialecte: "Gestion de projet",
     q: "Marc est malade une semaine pendant la recette. Ta semaine de marge de recette est encore libre. Le commercial propose de décaler la bascule de juin d'un mois. Que réponds-tu ?",
     choix: [
-      "« D'accord, décalons d'un mois, c'est plus sûr »",
+      "« D'accord, décalons d'un mois : plus de marge »",
       "« Non : on en parle au COPIL, qui tranchera »",
       "« Non : on replanifie ses tests sur la marge »",
       "« Non : je ferai moi-même ses tests ADV »"
@@ -391,7 +391,7 @@ LEARNSQL.questions.cp16 = [
     dialecte: "Gestion de projet",
     q: "Ta semaine de tests ADV tombe pendant l'inventaire du dépôt. Le responsable ADV te propose la semaine suivante. Ta semaine de marge de recette est encore libre. Que fais-tu ?",
     choix: [
-      "Tu prends sa semaine suivante, et tu informes le DAF",
+      "Tu acceptes sa proposition, et tu informes le DAF",
       "Tu fais toi-même les tests ADV pendant l'inventaire",
       "Tu demandes au DAF d'imposer ta semaine au responsable ADV",
       "Tu décales toute la bascule d'un mois pour être tranquille"
@@ -410,7 +410,7 @@ LEARNSQL.questions.cp16 = [
     dialecte: "Gestion de projet",
     q: "La plateforme agréée (PA) ne libère pas son expert pour l'atelier prévu au contrat ce mois-ci. Leur service planning répond : « Pas avant 3 semaines. » Que fais-tu ?",
     choix: [
-      "Tu demandes au DAF d'appeler directement leur PDG",
+      "Tu demandes au DAF d'appeler leur PDG, contrat en main",
       "Tu attends 3 semaines : tu n'y peux rien de toute façon",
       "Tu vois le chef de projet de la PA, contrat en main",
       "Tu réécris à leur service planning pour insister"
@@ -506,7 +506,7 @@ LEARNSQL.questions.cp16 = [
     q: "Julie rend des cas de test incomplets : il manque les avoirs fournisseurs et les factures en devise. Que fais-tu ?",
     choix: [
       "Tu le dis à sa cheffe, pour qu'elle la reprenne",
-      "Tu complètes les cas toi-même, sans rien dire",
+      "Tu complètes toi-même les cas de Julie, sans rien dire",
       "Tu signales le problème au COPIL, dans les risques",
       "Tu en parles à Julie, exemples à l'appui"
     ],
@@ -565,7 +565,7 @@ LEARNSQL.questions.cp16 = [
       "Tu appliques : il a tranché en connaissant le coût",
       "Tu revois le DAF le jour même, avec le nouveau coût",
       "Tu vas voir le DG : la date légale est menacée",
-      "Tu négocies seul avec l'intégrateur, sans rien dire"
+      "Tu négocies seul avec l'intégrateur, sans le dire"
     ],
     bonne: 1,
     pourquoi: [
@@ -641,7 +641,7 @@ LEARNSQL.questions.cp16 = [
       "« D'accord, je signe pour l'ADV cette fois »",
       "« Non : c'est l'ADV qui valide ses factures »",
       "« Non : on demande d'abord l'avis du DG »",
-      "« Je valide, et l'ADV relira plus tard »"
+      "« Je valide ses factures, l'ADV relira plus tard »"
     ],
     bonne: 1,
     pourquoi: [
@@ -695,7 +695,7 @@ LEARNSQL.questions.cp16 = [
     dialecte: "Gestion de projet",
     q: "Le 3, tu as envoyé ton modèle de PV (procès-verbal) de recette à la cheffe comptable et au responsable ADV : « Sans remarque le 10, je le retiens. » Relance le 9. Le 12 : aucune remarque. Que fais-tu ?",
     choix: [
-      "Tu les relances une 3e fois, pour avoir un vrai oui",
+      "Tu ne le retiens pas : tu relances une 3e fois",
       "Tu attends le COPIL pour le faire approuver",
       "Tu demandes au DAF de valider le modèle de PV",
       "Tu le retiens, comme annoncé, et tu l'écris"
@@ -715,7 +715,7 @@ LEARNSQL.questions.cp16 = [
     q: "Il y a 2 semaines, tu as recadré l'intégrateur Divalto : ses demandes à Julie passent par toi. Hier, il l'a encore appelée pour des tests hors planning. Sa cheffe s'en plaint. Que fais-tu ?",
     choix: [
       "Tu vas voir son responsable, faits et dates en main",
-      "Tu le recadres une 2e fois, plus fermement",
+      "Tu le recadres le jour même, une 2e fois, plus fermement",
       "Tu demandes à Julie de ne plus lui répondre",
       "Tu demandes au DAF des pénalités, faits en main"
     ],
@@ -736,14 +736,14 @@ LEARNSQL.questions.cp16 = [
       "Tu préviens le DAF aujourd'hui, avec les faits",
       "Tu l'ajoutes à l'ordre du jour du prochain COPIL",
       "Tu le fais ajouter par l'intégrateur, sans en parler",
-      "Tu le notes dans le registre des risques, et c'est tout"
+      "Tu alertes le DG directement : c'est un risque légal"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Un risque légal, et sans doute un coût hors budget : le sponsor doit le savoir tout de suite. Tu viens avec les faits et une 1re idée des options.",
       "Non. 4 semaines perdues sur un risque légal : options et budget auraient pu être lancés tout de suite.",
       "Non. Tu engages un coût hors contrat sans le sponsor : c'est lui qui décide du budget, et la facture arrivera quand même.",
-      "Non. Noter n'est pas prévenir : le sponsor découvrira trop tard un risque légal que tu connaissais."
+      "Non. Le DAF, sponsor, ne le sait même pas : aller au DG, c'est passer au-dessus de lui. Un risque légal se dit d'abord au sponsor, le jour même."
     ],
     retenir: "Un risque légal découvert : on prévient le sponsor tout de suite, sans attendre le COPIL."
   },
@@ -752,7 +752,7 @@ LEARNSQL.questions.cp16 = [
     dialecte: "Gestion de projet",
     q: "Sophie, comptable clients, est utilisatrice clé pour les avoirs clients. Elle a manqué un 3e atelier sans prévenir. Après le 2e, tu lui en as parlé : elle avait promis de venir. Que fais-tu ?",
     choix: [
-      "Tu lui en reparles, avec encore plus de patience",
+      "Tu reparles à Sophie, avec encore plus de patience",
       "Tu la préviens, puis tu signales ses absences au DAF",
       "Tu testes les avoirs toi-même, sans elle",
       "Tu vois sa cheffe, en le disant d'abord à Sophie"
@@ -769,7 +769,7 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q41",
     dialecte: "Gestion de projet",
-    q: "AquaBleu, client EDI, rejette les factures sans numéro de commande. La cheffe comptable veut que l'ADV le saisisse, le responsable ADV refuse. Tu les as réunis 2 fois, options chiffrées en main. Le paramétrage part le 15. Que fais-tu ?",
+    q: "AquaBleu, client EDI, rejette les factures sans numéro de commande. La cheffe comptable veut que l'ADV le saisisse. Le responsable ADV refuse. Tu les as réunis 2 fois, options chiffrées en main. Le paramétrage part le 15. Que fais-tu ?",
     choix: [
       "Tu organises une 3e réunion, options chiffrées en main",
       "Tu choisis toi-même : l'ADV saisit, c'est logique",

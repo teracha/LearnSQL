@@ -23,8 +23,8 @@ LEARNSQL.cours.cp01 = {
         "0. Démarrer : « Quand le run (le support au quotidien) déborde, je sais lister ce que je délègue et ce que je garde. »",
         "A. Cadrer : « Je sais écrire une liste hors périmètre que le sponsor (celui qui décide) signe. »",
         "A. Risques : « Je sais écrire un risque (cause, propriétaire, action datée) et choisir une réponse à sa taille. »",
-        "A. Piloter : « Je sais passer la météo du projet en orange tôt, avec une décision à demander. »",
-        "A. Changements : « Je sais chiffrer une demande en cours de projet et la faire trancher. »"
+        "A. Piloter : « Je sais passer la météo du projet en orange tôt, avec une décision à demander au COPIL (comité de pilotage). »",
+        "A. Demandes de changement : « Je sais chiffrer une demande en cours de projet et la faire trancher. »"
       ],
       retenir: "Note chaque phrase de 1 à 4 : un 1 ou un 2 montre un module à travailler tôt."
     },
@@ -42,11 +42,11 @@ LEARNSQL.cours.cp01 = {
     },
     {
       titre: "Auto-évaluation : livrer, passer en run, vers DSI adjoint",
-      exemple: "Veille de mise en service. Deux anomalies graves sont encore ouvertes.\nLe DAF veut y aller quand même.\nSais-tu qui décide, et sur quels critères ? Si tu hésites, note 2.",
+      exemple: "Veille de mise en service (la bascule). Deux anomalies graves sont encore ouvertes.\nLe DAF veut y aller quand même.\nSais-tu qui décide, et sur quels critères ? Si tu hésites, note 2.",
       points: [
         "D. Recette : « Je sais faire valider les tests par le métier, avec un PV (procès-verbal) signé. »",
         "D. Bascule : « Je sais préparer un go / no-go (on y va ou pas) avec des critères fixés avant, et un retour arrière. »",
-        "D. Changement : « Je sais rencontrer les utilisateurs inquiets avant la mise en service, pas seulement les former. »",
+        "D. Conduite du changement : « Je sais rencontrer les utilisateurs inquiets avant la mise en service, pas seulement les former. »",
         "E. Conformité : « Je sais repérer un risque RGPD (données personnelles) : copie de données, prestataire. »",
         "E. Direction : « Je sais défendre un budget SI devant la direction, en parlant de gains, pas de technique. »"
       ],

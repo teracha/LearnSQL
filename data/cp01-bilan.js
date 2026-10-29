@@ -15,7 +15,7 @@ LEARNSQL.questions.cp01 = [
     "bonne": 1,
     "pourquoi": [
       "Non. Tu fais le travail du support et tu décales 6 personnes. Le run mange le projet, et ça recommencera.",
-      "Oui. Le support sait faire : tu lui confies le flux avec un point à 11 h, et tu gardes ton rôle de chef de projet.",
+      "Oui. Le support N2 (2e niveau, plus technique) sait faire : tu lui confies le flux avec un point à 11 h, et tu gardes ton rôle de chef de projet.",
       "Non. Tu escalades une décision que tu peux prendre seul. Le DSI attend que tu gères ce genre d'arbitrage.",
       "Non. Le flux reste bloqué jusqu'à la pause, et tu gardes en main un sujet que le support sait traiter seul. Les factures AquaBleu partent en retard."
     ],
@@ -81,10 +81,10 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q05",
     "dialecte": "Gestion de projet",
-    "q": "Dans la note de cadrage DEMAT, quel critère de succès est le mieux écrit ?",
+    "q": "Projet DEMAT, avec une plateforme agréée (PA). Dans la note de cadrage, quel critère de succès est le mieux écrit ?",
     "choix": [
       "La comptabilité est satisfaite du nouvel outil et l'utilise tous les jours",
-      "Le connecteur Divalto fonctionne bien et les flux partent sans souci",
+      "Le connecteur vers la PA fonctionne bien et les flux partent sans souci",
       "100 % des factures B2B émises via la PA au 1er sept. 2027, moins de 2 % de rejets",
       "Le projet est livré à la date prévue et dans le budget validé en COPIL"
     ],
@@ -92,7 +92,7 @@ LEARNSQL.questions.cp01 = [
     "pourquoi": [
       "Non. « Satisfaite » ne se mesure pas. Chacun aura son avis à la fin.",
       "Non. « Bien » ne veut rien dire. Le connecteur peut marcher et les factures être rejetées.",
-      "Oui. Il est mesurable, daté et lié au but métier. Tout le monde peut vérifier s'il est atteint. (La réception, elle, est obligatoire depuis septembre 2026.)",
+      "Oui. Il est mesurable, daté et lié au but métier (B2B : factures entre entreprises). Tout le monde peut vérifier s'il est atteint. (La réception, elle, est obligatoire depuis septembre 2026.)",
       "Non. Il est mesurable, mais ne dit rien du résultat métier : on peut livrer à l'heure des factures rejetées."
     ],
     "retenir": "Un critère de succès se mesure, se vérifie par tous et dit le résultat métier attendu. → module cp04"
@@ -187,10 +187,10 @@ LEARNSQL.questions.cp01 = [
     "pourquoi": [
       "Non. Tu n'es pas le valideur. Et pas de décision par défaut ici : le format touche toute la compta. S'il est faux, tu portes seul l'erreur.",
       "Non. Le RACI ne dit pas d'attendre sans fin. Sa date limite est passée : vendredi, c'est la date légale qui recule.",
-      "Oui. Demande courte, date limite dépassée, relance faite, date légale en jeu : tu montes au-dessus. Tu préviens d'abord le DAF, par écrit, et ton DSI : personne ne le découvre après coup.",
+      "Oui. Demande courte, date limite dépassée, relance faite, date légale en jeu : tu montes d'un niveau. Tu préviens d'abord le DAF, par écrit, et ton DSI. (RACI : qui réalise, valide, est consulté, est informé.)",
       "Non. Elle n'a pas ce rôle au RACI. Sa validation sera contestée, et tu la mets en porte-à-faux avec son chef."
     ],
-    "retenir": "Valideur muet après une demande courte, date limite dépassée, enjeu légal : prévenir le sponsor et ton DSI, puis monter au-dessus, avec l'impact. → module cp09"
+    "retenir": "Valideur muet après une demande courte, date limite dépassée, enjeu légal : prévenir le sponsor et ton DSI, puis monter d'un niveau, avec l'impact. → module cp16"
   },
   {
     "id": "cp01-q11",
@@ -219,7 +219,7 @@ LEARNSQL.questions.cp01 = [
       "Le devis de l'intégrateur Divalto, c'est le plus gros poste",
       "Le coût total sur 3 à 5 ans : projet, abonnement, maintenance, temps interne",
       "Le devis de l'intégrateur plus un an d'abonnement",
-      "Le prix de l'abonnement à la PA, par facture"
+      "Le prix de l'abonnement à la plateforme agréée (PA), par facture"
     ],
     "bonne": 1,
     "pourquoi": [
@@ -263,7 +263,7 @@ LEARNSQL.questions.cp01 = [
     "pourquoi": [
       "Non. À la fin, il est trop tard pour agir. La dérive est visible dès maintenant.",
       "Non. Tu tiens le budget mais tu prends un risque sur la mise en service. Et sans le dire au sponsor.",
-      "Oui. Le reste à faire donne l'atterrissage réel. Le sponsor peut décider tôt : budget, périmètre ou délai.",
+      "Oui. En régie (payée au temps passé), chaque jour de plus coûte. Le reste à faire donne l'atterrissage réel : le sponsor peut décider tôt (budget, périmètre ou délai).",
       "Non. En régie, il facture le temps passé : il ne te doit rien. Et l'atterrissage n'est ni calculé ni connu du sponsor."
     ],
     "retenir": "Suivre un budget : consommé + reste à faire = atterrissage. Alerter dès que l'écart apparaît. → module cp12"
@@ -323,7 +323,7 @@ LEARNSQL.questions.cp01 = [
       "Oui. Sans commande signée, ni le périmètre ni le prix ne sont engagés. Tu tiens ce non, et tu aides le DAF à signer vite.",
       "Non. Tu sors du circuit. Le prestataire négocie avec le sponsor, et tu perds la main sur ton projet."
     ],
-    "retenir": "Pas de démarrage d'un prestataire sans commande signée : elle fixe le périmètre, le prix et les responsabilités. → module cp15"
+    "retenir": "Pas de démarrage d'un prestataire sans commande signée : elle fixe le périmètre, le prix et les responsabilités. → module cp14"
   },
   {
     "id": "cp01-q18",
@@ -434,7 +434,7 @@ LEARNSQL.questions.cp01 = [
     "pourquoi": [
       "Non. Chaque rejet est une facture client bloquée. Tu découvres les erreurs au pire moment.",
       "Non. Dix fiches sur 2 000 ne prouvent rien. Les erreurs sont souvent dans des cas rares.",
-      "Oui. Comptages et rapprochements avec la source prouvent que rien n'est perdu. Le métier valide le contenu.",
+      "Oui. Comptages et rapprochements avec la source prouvent que rien n'est perdu. Puis le métier valide le contenu : SIREN (numéro de l'entreprise), adresses.",
       "Non. Celui qui fait le script ne doit pas être le seul à le contrôler. Et le métier n'a rien validé."
     ],
     "retenir": "Une reprise se prouve : comptages, rapprochements, validation par le métier. → module cp20"
@@ -454,7 +454,7 @@ LEARNSQL.questions.cp01 = [
       "Non. Le sponsor décide, mais il doit décider en connaissant les risques. C'est à toi de les montrer.",
       "Non. La décision ne t'appartient pas seule. Le sponsor doit pouvoir choisir en connaissant les faits.",
       "Oui. Critères fixés avant, écarts, retour arrière, puis ta recommandation (ici no-go si le critère était « 0 anomalie majeure »). Le DAF décide en connaissant le plan de repli.",
-      "Non. Deux anomalies majeures sur de vraies factures, ce n'est pas de l'hypercare. C'est un incident annoncé."
+      "Non. L'hypercare (support renforcé juste après la bascule) traite les petits écarts. Deux anomalies majeures sur de vraies factures, c'est un incident annoncé."
     ],
     "retenir": "Go / no-go : comparer aux critères fixés avant, montrer le retour arrière, recommander ; le sponsor décide. → module cp21"
   },
@@ -473,7 +473,7 @@ LEARNSQL.questions.cp01 = [
       "Non. Tu deviens le support de fait. Ton prochain projet commencera sans toi.",
       "Non. Sans transfert, le support ne sait pas gérer. Les utilisateurs restent sans réponse.",
       "Non. Chaque appel coûte cher. Et le support interne ne monte jamais en compétence.",
-      "Oui. Un transfert formel au support, avec une date de fin, ferme proprement le projet."
+      "Oui. Un transfert formel au support, avec un dossier et une date de fin de l'hypercare (support renforcé après la bascule), ferme proprement le projet."
     ],
     "retenir": "Passer en run : dossier d'exploitation, transfert au support, date de fin de l'hypercare. → module cp22"
   },
@@ -511,7 +511,7 @@ LEARNSQL.questions.cp01 = [
       "Non. La confidentialité ne suffit pas. Le RGPD demande de limiter les données au besoin réel.",
       "Non. Des données toutes inventées testent mal tes vrais cas : SIREN, adresses, clients EDI. On réduit et on masque les personnes, on n'invente pas tout.",
       "Non. Le chiffrement protège le transport, pas le fond : tu envoies quand même trop de données.",
-      "Oui. Tu limites les données au besoin. Les SIREN des sociétés peuvent rester réels ; on masque les personnes (noms, e-mails des contacts). Vérifie aussi le contrat du prestataire (sous-traitant RGPD) et demande l'avis du DPO, ou du référent RGPD s'il n'y a pas de DPO."
+      "Oui. Tu limites les données au besoin : les SIREN des sociétés restent réels, les personnes sont masquées (noms, e-mails). Vérifie le contrat du prestataire (sous-traitant RGPD) et demande l'avis du DPO (délégué à la protection des données) ou du référent RGPD."
     ],
     "retenir": "Données personnelles en projet : donner le minimum utile, et vérifier le cadre du prestataire. → module cp24"
   },
