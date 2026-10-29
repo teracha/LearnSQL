@@ -36,7 +36,7 @@ window.LEARNSQL = { modules: [
   { id: "cp15", titre: "Piloter prestataires et éditeurs", resume: "Comités fournisseurs, suivi des SLA, standard ou spécifique.", niveau: "Avancé" },
   { id: "cp16", titre: "Diriger sans autorité", resume: "Utilisateurs clés, managers, prestataires : obtenir sans être le chef, escalader un niveau à la fois.", niveau: "Intermédiaire" },
   { id: "cp17", titre: "Communiquer : le bon message, les mots justes", resume: "Selon le public, à l'oral et à l'écrit : mauvaise nouvelle, escalade, dire non, recadrer.", niveau: "Intermédiaire" },
-  { id: "cp18", titre: "Dire non, arbitrer, gérer un conflit", resume: "Proposer des options plutôt qu'un refus sec.", niveau: "Avancé" },
+  { id: "cp18", titre: "Dire non, arbitrer, gérer un conflit", resume: "Oui, non ou « oui, mais » : qui décide, arbitrer (critères, MoSCoW), traiter un conflit et négocier.", niveau: "Avancé" },
   { id: "cp19", titre: "La recette", resume: "Stratégie de recette, critères d'acceptation, anomalies, PV.", niveau: "Intermédiaire" },
   { id: "cp20", titre: "La reprise de données", resume: "Préparer, contrôler par comptages et rapprochements.", niveau: "Intermédiaire" },
   { id: "cp21", titre: "Bascule et go / no-go", resume: "Plan de bascule, décision go / no-go, retour arrière, hypercare.", niveau: "Avancé" },
