@@ -83,6 +83,10 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - « Le jour même » pour l'urgence dans les cours (les QCM peuvent varier les mots).
 - « Marge de recette » (dans le planning) ≠ « marge légale » (juillet-août).
 - Escalader = monter d'un niveau (cp16). « Escalader » au sens PMBOK (cp07) = remettre un risque à son porteur.
+- Monter d'un niveau (échelle de cp16 : la personne → son manager → le sponsor → le DG) : quand le niveau actuel refuse
+  ta 2e proposition chiffrée, recommence après que tu lui en as parlé, ou ne répond pas malgré une demande claire et une
+  date limite. L'enjeu fort (date légale) n'est exigé que pour le niveau 4 (DG). Toujours prévenir le niveau qu'on dépasse.
+  Le sponsor qui dit non en connaissant le coût : c'est une décision, on applique.
 - Décision par défaut : seulement pour un détail de ton projet (ex. le modèle de PV). Jamais pour le périmètre, le budget,
   un contrat ou le temps d'un autre service.
 
