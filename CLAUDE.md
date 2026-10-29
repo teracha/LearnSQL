@@ -113,6 +113,14 @@ Règles pour écrire des questions :
 Pour ajouter un module : créer `data/mXX-nom.js` avec `LEARNSQL.questions.mXX = [ ... ];`
 puis ajouter la ligne `<script src="data/mXX-nom.js"></script>` dans `index.html`.
 
+## Questions Divalto
+
+- Source : la base documentaire du dépôt `teracha/Divalto_10`, en **lecture seule** (ne jamais la modifier ni y pousser).
+- Modules `dvXX` (fichiers `data/dvXX-nom.js`), dans le parcours Divalto (`data/parcours.js`).
+- `dialecte: "Divalto 10.13"` et un champ **`source: { titre, url }`** obligatoire : la page de doc qui prouve la réponse.
+  Le site affiche ce lien après la réponse. `outils/verifier.js` refuse une question Divalto sans source.
+- Pas de page = pas de question. Si deux pages se contredisent (ancienne version), le dire dans l'explication.
+
 ## Commandes disponibles
 
 - `/bilan` : analyser un export collé par l'élève.

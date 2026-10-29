@@ -599,7 +599,9 @@
       var juste = quiz.choisi === q.bonne;
       html += '<div class="feedback ' + (juste ? "ok" : "ko") + '">' +
         '<h3>' + (juste ? "Bonne réponse !" : "Pas tout à fait.") + '</h3>' +
-        '<p><strong>À retenir :</strong> ' + fmt(q.retenir) + '</p></div>' +
+        '<p><strong>À retenir :</strong> ' + fmt(q.retenir) + '</p>' +
+        (q.source ? '<p class="muted">Source : <a href="' + esc(q.source.url) + '" target="_blank" rel="noopener">' +
+          esc(q.source.titre) + '</a></p>' : '') + '</div>' +
         '<div class="actions"><button type="button" class="btn" id="suivant">' +
         (quiz.idx + 1 < total ? "Question suivante" : "Voir ma note") + '</button></div>';
     } else {

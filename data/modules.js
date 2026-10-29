@@ -17,5 +17,6 @@ window.LEARNSQL = { modules: [
   { id: "m13", titre: "Programmer en T-SQL", resume: "Variables, procédures stockées, TRY / CATCH, fonctions, SQL dynamique.", niveau: "Avancé" },
   { id: "m14", titre: "Spécificités Snowflake", resume: "Warehouses, micro-partitions, Time Travel, VARIANT, clustering.", niveau: "Avancé" },
   { id: "m15", titre: "Modélisation des données", resume: "Normalisation, modèle en étoile, faits et dimensions.", niveau: "Avancé" },
-  { id: "m16", titre: "Bonnes pratiques et anti-patterns", resume: "Lisibilité, curseurs, fonctions scalaires, conventions.", niveau: "Expert" }
+  { id: "m16", titre: "Bonnes pratiques et anti-patterns", resume: "Lisibilité, curseurs, fonctions scalaires, conventions.", niveau: "Expert" },
+  { id: "dv01", titre: "Le cycle de vente", resume: "Commande, encours client, BL, facture et avoir dans Divalto 10.13.", niveau: "Débutant" }
 ], questions: {}, cours: {} };

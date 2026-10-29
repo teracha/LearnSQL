@@ -12,5 +12,10 @@ LEARNSQL.parcours = [
   },
   { id: "chef-projet", titre: "Chef de projet SI", resume: "Cadrer, planifier et piloter un projet SI.", modules: [] },
   { id: "edi", titre: "EDI / EDIFACT", resume: "Messages, flux, partenaires et supervision.", modules: [] },
-  { id: "divalto", titre: "Divalto", resume: "L'ERP Divalto Infinity, par domaine.", modules: [] }
+  {
+    id: "divalto", titre: "Divalto", resume: "L'ERP Divalto Infinity 10.13, par domaine.", modules: [],
+    sous: [
+      { id: "divalto-gc", titre: "Gestion commerciale", resume: "Ventes, achats, stock et logistique.", modules: ["dv01"] }
+    ]
+  }
 ];
