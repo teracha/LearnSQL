@@ -8,16 +8,16 @@ LEARNSQL.questions.cp01 = [
     "q": "Lundi 9 h. Le flux EDI des factures AquaBleu est bloqué. Tu animes l'atelier de cadrage DEMAT à 10 h. Le support N2 connaît ce flux. Que fais-tu ?",
     "choix": [
       "Tu corriges le flux toi-même, puis tu décales l'atelier d'une heure",
-      "Tu confies le flux au support N2, point à 11 h, et tu tiens l'atelier",
+      "Tu confies le flux au support, point à 11 h, et tu tiens l'atelier",
       "Tu demandes au DSI de choisir ce qui passe en premier, flux ou atelier",
-      "Tu tiens l'atelier et tu regarderas toi-même le flux pendant la pause"
+      "Tu tiens l'atelier et tu regardes le flux avec le support à la pause"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Tu fais le travail du support et tu décales 6 personnes. Le run mange le projet, et ça recommencera.",
       "Oui. Le support sait faire : tu lui confies le flux avec un point à 11 h, et tu gardes ton rôle de chef de projet.",
       "Non. Tu escalades une décision que tu peux prendre seul. Le DSI attend que tu gères ce genre d'arbitrage.",
-      "Non. Le flux bloqué reste sans pilote pendant 3 heures. Les factures AquaBleu partent en retard."
+      "Non. Le flux reste bloqué jusqu'à la pause, et tu gardes en main un sujet que le support sait traiter seul. Les factures AquaBleu partent en retard."
     ],
     "retenir": "Quand le run déborde : déléguer à celui qui sait faire, avec une échéance, et garder son rôle. → module cp02"
   },
@@ -27,14 +27,14 @@ LEARNSQL.questions.cp01 = [
     "q": "Tu as le projet DEMAT, deux petits projets et le run. Depuis un mois, tu dépasses de 30 % ton temps chaque semaine. Que fais-tu ?",
     "choix": [
       "Tu tiens jusqu'à la mise en service, puis tu en parles à ton chef",
-      "Tu travailles le week-end pour rattraper ton retard sans gêner personne",
+      "Tu demandes à ton responsable un jour de télétravail pour te concentrer",
       "Tu alertes ton responsable, chiffres et options en main",
       "Tu dis non à toute nouvelle demande, de ton propre chef"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. Ton responsable découvrira le problème trop tard, quand des engagements seront déjà ratés.",
-      "Non. Ça marche deux semaines. Ensuite la fatigue fait des erreurs, et personne ne sait que la charge est trop forte.",
+      "Non. Tu gagnes du calme, pas du temps : 30 % de trop ne se règle pas ainsi. Ton responsable ne voit pas le vrai problème, ta charge.",
       "Oui. Une alerte tôt, avec ta charge chiffrée et des options, permet à ton responsable de choisir les priorités.",
       "Non. Les demandeurs ne comprennent pas tes refus. Tu abîmes la relation sans régler la charge."
     ],
@@ -43,21 +43,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q03",
     "dialecte": "Gestion de projet",
-    "q": "L'intégrateur Divalto est lent à paramétrer le connecteur vers la plateforme. Tu sais faire ce paramétrage. Que fais-tu ?",
+    "q": "L'intégrateur Divalto a 5 jours de retard sur le paramétrage du connecteur. C'est son 1er retard, et il tient dans la marge de recette. Tu sais faire ce paramétrage. Le commercial s'agace : « La date légale approche, change d'intégrateur aujourd'hui ! » Que fais-tu ?",
     "choix": [
-      "Tu le paramètres toi-même un soir, pour gagner une semaine sur le planning",
-      "Tu relances l'intégrateur avec une date et tu suis le retard",
-      "Tu laisses faire, c'est son contrat, pas ton problème",
-      "Tu signales au DAF que l'intégrateur n'est pas au niveau"
+      "Tu le paramètres toi-même ce soir, pour rattraper les 5 jours",
+      "Tu lui demandes un engagement ferme, et tu suis l'écart",
+      "Tu lui laisses ces 5 jours sur la marge, sans rien demander",
+      "Tu préviens le DAF, puis tu lui demandes un autre intégrateur"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Tu deviens responsable d'un paramétrage hors contrat. Au premier bug, l'intégrateur dira que ce n'est pas lui.",
-      "Oui. Tu restes responsable du résultat, pas de la tâche : tu obtiens un engagement daté et tu suis l'écart.",
-      "Non. Le retard est ton problème : c'est ta date de mise en service qui recule.",
-      "Non. Tu escalades avant d'avoir demandé un engagement clair. Le DAF te demandera ce que tu as fait."
+      "Oui. Un 1er retard, dans la marge : tu gères à ton niveau. Nouvelle date ferme, suivie, et tu le dis au prochain COPIL. S'il la rate, tu montes à son responsable et tu informes le DAF.",
+      "Non. La marge absorbe ces 5 jours, mais sans engagement daté, rien ne dit que le retard s'arrêtera là. Au 2e retard, la marge aura fondu en silence.",
+      "Non. Un 1er retard qui tient dans la marge ne justifie pas de changer d'intégrateur : ça coûte des mois. Tu surréagis à la pression d'un commercial qui ne décide pas."
     ],
-    "retenir": "Le chef de projet fait faire et suit. Il ne fait pas à la place du prestataire. → module cp03"
+    "retenir": "Le chef de projet fait faire et suit, à la taille du problème : ni à la place du prestataire, ni escalade au 1er retard. → module cp03"
   },
   {
     "id": "cp01-q04",
@@ -66,17 +66,17 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Tu l'ajoutes au périmètre pour garder le sponsor de ton côté",
       "Tu réponds au DAF que ce n'est pas le sujet du projet",
-      "Tu l'écris en hors périmètre ou lot 2, et le DAF le valide",
-      "Tu ne l'écris nulle part, pour ne pas le froisser"
+      "Tu montres l'impact sur le planning, et le DAF tranche",
+      "Tu le classes en lot 2, puis tu l'annonces au DAF"
     ],
     "bonne": 2,
     "pourquoi": [
-      "Non. Tu ajoutes de la charge sur un délai fixe. Le jour du retard, on oubliera que l'idée venait du DAF.",
-      "Non. Fermer la porte au sponsor le braque. Sa demande est peut-être utile, mais pas maintenant.",
-      "Oui. Un hors-périmètre écrit et signé protège le délai. La demande n'est pas perdue : elle a sa place.",
-      "Non. Le flou revient plus tard : le DAF pensera que les relances sont dans le projet."
+      "Non. Tu ajoutes de la charge sur un délai fixe, sans que le DAF ait vu l'impact. Le jour du retard, on oubliera que l'idée venait de lui.",
+      "Non. Ton avis se défend, mais le sponsor a le droit de changer le périmètre. Tu montres l'impact, tu ne décides pas à sa place.",
+      "Oui. Il voit ce que l'ajout coûte à la date légale, puis il décide. Sa décision s'écrit dans la note, souvent en hors périmètre : la demande n'est pas perdue.",
+      "Non. Il apprend ton choix après coup, sans en voir le coût. Le périmètre, c'est le sponsor qui le valide, en connaissant l'impact."
     ],
-    "retenir": "Une demande hors du cœur du projet : l'écrire en hors périmètre (ou lot 2), signé par le sponsor. → module cp04"
+    "retenir": "Le sponsor ajoute une demande au cadrage : montrer l'impact, le laisser trancher, écrire sa décision (souvent hors périmètre). → module cp04"
   },
   {
     "id": "cp01-q05",
@@ -85,14 +85,14 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "La comptabilité est satisfaite du nouvel outil et l'utilise tous les jours",
       "Le connecteur Divalto fonctionne bien et les flux partent sans souci",
-      "100 % des factures B2B via la plateforme dès sept. 2027, moins de 2 % de rejets",
+      "100 % des factures B2B émises via la PA au 1er sept. 2027, moins de 2 % de rejets",
       "Le projet est livré à la date prévue et dans le budget validé en COPIL"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. « Satisfaite » ne se mesure pas. Chacun aura son avis à la fin.",
       "Non. « Bien » ne veut rien dire. Le connecteur peut marcher et les factures être rejetées.",
-      "Oui. Il est mesurable, daté et lié au but métier. Tout le monde peut vérifier s'il est atteint.",
+      "Oui. Il est mesurable, daté et lié au but métier. Tout le monde peut vérifier s'il est atteint. (La réception, elle, est obligatoire depuis septembre 2026.)",
       "Non. Il est mesurable, mais ne dit rien du résultat métier : on peut livrer à l'heure des factures rejetées."
     ],
     "retenir": "Un critère de succès se mesure, se vérifie par tous et dit le résultat métier attendu. → module cp04"
@@ -100,21 +100,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q06",
     "dialecte": "Gestion de projet",
-    "q": "La plateforme agréée livre son API avec 3 semaines de retard. Cette tâche est sur le chemin critique. Sans action de ta part, que devient la date de fin ?",
+    "q": "La plateforme agréée (PA) livre son connecteur avec 3 semaines de retard. Cette tâche est sur le chemin critique. Sans action de ta part, que devient la date de fin ?",
     "choix": [
-      "Elle ne bouge pas : les marges absorbent le retard",
-      "Elle recule de 3 semaines",
-      "Elle ne bouge pas : l'intégrateur avance en parallèle",
-      "Elle ne bouge pas si on ajoute un développeur"
+      "Elle ne bouge pas : la marge de la tâche absorbe le retard",
+      "Elle recule de 3 semaines, autant que la tâche en retard",
+      "Elle recule d'une semaine : l'intégrateur avance en parallèle",
+      "Elle ne bouge pas si on ajoute un développeur chez nous"
     ],
     "bonne": 1,
     "pourquoi": [
-      "Non. Sur le chemin critique, il n'y a pas de marge. C'est justement sa définition.",
-      "Oui. Tout retard sur le chemin critique décale la fin d'autant, sauf si tu agis (paralléliser, réduire, renforcer).",
-      "Non. Avancer en parallèle n'aide que pour les tâches qui ne dépendent pas de l'API. La tâche critique attend toujours : la fin recule.",
-      "Non. L'API est chez la plateforme : un développeur de plus chez toi ne la livre pas plus vite."
+      "Non. Une tâche du chemin critique n'a pas de marge : c'est sa définition. La marge légale (juillet-août) peut protéger la date légale, mais la fin des travaux recule.",
+      "Oui. Tout retard sur le chemin critique décale la fin d'autant. Pour la tenir, il faut agir : réduire le périmètre, réorganiser les tâches suivantes.",
+      "Non. Avancer en parallèle n'aide que les tâches qui ne dépendent pas du connecteur. La tâche critique attend 3 semaines : la fin recule d'autant.",
+      "Non. Le connecteur est chez la PA : un développeur de plus chez vous ne le livre pas plus vite. La tâche critique attend toujours."
     ],
-    "retenir": "Un retard sur le chemin critique décale la date de fin d'autant. → module cp05"
+    "retenir": "Un retard sur le chemin critique décale la fin d'autant. Sans action, seule la marge avant l'échéance protège la date légale. → module cp05"
   },
   {
     "id": "cp01-q07",
@@ -138,45 +138,45 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q08",
     "dialecte": "Gestion de projet",
-    "q": "La cheffe comptable, seule à connaître les cas de facturation, part en congé dans 4 mois, pendant la recette. Que fais-tu ?",
+    "q": "La cheffe comptable, seule à savoir traiter les avoirs fournisseurs, part 3 semaines en congé dans 4 mois, pendant la recette. Que fais-tu ?",
     "choix": [
-      "Tu l'écris en risque et tu formes une suppléante",
+      "Tu l'écris en risque et tu fais former une suppléante",
       "Tu attends : c'est dans 4 mois, on verra à ce moment-là",
-      "Tu le signales aux RH : c'est un sujet d'absence, pas de projet",
+      "Tu demandes au DAF de décaler ses congés après la recette",
       "Tu demandes au COPIL de décaler la recette de 4 mois"
     ],
     "bonne": 0,
     "pourquoi": [
-      "Oui. C'est un risque connu, avec un fort impact. Une action maintenant coûte peu ; plus tard, il sera trop tard.",
+      "Oui. Risque connu, 4 mois pour agir : une petite action suffit. Elle écrit ses cas et forme une suppléante ; le DAF, son manager, en est le propriétaire.",
       "Non. Dans 4 mois, ce sera un problème, sans solution simple. Former quelqu'un prend du temps.",
-      "Non. L'absence est normale. Le risque, c'est pour ton projet : c'est à toi de le traiter.",
+      "Non. Ses congés sont posés, et c'est le DAF, son manager, qui les a accordés. Tu crées un conflit, alors que former une suppléante suffit.",
       "Non. Tu proposes la solution la plus chère sans avoir cherché les autres. Le COPIL te le reprochera."
     ],
-    "retenir": "Un risque se traite avant qu'il arrive : registre, propriétaire, action. → module cp07"
+    "retenir": "Un risque se traite avant qu'il arrive, par la plus petite action qui suffit : registre, propriétaire, action datée. → module cp07"
   },
   {
     "id": "cp01-q09",
     "dialecte": "Gestion de projet",
-    "q": "Tu envoies le reporting mensuel DEMAT. Tu sais déjà que le jalon « recette » sera raté de 2 semaines. Le mois dernier, tout était vert. Que fais-tu ?",
+    "q": "Tu prépares le reporting mensuel DEMAT. Tu viens d'apprendre que le jalon « recette » sera raté de 3 semaines. Le mois dernier, tout était vert. Que fais-tu ?",
     "choix": [
       "Tu restes en vert : tu as encore une chance de rattraper",
       "Tu passes en rouge, sans plus de détails, pour te couvrir",
       "Tu passes en orange, avec cause, impact et décision",
-      "Tu joins 3 pages d'analyse technique pour tout justifier"
+      "Tu restes en vert et tu préviens le DAF à l'oral"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. Le jour où le jalon tombe, le DAF découvre le retard. Tu perds sa confiance pour le reste du projet.",
       "Non. Un rouge sans explication inquiète sans aider. Le sponsor ne sait pas quoi décider.",
       "Oui. Une alerte tôt et honnête, avec une décision à prendre, laisse au sponsor le temps d'agir.",
-      "Non. Le DAF ne lira pas 3 pages. Le message important (le retard) se perd dans le détail."
+      "Non. L'écrit dit « tout va bien », l'oral dit autre chose. Au COPIL, c'est le vert qui fera foi, et aucune décision n'est demandée."
     ],
     "retenir": "Une météo honnête et tôt, avec une décision à prendre, vaut mieux qu'un vert de façade. → module cp08"
   },
   {
     "id": "cp01-q10",
     "dialecte": "Gestion de projet",
-    "q": "Le RACI dit : le DAF valide le format de facture. Sans sa validation vendredi, la date légale est en danger. Il ne répond pas depuis 2 semaines, malgré 3 relances écrites. Que fais-tu ?",
+    "q": "Le RACI dit : le DAF valide le format de facture. Le 3, tu lui as demandé sa validation en 3 lignes, date limite le 10. Relancé le 11. On est le 17 : rien. Sans validation vendredi, la date légale est en danger. Que fais-tu ?",
     "choix": [
       "Tu valides toi-même le format, pour ne pas perdre la date",
       "Tu attends son retour : c'est lui le valideur au RACI",
@@ -185,12 +185,12 @@ LEARNSQL.questions.cp01 = [
     ],
     "bonne": 2,
     "pourquoi": [
-      "Non. Tu n'es pas le valideur. Si le format est faux, tu portes seul une erreur sur toutes les factures.",
-      "Non. Le RACI ne dit pas d'attendre sans fin. Vendredi passé, c'est la date légale qui recule.",
-      "Oui. Tu as relancé, la date limite approche et le risque est légal : escalader est ton devoir. Tu préviens le DAF par écrit, pour qu'il ne le découvre pas.",
+      "Non. Tu n'es pas le valideur. Et pas de décision par défaut ici : le format touche toute la compta. S'il est faux, tu portes seul l'erreur.",
+      "Non. Le RACI ne dit pas d'attendre sans fin. Sa date limite est passée : vendredi, c'est la date légale qui recule.",
+      "Oui. Demande courte, date limite dépassée, relance faite, date légale en jeu : tu montes au-dessus. Tu préviens d'abord le DAF, par écrit, pour qu'il ne le découvre pas.",
       "Non. Elle n'a pas ce rôle au RACI. Sa validation sera contestée, et tu la mets en porte-à-faux avec son chef."
     ],
-    "retenir": "Valideur muet malgré des relances, date limite proche : escalader par écrit au niveau au-dessus, avec l'impact. → module cp09"
+    "retenir": "Valideur muet après une demande courte, date limite dépassée, enjeu légal : le prévenir, puis monter au-dessus, avec l'impact. → module cp09"
   },
   {
     "id": "cp01-q11",
@@ -198,15 +198,15 @@ LEARNSQL.questions.cp01 = [
     "q": "À 2 semaines de la recette, le commercial demande : « Ajoutez aussi un tableau de suivi des factures rejetées pour mon équipe. » Que fais-tu ?",
     "choix": [
       "Tu dis oui : l'intégrateur l'ajoutera vite, c'est un petit développement",
-      "Tu lui rappelles que le périmètre est figé depuis le cadrage",
-      "Tu demandes à l'intégrateur de l'ajouter sans en parler au sponsor",
+      "Tu dis non : le périmètre est figé depuis le cadrage",
+      "Tu acceptes une version simple, sans toucher au planning",
       "Tu chiffres l'impact, le sponsor arbitre, tu traces"
     ],
     "bonne": 3,
     "pourquoi": [
       "Non. « Vite » n'est jamais gratuit. Le délai et le budget glissent sans décision de personne.",
       "Non. La demande a peut-être de la valeur. Fermer la porte sans chiffrage braque le commercial.",
-      "Non. Un ajout caché n'est ni chiffré ni recetté. Il sortira à la mise en service, au pire moment.",
+      "Non. Même « simple », l'ajout prend du temps à l'intégrateur et à la recette. Sans chiffrage ni décision du sponsor, le délai glisse en silence.",
       "Oui. Chaque demande de changement est chiffrée (délai, coût, risque), arbitrée par le sponsor, puis tracée."
     ],
     "retenir": "Demande de changement : chiffrer, faire arbitrer par le sponsor, tracer la décision. → module cp10"
@@ -218,14 +218,14 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Le devis de l'intégrateur Divalto, c'est le plus gros poste",
       "Le coût total sur 3 à 5 ans : projet, abonnement, maintenance, temps interne",
-      "Rien : c'est une obligation légale, le coût n'est pas un sujet",
-      "Le prix de l'abonnement à la plateforme, par facture"
+      "Le devis de l'intégrateur plus un an d'abonnement",
+      "Le prix de l'abonnement à la PA, par facture"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Il manque l'abonnement, la maintenance et le temps de tes équipes. Le DAF découvrira les autres coûts plus tard.",
       "Oui. Le coût total (TCO) sur plusieurs années montre la vraie dépense. Le DAF peut budgéter sans surprise.",
-      "Non. Obligatoire ne veut pas dire gratuit. Le DAF doit quand même budgéter, et choisir entre plusieurs options.",
+      "Non. C'est mieux qu'un seul devis, mais il manque les années suivantes, la maintenance et le temps de tes équipes.",
       "Non. C'est un seul poste, et seulement le récurrent. Le coût du projet lui-même est oublié."
     ],
     "retenir": "Un coût se présente sur plusieurs années, tout compris (TCO), pas avec un seul devis. → module cp11"
@@ -233,7 +233,7 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q13",
     "dialecte": "Gestion de projet",
-    "q": "Le DAF veut séparer investissement (CAPEX) et fonctionnement (OPEX). Où ranges-tu l'abonnement annuel à la plateforme agréée ?",
+    "q": "Le DAF veut séparer investissement (CAPEX) et fonctionnement (OPEX). Où ranges-tu l'abonnement annuel à la plateforme agréée (PA) ?",
     "choix": [
       "En investissement, car il est lié au projet",
       "En fonctionnement : c'est un service, pas un bien",
@@ -245,7 +245,7 @@ LEARNSQL.questions.cp01 = [
       "Non. Le lien avec le projet ne suffit pas. Un abonnement payé chaque année est une charge, pas un investissement.",
       "Oui. Un abonnement paie un service : c'est une charge (OPEX). Le développement du connecteur peut, lui, être immobilisé : à voir avec le contrôle de gestion.",
       "Non. La nature de la dépense ne change pas avec l'année. Ce découpage fausse la comparaison des budgets.",
-      "Non. Quelqu'un doit porter ce coût dans un budget. Sinon il « disparaît », puis surprend tout le monde."
+      "Non. Tu réponds « qui paie », pas « quelle nature ». Chez la compta ou à la DSI, un abonnement reste une charge (OPEX)."
     ],
     "retenir": "Abonnement à un service = OPEX ; développement ou licence achetée = souvent CAPEX. → module cp11"
   },
@@ -257,21 +257,21 @@ LEARNSQL.questions.cp01 = [
       "Tu attends la facture finale pour voir l'écart réel",
       "Tu supprimes une partie de la recette pour tenir le budget",
       "Tu recalcules le reste à faire et tu alertes le sponsor",
-      "Tu imposes à l'intégrateur de passer au forfait demain"
+      "Tu demandes à l'intégrateur un geste sur les jours en trop"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. À la fin, il est trop tard pour agir. La dérive est visible dès maintenant.",
       "Non. Tu tiens le budget mais tu prends un risque sur la mise en service. Et sans le dire au sponsor.",
       "Oui. Le reste à faire donne l'atterrissage réel. Le sponsor peut décider tôt : budget, périmètre ou délai.",
-      "Non. Un forfait se négocie, il ne s'impose pas. Et l'intégrateur chiffrera le risque très cher."
+      "Non. En régie, il facture le temps passé : il ne te doit rien. Et l'atterrissage n'est ni calculé ni connu du sponsor."
     ],
     "retenir": "Suivre un budget : consommé + reste à faire = atterrissage. Alerter dès que l'écart apparaît. → module cp12"
   },
   {
     "id": "cp01-q15",
     "dialecte": "Gestion de projet",
-    "q": "Tu dois choisir la plateforme agréée. Le commercial pousse celle qu'utilise un ami. Que fais-tu ?",
+    "q": "Tu dois choisir la plateforme agréée (PA). Le commercial pousse celle qu'utilise un ami. Que fais-tu ?",
     "choix": [
       "Tu prends la moins chère des plateformes proposées",
       "Tu consultes 3 plateformes avec une grille de choix pondérée",
@@ -290,11 +290,11 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q16",
     "dialecte": "Gestion de projet",
-    "q": "Tu vas signer avec la plateforme agréée. En plus du prix, que vérifies-tu en priorité ?",
+    "q": "Le DAF va signer avec la plateforme agréée (PA). Tu relis le contrat avant. En plus du prix, que vérifies-tu en priorité ?",
     "choix": [
       "La durée d'engagement la plus longue, pour avoir une remise",
       "Les SLA et la récupération des données en fin de contrat",
-      "Le nombre de clients de la plateforme, pour être rassuré",
+      "Le nombre de clients de la PA, pour être rassuré",
       "Rien de plus : l'agrément de l'État garantit le service"
     ],
     "bonne": 1,
@@ -311,7 +311,7 @@ LEARNSQL.questions.cp01 = [
     "dialecte": "Gestion de projet",
     "q": "Le devis de l'intégrateur n'est pas signé : le DAF le relit encore. L'intégrateur propose de démarrer lundi, « on régularisera après ». Que fais-tu ?",
     "choix": [
-      "Tu acceptes : une semaine de gagnée, le devis suivra",
+      "Tu acceptes : le devis sera signé, une semaine de gagnée",
       "Tu acceptes s'il note ses heures à part en attendant",
       "Tu dis non : pas de démarrage avant la commande signée",
       "Tu lui demandes de voir directement avec le DAF"
@@ -333,14 +333,14 @@ LEARNSQL.questions.cp01 = [
       "Tu lui demandes de venir tester en dehors de ses heures",
       "Tu fais la recette à sa place, tu connais les factures",
       "Tu négocies avec le DAF des créneaux fixes pour elle",
-      "Tu fais arbitrer le DG pour qu'elle soit libérée"
+      "Tu préviens le DAF, puis tu fais arbitrer le DG"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. Tu la mets en porte-à-faux avec son chef. Et la recette faite en fin de journée sera bâclée.",
       "Non. Le métier n'aura pas validé. Les cas que toi tu ne connais pas sortiront en production.",
-      "Oui. Tu n'as pas d'autorité sur elle : tu négocies avec son manager, en montrant ce que coûte son absence.",
-      "Non. Tu contournes le DAF, qui est aussi ton sponsor. Tu gagnes une semaine et tu perds sa confiance."
+      "Oui. Tu n'as pas d'autorité sur elle : tu négocies avec son manager, avec le coût de chaque option. S'il refuse en connaissant ce coût, c'est sa décision : tu l'appliques.",
+      "Non. Prévenir ne suffit pas : le DAF, ton sponsor, n'a pas encore vu le coût de son choix. Tu passes au-dessus de lui avant de le lui montrer, et tu perds sa confiance."
     ],
     "retenir": "Sans autorité, on négocie la disponibilité des utilisateurs clés avec leur manager, chiffres à l'appui. → module cp16"
   },
@@ -351,14 +351,14 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Le détail des erreurs XML qui ont causé le retard, pour être précis",
       "Une page : délai, euros, risques, décision attendue",
-      "Une présentation complète de 30 slides, pour être transparent",
+      "Un mail de 2 pages, avec le détail technique en annexe",
       "À l'oral, sans support, pour ne pas laisser de trace écrite"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. La direction ne lit pas le XML. Elle repart sans savoir ce qu'elle doit décider.",
       "Oui. La direction veut des euros, des risques et une décision. Une page suffit.",
-      "Non. Trop d'information cache le message. Personne ne retient le point important.",
+      "Non. La direction lit le début d'un mail. Sans euros ni décision attendue en tête, elle ne sait pas quoi trancher.",
       "Non. Sans trace, chacun retiendra sa version. La décision prise sera contestée plus tard."
     ],
     "retenir": "À la direction : euros, risques, décision attendue, sur une page. → module cp17"
@@ -366,28 +366,28 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q20",
     "dialecte": "Gestion de projet",
-    "q": "Le directeur général veut avancer la mise en service DEMAT d'un mois. Ton planning n'a aucune marge. Que fais-tu ?",
+    "q": "Le directeur général veut avancer la mise en service DEMAT d'un mois. Ton planning n'a pas un mois de marge. Que fais-tu ?",
     "choix": [
       "Tu dis oui, puis tu négocies plus tard avec l'équipe et le prestataire",
       "Tu proposes des options, chacune avec son coût et son risque",
-      "Tu maintiens la date : le planning a été validé en COPIL",
-      "Tu acceptes et tu demandes des heures sup à l'équipe"
+      "Tu dis non : le planning a été validé en COPIL",
+      "Tu acceptes 2 semaines d'avance, pour couper la poire en deux"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Le « oui » devient un engagement. Tu le rateras, et ce sera ta faute, pas celle de la demande.",
       "Oui. Tu dis non à « même projet, même coût, un mois plus tôt » et tu montres le prix de chaque option (réduire le périmètre, renforcer, accepter un risque). Le DG choisit.",
       "Non. Un non sans options, même justifié, braque le DG. Il pensera que tu protèges ton confort.",
-      "Non. L'équipe s'épuise et fait plus d'erreurs. Et le risque n'a pas été accepté par celui qui demande."
+      "Non. Tu promets 2 semaines que ton planning n'a pas, sans dire ce qu'elles coûtent. Le DG n'a rien choisi, et tu les rateras."
     ],
     "retenir": "Dire non, c'est proposer des options avec leur prix, et laisser décider. → module cp18"
   },
   {
     "id": "cp01-q21",
     "dialecte": "Gestion de projet",
-    "q": "Une facture AquaBleu est déjà émise via la plateforme, avec un mauvais prix. Le commercial te demande de la modifier, « pour éviter un avoir ». Que fais-tu ?",
+    "q": "Une facture AquaBleu est déjà émise via la plateforme agréée (PA), avec un mauvais prix. Le commercial te demande de la modifier, « pour éviter un avoir ». Que fais-tu ?",
     "choix": [
-      "Tu demandes à l'intégrateur de la corriger dans la base",
+      "Tu fais corriger la facture émise en base par l'intégrateur",
       "Tu acceptes si le DAF te donne son accord par écrit",
       "Tu dis non : une facture émise ne se modifie pas",
       "Tu en parles au COPIL du mois prochain avant de répondre"
@@ -409,21 +409,21 @@ LEARNSQL.questions.cp01 = [
       "Tu lui fais confiance : il connaît Divalto mieux que toi",
       "Tu fais faire une recette métier, avec PV signé",
       "Tu testes toi-même quelques factures pour vérifier",
-      "Tu passes en production et la compta testera en vrai"
+      "Tu passes en production si la compta valide 3 factures"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Ses tests vérifient ce qu'il a fait, pas ce dont le métier a besoin. Ce n'est pas une recette.",
       "Oui. La comptabilité valide sur ses cas réels, avec des critères d'acceptation. Le PV signé engage chacun.",
       "Non. Tu ne connais pas tous les cas de la compta. Et ton test ne vaut pas validation métier.",
-      "Non. Les erreurs sortent sur de vraies factures clients. Les corriger coûte bien plus cher."
+      "Non. Trois factures ne couvrent pas les cas de la compta (avoirs, rejets, clients EDI). Sans critères ni PV, ce n'est pas une recette."
     ],
     "retenir": "La recette, c'est le métier qui valide sur ses cas, avec un PV signé. → module cp19"
   },
   {
     "id": "cp01-q23",
     "dialecte": "Gestion de projet",
-    "q": "Tu reprends 2 000 fiches clients (SIREN, adresse de facturation) pour la plateforme. Comment contrôles-tu la reprise ?",
+    "q": "Tu reprends 2 000 fiches clients (SIREN, adresse de facturation) pour la plateforme agréée (PA). Comment contrôles-tu la reprise ?",
     "choix": [
       "Tu importes tout, les rejets en production diront ce qui est faux",
       "Tu regardes une dizaine de fiches à l'écran, au hasard",
@@ -509,16 +509,16 @@ LEARNSQL.questions.cp01 = [
     "bonne": 3,
     "pourquoi": [
       "Non. La confidentialité ne suffit pas. Le RGPD demande de limiter les données au besoin réel.",
-      "Non. Les tests doivent rester réalistes. Le bon réflexe est de réduire et de masquer, pas de tout inventer.",
+      "Non. Des données toutes inventées testent mal tes vrais cas : SIREN, adresses, clients EDI. On réduit et on masque les personnes, on n'invente pas tout.",
       "Non. Le chiffrement protège le transport, pas le fond : tu envoies quand même trop de données.",
-      "Oui. Tu limites les données au besoin. Les SIREN des sociétés peuvent rester réels ; on masque les personnes (noms, e-mails des contacts). Vérifie aussi le contrat du prestataire (sous-traitant RGPD) et demande l'avis du DPO."
+      "Oui. Tu limites les données au besoin. Les SIREN des sociétés peuvent rester réels ; on masque les personnes (noms, e-mails des contacts). Vérifie aussi le contrat du prestataire (sous-traitant RGPD) et demande l'avis du DPO, ou du référent RGPD s'il n'y a pas de DPO."
     ],
     "retenir": "Données personnelles en projet : donner le minimum utile, et vérifier le cadre du prestataire. → module cp24"
   },
   {
     "id": "cp01-q28",
     "dialecte": "Gestion de projet",
-    "q": "Trois projets demandés, de la place pour deux : DEMAT (obligation légale), tableaux Power BI des ventes, refonte de l'intranet. Que fais-tu ?",
+    "q": "Tu es DSI adjoint. Trois projets demandés, de la place pour deux : DEMAT (obligation légale), tableaux Power BI des ventes, refonte de l'intranet. Que fais-tu ?",
     "choix": [
       "Tu les lances dans l'ordre d'arrivée des demandes, sans discuter",
       "Tu lances les trois en parallèle, un peu plus lentement",
@@ -537,38 +537,38 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q29",
     "dialecte": "Gestion de projet",
-    "q": "Ton analyste a changé en production le paramétrage du connecteur, sans ticket ni test, « pour aller vite ». Rien n'a cassé. Que fais-tu ?",
+    "q": "Tu es DSI adjoint. Ton analyste a changé en production le paramétrage du connecteur, sans ticket ni test, « pour aller vite ». Rien n'a cassé. C'est la 1re fois. Le DSI, furieux, te dit : « Règle ça aujourd'hui. » Que fais-tu ?",
     "choix": [
       "Tu ne dis rien : rien n'a cassé et il voulait bien faire",
       "Tu le vois seul aujourd'hui : c'est interdit, et tu dis pourquoi",
       "Tu en parles à la prochaine réunion, sans le nommer",
-      "Tu le félicites d'être réactif, en suggérant un ticket la prochaine fois"
+      "Tu demandes aujourd'hui aux RH de lui faire un avertissement écrit"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Il comprend que la règle est facultative. La prochaine fois, c'est la facturation qui cassera.",
-      "Oui. Un écart sur la production se recadre vite et net, en tête-à-tête. Tu rappelles la règle, sa raison, et ce que tu attends à partir de maintenant.",
+      "Oui. Un 1er écart sur la production se recadre vite et net, en tête-à-tête : la règle, sa raison, ce que tu attends. Tu en rends compte au DSI. S'il recommence, tu passes à l'écrit.",
       "Non. Un message général ne touche pas la bonne personne. Et l'équipe voit que tu évites le sujet.",
-      "Non. « Suggérer » laisse le choix. Il retient les félicitations, pas la règle."
+      "Non. Une sanction pour un 1er écart, de bonne foi et sans dégât, c'est trop fort. Il retiendra la peur, pas la règle, et cachera ses prochaines erreurs."
     ],
-    "retenir": "Un écart grave (production, sécurité) se recadre le jour même, seul à seul, avec la règle et son pourquoi. → module cp26"
+    "retenir": "Un écart grave, la 1re fois : le recadrer le jour même, seul à seul, avec la règle et son pourquoi. Ni silence, ni sanction d'emblée. → module cp26"
   },
   {
     "id": "cp01-q30",
     "dialecte": "Gestion de projet",
-    "q": "Le directeur général demande pourquoi le budget SI augmente de 15 % l'an prochain. Que présentes-tu ?",
+    "q": "Tu es DSI adjoint. Le directeur général demande pourquoi le budget SI augmente de 15 % l'an prochain. Que présentes-tu ?",
     "choix": [
       "Le détail des licences et des contrats, ligne par ligne",
       "Que ce budget est incompressible : tout est déjà engagé",
       "La hausse par nature, sa valeur, et des options",
-      "Une comparaison avec la moyenne des entreprises du secteur"
+      "Une baisse de 5 % proposée d'avance, pour montrer ta bonne volonté"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. Le DG ne peut rien décider sur 200 lignes. Il repart sans comprendre la hausse.",
       "Non. « Incompressible » ferme la discussion. Le DG coupera au hasard, sans toi.",
       "Oui. Le DG voit ce qui est subi, ce qui est choisi, ce que ça rapporte, et ce qu'il peut couper avec quelle conséquence.",
-      "Non. Une moyenne aide, mais ne dit pas ce que ce budget apporte à ton entreprise."
+      "Non. Tu coupes avant de savoir ce qui est subi ou choisi. Le DG ne voit ni la valeur du budget ni le risque de ta coupe."
     ],
     "retenir": "Défendre un budget SI : par nature (run, projets, obligations), en valeur, avec des options. → module cp27"
   }

@@ -1,8 +1,10 @@
 // Chef de projet SI — Questions du module cp07 « Gérer les risques ».
 // Mises en situation. Fil rouge DEMAT 2027 : négociant en équipement de piscines, 120 salariés, ERP Divalto,
 // passage à la facture électronique via une plateforme agréée (PA). DAF = sponsor ET manager de la cheffe comptable.
-// Personnages : Julie (comptable fournisseurs), Sophie (comptable clients), intégrateur Divalto, prestataire de la PA,
-// responsable ADV, commercial pressé.
+// Personnages : Julie (comptable fournisseurs), Sophie (comptable clients), Marc (ADV), intégrateur Divalto, chef de projet de la PA,
+// responsable ADV, commercial pressé. Fiche fil rouge (fait foi) : docs/plan-chef-de-projet.md.
+// Calendrier : connecteur livré au 1er mars 2027 (contrat), déclencheur du plan B « pas livré au 15 mars »,
+// recette du 16 mars à fin avril (1 semaine de marge de recette), bascule en juin. « Escalader » ici = sens PMBOK (q16).
 // Équilibre voulu : environ 1/3 « agir fort ou tout de suite », 1/3 « piège de surréaction », 1/3 technique.
 // Anti-devinette : les questions « agir fort » ont un choix faux TROP fort ; les pièges, un choix faux TROP passif.
 // Mots d'urgence et date légale présents aussi dans des choix faux et des énoncés piège (q23, q25, q35).
@@ -10,10 +12,10 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q01",
     dialecte: "Gestion de projet",
-    q: "Le prestataire de la PA (plateforme agréée) te dit : « Le connecteur Divalto aura peut-être 3 semaines de retard. » La livraison est prévue dans 2 mois. C'est quoi ?",
+    q: "Le chef de projet de la plateforme agréée (PA) te dit : « Le connecteur Divalto aura peut-être 3 semaines de retard. » La livraison est prévue dans 2 mois. C'est quoi ?",
     choix: [
       "Un risque : le retard n'est pas encore arrivé",
-      "Un problème : le prestataire l'a déjà annoncé",
+      "Un problème : la PA l'a déjà annoncé",
       "Une hypothèse : on suppose la date tenue",
       "Une contrainte : la date ne dépend pas de toi"
     ],
@@ -21,27 +23,27 @@ LEARNSQL.questions.cp07 = [
     pourquoi: [
       "Oui. Le retard est possible, pas encore réel. Tu l'écris au registre avec une note et une action, pendant qu'agir coûte peu.",
       "Non. Une annonce de « peut-être » ne rend pas le retard réel. Le traiter en problème, c'est lancer le plan B trop tôt et payer pour rien.",
-      "Non. L'hypothèse, c'est « le connecteur arrive à l'heure ». Elle vient d'être mise en doute : elle devient un risque à suivre.",
-      "Non. La contrainte est imposée (la date légale). Le retard possible du prestataire est un risque : il se réduit et se surveille."
+      "Non. L'hypothèse, c'est « le connecteur arrive à l'heure ». La PA la met en doute, et on ne peut pas la vérifier avant la date : elle devient un risque à suivre.",
+      "Non. La contrainte est imposée (la date légale). Le retard possible de la PA est un risque : il se réduit et se surveille."
     ],
     retenir: "Un risque n'est pas encore arrivé ; un problème, si."
   },
   {
     id: "cp07-q02",
     dialecte: "Gestion de projet",
-    q: "Le connecteur Divalto devait être livré le 15 mars. On est le 18 mars, rien n'est livré, et le prestataire de la PA ne donne pas de nouvelle date. C'est quoi, et que fais-tu ?",
+    q: "Le connecteur Divalto devait être livré le 1er mars. On est le 18 mars, rien n'est livré, et la PA ne donne pas de nouvelle date. C'est quoi, et que fais-tu ?",
     choix: [
       "Un risque : tu relèves sa probabilité à 3",
       "Un problème : tu le traites dès maintenant",
-      "Un risque : tu en parles à la revue du mois",
-      "Une hypothèse fausse : tu corriges la note"
+      "Un risque : tu en parles au COPIL du mois",
+      "Une hypothèse fausse : tu corriges le cadrage"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le retard est réel : changer une note ne sert plus à rien. Pendant ce temps, la marge avant la bascule fond.",
       "Oui. La date est passée : ce n'est plus incertain. Plan B s'il existe, nouvelle date exigée, impact chiffré pour le DAF.",
-      "Non. Attendre la revue mensuelle pour un fait déjà arrivé, c'est perdre 2 à 4 semaines de marge sans rien faire.",
-      "Non. Corriger un document ne règle rien : le connecteur manque toujours, et la bascule s'approche."
+      "Non. Attendre le COPIL mensuel pour un fait déjà arrivé, c'est perdre jusqu'à 4 semaines de marge sans rien faire.",
+      "Non. Corriger la note de cadrage ne règle rien : le connecteur manque toujours, et la bascule s'approche."
     ],
     retenir: "Quand le risque arrive, on arrête de l'évaluer : on le traite."
   },
@@ -51,7 +53,7 @@ LEARNSQL.questions.cp07 = [
     q: "Ta note de cadrage dit : « Divalto 10.13 accepte le format de facture de la PA sans développement. » Personne ne l'a vérifié. Que fais-tu ?",
     choix: [
       "Tu la laisses : elle est validée dans la note",
-      "Tu la notes en risque et tu verras en recette",
+      "Tu la notes en risque et tu la testes en recette",
       "Tu la fais vérifier cette semaine par l'intégrateur",
       "Tu demandes au COPIL de choisir une autre PA"
     ],
@@ -69,16 +71,16 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "Tu écris une ligne du registre des risques DEMAT 2027. Laquelle est la mieux écrite ?",
     choix: [
-      "Risque : le projet DEMAT 2027 pourrait prendre du retard",
+      "Si le projet DEMAT 2027 prend du retard : date légale ratée",
       "Si la cheffe, seule à savoir, est absente en recette : cas non testés",
       "Problème : la cheffe comptable part en congé pendant la recette",
       "Risque majeur : manque de ressources en compta cet été"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. « Du retard » est une conséquence, pas un risque. Sans cause, personne ne sait quelle action lancer.",
-      "Oui. Cause (une seule personne sait), risque (elle est absente en recette), conséquence (cas non testés, erreurs). L'action se voit : former une suppléante.",
-      "Non. Son congé est connu, c'est un fait. Le risque, c'est ce qu'il entraîne : des cas non testés. Sans conséquence écrite, impossible de noter l'impact.",
+      "Non. Le retard et la date ratée sont des conséquences. Sans cause, personne ne sait quelle action lancer.",
+      "Oui. Cause (une seule personne sait, et elle peut manquer en recette), risque (des cas non testés), conséquence implicite (des erreurs après la bascule). L'action se voit : former une suppléante.",
+      "Non. Son congé est connu et pas encore commencé : c'est une cause, pas un problème. La ligne ne dit pas ce qu'il entraîne (cas non testés), donc pas d'impact à noter.",
       "Non. Trop vague : qui, quand, quel effet ? « Majeur » sans probabilité ni impact chiffrés ne permet pas de trier."
     ],
     retenir: "Une ligne de registre : cause → risque → conséquence."
@@ -91,14 +93,14 @@ LEARNSQL.questions.cp07 = [
       "Tu demandes au COPIL de décaler la recette de 4 mois",
       "Tu l'écris en risque et tu fais former une suppléante",
       "Tu lui demandes de déplacer ses congés après la recette",
-      "Tu attends son retour pour faire tester ses cas"
+      "Tu l'écris en risque et tu testeras ses cas à son retour"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. La plus grosse solution pour un risque qu'une action simple réduit. La marge avant la date légale disparaît, sans raison.",
+      "Non. La plus grosse solution, pour un risque qu'une action simple réduit. Décaler de 4 mois pousse la bascule après le 1er septembre 2027.",
       "Oui. 4 mois, c'est le temps de lui faire écrire ses cas et de former Julie. Le risque baisse, le planning ne bouge pas.",
       "Non. Ses congés sont posés, et c'est le DAF, son manager, qui les accorde. Tu crées un conflit alors que former une suppléante suffit.",
-      "Non. Ses cas seraient testés 3 semaines plus tard, sur la marge. Et si elle tombe malade, plus personne ne sait."
+      "Non. Ses cas glissent de 3 semaines, et le point unique de défaillance reste : si elle tombe malade, plus personne ne sait. 4 mois suffisent pour former Julie."
     ],
     retenir: "Réponse proportionnée : la plus petite action qui réduit assez le risque."
   },
@@ -107,14 +109,14 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "Un seul consultant de l'intégrateur connaît le paramétrage de vos journaux comptables dans Divalto. Rien n'indique qu'il va partir. La bascule est dans 6 mois. Que fais-tu ?",
     choix: [
-      "Tu demandes à l'intégrateur de changer de consultant",
+      "Tu rédiges toi-même la doc de son paramétrage",
       "Tu lances une consultation pour un 2e intégrateur",
       "Tu demandes un 2e consultant formé et une doc écrite",
       "Tu n'écris rien : il est là, et il fait du bon travail"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Tu remplaces le seul qui sait par quelqu'un qui ne sait rien : tu crées le problème que tu voulais éviter.",
+      "Non. Tu documentes un paramétrage que tu ne maîtrises pas : la doc sera incomplète, et personne chez l'intégrateur ne pourra le reprendre.",
       "Non. Des semaines de travail et de coût pour un risque qu'un binôme réduit. Ta marge part dans un appel d'offres.",
       "Oui. C'est un point unique de défaillance. Un binôme et une doc réduisent le risque, sans changer de prestataire.",
       "Non. Un point unique de défaillance se traite avant qu'il manque. Le jour où il part, il est trop tard pour transmettre."
@@ -147,7 +149,7 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Tu bloques la bascule tant que tous les logos ne sont pas testés",
       "Tu l'acceptes et le notes : on corrigera si ça arrive",
-      "Tu préviens le DAF aujourd'hui, avant qu'un client le voie",
+      "Tu le notes et tu préviens le DAF aujourd'hui",
       "Tu réponds à Sophie : ce n'est pas un sujet du projet"
     ],
     bonne: 1,
@@ -162,7 +164,7 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q09",
     dialecte: "Gestion de projet",
-    q: "Le prestataire de la PA t'annonce par écrit : « L'émission des factures depuis Divalto ne sera pas prête avant octobre 2027. » L'émission est obligatoire au 1er septembre 2027. Le COPIL est dans 3 semaines. Que fais-tu ?",
+    q: "Le chef de projet de la PA t'annonce par écrit : « L'émission des factures depuis Divalto ne sera pas prête avant octobre 2027. » L'émission est obligatoire au 1er septembre 2027. Le COPIL est dans 3 semaines. Que fais-tu ?",
     choix: [
       "Tu l'ajoutes au registre et le présentes au COPIL",
       "Tu préviens le DAF aujourd'hui, avec des options",
@@ -174,26 +176,26 @@ LEARNSQL.questions.cp07 = [
       "Non. 3 semaines perdues sur un risque légal. Le DAF découvre en séance un sujet où chaque semaine compte.",
       "Oui. Le retard annoncé est un fait ; le risque, c'est de rater la date légale. Le sponsor le sait le jour même : faits, impact, 2 ou 3 options, ta recommandation.",
       "Non. Relancer est utile, mais ne suffit pas : la date légale est en jeu et le sponsor doit le savoir le jour même.",
-      "Non. Tu sautes ton sponsor : c'est au DAF de décider s'il monte au DG. Et un COPIL réuni en urgence, sans options préparées, ne décide rien."
+      "Non. Tu sautes ton sponsor : il doit d'abord savoir, et pouvoir décider. Et un COPIL réuni en urgence, sans options préparées, ne décide rien."
     ],
     retenir: "Risque légal ou majeur et proche : le sponsor le sait le jour même, pas au prochain COPIL."
   },
   {
     id: "cp07-q10",
     dialecte: "Gestion de projet",
-    q: "Ton registre prévoit : déclencheur « connecteur pas livré au 15 mars » → plan B « bascule de juin via le portail web de la PA (dépôt des factures au format Factur-X, prévu au contrat) ». On est le 16 mars. Rien n'est livré. Que fais-tu ?",
+    q: "Ton registre prévoit un déclencheur : « connecteur pas livré au 15 mars ». Plan B : la bascule de juin via le portail web de la PA, prévu au contrat. Le 16 mars, rien n'est livré. Que fais-tu ?",
     choix: [
-      "Tu laisses une semaine de plus au prestataire",
+      "Tu laisses une semaine de plus à la PA",
       "Tu déclenches le plan B et tu préviens le DAF",
       "Tu lances la recherche d'une autre PA",
-      "Tu exiges du prestataire une nouvelle date ferme"
+      "Tu exiges une date ferme et tu préviens le DAF"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le déclencheur sert justement à ne pas négocier avec soi-même. Une semaine de plus, puis une autre : la marge disparaît.",
       "Oui. Le déclencheur est atteint : le plan B part, comme prévu. La bascule de juin tient via le portail ; le DAF est prévenu du changement.",
       "Non. Changer de PA à 3 mois de la bascule : contrat, connecteur et tests à refaire. Le plan B est prêt : on l'utilise.",
-      "Non. Une nouvelle date ne remplace pas le plan B : s'il la rate encore, tu as perdu des semaines de plus."
+      "Non. Prévenir le DAF est bien, mais une nouvelle date ne remplace pas le plan B : si la PA la rate encore, tu as perdu des semaines."
     ],
     retenir: "Déclencheur atteint = plan B lancé, sans nouvelle discussion."
   },
@@ -212,7 +214,7 @@ LEARNSQL.questions.cp07 = [
       "Non. Une astreinte n'ajoute pas de marge. Au moindre souci, la date légale est ratée, avec une compta vide.",
       "Non. Trop fort : tu sacrifies la recette, et les erreurs partent chez les clients. Juin suffit à garder une marge.",
       "Non. Surveiller un risque inacceptable, c'est le regarder arriver. Rien ne le réduit.",
-      "Oui. Risque inacceptable : on l'évite en changeant le plan. Juin laisse juillet-août comme marge."
+      "Oui. Risque inacceptable : on l'évite en changeant le plan. Juin laisse juillet-août comme marge légale."
     ],
     retenir: "Un risque inacceptable s'évite : on change le plan."
   },
@@ -242,14 +244,14 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "« Oui, on peut le retirer du registre »",
       "« Non : les pénalités ne servent à rien ici »",
-      "« L'argent est couvert, pas la date légale »",
+      "« Une partie du coût, oui ; la date légale, non »",
       "« Oui, si le montant couvre nos pertes »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Le retard peut toujours arriver. Sans suivi ni plan B, la date légale tombe quand même.",
       "Non. Elles compensent le coût et motivent le prestataire. Elles sont utiles, mais pas suffisantes.",
-      "Oui. Transférer couvre la conséquence financière. Le retard reste à réduire : jalons, tests tôt, plan B.",
+      "Oui. Les pénalités couvrent une partie du coût (souvent plafonnée). Le retard reste à réduire : jalons, tests tôt, plan B.",
       "Non. Même compensé, tu n'émets pas tes factures à la date : clients, trésorerie et obligation légale restent touchés."
     ],
     retenir: "La pénalité paie le retard, elle ne l'empêche pas : transférer ET réduire."
@@ -259,7 +261,7 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "Échelle 1 à 3. Risque A : probabilité 3, impact 2. Risque B : probabilité 1, impact 3. Risque C : probabilité 2, impact 1. Aucun ne touche la date légale. Lequel suis-tu en priorité ?",
     choix: [
-      "A, le plus probable",
+      "A, la plus forte note",
       "B, le plus grave",
       "C, le plus facile à traiter",
       "Les trois au même niveau"
@@ -287,7 +289,7 @@ LEARNSQL.questions.cp07 = [
     pourquoi: [
       "Non. Quand tout le monde est responsable, personne ne l'est : les actions ne sont pas faites.",
       "Oui. Une personne qui suit l'action et la note : celle qui peut le mieux agir (la cheffe comptable, l'intégrateur, toi…).",
-      "Non. Le DAF ne suivra pas 12 actions. Le sponsor décide des gros sujets, il ne pilote pas chaque ligne.",
+      "Non. Le DAF peut porter une ligne qui touche son équipe, pas 12. Le sponsor décide des gros sujets, il ne pilote pas chaque ligne.",
       "Non. Toi sur toutes les lignes, c'est l'équipe qui se décharge sur toi. Tu ne peux pas agir chez la PA ou en compta."
     ],
     retenir: "Propriétaire = une personne nommée, celle qui peut agir."
@@ -299,36 +301,36 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Rien : c'est hors périmètre, il n'est pas à toi",
       "Tu alertes le DG : le DAF est en retard",
-      "Tu le notes au registre, et attends le COPIL",
+      "Tu l'ajoutes à ton registre, suivi au point projet",
       "Tu le dis au DAF aujourd'hui : risque légal"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Hors périmètre ne veut pas dire hors de ta vue. Si personne ne le dit, l'entreprise rate une obligation légale.",
       "Non. Tu passes par-dessus le porteur : le DAF l'apprend par le DG, et ta relation avec ton sponsor en souffre. Lui d'abord.",
-      "Non. Ce n'est pas un risque de ton projet, c'est un risque légal pour l'entreprise. Le porteur doit le savoir vite.",
-      "Oui. C'est escalader : le DAF en est le porteur. Faits, date, ce que ça implique, et ce que ton projet peut ou ne peut pas absorber."
+      "Non. Ce n'est pas un risque de ton projet : le suivre chez toi ne le fait pas démarrer. Son porteur doit le savoir vite.",
+      "Oui. C'est escalader, au sens du PMBOK : remettre le risque à son porteur, le DAF. Faits, date, ce que ton projet peut absorber ou pas. Tu préviens aussi le contrôleur de gestion."
     ],
-    retenir: "Un risque légal, même hors de ton périmètre, se dit tout de suite à son porteur."
+    retenir: "Un risque légal hors de ton périmètre se remet le jour même à son porteur : c'est escalader, au sens du PMBOK."
   },
   {
     id: "cp07-q17",
     dialecte: "Gestion de projet",
-    q: "Revue des risques. Le risque « retard du connecteur » est noté probabilité 1. Le prestataire de la PA vient de rater 2 jalons intermédiaires. La date finale n'est pas passée. Que fais-tu ?",
+    q: "Revue des risques. Le risque « retard du connecteur » est noté probabilité 1. La PA vient de rater 2 jalons intermédiaires. La date finale n'est pas passée. Que fais-tu ?",
     choix: [
       "Tu gardes 1 : la date finale n'est pas ratée",
       "Tu changes de PA tout de suite",
       "Tu remontes à 3 et prépares le plan B",
-      "Tu attends le prochain jalon pour revoir la note"
+      "Tu notes les 2 retards et tu revois au prochain jalon"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Deux jalons ratés sont un signal faible, mais réel. Attendre la date finale, c'est découvrir le problème sans plan B.",
+      "Non. Deux jalons ratés sont un signal d'alerte réel. Attendre la date finale, c'est découvrir le problème sans plan B.",
       "Non. Changer de PA est une décision lourde, au sponsor. Le signal justifie d'agir, pas de tout casser.",
-      "Oui. Signal faible = la probabilité monte tout de suite. Plan B prêt, déclencheur daté, DAF informé du changement.",
-      "Non. Un 3e jalon raté te coûte encore des semaines. La revue sert à réagir aux signaux, pas à attendre."
+      "Oui. Signal d'alerte = la probabilité monte tout de suite. Plan B prêt, déclencheur daté, DAF informé du changement.",
+      "Non. Noter sans remonter la probabilité, c'est attendre : un 3e jalon raté te coûte encore des semaines."
     ],
-    retenir: "Un signal faible fait monter la probabilité tout de suite : on n'attend pas la date finale."
+    retenir: "Un signal d'alerte fait monter la probabilité tout de suite : on n'attend pas la date finale."
   },
   {
     id: "cp07-q18",
@@ -338,7 +340,7 @@ LEARNSQL.questions.cp07 = [
       "Le standard, et les 5 % restants traités à part",
       "Le spécifique, avec des pénalités de retard",
       "Tu laisses l'intégrateur choisir : c'est son métier",
-      "Le spécifique, avec deux fois plus de tests"
+      "Le spécifique, et deux fois plus de tests"
     ],
     bonne: 0,
     pourquoi: [
@@ -354,16 +356,16 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "La cheffe comptable vient d'être arrêtée 2 mois. La recette commence dans 1 semaine. Ton registre avait prévu ce cas : plan B « Julie, formée comme suppléante, prend ses cas ». Que fais-tu ?",
     choix: [
-      "Tu passes la probabilité à 3 à la prochaine revue",
-      "Tu attends une semaine, elle reviendra peut-être",
+      "Tu passes la probabilité à 3 et tu préviens le DAF",
+      "Tu demandes au COPIL de décaler la recette de 2 mois",
       "Tu lances le plan B et tu informes le DAF",
       "Tu fais toi-même ses tests, pour tenir la date"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Le risque est arrivé : ce n'est plus une note à revoir, c'est un problème à traiter maintenant.",
-      "Non. Un arrêt de 2 mois est un fait : attendre fait perdre la semaine qui servait à lancer Julie avant la recette.",
-      "Oui. Le plan B part tout de suite. Le DAF, son manager et sponsor, valide la charge de Julie.",
+      "Non. Le risque est arrivé : ce n'est plus une note à revoir, c'est un problème. Prévenir le DAF ne lance pas Julie : la semaine avant la recette se perd.",
+      "Non. Trop fort : le plan B existe pour ce cas. Décaler de 2 mois mange la marge avant la date légale, sans raison.",
+      "Oui. Le plan B part tout de suite. La cheffe comptable est absente : c'est donc le DAF, son manager, qui valide la charge de Julie.",
       "Non. Tu testes un métier qui n'est pas le tien : rien n'est vraiment validé, les erreurs sortiront après la bascule."
     ],
     retenir: "Le risque arrive : on lance le plan B préparé, on ne le réévalue pas."
@@ -374,14 +376,14 @@ LEARNSQL.questions.cp07 = [
     q: "Il y a 2 mois, tu as noté un risque fort (probabilité 3, impact 3) sur la reprise des codes TVA. Tu ne l'as pas dit au DAF, pensant le régler. Ton action n'a pas marché. Que fais-tu ?",
     choix: [
       "Tu essaies une autre solution avant de lui en parler",
-      "Tu le présentes au COPIL, dans un mois",
+      "Tu demandes au DAF de décaler la bascule",
       "Tu le lui dis maintenant, avec un plan",
       "Tu le passes à 2, puisque tu as déjà agi"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Deux mois de silence sur un risque de note 9, c'est déjà trop. Une 2e tentative cachée aggrave la surprise.",
-      "Non. Encore un mois sans qu'il sache : s'il l'apprend par un autre, ta crédibilité tombe.",
+      "Non. Tu sors du silence, mais avec le plus gros remède et une seule option. Le DAF doit d'abord savoir, puis choisir entre des pistes chiffrées.",
       "Oui. Mieux vaut tard que trop tard. Faits, ce que tu as essayé, ta proposition, et ce que tu attends de lui.",
       "Non. Ton action n'a pas marché : le risque n'a pas baissé. Baisser la note, c'est maquiller le registre."
     ],
@@ -393,7 +395,7 @@ LEARNSQL.questions.cp07 = [
     q: "Le DAF signe demain le contrat de la PA. Tu vois qu'il ne contient aucune date de livraison du connecteur Divalto, ni de pénalité. Que fais-tu ?",
     choix: [
       "Tu laisses signer : on verra si le retard arrive",
-      "Tu l'appelles aujourd'hui pour faire ajouter une date",
+      "Tu l'appelles aujourd'hui : il manque une clause clé",
       "Tu le notes pour l'avenant, après la signature",
       "Tu bloques la signature jusqu'au prochain COPIL"
     ],
@@ -412,51 +414,51 @@ LEARNSQL.questions.cp07 = [
     q: "Le consultant de l'intégrateur, seul à connaître votre paramétrage Divalto, annonce qu'il quitte la société dans 2 semaines. La recette commence dans 1 mois. Que fais-tu ?",
     choix: [
       "Tu le notes en risque, à suivre à la revue",
-      "Tu lui demandes d'écrire une doc avant de partir",
+      "Tu lui demandes une doc et tu la reliras avec lui",
       "Tu demandes au DAF de changer d'intégrateur",
-      "Tu exiges un remplaçant et une passation cette semaine"
+      "Tu exiges un remplaçant, passation avant son départ"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Le départ est annoncé : ce n'est plus incertain. Dans 2 semaines, sa connaissance part avec lui.",
-      "Non. Une doc écrite seul en 2 semaines, sans personne pour la reprendre : la recette démarre sans quelqu'un qui sait.",
+      "Non. Une doc écrite en 2 semaines, relue par toi qui ne fais pas le paramétrage : la recette démarre sans personne qui sait.",
       "Non. Trop fort : à 1 mois de la recette, tout le savoir de l'intégrateur part, pas seulement le sien. Une passation suffit.",
-      "Oui. Tu appelles le responsable de compte : remplaçant nommé, passation avec toi, avant le départ. Tu informes le DAF."
+      "Oui. Tu appelles le responsable de compte de l'intégrateur : remplaçant nommé, passation entre eux avant le départ, suivie par toi. Tu informes le DAF."
     ],
     retenir: "Un point unique de défaillance qui s'en va : passation tout de suite, pas à la prochaine revue."
   },
   {
     id: "cp07-q23",
     dialecte: "Gestion de projet",
-    q: "Le prestataire de la PA livre un document intermédiaire avec 2 jours de retard. Il te reste 3 semaines de marge avant la bascule de juin, pour l'échéance du 1er septembre 2027. Que fais-tu ?",
+    q: "La PA livre un document intermédiaire avec 2 jours de retard. Ton planning garde 1 semaine de marge de recette. La bascule est en juin, pour l'échéance du 1er septembre 2027. Que fais-tu ?",
     choix: [
-      "Tu préviens le DG aujourd'hui : PA pas fiable",
+      "Tu préviens le DAF et exiges un plan de rattrapage",
       "Tu notes le retard et tu suis le prochain jalon",
       "Tu décales la bascule d'un mois, par sécurité",
       "Tu ne notes rien : 2 jours, ce n'est rien"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Le DG pour 2 jours de retard : tu sautes le sponsor et tu passes pour quelqu'un qui panique.",
-      "Oui. 2 jours sur 3 semaines de marge se prennent sur la marge. Tu restes attentif : si ça se répète, la probabilité monte.",
+      "Non. Le sponsor et un plan de rattrapage pour 2 jours dans la marge : tu surréagis, et ta prochaine vraie alerte pèsera moins.",
+      "Oui. 2 jours tiennent dans la semaine de marge de recette. Tu restes attentif : si ça se répète, la probabilité monte.",
       "Non. Un mois de décalage pour 2 jours de retard : tu perds plus que le problème ne coûte.",
-      "Non. Un retard, même petit, se note : s'il se répète, c'est un signal faible. Sans trace, tu ne le verras pas venir."
+      "Non. Un retard, même petit, se note : s'il se répète, c'est un signal d'alerte. Sans trace, tu ne le verras pas venir."
     ],
-    retenir: "Un petit retard dans la marge se note et se suit, sans tout bouleverser."
+    retenir: "Un petit retard qui tient dans la marge de recette se note et se suit, sans tout bouleverser."
   },
   {
     id: "cp07-q24",
     dialecte: "Gestion de projet",
     q: "Risque « Sophie, comptable clients, peu à l'aise avec le nouveau circuit de relance » : probabilité 2, impact 2. La bascule est dans 5 mois. Que prévois-tu ?",
     choix: [
-      "Tu laisses faire : elle apprendra après la bascule",
+      "Tu lui donnes la doc et elle apprendra seule",
       "Une alerte au DAF aujourd'hui : risque facturation",
       "Deux séances de formation et un essai en recette",
       "Le report de la bascule, le temps qu'elle progresse"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Apprendre après la bascule, c'est apprendre sur de vraies relances clients : retards d'encaissement et erreurs. 5 mois laissent le temps de former.",
+      "Non. Seule avec une doc, elle apprend sur de vraies relances, après la bascule : retards d'encaissement et erreurs. 5 mois laissent le temps de former.",
       "Non. Une note de 4 se gère à ton niveau. Le DAF le verra au COPIL, avec l'action déjà en cours.",
       "Oui. Réduire, simplement : former, puis vérifier en recette. Si l'essai rate, la probabilité monte et tu adaptes.",
       "Non. Reporter la bascule pour un besoin de formation : tu mets la date légale en jeu pour un risque moyen."
@@ -466,21 +468,21 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q25",
     dialecte: "Gestion de projet",
-    q: "Julie sera absente une semaine pendant la recette (formation prévue de longue date). La recette dure 6 semaines, avec une semaine de marge, avant la bascule de juin pour l'échéance du 1er septembre 2027. Que fais-tu ?",
+    q: "Julie sera absente une semaine pendant la recette (formation prévue de longue date). La recette dure 6 semaines, plus 1 semaine de marge de recette. Bascule en juin, échéance le 1er septembre 2027. Que fais-tu ?",
     choix: [
-      "Tu ne changes rien : elle rattrapera à son retour",
+      "Tu ne changes rien, sans le noter : elle rattrapera",
       "Tu replaces ses tests sur la semaine de marge",
       "Tu lui demandes d'annuler sa formation",
       "Tu décales la recette d'un mois entier"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Sans rien replanifier, ses tests s'empilent à son retour, en plus des autres, et personne ne voit que la marge est prise.",
-      "Oui. Une semaine se prend sur la marge. Tu le notes, et tu sais que la marge est maintenant consommée.",
+      "Non. Sans replanifier ni noter, ses tests s'empilent à son retour, et personne ne voit que la marge est prise.",
+      "Oui. Une semaine se prend sur la marge de recette. Tu le notes, et tu sais que la marge est maintenant consommée.",
       "Non. Sa formation est décidée avec sa cheffe. Tu crées un conflit pour un trou que la marge absorbe.",
       "Non. Un mois de décalage pour une semaine d'absence : tu perds 3 semaines pour rien."
     ],
-    retenir: "Une semaine d'absence se prend sur la marge."
+    retenir: "Une semaine d'absence se prend sur la marge de recette."
   },
   {
     id: "cp07-q26",
@@ -488,7 +490,7 @@ LEARNSQL.questions.cp07 = [
     q: "Tu organises la revue des risques : 2 h chaque semaine, avec 8 personnes, pour relire les 18 risques un par un. Au bout d'un mois, plus personne ne vient. Que changes-tu ?",
     choix: [
       "Tu la rends obligatoire, avec le DAF en copie",
-      "Tu passes à 15 minutes, au point projet, sur ce qui bouge",
+      "Tu la fais en 15 minutes, au point projet",
       "Tu la supprimes : le registre suffit à lui seul",
       "Tu la fais seul, chaque semaine, pendant 2 h"
     ],
@@ -525,9 +527,9 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "Au COPIL, tu présentes le risque « retard des tests côté responsable ADV » : probabilité 2, impact 2, action en cours. Comment le dis-tu ?",
     choix: [
-      "« Alerte : l'ADV met tout le projet en danger »",
+      "« Gros souci : l'ADV met le projet en danger »",
       "« Rien à signaler sur la partie ADV, tout va bien »",
-      "« Risque moyen : tests ADV en retard, plan en cours »",
+      "« Note 4 sur 9 : l'ADV peut glisser, plan lancé »",
       "« Je propose un COPIL extraordinaire sur l'ADV »"
     ],
     bonne: 2,
@@ -546,14 +548,14 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Éviter : renoncer à la PA",
       "Accepter, avec une réserve au budget",
-      "Transférer à l'intégrateur Divalto",
+      "Réduire : surveiller les tarifs chaque mois",
       "Ignorer : c'est dans plus d'un an"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Passer par une plateforme agréée est obligatoire : tu ne peux pas éviter ce risque en y renonçant.",
       "Oui. Rien ne le réduit simplement, l'impact est modéré : on accepte en le sachant, avec une réserve de budget.",
-      "Non. L'intégrateur ne fixe pas les prix de la PA : il ne peut pas porter cette conséquence.",
+      "Non. Surveiller ne baisse ni la probabilité ni l'impact : c'est accepter, mais sans réserve. La hausse tombera sur le budget.",
       "Non. Accepter n'est pas ignorer : sans réserve, la hausse tombera sur un budget déjà tendu."
     ],
     retenir: "Accepter un risque, c'est le garder en le sachant, avec une réserve si l'impact compte."
@@ -561,19 +563,19 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q30",
     dialecte: "Gestion de projet",
-    q: "Tu écris le déclencheur du plan B pour le risque « retard du connecteur ». Lequel est le bon ?",
+    q: "Le connecteur doit être livré le 1er mars ; la recette commence le 16 mars. Tu écris le déclencheur du plan B pour le risque « retard du connecteur ». Lequel est le meilleur ?",
     choix: [
       "« Si on sent que ça dérape côté prestataire »",
-      "« Si le DAF commence à s'inquiéter du planning »",
-      "« Si le connecteur n'est pas livré et recetté au 15 mars »",
-      "« Si le prestataire nous annonce un retard »"
+      "« Si le connecteur n'est pas recetté au 15 mars »",
+      "« Si le connecteur n'est pas livré au 15 mars »",
+      "« Si la PA nous annonce un retard »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Une impression ne déclenche rien : chacun la voit à sa façon, et le plan B part trop tard.",
-      "Non. L'inquiétude du DAF n'est pas un fait mesurable. Tu attends un signal qui peut ne jamais venir.",
+      "Non. La recette ne commence que le 16 mars : au 15, rien n'est recetté. Ce déclencheur part toujours, même si le connecteur arrive à l'heure.",
       "Oui. Un fait observable et une date : le 16 mars, tout le monde sait si le plan B part, sans débat.",
-      "Non. Le prestataire annonce souvent ses retards trop tard, ou pas du tout. Tu dépends de sa franchise."
+      "Non. Utile comme alerte, mais tu dépends de sa franchise : elle annonce souvent trop tard. Sans date, rien ne part à coup sûr."
     ],
     retenir: "Un déclencheur = un fait observable, avec une date."
   },
@@ -602,14 +604,14 @@ LEARNSQL.questions.cp07 = [
     q: "Tu lances l'identification des risques de DEMAT 2027. Comment t'y prends-tu ?",
     choix: [
       "Tu écris seul la liste, tu connais bien Divalto",
-      "Tu demandes à l'intégrateur sa liste habituelle",
+      "Tu demandes à l'intégrateur et à la PA leur liste",
       "Tu réunis 1 h métiers et prestataires en atelier",
       "Tu reprends une liste type trouvée sur Internet"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Seul, tu vois surtout la technique. Les risques chez les gens (une seule personne qui sait, la clôture) t'échappent.",
-      "Non. Utile comme retour d'expérience, mais l'intégrateur ne voit pas les risques côté compta, ADV ou PA.",
+      "Non. Utile comme retour d'expérience, mais ils ne voient pas les risques côté compta et ADV : une seule personne qui sait, la clôture.",
       "Oui. Compta, ADV, intégrateur, PA : chacun voit ses risques. Ajoute les retours d'expérience de chacun.",
       "Non. Une liste type est générique : elle ne connaît ni vos clôtures, ni vos clients EDI, ni vos personnes clés."
     ],
@@ -630,7 +632,7 @@ LEARNSQL.questions.cp07 = [
       "Non. Trois personnes : si l'une manque, les autres prennent le relais.",
       "Non. Deux testeurs, c'est au contraire une protection : aucun n'est seul à savoir.",
       "Oui. Une seule personne sait : s'il est absent, les flux EDI rejetés s'accumulent. Il faut un binôme et une procédure.",
-      "Non. Il y a un secours : si le connecteur tombe, les factures passent par le portail. Ce n'est donc pas un point unique."
+      "Non. Le connecteur a un secours : s'il tombe, les factures passent par le portail. La PA elle-même reste un point faible, mais c'est un autre risque."
     ],
     retenir: "Point unique de défaillance = un seul élément qui, s'il manque, arrête tout."
   },
@@ -656,40 +658,40 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q35",
     dialecte: "Gestion de projet",
-    q: "Pendant la recette, le paramétrage de la TVA rejette 3 factures sur 400. La bascule est dans 4 mois, pour l'échéance du 1er septembre 2027. L'intégrateur peut corriger en 2 jours. Que fais-tu ?",
+    q: "Pendant la recette, le paramétrage de la TVA rejette 3 factures sur 400. La bascule est dans 2 mois, pour l'échéance du 1er septembre 2027. L'intégrateur peut corriger en 2 jours. Que fais-tu ?",
     choix: [
       "Tu demandes aujourd'hui un COPIL extraordinaire",
       "Tu fais corriger, puis retester ces cas",
       "Tu décales la bascule pour tout retester",
-      "Tu notes les 3 rejets, on verra après la bascule"
+      "Tu notes les rejets et tu corriges après la bascule"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une réunion de crise pour 3 rejets que l'intégrateur corrige en 2 jours : tu alarmes pour rien.",
       "Oui. C'est un petit problème : on le traite simplement. Correction, nouveau test des cas concernés, et on continue.",
-      "Non. 4 mois de marge, une correction de 2 jours : décaler n'apporte rien et coûte de la marge.",
-      "Non. Ce n'est plus un risque, c'est un problème connu. Le laisser, c'est émettre des factures fausses après la bascule, alors que 2 jours suffisent."
+      "Non. 2 mois avant la bascule, une correction de 2 jours : décaler n'apporte rien et coûte de la marge.",
+      "Non. C'est un problème connu, pas un risque. Corriger après la bascule, c'est émettre des factures fausses, alors que 2 jours suffisent maintenant."
     ],
     retenir: "Un petit problème trouvé en recette se corrige et se reteste, sans drame."
   },
   {
     id: "cp07-q36",
     dialecte: "Gestion de projet",
-    q: "On est en février 2027. Le responsable ADV t'apprend qu'AquaBleu, client EDI de la grande distribution (20 % du chiffre d'affaires), exige de nouvelles mentions (n° de commande, code GLN) dans ses factures EDI dès juin. Le connecteur prévu ne les transmet pas. La bascule est en juin. Que fais-tu ?",
+    q: "Février 2027. AquaBleu (client EDI, 20 % du chiffre d'affaires) exige dès juin de nouvelles mentions dans ses factures (n° de commande, code GLN). Le connecteur ne les transmet pas. La bascule est en juin. Que fais-tu ?",
     choix: [
       "Tu préviens le DAF aujourd'hui, avec les options",
-      "Tu le notes, et tu verras avec AquaBleu en mai",
+      "Tu le notes et tu demandes un délai à AquaBleu",
       "Tu attends le COPIL du mois prochain pour l'annoncer",
       "Tu décales la bascule de 3 mois, sans attendre"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Gros client, mois de la bascule, budget et planning en jeu : le sponsor le sait le jour même, avec des pistes et ta recommandation.",
-      "Non. En mai, il ne reste qu'un mois pour adapter le connecteur. 20 % du chiffre d'affaires et la bascule ne se laissent pas dans une ligne de registre.",
+      "Oui. Le code GLN (code du lieu de livraison) manque pour un client à 20 % du chiffre d'affaires, le mois de la bascule. Le DAF le sait le jour même, avec des pistes et ta recommandation.",
+      "Non. Négocier un délai avec un client à 20 % du chiffre d'affaires n'est pas ton rôle, et le DAF ne sait rien : s'il refuse, des semaines sont perdues.",
       "Non. Un mois perdu sur un sujet commercial majeur : le DAF découvre en séance ce qu'il aurait pu traiter.",
       "Non. Trop fort, et pas ta décision : la bascule passe en septembre, après la date légale, pour un sujet qu'un ajout au connecteur peut régler."
     ],
-    retenir: "Risque majeur et proche, qui demande une décision : le sponsor le sait tout de suite."
+    retenir: "Risque majeur et proche, qui demande une décision : le sponsor le sait le jour même."
   },
   {
     id: "cp07-q37",
@@ -698,13 +700,13 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "« Tu as raison, je l'arrête pour gagner du temps »",
       "« C'est obligatoire, le DAF l'exige »",
-      "« Je te demande un avis sur les 3 risques ventes »",
+      "« Donne-moi tes 3 risques côté ventes, je les suis »",
       "« Je vais en parler au DAF, il tranchera »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Sans registre, les risques arrivent en surprise : le premier client bloqué sera le sien.",
-      "Non. Brandir le sponsor ne convainc pas, et ce n'est pas vrai : tu perds du crédit.",
+      "Non. Brandir le sponsor ne convainc pas, et rien ne dit qu'il l'a demandé : parler en son nom se vérifie vite, et tu perds du crédit.",
       "Oui. Tu le rends utile : 3 risques, sur son terrain. Il voit à quoi sert le registre : protéger ses clients.",
       "Non. Le DAF pour une remarque en passant : tu montes un sujet qu'une vraie question au commercial règle."
     ],
@@ -713,9 +715,9 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q38",
     dialecte: "Gestion de projet",
-    q: "Le prestataire de la PA annonce 2 mois de retard. Avec ce retard, la bascule tombe en août, sans marge avant le 1er septembre 2027. Comment présentes-tu le sujet au DAF ?",
+    q: "La PA annonce 2 mois de retard sur le connecteur. Sans le plan B, la bascule tombe en août, sans marge avant le 1er septembre 2027. Comment présentes-tu le sujet au DAF ?",
     choix: [
-      "« C'est une catastrophe, tout le projet est en péril »",
+      "« Le projet est en péril, il faut réagir vite »",
       "« Petit glissement, je gère, rien à décider »",
       "« Il faut absolument changer de prestataire »",
       "« 2 mois de retard : 2 options, décision vendredi »"

@@ -6,7 +6,7 @@ LEARNSQL.cours.cp01 = {
   sections: [
     {
       titre: "Comment utiliser ce bilan",
-      exemple: "Projet DEMAT 2027 : passer à la facture électronique.\nLe DAF (directeur financier) veut savoir si tu es prêt à piloter.\nToi, tu ne sais pas encore où tu es fort, ni où tu es fragile.\nCe bilan sert à ça : une photo de départ, pas un examen.",
+      exemple: "Projet DEMAT 2027 : passer à la facture électronique.\nLe DAF (directeur administratif et financier) veut savoir si tu es prêt à piloter.\nToi, tu ne sais pas encore où tu es fort, ni où tu es fragile.\nCe bilan sert à ça : une photo de départ, pas un examen.",
       points: [
         "Ce bilan n'a pas de note à atteindre : il sert à te situer. Il ne bloque pas la suite.",
         "Étape 1 : l'auto-évaluation. Tu notes chaque phrase de 1 à 4, sur un papier.",
@@ -21,8 +21,8 @@ LEARNSQL.cours.cp01 = {
       exemple: "Le DAF dit : « Lance la DEMAT. » Rien n'est écrit.\nSais-tu écrire ce qui est inclus et ce qui ne l'est pas ? Si tu hésites, note 2.\nÉchelle : 1 = je ne sais pas faire · 2 = je l'ai déjà vu faire\n3 = je le fais, avec de l'aide · 4 = je le fais seul et je sais l'expliquer",
       points: [
         "0. Démarrer : « Quand le run (le support au quotidien) déborde, je sais lister ce que je délègue et ce que je garde. »",
-        "0. Démarrer : « Je préviens mon responsable avant d'être débordé, avec des faits (charge, dates). »",
         "A. Cadrer : « Je sais écrire une liste hors périmètre que le sponsor (celui qui décide) signe. »",
+        "A. Risques : « Je sais écrire un risque (cause, propriétaire, action datée) et choisir une réponse à sa taille. »",
         "A. Piloter : « Je sais passer la météo du projet en orange tôt, avec une décision à demander. »",
         "A. Changements : « Je sais chiffrer une demande en cours de projet et la faire trancher. »"
       ],
@@ -35,7 +35,7 @@ LEARNSQL.cours.cp01 = {
         "B. Budget : « Je sais présenter un coût total sur plusieurs années, pas seulement un devis. »",
         "B. Prestataires : « Je sais comparer des offres avec une grille pondérée (un poids par critère), écrite avant de lire les offres. »",
         "B. Contrat : « Avant de signer, je vérifie le SLA (niveau de service promis), la réversibilité (comment on sort) et les données. »",
-        "C. Posture : « J'ai déjà obtenu du temps d'un utilisateur clé, sans être son chef. »",
+        "C. Posture : « Pour avoir du temps d'un utilisateur clé, je négocie avec son manager, chiffres en main, sans passer au-dessus en premier. »",
         "C. Arbitrer : « Je sais dire non en proposant des options, pas par un refus sec. »"
       ],
       retenir: "Argent et posture sont souvent les points faibles d'un profil technique : sois honnête sur ces notes."
