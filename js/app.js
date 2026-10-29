@@ -398,7 +398,11 @@
   }
 
   function carteParcours(store, n, lien) {
-    var ids = modulesDe(n), prets = ids.filter(function (id) { return DATA.questions[id]; });
+    // Un module « sansNote » (ex. le bilan de départ) ne compte pas dans l'objectif de 16/20.
+    var ids = modulesDe(n), prets = ids.filter(function (id) {
+      var m = module(id);
+      return DATA.questions[id] && !(m && m.sansNote);
+    });
     var reussis = prets.filter(function (id) { var st = statsModule(store, id); return st && st.meilleure >= 16; });
     var nbSous = (n.sous || []).length;
     var detail = !prets.length && !nbSous ? 'À venir'

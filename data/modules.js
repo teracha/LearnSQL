@@ -19,7 +19,7 @@ window.LEARNSQL = { modules: [
   { id: "m15", titre: "Modélisation des données", resume: "Normalisation, modèle en étoile, faits et dimensions.", niveau: "Avancé" },
   { id: "m16", titre: "Bonnes pratiques et anti-patterns", resume: "Lisibilité, curseurs, fonctions scalaires, conventions.", niveau: "Expert" },
   { id: "dv01", titre: "Le cycle de vente", resume: "Commande, encours client, BL, facture et avoir dans Divalto 10.13.", niveau: "Débutant" },
-  { id: "cp01", titre: "Bilan de départ", resume: "Auto-évaluation et mises en situation : repérer tes 2 ou 3 points faibles.", niveau: "Tous niveaux" },
+  { id: "cp01", titre: "Bilan de départ", resume: "Auto-évaluation et mises en situation : repérer tes 2 ou 3 points faibles.", niveau: "Tous niveaux", sansNote: true },
   { id: "cp02", titre: "S'organiser et tenir sous pression", resume: "Priorités, le run qui envahit le projet, rituels, charge mentale.", niveau: "Débutant" },
   { id: "cp03", titre: "Le rôle attendu par un DSI", resume: "Responsable du résultat, pas des tâches : déléguer au lieu de faire.", niveau: "Débutant" },
   { id: "cp04", titre: "Cadrer un projet", resume: "Note de cadrage : objectif, périmètre, hors périmètre, critères de succès.", niveau: "Débutant" },
