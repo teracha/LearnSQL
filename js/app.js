@@ -898,6 +898,11 @@
         '<p class="muted" id="etat-sync">' + esc(etatSync) + '</p>' +
         '<div class="actions"><button type="button" class="btn" id="sync">Synchroniser maintenant</button>' +
         '<button type="button" class="btn ghost" id="deconnexion">Se déconnecter</button></div>' +
+        '<details class="card"><summary><strong>Supprimer mon compte</strong></summary>' +
+        '<p>Tout est effacé du serveur : ton e-mail, ta progression, tes groupes. C\'est définitif.</p>' +
+        '<p class="muted">Avant, tu peux garder une copie de tes notes avec <a href="#/export">Exporter</a>.</p>' +
+        '<div class="actions"><button type="button" class="btn danger" id="supprimer-compte">Supprimer définitivement</button></div>' +
+        '<p id="msg-suppr" class="muted"></p></details>' +
         '<details class="card"' + (nouveauMdp ? ' open' : '') + '><summary><strong>Changer mon mot de passe</strong></summary>' +
         '<form id="form-mdp" class="form"><label for="mdp-neuf">Nouveau mot de passe (8 caractères minimum)</label>' +
         '<input id="mdp-neuf" type="password" autocomplete="new-password" minlength="8" required>' +
@@ -930,6 +935,25 @@
         document.getElementById("etat-sync").textContent = "Synchronisation…";
         synchroniserPuisAfficher();
       });
+      document.getElementById("supprimer-compte").addEventListener("click", function () {
+        var msgS = document.getElementById("msg-suppr");
+        if (prompt("Pour confirmer, tape SUPPRIMER") !== "SUPPRIMER") { msgS.textContent = "Rien n'a été supprimé."; return; }
+        msgS.textContent = "Suppression…";
+        sessionValide().then(function (sv) {
+          return appelSupa("/rest/v1/rpc/supprimer_mon_compte", { methode: "POST", corps: {} }, sv.access_token);
+        }).then(function () {
+          ecrireSession(null);
+          etatSync = "";
+          if (confirm("Compte supprimé. Effacer aussi tes notes de CET appareil ?")) {
+            try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignoré */ }
+          }
+          messageCompte = "Ton compte a été supprimé.";
+          majNav();
+          pageCompte();
+        }, function (err) {
+          msgS.textContent = "Suppression impossible : " + err.message;
+        });
+      });
       document.getElementById("deconnexion").addEventListener("click", function () {
         appelSupa("/auth/v1/logout", { methode: "POST" }, s.access_token).catch(function () { /* déjà expirée */ });
         ecrireSession(null);
@@ -950,6 +974,8 @@
       '<div class="actions"><button type="submit" class="btn">Se connecter</button>' +
       '<button type="button" class="btn ghost" id="inscription">Créer un compte</button></div>' +
       '<p><button type="button" class="lien" id="oubli">Mot de passe oublié ?</button></p>' +
+      '<p class="muted">En créant un compte, ton e-mail et ta progression sont stockés pour te les rendre sur tous tes appareils. ' +
+      'Détails et droits : <a href="#/confidentialite">Confidentialité</a>.</p>' +
       '<p id="msg" class="muted"></p></form>';
     app.innerHTML = html;
 
@@ -1011,16 +1037,26 @@
   function chargerEquipe(s) {
     function get(chemin) { return appelSupa("/rest/v1/" + chemin, {}, s.access_token); }
     return Promise.all([
-      get("profil?select=user_id,email,role&order=email"),
+      get("profil?select=user_id,email,role,cree&order=email"),
       get("groupe?select=id,nom&order=nom"),
       get("membre?select=groupe_id,user_id"),
-      get("progression?select=user_id,data"),
+      get("progression?select=user_id,data,maj"),
       get("acces?select=element,groupe_id").catch(function () { return []; })
     ]).then(function (r) {
-      var prog = {};
-      r[3].forEach(function (l) { prog[l.user_id] = l.data && l.data.version === 1 ? l.data : videStore(); });
+      var prog = {}, actif = {};
+      r[3].forEach(function (l) {
+        prog[l.user_id] = l.data && l.data.version === 1 ? l.data : videStore();
+        actif[l.user_id] = l.maj;
+      });
+      // Dernière activité = dernière synchro de la progression, sinon la création du compte.
+      r[0].forEach(function (p) { p.activite = actif[p.user_id] || p.cree; });
       return { profils: r[0], groupes: r[1], membres: r[2], prog: prog, acces: r[4] };
     });
+  }
+
+  var INACTIF_JOURS = 730;   // 2 ans : au-delà, le compte est signalé à l'admin (suppression à la main)
+  function estInactif(p) {
+    return !!p.activite && Date.now() - new Date(p.activite).getTime() > INACTIF_JOURS * 86400000;
   }
 
   function resumePersonne(store) {
@@ -1036,7 +1072,8 @@
     liste.forEach(function (p) {
       var r = resumePersonne(eq.prog[p.user_id] || videStore());
       html += '<tr><td><a href="#/equipe/' + esc(p.user_id) + '">' + esc(p.email) + '</a>' +
-        (p.role !== "agent" ? ' <span class="tag">' + esc(p.role) + '</span>' : '') + '</td>' +
+        (p.role !== "agent" ? ' <span class="tag">' + esc(p.role) + '</span>' : '') +
+        (estInactif(p) ? ' <span class="tag inactif">Inactif depuis plus de 2 ans</span>' : '') + '</td>' +
         '<td>' + r.nb + '</td>' +
         '<td>' + (r.nb ? '<strong class="' + classeNote(r.moy) + '">' + fmtNote(r.moy) + '</strong>' : '—') + '</td>' +
         '<td>' + (r.nb ? esc(r.der.titre) + ' · <span class="' + classeNote(r.der.note) + '">' + fmtNote(r.der.note) + '</span><br><small class="muted">' + fmtDate(r.der.date) + '</small>' : '—') + '</td></tr>';
@@ -1076,18 +1113,18 @@
       eq.membres.forEach(function (m) { rangees[m.user_id] = true; });
       var seuls = eq.profils.filter(function (p) { return !rangees[p.user_id]; });
       if (seuls.length) html += '<h2>Sans groupe</h2>' + tableauPersonnes(seuls, eq);
-      html += gestionAdmin(eq);
+      html += gestionAdmin(eq, s);
     }
     app.innerHTML = html;
     if (admin) brancherGestion(s);
   }
 
-  function gestionAdmin(eq) {
+  function gestionAdmin(eq, s) {
     var html = '<h2>Gérer</h2>' +
       '<form id="form-groupe" class="card form"><label for="nom-groupe">Nouveau groupe</label>' +
       '<input id="nom-groupe" required maxlength="60" placeholder="Ex. : Compta">' +
       '<div class="actions"><button type="submit" class="btn">Créer le groupe</button></div></form>' +
-      '<div class="card"><table><thead><tr><th>Personne</th><th>Rôle</th><th>Groupes</th></tr></thead><tbody>';
+      '<div class="card"><table><thead><tr><th>Personne</th><th>Rôle</th><th>Groupes</th><th>Dernière activité</th></tr></thead><tbody>';
     eq.profils.forEach(function (p) {
       html += '<tr><td>' + esc(p.email) + '</td><td><select data-role="' + esc(p.user_id) + '">' +
         ["agent", "formateur", "admin"].map(function (r) {
@@ -1098,7 +1135,11 @@
         html += '<label class="case"><input type="checkbox" data-membre="' + esc(p.user_id) + '" value="' + g.id + '"' +
           (dedans ? ' checked' : '') + '> ' + esc(g.nom) + '</label>';
       });
-      html += (eq.groupes.length ? '' : '<small class="muted">Crée d\'abord un groupe.</small>') + '</td></tr>';
+      html += (eq.groupes.length ? '' : '<small class="muted">Crée d\'abord un groupe.</small>') + '</td>' +
+        '<td>' + (p.activite ? fmtDate(p.activite) : '—') +
+        (estInactif(p) ? '<br><span class="tag inactif">Inactif + 2 ans</span>' : '') +
+        (p.user_id !== s.id ? '<br><button type="button" class="lien danger" data-suppr-compte="' + esc(p.user_id) +
+          '" data-email="' + esc(p.email) + '">Supprimer le compte</button>' : '') + '</td></tr>';
     });
     html += '</tbody></table></div><p id="msg-equipe" class="muted"></p>';
     html += '<h2>Droits des parcours</h2><p class="muted">Aucune case cochée = ouvert à tous les connectés. ' +
@@ -1162,6 +1203,15 @@
         else ecrireBase("acces?element=eq." + encodeURIComponent(el) + "&groupe_id=eq." + c.value, "DELETE");
       });
     });
+    app.querySelectorAll("[data-suppr-compte]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var email = b.getAttribute("data-email");
+        if (prompt("Supprimer définitivement le compte " + email + " ?\nTape son adresse e-mail pour confirmer.") !== email) return;
+        msg.textContent = "Suppression…";
+        appelSupa("/rest/v1/rpc/supprimer_compte", { methode: "POST", corps: { cible: b.getAttribute("data-suppr-compte") } }, s.access_token)
+          .then(function () { pageEquipe(); }, function (e) { msg.textContent = "Impossible : " + e.message; });
+      });
+    });
     app.querySelectorAll("[data-suppr]").forEach(function (b) {
       b.addEventListener("click", function () {
         if (confirm("Supprimer ce groupe ?")) ecrireBase("groupe?id=eq." + b.getAttribute("data-suppr"), "DELETE");
@@ -1196,6 +1246,14 @@
     app.innerHTML = html + '</tbody></table></div><div class="actions"><a class="btn ghost" href="#/equipe">Retour à l\'équipe</a></div>';
   }
 
+  // ---------- Mentions légales et confidentialité (texte dans data/legal.js) ----------
+  function pageLegale(titre, contenu) {
+    var L = DATA.legal || {};
+    app.innerHTML = '<h1>' + titre + '</h1>' + (L[contenu] || '<p>Page indisponible.</p>') +
+      '<p class="muted">Mise à jour : ' + esc(L.maj || '') + '.</p>' +
+      '<div class="actions"><a class="btn ghost" href="#/">Retour</a></div>';
+  }
+
   // ---------- Thème ----------
   function appliquerTheme(t) {
     if (t) document.documentElement.setAttribute("data-theme", t);
@@ -1225,6 +1283,8 @@
     else if (parts[0] === "export") pageExport();
     else if (parts[0] === "p" && parts[1]) pageParcours(parts[1], parts[2]);
     else if (parts[0] === "compte") pageCompte();
+    else if (parts[0] === "mentions") pageLegale("Mentions légales", "mentions");
+    else if (parts[0] === "confidentialite") pageLegale("Confidentialité", "confidentialite");
     else if (parts[0] === "equipe") pageEquipe(parts[1]);
     else pageAccueil();
   }

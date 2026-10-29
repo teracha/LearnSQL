@@ -77,6 +77,10 @@ L'export indique le score par thème des révisions.
 - Sans compte, le site marche comme avant (localStorage seul).
 - Rôles et groupes (`outils/supabase-equipe.sql`) : tables `profil` (rôle admin / formateur / agent, « agent » par défaut), `groupe`, `membre`.
   L'admin voit tout et gère ; le formateur voit les notes des personnes de ses groupes ; l'agent ne voit que les siennes. Page `#/equipe`.
+- RGPD : pages `#/mentions` et `#/confidentialite` (texte dans `data/legal.js`, à tenir à jour). Éditeur : Terasoft, projet perso.
+  Suppression de compte (soi-même, ou par l'admin) : fonctions SQL de `outils/supabase-rgpd.sql`.
+  Comptes sans activité depuis 2 ans : signalés sur la page Équipe, supprimés à la main par l'admin.
+  Aucun service externe appelé par les pages (polices hébergées dans `css/fonts/`) : à garder ainsi.
 - Dans le code : seulement la clé « publishable ». Jamais la clé « secret » / « service_role ».
 
 ## Format d'une question
