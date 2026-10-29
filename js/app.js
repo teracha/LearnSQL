@@ -82,7 +82,8 @@
         refresh_token: jetons.refresh_token,
         expire: Date.now() + (Number(jetons.expires_in) || 3600) * 1000,
         id: u.id,
-        email: u.email
+        email: u.email,
+        role: (lireSession() || {}).id === u.id ? lireSession().role : "agent"
       };
       ecrireSession(s);
       return s;
@@ -132,6 +133,12 @@
           entetes: { Prefer: "resolution=merge-duplicates,return=minimal" },
           corps: { user_id: s.id, data: tout, maj: new Date().toISOString() }
         }, s.access_token).then(function () {
+          return appelSupa("/rest/v1/profil?select=role&user_id=eq." + s.id, {}, s.access_token).then(function (p) {
+            var role = p && p[0] ? p[0].role : "agent";
+            var cur = lireSession();
+            if (cur && cur.role !== role) { cur.role = role; ecrireSession(cur); majNav(); }
+          }, function () { /* table profil absente : rôle agent */ });
+        }).then(function () {
           etatSync = "Synchronisé à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
           return change;
         });
@@ -182,6 +189,8 @@
     var lien = document.getElementById("lien-compte");
     var s = lireSession();
     if (lien) lien.textContent = s ? "Compte ✓" : "Connexion";
+    var equipe = document.getElementById("lien-equipe");
+    if (equipe) equipe.hidden = !(s && (s.role === "admin" || s.role === "formateur"));
     var pied = document.getElementById("pied-compte");
     if (pied) pied.innerHTML = s ? "Tes notes sont enregistrées dans ton compte." :
       'Sans compte, tes notes restent dans ce navigateur. <a href="#/compte">Se connecter</a> pour les retrouver partout.';
@@ -788,6 +797,173 @@
     });
   }
 
+  // ---------- Équipe (admin et formateurs) ----------
+  // La base ne renvoie que ce que le rôle a le droit de voir : l'admin tout, le formateur ses groupes.
+  function chargerEquipe(s) {
+    function get(chemin) { return appelSupa("/rest/v1/" + chemin, {}, s.access_token); }
+    return Promise.all([
+      get("profil?select=user_id,email,role&order=email"),
+      get("groupe?select=id,nom&order=nom"),
+      get("membre?select=groupe_id,user_id"),
+      get("progression?select=user_id,data")
+    ]).then(function (r) {
+      var prog = {};
+      r[3].forEach(function (l) { prog[l.user_id] = l.data && l.data.version === 1 ? l.data : videStore(); });
+      return { profils: r[0], groupes: r[1], membres: r[2], prog: prog };
+    });
+  }
+
+  function resumePersonne(store) {
+    var t = store.tentatives;
+    if (!t.length) return { nb: 0 };
+    var moy = Math.round(t.reduce(function (a, x) { return a + x.note; }, 0) / t.length * 10) / 10;
+    return { nb: t.length, moy: moy, der: t[t.length - 1] };
+  }
+
+  function tableauPersonnes(liste, eq) {
+    if (!liste.length) return '<p class="muted">Personne dans ce groupe.</p>';
+    var html = '<div class="card"><table><thead><tr><th>Personne</th><th>QCM</th><th>Moyenne</th><th>Dernier QCM</th></tr></thead><tbody>';
+    liste.forEach(function (p) {
+      var r = resumePersonne(eq.prog[p.user_id] || videStore());
+      html += '<tr><td><a href="#/equipe/' + esc(p.user_id) + '">' + esc(p.email) + '</a>' +
+        (p.role !== "agent" ? ' <span class="tag">' + esc(p.role) + '</span>' : '') + '</td>' +
+        '<td>' + r.nb + '</td>' +
+        '<td>' + (r.nb ? '<strong class="' + classeNote(r.moy) + '">' + fmtNote(r.moy) + '</strong>' : '—') + '</td>' +
+        '<td>' + (r.nb ? esc(r.der.titre) + ' · <span class="' + classeNote(r.der.note) + '">' + fmtNote(r.der.note) + '</span><br><small class="muted">' + fmtDate(r.der.date) + '</small>' : '—') + '</td></tr>';
+    });
+    return html + '</tbody></table></div>';
+  }
+
+  function pageEquipe(cible) {
+    var s = lireSession();
+    if (!s || (s.role !== "admin" && s.role !== "formateur")) { location.hash = "#/compte"; return; }
+    app.innerHTML = '<h1>Équipe</h1><p class="muted">Chargement…</p>';
+    chargerEquipe(s).then(function (eq) {
+      if (cible) afficherPersonne(eq, cible);
+      else afficherEquipe(eq, s);
+    }, function (e) {
+      app.innerHTML = '<h1>Équipe</h1><p>Chargement impossible : ' + esc(e.message) + '</p>';
+    });
+  }
+
+  function afficherEquipe(eq, s) {
+    var admin = s.role === "admin";
+    var parId = {};
+    eq.profils.forEach(function (p) { parId[p.user_id] = p; });
+    var html = '<h1>Équipe</h1><p class="muted">' + (admin
+      ? "Tu es admin : tu vois tout le monde et tu ranges les personnes dans les groupes."
+      : "Tu es formateur : tu vois les personnes de tes groupes.") + '</p>';
+
+    eq.groupes.forEach(function (g) {
+      var liste = eq.membres.filter(function (m) { return m.groupe_id === g.id && parId[m.user_id]; })
+        .map(function (m) { return parId[m.user_id]; });
+      html += '<h2>' + esc(g.nom) + '</h2>' + tableauPersonnes(liste, eq);
+    });
+    if (!eq.groupes.length) html += '<p>Aucun groupe pour l\'instant.</p>';
+
+    if (admin) {
+      var rangees = {};
+      eq.membres.forEach(function (m) { rangees[m.user_id] = true; });
+      var seuls = eq.profils.filter(function (p) { return !rangees[p.user_id]; });
+      if (seuls.length) html += '<h2>Sans groupe</h2>' + tableauPersonnes(seuls, eq);
+      html += gestionAdmin(eq);
+    }
+    app.innerHTML = html;
+    if (admin) brancherGestion(s);
+  }
+
+  function gestionAdmin(eq) {
+    var html = '<h2>Gérer</h2>' +
+      '<form id="form-groupe" class="card form"><label for="nom-groupe">Nouveau groupe</label>' +
+      '<input id="nom-groupe" required maxlength="60" placeholder="Ex. : Compta">' +
+      '<div class="actions"><button type="submit" class="btn">Créer le groupe</button></div></form>' +
+      '<div class="card"><table><thead><tr><th>Personne</th><th>Rôle</th><th>Groupes</th></tr></thead><tbody>';
+    eq.profils.forEach(function (p) {
+      html += '<tr><td>' + esc(p.email) + '</td><td><select data-role="' + esc(p.user_id) + '">' +
+        ["agent", "formateur", "admin"].map(function (r) {
+          return '<option' + (r === p.role ? ' selected' : '') + '>' + r + '</option>';
+        }).join('') + '</select></td><td>';
+      eq.groupes.forEach(function (g) {
+        var dedans = eq.membres.some(function (m) { return m.groupe_id === g.id && m.user_id === p.user_id; });
+        html += '<label class="case"><input type="checkbox" data-membre="' + esc(p.user_id) + '" value="' + g.id + '"' +
+          (dedans ? ' checked' : '') + '> ' + esc(g.nom) + '</label>';
+      });
+      html += (eq.groupes.length ? '' : '<small class="muted">Crée d\'abord un groupe.</small>') + '</td></tr>';
+    });
+    html += '</tbody></table></div><p id="msg-equipe" class="muted"></p>';
+    if (eq.groupes.length) {
+      html += '<p class="muted">Supprimer un groupe (les personnes restent, seul le groupe disparaît) :</p><div class="actions">' +
+        eq.groupes.map(function (g) {
+          return '<button type="button" class="btn small ghost" data-suppr="' + g.id + '">' + esc(g.nom) + ' ✕</button>';
+        }).join('') + '</div>';
+    }
+    return html;
+  }
+
+  function brancherGestion(s) {
+    var msg = document.getElementById("msg-equipe");
+    function ecrireBase(chemin, methode, corps) {
+      msg.textContent = "Enregistrement…";
+      return appelSupa("/rest/v1/" + chemin, {
+        methode: methode, corps: corps, entetes: { Prefer: "return=minimal" }
+      }, s.access_token).then(function () { pageEquipe(); }, function (e) {
+        msg.textContent = "Impossible : " + e.message;
+      });
+    }
+    document.getElementById("form-groupe").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var nom = document.getElementById("nom-groupe").value.trim();
+      if (nom) ecrireBase("groupe", "POST", { nom: nom });
+    });
+    app.querySelectorAll("[data-role]").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var id = sel.getAttribute("data-role");
+        if (id === s.id && sel.value !== "admin" &&
+            !confirm("Tu vas perdre tes droits d'admin. Continuer ?")) { sel.value = "admin"; return; }
+        ecrireBase("profil?user_id=eq." + id, "PATCH", { role: sel.value });
+      });
+    });
+    app.querySelectorAll("[data-membre]").forEach(function (c) {
+      c.addEventListener("change", function () {
+        var u = c.getAttribute("data-membre");
+        if (c.checked) ecrireBase("membre", "POST", { groupe_id: Number(c.value), user_id: u });
+        else ecrireBase("membre?groupe_id=eq." + c.value + "&user_id=eq." + u, "DELETE");
+      });
+    });
+    app.querySelectorAll("[data-suppr]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (confirm("Supprimer ce groupe ?")) ecrireBase("groupe?id=eq." + b.getAttribute("data-suppr"), "DELETE");
+      });
+    });
+  }
+
+  function afficherPersonne(eq, id) {
+    var p = eq.profils.filter(function (x) { return x.user_id === id; })[0];
+    if (!p) { app.innerHTML = '<h1>Équipe</h1><p>Personne introuvable.</p><a class="btn ghost" href="#/equipe">Retour</a>'; return; }
+    var store = eq.prog[id] || videStore();
+    var html = '<h1>' + esc(p.email) + '</h1>';
+    var r = resumePersonne(store);
+    if (!r.nb) {
+      app.innerHTML = html + '<p>Pas encore de QCM.</p><a class="btn ghost" href="#/equipe">Retour</a>';
+      return;
+    }
+    html += '<p>Moyenne : <strong class="' + classeNote(r.moy) + '">' + fmtNote(r.moy) + '</strong> sur ' + r.nb +
+      ' QCM · ' + idsEnErreur(store).length + ' question(s) à revoir.</p>' +
+      '<h2>Par module</h2><div class="card"><table><thead><tr><th>Module</th><th>Essais</th><th>Meilleure</th><th>Dernière</th></tr></thead><tbody>';
+    DATA.modules.forEach(function (m, i) {
+      var st = statsModule(store, m.id);
+      if (st) html += '<tr><td>' + (i + 1) + '. ' + esc(m.titre) + '</td><td>' + st.nb + '</td>' +
+        '<td class="' + classeNote(st.meilleure) + '"><strong>' + fmtNote(st.meilleure) + '</strong></td>' +
+        '<td class="' + classeNote(st.derniere) + '">' + fmtNote(st.derniere) + '</td></tr>';
+    });
+    html += '</tbody></table></div><h2>Tous les QCM</h2><div class="card"><table><thead><tr><th>Date</th><th>QCM</th><th>Note</th></tr></thead><tbody>';
+    store.tentatives.slice().reverse().forEach(function (t) {
+      html += '<tr><td>' + fmtDate(t.date) + '</td><td>' + esc(t.titre) + '</td>' +
+        '<td class="' + classeNote(t.note) + '"><strong>' + fmtNote(t.note) + '</strong></td></tr>';
+    });
+    app.innerHTML = html + '</tbody></table></div><div class="actions"><a class="btn ghost" href="#/equipe">Retour à l\'équipe</a></div>';
+  }
+
   // ---------- Thème ----------
   function appliquerTheme(t) {
     if (t) document.documentElement.setAttribute("data-theme", t);
@@ -815,6 +991,7 @@
     else if (parts[0] === "historique") pageHistorique();
     else if (parts[0] === "export") pageExport();
     else if (parts[0] === "compte") pageCompte();
+    else if (parts[0] === "equipe") pageEquipe(parts[1]);
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);

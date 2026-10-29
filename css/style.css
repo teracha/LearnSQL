@@ -180,3 +180,6 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
   background: var(--card); color: var(--text);
   border: 1px solid var(--line); border-radius: 10px;
 }
+.case { display: inline-flex; align-items: center; gap: 4px; margin: 2px 10px 2px 0; font-size: 15px; white-space: nowrap; }
+.case input { width: 18px; height: 18px; accent-color: var(--accent); }
+.card table { display: block; overflow-x: auto; }

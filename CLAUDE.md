@@ -66,6 +66,8 @@ L'export indique le score par thème des révisions.
 - La base (RLS) ne laisse chaque utilisateur lire et modifier que SA ligne.
 - Synchro : à l'ouverture, au retour sur l'onglet, et 1,5 s après chaque écriture. Fusion sans perte (`fusion` dans `js/app.js`).
 - Sans compte, le site marche comme avant (localStorage seul).
+- Rôles et groupes (`outils/supabase-equipe.sql`) : tables `profil` (rôle admin / formateur / agent, « agent » par défaut), `groupe`, `membre`.
+  L'admin voit tout et gère ; le formateur voit les notes des personnes de ses groupes ; l'agent ne voit que les siennes. Page `#/equipe`.
 - Dans le code : seulement la clé « publishable ». Jamais la clé « secret » / « service_role ».
 
 ## Format d'une question
