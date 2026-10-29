@@ -68,6 +68,7 @@ L'export indique le score par thème des révisions.
 ## Comptes et synchronisation
 
 - Page `#/compte` : connexion par e-mail et mot de passe (Supabase, appels `fetch` directs, sans bibliothèque).
+  « Mot de passe oublié » (lien par e-mail, `type=recovery`) et « Changer mon mot de passe ».
 - Une ligne par utilisateur dans la table `progression` (JSON complet du store). Script : `outils/supabase.sql`.
 - La base (RLS) ne laisse chaque utilisateur lire et modifier que SA ligne.
 - Synchro : à l'ouverture, au retour sur l'onglet, et 1,5 s après chaque écriture. Fusion sans perte (`fusion` dans `js/app.js`).

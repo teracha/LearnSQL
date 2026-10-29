@@ -184,6 +184,9 @@
 
   // Retour du lien de l'e-mail : Supabase met les jetons ou l'erreur dans le #.
   var messageCompte = "";
+  var nouveauMdp = false;   // vrai après un lien « mot de passe oublié »
+  function retourSite() { return encodeURIComponent(location.origin + location.pathname); }
+
   function lireRetourEmail() {
     var h = location.hash.replace(/^#/, "");
     if (h.indexOf("access_token=") < 0 && h.indexOf("error=") < 0) return Promise.resolve();
@@ -198,7 +201,10 @@
       return Promise.resolve();
     }
     return ouvrirSession(p).then(function () {
-      messageCompte = "Adresse confirmée. Tu es connecté.";
+      if (p.type === "recovery") {
+        nouveauMdp = true;
+        messageCompte = "Choisis ton nouveau mot de passe ci-dessous.";
+      } else messageCompte = "Adresse confirmée. Tu es connecté.";
     }, function (e) {
       messageCompte = "Connexion impossible : " + e.message;
     });
@@ -840,8 +846,35 @@
         'sur un autre appareil : tu la retrouves.</p>' +
         '<p class="muted" id="etat-sync">' + esc(etatSync) + '</p>' +
         '<div class="actions"><button type="button" class="btn" id="sync">Synchroniser maintenant</button>' +
-        '<button type="button" class="btn ghost" id="deconnexion">Se déconnecter</button></div>';
+        '<button type="button" class="btn ghost" id="deconnexion">Se déconnecter</button></div>' +
+        '<details class="card"' + (nouveauMdp ? ' open' : '') + '><summary><strong>Changer mon mot de passe</strong></summary>' +
+        '<form id="form-mdp" class="form"><label for="mdp-neuf">Nouveau mot de passe (8 caractères minimum)</label>' +
+        '<input id="mdp-neuf" type="password" autocomplete="new-password" minlength="8" required>' +
+        '<label for="mdp-neuf2">Le même, une 2e fois</label>' +
+        '<input id="mdp-neuf2" type="password" autocomplete="new-password" minlength="8" required>' +
+        '<div class="actions"><button type="submit" class="btn">Enregistrer</button></div>' +
+        '<p id="msg-mdp" class="muted"></p></form></details>';
       app.innerHTML = html;
+      document.getElementById("form-mdp").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var m1 = document.getElementById("mdp-neuf").value, m2 = document.getElementById("mdp-neuf2").value;
+        var msgMdp = document.getElementById("msg-mdp");
+        if (m1.length < 8) { msgMdp.textContent = "8 caractères minimum."; return; }
+        if (m1 !== m2) { msgMdp.textContent = "Les deux mots de passe sont différents."; return; }
+        msgMdp.textContent = "Enregistrement…";
+        sessionValide().then(function (sv) {
+          return appelSupa("/auth/v1/user", { methode: "PUT", corps: { password: m1 } }, sv.access_token);
+        }).then(function () {
+          nouveauMdp = false;
+          messageCompte = "";
+          msgMdp.textContent = "Mot de passe changé.";
+          document.getElementById("form-mdp").reset();
+        }, function (err) {
+          msgMdp.textContent = /different|same/i.test(err.message)
+            ? "Choisis un mot de passe différent de l'ancien."
+            : "Impossible : " + err.message;
+        });
+      });
       document.getElementById("sync").addEventListener("click", function () {
         document.getElementById("etat-sync").textContent = "Synchronisation…";
         synchroniserPuisAfficher();
@@ -865,6 +898,7 @@
       '<input id="mdp" type="password" autocomplete="current-password" minlength="8" required>' +
       '<div class="actions"><button type="submit" class="btn">Se connecter</button>' +
       '<button type="button" class="btn ghost" id="inscription">Créer un compte</button></div>' +
+      '<p><button type="button" class="lien" id="oubli">Mot de passe oublié ?</button></p>' +
       '<p id="msg" class="muted"></p></form>';
     app.innerHTML = html;
 
@@ -895,11 +929,24 @@
         });
     });
 
+    document.getElementById("oubli").addEventListener("click", function () {
+      var email = document.getElementById("email").value.trim();
+      if (!email) { msg.textContent = "Tape d'abord ton adresse e-mail, puis reclique ici."; return; }
+      msg.textContent = "Envoi…";
+      appelSupa("/auth/v1/recover?redirect_to=" + retourSite(), { methode: "POST", corps: { email: email } }).then(function () {
+        msg.textContent = "Si un compte existe avec cette adresse, un e-mail est parti. Clique sur le lien qu'il contient.";
+      }, function (err) {
+        msg.textContent = /rate|limit|seconds/i.test(err.message)
+          ? "Trop de demandes. Attends quelques minutes, puis réessaie."
+          : "Envoi impossible : " + err.message;
+      });
+    });
+
     document.getElementById("inscription").addEventListener("click", function () {
       var c = champs();
       if (!c) return;
       msg.textContent = "Création du compte…";
-      appelSupa("/auth/v1/signup?redirect_to=" + encodeURIComponent(location.origin + location.pathname), { methode: "POST", corps: c }).then(function (d) {
+      appelSupa("/auth/v1/signup?redirect_to=" + retourSite(), { methode: "POST", corps: c }).then(function (d) {
         if (d && d.access_token) return ouvrirSession(d).then(connecte);
         msg.textContent = "Compte créé. Ouvre l'e-mail reçu et clique sur le lien pour le confirmer.";
       }, function (err) {
