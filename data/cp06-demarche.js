@@ -5,7 +5,10 @@
 // cœur cadré (flux légaux, connecteur standard de la PA, bascule) ; écrans et états de suivi Divalto de la compta en
 // itérations de 2 semaines, dans une enveloppe de 10 jours d'intégrateur fixée par le DAF ; PO = la cheffe comptable,
 // prise par la clôture annuelle de janvier et en congé 3 semaines pendant la recette. Intégrateur en régie.
-// Fait ajouté (hors fiche, aussi dans le cours) : les itérations ont lieu de février à avril, avant le pilote de mai.
+// Dans la fiche (audit du 29/10) : itérations de février à avril, démarche validée par le DAF en octobre 2026, Julie
+// suppléante du PO (désignée par écrit), gel dès le pilote de mai, partie agile comprise (cp10).
+// Testeur : q36 = un « oui » simple juste ; « tout » aussi dans des bonnes réponses (q01, q31, q37) ; « Hybride » dans la
+// bonne réponse de q07, « Agile » dans celle de q32 (ces mots ne doivent pas signaler un choix faux).
 // Frontières : cp10 = le circuit d'une demande de changement (ici, des renvois : q23) ; cp14 = contracter (q29, q30 pointent
 // vers lui) ; cp04-q30 traite déjà « en agile, pas besoin de cadrage » (pas repris ici).
 // Anti-devinette propre à cp06 : « hybride » n'est pas un signal. La bonne réponse est tantôt le prédictif pur (q01, q05,
@@ -21,7 +24,7 @@ LEARNSQL.questions.cp06 = [
     q: "Le DSI te confie la migration Divalto vers la nouvelle version : à l'identique, mêmes écrans, mêmes règles. La date est fixée après la clôture. L'intégrateur est au forfait. Quelle démarche choisis-tu ?",
     choix: [
       "Scrum : des sprints de 2 semaines, avec une démo au métier",
-      "Cycle en V : contenu figé, tests en miroir, recette à la fin",
+      "Cycle en V : tout est figé, tests en miroir, recette à la fin",
       "Hybride : la migration cadrée, des améliorations en sprints",
       "Aucune : au forfait, c'est à l'intégrateur de s'organiser"
     ],
@@ -134,16 +137,16 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "Le DSI te confie un projet : un entrepôt Snowflake alimenté par Divalto, puis des tableaux Power BI pour la direction. Les flux et les droits d'accès sont connus. Les tableaux, pas encore. Quelle démarche ?",
     choix: [
-      "Les flux et les accès cadrés ; les tableaux en itérations",
-      "Hybride : les tableaux cadrés ; les flux et les accès en sprints",
-      "Tout en agile, droits d'accès compris, au fil des sprints",
+      "Hybride : flux et accès cadrés ; tableaux en itérations",
+      "Hybride : tableaux cadrés ; flux et accès en sprints",
+      "Tout en agile : les droits d'accès se découvriront en sprints",
       "Tout en cycle en V, tableaux compris, pour tenir le budget"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Ce qui est connu se cadre : les flux, les droits d'accès. Ce qui est flou s'itère avec la direction : les tableaux. C'est l'hybride bien découpé.",
       "Non. C'est l'hybride à l'envers : tu figes ce qui est flou, et tu fais varier ce qui est connu. Les tableaux seront refusés, les accès bougeront.",
-      "Non. Les droits d'accès sont connus : les « découvrir » en sprints, c'est risquer des données ouvertes aux mauvaises personnes.",
+      "Non. Les droits d'accès sont déjà connus : rien à découvrir. Les laisser « se découvrir » en sprints, c'est ouvrir des données aux mauvaises personnes en attendant.",
       "Non. Spécifier des tableaux que la direction ne connaît pas encore : ils seront refusés à la recette. Et le budget n'est pas mieux tenu."
     ],
     retenir: "L'hybride cadre ce qui est connu et itère ce qui est flou. Pas l'inverse."
@@ -229,7 +232,7 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "Octobre 2026. Le DAF valide la démarche hybride de DEMAT, puis ajoute : « Pour les écrans de la compta, sois le PO (product owner) : tu connais Divalto mieux que la compta. » Que fais-tu ?",
     choix: [
-      "Tu acceptes d'être PO : tu classes, et la compta teste",
+      "Tu deviens PO : tu classes, et la compta teste",
       "Tu laisses l'intégrateur classer : il voit le faisable",
       "Tu proposes la cheffe comptable, avec 1 h par itération",
       "Pas de PO : tu passes les écrans en cycle en V"
@@ -267,7 +270,7 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "L'intégrateur propose de lancer la 1re itération des écrans de la compta le 4 janvier. La cheffe comptable, PO de cette partie, est prise par la clôture annuelle jusqu'à fin janvier. Que fais-tu ?",
     choix: [
-      "Tu lances l'itération le 4 : l'intégrateur avancera seul",
+      "Tu lances l'itération le 4 : l'intégrateur commence sans elle",
       "Tu lances les itérations en février ; le cœur ne bouge pas",
       "Tu écris toi-même les spécifications des écrans en janvier",
       "Tu demandes au DAF de la libérer 1 jour par semaine en janvier"
@@ -334,7 +337,7 @@ LEARNSQL.questions.cp06 = [
       "Non. Noter un risque que tu peux éviter tout de suite, c'est accepter une erreur connue au lieu de la refuser.",
       "Non. Livré sans test, c'est une dette : les erreurs s'accumulent jusqu'à la recette, où tout arrive en même temps.",
       "Non. « À moitié fini » n'existe pas : il est fini, ou il retourne au backlog. Sinon, l'avancement affiché est faux.",
-      "Oui. En agile, « fini » = testé, et accepté par la cheffe comptable. La qualité ne se négocie pas : ce qui n'est pas testé retourne au backlog."
+      "Oui. En agile, « fini » = testé, et accepté par la cheffe comptable. L'agile ne touche pas à la qualité : ce qui n'est pas testé retourne au backlog."
     ],
     retenir: "En agile, « fini » veut dire testé et accepté : un écran non testé n'est pas livré."
   },
@@ -389,7 +392,7 @@ LEARNSQL.questions.cp06 = [
     bonne: 3,
     pourquoi: [
       "Non. Tu deviens PO sans le dire : la compta découvrira à la recette des écrans qu'elle n'a jamais vus.",
-      "Non. Tu ne lui as pas encore parlé : monter au DAF d'abord la met contre toi (module cp16).",
+      "Non. Tu ne lui as encore rien proposé : monter au DAF d'abord la met contre toi (module cp16).",
       "Non. Tu changes de démarche sans traiter la cause, et sans le proposer au DAF. Et spécifier un besoin flou donne des écrans refusés.",
       "Oui. Sans PO, pas d'agile. Tu lui parles d'abord : un créneau court et fixe, ou quelqu'un de la compta qu'elle désigne par écrit."
     ],
@@ -398,7 +401,7 @@ LEARNSQL.questions.cp06 = [
   {
     id: "cp06-q21",
     dialecte: "Gestion de projet",
-    q: "La cheffe comptable, PO des écrans de la compta, part 3 semaines pendant la recette. Une itération tombe dans son absence. Cette itération doit livrer l'état des factures bloquées, attendu pour le pilote. Que fais-tu ?",
+    q: "La cheffe comptable, PO des écrans de la compta, part 3 semaines en avril, pendant la recette. La dernière itération tombe dans son absence. Cette itération doit livrer l'état des rejets, attendu pour le pilote de mai. Que fais-tu ?",
     choix: [
       "L'intégrateur avance seul, et elle verra la démo à son retour",
       "Avant de partir, elle classe le backlog et désigne une suppléante",
@@ -408,11 +411,11 @@ LEARNSQL.questions.cp06 = [
     bonne: 1,
     pourquoi: [
       "Non. Personne ne valide pendant 3 semaines : si l'état ne convient pas, on le découvre à son retour, trop tard pour le pilote.",
-      "Oui. Elle garde la main : elle classe avant de partir, et désigne par écrit quelqu'un de la compta, comme Julie, pour la démo et les questions.",
+      "Oui. Elle classe avant de partir, et désigne par écrit sa suppléante comme PO, ici Julie. Julie tient la démo et dit si l'état convient.",
       "Non. Presque : il faut quelqu'un, mais du métier. Toi à sa place, tu classes selon ta logique, et l'état sera rediscuté à son retour.",
-      "Non. L'état attendu pour le pilote prend 3 semaines de retard, et l'enveloppe dort. Une suppléante suffit pour la démo."
+      "Non. Suspendue, l'itération finirait en mai, en plein gel des changements : l'état manquerait le pilote. Une suppléante suffit."
     ],
-    retenir: "PO absent : il classe avant de partir et désigne un suppléant par écrit. Personne d'autre ne prend sa place."
+    retenir: "PO absent : il classe avant de partir et désigne par écrit un suppléant du métier. Ni toi, ni l'intégrateur."
   },
   {
     id: "cp06-q22",
@@ -428,8 +431,8 @@ LEARNSQL.questions.cp06 = [
     pourquoi: [
       "Oui. Une itération a une durée fixe. La démo a lieu à la date prévue ; l'état non fini retourne au backlog, et la cheffe comptable le reclasse.",
       "Non. Une itération qui s'allonge, c'est un planning qui glisse sans que personne l'ait décidé. Ce qui n'est pas fini repart au backlog.",
-      "Non. En régie, les heures en plus se facturent et mangent l'enveloppe. Et un travail fini à la hâte, c'est la qualité qui paie.",
-      "Non. Le rythme des itérations est un détail de ta démarche, pas une décision du DAF. Et allonger n'est pas la bonne réponse."
+      "Non. Fini à la hâte, un week-end, l'état est mal testé : c'est la qualité qui paie. L'itération garde sa date, et l'état retourne au backlog.",
+      "Non. Le DAF a fixé l'enveloppe, pas la date de chaque démo : tu lui montes un détail. Et une itération ne s'allonge pas."
     ],
     retenir: "Une itération a une durée fixe : ce qui n'est pas fini retourne au backlog ; on n'allonge pas l'itération."
   },
@@ -448,7 +451,7 @@ LEARNSQL.questions.cp06 = [
       "Non. Sauter les tests, c'est faire payer la qualité : les erreurs sortiront pendant le pilote, sur de vraies factures.",
       "Non. Des jours en plus, c'est le budget du DAF, et sa signature : pas ta décision. L'enveloppe deviendrait une régie sans fin.",
       "Non. Les tests ne disparaissent pas : ils passent à la compta, en pleine fin de recette. Et ces 2 jours sortent de l'enveloppe.",
-      "Oui. En agile, quand l'enveloppe est vide, c'est le bas du backlog qui attend. Pas la qualité. Plus de jours ? Le DAF décide (module cp10)."
+      "Oui. Enveloppe vide : le bas du backlog attend, pas la qualité. Avec le gel de mai, ces idées attendent l'après-bascule (module cp10)."
     ],
     retenir: "Enveloppe consommée : le bas du backlog attend. On ne paie ni avec la qualité, ni avec un budget que personne n'a décidé."
   },
@@ -477,7 +480,7 @@ LEARNSQL.questions.cp06 = [
     q: "Les écrans de la compta ont été acceptés un par un, à chaque démo. Le consultant propose de les sortir de la recette du cœur : « Déjà validés. » Que fais-tu ?",
     choix: [
       "Tu acceptes : ils sont déjà validés, on gagne du temps",
-      "Tu acceptes, puisqu'ils ne modifient pas le flux légal",
+      "Tu les sors, puisqu'ils ne modifient pas le flux légal",
       "Tu gardes un test de bout en bout, avec le connecteur",
       "Tu les gardes, et tu refais tous leurs tests un par un"
     ],
@@ -496,7 +499,7 @@ LEARNSQL.questions.cp06 = [
     q: "Le consultant de l'intégrateur propose : « Faisons aussi le connecteur de la PA en sprints, avec une démo à la compta toutes les 2 semaines. » C'est le connecteur standard de la PA, prévu au contrat le 1er mars. Que réponds-tu ?",
     choix: [
       "« Non : un produit standard se paramètre, puis se teste »",
-      "« D'accord, si la PA livre son standard par morceaux »",
+      "« Seulement si la PA livre son standard par morceaux »",
       "« D'accord : des démos à la compta, c'est mieux »",
       "« Hybride : connecteur en sprints, écrans cadrés »"
     ],
@@ -516,7 +519,7 @@ LEARNSQL.questions.cp06 = [
     choix: [
       "Tu le prends tel quel : c'est sa méthode, il la maîtrise",
       "Tu pars de son plan : V pour le cœur, itérations pour les écrans",
-      "Tu le refuses en bloc : c'est ta démarche qui s'applique, pas la sienne",
+      "Tu le refuses : ta démarche s'applique, pas celle de l'intégrateur",
       "Tu demandes au DAF de choisir entre son plan et le tien"
     ],
     bonne: 1,
@@ -531,7 +534,7 @@ LEARNSQL.questions.cp06 = [
   {
     id: "cp06-q28",
     dialecte: "Gestion de projet",
-    q: "Mars. La partie agile de DEMAT patine : démos reportées, backlog mal classé. Tu veux passer les derniers écrans en spécifications écrites, comme le cœur. Que fais-tu ?",
+    q: "Mars. Malgré un créneau fixe et deux rétrospectives, la partie agile de DEMAT patine. Les derniers écrans sont devenus clairs : tu veux les passer en spécifications écrites, comme le cœur. Que fais-tu ?",
     choix: [
       "Tu gardes l'agile coûte que coûte : la démarche est validée",
       "Tu changes, et tu l'annonces au prochain COPIL",
@@ -550,7 +553,7 @@ LEARNSQL.questions.cp06 = [
   {
     id: "cp06-q29",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Pour une appli de prise de commande des commerciaux, un intégrateur propose : « Forfait de 60 k€ sur votre cahier des charges de 80 pages, livré en sprints de 3 semaines, avec une démo à chaque fin de sprint. » Quel est le vrai problème ?",
+    q: "Tu es DSI adjoint. Appli de prise de commande pour les commerciaux : ils sauront ce qu'ils veulent en l'essayant. Un intégrateur propose : « Forfait de 60 k€ sur votre cahier des charges de 80 pages, livré en sprints de 3 semaines, avec une démo à chaque fin de sprint. » Quel est le vrai problème ?",
     choix: [
       "Aucun : forfait et sprints, c'est le meilleur des deux",
       "Le prix : un forfait coûte toujours plus cher qu'une régie",
@@ -562,7 +565,7 @@ LEARNSQL.questions.cp06 = [
       "Non. Prix fixe et contenu figé : les sprints ne font que découper un cycle en V. Ce que la démo apprend ne pourra pas changer sans payer.",
       "Non. Un forfait n'est pas toujours plus cher. Le problème n'est pas le prix : c'est un contenu figé, sous des habits agiles.",
       "Non. 3 semaines, c'est un rythme normal de sprint. Le souci est ailleurs : rien de ce que montre la démo ne peut changer.",
-      "Oui. C'est un faux agile : la démo montre, mais le cahier des charges décide. Soit un vrai cycle en V, soit une enveloppe avec un PO (module cp14)."
+      "Oui. C'est un faux agile : la démo montre, mais le cahier des charges décide. Pour un besoin qui se découvre : une enveloppe avec un PO (contrats : module cp14)."
     ],
     retenir: "Forfait sur un cahier des charges figé, livré en sprints : c'est un cycle en V déguisé, pas de l'agile."
   },
@@ -574,23 +577,23 @@ LEARNSQL.questions.cp06 = [
       "Un forfait sur le besoin actuel, et des avenants pour les écarts",
       "Définir le besoin d'abord ; sinon, une régie plafonnée",
       "Une régie sans enveloppe : on paiera ce qu'il faudra, à la fin",
-      "Un forfait découpé en sprints, pour garder de la souplesse"
+      "Un forfait sur un cahier des charges complet, livré en sprints"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un besoin flou, figé tel quel, sera faux, et signé : chaque écart deviendra un avenant. Le prix « maîtrisé » ne l'est plus.",
-      "Oui. Un forfait suppose un besoin défini. Soit on le définit d'abord (une phase courte), soit une régie avec un plafond et un PO. (Contrats : module cp14.)",
+      "Oui. Un forfait classique suppose un besoin défini. Soit on le définit d'abord (une phase courte), soit une régie avec un plafond et un PO (contrats : module cp14).",
       "Non. Sans enveloppe, personne ne maîtrise rien : le prix dépend du temps passé, sans limite décidée.",
-      "Non. Forfait sur un contenu figé, livré en sprints : un cycle en V déguisé. Des forfaits agiles existent, mais avec un contenu qui varie."
+      "Non. Un cahier des charges complet d'un besoin flou, livré en sprints : un cycle en V déguisé. Un vrai forfait agile, lui, fait varier le contenu."
     ],
-    retenir: "Un forfait suppose un besoin défini avant ; sur un besoin flou, on le définit d'abord, ou on travaille en régie, avec un plafond."
+    retenir: "Un forfait classique suppose un besoin défini avant ; sur un besoin flou, on le définit d'abord, ou on travaille en régie, avec un plafond."
   },
   {
     id: "cp06-q31",
     dialecte: "Gestion de projet",
     q: "Le DSI te confie la migration de ton entrepôt SQL Server vers Snowflake : mêmes tables, mêmes rapports, rien de nouveau. L'hébergeur actuel coupe le 30 juin. Quelle démarche ?",
     choix: [
-      "Prédictif : liste fermée, mêmes résultats avant et après",
+      "Prédictif : tout est connu, mêmes résultats avant et après",
       "Agile : des sprints, et le modèle s'ajuste en route",
       "Hybride : la migration cadrée, les rapports refaits en itérations",
       "La démarche du prestataire Snowflake, sans l'adapter"
@@ -611,7 +614,7 @@ LEARNSQL.questions.cp06 = [
     choix: [
       "Pas de projet : la cheffe comptable écrit au support",
       "Hybride, comme DEMAT : un cœur cadré, puis des itérations",
-      "Des itérations, une enveloppe, la cheffe comptable en PO",
+      "Agile : des itérations, une enveloppe, un PO de la compta",
       "Un cycle en V : un cahier des charges de toutes les idées"
     ],
     bonne: 2,
@@ -668,14 +671,14 @@ LEARNSQL.questions.cp06 = [
     choix: [
       "Des essais courts, sur vos factures ; stop s'il échoue",
       "Prédictif : le cahier des charges complet de l'outil",
-      "Hybride : l'outil cadré, puis des essais en itérations courtes",
+      "Hybride : tout l'outil spécifié, puis des essais en itérations",
       "Attendre qu'un autre client l'ait essayé sur ses factures"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Tout est incertain : on avance par petits essais, sur de vraies factures. Si l'outil échoue, on s'arrête tôt, et on a peu dépensé.",
       "Non. Un cahier des charges complet pour un outil dont on ignore s'il marche : des semaines d'écriture, peut-être pour rien.",
-      "Non. Presque : des essais, oui, mais cadrer l'outil avant de savoir s'il marche, c'est figer l'inconnu. Ici, tout est à découvrir.",
+      "Non. Presque : des essais, oui. Mais spécifier tout l'outil avant de savoir s'il marche, c'est figer l'inconnu.",
       "Non. Les factures d'un autre client ne sont pas les vôtres : son essai ne dira pas si l'outil lit vos fournisseurs."
     ],
     retenir: "Quand personne ne sait si ça marchera, l'agile avance par petits essais, et sait s'arrêter tôt."
@@ -683,19 +686,19 @@ LEARNSQL.questions.cp06 = [
   {
     id: "cp06-q36",
     dialecte: "Gestion de projet",
-    q: "Le responsable ADV (administration des ventes) veut un état Divalto des commandes en retard, trié par client. Le besoin est clair : 1 jour de travail. Quelle démarche ?",
+    q: "Tu es DSI adjoint. Le responsable ADV (administration des ventes) veut un état Divalto des commandes en retard, trié par client : besoin clair, 1 jour de travail pour ton équipe. Il propose : « J'écris le besoin en 3 lignes, et je teste l'état. » Que réponds-tu ?",
     choix: [
-      "Scrum : un PO, un backlog, un sprint, une rétrospective",
-      "Un cycle en V complet : spécifications, 3 niveaux de tests",
-      "Une demande écrite, puis faite, et testée par l'ADV",
-      "Aucune : tu le fais livrer, l'ADV dira s'il manque un champ"
+      "« Non : il faut un PO, un backlog, un sprint et une démo »",
+      "« Non : d'abord des spécifications et 3 niveaux de tests »",
+      "« Oui : pour 1 jour de travail, c'est la bonne taille »",
+      "« Oui, mais sans rien écrire : mon équipe sait le faire »"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Tout l'appareil de Scrum pour 1 jour de travail : la démarche coûte plus que la demande.",
-      "Non. Trois niveaux de tests pour un état d'1 jour : c'est disproportionné.",
+      "Non. Tout l'appareil de Scrum pour 1 jour de travail : la démarche coûterait plus que la demande.",
+      "Non. Des spécifications et trois niveaux de tests pour un état d'1 jour : c'est disproportionné.",
       "Oui. Petit et clair : une démarche légère suffit. Le besoin écrit en 3 lignes, et un test par celui qui l'utilisera.",
-      "Non. Sans besoin écrit ni test, l'état sera « presque bon » : tri, colonnes, filtres à refaire, et personne ne l'a validé."
+      "Non. Presque : la démarche légère est bonne. Mais sans besoin écrit, l'état sera « presque bon » : tri, colonnes, filtres à refaire."
     ],
     retenir: "La démarche a la taille du besoin : un petit besoin clair n'a besoin ni de Scrum, ni d'un cycle en V complet."
   },
@@ -707,7 +710,7 @@ LEARNSQL.questions.cp06 = [
       "Attendre que toutes les inconnues soient levées pour lancer",
       "Tout engager : un seul budget, plus simple pour la direction",
       "Des sprints, sans budget ni étapes : on verra où on arrive",
-      "Des étapes, et la direction décide à la fin de chacune"
+      "Pas tout d'un coup : des étapes, et une décision à chacune"
     ],
     bonne: 3,
     pourquoi: [
@@ -740,7 +743,7 @@ LEARNSQL.questions.cp06 = [
   {
     id: "cp06-q39",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Trois projets. 1 : changer de messagerie, à l'identique, avant une date fixe. 2 : une appli de stock, à inventer avec les magasiniers. 3 : des règles de stock connues, et des écrans de dépôt à tester. Quelle répartition ?",
+    q: "Tu es DSI adjoint. Trois projets. 1 : changer de messagerie, à l'identique, avant une date fixe. 2 : une appli de stock, à inventer avec les magasiniers. 3 : des règles de stock connues, et des écrans de dépôt encore flous. Quelle répartition ?",
     choix: [
       "1 : hybride · 2 : agile · 3 : cycle en V",
       "1 : agile · 2 : hybride · 3 : cycle en V",
@@ -749,7 +752,7 @@ LEARNSQL.questions.cp06 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. La messagerie à l'identique n'a pas de partie floue. Et un cycle en V figerait les écrans de dépôt, encore à tester.",
+      "Non. La messagerie à l'identique n'a pas de partie floue. Et un cycle en V figerait les écrans de dépôt, encore flous.",
       "Non. Une messagerie à l'identique n'a rien à découvrir en sprints. Et l'appli à inventer n'a pas de cœur fixe à cadrer.",
       "Oui. À l'identique et daté : cycle en V. À inventer, avec les utilisateurs : agile. Des règles fixes et une partie floue : hybride.",
       "Non. L'appli à inventer n'a pas de cœur fixe. Et tout en agile, des règles de stock connues « se découvriraient » en route."

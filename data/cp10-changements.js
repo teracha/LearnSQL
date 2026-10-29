@@ -81,7 +81,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Tu la laisses en anomalie : l'intégrateur la corrigera",
       "Tu en fais une demande de changement, et tu lui dis pourquoi",
-      "Tu la refermes : conforme, c'est noté au registre",
+      "Tu la refermes : conforme à la spécification, c'est clos",
       "Tu demandes au DAF de trancher : est-ce une anomalie ou un changement ?"
     ],
     bonne: 1,
@@ -110,7 +110,7 @@ LEARNSQL.questions.cp10 = [
       "Non. Tu paies une 2e fois ce que le contrat couvre déjà. Ce n'est pas un besoin nouveau : c'est une anomalie.",
       "Non. Trop fort, trop tôt : la PA n'a pas encore refusé de corriger. On signale d'abord l'anomalie, contrat en main."
     ],
-    retenir: "Non conforme à l'écrit : une anomalie, corrigée dans le cadre du contrat. Ni devis, ni avenant."
+    retenir: "Non conforme au contrat de la PA : une anomalie, qu'elle corrige dans le cadre de son contrat. Ni devis, ni avenant."
   },
   {
     id: "cp10-q06",
@@ -153,19 +153,19 @@ LEARNSQL.questions.cp10 = [
   {
     id: "cp10-q08",
     dialecte: "Gestion de projet",
-    q: "Février, avant la recette. L'intégrateur propose de remplacer 2 règles de son paramétrage par une seule : même résultat, aucun coût, aucune date touchée. Que fais-tu ?",
+    q: "Février, avant la recette. L'intégrateur propose de remplacer 2 règles de son paramétrage par une seule : même résultat, sans jour de plus, sans date touchée. Que fais-tu ?",
     choix: [
       "Tu la fais valider par le DAF : c'est le paramétrage du cœur",
       "Tu demandes d'abord un devis à l'intégrateur, par écrit",
       "Tu la notes pour après la bascule : on ne touche à rien",
-      "Tu acceptes, et tu l'annonces au COPIL suivant"
+      "Tu acceptes, et tu l'annonces au point projet"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Le cœur est cadré, mais rien ne bouge ici : ni périmètre, ni budget, ni date, ni contrat. Le DAF n'a rien à décider.",
-      "Non. Le coût est nul, c'est dit : un devis de plus, c'est du temps perdu pour un choix technique de ton niveau.",
+      "Non. Aucun jour de plus, c'est dit : un devis, c'est du temps perdu pour un choix technique de ton niveau.",
       "Non. Avant la recette, ce changement ne coûte rien. Après la bascule, il faudrait retester, en production : le moment change le prix.",
-      "Oui. Rien ne bouge (coût, date, périmètre, contrat) : c'est dans ta délégation. Tu décides, et tu informes le COPIL."
+      "Oui. Rien ne bouge (jours, date, périmètre, contrat) : c'est dans ta délégation. Tu décides, et tu informes l'équipe au point projet."
     ],
     retenir: "Sans coût, sans date, sans périmètre ni contrat touché : pas de circuit. Tu décides, et tu informes."
   },
@@ -215,21 +215,21 @@ LEARNSQL.questions.cp10 = [
       "Tu notes le refus, et tu lui dis pourquoi",
       "Tu supprimes la demande du registre : elle ne se fera pas",
       "Tu la remets au COPIL suivant, et tu la chiffres mieux",
-      "Tu laisses le DAF le lui dire : c'est son manager"
+      "Rien de plus : elle le lira dans le compte rendu"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Un refus se trace aussi : décision, qui, quand. Elle l'apprend de toi, avec la raison : la demande ne reviendra pas chaque mois.",
       "Non. Effacée, la demande revient dans 3 mois, et personne ne sait qu'elle a été refusée, ni pourquoi.",
       "Non. Rien n'a changé : la représenter, c'est contester la décision du DAF. Un fait nouveau, oui ; la même demande, non.",
-      "Non. Le DAF a d'autres sujets : sans toi, elle l'apprendra tard, ou sans la raison. Le circuit, c'est toi qui le fermes."
+      "Non. Elle l'apprend tard, par écrit, sans la raison expliquée : la demande risque de revenir. Le circuit, c'est toi qui le fermes."
     ],
     retenir: "Un refus se trace et s'annonce, avec sa raison : sinon, la demande revient."
   },
   {
     id: "cp10-q12",
     dialecte: "Gestion de projet",
-    q: "Laquelle de ces lignes du registre des changements est complète ?",
+    q: "Laquelle de ces lignes du registre des changements est la plus complète ?",
     choix: [
       "N° 9 · ADV · code magasin · urgent, à faire vite · confié à l'intégrateur",
       "N° 9 · ADV · code magasin · 3 jours, 6 tests · accepté par le DAF le 9/02",
@@ -354,7 +354,7 @@ LEARNSQL.questions.cp10 = [
     pourquoi: [
       "Non. Huit petits oui font 8 jours que personne n'a décidés. Continuer, c'est laisser la dérive manger la suite.",
       "Non. La qualité paie en silence : moins de tests, et les erreurs sortent après la bascule. Le DAF n'a toujours rien vu.",
-      "Oui. Le total (8 jours, environ 6 000 €, la marge mangée) est une vraie décision, pour le DAF. Ensuite, chaque demande passe au registre, qui fait le total, même les petites.",
+      "Oui. Le total (8 jours, environ 6 000 €, la marge mangée) est une vraie décision, pour le DAF. Ensuite, chaque demande va au registre, et chaque jour en plus au DAF : sur DEMAT, aucune n'est « trop petite ».",
       "Non. Trop fort : un gel en février bloque aussi les demandes utiles, et ne règle rien. Le problème n'est pas les demandes, c'est qu'elles n'étaient pas décidées."
     ],
     retenir: "De petits oui jamais décidés font une grosse décision : le registre fait le total, et le DAF le voit."
@@ -519,14 +519,14 @@ LEARNSQL.questions.cp10 = [
       "Elle est PO : si elle la dit bloquante, elle passe le gel",
       "Tu chiffres le tri, et le DAF décide de lever le gel",
       "Tu la remets au backlog, pour après la bascule",
-      "Tu la notes pour septembre, après la marge légale"
+      "Tu la notes pour la fin du pilote, avant la bascule"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Bloquant veut dire : sans correction, ça ne marche pas. Ici, tout marche : l'étiquette ne change pas la nature de la demande.",
       "Non. Seul le DAF peut lever le gel, mais pas pour un confort qui peut attendre un mois : tu le déranges pour rien.",
       "Oui. Ni anomalie bloquante, ni obligation légale : elle attend la fin du gel, au backlog, avec une date.",
-      "Non. Tu fixes la date à la place de la PO, et trop loin : le gel s'arrête après la bascule. C'est elle qui la reclassera au backlog."
+      "Non. Presque : elle attend, oui. Mais le gel dure jusqu'après la bascule, partie agile comprise : avant la bascule, un confort ne passe pas."
     ],
     retenir: "Ce qui n'empêche rien de marcher n'est pas bloquant, quelle que soit l'étiquette : pendant le gel, ça attend."
   },
@@ -581,7 +581,7 @@ LEARNSQL.questions.cp10 = [
     bonne: 2,
     pourquoi: [
       "Non. Sans surcoût d'abonnement, peut-être, mais pas sans coût : une version neuve en pleine recette, ce sont des tests à refaire et un risque nouveau.",
-      "Non. Des tests en double en pleine recette : la compta et l'intégrateur n'ont pas ce temps, pour un gain qui peut attendre.",
+      "Non. Ces tests sont des jours d'intégrateur en plus (une commande, signée par le DAF), en pleine recette, pour un gain qui peut attendre.",
       "Oui. « Ne rien changer » est une option, ici la meilleure : la version 1 marche et reste maintenue. Changer en pleine recette, c'est tout retester.",
       "Non. Rien à décider : garder la version prévue, c'est le plan validé. Tu lancerais le circuit, et ferais trancher le DAF, pour rien."
     ],
@@ -590,7 +590,7 @@ LEARNSQL.questions.cp10 = [
   {
     id: "cp10-q31",
     dialecte: "Gestion de projet",
-    q: "Mars. Julie propose un écran des factures fournisseurs bloquées, par motif : 1 jour d'intégrateur. Il reste 3 jours dans l'enveloppe des écrans de suivi compta. Que fais-tu ?",
+    q: "Début mars. Julie propose un écran des factures fournisseurs bloquées, par motif : 1 jour d'intégrateur. Il reste 3 jours dans l'enveloppe des écrans de suivi compta. Que fais-tu ?",
     choix: [
       "Tu le fais faire tout de suite, et tu le dis à la cheffe",
       "Tu le mets au backlog ; la cheffe comptable le classera",
@@ -647,17 +647,17 @@ LEARNSQL.questions.cp10 = [
   {
     id: "cp10-q34",
     dialecte: "Gestion de projet",
-    q: "Avril. Le backlog des écrans de suivi compta compte 14 jours d'idées, toutes « utiles » selon la cheffe comptable. L'enveloppe est de 10 jours. Que fais-tu ?",
+    q: "Février, avant la 1re itération. Le backlog des écrans de suivi compta compte 14 jours d'idées, toutes « utiles » selon la cheffe comptable. L'enveloppe est de 10 jours. Que fais-tu ?",
     choix: [
       "Tu fais les 14 jours : 4 de plus, c'est presque la même enveloppe",
-      "Elle classe ; au-delà de 10 jours, demande de changement au DAF",
+      "Elle classe ; si elle veut plus, demande de changement au DAF",
       "Tu retires 4 jours du backlog, et tu le dis à la cheffe",
       "Tu demandes au DAF de porter l'enveloppe à 14 jours"
     ],
     bonne: 1,
     pourquoi: [
       "Non. 4 jours de plus, c'est 40 % de plus : l'enveloppe fixée par le DAF ne veut plus rien dire.",
-      "Oui. Dans l'enveloppe, la PO choisit. En sortir, c'est une demande de changement : chiffrée, décidée par le DAF, qui l'avait fixée.",
+      "Oui. Dans l'enveloppe, la PO choisit, et le bas du backlog attend. En sortir, c'est une demande de changement : chiffrée, décidée par le DAF, qui l'avait fixée.",
       "Non. Classer le backlog, c'est le rôle de la PO : tu retires à sa place ce qu'elle jugeait peut-être essentiel.",
       "Non. Presque : au-delà, c'est bien le DAF. Mais d'abord, elle classe : peut-être que 10 jours suffisent. Et le DAF décide sur une demande chiffrée, pas sur une liste."
     ],
@@ -771,7 +771,7 @@ LEARNSQL.questions.cp10 = [
     bonne: 0,
     pourquoi: [
       "Oui. Décidé, tracé, signé : le circuit est complet, il commence. Ici, le oui simple est la bonne réponse.",
-      "Non. Le cahier de recette se met à jour en parallèle, avant les tests : bloquer le travail pour ça fait perdre des jours.",
+      "Non. Le cahier de recette se met à jour avant les tests, pas avant de commencer : bloquer le travail pour ça fait perdre des jours.",
       "Non. Le COPIL sera informé, mais il n'a rien à redécider : attendre un mois retarde un changement déjà signé.",
       "Non. La commande signée est déjà sa confirmation écrite : la lui redemander, c'est douter de sa signature et perdre du temps."
     ],

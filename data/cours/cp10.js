@@ -37,11 +37,11 @@ LEARNSQL.cours.cp10 = {
       titre: "Trier : anomalie, changement, ou rien à lancer",
       exemple: "Ta démat fiscale : un « bug » de recette était-il un vrai bug, ou une nouvelle envie ?\nDEMAT 2027, en recette (les tests de validation par le métier) :\n1. Les factures partent avec la date du jour ; la spécification validée dit « date de facture ». → Anomalie.\n2. Le responsable ADV (administration des ventes) veut la référence chantier sur les factures. Rien n'est écrit. → Changement.\n3. Julie, comptable fournisseurs, veut 3 cas de test de plus, dans ses créneaux. → Ta délégation.",
       points: [
-        "Anomalie : ce qui est livré n'est pas conforme à l'écrit (contrat, spécification validée, cahier de recette). Le prestataire la corrige dans le cadre de son contrat (qui paie : module cp14). Pas de demande de changement.",
+        "Anomalie : ce qui est livré n'est pas conforme à l'écrit (contrat, spécification validée, cahier de recette). Pas de demande de changement. Qui paie la correction ? Au forfait (prix fixe), le prestataire ; en régie (au temps passé), en général l'entreprise (module cp14).",
         "Changement : un besoin nouveau, une exigence nouvelle, un goût. Retirer quelque chose aussi. PRINCE2 (la méthode britannique) fait la même différence : « hors spécification » ou « demande de changement ».",
         "Un texte qui se lit de deux façons ? Vous le relisez ensemble, avec le prestataire (module cp18).",
-        "Sur le cœur du projet, le circuit démarre dès qu'une demande touche le périmètre, le budget, une date validée ou un contrat.",
-        "Pas de circuit dans ta délégation (tu décides, tu informes), ni pour ce qui est décidé d'avance : le plan B (le portail de la plateforme agréée, la PA) part seul. Illégal ? Non, sans chiffrer."
+        "Le cœur du projet : flux légaux, connecteur, bascule. Là, le circuit démarre dès qu'une demande touche le périmètre, le budget, une date validée ou un contrat.",
+        "Pas de circuit dans ta délégation : tu décides, tu informes. Ni pour ce qui est décidé d'avance : le plan B (le portail de la plateforme agréée, la PA) part seul. Illégal ? Non, sans chiffrer."
       ],
       retenir: "Non conforme à l'écrit : une anomalie, corrigée dans le cadre du contrat. Besoin nouveau : un changement."
     },
@@ -59,15 +59,15 @@ LEARNSQL.cours.cp10 = {
     },
     {
       titre: "Décider, tracer, signer, puis seulement commencer",
-      exemple: "9 février, COPIL (comité de pilotage) : le DAF choisit B. Le soir, au registre : « N° 7 : acceptée par le DAF le 9/02. »\nTu mets à jour le planning, le budget, le cahier de recette. Pas la note de cadrage : le périmètre ne bouge pas.\nLe 10, le DAF signe la commande des 4 jours. L'intégrateur commence le 11, pas avant. Puis tu l'annonces à l'ADV, à la compta, à l'intégrateur.",
+      exemple: "9 février, COPIL (comité de pilotage) : le DAF choisit B. Le soir, au registre : « N° 7 : acceptée par le DAF le 9/02. »\nTu mets à jour le planning et le budget ; le cahier de recette, avant les tests. Pas la note de cadrage : le périmètre ne bouge pas.\nLe 10, le DAF signe la commande des 4 jours. L'intégrateur commence le 11, pas avant. Puis tu l'annonces à l'ADV, à la compta, à l'intégrateur.",
       points: [
         "Qui décide ? Toi, dans ta délégation : sans coût, dans ta tolérance de ± 2 semaines par jalon (module cp04). Au-delà : le DAF ou le COPIL. Le temps d'un autre service : son manager.",
         "PRINCE2 : les petits changements peuvent aller à une « autorité de changement », avec un « budget de changement », jamais pour payer un retard. Sur le cœur de DEMAT : aucun. Chaque jour en plus passe par le DAF.",
-        "Le sponsor décide en connaissant le prix, même pour sa propre demande. Une fois tranché, on applique. Rien ne presse ? Les demandes se regroupent pour le COPIL.",
+        "Le sponsor décide en connaissant le prix, même pour sa propre demande. Une fois tranché, on applique. Une échéance, mais rien ne presse ? Les demandes se regroupent pour le COPIL.",
         "Le registre garde tout : qui demande, quoi, impact, décision, qui l'a prise, quand. Un refus aussi, dit au demandeur avec sa raison. Un fait nouveau rouvre la demande.",
-        "Prestataire touché : une nouvelle commande (l'intégrateur, en régie : payé au temps passé) ou un avenant au contrat de la PA, signé par le DAF AVANT de commencer (module cp14)."
+        "Prestataire touché : une nouvelle commande pour l'intégrateur (en régie), ou un avenant pour la PA (l'écrit qui modifie son contrat). Le DAF signe AVANT de commencer (module cp14)."
       ],
-      retenir: "La bonne autorité décide, en connaissant le prix. On trace, on met à jour, on signe : puis seulement, on commence."
+      retenir: "La bonne autorité décide, en connaissant le prix. On trace, on signe : puis seulement, on commence. Le planning et les tests se mettent à jour, sans bloquer le travail."
     },
     {
       titre: "La dérive par petits pas",
@@ -95,10 +95,10 @@ LEARNSQL.cours.cp10 = {
     },
     {
       titre: "La partie agile : le backlog et l'enveloppe",
-      exemple: "DEMAT est hybride (module cp06) : le cœur (flux légaux, connecteur de la PA, bascule) est cadré au départ.\nLes écrans et états de suivi Divalto de la compta se font par itérations de 2 semaines, dans une enveloppe de 10 jours d'intégrateur fixée par le DAF.\nSophie a une idée d'état : elle va au backlog (la liste des idées). La cheffe comptable, PO (product owner : celle qui classe le backlog), la place à la prochaine itération.",
+      exemple: "DEMAT est hybride (module cp06). À côté du cœur, les écrans et états de suivi Divalto de la compta se font par itérations de 2 semaines.\nEnveloppe : 10 jours d'intégrateur, fixée par le DAF.\nSophie a une idée d'état : elle va au backlog (la liste des idées). La cheffe comptable, PO (product owner : celle qui classe le backlog), la place à la prochaine itération.",
       points: [
         "Ici, le changement est attendu : le Manifeste agile l'accueille, même tard. Une idée nouvelle va au backlog, sans demande de changement.",
-        "La PO la classe, dans l'enveloppe : ajouter, c'est souvent retirer autre chose. Personne ne classe à sa place. L'enveloppe est comme un budget de changement confié à la PO.",
+        "La PO la classe, dans l'enveloppe : ajouter, c'est souvent retirer autre chose. Personne ne classe à sa place.",
         "L'itération en cours ne bouge pas : une idée qui arrive en route attend la suivante. Pas de demande directe au consultant.",
         "Sortir de l'enveloppe (des jours en plus) = une demande de changement au DAF. Toucher au cœur (flux légaux, connecteur, envoi des factures) aussi, même si la PO est d'accord.",
         "Pendant le gel, la partie agile attend aussi : les idées restent au backlog jusqu'après la bascule."
