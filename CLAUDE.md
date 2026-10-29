@@ -121,6 +121,26 @@ puis ajouter la ligne `<script src="data/mXX-nom.js"></script>` dans `index.html
   Le site affiche ce lien après la réponse. `outils/verifier.js` refuse une question Divalto sans source.
 - Pas de page = pas de question. Si deux pages se contredisent (ancienne version), le dire dans l'explication.
 
+## L'équipe d'agents (`.claude/agents/`)
+
+Claude principal = **superviseur** : il découpe le travail, lance les agents, vérifie leurs rapports, fait les commits.
+
+| Agent | Rôle | Modifie des fichiers ? |
+|---|---|---|
+| `prof` | Forme des cours et des questions (dyslexie, TDAH) | Oui |
+| `expert-sql` | Questions SQL Server / Snowflake justes | Oui |
+| `expert-divalto` | Questions Divalto, depuis la base en lecture seule | Oui |
+| `testeur-qcm` | Relit un module qu'il n'a pas écrit | Non, rapport |
+| `testeur-site` | Tests navigateur, bugs | Non, rapport |
+| `developpeur` | Code du site et tests | Oui |
+| `architecte` | Choix techniques, sécurité, coûts | Non, conseil |
+
+Circuit type : expert → testeur-qcm → corrections → `node outils/verifier.js` → commit.
+Pour le code : (architecte si gros changement) → developpeur → testeur-site → commit.
+Les agents coûtent cher (chacun repart de zéro) : seulement pour les gros morceaux.
+
+Tests navigateur : `sh outils/tests/lancer.sh` (Supabase simulé).
+
 ## Commandes disponibles
 
 - `/bilan` : analyser un export collé par l'élève.
