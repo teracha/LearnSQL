@@ -61,8 +61,10 @@ Toujours l'exemple d'abord. Texte entre accents graves = affiché en police code
 
 ## Mode révision
 
-Page `#/revision` : l'élève choisit au moins 2 thèmes. Le QCM fait au moins 20 questions,
-avec au moins 5 questions par thème (constantes `REVISION_*` dans `js/app.js`).
+Page `#/revision` : arbre thème (parcours) > sous-thème (sous-parcours) > modules.
+Une case de thème ou de sous-thème coche tous ses modules (état « à moitié » si une partie seulement).
+Seuls les parcours visibles (droits) apparaissent. Il faut au moins 2 modules. Le QCM fait au moins 20 questions,
+avec au moins 5 questions par module (constantes `REVISION_*` dans `js/app.js`).
 L'export indique le score par thème des révisions.
 
 ## Comptes et synchronisation

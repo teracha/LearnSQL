@@ -190,3 +190,9 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
 .lien { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
 details.card summary { cursor: pointer; }
 pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+.arbre { display: grid; gap: 6px; }
+.noeud .tete { display: flex; gap: 10px; align-items: center; padding: 6px 0; cursor: pointer; flex-wrap: wrap; }
+.noeud .tete input { width: 20px; height: 20px; accent-color: var(--accent); }
+.noeud details summary { cursor: pointer; color: var(--accent); margin: 0 0 4px 30px; font-size: 15px; }
+.noeud .enfants { margin-left: 30px; display: grid; gap: 2px; }
+.noeud.niv1 + .noeud.niv1 { border-top: 1px solid var(--line); padding-top: 6px; }

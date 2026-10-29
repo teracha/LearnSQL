@@ -481,33 +481,71 @@
     app.innerHTML = html;
   }
 
+  // Arbre de révision : thème (parcours) > sous-thème (sous-parcours) > modules.
+  // Une case de thème ou de sous-thème coche tous ses modules d'un coup.
+  function arbreRevision(store, choisis) {
+    var revisables = {};
+    themesRevisables().forEach(function (m) { revisables[m.id] = m; });
+
+    function caseModule(id, groupes) {
+      var m = revisables[id], st = statsModule(store, id);
+      return '<label class="theme"><input type="checkbox" value="' + id + '" data-groupes="' + groupes.join(' ') + '"' +
+        (choisis.indexOf(id) >= 0 ? ' checked' : '') + '> <span>' + esc(m.titre) +
+        (st ? ' <small class="' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) + '</small>' : '') +
+        '</span></label>';
+    }
+    function noeudHtml(n, chaine, niveau) {
+      var direct = (n.modules || []).filter(function (id) { return revisables[id]; });
+      var sous = (n.sous || []).filter(function (s) { return accesOK(chaine.concat(s.id)); })
+        .map(function (s) { return noeudHtml(s, chaine.concat(s.id), niveau + 1); })
+        .filter(Boolean);
+      var tous = modulesDe(n).filter(function (id) { return revisables[id] && accesOK(chaine); });
+      if (!direct.length && !sous.length) return '';
+      var ouvert = tous.some(function (id) { return choisis.indexOf(id) >= 0; });
+      return '<div class="noeud niv' + niveau + '"><label class="tete"><input type="checkbox" data-groupe="' + n.id + '"> ' +
+        '<strong>' + esc(n.titre) + '</strong> <small class="muted">· ' + tous.length + ' module(s)</small></label>' +
+        '<details' + (ouvert ? ' open' : '') + '><summary>Choisir les modules</summary><div class="enfants">' +
+        direct.map(function (id) { return caseModule(id, chaine); }).join('') + sous.join('') +
+        '</div></details></div>';
+    }
+    return (DATA.parcours || []).filter(function (p) { return accesOK([p.id]); })
+      .map(function (p) { return noeudHtml(p, [p.id], 1); }).join('');
+  }
+
   function pageRevision(preselection) {
     var store = lire();
     var choisis = (preselection || "").split(",").filter(Boolean);
     var themes = themesRevisables();
     var html = '<h1>Révision</h1>' +
-      '<p>Choisis au moins ' + REVISION_MIN_THEMES + ' thèmes. Le QCM mélange les questions : ' +
-      REVISION_MIN_QUESTIONS + ' minimum, et au moins ' + REVISION_MIN_PAR_THEME + ' par thème.</p>';
+      '<p>Coche un thème entier, un sous-thème, ou des modules un par un. Il faut au moins ' + REVISION_MIN_THEMES +
+      ' modules. Le QCM mélange les questions : ' + REVISION_MIN_QUESTIONS + ' minimum, et au moins ' +
+      REVISION_MIN_PAR_THEME + ' par module.</p>';
     if (themes.length < REVISION_MIN_THEMES) {
       app.innerHTML = html + '<p>Il faut au moins ' + REVISION_MIN_THEMES + ' modules avec des questions.</p>';
       return;
     }
-    html += '<div class="card themes">';
-    themes.forEach(function (m) {
-      var st = statsModule(store, m.id);
-      html += '<label class="theme"><input type="checkbox" value="' + m.id + '"' +
-        (choisis.indexOf(m.id) >= 0 ? ' checked' : '') + '> <span>' + esc(m.titre) +
-        (st ? ' <small class="' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) + '</small>' : '') +
-        '</span></label>';
-    });
-    html += '</div>' +
+    html += '<div class="card arbre">' + arbreRevision(store, choisis) + '</div>' +
       '<p><label>Nombre de questions : <select id="nb"></select></label></p>' +
       '<p id="info" class="muted"></p>' +
       '<div class="actions"><button type="button" class="btn" id="lancer">Lancer la révision</button></div>';
     app.innerHTML = html;
 
     var nb = document.getElementById("nb");
+    var cases = Array.prototype.slice.call(app.querySelectorAll(".theme input"));
+    function casesDu(groupe) {
+      return cases.filter(function (c) { return c.getAttribute("data-groupes").split(" ").indexOf(groupe) >= 0; });
+    }
+    // Une case de groupe : cochée si tous ses modules le sont, à moitié (tiret) si certains seulement.
+    function majGroupes() {
+      app.querySelectorAll("[data-groupe]").forEach(function (g) {
+        var liste = casesDu(g.getAttribute("data-groupe"));
+        var n = liste.filter(function (c) { return c.checked; }).length;
+        g.checked = n > 0 && n === liste.length;
+        g.indeterminate = n > 0 && n < liste.length;
+      });
+    }
     function maj() {
+      majGroupes();
       var ids = selection();
       var dispo = ids.reduce(function (t, id) { return t + DATA.questions[id].length; }, 0);
       var min = minRevision(Math.max(ids.length, REVISION_MIN_THEMES));
@@ -519,13 +557,19 @@
       var ok = ids.length >= REVISION_MIN_THEMES;
       document.getElementById("lancer").disabled = !ok;
       document.getElementById("info").textContent = ok
-        ? ids.length + " thèmes choisis."
-        : "Choisis encore " + (REVISION_MIN_THEMES - ids.length) + " thème(s).";
+        ? ids.length + " modules choisis."
+        : "Choisis encore " + (REVISION_MIN_THEMES - ids.length) + " module(s).";
     }
     function selection() {
-      return Array.prototype.slice.call(app.querySelectorAll(".theme input:checked")).map(function (c) { return c.value; });
+      return cases.filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
     }
-    app.querySelectorAll(".theme input").forEach(function (c) { c.addEventListener("change", maj); });
+    cases.forEach(function (c) { c.addEventListener("change", maj); });
+    app.querySelectorAll("[data-groupe]").forEach(function (g) {
+      g.addEventListener("change", function () {
+        casesDu(g.getAttribute("data-groupe")).forEach(function (c) { c.checked = g.checked; });
+        maj();
+      });
+    });
     document.getElementById("lancer").addEventListener("click", function () {
       location.hash = "#/quiz/revision/" + selection().join(",") + "/" + nb.value;
     });
@@ -541,7 +585,7 @@
       if (ids.length < REVISION_MIN_THEMES) { location.hash = "#/revision"; return; }
       var total = Math.max(minRevision(ids.length), Number(nb) || 0);
       questions = tirageRevision(ids, total, lire());
-      titre = "Révision · " + ids.length + " thèmes";
+      titre = "Révision · " + ids.length + " modules";
     } else if (id === "erreurs") {
       questions = idsEnErreur(lire()).map(questionParId);
       titre = "Mes erreurs";
