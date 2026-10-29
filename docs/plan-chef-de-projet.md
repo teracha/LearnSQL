@@ -60,6 +60,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Novembre 2026 : PA choisie, contrat signé par le DAF (date du connecteur, pénalités) ; réception activée via le portail de la PA.
 - Janvier 2027 : clôture annuelle, compta peu disponible ; préparation des cas de test (janvier-février).
 - 1er mars 2027 : livraison du connecteur prévue au contrat. 15 mars : déclencheur du plan B s'il n'est pas livré.
+  Le plan B part seul quand son déclencheur est atteint : personne ne le « tranche ». Le 15 mars n'est pas une date du contrat.
 - Du 16 mars à fin avril : recette (6 semaines + 1 semaine de marge de recette). Mai : pilote sur 1 site.
 - Juin 2027 : bascule de tous les sites (jamais en août ; report à mi-juillet possible sur décision du DAF).
 - Juillet-août : marge légale. 1er septembre 2027 : émission et e-reporting obligatoires.

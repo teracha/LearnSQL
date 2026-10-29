@@ -23,6 +23,8 @@ Règles :
 6. La bonne réponse ne doit pas être la seule à faire « deux actions » (« tu fais ceci et cela ») : mets aussi des choix faux à deux actions.
 7. Le fil rouge DEMAT 2027 suit la fiche de référence de `docs/plan-chef-de-projet.md` (dates, personnages, vocabulaire, décision par défaut).
 8. Avant de rendre la main, calcule le score de ces règles sans connaissance du sujet : « l'action moyenne », « la plus petite action réelle », « l'action la plus forte si urgence », « jamais le sponsor », « toujours le sponsor », « le choix à deux actions », « la plus longue ». Chacune doit rester sous 60 %.
+9. La bonne réponse ne doit pas être toujours « au milieu » (cp17 : jamais un extrême dans 94 % des questions, et « écarter les 2 extrêmes, puis prendre le choix avec un chiffre ou une date » faisait 68 %). Dans environ 1 question sur 4, la bonne réponse EST un extrême (le oui simple, le non net, l'action la plus forte quand elle se justifie). Mets des chiffres, des dates et des choix « en 2 phrases / 2 temps » aussi dans des choix faux. Calcule aussi « extrêmes écartés + chiffre ou date » et « extrêmes écartés + mot de méthode ».
+10. Chaque notion testée est dans le cours ; chaque `pourquoi` colle au choix tel qu'il est écrit ; chaque sigle est expliqué à sa 1re apparition dans le cours. Cours : environ 1 300 mots au plus.
 
 Avant de rendre la main : `node outils/verifier.js <module>` → 0 erreur, 0 alerte.
 Ton rapport final : ce que tu as écrit, et les points où plusieurs réponses se défendent.
