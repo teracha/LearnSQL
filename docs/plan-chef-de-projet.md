@@ -54,6 +54,20 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Gouvernance : COPIL mensuel avec le DAF ; point projet chaque semaine, avec 15 minutes de revue des risques.
 - Connecteur : c'est le connecteur standard de la PA (95 % des factures) ; l'intégrateur l'installe et le paramètre dans Divalto.
   Plan B : le portail web de la PA (dépôt en Factur-X), prévu au contrat.
+- Démarche (module cp06) : hybride. Le cœur (flux légaux, connecteur standard de la PA, bascule) est cadré au départ.
+  Les écrans et états de suivi Divalto de la compta se construisent par itérations de 2 semaines, dans une enveloppe
+  fixée par le DAF : 10 jours d'intégrateur. PO (product owner : celui qui classe le backlog) de cette partie : la cheffe comptable.
+- Changements (module cp10) : sur le cœur, une demande qui touche le périmètre, le budget, une date validée ou un contrat
+  = demande de changement (écrite, chiffrée, décidée par le DAF ou le COPIL, tracée au registre des changements).
+  Dans ta délégation (module cp18), tu décides et tu informes. Dans la partie agile, une idée nouvelle va au backlog :
+  la cheffe comptable la classe, dans l'enveloppe ; sortir de l'enveloppe = demande de changement.
+  Gel des changements dès le début du pilote (mai) : seules passent les corrections d'anomalies bloquantes et les
+  obligations légales. Lever le gel pour autre chose : décision du DAF, en connaissant le risque.
+- Contrats (module cp14) : PA = abonnement signé en novembre 2026 par le DAF (connecteur standard au 1er mars,
+  pénalités de retard plafonnées, SLA, plan B par le portail, réversibilité des données). Intégrateur Divalto = régie :
+  bon de commande en jours (taux journalier), signé par le DAF ; des jours en plus = une nouvelle commande, signée avant
+  de commencer. Toi : les clauses opérationnelles (périmètre, livrables, planning, recette, SLA, réversibilité).
+  Les clauses juridiques (responsabilité, droit applicable) : le DAF, avec un avocat si besoin.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
