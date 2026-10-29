@@ -3,7 +3,8 @@
 // adaptées au terrain PME / ETI. Fil rouge : DEMAT 2027 (docs/plan-chef-de-projet.md).
 // Réglementaire (vérifié fin octobre 2026) : réception des factures électroniques obligatoire pour toutes les entreprises
 // depuis le 1er septembre 2026 ; émission obligatoire pour les PME au 1er septembre 2027 ; via une plateforme agréée (PA, ex-PDP).
-// Facture électronique = factures entre entreprises (B2B) en France ; ventes aux particuliers = e-reporting.
+// Facture électronique = factures entre entreprises (B2B) en France ; ventes aux particuliers (B2C) et opérations
+// internationales (dont export hors UE) = e-reporting, obligatoire aussi pour les PME au 1er septembre 2027.
 LEARNSQL.cours.cp04 = {
   intro: "Un projet mal cadré dérape presque toujours, car chacun a sa propre idée du résultat. La note de cadrage met tout le monde d'accord AVANT de dépenser, et te sert ensuite pour dire non.",
   sections: [
@@ -33,13 +34,13 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Périmètre, hors périmètre et livrables",
-      exemple: "Périmètre : factures entre entreprises (B2B) en France, clients et fournisseurs, des 3 sites.\nAussi : connexion Divalto ↔ plateforme, flux EDI factures de la grande distribution (dont AquaBleu), formation compta.\nHors périmètre : notes de frais, refonte du plan comptable, factures export hors UE (Union européenne).\nÀ décider avant le jalon 1 : le e-reporting des ventes aux particuliers (responsable : DAF).\nLivrables : plateforme choisie et contractée, connecteur recetté, procédures comptables, utilisateurs formés.",
+      exemple: "Périmètre : factures entre entreprises (B2B) en France, clients et fournisseurs, des 3 sites.\nAussi : connexion Divalto ↔ plateforme, flux EDI factures de la grande distribution (dont AquaBleu), formation compta.\nHors périmètre : notes de frais, refonte du plan comptable.\nHors périmètre du projet, mais obligatoire en septembre 2027 : le e-reporting\n(ventes aux particuliers, factures export hors UE, l'Union européenne). Décider qui le porte (responsable : DAF).\nLivrables : plateforme choisie et contractée, connecteur recetté, procédures comptables, utilisateurs formés.",
       points: [
         "Périmètre = ce que le projet livre : sites, flux, processus, utilisateurs, données.",
         "Hors périmètre = ce que le projet NE fait PAS, écrit noir sur blanc. C'est la partie qu'on oublie le plus.",
         "Ce qui n'est pas écrit sera supposé inclus par quelqu'un. Le flou se paie en fin de projet.",
         "Livrable = une chose concrète que l'on remet et que l'on vérifie : un contrat, un connecteur recetté, une procédure.",
-        "Un point encore incertain ? Note « à décider avant le jalon X », avec un responsable."
+        "Un point incertain, ou obligatoire mais porté ailleurs ? Note qui le décide ou qui le porte, et pour quand."
       ],
       retenir: "Ce qui n'est pas écrit hors périmètre finira par être demandé."
     },
@@ -69,9 +70,10 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Jalons, budget et gouvernance",
-      exemple: "Date imposée : émission obligatoire au 1er septembre 2027.\nJalons, à rebours : bascule en août 2027, pilote sur 1 site au printemps, connecteur recetté avant, choix de la plateforme d'abord.\nBudget : 60 à 90 k€, avec sa marge.\nGouvernance : COPIL (comité de pilotage) mensuel avec le DAF, point projet chaque semaine.",
+      exemple: "Réception : déjà obligatoire depuis le 1er septembre 2026.\n1er jalon : plateforme choisie et réception active au plus vite.\nÉmission : obligatoire au 1er septembre 2027. À rebours : bascule en juin 2027, pilote sur 1 site au printemps, connecteur recetté avant.\nPas de bascule en août : congés, aucune marge. Juillet-août reste la marge avant le 1er septembre.\nBudget : 60 à 90 k€, avec sa marge.\nGouvernance : COPIL (comité de pilotage) mensuel avec le DAF, point projet chaque semaine.",
       points: [
         "Jalons et budget restent macro : des dates clés et une fourchette, pas un planning détaillé.",
+        "Une obligation déjà en vigueur passe en premier. Garde une marge avant chaque date légale.",
         "Un budget sans marge d'incertitude devient vite une promesse impossible à tenir.",
         "Gouvernance : qui décide quoi, et dans quelle réunion (comité de pilotage, point projet).",
         "Écris aussi comment on change la note : qui peut décider d'un avenant."

@@ -22,7 +22,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q02", dialecte: "Gestion de projet",
-    q: "Dans ta note de cadrage DEMAT 2027, l'objectif est : « Installer la plateforme X et son connecteur Divalto. » Quel est le problème ?",
+    q: "Dans ta note de cadrage DEMAT 2027, l'objectif est : « Installer la plateforme X et son connecteur Divalto. » Quel est le principal problème ?",
     choix: [
       "Il manque la date de mise en service",
       "Il est trop court pour un vrai objectif",
@@ -79,7 +79,7 @@ LEARNSQL.questions.cp04 = [
     q: "Trois mois après le lancement de DEMAT 2027, un commercial demande d'ajouter les bons de livraison dématérialisés. La note validée les met hors périmètre. Que fais-tu ?",
     choix: [
       "Tu acceptes : c'est un petit ajout et ça fait plaisir",
-      "Tu refuses net : c'est écrit hors périmètre, point",
+      "Tu rappelles que la note l'exclut et tu clos le sujet",
       "Tu chiffres l'impact et tu le soumets au sponsor",
       "Tu le notes pour une phase 2, sans en parler"
     ],
@@ -98,14 +98,14 @@ LEARNSQL.questions.cp04 = [
     choix: [
       "Le DAF, sponsor du projet",
       "L'intégrateur Divalto",
-      "La cheffe comptable seule",
+      "La cheffe comptable, la plus touchée",
       "Toi, le chef de projet"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le sponsor porte le projet, finance et arbitre : sa validation donne le mandat.",
       "Non. Le prestataire exécute, il ne décide pas du périmètre du client.",
-      "Non. Elle doit être consultée, mais elle ne porte pas le budget ni les arbitrages.",
+      "Non. Elle doit être consultée, mais elle ne porte ni le budget ni les arbitrages.",
       "Non. Tu rédiges la note, mais tu ne peux pas te donner un mandat à toi-même."
     ],
     retenir: "Le chef de projet rédige, le sponsor valide."
@@ -166,19 +166,19 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q10", dialecte: "Gestion de projet",
-    q: "Le DAF veut lancer DEMAT 2027 lundi. Tu as rédigé seul la note de cadrage en une matinée, sans voir la comptabilité. Que fais-tu ?",
+    q: "Le DAF veut commander l'intégrateur lundi. Tu as rédigé seul la note DEMAT 2027 en une matinée, sans voir la compta ni les ventes. Que fais-tu d'ici lundi ?",
     choix: [
       "Tu l'envoies au DAF : il faut tenir son calendrier",
-      "Tu repousses le lancement d'un mois pour bien faire",
-      "Tu lances lundi et tu complètes la note ensuite",
-      "Tu vois la cheffe comptable et les ventes avant"
+      "Tu demandes un mois de plus pour bien cadrer",
+      "Tu laisses commander et tu complètes la note après",
+      "Tu fais relire compta et ventes, puis tu l'envoies"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Une note écrite sans les métiers rate leurs vrais besoins : tu découvriras les écarts en recette.",
-      "Non. Cadrer sérieusement ne demande pas forcément un mois. Repousser sans raison use la confiance du sponsor.",
-      "Non. Une fois lancé, chacun travaille sur sa propre idée du projet : la note arrive trop tard.",
-      "Oui. Deux ou trois entretiens courts suffisent souvent à repérer les besoins oubliés, sans bloquer le DAF."
+      "Non. Quelques relectures courtes tiennent avant lundi. Repousser d'un mois sans raison use la confiance du sponsor.",
+      "Non. Une fois commandé, l'intégrateur travaille sur ta note incomplète : chaque écart deviendra un avenant payant.",
+      "Oui. Deux ou trois relectures courtes d'ici lundi repèrent les besoins oubliés, sans bloquer le DAF."
     ],
     retenir: "Cadrer trop vite, sans les métiers, c'est découvrir les besoins en recette."
   },
@@ -202,27 +202,27 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q12", dialecte: "Gestion de projet",
-    q: "La cheffe comptable te dit : « Le projet, c'est surtout la réception des factures fournisseurs. » Le commercial parle des factures clients. Que fais-tu ?",
+    q: "La cheffe comptable veut d'abord la réception des factures fournisseurs, le commercial d'abord l'émission des factures clients. La loi impose les deux. Que fais-tu ?",
     choix: [
-      "Tu prends la vision du commercial : il apporte le CA",
-      "Tu inclus tout ce que chacun demande, sans trier",
-      "Tu prends la vision de la compta : elle est la plus touchée",
-      "Tu écris les deux attentes et tu fais trancher le DAF"
+      "Tu suis le commercial : il apporte le chiffre d'affaires",
+      "Tu mènes les deux de front, sans ordre de priorité",
+      "Tu demandes au DAF de choisir, sans donner ton avis",
+      "Tu recommandes la réception d'abord, le DAF valide"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Ce n'est pas à toi de choisir un camp : l'autre partie se sentira ignorée.",
-      "Non. Tout inclure sans arbitrage fait exploser le périmètre et le budget.",
-      "Non. Même logique : tu tranches à la place du sponsor.",
-      "Oui. Tu rends le désaccord visible dans la note. Le sponsor arbitre, et sa décision est tracée."
+      "Non. Le chiffre d'affaires ne change pas la loi : la réception est déjà obligatoire, l'émission vient un an après.",
+      "Non. Sans ordre, les deux chantiers se gênent et la compta sature : tu risques de tenir mal les deux dates.",
+      "Non. Tu lui renvoies le problème sans éclairage : le sponsor attend une recommandation.",
+      "Oui. La réception est obligatoire depuis le 1er septembre 2026 : elle est déjà en retard. Tu recommandes avec la raison, le DAF décide, c'est tracé."
     ],
-    retenir: "Les attentes divergentes s'écrivent, puis le sponsor tranche."
+    retenir: "Deux obligations à des dates différentes : tu recommandes un ordre avec sa raison, le sponsor valide."
   },
   {
     id: "cp04-q13", dialecte: "Gestion de projet",
     q: "Ta note de cadrage DEMAT 2027 fait 40 pages, avec le détail de chaque écran. Le DAF ne l'a pas lue. Quel est le problème ?",
     choix: [
-      "Elle mélange cadrage et cahier des charges détaillé",
+      "Elle mélange note de cadrage et spécifications",
       "Elle manque encore de captures d'écran Divalto",
       "Le DAF n'a pas pris son rôle de sponsor au sérieux",
       "Il fallait l'envoyer aussi à l'intégrateur Divalto"
@@ -278,14 +278,14 @@ LEARNSQL.questions.cp04 = [
     choix: [
       "Tu tranches seul pour ne pas bloquer le projet",
       "Tu attends le prochain comité, sans relancer",
-      "Tu escalades tout de suite au directeur général",
+      "Tu demandes au DG de trancher les 2 arbitrages",
       "Tu lui demandes 15 minutes sur les 2 arbitrages"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Tu prends des décisions qui ne sont pas les tiennes : il pourra les contester ensuite.",
       "Non. Le projet dérive pendant que tu attends, et tu n'as rien signalé.",
-      "Non. Passer au-dessus du sponsor sans l'avoir alerté abîme la relation.",
+      "Non. Tu passes au-dessus du sponsor sans lui avoir laissé une chance de trancher. L'escalade vient si, malgré une demande courte et une date limite, rien ne bouge.",
       "Oui. Tu lui facilites la décision : options, impact, date limite. S'il ne tranche pas, tu l'écris."
     ],
     retenir: "Sponsor absent : rends la décision facile et courte, et trace l'absence de décision."
@@ -294,7 +294,7 @@ LEARNSQL.questions.cp04 = [
     id: "cp04-q17", dialecte: "Gestion de projet",
     q: "Laquelle de ces phrases est un critère de succès bien écrit pour DEMAT 2027 ?",
     choix: [
-      "Moins de 2 % de factures rejetées en octobre",
+      "Moins de 2 % de rejets le 1er mois après la bascule",
       "Faciliter le travail de la comptabilité",
       "Améliorer la gestion des factures",
       "Une solution moderne et facile à utiliser"
@@ -313,14 +313,14 @@ LEARNSQL.questions.cp04 = [
     q: "Tu prépares la note DEMAT 2027. L'intégrateur Divalto te propose de rédiger lui-même la note de cadrage. Que réponds-tu ?",
     choix: [
       "Oui : il connaît mieux Divalto que toi",
-      "Oui, mais tu la signes à sa place après",
+      "Oui, et tu la reprends à ton nom ensuite",
       "Non, mais tu lui demandes son avis technique",
       "Non : il ne doit pas du tout participer"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Il cadrera ce qu'il sait vendre et livrer, pas forcément le besoin de l'entreprise.",
-      "Non. Signer un texte écrit par le prestataire, c'est lui laisser fixer le périmètre.",
+      "Non. Reprendre à ton nom un texte écrit par le prestataire, c'est lui laisser fixer le périmètre.",
       "Oui. La note exprime le besoin du client. L'avis de l'intégrateur sert à repérer contraintes et risques.",
       "Non. Il connaît les contraintes techniques : se priver de son avis crée des hypothèses fausses."
     ],
@@ -418,7 +418,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q24", dialecte: "Gestion de projet",
-    q: "Pour DEMAT 2027, la plateforme agréée annonce un retard de deux mois sur son connecteur. Où ce point aurait-il dû apparaître dès le cadrage ?",
+    q: "Pour DEMAT 2027, la plateforme agréée annonce un retard de deux mois sur son API. Où ce point aurait-il dû apparaître dès le cadrage ?",
     choix: [
       "Dans le hors périmètre",
       "Dans l'objectif du projet",
@@ -427,10 +427,10 @@ LEARNSQL.questions.cp04 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Le connecteur fait partie du projet : il n'est pas hors périmètre.",
+      "Non. La connexion à la plateforme fait partie du projet : elle n'est pas hors périmètre.",
       "Non. L'objectif dit le résultat attendu, pas ce qui peut mal tourner.",
       "Non. Les critères mesurent le résultat, pas ce qui peut le menacer.",
-      "Oui. Un prestataire en retard est un risque classique : on le note avec une parade (pénalités, plan B)."
+      "Oui. Un prestataire en retard est un risque classique : on le note avec une parade sur le délai (jalon d'alerte, plan B, marge)."
     ],
     retenir: "Dépendance à un prestataire = risque à écrire dès le cadrage."
   },
@@ -440,14 +440,14 @@ LEARNSQL.questions.cp04 = [
     choix: [
       "Tu chiffres l'impact et tu le fais arbitrer",
       "Tu l'ajoutes : c'est le sponsor qui le demande",
-      "Tu refuses : c'est un autre projet, sans débat",
+      "Tu dis non : la refonte mérite son propre projet",
       "Tu acceptes et tu demandes plus de temps après"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Tu montres ce que l'ajout coûte : il décide en connaissance de cause, et c'est tracé.",
       "Non. Même le sponsor doit voir l'impact sur délai, coût et risques avant de décider.",
-      "Non. Il a le droit de changer le périmètre : ton rôle est d'éclairer, pas de bloquer.",
+      "Non. Ton avis se défend, mais le sponsor a le droit de changer le périmètre : tu montres l'impact, tu ne décides pas à sa place.",
       "Non. Dire oui puis négocier : tu as déjà perdu ta position."
     ],
     retenir: "Même le sponsor change le périmètre par une décision éclairée : impact d'abord."
@@ -466,7 +466,7 @@ LEARNSQL.questions.cp04 = [
       "Non. Un détail sans base donne une fausse précision, et tu devras le défendre.",
       "Non. Une seule date ne permet pas de voir un retard avant qu'il soit trop tard.",
       "Non. Sans aucune date, le sponsor ne peut pas juger si l'échéance est tenable.",
-      "Oui. Choix de la plateforme, connecteur recetté, pilote, bascule : le détail vient à la planification."
+      "Oui. Plateforme et réception actives, connecteur recetté, pilote, bascule : le détail vient à la planification."
     ],
     retenir: "Au cadrage : des jalons clés. Le planning détaillé vient ensuite."
   },
@@ -476,14 +476,14 @@ LEARNSQL.questions.cp04 = [
     choix: [
       "Tu la fais confirmer par la cheffe comptable",
       "Rien : elle est écrite, c'est suffisant",
-      "Tu la transformes en critère de succès",
+      "Tu la notes aussi en risque, sans la vérifier",
       "Tu la retires : c'est trop incertain"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Tu la vérifies vite auprès de la bonne personne. Si elle est fausse, tu ajustes le plan tout de suite.",
+      "Oui. Tu la fais confirmer par la cheffe comptable, et le DAF la valide dans la note. Si elle est fausse, tu ajustes le plan.",
       "Non. Une hypothèse non vérifiée est un risque caché : elle tombera en pleine clôture.",
-      "Non. La disponibilité de la compta est un moyen, pas un résultat attendu.",
+      "Non. La noter en risque ne la vérifie pas : une question de 10 minutes à la cheffe comptable lève le doute.",
       "Non. La retirer ne fait pas disparaître le problème : tu le caches."
     ],
     retenir: "Une hypothèse s'écrit, puis se vérifie vite."
@@ -530,7 +530,7 @@ LEARNSQL.questions.cp04 = [
     choix: [
       "Il a raison : le backlog remplace le cadrage",
       "Il a tort : il faut un cahier des charges complet",
-      "Il faut un cadrage court : vision, limites, budget",
+      "Il a tort : il faut une vision, des limites, un budget",
       "Il a raison, le Product Owner décide de tout"
     ],
     bonne: 2,
@@ -546,10 +546,10 @@ LEARNSQL.questions.cp04 = [
     id: "cp04-q31", dialecte: "Gestion de projet",
     q: "Pour DEMAT 2027, qui inclure dans la liste des parties prenantes de la note de cadrage ?",
     choix: [
-      "Le DAF et la comptabilité seulement",
+      "Le DAF, la cheffe comptable et ses équipes",
       "Toute personne touchée ou qui doit décider",
-      "Les seules personnes de l'équipe projet",
-      "Les prestataires sous contrat et le DAF seulement"
+      "Les personnes qui travaillent sur le projet",
+      "Les prestataires sous contrat et le DAF"
     ],
     bonne: 1,
     pourquoi: [
@@ -566,7 +566,7 @@ LEARNSQL.questions.cp04 = [
     choix: [
       "Tu continues : il est trop tard pour cadrer",
       "Tu écris un cadrage de reprise, validé par le sponsor",
-      "Tu refuses toute nouvelle demande dès aujourd'hui",
+      "Tu bloques toute nouvelle demande jusqu'à nouvel ordre",
       "Tu arrêtes le projet en attendant un audit externe"
     ],
     bonne: 1,
@@ -595,5 +595,77 @@ LEARNSQL.questions.cp04 = [
       "Non. La date légale reste un critère clé, et la satisfaction doit être chiffrée."
     ],
     retenir: "Un projet peut être à l'heure et raté : les critères couvrent délai, qualité et usage."
+  },
+  {
+    id: "cp04-q34", dialecte: "Gestion de projet",
+    q: "Pour DEMAT 2027, tu as demandé au DAF 15 minutes pour choisir la plateforme : 2 options, date limite le 10. On est le 20, aucune réponse. Sans plateforme, la réception, obligatoire depuis septembre, reste bloquée. Que fais-tu ?",
+    choix: [
+      "Tu signes toi-même avec la plateforme la moins chère",
+      "Tu relances encore le DAF et tu attends sa réponse",
+      "Tu préviens le DAF, puis tu demandes au DG d'arbitrer",
+      "Tu notes le retard au rapport du prochain COPIL"
+    ],
+    bonne: 2,
+    pourquoi: [
+      "Non. Tu engages un contrat de plusieurs années sans mandat : la décision pourra être contestée, et c'est toi qui la portes.",
+      "Non. La date limite est passée et une obligation légale est déjà en retard : relancer encore, c'est laisser filer.",
+      "Oui. Demande courte, options, date limite : tu as tout fait. L'enjeu est légal, donc tu escalades, en le disant d'abord au DAF.",
+      "Non. Un mois de plus sans plateforme, alors que la loi s'applique déjà : un rapport ne remplace pas une décision."
+    ],
+    retenir: "Demande courte faite, date limite dépassée, obligation légale en jeu : on escalade, en prévenant le sponsor."
+  },
+  {
+    id: "cp04-q35", dialecte: "Gestion de projet",
+    q: "L'intégrateur Divalto propose de démarrer le connecteur DEMAT 2027 dès demain, facturé en régie, « pour gagner du temps ». Le DAF n'a pas encore validé la note de cadrage. Que réponds-tu ?",
+    choix: [
+      "Oui, sur un petit budget, pour gagner du temps",
+      "Non : aucune commande avant la note validée",
+      "Oui, s'il accepte de ne facturer qu'à la fin",
+      "Tu demandes à la cheffe comptable de décider"
+    ],
+    bonne: 1,
+    pourquoi: [
+      "Non. Un « petit » budget engagé sans mandat devient vite la base du projet : la solution arrive avant le besoin.",
+      "Oui. Sans note validée, personne n'a le mandat de dépenser. Tu lui donnes la date de validation prévue : il démarre ensuite.",
+      "Non. Payer plus tard ne change rien : il construit déjà sur un périmètre non validé, et la facture arrivera.",
+      "Non. Elle n'a ni le budget ni le pouvoir d'engager une commande auprès d'un prestataire."
+    ],
+    retenir: "Pas de note validée, pas de commande : c'est le mandat du sponsor qui autorise à dépenser."
+  },
+  {
+    id: "cp04-q36", dialecte: "Gestion de projet",
+    q: "Le commercial demande : « Pour nos 15 petits clients professionnels en France, on garde l'envoi de factures PDF par mail après le 1er septembre 2027. C'est plus simple. » Que fais-tu ?",
+    choix: [
+      "Tu chiffres cette option et tu la soumets au DAF",
+      "Tu acceptes pour ces 15 clients, à titre d'essai",
+      "Tu refuses : c'est contraire à la loi, sans chiffrer",
+      "Tu la notes en demande de changement pour plus tard"
+    ],
+    bonne: 2,
+    pourquoi: [
+      "Non. Chiffrer une option illégale laisse croire qu'elle est possible : le DAF ne peut pas valider une infraction.",
+      "Non. À cette date, une PME doit émettre ses factures entre entreprises via une plateforme agréée. Un PDF par mail n'est plus conforme.",
+      "Oui. Il n'y a rien à arbitrer. Tu expliques la règle au commercial : ces clients doivent déjà savoir recevoir depuis septembre 2026.",
+      "Non. Ce n'est pas un changement de périmètre : c'est une obligation légale. La garder en attente laisse le doute."
+    ],
+    retenir: "Une demande contraire à la loi ne se chiffre pas et ne s'arbitre pas : on dit non et on explique."
+  },
+  {
+    id: "cp04-q37", dialecte: "Gestion de projet",
+    q: "Au cadrage de DEMAT 2027, un responsable de site veut ajouter « tant qu'on y est » un module de gestion de stock pour son dépôt. Aucun lien avec les factures, et la date légale ne laisse pas de marge. Que fais-tu ?",
+    choix: [
+      "Tu chiffres l'ajout et tu le soumets au DAF",
+      "Tu l'inscris en lot 2, après la bascule",
+      "Tu dis non : c'est un autre projet, à demander à part",
+      "Tu prends une petite partie pour garder son soutien"
+    ],
+    bonne: 2,
+    pourquoi: [
+      "Non. Chiffrer une demande sans lien avec l'objectif l'installe dans ton projet : tu occupes l'équipe et le sponsor pour rien.",
+      "Non. Un « lot 2 » le fait entrer dans ton périmètre : tu promets un livrable que personne n'a validé.",
+      "Oui. La demande sort de l'objectif. Tu ne l'étudies pas dans ton projet : il la porte à la DSI comme une nouvelle demande.",
+      "Non. Une « petite partie » reste hors objectif : elle prend du temps à l'équipe avant une date légale."
+    ],
+    retenir: "Sans lien avec l'objectif : non, et une demande à part. On ne chiffre que ce qui touche l'objectif."
   }
 ];
