@@ -5,7 +5,7 @@ Modules `cp01` à `cp27` (`data/modules.js`), rangés en sous-parcours dans `dat
 
 ## Règles pédagogiques de ce parcours
 
-- **Modules courts** : 4 à 6 sections, environ 15 minutes de lecture. Une idée par section, 5 points maximum.
+- **Modules courts** : 4 à 6 sections (7 au maximum), environ 15 minutes de lecture. Une idée par section, 5 points maximum.
 - **Ouvrir sur son vécu** : chaque cours commence par une question sur ses projets réels
   (EDI, dématérialisation fiscale, migration Divalto, Snowflake + Power BI).
 - **Fil rouge « DEMAT 2027 »** : un négociant en équipement de piscines (multi-sites, 120 salariés, ERP Divalto)
