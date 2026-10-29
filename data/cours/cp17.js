@@ -23,10 +23,10 @@ LEARNSQL.cours.cp17 = {
   sections: [
     {
       titre: "Un fait, trois messages : direction, métier, technique",
-      exemple: "Ton projet Snowflake + Power BI : as-tu expliqué un retard de la même façon au directeur et aux développeurs ?\nDEMAT 2027, 16 mars : le connecteur de la plateforme agréée (PA) n'est pas livré. Tu lances le plan B : le portail de la PA.\nAu DAF (direction) : « Juin tient, grâce au plan B. Coût : 20 minutes de plus par jour pour la compta, 6 semaines. Rien à décider aujourd'hui. »\nÀ Sophie (métier) : « Pendant 6 semaines, tu déposes les factures clients sur le portail. On te forme mardi, 1 h. »\nÀ l'intégrateur (technique) : « Il me faut l'export des factures au format Factur-X, testé sur 10 cas, pour le 22. »",
+      exemple: "Ton projet Snowflake + Power BI : as-tu expliqué un retard de la même façon au directeur et aux développeurs ?\nDEMAT 2027, 16 mars : le connecteur de la plateforme agréée (PA) n'est pas livré. Tu lances le plan B : en juin, on bascule avec le portail de la PA, le temps que le connecteur arrive.\nAu DAF (direction) : « Juin tient, grâce au plan B. Coût : 20 minutes de plus par jour pour la compta, 6 semaines après la bascule. Rien à décider aujourd'hui. »\nÀ Sophie (métier) : « Dès juin, pendant 6 semaines, tu déposes les factures clients sur le portail. On te forme en mai, 1 h. »\nÀ l'intégrateur (technique) : « Il me faut l'export des factures au format Factur-X (un PDF qui contient aussi les données), testé sur 10 cas, pour le 22. »",
       points: [
-        "Direction (DG, DAF, COPIL) : des euros, des dates, des risques, et la décision attendue. Pas de technique.",
-        "Métier (compta, ADV) : ce qui change pour eux, quand, combien de temps, et qui les aide.",
+        "Direction (DG, DAF, COPIL : comité de pilotage) : des euros, des dates, des risques, et la décision attendue. Pas de technique.",
+        "Métier (compta, ADV : administration des ventes) : ce qui change pour eux, quand, combien de temps, et qui les aide. Leur manager le sait avant eux.",
         "Technique (intégrateur, PA) : précis et vérifiable. Quoi, combien, depuis quand, pour quand. Jamais « ça ne marche pas ».",
         "Mêmes faits, mêmes chiffres pour tous. On change l'angle, jamais la vérité.",
         "Avant de parler ou d'écrire, deux questions : qui m'écoute ? Que doit-il faire après ?"
@@ -49,20 +49,20 @@ LEARNSQL.cours.cp17 = {
       titre: "Annoncer une mauvaise nouvelle",
       exemple: "Mardi, tu découvres que la recette a 2 semaines de retard, à cause des rejets EDI d'AquaBleu. La marge de recette ne suffit plus.\nTrop mou : « Petit retard, rien de grave, je gère. »\nTrop dur : « La recette est un échec, juin est perdu. »\nJuste (au DAF, le jour même, au téléphone) : « Mauvaise nouvelle : la recette a 2 semaines de retard, à cause des rejets AquaBleu. Juin est menacé, pas perdu. L'intégrateur corrige d'ici jeudi. Je te dis jeudi soir si juin tient. »\nPuis 5 lignes par mail, pour la trace.",
       points: [
-        "Tôt : le jour même pour un risque légal ou un coût qui change. Le sponsor l'apprend de toi, jamais en séance ni dans un couloir.",
+        "Tôt : le jour même pour un risque légal ou un coût qui change. Le sponsor l'apprend de toi, jamais en séance ni dans un couloir. Déjà réglé, rien à décider ? Le prochain jour ouvré suffit.",
         "Nomme-la : « Mauvaise nouvelle : … ». Ni « petit souci » (tu minimises), ni « catastrophe » (tu affoles).",
-        "Faits, impact, ce que tu fais déjà, ce que tu attends. Même un 1er plan vaut mieux que pas de plan.",
+        "Faits, impact, ce que tu fais déjà, ce que tu attends. Tu ne sais pas encore ? « Je ne sais pas. Je te réponds jeudi. »",
         "Pas de coupable : « le connecteur n'est pas livré », pas « la PA nous a lâchés ». Les responsabilités se traitent après, contrat en main.",
-        "Ton erreur ? Dis-la une fois, puis la suite : « Mon erreur : j'ai oublié les avoirs clients. Je rattrape sur la marge de recette. » Tu ne sais pas encore ? « Je ne sais pas. Je te réponds jeudi. »"
+        "Ton erreur ? Dis-la une fois, puis la suite : « Mon erreur : j'ai oublié les avoirs clients. Je rattrape sur la marge de recette. » Celle d'un autre, qu'il t'apporte ? Merci d'abord, puis la solution."
       ],
       retenir: "Une mauvaise nouvelle se dit tôt, en faits, avec un plan : ni minimisée, ni dramatisée."
     },
     {
       titre: "Prévenir et escalader sans menacer",
-      exemple: "Le DAF n'a pas tranché le plan B : demande courte le 5, date limite le 12, relance le 13. La date légale est en jeu (module cp16).\nTu voulais lui écrire : « Je serais dans le regret d'escalader. » Ça sonne comme une menace, et ça ne dit pas quand.\nÀ dire : « Sans décision lundi 12 h, je demanderai au DG d'arbitrer. Je préfère te le dire avant. »\nChez le DG, pas « Le DAF ne répond pas » : c'est un reproche.\nÀ dire : « J'ai besoin d'une décision d'ici mercredi sur le plan B. Enjeu : l'émission obligatoire du 1er septembre 2027. Le DAF est prévenu. Deux options… Je recommande A. »",
+      exemple: "Le DAF n'a pas tranché le renfort de la recette (un intérimaire, ou la bascule à mi-juillet) : demande courte le 5, date limite le 12, relance le 13. Sans décision, la bascule glisse vers août : la date légale est en jeu (module cp16).\nTu voulais lui écrire : « Je serais dans le regret d'escalader. » Ça sonne comme une menace, et ça ne dit pas quand.\nÀ dire : « Sans décision lundi 12 h, je demanderai au DG d'arbitrer. Je préfère te le dire avant. »\nChez le DG, pas « Le DAF ne répond pas » : c'est un reproche.\nÀ dire : « J'ai besoin d'une décision d'ici mercredi sur le renfort de la recette. Enjeu : l'émission obligatoire du 1er septembre 2027. Le DAF est prévenu. Deux options… Je recommande A. »",
       points: [
-        "Escalader, ce n'est pas punir. Tu demandes une décision que ton niveau ne peut pas prendre. Tes mots doivent le montrer.",
-        "Prévenir = un fait daté : quand, et ce que tu feras. Pas de formule floue (« je serais dans le regret », « je me verrais obligé »), pas de reproche (« tu ne me laisses pas le choix »).",
+        "Escalader, ce n'est pas punir : tu demandes une décision que ton niveau ne peut pas prendre. Un désaccord ? Proposez d'aller voir l'arbitre ensemble.",
+        "Prévenir = un fait daté : quand, et ce que tu feras. Pas de formule floue (« je serais dans le regret »), pas de reproche.",
         "Chez le DG : la décision attendue et sa date, l'enjeu, « le DAF est prévenu », les options, ta recommandation. Rien sur la personne.",
         "Par écrit : le DAF en copie, jamais en copie cachée. Ton DSI est informé avant.",
         "Avec un prestataire, même ton : le contrat parle, pas toi. À dire : « Il me faut une date ferme. Sans livraison le 15, je lance le plan B prévu au contrat. »"
@@ -74,7 +74,7 @@ LEARNSQL.cours.cp17 = {
       exemple: "Le commercial : « Tu peux me faire un état des factures rejetées, par client ? » C'est du confort. L'équipe est pleine jusqu'à la bascule.\nTrop mou : « Je vais voir ce que je peux faire. » Il entend oui.\nTrop dur : « Non, hors périmètre. » Il entend : « Ton besoin ne compte pas. »\nJuste : « Pas avant la bascule : l'équipe est pleine. Je le note pour juillet. »",
       points: [
         "« Je vais voir » = un oui pour celui qui l'entend. Dis clairement : oui, non, ou pas maintenant.",
-        "« Oui, et voici ce que ça coûte » : face à celui qui décide (le sponsor). À dire : « Possible : environ 10 jours, et la bascule à mi-juillet. Tu valides ? »",
+        "« Oui, et voici ce que ça coûte » : face à celui qui décide (le sponsor). À dire : « Possible : environ 10 jours, et la bascule à mi-juillet. Tu valides ? » Pas encore chiffré ? Le prix connu tout de suite, puis : « Je te chiffre les options d'ici jeudi. »",
         "« Pas maintenant : voici quand » : la demande est bonne, le moment non. Donne une date ou une autre voie (le support).",
         "« Non, parce que… » : contre la loi ou hors de ton rôle. Une raison, une solution. À dire : « Non : une facture émise ne se modifie pas. Sophie fait un avoir. »",
         "Faut-il dire non, et à qui donner la priorité ? C'est le fond : module cp18. Ici, la forme : non à la demande, jamais à la personne."
@@ -95,7 +95,7 @@ LEARNSQL.cours.cp17 = {
     },
     {
       titre: "Mail, compte rendu, Teams : le bon canal",
-      exemple: "Avant : objet « Point DEMAT ». 30 lignes. 3 demandes mélangées. Le DAF en copie « pour info ».\nAprès :\nObjet : « Pour signature avant jeudi 12 h : PV de recette fournisseurs »\n« Bonjour,\nIl me faut ton PV signé jeudi 12 h, pour lancer le pilote lundi.\nLe PV est joint ; tes 3 réserves sont en page 2.\nUn souci ? Appelle-moi. »\nÀ : la cheffe comptable. Copie : personne.",
+      exemple: "Avant : objet « Point DEMAT ». 30 lignes. 3 demandes mélangées. Le DAF en copie « pour info ».\nAprès (PV = procès-verbal) :\nObjet : « Pour signature avant jeudi 12 h : PV de recette fournisseurs »\n« Bonjour,\nIl me faut ton PV signé jeudi 12 h, pour lancer le pilote lundi.\nLe PV est joint ; tes 3 réserves sont en page 2.\nUn souci ? Appelle-moi. »\nÀ : la cheffe comptable. Copie : personne.",
       points: [
         "Objet = la demande + la date. Une demande par mail, 5 lignes, le détail en pièce jointe.",
         "« À » : ceux qui doivent agir. « Copie » : ceux qui doivent savoir. Pas de copie au chef pour mettre la pression : elle se lit comme une dénonciation.",

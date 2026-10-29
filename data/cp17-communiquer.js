@@ -34,19 +34,19 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q02",
     dialecte: "Gestion de projet",
-    q: "Le plan B démarre : 6 semaines de dépôt des factures clients sur le portail de la PA. Sa cheffe est d'accord. Tu l'expliques à Sophie, comptable clients. Que dis-tu ?",
+    q: "Plan B : dès la bascule de juin, et pour 6 semaines, les factures clients passeront par le portail de la PA. Sa cheffe est d'accord. Tu l'expliques à Sophie, comptable clients. Que dis-tu ?",
     choix: [
       "« Le connecteur est KO : on passe en dépôt Factur-X sur le portail de la PA. »",
       "« Le plan B prend du temps à la compta, 6 semaines ; le DAF l'a validé. »",
       "« Rien ne change vraiment pour toi : surtout, ne t'inquiète pas. »",
-      "« Pendant 6 semaines, tu déposes chaque facture sur le portail. On te forme mardi. »"
+      "« Dès juin, 6 semaines, tu déposes chaque facture sur le portail. On te forme en mai. »"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. « KO », « Factur-X » : du jargon. Sophie ne sait toujours pas ce qu'elle doit faire lundi matin.",
+      "Non. « KO », « Factur-X » : du jargon. Sophie ne sait toujours pas ce qui change pour elle, ni quand.",
       "Non. Bon message pour la direction, pas pour elle : elle apprend que ça coûte, sans savoir quoi faire, ni quand.",
       "Non. C'est faux : elle aura une tâche en plus. Le jour où elle le découvre, elle ne te croit plus.",
-      "Oui. Pour le métier : ce qui change, combien de temps, et qui l'aide. Elle sait quoi faire lundi."
+      "Oui. Pour le métier : ce qui change, quand, combien de temps, et qui l'aide. Elle sait quoi faire en juin."
     ],
     retenir: "Au métier : ce qui change pour lui, quand, combien de temps, et qui l'aide."
   },
@@ -57,7 +57,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "« Le flux AquaBleu ne marche toujours pas : tu peux regarder vite ? »",
       "« 12 rejets AquaBleu depuis mardi : numéro de commande vide. La cause d'ici jeudi ? »",
-      "« Enjeu : la date légale. Le DAF attend une décision d'ici peu sur AquaBleu. »",
+      "« Enjeu : la date légale. Le DAF attend une décision d'ici jeudi sur AquaBleu. »",
       "« Encore des rejets depuis mardi : ton paramétrage n'est pas fiable. »"
     ],
     bonne: 1,
@@ -95,7 +95,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "Tu l'envoies aussi au DG, pour être sûr qu'il soit lu",
       "Tu arrêtes le rapport : il n'en a visiblement pas besoin",
-      "Tu ajoutes un résumé d'une page à la fin du rapport",
+      "Tu ajoutes un résumé de 5 lignes à la fin du rapport",
       "Tu mets en tête 5 lignes : dates, risques, décisions"
     ],
     bonne: 3,
@@ -167,9 +167,9 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q09",
     dialecte: "Gestion de projet",
-    q: "Tu as présenté au DAF 2 options de plan B, avec leur coût. Il te demande : « Et toi, tu ferais quoi ? » Que réponds-tu ?",
+    q: "Tu as présenté au DAF 2 options pour rattraper la recette, avec leur coût. Il te demande : « Et toi, tu ferais quoi ? » Que réponds-tu ?",
     choix: [
-      "« Je recommande B : moins cher, et juin tient. A, si tu veux zéro risque. »",
+      "« Je recommande B : moins cher, et juin tient. A, pour moins de risque. »",
       "« C'est ta décision, non ? Je préfère ne pas t'influencer. »",
       "« B, évidemment : A n'a aucun sens, je ne comprends même pas qu'on hésite. »",
       "« Je recommande B, mais franchement, les deux se valent à peu près. »"
@@ -207,7 +207,7 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "La recette a 3 semaines de retard. Le DAF te demande : « Quelles sont nos options ? » Que réponds-tu ?",
     choix: [
-      "« On renforce, on réduit le périmètre, ou on décale : à toi de voir. »",
+      "« On renforce, on réduit, ou on décale de 3 semaines : à toi de voir. »",
       "« A : un intérimaire 3 semaines, environ 6 000 €. B : bascule à mi-juillet. »",
       "« Une seule solution : décaler de 3 semaines. Le reste, c'est du bricolage. »",
       "« Les options ont un fort impact ; je te les détaille au prochain COPIL. »"
@@ -248,7 +248,7 @@ LEARNSQL.questions.cp17 = [
       "« Le connecteur n'est pas livré. J'appelle le DG pour qu'il secoue la PA. »",
       "« Mauvaise nouvelle : pas de connecteur. Je lance le plan B ; juin tient. »",
       "« Petit contretemps côté PA, rien d'inquiétant pour l'instant. »",
-      "« Le connecteur n'est pas livré. Je te rappelle quand j'en sais plus. »"
+      "« Le connecteur n'est pas livré le 15. Je te rappelle quand j'en sais plus. »"
     ],
     bonne: 1,
     pourquoi: [
@@ -267,7 +267,7 @@ LEARNSQL.questions.cp17 = [
       "« L'intégrateur aurait dû voir que les avoirs clients manquaient au plan. »",
       "« Je suis vraiment désolé, j'ai oublié : c'est une faute impardonnable. »",
       "« Mon erreur, désolé : j'ai oublié les avoirs clients. 3 jours, sur la marge. »",
-      "« Un oubli a été constaté dans le plan ; 3 jours seront pris sur la marge. »"
+      "« Un oubli a été constaté dans le plan. 3 jours seront pris sur la marge. »"
     ],
     bonne: 2,
     pourquoi: [
@@ -300,7 +300,7 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q16",
     dialecte: "Gestion de projet",
-    q: "Vendredi 17 h, 1re semaine du pilote : 6 % de factures rejetées (objectif : moins de 2 %). Cause trouvée, correction lundi. Le DAF est en congé jusqu'à lundi. Que fais-tu ?",
+    q: "Vendredi 17 h, 1re semaine du pilote : 6 % de factures rejetées (objectif : moins de 2 %). Cause trouvée, correction lundi. Le DAF est en congé, de retour lundi. Que fais-tu ?",
     choix: [
       "Tu appelles le DAF ce soir : lundi, ce serait trop tard",
       "Tu lui écris ce soir faits et cause, et lui demandes de rappeler",
@@ -319,7 +319,7 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q17",
     dialecte: "Gestion de projet",
-    q: "Le DAF a refusé l'intérimaire : la recette fournisseurs dure 3 semaines de plus, avec Julie. Tu préférais l'intérimaire. Tu l'annonces à Julie. Que dis-tu ?",
+    q: "Le DAF a refusé l'intérimaire : la recette fournisseurs dure 3 semaines de plus, avec Julie. Sa cheffe le sait. Tu préférais l'intérimaire. Tu l'annonces à Julie. Que dis-tu ?",
     choix: [
       "« Le DAF a dit non à l'intérim. Je n'y peux rien : il ne voit pas votre charge. »",
       "« Le DAF a choisi : 3 semaines de recette en plus. Courage, ça va aller ! »",
@@ -341,14 +341,14 @@ LEARNSQL.questions.cp17 = [
     q: "Le DG te demande : « On tiendra le 1er septembre ? » Le test décisif de la PA a lieu jeudi. Avant, tu ne peux pas savoir. Que réponds-tu ?",
     choix: [
       "« Oui, sans problème : le test de jeudi n'est qu'une simple formalité. »",
-      "« Impossible à dire, non ? Ça dépend de beaucoup trop de choses. »",
+      "« Impossible à dire avant jeudi, non ? Ça dépend de trop de choses. »",
       "« Je ne sais pas encore. Je vous réponds jeudi soir, après le test. »",
       "« Franchement, c'est très mal parti pour le 1er septembre. »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Tu promets ce que tu ne sais pas : si jeudi tourne mal, le DG ne te croira plus.",
-      "Non. Vrai, mais flou : pas de date, pas de suite. Le DG repart inquiet, sans savoir quand il saura.",
+      "Non. Presque : la date du test est dite, mais tu ne t'engages pas à revenir vers lui. Le DG repart inquiet, sans savoir quand il saura.",
       "Oui. « Je ne sais pas » est honnête, s'il vient avec la date de la réponse. Le DG sait quand revenir.",
       "Non. Tu dramatises sans fait : le test n'a pas eu lieu. Le DG s'alarme, et le DAF reçoit un appel inquiet."
     ],
@@ -359,7 +359,7 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "À la bascule, les factures EDI d'AquaBleu seront suspendues 2 jours. AquaBleu doit le savoir. Le commercial gère la relation avec ce client. Que fais-tu ?",
     choix: [
-      "Tu appelles toi-même l'acheteur d'AquaBleu, sans le commercial",
+      "Tu appelles toi-même l'acheteur d'AquaBleu, 2 jours avant",
       "Rien : 2 jours de pause, AquaBleu ne verra rien",
       "Tu préviens le DAF, puis il écrit au directeur d'AquaBleu",
       "Tu donnes au commercial 3 lignes : quoi, quand, qui appeler"
@@ -400,7 +400,7 @@ LEARNSQL.questions.cp17 = [
       "« Ça va bien : rien de spécial à te signaler aujourd'hui, merci. »",
       "« Un risque : le seul consultant clé part en mai. J'en veux un 2e. Tu m'aides ? »",
       "« Catastrophe : l'intégrateur va nous lâcher en plein pilote, en mai. »",
-      "« Oui, sauf un consultant en congé en mai ; on verra bien à ce moment-là. »"
+      "« Oui, sauf un consultant en congé en mai. On verra bien à ce moment-là. »"
     ],
     bonne: 1,
     pourquoi: [
@@ -426,24 +426,24 @@ LEARNSQL.questions.cp17 = [
       "Oui. Il vient de lui-même : tu le remercies, puis vous réglez le problème. Il reviendra vers toi à la prochaine erreur.",
       "Non. Tu le punis d'avoir parlé : la prochaine fois, il cachera l'erreur, et tu l'apprendras par le client.",
       "Non. Tu laisses 15 factures bloquées sans suite : le client attend son argent, et Marc comprend que ce n'était pas important.",
-      "Non. Il a dit son erreur de lui-même, et elle se règle aujourd'hui : monter à son manager le punit d'avoir été honnête."
+      "Non. Rien ne justifie de monter : 1re fois, il l'a dit de lui-même, et ça se règle aujourd'hui. Il retient qu'avouer une erreur l'envoie chez son chef."
     ],
     retenir: "Quelqu'un t'apporte son erreur : merci d'abord, puis la solution ensemble."
   },
   {
     id: "cp17-q23",
     dialecte: "Gestion de projet",
-    q: "Le DAF n'a pas tranché le plan B : question courte, date limite passée, relance faite. La date légale est en jeu. Tu le préviens que tu vas monter. Quelle phrase ?",
+    q: "Le DAF n'a pas tranché le renfort de la recette : question courte, date limite passée, relance faite. La date légale est en jeu. Tu le préviens que tu vas monter. Quelle phrase ?",
     choix: [
       "« Sans décision lundi 12 h, je demande au DG d'arbitrer. Je préfère te le dire avant. »",
-      "« Je serais dans le regret de devoir escalader ce sujet au DG, sans réponse. »",
-      "« Tu ne me laisses pas le choix : je vais voir le DG cette semaine, désolé. »",
+      "« Sans réponse lundi, je serais dans le regret d'escalader le sujet au DG. »",
+      "« Tu ne me laisses pas le choix. Je vais voir le DG cette semaine, désolé. »",
       "« Une décision quand tu peux ; sinon, on en reparlera plus tard, pas de souci. »"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une date, une action, et tu le dis avant : il garde une dernière chance de trancher, et il n'est pas surpris.",
-      "Non. Formule floue, ton de menace : il entend un ultimatum, sans savoir quand ni pourquoi.",
+      "Non. Presque : la date est là, mais « je serais dans le regret » sonne comme une menace. Il entend un ultimatum, pas une demande de décision.",
       "Non. Un reproche (« tu ne me laisses pas le choix ») : il se défend au lieu de décider, et la relation s'abîme.",
       "Non. Plus de date, plus d'action : il n'a aucune raison de trancher, et la date légale approche."
     ],
@@ -452,12 +452,12 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q24",
     dialecte: "Gestion de projet",
-    q: "Le DAF et ton DSI savent que tu viens. Le DG te reçoit 10 minutes au sujet du plan B. Quelle est ta 1re phrase ?",
+    q: "Le DAF et ton DSI savent que tu viens. Le DG te reçoit 10 minutes au sujet du renfort de la recette. Quelle est ta 1re phrase ?",
     choix: [
       "« Le DAF ne répond plus à mes mails depuis 3 semaines, je suis bloqué. »",
       "« Excusez-moi de vous déranger, ce n'est sans doute pas grand-chose… »",
-      "« Décision attendue d'ici mercredi sur le plan B : septembre en jeu. Le DAF est prévenu. »",
-      "« Deux options pour le plan B, avec leur coût : laquelle préférez-vous ? »"
+      "« Décision attendue d'ici mercredi sur la recette : septembre en jeu. Le DAF est prévenu. »",
+      "« Deux options pour la recette, avec leur coût. Laquelle d'ici mercredi ? »"
     ],
     bonne: 2,
     pourquoi: [
@@ -471,7 +471,7 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q25",
     dialecte: "Gestion de projet",
-    q: "Tu écris au DG pour qu'il arbitre le plan B. Le DAF, ton sponsor, sait depuis lundi que tu le fais. Qui mets-tu en copie ?",
+    q: "Tu écris au DG pour qu'il arbitre le renfort de la recette. Le DAF, ton sponsor, sait depuis lundi que tu le fais. Qui mets-tu en copie ?",
     choix: [
       "Le DAF en copie cachée, pour ne pas le froisser",
       "Personne : tu raconteras la suite au DAF après",
@@ -495,14 +495,14 @@ LEARNSQL.questions.cp17 = [
       "« Il me faut une date ferme. Sans livraison le 15, je lance le plan B. »",
       "« Ce n'est pas grave si ça glisse un peu : on s'adaptera, comme toujours. »",
       "« Si vous ratez le 15, on résilie, et vous payez des pénalités. »",
-      "« Vous êtes encore en retard ? Ce n'est pas sérieux, comme d'habitude. »"
+      "« Il me faut une date ferme. Si c'est fin mars, on attend pour le plan B. »"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une demande claire, et ce qui se passera le 15, déjà prévu au contrat : c'est un fait, pas une menace.",
       "Non. Tu lui dis que la date ne compte pas : « très bientôt » deviendra avril, et ta recette fond.",
       "Non. Une menace, hors de ton pouvoir : résilier ou appliquer des pénalités, c'est au DAF de le décider. La PA le sait, et ne te croit plus.",
-      "Non. Un reproche général : il se défend, et ne te donne toujours pas de date."
+      "Non. Presque : tu demandes une date, mais tu repousses le déclencheur du 15. La recette commence le 16 : chaque jour d'attente se prend sur elle."
     ],
     retenir: "Avec un prestataire, le contrat parle : une date ferme, et ce qui se passe sinon."
   },
@@ -514,7 +514,7 @@ LEARNSQL.questions.cp17 = [
       "« Ce n'est pas grave : je trouverai bien une autre solution, sans toi. »",
       "« Si tu ne viens pas, je serai obligé de le signaler à ton chef. »",
       "« J'en parle à ton chef : c'est lui qui gère ton temps. Je préfère te le dire avant. »",
-      "« Je vais voir ton chef : tu ne me laisses vraiment pas le choix. »"
+      "« Je vais voir ton chef. Tu ne me laisses vraiment pas le choix. »"
     ],
     bonne: 2,
     pourquoi: [
@@ -549,17 +549,17 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "Le chef de projet de la PA a raté le 1er mars, puis le 15. Tu l'as prévenu. Tu écris à son responsable de compte. Quelle est ta 1re phrase ?",
     choix: [
-      "« Désolé de vous solliciter : nous avons peut-être un petit souci de calendrier. »",
+      "« Désolé de vous solliciter. Nous avons peut-être un petit souci de calendrier. »",
       "« Nous déclenchons les pénalités et étudions la résiliation du contrat. »",
       "« Votre chef de projet n'est pas à la hauteur : je demande qu'il soit remplacé. »",
-      "« Deux dates du contrat ratées, le 1er et le 15 mars. Il me faut une date ferme. »"
+      "« Le 1er mars (contrat), puis le 15 : 2 dates ratées. Il me faut une date ferme. »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Tu minimises deux dates ratées : il classe ton mail comme non urgent.",
       "Non. Une menace, hors de ton rôle : pénalités et résiliation, c'est au DAF de le décider. Tu te mets en défaut.",
       "Non. Tu attaques une personne : il la défend, et la livraison n'avance pas.",
-      "Oui. Les faits du contrat, puis une demande : il voit la gravité, sans attaque. En parallèle, le DAF est informé et le plan B lancé."
+      "Oui. Des faits datés, puis une demande : il voit la gravité, sans attaque. En parallèle, le DAF est informé et le plan B lancé."
     ],
     retenir: "Chez le responsable d'un prestataire : les faits du contrat et une demande, sans attaque."
   },
@@ -571,7 +571,7 @@ LEARNSQL.questions.cp17 = [
       "« Pas grave, on fera avec ; tu essaies de prévenir, si tu peux ? »",
       "« J'écris à ton directeur, avec le DAF en copie, pour que ce soit clair. »",
       "« 2e fois malgré notre accord : j'en parle à ton responsable, je te le dis avant. »",
-      "« Je te rappelle notre accord : chaque changement annoncé la veille, OK ? »"
+      "« Je te rappelle notre accord du 3. Chaque changement annoncé la veille, OK ? »"
     ],
     bonne: 2,
     pourquoi: [
@@ -604,11 +604,11 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q32",
     dialecte: "Gestion de projet",
-    q: "En COPIL, le DAF, ton sponsor, veut ajouter les notes de frais au projet. Elles sont hors périmètre. Que réponds-tu ?",
+    q: "En COPIL, le DAF, ton sponsor, veut ajouter les notes de frais au projet. Elles sont hors périmètre ; au cadrage, tu les avais chiffrées à 10 jours. Que réponds-tu ?",
     choix: [
-      "« Non : c'est hors périmètre, c'est bien écrit dans la note de cadrage. »",
+      "« Non, c'est hors périmètre. C'est écrit dans la note de cadrage. »",
       "« D'accord, on va se débrouiller pour les intégrer au projet. »",
-      "« Oui, mais d'ici là, je ne garantis plus rien sur les dates. »",
+      "« Oui. Mais la bascule de juin, je ne la garantis plus du tout. »",
       "« Possible : environ 10 jours, et bascule à mi-juillet. Tu valides ? »"
     ],
     bonne: 3,
@@ -646,7 +646,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "« Pas pendant la recette. Ouvre un ticket au support : je l'appuie. »",
       "« Oui, bien sûr : je te le fais ce soir, après les tests, pas de souci. »",
-      "« Pas pendant la recette, je suis débordé ; on verra plus tard. »",
+      "« Pas pendant la recette, je suis débordé. On verra plus tard. »",
       "« Ce n'est pas mon rôle : vois ça avec quelqu'un d'autre. »"
     ],
     bonne: 0,
@@ -663,7 +663,7 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "En COPIL, devant tous, le DG veut avancer la bascule de juin à mai. Ton planning n'a pas cette marge. Que réponds-tu en séance ?",
     choix: [
-      "« C'est impossible, et je l'avais bien dit dès le cadrage. »",
+      "« C'est impossible. Je l'avais bien dit dès le cadrage. »",
       "« Mai, c'est sans pilote. Je vous chiffre les options d'ici jeudi. »",
       "« Je recommande de rester en juin : l'impact serait trop fort. »",
       "« Entendu, on va tout faire pour y arriver en mai, comptez sur nous. »"
@@ -702,7 +702,7 @@ LEARNSQL.questions.cp17 = [
     q: "Mardi, le consultant de l'intégrateur a changé le paramétrage en recette sans prévenir. Julie a perdu une matinée de tests. C'est la 1re fois. Que fais-tu ?",
     choix: [
       "Rien : c'est la 1re fois, tu notes juste la date",
-      "Tu réponds à tous sur le fil du projet, pour que ça cesse",
+      "Tu réponds à tous sur le fil du projet, le jour même",
       "Tu l'appelles 10 minutes, puis tu lui écris 2 lignes",
       "Tu écris à son responsable, puis au DAF, faits en main"
     ],
@@ -720,14 +720,14 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "Marc, utilisateur clé ADV, teste sans noter ses anomalies. Hier, il en a vu 4, sans en noter une seule. Tu lui en parles en privé. Quelle phrase ?",
     choix: [
-      "« L'impact sur la recette est fort : il faudra être plus rigoureux. »",
+      "« Hier, l'impact sur la recette a été fort : sois plus rigoureux. »",
       "« Tu ne notes jamais rien ? Franchement, ce n'est pas sérieux du tout. »",
       "« Hier, 4 anomalies vues, 0 notée : rien ne sera corrigé. Tu peux les noter ? »",
       "« Pas grave, je vais noter tes anomalies moi-même, ne t'en fais pas. »"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Presque : l'impact est dit, mais sans fait ni demande précise. « Plus rigoureux » ne lui dit pas quoi faire.",
+      "Non. Presque : l'impact est dit, mais sans fait précis ni demande claire. « Plus rigoureux » ne lui dit pas quoi faire.",
       "Non. « Jamais » et « pas sérieux » jugent la personne : il se défend, et ne change rien.",
       "Oui. Un fait précis, son impact, une demande, puis une question : il comprend, et il peut répondre.",
       "Non. Tu fais à sa place : il ne saura pas pourquoi c'est important, et tu deviens son secrétaire."
@@ -777,7 +777,7 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "Le commercial a promis à AquaBleu « tout automatique dès mai ». Or AquaBleu n'est pas dans le pilote de mai. Tu lui en parles en tête-à-tête. Que dis-tu ?",
     choix: [
-      "« Bon, on va essayer de tenir ta promesse à AquaBleu, je verrai. »",
+      "« Bon. On va essayer de tenir ta promesse à AquaBleu, je verrai. »",
       "« Je signale tout de suite au DAF ta promesse hors pilote, désolé. »",
       "« AquaBleu n'est pas dans le pilote. On leur redit ensemble la date ? »",
       "« Tu n'avais pas à promettre ça : c'est vraiment n'importe quoi. »"
@@ -816,7 +816,7 @@ LEARNSQL.questions.cp17 = [
     q: "18 h. La cheffe comptable t'écrit sur Teams : « Encore un bug ? Franchement, ce projet… » Elle est agacée. Que fais-tu ?",
     choix: [
       "Tu réponds sur Teams : « On en parle lundi, au point »",
-      "Tu réponds point par point sur Teams, preuves à l'appui",
+      "Tu réponds ce soir sur Teams, point par point, preuves à l'appui",
       "Tu l'appelles : 10 minutes de vive voix",
       "Tu transfères son message au DAF, son manager"
     ],
@@ -835,7 +835,7 @@ LEARNSQL.questions.cp17 = [
     q: "Le chef de projet de la PA écrit à tous, DAF en copie : « Le retard vient de votre Divalto. » Les logs prouvent le contraire. Que fais-tu ?",
     choix: [
       "Tu l'appelles, puis tu réponds à tous en 3 lignes factuelles",
-      "Tu réponds à tous, point par point, logs en pièce jointe",
+      "Tu réponds à tous le jour même, point par point, logs joints",
       "Tu ne réponds pas aujourd'hui : le DAF se fera son idée",
       "Tu écris à son responsable, faits en main, et exiges des excuses"
     ],
@@ -855,7 +855,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "Un mail formel, avec le DAF et son responsable de compte en copie",
       "Rien par écrit, pour garder la bonne ambiance entre vous",
-      "Un message dans le groupe Teams du projet, pour tous",
+      "Un message ce soir dans le groupe Teams du projet, pour tous",
       "2 lignes, à lui seul : « Comme convenu : une note par livraison »"
     ],
     bonne: 3,
@@ -908,19 +908,19 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q48",
     dialecte: "Gestion de projet",
-    q: "Julie a 2 jours de retard sur ses cas de test. C'est la 1re fois. Il faut fixer une nouvelle date. Que fais-tu ?",
+    q: "Julie a 2 jours de retard sur ses cas de test, 1re fois. Vous fixez ensemble une nouvelle date, dans ses créneaux déjà réservés. Que fais-tu ensuite ?",
     choix: [
-      "Tu lui écris, sa cheffe en copie « pour info »",
-      "Tu lui écris, le DAF en copie, en tant que sponsor",
-      "Rien : elle sait déjà qu'elle est en retard",
-      "Tu lui écris à elle seule, sans copie"
+      "Un mail à Julie, sa cheffe en copie « pour info »",
+      "Un mail à Julie, le DAF en copie, en tant que sponsor",
+      "Rien d'écrit : vous en avez parlé, ça suffit",
+      "Un mail court à Julie seule, avec la nouvelle date"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Copie punitive : pour 2 jours de retard, Julie y lit « je te dénonce à ta cheffe ». Elle se braque.",
+      "Non. Copie punitive : la date reste dans les créneaux réservés, sa cheffe n'a rien à décider. Julie y lit « je te dénonce ».",
       "Non. Le sponsor pour 2 jours de retard d'une seule personne : disproportionné, et Julie se sent accusée.",
-      "Non. Sans nouvelle date, le retard glisse en silence : 2 jours deviennent une semaine, et ta recette avec.",
-      "Oui. 1re fois, petit retard : ça se règle entre vous. Si ça recommence, tu verras sa cheffe, en le disant à Julie."
+      "Non. Sans trace, la date s'oublie : 2 jours deviennent une semaine, et ta recette avec.",
+      "Oui. 1re fois, petit retard, dans ses créneaux : ça se règle entre vous, avec une trace courte. Si ça recommence, tu verras sa cheffe, en le disant à Julie."
     ],
     retenir: "En copie, seulement ceux qui doivent savoir ; jamais pour mettre la pression."
   },
@@ -951,7 +951,7 @@ LEARNSQL.questions.cp17 = [
       "« Je n'ai toujours pas ton PV, comme d'habitude avec la compta. »",
       "« Il me faut le PV vendredi 12 h, pour le pilote. Un souci ? »",
       "« Petite relance pour le pilote, quand tu auras un moment. »",
-      "« Relance n°2 : merci de me retourner le PV signé au plus vite. »"
+      "« Relance n°2. Merci de me retourner le PV signé au plus vite. »"
     ],
     bonne: 1,
     pourquoi: [
