@@ -35,13 +35,13 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Périmètre, hors périmètre et livrables",
-      exemple: "Périmètre : factures entre entreprises (B2B) en France, clients et fournisseurs, des 3 sites.\nAussi : connexion Divalto ↔ PA, flux EDI factures de la grande distribution (dont AquaBleu), formation compta.\nHors périmètre : notes de frais, refonte du plan comptable, bons de livraison dématérialisés.\nHors périmètre du projet, mais obligatoire en septembre 2027 : le e-reporting\n(ventes aux particuliers, ventes et achats avec l'étranger, dans l'UE ou hors UE, et des données de paiement).\nPorteur : le DAF. Vérifie que la PA choisie sait aussi le faire : c'est un critère de choix.\nLivrables : PA choisie et contractée, connecteur recetté, procédures comptables, utilisateurs formés.",
+      exemple: "Périmètre : factures entre entreprises (B2B) en France, clients et fournisseurs, des 3 sites.\nAussi : le connecteur standard de la PA, que l'intégrateur installe et paramètre dans Divalto.\nAussi : flux EDI (échange de données informatisé) des factures de la grande distribution (dont AquaBleu), formation compta.\nHors périmètre : notes de frais, refonte du plan comptable, bons de livraison dématérialisés.\nHors périmètre du projet, mais obligatoire en septembre 2027 : le e-reporting\n(ventes aux particuliers, opérations avec l'étranger). Porteur : le DAF, hors projet DEMAT.\nVérifie que la PA choisie sait aussi le faire : c'est un critère de choix.\nLivrables : PA choisie et contractée, connecteur recetté (recette = tests de validation par le métier), procédures comptables, utilisateurs formés.",
       points: [
         "Périmètre = ce que le projet livre : sites, flux, processus, utilisateurs, données.",
         "Hors périmètre = ce que le projet NE fait PAS, écrit noir sur blanc. C'est la partie qu'on oublie le plus.",
         "Ce qui n'est pas écrit sera supposé inclus par quelqu'un. Le flou se paie en fin de projet.",
         "Livrable = une chose concrète que l'on remet et que l'on vérifie : un contrat, un connecteur recetté, une procédure.",
-        "Un point incertain, ou obligatoire mais porté ailleurs ? Note qui le décide ou qui le porte, et pour quand."
+        "Un point incertain, ou porté ailleurs ? À dire : « Qui le décide, ou qui le porte, et pour quand ? »"
       ],
       retenir: "Ce qui n'est pas écrit hors périmètre finira par être demandé."
     },
@@ -59,11 +59,11 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Parties prenantes et premiers risques",
-      exemple: "Sponsor : le DAF. Il décide et arbitre.\nParties prenantes : cheffe comptable, commerciaux, intégrateur, PA, DSI, clients EDI.\nLe commercial dit : « Moi je veux juste que ça marche. » Tu lui demandes 15 minutes :\n« Quels sont les 3 cas qui ne doivent jamais casser ? » Tu traduis ses réponses en critères.\nRisques : PA en retard, clients EDI pas prêts, compta saturée en clôture.",
+      exemple: "Sponsor : le DAF. Il décide et arbitre.\nParties prenantes : cheffe comptable, ADV (administration des ventes), commerciaux, intégrateur, PA,\nDSI (directeur des systèmes d'information), clients EDI.\nLe commercial dit : « Moi je veux juste que ça marche. » Tu lui demandes 15 minutes :\n« Quels sont les 3 cas qui ne doivent jamais casser ? » Tu traduis ses réponses en critères.\nRisques : PA en retard, clients EDI pas prêts, compta saturée en clôture.",
       points: [
-        "Parties prenantes : qui est touché, qui décide, qui est consulté ou informé. Le détail (RACI) vient au module cp09.",
+        "Parties prenantes : qui est touché, qui décide, qui est consulté ou informé. Le détail vient au module cp09 : le RACI (Réalise, Approuve, Consulté, Informé).",
         "Voir les métiers AVANT de faire valider. Une note écrite seul, sans la compta ni les ventes, fait découvrir les besoins en recette.",
-        "Un métier refuse de participer ? Demande-lui peu, sur son terrain : un entretien court, les cas qui ne doivent pas casser.",
+        "Un métier refuse de participer ? Demande-lui peu, sur son terrain. À dire : « Quels sont les 3 cas qui ne doivent jamais casser ? »",
         "C'est le client (la maîtrise d'ouvrage, ici le DAF et les métiers) qui porte la note. L'intégrateur donne un avis technique, il ne fixe pas le périmètre.",
         "Premiers risques : les 3 à 5 plus gros, avec une idée de parade. L'analyse complète vient au module cp07."
       ],
@@ -86,8 +86,8 @@ LEARNSQL.cours.cp04 = {
       exemple: "Le DAF répond « OK, vas-y » en 2 minutes. Il n'a pas lu.\nTu demandes 20 minutes pour 3 points clés, avec des options et ta recommandation.\nIl annule ensuite les comités, et le choix de la PA attend ? Tu lui demandes 15 minutes et une réponse avant le 15.\nLe 15, rien, et la réception légale reste bloquée : tu le préviens, puis tu demandes au DG de trancher.\nLe modèle du rapport mensuel, lui, reste dans ton projet : « Sans remarque au 10, je garde celui-ci. »\nTrois mois plus tard, le commercial veut les bons de livraison dématérialisés, « hors périmètre » : tu chiffres l'impact pour le DAF.",
       points: [
         "Le sponsor (ici le DAF) valide la note par écrit. Sans elle, pas de mandat. Absent, ou il signe sans lire ? Demande-lui 15 à 20 minutes, avec des options et une date limite.",
-        "Sans réponse à la date : décision par défaut, seulement pour un détail de ton projet (ex. un modèle de document). Jamais pour le périmètre, le budget, un contrat ou le temps d'un autre service. Enjeu fort, comme une date légale ? Préviens-le, puis va au DG.",
-        "La note peut évoluer (un client pas prêt, une nouvelle demande), mais par un avenant ou une décision tracée du sponsor, jamais par glissement.",
+        "Sans réponse : décision par défaut, seulement pour un détail de ton projet. Jamais pour le périmètre, le budget, un contrat ou le temps d'un autre service. Enjeu fort ? Préviens-le, puis va au DG.",
+        "La note peut évoluer (un client pas prêt, une nouvelle demande), mais par un avenant ou une décision tracée du sponsor (module cp10). Jamais par glissement.",
         "Projet déjà lancé sans note ? Il n'est pas trop tard : écris un cadrage de reprise (l'existant, la suite, les limites) et fais-le valider.",
         "Pièges : cadrer seul et trop vite, écrire une solution, des critères pas mesurables (« améliorer »), oublier le hors périmètre."
       ],

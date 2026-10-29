@@ -71,7 +71,7 @@ LEARNSQL.questions.cp04 = [
     pourquoi: [
       "Non. C'est un détail de conception, pas un élément de cadrage.",
       "Non. C'est de l'organisation, trop fin pour une note de cadrage.",
-      "Oui. Sans hors périmètre, chacun suppose que son besoin est inclus (notes de frais, BL, export…).",
+      "Oui. Sans hors périmètre, chacun suppose que son besoin est inclus : notes de frais, BL (bons de livraison), export…",
       "Non. Le détail des tâches vient à la planification, pas au cadrage."
     ],
     retenir: "Ce qui n'est pas écrit hors périmètre finira par être demandé."
@@ -132,7 +132,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q08", dialecte: "Gestion de projet",
-    q: "Dans ta note DEMAT 2027, tu écris : « Le connecteur standard de la PA (plateforme agréée) marche avec Divalto 10.13. » Personne ne l'a confirmé. Comment le classer ?",
+    q: "Dans ta note DEMAT 2027, tu écris : « Le connecteur standard de la plateforme agréée (PA) marche avec notre Divalto 10.13. » Personne ne l'a confirmé. Comment le classer ?",
     choix: [
       "Une contrainte du projet",
       "Un critère de succès",
@@ -143,7 +143,7 @@ LEARNSQL.questions.cp04 = [
     pourquoi: [
       "Non. Une contrainte est imposée et connue. Ici, c'est une supposition.",
       "Non. C'est un moyen, pas le résultat attendu par le métier.",
-      "Oui. On la suppose vraie sans preuve. Si elle tombe, le plan change : on la vérifie vite avec l'intégrateur.",
+      "Oui. On la suppose vraie sans preuve. Si elle tombe, le plan change : on la vérifie vite avec la PA et l'intégrateur.",
       "Non. Le connecteur sera un livrable, mais la phrase porte sur une supposition non confirmée."
     ],
     retenir: "Hypothèse = supposé vrai sans preuve. On l'écrit et on la vérifie vite."
@@ -420,7 +420,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q24", dialecte: "Gestion de projet",
-    q: "Pour DEMAT 2027, la PA (plateforme agréée) annonce un retard de deux mois sur son connecteur. Où ce point aurait-il dû apparaître dès le cadrage ?",
+    q: "Pour DEMAT 2027, la plateforme agréée (PA) annonce un retard de deux mois sur son connecteur Divalto. Où ce point aurait-il dû apparaître dès le cadrage ?",
     choix: [
       "Dans le hors périmètre",
       "Dans l'objectif du projet",
@@ -429,7 +429,7 @@ LEARNSQL.questions.cp04 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. La connexion à la plateforme fait partie du projet : elle n'est pas hors périmètre.",
+      "Non. Le connecteur de la PA fait partie du projet : il n'est pas hors périmètre.",
       "Non. L'objectif dit le résultat attendu, pas ce qui peut mal tourner.",
       "Non. Les critères mesurent le résultat, pas ce qui peut le menacer.",
       "Oui. Un prestataire en retard est un risque classique : on le note avec une parade sur le délai (jalon d'alerte, plan B, marge)."
@@ -555,8 +555,8 @@ LEARNSQL.questions.cp04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Tu oublies les commerciaux, les clients EDI, la DSI et les prestataires.",
-      "Oui. Sponsor, compta, commerciaux, DSI, intégrateur, plateforme, clients EDI : tous ceux qui sont touchés ou décident.",
+      "Non. Tu oublies l'ADV (administration des ventes), les commerciaux, les clients EDI, la DSI et les prestataires.",
+      "Oui. Sponsor, compta, ADV, commerciaux, DSI, intégrateur, plateforme agréée, clients EDI : tous ceux qui sont touchés ou décident.",
       "Non. Les plus gros risques viennent souvent de personnes hors de l'équipe.",
       "Non. Les utilisateurs internes sont les plus touchés : les oublier, c'est se préparer un rejet."
     ],
@@ -618,7 +618,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q35", dialecte: "Gestion de projet",
-    q: "L'intégrateur Divalto propose de démarrer dès demain le paramétrage Divalto de DEMAT 2027, facturé en régie, « pour gagner du temps ». Le DAF n'a pas encore validé la note de cadrage. Que réponds-tu ?",
+    q: "L'intégrateur Divalto propose de démarrer dès demain le paramétrage Divalto de DEMAT 2027, facturé en régie (au temps passé), « pour gagner du temps ». Le DAF n'a pas encore validé la note de cadrage. Que réponds-tu ?",
     choix: [
       "Oui, sur un petit budget, pour gagner du temps",
       "Non : aucune commande avant la note validée",
@@ -654,7 +654,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q37", dialecte: "Gestion de projet",
-    q: "Au cadrage de DEMAT 2027, un responsable de site veut ajouter « tant qu'on y est » un module de gestion de stock pour son dépôt. Aucun lien avec les factures, et la date légale ne laisse pas de marge. Que fais-tu ?",
+    q: "Au cadrage de DEMAT 2027, un responsable de site veut ajouter « tant qu'on y est » la gestion de stock de son dépôt. Aucun lien avec les factures. Que fais-tu ?",
     choix: [
       "Tu chiffres l'ajout et tu le soumets au DAF",
       "Tu l'inscris en lot 2, après la bascule",
@@ -690,7 +690,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q39", dialecte: "Gestion de projet",
-    q: "Ta note DEMAT 2027 validée prévoit un budget de 60 à 90 k€. En novembre, les devis de la PA et de l'intégrateur arrivent : 115 k€ au total. Le prochain COPIL est dans 3 semaines. Que fais-tu ?",
+    q: "Ta note DEMAT 2027 validée prévoit un budget de 60 à 90 k€. En novembre, les devis de la plateforme agréée (PA) et de l'intégrateur arrivent : 115 k€ au total. Le prochain COPIL est dans 3 semaines. Que fais-tu ?",
     choix: [
       "Tu le présentes au COPIL, avec le dossier complet",
       "Tu réduis le périmètre pour tenir les 90 k€",
@@ -717,7 +717,7 @@ LEARNSQL.questions.cp04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Sans note validée ni commande, chaque jour facturé est une dépense sans mandat. Et il construit sur un périmètre que personne n'a validé.",
+      "Non. En régie, chaque jour passé est facturé : sans note validée ni commande, c'est une dépense sans mandat. Et il construit sur un périmètre que personne n'a validé.",
       "Oui. Pas de note validée, pas de commande : tu fais arrêter, et le DAF le sait le jour même. Le travail reprendra après la validation.",
       "Non. Régulariser, c'est commander avant la note validée : le paramétrage décide du périmètre à la place du besoin.",
       "Non. Les 3 jours se règlent avec le DAF, contrat en main. Changer d'intégrateur pour un mail du commercial, c'est disproportionné."
@@ -744,7 +744,7 @@ LEARNSQL.questions.cp04 = [
   },
   {
     id: "cp04-q42", dialecte: "Gestion de projet",
-    q: "Le contrat prévoit le connecteur de la PA au 1er mars. Ta note DEMAT 2027 fixe une tolérance de ± 2 semaines par jalon. La PA annonce une livraison le 8 mars. La recette commence le 16 mars. Que fais-tu ?",
+    q: "Le contrat prévoit le connecteur de la plateforme agréée (PA) au 1er mars. Ta note DEMAT 2027 : tolérance de ± 2 semaines par jalon. La PA annonce le 8 mars, et la recette commence le 16. Que fais-tu ?",
     choix: [
       "Tu préviens le DAF aujourd'hui, pour un avenant",
       "Tu décales aussi la bascule de juin d'une semaine",
