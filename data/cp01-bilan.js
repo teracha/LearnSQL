@@ -8,14 +8,14 @@ LEARNSQL.questions.cp01 = [
     "q": "Lundi 9 h. Le flux EDI des factures AquaBleu est bloqué. Tu animes l'atelier de cadrage DEMAT à 10 h. Le support N2 connaît ce flux. Que fais-tu ?",
     "choix": [
       "Tu corriges le flux toi-même, puis tu décales l'atelier d'une heure",
-      "Tu délègues le flux au support et tu tiens l'atelier",
+      "Tu confies le flux au support N2, point à 11 h, et tu tiens l'atelier",
       "Tu demandes au DSI de choisir ce qui passe en premier, flux ou atelier",
       "Tu tiens l'atelier et tu regarderas toi-même le flux pendant la pause"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Tu fais le travail du support et tu décales 6 personnes. Le run mange le projet, et ça recommencera.",
-      "Oui. Le support sait faire : tu lui confies le flux avec une échéance et tu gardes ton rôle de chef de projet.",
+      "Oui. Le support sait faire : tu lui confies le flux avec un point à 11 h, et tu gardes ton rôle de chef de projet.",
       "Non. Tu escalades une décision que tu peux prendre seul. Le DSI attend que tu gères ce genre d'arbitrage.",
       "Non. Le flux bloqué reste sans pilote pendant 3 heures. Les factures AquaBleu partent en retard."
     ],
@@ -29,7 +29,7 @@ LEARNSQL.questions.cp01 = [
       "Tu tiens jusqu'à la mise en service, puis tu en parles à ton chef",
       "Tu travailles le week-end pour rattraper ton retard sans gêner personne",
       "Tu alertes ton responsable, chiffres et options en main",
-      "Tu refuses toute nouvelle demande, sans en parler à ton responsable"
+      "Tu dis non à toute nouvelle demande, de ton propre chef"
     ],
     "bonne": 2,
     "pourquoi": [
@@ -65,14 +65,14 @@ LEARNSQL.questions.cp01 = [
     "q": "Atelier de cadrage DEMAT. Le DAF ajoute : « Profitons-en pour refaire les relances clients. » Le délai légal ne bouge pas. Que fais-tu ?",
     "choix": [
       "Tu l'ajoutes au périmètre pour garder le sponsor de ton côté",
-      "Tu refuses : ce n'est pas dans le projet de départ",
+      "Tu réponds au DAF que ce n'est pas le sujet du projet",
       "Tu l'écris en hors périmètre ou lot 2, et le DAF le valide",
       "Tu ne l'écris nulle part, pour ne pas le froisser"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. Tu ajoutes de la charge sur un délai fixe. Le jour du retard, on oubliera que l'idée venait du DAF.",
-      "Non. Un refus sec braque le sponsor. Sa demande est peut-être utile, mais pas maintenant.",
+      "Non. Fermer la porte au sponsor le braque. Sa demande est peut-être utile, mais pas maintenant.",
       "Oui. Un hors-périmètre écrit et signé protège le délai. La demande n'est pas perdue : elle a sa place.",
       "Non. Le flou revient plus tard : le DAF pensera que les relances sont dans le projet."
     ],
@@ -85,7 +85,7 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "La comptabilité est satisfaite du nouvel outil et l'utilise tous les jours",
       "Le connecteur Divalto fonctionne bien et les flux partent sans souci",
-      "100 % des factures via la plateforme, 0 rejet bloquant sur un mois",
+      "100 % des factures B2B via la plateforme dès sept. 2027, moins de 2 % de rejets",
       "Le projet est livré à la date prévue et dans le budget validé en COPIL"
     ],
     "bonne": 2,
@@ -93,9 +93,9 @@ LEARNSQL.questions.cp01 = [
       "Non. « Satisfaite » ne se mesure pas. Chacun aura son avis à la fin.",
       "Non. « Bien » ne veut rien dire. Le connecteur peut marcher et les factures être rejetées.",
       "Oui. Il est mesurable, daté et lié au but métier. Tout le monde peut vérifier s'il est atteint.",
-      "Non. La date est une contrainte, pas un résultat. On peut livrer à l'heure un outil qui ne sert à rien."
+      "Non. Il est mesurable, mais ne dit rien du résultat métier : on peut livrer à l'heure des factures rejetées."
     ],
-    "retenir": "Un critère de succès se mesure et se vérifie par tous, sans débat. → module cp04"
+    "retenir": "Un critère de succès se mesure, se vérifie par tous et dit le résultat métier attendu. → module cp04"
   },
   {
     "id": "cp01-q06",
@@ -104,14 +104,14 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Elle ne bouge pas : les marges absorbent le retard",
       "Elle recule de 3 semaines",
-      "Elle recule d'environ une semaine et demie",
+      "Elle ne bouge pas : l'intégrateur avance en parallèle",
       "Elle ne bouge pas si on ajoute un développeur"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Sur le chemin critique, il n'y a pas de marge. C'est justement sa définition.",
       "Oui. Tout retard sur le chemin critique décale la fin d'autant, sauf si tu agis (paralléliser, réduire, renforcer).",
-      "Non. Le retard ne se partage pas en deux. Il passe entier sur la date de fin.",
+      "Non. Avancer en parallèle n'aide que pour les tâches qui ne dépendent pas de l'API. La tâche critique attend toujours : la fin recule.",
       "Non. L'API est chez la plateforme : un développeur de plus chez toi ne la livre pas plus vite."
     ],
     "retenir": "Un retard sur le chemin critique décale la date de fin d'autant. → module cp05"
@@ -124,14 +124,14 @@ LEARNSQL.questions.cp01 = [
       "Tout en agile : on découvrira les règles légales au fil des sprints",
       "Hybride : flux légaux cadrés au départ, écrans en itérations courtes",
       "Tout en cycle en V : on spécifie aussi les écrans dès le départ",
-      "Pas de démarche : l'intégrateur a l'habitude de ces projets"
+      "La démarche habituelle de l'intégrateur, sans l'adapter"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Des règles légales fixes n'ont pas besoin d'être découvertes. Les itérations font perdre du temps sur cette partie.",
       "Oui. Ce qui est fixe se cadre au départ. Ce qui est flou s'affine avec la comptabilité, par petits pas.",
       "Non. Spécifier des écrans flous donne des écrans que la comptabilité refusera à la recette.",
-      "Non. Sans démarche partagée, chacun travaille à sa façon. Tu ne sais plus ce qui est validé."
+      "Non. Tu subis la méthode du prestataire : elle sert son organisation, pas ton besoin."
     ],
     "retenir": "Le besoin stable se cadre au départ, le besoin flou se construit par itérations. → module cp06"
   },
@@ -140,7 +140,7 @@ LEARNSQL.questions.cp01 = [
     "dialecte": "Gestion de projet",
     "q": "La cheffe comptable, seule à connaître les cas de facturation, part en congé dans 4 mois, pendant la recette. Que fais-tu ?",
     "choix": [
-      "Tu l'inscris au registre des risques : former une suppléante dès maintenant",
+      "Tu l'écris en risque et tu formes une suppléante",
       "Tu attends : c'est dans 4 mois, on verra à ce moment-là",
       "Tu le signales aux RH : c'est un sujet d'absence, pas de projet",
       "Tu demandes au COPIL de décaler la recette de 4 mois"
@@ -176,36 +176,36 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q10",
     "dialecte": "Gestion de projet",
-    "q": "Personne ne valide les spécifications du format de facture. La compta dit : « C'est à l'informatique. » L'informatique dit : « C'est à la compta. » Que fais-tu ?",
+    "q": "Le RACI dit : le DAF valide le format de facture. Sans sa validation vendredi, la date légale est en danger. Il ne répond pas depuis 2 semaines, malgré 3 relances écrites. Que fais-tu ?",
     "choix": [
-      "Tu les valides toi-même pour débloquer la situation",
-      "Tu fais un RACI avec un seul valideur par livrable, validé en COPIL",
-      "Tu fais signer les deux services, pour être sûr",
-      "Tu demandes à l'intégrateur de trancher, il connaît le sujet"
+      "Tu valides toi-même le format, pour ne pas perdre la date",
+      "Tu attends son retour : c'est lui le valideur au RACI",
+      "Tu le préviens, puis tu portes la décision au DG avec l'impact",
+      "Tu fais valider par la cheffe comptable, elle connaît le format"
     ],
-    "bonne": 1,
+    "bonne": 2,
     "pourquoi": [
-      "Non. Tu n'es pas le métier. Si une règle est fausse, c'est toi qui porteras l'erreur.",
-      "Oui. Un seul « A » (celui qui valide) par livrable évite le ping-pong. Le COPIL rend la règle officielle.",
-      "Non. Deux valideurs = chacun compte sur l'autre. Le blocage reviendra au premier désaccord.",
-      "Non. Le prestataire n'a pas à décider pour toi. Et il a intérêt à valider ce qu'il a déjà fait."
+      "Non. Tu n'es pas le valideur. Si le format est faux, tu portes seul une erreur sur toutes les factures.",
+      "Non. Le RACI ne dit pas d'attendre sans fin. Vendredi passé, c'est la date légale qui recule.",
+      "Oui. Tu as relancé, la date limite approche et le risque est légal : escalader est ton devoir. Tu préviens le DAF par écrit, pour qu'il ne le découvre pas.",
+      "Non. Elle n'a pas ce rôle au RACI. Sa validation sera contestée, et tu la mets en porte-à-faux avec son chef."
     ],
-    "retenir": "Un livrable = un seul valideur, écrit dans un RACI validé par la gouvernance. → module cp09"
+    "retenir": "Valideur muet malgré des relances, date limite proche : escalader par écrit au niveau au-dessus, avec l'impact. → module cp09"
   },
   {
     "id": "cp01-q11",
     "dialecte": "Gestion de projet",
-    "q": "À 2 semaines de la recette, le commercial demande : « Envoyez aussi les factures en PDF aux petits clients. » Que fais-tu ?",
+    "q": "À 2 semaines de la recette, le commercial demande : « Ajoutez aussi un tableau de suivi des factures rejetées pour mon équipe. » Que fais-tu ?",
     "choix": [
       "Tu dis oui : l'intégrateur l'ajoutera vite, c'est un petit développement",
-      "Tu refuses : le périmètre est figé depuis la note de cadrage",
+      "Tu lui rappelles que le périmètre est figé depuis le cadrage",
       "Tu demandes à l'intégrateur de l'ajouter sans en parler au sponsor",
       "Tu chiffres l'impact, le sponsor arbitre, tu traces"
     ],
     "bonne": 3,
     "pourquoi": [
       "Non. « Vite » n'est jamais gratuit. Le délai et le budget glissent sans décision de personne.",
-      "Non. La demande a peut-être de la valeur. Un refus sec sans chiffrage braque le commercial.",
+      "Non. La demande a peut-être de la valeur. Fermer la porte sans chiffrage braque le commercial.",
       "Non. Un ajout caché n'est ni chiffré ni recetté. Il sortira à la mise en service, au pire moment.",
       "Oui. Chaque demande de changement est chiffrée (délai, coût, risque), arbitrée par le sponsor, puis tracée."
     ],
@@ -236,18 +236,18 @@ LEARNSQL.questions.cp01 = [
     "q": "Le DAF veut séparer investissement (CAPEX) et fonctionnement (OPEX). Où ranges-tu l'abonnement annuel à la plateforme agréée ?",
     "choix": [
       "En investissement, car il est lié au projet",
-      "En fonctionnement, car il revient chaque année",
+      "En fonctionnement : c'est un service, pas un bien",
       "En investissement la 1re année, puis en fonctionnement",
       "Hors budget SI, car c'est la compta qui l'utilise"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Le lien avec le projet ne suffit pas. Un abonnement payé chaque année est une charge, pas un investissement.",
-      "Oui. Un abonnement est une dépense récurrente : c'est du fonctionnement. À valider avec le contrôle de gestion.",
+      "Oui. Un abonnement paie un service : c'est une charge (OPEX). Le développement du connecteur peut, lui, être immobilisé : à voir avec le contrôle de gestion.",
       "Non. La nature de la dépense ne change pas avec l'année. Ce découpage fausse la comparaison des budgets.",
       "Non. Quelqu'un doit porter ce coût dans un budget. Sinon il « disparaît », puis surprend tout le monde."
     ],
-    "retenir": "Abonnement récurrent = fonctionnement (OPEX). Projet ponctuel = souvent investissement (CAPEX). → module cp11"
+    "retenir": "Abonnement à un service = OPEX ; développement ou licence achetée = souvent CAPEX. → module cp11"
   },
   {
     "id": "cp01-q14",
@@ -273,7 +273,7 @@ LEARNSQL.questions.cp01 = [
     "dialecte": "Gestion de projet",
     "q": "Tu dois choisir la plateforme agréée. Le commercial pousse celle qu'utilise un ami. Que fais-tu ?",
     "choix": [
-      "Tu prends la moins chère des trois offres reçues, à service égal",
+      "Tu prends la moins chère des plateformes proposées",
       "Tu consultes 3 plateformes avec une grille de choix pondérée",
       "Tu prends celle que l'intégrateur Divalto connaît déjà",
       "Tu organises une démo de chacune et tu choisis au ressenti"
@@ -293,7 +293,7 @@ LEARNSQL.questions.cp01 = [
     "q": "Tu vas signer avec la plateforme agréée. En plus du prix, que vérifies-tu en priorité ?",
     "choix": [
       "La durée d'engagement la plus longue, pour avoir une remise",
-      "Les niveaux de service (SLA) et la récupération des données en fin de contrat",
+      "Les SLA et la récupération des données en fin de contrat",
       "Le nombre de clients de la plateforme, pour être rassuré",
       "Rien de plus : l'agrément de l'État garantit le service"
     ],
@@ -309,21 +309,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q17",
     "dialecte": "Gestion de projet",
-    "q": "Pour la 2e fois, la plateforme agréée livre en retard sans prévenir. Que fais-tu ?",
+    "q": "Le devis de l'intégrateur n'est pas signé : le DAF le relit encore. L'intégrateur propose de démarrer lundi, « on régularisera après ». Que fais-tu ?",
     "choix": [
-      "Tu menaces de rompre le contrat dès cette semaine",
-      "Tu compenses en faisant toi-même une partie de leur travail",
-      "Tu attends : ils ont sûrement d'autres clients en retard",
-      "Tu fixes un comité fournisseur, un plan daté, et tu écris"
+      "Tu acceptes : une semaine de gagnée, le devis suivra",
+      "Tu acceptes s'il note ses heures à part en attendant",
+      "Tu dis non : pas de démarrage avant la commande signée",
+      "Tu lui demandes de voir directement avec le DAF"
     ],
-    "bonne": 3,
+    "bonne": 2,
     "pourquoi": [
-      "Non. Une menace trop tôt durcit la relation. Et changer de plateforme en cours de projet te retarde encore plus.",
-      "Non. Tu prends leur travail et leur responsabilité. Ils n'ont plus de raison de tenir leurs dates.",
-      "Non. Le problème se répète : sans réaction, il deviendra la règle.",
-      "Oui. Un cadre formel et des traces écrites mettent le fournisseur face à ses engagements. Les pénalités restent possibles."
+      "Non. Sans commande, rien n'est fixé : ni périmètre, ni prix. En cas de désaccord, tu n'as rien à lui opposer.",
+      "Non. Des heures notées ne sont pas un engagement. Le périmètre et le prix restent flous, et la facture arrivera quand même.",
+      "Oui. Sans commande signée, ni le périmètre ni le prix ne sont engagés. Tu tiens ce non, et tu aides le DAF à signer vite.",
+      "Non. Tu sors du circuit. Le prestataire négocie avec le sponsor, et tu perds la main sur ton projet."
     ],
-    "retenir": "Un fournisseur en retard se pilote : comité, plan d'action daté, traces écrites. → module cp15"
+    "retenir": "Pas de démarrage d'un prestataire sans commande signée : elle fixe le périmètre, le prix et les responsabilités. → module cp15"
   },
   {
     "id": "cp01-q18",
@@ -333,7 +333,7 @@ LEARNSQL.questions.cp01 = [
       "Tu lui demandes de venir tester en dehors de ses heures",
       "Tu fais la recette à sa place, tu connais les factures",
       "Tu négocies avec le DAF des créneaux fixes pour elle",
-      "Tu escalades au directeur général pour la libérer"
+      "Tu fais arbitrer le DG pour qu'elle soit libérée"
     ],
     "bonne": 2,
     "pourquoi": [
@@ -370,14 +370,14 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Tu dis oui, puis tu négocies plus tard avec l'équipe et le prestataire",
       "Tu proposes des options, chacune avec son coût et son risque",
-      "Tu refuses : le planning a été validé en COPIL",
+      "Tu maintiens la date : le planning a été validé en COPIL",
       "Tu acceptes et tu demandes des heures sup à l'équipe"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Le « oui » devient un engagement. Tu le rateras, et ce sera ta faute, pas celle de la demande.",
-      "Oui. Tu ne dis pas non : tu montres le prix de chaque option. Le DG choisit en connaissant les conséquences.",
-      "Non. Un refus sec, même justifié, braque le DG. Il pensera que tu protèges ton confort.",
+      "Oui. Tu dis non à « même projet, même coût, un mois plus tôt » et tu montres le prix de chaque option (réduire le périmètre, renforcer, accepter un risque). Le DG choisit.",
+      "Non. Un non sans options, même justifié, braque le DG. Il pensera que tu protèges ton confort.",
       "Non. L'équipe s'épuise et fait plus d'erreurs. Et le risque n'a pas été accepté par celui qui demande."
     ],
     "retenir": "Dire non, c'est proposer des options avec leur prix, et laisser décider. → module cp18"
@@ -385,21 +385,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q21",
     "dialecte": "Gestion de projet",
-    "q": "Des factures sont rejetées. L'intégrateur accuse la plateforme, la plateforme accuse l'intégrateur. Que fais-tu ?",
+    "q": "Une facture AquaBleu est déjà émise via la plateforme, avec un mauvais prix. Le commercial te demande de la modifier, « pour éviter un avoir ». Que fais-tu ?",
     "choix": [
-      "Tu désignes l'intégrateur comme fautif : c'est lui que tu paies",
-      "Tu les laisses régler ça entre eux, ce sont des pros",
-      "Tu analyses toi-même les journaux toute la nuit",
-      "Tu les réunis sur des faits, avec un responsable par action"
+      "Tu demandes à l'intégrateur de la corriger dans la base",
+      "Tu acceptes si le DAF te donne son accord par écrit",
+      "Tu dis non : une facture émise ne se modifie pas",
+      "Tu en parles au COPIL du mois prochain avant de répondre"
     ],
-    "bonne": 3,
+    "bonne": 2,
     "pourquoi": [
-      "Non. Accuser sans preuve braque l'intégrateur. Et si la faute vient de la plateforme, le problème reste.",
-      "Non. Chacun défend sa position. Personne n'a intérêt à céder, et les rejets continuent.",
-      "Non. Tu fais le travail des deux prestataires. Et tu seras épuisé pour la suite du projet.",
-      "Oui. Les faits dépassionnent le conflit. Chaque action a un responsable et une date."
+      "Non. La facture est déjà chez le client. La changer en base crée deux versions différentes de la même facture : c'est illégal.",
+      "Non. L'accord du DAF ne rend pas la modification légale. Vous seriez deux à porter la faute.",
+      "Oui. Une facture émise ne se modifie pas : on la corrige par un avoir (ou une facture rectificative). Tu l'expliques au commercial : c'est la loi, pas ton choix.",
+      "Non. La réponse est déjà connue : c'est la loi. Attendre un mois laisse le client avec une facture fausse."
     ],
-    "retenir": "Un conflit entre prestataires se règle ensemble, sur des faits, avec des actions attribuées. → module cp18"
+    "retenir": "Une demande illégale se refuse net, en donnant la règle et la bonne voie (ici, l'avoir). → module cp18"
   },
   {
     "id": "cp01-q22",
@@ -446,17 +446,17 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Tu bascules : le DAF est le sponsor, il a décidé",
       "Tu annules la bascule seul, la qualité passe avant tout",
-      "Tu présentes les écarts aux critères de go fixés avant, et le retour arrière",
+      "Tu compares aux critères de go et tu recommandes, il tranche",
       "Tu bascules quand même et tu corriges pendant l'hypercare"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. Le sponsor décide, mais il doit décider en connaissant les risques. C'est à toi de les montrer.",
       "Non. La décision ne t'appartient pas seule. Le sponsor doit pouvoir choisir en connaissant les faits.",
-      "Oui. Des critères fixés à l'avance évitent un débat d'opinions. Le sponsor décide en connaissant le plan de repli.",
+      "Oui. Critères fixés avant, écarts, retour arrière, puis ta recommandation (ici no-go si le critère était « 0 anomalie majeure »). Le DAF décide en connaissant le plan de repli.",
       "Non. Deux anomalies majeures sur de vraies factures, ce n'est pas de l'hypercare. C'est un incident annoncé."
     ],
-    "retenir": "Go / no-go : comparer aux critères fixés avant, montrer le retour arrière, puis le sponsor décide. → module cp21"
+    "retenir": "Go / no-go : comparer aux critères fixés avant, montrer le retour arrière, recommander ; le sponsor décide. → module cp21"
   },
   {
     "id": "cp01-q25",
@@ -490,9 +490,9 @@ LEARNSQL.questions.cp01 = [
     "bonne": 1,
     "pourquoi": [
       "Non. Un mail ne répond pas à une peur. Il donne l'impression qu'on évite le sujet.",
-      "Oui. On traite l'inquiétude en face, avec du concret. Une utilisatrice clé porte le changement de l'intérieur.",
+      "Oui. On traite l'inquiétude en face, avec du concret. Une utilisatrice clé porte le changement de l'intérieur. Ne promets rien sur l'emploi : le DAF doit répondre à ce point, avec toi.",
       "Non. Trop tôt, la formation est oubliée. Et elle ne répond pas à l'inquiétude.",
-      "Non. Le DAF a un rôle, mais l'adoption est un résultat de ton projet. Si elle rate, le projet rate."
+      "Non. Le DAF répond sur l'emploi, mais l'adoption est ton résultat : vous y allez ensemble."
     ],
     "retenir": "Le changement se prépare avec les gens : écouter, montrer le concret, s'appuyer sur des utilisateurs clés. → module cp23"
   },
@@ -502,16 +502,16 @@ LEARNSQL.questions.cp01 = [
     "q": "L'intégrateur demande une copie complète de la base clients de production pour ses tests. Que fais-tu ?",
     "choix": [
       "Tu l'envoies : il a signé un accord de confidentialité",
-      "Tu refuses tout test sur des données ressemblant au réel",
+      "Tu n'acceptes que des données inventées de toutes pièces",
       "Tu l'envoies par mail chiffré, c'est sécurisé",
-      "Tu donnes des données réduites ou anonymisées"
+      "Tu donnes le minimum utile, contacts masqués"
     ],
     "bonne": 3,
     "pourquoi": [
       "Non. La confidentialité ne suffit pas. Le RGPD demande de limiter les données au besoin réel.",
-      "Non. Les tests doivent rester réalistes. Le bon réflexe est de réduire les données, pas de bloquer.",
+      "Non. Les tests doivent rester réalistes. Le bon réflexe est de réduire et de masquer, pas de tout inventer.",
       "Non. Le chiffrement protège le transport, pas le fond : tu envoies quand même trop de données.",
-      "Oui. Tu limites les données au besoin. Vérifie aussi le contrat du prestataire (sous-traitant RGPD). Demande l'avis du DPO ou du référent RGPD."
+      "Oui. Tu limites les données au besoin. Les SIREN des sociétés peuvent rester réels ; on masque les personnes (noms, e-mails des contacts). Vérifie aussi le contrat du prestataire (sous-traitant RGPD) et demande l'avis du DPO."
     ],
     "retenir": "Données personnelles en projet : donner le minimum utile, et vérifier le cadre du prestataire. → module cp24"
   },
@@ -537,21 +537,21 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q29",
     "dialecte": "Gestion de projet",
-    "q": "Tu manages un analyste. Il livre en retard pour la 3e fois. Tu as repris son travail les deux fois d'avant. Que fais-tu ?",
+    "q": "Ton analyste a changé en production le paramétrage du connecteur, sans ticket ni test, « pour aller vite ». Rien n'a cassé. Que fais-tu ?",
     "choix": [
-      "Tu reprends encore son travail, c'est plus rapide",
-      "Tu le recadres devant l'équipe, pour que tout le monde comprenne",
-      "Tu attends l'entretien annuel pour en parler",
-      "Tu le vois seul : faits, causes, et attentes claires"
+      "Tu ne dis rien : rien n'a cassé et il voulait bien faire",
+      "Tu le vois seul aujourd'hui : c'est interdit, et tu dis pourquoi",
+      "Tu en parles à la prochaine réunion, sans le nommer",
+      "Tu le félicites d'être réactif, en suggérant un ticket la prochaine fois"
     ],
-    "bonne": 3,
+    "bonne": 1,
     "pourquoi": [
-      "Non. Il n'apprend rien et tu t'épuises. Il comprend que le retard n'a pas de conséquence.",
-      "Non. Le recadrage en public humilie. Tu perds sa confiance et celle de l'équipe.",
-      "Non. Attendre des mois laisse le problème s'installer. Et l'entretien annuel devient un procès.",
-      "Oui. Un échange en tête-à-tête, factuel, permet de comprendre la cause et de fixer ce que tu attends."
+      "Non. Il comprend que la règle est facultative. La prochaine fois, c'est la facturation qui cassera.",
+      "Oui. Un écart sur la production se recadre vite et net, en tête-à-tête. Tu rappelles la règle, sa raison, et ce que tu attends à partir de maintenant.",
+      "Non. Un message général ne touche pas la bonne personne. Et l'équipe voit que tu évites le sujet.",
+      "Non. « Suggérer » laisse le choix. Il retient les félicitations, pas la règle."
     ],
-    "retenir": "Un problème de travail se traite vite, seul à seul, sur des faits, avec des attentes claires. → module cp26"
+    "retenir": "Un écart grave (production, sécurité) se recadre le jour même, seul à seul, avec la règle et son pourquoi. → module cp26"
   },
   {
     "id": "cp01-q30",
@@ -560,7 +560,7 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Le détail des licences et des contrats, ligne par ligne",
       "Que ce budget est incompressible : tout est déjà engagé",
-      "Le run, les projets et les obligations, avec la valeur et des options d'économie",
+      "La hausse par nature, sa valeur, et des options",
       "Une comparaison avec la moyenne des entreprises du secteur"
     ],
     "bonne": 2,

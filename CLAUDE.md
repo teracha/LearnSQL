@@ -135,6 +135,7 @@ Claude principal = **superviseur** : il découpe le travail, lance les agents, v
 | `prof` | Forme des cours et des questions (dyslexie, TDAH) | Oui |
 | `expert-sql` | Questions SQL Server / Snowflake justes | Oui |
 | `expert-divalto` | Questions Divalto, depuis la base en lecture seule | Oui |
+| `expert-chef-projet` | Cours et mises en situation du parcours Chef de projet SI | Oui |
 | `testeur-qcm` | Relit un module qu'il n'a pas écrit | Non, rapport |
 | `testeur-site` | Tests navigateur, bugs | Non, rapport |
 | `developpeur` | Code du site et tests | Oui |

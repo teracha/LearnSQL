@@ -8,7 +8,7 @@ LEARNSQL.cours.cp01 = {
       titre: "Comment utiliser ce bilan",
       exemple: "Projet DEMAT 2027 : passer à la facture électronique.\nLe DAF (directeur financier) veut savoir si tu es prêt à piloter.\nToi, tu ne sais pas encore où tu es fort, ni où tu es fragile.\nCe bilan sert à ça : une photo de départ, pas un examen.",
       points: [
-        "Pas de note bloquante : ce module ne t'empêche pas d'avancer.",
+        "Ce bilan n'a pas de note à atteindre : il sert à te situer. Il ne bloque pas la suite.",
         "Étape 1 : l'auto-évaluation. Tu notes chaque phrase de 1 à 4, sur un papier.",
         "Étape 2 : le QCM. Ce sont des mises en situation : « Que fais-tu ? ».",
         "Réponds comme tu fais vraiment au travail. Pas comme « il faudrait ».",
