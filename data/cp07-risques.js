@@ -92,14 +92,14 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Tu demandes au COPIL de décaler la recette de 4 mois",
       "Tu l'écris en risque et tu fais former une suppléante",
-      "Tu lui demandes de déplacer ses congés après la recette",
+      "Tu confies ses cas à l'intégrateur et tu suis les tests",
       "Tu l'écris en risque et tu testeras ses cas à son retour"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La plus grosse solution, pour un risque qu'une action simple réduit. Décaler de 4 mois pousse la bascule après le 1er septembre 2027.",
       "Oui. 4 mois, c'est le temps de lui faire écrire ses cas et de former Julie. Le risque baisse, le planning ne bouge pas.",
-      "Non. Ses congés sont posés, et c'est le DAF, son manager, qui les accorde. Tu crées un conflit alors que former une suppléante suffit.",
+      "Non. L'intégrateur connaît Divalto, pas vos avoirs ni vos litiges : il teste ce qu'il comprend. Et après la bascule, personne en compta ne sait traiter ces cas.",
       "Non. Ses cas glissent de 3 semaines, et le point unique de défaillance reste : si elle tombe malade, plus personne ne sait. 4 mois suffisent pour former Julie."
     ],
     retenir: "Réponse proportionnée : la plus petite action qui réduit assez le risque."
@@ -168,7 +168,7 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Tu l'ajoutes au registre et le présentes au COPIL",
       "Tu préviens le DAF aujourd'hui, avec des options",
-      "Tu relances le prestataire aujourd'hui pour la date",
+      "Tu relances la PA aujourd'hui pour la date",
       "Tu demandes au DG un COPIL extraordinaire demain"
     ],
     bonne: 1,
@@ -454,14 +454,14 @@ LEARNSQL.questions.cp07 = [
       "Tu lui donnes la doc et elle apprendra seule",
       "Une alerte au DAF aujourd'hui : risque facturation",
       "Deux séances de formation et un essai en recette",
-      "Le report de la bascule, le temps qu'elle progresse"
+      "Tu fais ses relances le 1er mois, et tu la formes après"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Seule avec une doc, elle apprend sur de vraies relances, après la bascule : retards d'encaissement et erreurs. 5 mois laissent le temps de former.",
       "Non. Une note de 4 se gère à ton niveau. Le DAF le verra au COPIL, avec l'action déjà en cours.",
       "Oui. Réduire, simplement : former, puis vérifier en recette. Si l'essai rate, la probabilité monte et tu adaptes.",
-      "Non. Reporter la bascule pour un besoin de formation : tu mets la date légale en jeu pour un risque moyen."
+      "Non. Tu fais le travail de la compta : tu ne pilotes plus le projet, et Sophie apprend quand même sur de vraies relances, après la bascule."
     ],
     retenir: "Risque moyen : une action simple pour le réduire, puis on vérifie."
   },
@@ -472,14 +472,14 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Tu ne changes rien, sans le noter : elle rattrapera",
       "Tu replaces ses tests sur la semaine de marge",
-      "Tu lui demandes d'annuler sa formation",
+      "Tu fais ses tests toi-même et elle les relira",
       "Tu décales la recette d'un mois entier"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Sans replanifier ni noter, ses tests s'empilent à son retour, et personne ne voit que la marge est prise.",
       "Oui. Une semaine se prend sur la marge de recette. Tu le notes, et tu sais que la marge est maintenant consommée.",
-      "Non. Sa formation est décidée avec sa cheffe. Tu crées un conflit pour un trou que la marge absorbe.",
+      "Non. Tu testes un métier qui n'est pas le tien : ce que tu valides ne l'est pas vraiment. Et la marge de recette suffit pour attendre son retour.",
       "Non. Un mois de décalage pour une semaine d'absence : tu perds 3 semaines pour rien."
     ],
     retenir: "Une semaine d'absence se prend sur la marge de recette."
@@ -577,7 +577,7 @@ LEARNSQL.questions.cp07 = [
       "Oui. Un fait observable et une date : le 16 mars, tout le monde sait si le plan B part, sans débat.",
       "Non. Utile comme alerte, mais tu dépends de sa franchise : elle annonce souvent trop tard. Sans date, rien ne part à coup sûr."
     ],
-    retenir: "Un déclencheur = un fait observable, avec une date."
+    retenir: "Un déclencheur = un fait observable et daté, qui ne part que si le risque arrive."
   },
   {
     id: "cp07-q31",
@@ -660,14 +660,14 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "Pendant la recette, le paramétrage de la TVA rejette 3 factures sur 400. La bascule est dans 2 mois, pour l'échéance du 1er septembre 2027. L'intégrateur peut corriger en 2 jours. Que fais-tu ?",
     choix: [
-      "Tu demandes aujourd'hui un COPIL extraordinaire",
+      "Tu corriges toi-même aujourd'hui et tu retestes",
       "Tu fais corriger, puis retester ces cas",
       "Tu décales la bascule pour tout retester",
       "Tu notes les rejets et tu corriges après la bascule"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Une réunion de crise pour 3 rejets que l'intégrateur corrige en 2 jours : tu alarmes pour rien.",
+      "Non. Le paramétrage est à l'intégrateur : si tu y touches, il n'en répond plus, et tu ne pilotes plus. Tu le fais corriger, puis retester.",
       "Oui. C'est un petit problème : on le traite simplement. Correction, nouveau test des cas concernés, et on continue.",
       "Non. 2 mois avant la bascule, une correction de 2 jours : décaler n'apporte rien et coûte de la marge.",
       "Non. C'est un problème connu, pas un risque. Corriger après la bascule, c'est émettre des factures fausses, alors que 2 jours suffisent maintenant."
@@ -686,7 +686,7 @@ LEARNSQL.questions.cp07 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le code GLN (code du lieu de livraison) manque pour un client à 20 % du chiffre d'affaires, le mois de la bascule. Le DAF le sait le jour même, avec des pistes et ta recommandation.",
+      "Oui. Deux mentions manquent (n° de commande, code GLN : le code du lieu de livraison), pour un client à 20 % du chiffre d'affaires. Le DAF le sait le jour même, avec des pistes et ta recommandation.",
       "Non. Négocier un délai avec un client à 20 % du chiffre d'affaires n'est pas ton rôle, et le DAF ne sait rien : s'il refuse, des semaines sont perdues.",
       "Non. Un mois perdu sur un sujet commercial majeur : le DAF découvre en séance ce qu'il aurait pu traiter.",
       "Non. Trop fort, et pas ta décision : la bascule passe en septembre, après la date légale, pour un sujet qu'un ajout au connecteur peut régler."
@@ -701,14 +701,14 @@ LEARNSQL.questions.cp07 = [
       "« Tu as raison, je l'arrête pour gagner du temps »",
       "« C'est obligatoire, le DAF l'exige »",
       "« Donne-moi tes 3 risques côté ventes, je les suis »",
-      "« Je vais en parler au DAF, il tranchera »"
+      "« Je t'envoie le registre : lis-le et tu verras »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Sans registre, les risques arrivent en surprise : le premier client bloqué sera le sien.",
       "Non. Brandir le sponsor ne convainc pas, et rien ne dit qu'il l'a demandé : parler en son nom se vérifie vite, et tu perds du crédit.",
       "Oui. Tu le rends utile : 3 risques, sur son terrain. Il voit à quoi sert le registre : protéger ses clients.",
-      "Non. Le DAF pour une remarque en passant : tu montes un sujet qu'une vraie question au commercial règle."
+      "Non. Lui envoyer le registre, c'est lui donner la paperasse qu'il refuse : il ne le lira pas. Pars de son terrain : ses clients."
     ],
     retenir: "Un registre court et concret convainc mieux qu'une règle imposée."
   },

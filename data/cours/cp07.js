@@ -57,7 +57,7 @@ LEARNSQL.cours.cp07 = {
         "Réduire = baisser la probabilité ou l'impact : former une suppléante, documenter, tester plus tôt, un pilote sur 1 site.",
         "Transférer = faire porter la conséquence par un autre : contrat (pénalités, module cp14), assurance. La pénalité paie, mais le retard reste chez toi : réduis-le aussi.",
         "Accepter = ne rien faire de plus, en le sachant. Pour un petit risque, ou quand rien n'est possible. L'impact compte ? Alors avec une réserve (temps, argent) ou un plan de repli.",
-        "5e réponse du PMBOK : « escalader » = remettre le risque à son porteur, hors de ton projet. Ex. : le e-reporting, porté par le DAF. Rien à voir avec l'échelle d'escalade de cp16."
+        "5e réponse du PMBOK : « escalader » = remettre le risque à son porteur, hors de ton projet. Ex. : le e-reporting, porté par le DAF. Ce n'est pas l'échelle d'escalade de cp16."
       ],
       retenir: "On évite l'inacceptable, on réduit le reste, on transfère l'argent, on accepte le petit."
     },

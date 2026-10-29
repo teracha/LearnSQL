@@ -15,9 +15,9 @@ LEARNSQL.cours.cp04 = {
       points: [
         "Cadrer = écrire, en 2 à 5 pages, ce que le projet doit produire, pour qui, avec quels moyens et quelles limites. Ce document s'appelle la note de cadrage.",
         "Autres noms : charte de projet (PMBOK, le guide américain), Project Brief (PRINCE2, la méthode britannique). En agile : vision produit, avec un budget et des limites. Même idée.",
-        "Ne pas confondre : la note de cadrage dit QUOI et POURQUOI (quelques pages). Le cahier des charges détaille les besoins, pour consulter des prestataires. Les spécifications disent COMMENT, écran par écran.",
+        "Note de cadrage = QUOI et POURQUOI. Cahier des charges = le détail des besoins, pour consulter des prestataires. Spécifications = COMMENT, écran par écran.",
         "On cadre AVANT de lancer les travaux et les commandes. Un prestataire démarre sans note validée ni commande ? Tu fais arrêter, et tu informes le sponsor le jour même.",
-        "Plus tard, une demande hors du cadre devient une demande de changement : impact chiffré, puis décision du sponsor. Sans lien avec l'objectif ? C'est un autre projet. Contraire à la loi ? C'est non, sans chiffrer."
+        "Plus tard, une demande hors cadre devient une demande de changement : impact chiffré, puis décision du sponsor. Sans lien avec l'objectif ? Autre projet. Contraire à la loi ? Non, sans chiffrer."
       ],
       retenir: "Une note de cadrage transforme des attentes floues en un accord écrit, avant de dépenser."
     },
@@ -27,7 +27,7 @@ LEARNSQL.cours.cp04 = {
       points: [
         "L'objectif dit QUOI obtenir et POURQUOI. Il ne dit pas avec quel outil.",
         "Les enjeux disent ce qu'on risque si on ne fait rien : amende, client perdu, surcharge en compta, image.",
-        "L'objectif nomme déjà un logiciel ? Demande : « Quel problème ce logiciel doit-il régler ? »",
+        "L'objectif nomme déjà un logiciel ? À dire : « Quel problème ce logiciel doit-il régler ? »",
         "Un bon objectif tient en une ou deux phrases.",
         "Le DAF comme la comptabilité doivent le comprendre."
       ],
