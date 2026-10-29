@@ -89,8 +89,8 @@ h2 { font-size: 21px; margin: 32px 0 12px; }
   display: grid; place-items: center;
   background: var(--accent-soft); color: var(--accent); font-weight: 700;
 }
-.module h3 { margin: 0; font-size: 19px; }
-.module p { margin: 2px 0 0; color: var(--muted); font-size: 16px; }
+.module h3, .parcours h3 { margin: 0; font-size: 19px; }
+.module p, .parcours p { margin: 2px 0 0; color: var(--muted); font-size: 16px; }
 .module.locked { opacity: 0.55; }
 .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .tag { font-size: 13px; padding: 1px 8px; border-radius: 99px; background: var(--code-bg); color: var(--muted); }
@@ -183,3 +183,7 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
 .case { display: inline-flex; align-items: center; gap: 4px; margin: 2px 10px 2px 0; font-size: 15px; white-space: nowrap; }
 .case input { width: 18px; height: 18px; accent-color: var(--accent); }
 .card table { display: block; overflow-x: auto; }
+.parcours { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.parcours > div { flex: 1; }
+.parcours h3 { color: var(--accent); }
+.parcours .fleche { font-size: 32px; color: var(--muted); }

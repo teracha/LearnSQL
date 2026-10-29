@@ -119,7 +119,13 @@
   }
 
   // Lit la progression en ligne, la fusionne avec celle de l'appareil, renvoie le tout.
+  function droits() {
+    var s = lireSession() || {};
+    return JSON.stringify([s.role, s.groupeIds, s.acces]);
+  }
+
   function synchroniser() {
+    var avant = droits();
     return sessionValide().then(function (s) {
       if (!s) return false;
       return appelSupa("/rest/v1/progression?select=data", {}, s.access_token).then(function (lignes) {
@@ -137,17 +143,23 @@
             var role = p && p[0] ? p[0].role : "agent";
             var cur = lireSession();
             if (cur && cur.role !== role) { cur.role = role; ecrireSession(cur); majNav(); }
-            return appelSupa("/rest/v1/membre?select=groupe(nom)&user_id=eq." + s.id, {}, s.access_token);
+            return appelSupa("/rest/v1/membre?select=groupe_id,groupe(nom)&user_id=eq." + s.id, {}, s.access_token);
           }).then(function (m) {
             var cur = lireSession();
             if (cur && m) {
               cur.groupes = m.map(function (x) { return x.groupe && x.groupe.nom; }).filter(Boolean).sort();
+              cur.groupeIds = m.map(function (x) { return x.groupe_id; });
               ecrireSession(cur);
             }
-          }, function () { /* tables d'équipe absentes : rôle agent, sans groupe */ });
+          }, function () { /* tables d'équipe absentes : rôle agent, sans groupe */ }).then(function () {
+            return appelSupa("/rest/v1/acces?select=element,groupe_id", {}, s.access_token).then(function (a) {
+              var cur = lireSession();
+              if (cur) { cur.acces = a || []; ecrireSession(cur); }
+            }, function () { /* table acces absente : tout est ouvert */ });
+          });
         }).then(function () {
           etatSync = "Synchronisé à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
-          return change;
+          return change || droits() !== avant;
         });
       });
     }).catch(function (e) {
@@ -235,6 +247,52 @@
     return null;
   }
 
+  // ---------- Parcours et droits ----------
+  // Liste à plat : chaque parcours ou sous-parcours avec sa chaîne d'ids (parcours, puis sous-parcours).
+  function noeuds() {
+    var liste = [];
+    (DATA.parcours || []).forEach(function (p) {
+      liste.push({ n: p, chaine: [p.id] });
+      (p.sous || []).forEach(function (s) { liste.push({ n: s, chaine: [p.id, s.id] }); });
+    });
+    return liste;
+  }
+
+  function noeud(id) {
+    return noeuds().filter(function (x) { return x.n.id === id; })[0] || null;
+  }
+
+  function chaineModule(mid) {
+    var trouve = noeuds().filter(function (x) { return (x.n.modules || []).indexOf(mid) >= 0; })[0];
+    return trouve ? trouve.chaine : null;
+  }
+
+  function numeroModule(mid) {
+    var x = noeud(chaineModule(mid).slice(-1)[0]);
+    return x.n.modules.indexOf(mid) + 1;
+  }
+
+  // Règle : sans compte, seulement les parcours publics. Admin : tout.
+  // Sinon, chaque niveau de la chaîne doit être ouvert à tous, ou à un de mes groupes.
+  function accesOK(chaine) {
+    var s = lireSession();
+    if (!s) return (DATA.parcoursPublics || []).indexOf(chaine[0]) >= 0;
+    if (s.role === "admin") return true;
+    var regles = s.acces || [], mes = s.groupeIds || [];
+    return chaine.every(function (el) {
+      var r = regles.filter(function (x) { return x.element === el; });
+      return !r.length || r.some(function (x) { return mes.indexOf(x.groupe_id) >= 0; });
+    });
+  }
+
+  function moduleVisible(mid) {
+    var c = chaineModule(mid);
+    return !!c && accesOK(c);
+  }
+
+  // "m05-q12" → "m05" ; marche aussi pour des ids plus longs ("edi-m01-q03").
+  function moduleDe(qid) { return qid.slice(0, qid.lastIndexOf("-q")); }
+
   function toutesQuestions() {
     var liste = [];
     Object.keys(DATA.questions).forEach(function (m) { liste = liste.concat(DATA.questions[m]); });
@@ -249,7 +307,7 @@
 
   function idsEnErreur(store) {
     return Object.keys(store.questions).filter(function (id) {
-      return store.questions[id].dernier === false && questionParId(id);
+      return store.questions[id].dernier === false && questionParId(id) && moduleVisible(moduleDe(id));
     });
   }
 
@@ -292,7 +350,7 @@
 
   function themesRevisables() {
     return DATA.modules.filter(function (m) {
-      return DATA.questions[m.id] && DATA.questions[m.id].length >= REVISION_MIN_PAR_THEME;
+      return DATA.questions[m.id] && DATA.questions[m.id].length >= REVISION_MIN_PAR_THEME && moduleVisible(m.id);
     });
   }
 
@@ -308,44 +366,87 @@
   }
 
   // ---------- Pages ----------
+  function carteModule(store, m, num) {
+    var qs = DATA.questions[m.id];
+    var st = statsModule(store, m.id);
+    var droite = !qs ? '<div class="note"><small>À venir</small></div>'
+      : st ? '<div class="note ' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) +
+             '<small>meilleure · ' + st.nb + ' essai(s)</small></div>'
+      : '<div class="note"><small>' + Math.min(TAILLE_QCM, qs.length) + ' questions</small></div>';
+    var boutons = (DATA.cours[m.id] ? '<a class="btn small ghost" href="#/cours/' + m.id + '">Cours</a>' : '') +
+      (qs ? '<a class="btn small" href="#/quiz/' + m.id + '">QCM</a>' : '');
+    return '<div class="card module' + (qs || DATA.cours[m.id] ? '' : ' locked') + '">' +
+      '<div class="num">' + num + '</div>' +
+      '<div><h3>' + esc(m.titre) + '</h3><p>' + esc(m.resume) + '</p>' +
+      '<div class="tags"><span class="tag">' + esc(m.niveau) + '</span>' +
+      (qs ? '<span class="tag">' + vuesModule(store, qs) + '/' + qs.length + ' vues</span>' : '') + '</div>' +
+      (boutons ? '<div class="mini-actions">' + boutons + '</div>' : '') + '</div>' +
+      droite + '</div>';
+  }
+
+  // Tous les modules d'un parcours, sous-parcours compris.
+  function modulesDe(n) {
+    var ids = (n.modules || []).slice();
+    (n.sous || []).forEach(function (s) { ids = ids.concat(s.modules || []); });
+    return ids;
+  }
+
+  function carteParcours(store, n, lien) {
+    var ids = modulesDe(n), prets = ids.filter(function (id) { return DATA.questions[id]; });
+    var reussis = prets.filter(function (id) { var st = statsModule(store, id); return st && st.meilleure >= 16; });
+    var nbSous = (n.sous || []).length;
+    var detail = !prets.length && !nbSous ? 'À venir'
+      : (nbSous ? nbSous + ' sous-parcours · ' : '') + ids.length + ' modules';
+    return '<a class="card parcours" href="' + lien + '"><div><h3>' + esc(n.titre) + '</h3>' +
+      '<p>' + esc(n.resume) + '</p><div class="tags"><span class="tag">' + detail + '</span>' +
+      (prets.length ? '<span class="tag">' + reussis.length + '/' + prets.length + ' à 16/20</span>' : '') +
+      '</div></div><span class="fleche" aria-hidden="true">›</span></a>';
+  }
+
   function pageAccueil() {
     var store = lire();
-    var html = '<h1>Ton parcours SQL</h1>' +
-      '<p class="muted">SQL Server et Snowflake. Fais les modules dans l\'ordre. Refais-les jusqu\'à 16/20.</p>';
-
+    var html = '<h1>Tes parcours</h1>' +
+      '<p class="muted">Choisis un parcours. Fais les modules dans l\'ordre. Refais-les jusqu\'à 16/20.</p>';
     var nbErr = idsEnErreur(store).length;
     if (nbErr) {
       html += '<div class="card"><strong>' + nbErr + ' question(s) à revoir.</strong> ' +
         '<a href="#/erreurs">Refaire mes erreurs</a></div>';
     }
+    var visibles = (DATA.parcours || []).filter(function (p) { return accesOK([p.id]); });
+    visibles.forEach(function (p) { html += carteParcours(store, p, '#/p/' + p.id); });
+    if (!lireSession()) {
+      html += '<p class="muted"><a href="#/compte">Connecte-toi</a> pour voir les autres parcours.</p>';
+    }
+    app.innerHTML = html;
+  }
 
-    DATA.modules.forEach(function (m, i) {
-      var qs = DATA.questions[m.id];
-      var st = statsModule(store, m.id);
-      var droite = !qs ? '<div class="note"><small>À venir</small></div>'
-        : st ? '<div class="note ' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) +
-               '<small>meilleure · ' + st.nb + ' essai(s)</small></div>'
-        : '<div class="note"><small>' + Math.min(TAILLE_QCM, qs.length) + ' questions</small></div>';
-      var boutons = (DATA.cours[m.id] ? '<a class="btn small ghost" href="#/cours/' + m.id + '">Cours</a>' : '') +
-        (qs ? '<a class="btn small" href="#/quiz/' + m.id + '">QCM</a>' : '');
-      html += '<div class="card module' + (qs || DATA.cours[m.id] ? '' : ' locked') + '">' +
-        '<div class="num">' + (i + 1) + '</div>' +
-        '<div><h3>' + esc(m.titre) + '</h3><p>' + esc(m.resume) + '</p>' +
-        '<div class="tags"><span class="tag">' + esc(m.niveau) + '</span>' +
-        (qs ? '<span class="tag">' + vuesModule(store, qs) + '/' + qs.length + ' vues</span>' : '') + '</div>' +
-        (boutons ? '<div class="mini-actions">' + boutons + '</div>' : '') + '</div>' +
-        droite + '</div>';
+  function pageParcours(pid, sid) {
+    var p = noeud(pid), s = sid ? noeud(sid) : null;
+    if (!p || p.chaine.length !== 1 || (sid && (!s || s.chaine[0] !== pid)) || !accesOK(s ? s.chaine : p.chaine)) {
+      location.hash = "#/"; return;
+    }
+    var store = lire(), n = s ? s.n : p.n;
+    var html = '<p class="muted"><a href="#/">Parcours</a>' +
+      (s ? ' › <a href="#/p/' + pid + '">' + esc(p.n.titre) + '</a>' : '') + '</p>' +
+      '<h1>' + esc(n.titre) + '</h1><p class="muted">' + esc(n.resume) + '</p>';
+    (n.sous || []).filter(function (x) { return accesOK([pid, x.id]); }).forEach(function (x) {
+      html += carteParcours(store, x, '#/p/' + pid + '/' + x.id);
     });
-
-    html += '<p class="muted">Un module « À venir » ? Demande au prof de le créer : <code>/qcm</code> dans Claude Code.</p>';
+    (n.modules || []).forEach(function (id, i) {
+      var m = module(id);
+      if (m) html += carteModule(store, m, i + 1);
+    });
+    if (!(n.modules || []).length && !(n.sous || []).length) {
+      html += '<div class="card"><p>Ce parcours arrive bientôt.</p></div>';
+    }
     app.innerHTML = html;
   }
 
   function pageCours(id) {
     var m = module(id);
     var c = DATA.cours[id];
-    if (!m || !c) { location.hash = "#/"; return; }
-    var html = '<p class="muted">Cours · Module ' + (DATA.modules.indexOf(m) + 1) + '</p>' +
+    if (!m || !c || !moduleVisible(id)) { location.hash = "#/"; return; }
+    var html = '<p class="muted">Cours · Module ' + numeroModule(id) + '</p>' +
       '<h1>' + esc(m.titre) + '</h1>' +
       '<p>' + fmt(c.intro) + '</p>';
     c.sections.forEach(function (sec, i) {
@@ -365,7 +466,7 @@
     }
     html += '<div class="actions">' +
       (DATA.questions[id] ? '<a class="btn" href="#/quiz/' + id + '">Faire le QCM</a>' : '') +
-      '<a class="btn ghost" href="#/">Parcours</a></div>';
+      '<a class="btn ghost" href="#/p/' + chaineModule(id).join('/') + '">Retour au parcours</a></div>';
     app.innerHTML = html;
   }
 
@@ -435,7 +536,7 @@
       titre = "Mes erreurs";
     } else {
       var m = module(id);
-      questions = DATA.questions[id] ? tirage(DATA.questions[id], lire()) : null;
+      questions = DATA.questions[id] && moduleVisible(id) ? tirage(DATA.questions[id], lire()) : null;
       titre = m ? m.titre : id;
     }
     if (!questions || !questions.length) {
@@ -537,7 +638,6 @@
       quiz.valide = false;
       afficherQuestion();
       window.scrollTo(0, 0);
-    if (parts[0] !== "compte") messageCompte = "";
       return;
     }
     terminer();
@@ -559,7 +659,7 @@
       parTheme: {}
     };
     quiz.reponses.forEach(function (r) {
-      var m = r.id.slice(0, 3);
+      var m = moduleDe(r.id);
       var pt = t.parTheme[m] || (t.parTheme[m] = { bonnes: 0, total: 0 });
       pt.total++;
       if (r.juste) pt.bonnes++;
@@ -624,7 +724,7 @@
       '<div class="actions"><a class="btn" href="#/quiz/erreurs">Refaire ces questions</a></div><h2>Liste</h2>';
     ids.forEach(function (id) {
       var q = questionParId(id);
-      html += '<div class="card"><span class="tag">' + esc(module(id.slice(0, 3)).titre) + '</span>' +
+      html += '<div class="card"><span class="tag">' + esc(module(moduleDe(id)).titre) + '</span>' +
         '<p style="margin:6px 0 0">' + esc(q.q) + '</p></div>';
     });
     app.innerHTML = html;
@@ -816,11 +916,12 @@
       get("profil?select=user_id,email,role&order=email"),
       get("groupe?select=id,nom&order=nom"),
       get("membre?select=groupe_id,user_id"),
-      get("progression?select=user_id,data")
+      get("progression?select=user_id,data"),
+      get("acces?select=element,groupe_id").catch(function () { return []; })
     ]).then(function (r) {
       var prog = {};
       r[3].forEach(function (l) { prog[l.user_id] = l.data && l.data.version === 1 ? l.data : videStore(); });
-      return { profils: r[0], groupes: r[1], membres: r[2], prog: prog };
+      return { profils: r[0], groupes: r[1], membres: r[2], prog: prog, acces: r[4] };
     });
   }
 
@@ -902,6 +1003,21 @@
       html += (eq.groupes.length ? '' : '<small class="muted">Crée d\'abord un groupe.</small>') + '</td></tr>';
     });
     html += '</tbody></table></div><p id="msg-equipe" class="muted"></p>';
+    html += '<h2>Droits des parcours</h2><p class="muted">Aucune case cochée = ouvert à tous les connectés. ' +
+      'Pour un sous-parcours, il faut aussi avoir accès au parcours au-dessus.</p><div class="card"><table><tbody>';
+    noeuds().forEach(function (x) {
+      var regles = eq.acces.filter(function (a) { return a.element === x.n.id; });
+      html += '<tr><td>' + (x.chaine.length > 1 ? '<span class="muted">↳ </span>' : '<strong>') + esc(x.n.titre) +
+        (x.chaine.length > 1 ? '' : '</strong>') + '<br><small class="muted">' +
+        (regles.length ? 'Réservé' : 'Ouvert à tous') + '</small></td><td>';
+      eq.groupes.forEach(function (g) {
+        var coche = regles.some(function (a) { return a.groupe_id === g.id; });
+        html += '<label class="case"><input type="checkbox" data-acces="' + esc(x.n.id) + '" value="' + g.id + '"' +
+          (coche ? ' checked' : '') + '> ' + esc(g.nom) + '</label>';
+      });
+      html += '</td></tr>';
+    });
+    html += '</tbody></table></div>';
     if (eq.groupes.length) {
       html += '<p class="muted">Supprimer un groupe (les personnes restent, seul le groupe disparaît) :</p><div class="actions">' +
         eq.groupes.map(function (g) {
@@ -939,6 +1055,13 @@
         var u = c.getAttribute("data-membre");
         if (c.checked) ecrireBase("membre", "POST", { groupe_id: Number(c.value), user_id: u });
         else ecrireBase("membre?groupe_id=eq." + c.value + "&user_id=eq." + u, "DELETE");
+      });
+    });
+    app.querySelectorAll("[data-acces]").forEach(function (c) {
+      c.addEventListener("change", function () {
+        var el = c.getAttribute("data-acces");
+        if (c.checked) ecrireBase("acces", "POST", { element: el, groupe_id: Number(c.value) });
+        else ecrireBase("acces?element=eq." + encodeURIComponent(el) + "&groupe_id=eq." + c.value, "DELETE");
       });
     });
     app.querySelectorAll("[data-suppr]").forEach(function (b) {
@@ -994,6 +1117,7 @@
     var h = location.hash.replace(/^#\/?/, "");
     var parts = h.split("/");
     window.scrollTo(0, 0);
+    if (parts[0] !== "compte") messageCompte = "";
     if (parts[0] === "quiz" && parts[1]) demarrerQuiz(parts[1], parts[2], parts[3]);
     else if (parts[0] === "cours" && parts[1]) pageCours(parts[1]);
     else if (parts[0] === "revision") pageRevision(parts[1]);
@@ -1001,6 +1125,7 @@
     else if (parts[0] === "erreurs") pageErreurs();
     else if (parts[0] === "historique") pageHistorique();
     else if (parts[0] === "export") pageExport();
+    else if (parts[0] === "p" && parts[1]) pageParcours(parts[1], parts[2]);
     else if (parts[0] === "compte") pageCompte();
     else if (parts[0] === "equipe") pageEquipe(parts[1]);
     else pageAccueil();

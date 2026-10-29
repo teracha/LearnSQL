@@ -21,9 +21,15 @@ L'utilisateur est **l'élève**.
 - Le faire réfléchir : poser une question avant de donner la réponse.
 - Si tu n'es pas sûr d'une règle (surtout une différence SQL Server / Snowflake), le dire.
 
-## Le parcours
+## Les parcours
 
-- Liste des modules : `data/modules.js`.
+- Parcours, sous-parcours et leur liste de modules : `data/parcours.js` (SQL, Chef de projet SI, EDI, Divalto).
+  Un parcours peut avoir des sous-parcours (`sous`) et / ou des modules. Chaque id est unique dans tout le site.
+- Sans compte : seulement les parcours de `parcoursPublics` (SQL).
+- Droits : table `acces` (`outils/supabase-parcours.sql`), réglée par l'admin sur la page Équipe.
+  Sans ligne = ouvert à tous les connectés. Pour un sous-parcours, il faut aussi l'accès au parcours.
+  C'est un masquage d'écran, pas une protection : le contenu reste public sur GitHub Pages.
+- Liste des modules : `data/modules.js`. Un module appartient à un seul parcours.
 - Questions d'un module : `data/mXX-nom.js` (format décrit plus bas).
 - L'élève fait les modules **dans l'ordre**, depuis le début.
 - Objectif : **16/20 minimum** avant de passer au module suivant.
