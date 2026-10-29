@@ -19,7 +19,10 @@ Règles :
 2. Chaque mise en situation a des choix faux DES DEUX CÔTÉS de la bonne réponse : au moins un trop fort (escalade, tout décaler, changer de prestataire) et un trop faible (attendre, noter seulement, absorber).
 3. Aucun signal réservé aux bonnes réponses : les mots d'urgence (« aujourd'hui », « tout de suite »), la date légale, « tu préviens, puis… », « « Non : » », « Si… » doivent aussi apparaître dans des choix faux ou des questions piège.
 4. Pas de mot de la question repris uniquement dans la bonne réponse.
-5. Avant de rendre la main, calcule le score de ces règles sans connaissance du sujet : « l'action moyenne », « l'action la plus forte si urgence », « jamais le sponsor », « toujours le sponsor ». Chacune doit rester sous 60 %.
+6. Choix faux des deux côtés = la bonne réponse se retrouve « au milieu ». Dans une partie des questions, ajoute donc un choix faux « presque juste », au même niveau d'action que la bonne réponse, mais faux pour une raison précise vue dans le cours (mauvais interlocuteur au même niveau, bon geste au mauvais moment, bon geste sans chiffres).
+7. La bonne réponse ne doit pas être la seule à faire « deux actions » (« tu fais ceci et cela ») : mets aussi des choix faux à deux actions.
+8. Le fil rouge DEMAT 2027 suit la fiche de référence de `docs/plan-chef-de-projet.md` (dates, personnages, vocabulaire, décision par défaut).
+5. Avant de rendre la main, calcule le score de ces règles sans connaissance du sujet : « l'action moyenne », « la plus petite action réelle », « l'action la plus forte si urgence », « jamais le sponsor », « toujours le sponsor », « le choix à deux actions », « la plus longue ». Chacune doit rester sous 60 %.
 
 Avant de rendre la main : `node outils/verifier.js <module>` → 0 erreur, 0 alerte.
 Ton rapport final : ce que tu as écrit, et les points où plusieurs réponses se défendent.
