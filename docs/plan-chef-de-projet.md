@@ -16,6 +16,8 @@ Modules `cp01` à `cp27` (`data/modules.js`), rangés en sous-parcours dans `dat
 - **QCM en mises en situation** (« Que fais-tu ? ») : la bonne réponse n'est pas toujours la plus conciliante ;
   les choix faux sont de vrais travers (faire soi-même, dire oui puis négocier, escalader trop vite).
   Chaque `pourquoi` donne la conséquence du choix.
+- **Anti-devinette** : règles détaillées dans `.claude/agents/expert-chef-projet.md` (choix faux des deux côtés,
+  aucun signal réservé aux bonnes réponses, aucune règle simple au-dessus de 60 %). Le testeur le vérifie à chaque module.
 - **Réserve** : 30 à 50 cas vraiment différents par module, pas 100. Pas de remplissage.
 - **Quand les méthodes divergent** (PMBOK, PRINCE2, agile) : la question donne le contexte, l'explication le dit.
 - **Réglementaire** (facture électronique, RGPD, NIS2) : vérifier les dates et textes au moment d'écrire.

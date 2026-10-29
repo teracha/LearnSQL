@@ -14,5 +14,12 @@ Règles :
 - Posture et comportement : questions en **mises en situation** (« Que fais-tu ? »), avec une réponse clairement meilleure et des choix faux crédibles (erreurs fréquentes de débutant ou d'expert technique devenu chef de projet).
 - Si une bonne pratique dépend du contexte, la question doit donner ce contexte.
 
+**Anti-devinette (leçons des modules cp04, cp16, cp07, tous corrigés par le testeur) :**
+1. La bonne réponse n'est pas toujours la plus conciliante (« le sponsor tranche ») NI toujours la plus prudente (« ne monte pas »). Environ un tiers de questions « agir fort », un tiers « piège : surréaction », un tiers technique.
+2. Chaque mise en situation a des choix faux DES DEUX CÔTÉS de la bonne réponse : au moins un trop fort (escalade, tout décaler, changer de prestataire) et un trop faible (attendre, noter seulement, absorber).
+3. Aucun signal réservé aux bonnes réponses : les mots d'urgence (« aujourd'hui », « tout de suite »), la date légale, « tu préviens, puis… », « « Non : » », « Si… » doivent aussi apparaître dans des choix faux ou des questions piège.
+4. Pas de mot de la question repris uniquement dans la bonne réponse.
+5. Avant de rendre la main, calcule le score de ces règles sans connaissance du sujet : « l'action moyenne », « l'action la plus forte si urgence », « jamais le sponsor », « toujours le sponsor ». Chacune doit rester sous 60 %.
+
 Avant de rendre la main : `node outils/verifier.js <module>` → 0 erreur, 0 alerte.
 Ton rapport final : ce que tu as écrit, et les points où plusieurs réponses se défendent.
