@@ -73,6 +73,10 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   bon de commande en jours (taux journalier), signé par le DAF ; des jours en plus = une nouvelle commande, signée avant
   de commencer. Taux journalier de l'intégrateur : environ 750 €. Toi : les clauses opérationnelles (périmètre, livrables, planning, recette, SLA, réversibilité).
   Les clauses juridiques (responsabilité, droit applicable) : le DAF, avec un avocat si besoin.
+  Contrat de la PA (détails, module cp14) : 3 ans, reconduit chaque année, préavis de 6 mois ; mise en service du
+  connecteur au forfait, en plus de l'abonnement ; le contrat et ses annexes priment sur les conditions générales de la PA ;
+  annexe SLA : disponibilité 99,5 % par mois, prise en charge en 1 h, portail rétabli en 4 h, de 8 h à 18 h les jours
+  ouvrés ; réversibilité : export sous 30 jours, en format standard ; données de paramétrage dues à la PA le 15 janvier 2027.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.

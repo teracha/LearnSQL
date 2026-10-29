@@ -17,14 +17,15 @@
 // en jours, au taux journalier, signé par le DAF ; des jours en plus = une nouvelle commande, signée avant de commencer.
 // Le plan B part seul au déclencheur (connecteur pas livré au 15 mars) ; le 15 mars n'est pas une date du contrat.
 // Aucun montant d'amende, ni de pénalité chiffrée.
+// Taux journalier de l'intégrateur : environ 750 € (fiche).
 // Faits ajoutés à la fiche (cohérents avec elle, à valider) : mise en service du connecteur à prix fixe (forfait) en plus
-// de l'abonnement ; taux journalier de l'intégrateur d'environ 750 € (cp18 : 12 jours ≈ 9 000 €) ; annexe SLA de la PA :
-// 99,5 % par mois, prise en charge en 1 h, portail rétabli en 4 h (comme cp01-q13), de 8 h à 18 h les jours ouvrés ;
-// clause d'ordre de priorité : le contrat et ses annexes avant les CG de la PA.
+// de l'abonnement ; annexe SLA de la PA : 99,5 % par mois, prise en charge en 1 h, portail rétabli en 4 h (comme cp01-q13),
+// de 8 h à 18 h les jours ouvrés ; clause d'ordre de priorité : le contrat et ses annexes avant les CG de la PA.
 // Frontières :
 // - cp13 = choisir le prestataire (consultation, grille). cp15 = le piloter après la signature (comités, suivi des SLA).
 // - cp06 = choisir la démarche (ici, une phrase sur le lien démarche ↔ type de contrat).
 // - cp10 = le circuit d'une demande de changement (ici, seulement l'avenant : comment le contrat change).
+//   cp10 renvoie ici pour « qui paie une anomalie » : section 4 (forfait sans frais, régie en jours en général).
 // - cp07 = transférer un risque par le contrat (la pénalité paie une partie, le retard reste). cp12 = suivre le budget.
 // - cp24 = la conformité (RGPD en détail). cp19 = la recette (ici, seulement le PV et ses effets sur le contrat).
 LEARNSQL.cours.cp14 = {
@@ -50,16 +51,16 @@ LEARNSQL.cours.cp14 = {
         "Les pièces se contredisent souvent. La clause d'ordre de priorité dit laquelle prime : lis-la, ne la suppose pas. Elle manque ? Fais-la écrire avant la signature.",
         "Ce qui n'est dans aucune pièce signée ne s'exige pas. Une promesse orale ? Fais-la écrire en annexe : un compte rendu ne suffit pas.",
         "Qui signe : le DAF. Pas toi, même pressé, même s'il est absent : il peut signer à distance.",
-        "Pas de démarrage sans commande signée : elle fixe le périmètre, le prix et les responsabilités. Régie : des jours en plus = une nouvelle commande, signée avant."
+        "Pas de démarrage sans commande signée : elle fixe le périmètre, le prix et les responsabilités. Régie : des jours en plus = une nouvelle commande, signée avant. Déjà faits sans commande ? Tu recadres, le DAF décide."
       ],
       retenir: "Toutes les pièces signées font le contrat ; la clause d'ordre de priorité les départage. Le DAF signe, avant le premier jour de travail."
     },
     {
       titre: "Ce qui est livré, quand, et comment tu l'acceptes",
-      exemple: "Projet de contrat de la PA, relu avec ta liste.\nPérimètre : « connecteur standard ». Avec les avoirs ? Les 3 sites ? Tu fais écrire la liste.\nPlanning : « 3 mois après la signature ». La signature glisse, la date aussi : tu fais écrire « 1er mars ».\nRecette (tests de validation par le métier) : « sans réserve 5 jours après la livraison, accepté ». Ta recette dure 6 semaines. Piège.\nPaiement : solde à la livraison. Tu proposes : au PV (procès-verbal) de recette.",
+      exemple: "Projet de contrat de la PA.\nPérimètre : « connecteur standard ». Avec les avoirs ? Les 3 sites ? Tu fais écrire la liste.\nPlanning : « 3 mois après la signature ». La signature glisse, la date aussi : tu fais écrire « 1er mars ».\nRecette (tests de validation par le métier) : « sans réserve 5 jours après la livraison, accepté ». Ta recette dure 6 semaines. Piège.\nPaiement : solde à la livraison. Tu proposes : au PV (procès-verbal) de recette.",
       points: [
         "Livrables : vérifiables, documentation comprise. Un seul consultant connaît ton paramétrage ? Une passation écrite s'il change. Un livrable incomplet n'est pas livré : écris-le le jour même.",
-        "Planning : des dates fixes, pas « indicatives ». Lis aussi tes obligations (données à fournir) : si ton retard décale sa date, ses pénalités ne jouent pas, en général.",
+        "Planning : des dates fixes, pas « indicatives ». Lis aussi tes obligations (données à fournir) : sont-elles tenables ? Si ton retard décale sa date, ses pénalités ne jouent pas, en général : une nouvelle date s'écrit.",
         "PV de recette : le livrable est accepté. Avec réserves : accepté, défauts mineurs corrigés à une date écrite. Anomalie bloquante : pas de PV, un refus écrit.",
         "Délai de validation : le temps pour signer ou refuser. Piège : la recette tacite (« sans réponse, accepté »). Le délai court après ta recette. Il expire ? Tes réserves écrites partent avant.",
         "Paiement : lie le solde au PV (le travail accepté), pas à la livraison (le travail remis). Tout payé, ton levier a disparu."
@@ -68,13 +69,13 @@ LEARNSQL.cours.cp14 = {
     },
     {
       titre: "Pénalités, SLA, garantie : ce que tu peux exiger",
-      exemple: "Contrat signé de la PA : pénalités par jour de retard après le 1er mars, plafonnées (un maximum écrit). Le 15 mars n'est pas dans le contrat : c'est ton déclencheur du plan B (module cp07).\nAnnexe SLA : disponibilité 99,5 % par mois (environ 3 h 30 de panne permise), prise en charge en 1 h, portail rétabli en 4 h, de 8 h à 18 h les jours ouvrés.\nPiège évité : « hors maintenances, annoncées la veille ».",
+      exemple: "Contrat signé de la PA : pénalités par jour de retard après le 1er mars, plafonnées (un maximum écrit). Le 15 mars n'est pas dans le contrat : c'est ton déclencheur du plan B (module cp07).\nAnnexe SLA : disponibilité 99,5 % par mois (environ 3 h 30 de panne permise), prise en charge en 1 h, portail rétabli en 4 h, de 8 h à 18 h les jours ouvrés.",
       points: [
         "Pénalités de retard : elles comptent depuis la date du contrat, jusqu'au plafond (c'est courant). Elles paient une partie du coût, pas ta date (module cp07).",
         "Ce qui protège ta date : le plan B, écrit au contrat avec son prix, pour qu'il parte seul au déclencheur.",
         "Appliquer, réduire ou échanger des pénalités : le DAF décide, il a signé. Toi, tu apportes les faits : date du contrat, date réelle, calcul, plafond.",
         "Un SLA s'exige s'il se mesure : chiffre, période, heures, qui mesure. « Meilleurs efforts » ne s'exige pas. Lis les exclusions : pas de maintenance pendant ta clôture.",
-        "Garantie : au forfait, il corrige sans frais les défauts trouvés après le PV, pendant une durée écrite. En régie, en général, pas de garantie : la correction se paie, sauf clause dans la commande."
+        "Anomalie (non conforme à l'écrit) : au forfait, corrigée sans frais, avant le PV et pendant la garantie (durée écrite). En régie, en général, pas de garantie : elle se paie en jours, sauf clause dans la commande."
       ],
       retenir: "Une pénalité compte depuis la date du contrat ; le DAF décide de l'appliquer. Un SLA s'exige s'il se mesure. Ta date, le plan B la protège."
     },
@@ -94,7 +95,7 @@ LEARNSQL.cours.cp14 = {
       titre: "Ta part, celle du DAF, et l'avenant",
       exemple: "Le DAF t'envoie le contrat de la PA : « Relis ce qui te concerne. »\nToi : livrables, planning, recette, SLA, réversibilité, avec un texte proposé par point. La cheffe comptable et le responsable ADV (administration des ventes), qui signeront le PV, relisent l'annexe recette.\nLe DAF, avec un avocat si besoin : la responsabilité (qui paie un dommage, jusqu'à combien) et le droit applicable (quelle loi, quel tribunal).",
       points: [
-        "Toi : les clauses opérationnelles, relues AVANT la signature, avec un texte proposé. Après, il faut un avenant, et le prestataire a moins de raisons d'accepter.",
+        "Toi : les clauses opérationnelles, relues AVANT la signature. Après, il faut un avenant, et le prestataire a moins de raisons d'accepter.",
         "Le DAF : le prix, la signature, et les clauses juridiques (responsabilité, droit applicable), avec un avocat si besoin. Un problème là ? Tu le lui signales, tu ne réécris pas.",
         "Avenant = un écrit signé des deux côtés, qui change le contrat (périmètre, prix, date, SLA). Un mail du prestataire, un accord oral, une décision du COPIL (comité de pilotage) ne le remplacent pas.",
         "L'avenant, avec son prix, est signé avant le travail. Son circuit (chiffrer, faire décider, tracer) : module cp10.",
