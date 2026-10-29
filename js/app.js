@@ -776,7 +776,7 @@
       var c = champs();
       if (!c) return;
       msg.textContent = "Création du compte…";
-      appelSupa("/auth/v1/signup", { methode: "POST", corps: c }).then(function (d) {
+      appelSupa("/auth/v1/signup?redirect_to=" + encodeURIComponent(location.origin + location.pathname), { methode: "POST", corps: c }).then(function (d) {
         if (d && d.access_token) return ouvrirSession(d).then(connecte);
         msg.textContent = "Compte créé. Ouvre l'e-mail reçu et clique sur le lien pour le confirmer.";
       }, function (err) {
