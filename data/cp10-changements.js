@@ -30,7 +30,7 @@ LEARNSQL.questions.cp10 = [
     bonne: 1,
     pourquoi: [
       "Non. Un besoin nouveau, pas une erreur. Ici, un état de suivi de la compta : il va au backlog, et la cheffe comptable le classe.",
-      "Oui. Ce qui est livré n'est pas conforme à ce qui est écrit dans le cahier de recette : c'est une anomalie. Le prestataire la corrige dans le cadre de son contrat.",
+      "Oui. Ce qui est livré n'est pas conforme à ce qui est écrit dans le cahier de recette : c'est une anomalie. Le prestataire la corrige selon son contrat (qui paie : module cp14).",
       "Non. Le PDF est conforme au modèle validé : le changer pour un goût, c'est un changement.",
       "Non. Une exigence nouvelle d'un client : c'est un changement, même pressé. Il suit le circuit."
     ],

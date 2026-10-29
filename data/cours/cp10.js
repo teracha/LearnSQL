@@ -37,7 +37,7 @@ LEARNSQL.cours.cp10 = {
       titre: "Trier : anomalie, changement, ou rien à lancer",
       exemple: "Ta démat fiscale : un « bug » de recette était-il un vrai bug, ou une nouvelle envie ?\nDEMAT 2027, en recette (les tests de validation par le métier) :\n1. Les factures partent avec la date du jour ; la spécification validée dit « date de facture ». → Anomalie.\n2. Le responsable ADV (administration des ventes) veut la référence chantier sur les factures. Rien n'est écrit. → Changement.\n3. Julie, comptable fournisseurs, veut 3 cas de test de plus, dans ses créneaux. → Ta délégation.",
       points: [
-        "Anomalie : ce qui est livré n'est pas conforme à l'écrit (contrat, spécification validée, cahier de recette). Pas de demande de changement. Qui paie la correction ? Au forfait (prix fixe), le prestataire ; en régie (au temps passé), en général l'entreprise (module cp14).",
+        "Anomalie : ce qui est livré n'est pas conforme à l'écrit (contrat, spécification validée, cahier de recette). Pas de demande de changement. Qui paie la correction ? Au forfait (prix fixe), le prestataire ; en régie (au temps passé), en général l'entreprise, en jours, sur une commande signée par le DAF (module cp14).",
         "Changement : un besoin nouveau, une exigence nouvelle, un goût. Retirer quelque chose aussi. PRINCE2 (la méthode britannique) fait la même différence : « hors spécification » ou « demande de changement ».",
         "Un texte qui se lit de deux façons ? Vous le relisez ensemble, avec le prestataire (module cp18).",
         "Le cœur du projet : flux légaux, connecteur, bascule. Là, le circuit démarre dès qu'une demande touche le périmètre, le budget, une date validée ou un contrat.",

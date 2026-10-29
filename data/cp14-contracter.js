@@ -124,23 +124,23 @@ LEARNSQL.questions.cp14 = [
     q: "Fin janvier. L'intégrateur, en régie, facture 9 jours pour le mois. Ton suivi n'en montre que 6 : 3 jours sans tâche visible. Le DAF doit payer la facture. Que fais-tu ?",
     choix: [
       "Tu la laisses payer : en régie, il facture ce qu'il dit",
-      "Tu revois avec lui le détail des 9 jours, avant le paiement",
+      "Tu lui demandes le détail des 3 jours, avant de les faire payer",
       "Tu demandes au DAF de bloquer toutes ses factures",
-      "Ton suivi en main, tu fais payer 6 jours et retiens les 3 autres"
+      "Ton suivi en main, tu fais payer 6 jours, et tu refuses les 3 autres"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Régie ne veut pas dire chèque en blanc : tu paies le temps passé, pas le temps déclaré. Sans contrôle, l'écart se répète.",
-      "Oui. Des faits d'abord : dates, tâches, personnes. Ces 3 jours sont peut-être réels (analyse, réunion), ou une erreur. Le DAF paie sur des faits.",
+      "Oui. Des faits d'abord : dates, tâches, personnes. Ces 3 jours sont peut-être réels (analyse, réunion), ou une erreur. Les 6 jours suivis peuvent être payés ; les 3 autres, une fois expliqués.",
       "Non. Un écart de 3 jours se vérifie en une réunion. Bloquer toutes ses factures, c'est punir avant de savoir, et risquer l'arrêt du paramétrage.",
-      "Non. Tu tranches avant de savoir : s'il a vraiment travaillé, ces jours lui sont dus, et la relation se tend pour rien."
+      "Non. Presque : payer les 6 jours suivis, oui. Mais refuser les 3 autres, c'est trancher avant de savoir : s'il a vraiment travaillé, ils lui sont dus."
     ],
-    retenir: "En régie, tu paies le temps passé, pas le temps déclaré : vérifie le détail des jours avant le paiement."
+    retenir: "En régie, tu paies le temps passé, pas le temps déclaré : un écart se vérifie avant de payer ces jours-là."
   },
   {
     id: "cp14-q07",
     dialecte: "Gestion de projet",
-    q: "Juillet 2027. Un écran de suivi de la compta, fait en régie, a un défaut. L'intégrateur facture 1 jour pour le corriger. Le DAF : « Ce n'est pas sous garantie ? » Que réponds-tu ?",
+    q: "Juillet 2027. Un écran de suivi de la compta, fait en régie, a un défaut. L'intégrateur propose de le corriger en 1 jour, sur une nouvelle commande. Le DAF : « Ce n'est pas sous garantie ? » Que réponds-tu ?",
     choix: [
       "« Si : un défaut est toujours sous garantie, on ne paie pas »",
       "« En régie, sans garantie prévue dans la commande, on paie »",
@@ -150,11 +150,11 @@ LEARNSQL.questions.cp14 = [
     bonne: 1,
     pourquoi: [
       "Non. En régie, tu paies le temps passé, corrections comprises. Une garantie existe si la commande l'écrit, pas d'office.",
-      "Oui. En général, la régie n'a pas de garantie : le risque est chez vous. Si la commande en prévoit une, elle s'applique ; sinon, ce jour se paie.",
+      "Oui. En général, la régie n'a pas de garantie : le risque est chez vous. Si la commande en prévoit une, elle s'applique ; sinon, ce jour se paie, sur une commande signée avant.",
       "Non. Un défaut corrigé en 1 jour ne justifie pas de changer d'intégrateur. En régie, le bon réflexe : tester tôt, pour trouver les défauts avant.",
       "Non. Un jour de correction ne relève pas de l'avocat : la réponse est dans la commande, et la relire suffit."
     ],
-    retenir: "En régie, en général, pas de garantie : une correction se paie en jours, sauf si la commande en prévoit une."
+    retenir: "En régie, en général, pas de garantie (sauf clause) : une correction se paie en jours, sur une commande signée avant."
   },
   {
     id: "cp14-q08",
@@ -168,10 +168,10 @@ LEARNSQL.questions.cp14 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Tu n'as pas le pouvoir d'engager l'entreprise : c'est le DAF qui signe. Ta signature peut être contestée, et tu portes seul un engagement de plusieurs années.",
+      "Non. Tu n'as pas le pouvoir d'engager l'entreprise : c'est le DAF qui signe. Ta signature peut être contestée, et tu engages des années d'abonnement à sa place.",
       "Non. Passer au-dessus du DAF pour une signature qu'il peut faire à distance : il se sent contourné, pour gagner quelques heures.",
       "Oui. Le DAF signe, même en déplacement : une signature à distance prend quelques minutes. Tu lui dis ce qui presse, avec tes remarques sur les clauses.",
-      "Non. Presque : il signera, mais après toi. Pendant une semaine, l'entreprise est engagée par quelqu'un qui n'en a pas le pouvoir."
+      "Non. Presque : il signera, mais après toi. Pendant une semaine, le contrat repose sur une signature sans pouvoir : il peut être contesté."
     ],
     retenir: "Le DAF signe les contrats, même pressé ou absent : tu organises sa signature, tu ne signes pas à sa place."
   },
@@ -225,7 +225,7 @@ LEARNSQL.questions.cp14 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Écrire le risque et suivre les jours ne règle pas la contradiction : le jour du dépassement, il montrera ses CG, et 10 % seront facturés sans accord.",
+      "Non. Écrire le risque et suivre les jours ne règle pas la contradiction. Le jour du dépassement, il montrera ses CG : un litige sur 10 % de jours.",
       "Non. Une ligne des CG se négocie avant la signature : changer d'intégrateur pour ça, c'est relancer toute la consultation.",
       "Oui. Deux pièces se contredisent : la clause d'ordre de priorité tranche. Tu la fais écrire avant de signer (la commande avant les CG), ou tu fais retirer la ligne des CG.",
       "Non. 10 % de jours sans accord, c'est un budget qui grossit sans décision. Et ta règle, une commande avant chaque jour en plus, ne tient plus."
@@ -244,12 +244,12 @@ LEARNSQL.questions.cp14 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Une parole n'est dans aucune pièce signée : le jour où les avoirs bloquent, tu n'as rien à montrer.",
+      "Non. Une parole se prouve mal, même devant témoins, et le contrat dit souvent que seul l'écrit compte. Le jour où les avoirs bloquent, tu n'as rien à montrer.",
       "Non. Une ligne à ajouter ne justifie pas un mois de retard, alors que la réception est déjà en retard.",
-      "Oui. Ce qui n'est dans aucune pièce signée ne s'exige pas. Une ligne dans l'annexe du périmètre suffit, et la signature de vendredi tient.",
+      "Oui. Écrite dans l'annexe signée, la promesse engage la PA : tu pourras l'exiger. Une ligne suffit, et la signature de vendredi tient.",
       "Non. Presque : c'est écrit, mais pas dans le contrat. Un compte rendu n'engage pas la PA comme une annexe signée."
     ],
-    retenir: "Une promesse du commercial ne s'exige que si elle est écrite dans une pièce signée : fais-la mettre en annexe."
+    retenir: "Une promesse orale se prouve mal : fais-la écrire en annexe, avant la signature."
   },
   {
     id: "cp14-q13",
@@ -285,7 +285,7 @@ LEARNSQL.questions.cp14 = [
       "Non. « Haute » ne se mesure pas : après une panne de 2 jours, la PA dira qu'elle a fait de son mieux. Tu n'as rien à exiger.",
       "Non. Le niveau de service est une clause opérationnelle : c'est la tienne. L'avocat ne sait pas ce dont la compta a besoin, ni quand.",
       "Non. Presque : ses chiffres passés t'informent, mais ne l'engagent pas. Sans chiffres écrits dans le SLA, tu n'as toujours rien à exiger.",
-      "Oui. « Meilleurs efforts » ne s'exige pas. Un SLA se mesure : un taux de disponibilité par mois, des délais de prise en charge et de rétablissement, des heures, qui mesure."
+      "Oui. « Meilleurs efforts » ne se mesure pas. Un SLA se mesure : un taux de disponibilité par mois, des délais de prise en charge et de rétablissement, des heures, qui mesure."
     ],
     retenir: "Un SLA s'exige s'il se mesure : un chiffre, une période, des heures, et qui mesure. Il s'écrit avant la signature."
   },
@@ -349,7 +349,7 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q18",
     dialecte: "Gestion de projet",
-    q: "Novembre. Contrat de la PA : « Le 1er mars suppose les données de paramétrage du client avant le 15 janvier. » En janvier, la compta est en clôture annuelle. Que fais-tu avant la signature ?",
+    q: "Novembre. Contrat de la PA : « Le 1er mars suppose les données de paramétrage du client au plus tard le 15 janvier. » En janvier, la compta est en clôture annuelle. Que fais-tu avant la signature ?",
     choix: [
       "Tu fais confirmer la date par la compta, ou en changer",
       "Tu laisses : cette clause engage la PA, pas la compta",
@@ -363,7 +363,7 @@ LEARNSQL.questions.cp14 = [
       "Non. La PA ne peut pas livrer sans tes données : elle refusera. Le sujet n'est pas d'avoir une date, c'est qu'elle soit tenable.",
       "Non. La compta est prévenue, mais en pleine clôture annuelle, elle ne tiendra pas le 15. Il faut une date tenable écrite avant de signer, pas un rappel."
     ],
-    retenir: "Le contrat liste aussi tes obligations : vérifie qu'elles sont tenables avant de signer. Si tu es en retard, la date du prestataire tombe."
+    retenir: "Le contrat liste aussi tes obligations : vérifie qu'elles sont tenables avant de signer. Si tu es en retard, sa date tombe, en général."
   },
   {
     id: "cp14-q19",
@@ -396,7 +396,7 @@ LEARNSQL.questions.cp14 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Presque : avoir les sources aide, mais sans droit écrit de les modifier, un autre intégrateur ne pourra pas y toucher. Et un mail n'est pas une pièce signée.",
+      "Non. Presque : avoir les sources aide, mais sans droit écrit de les modifier, un autre intégrateur risque de ne pas avoir le droit d'y toucher. Et un mail n'est pas une pièce signée.",
       "Non. En général, payer ne suffit pas : sans clause écrite, les droits restent au prestataire. Un autre intégrateur pourrait ne pas avoir le droit d'y toucher.",
       "Non. Divalto appartient à son éditeur : personne ne t'en donnera la propriété. Ce qui compte, c'est ton droit sur les écrans faits pour toi.",
       "Oui. Tu fais écrire que tu peux les utiliser, les modifier et les faire maintenir par un autre, sources livrées. Le DAF fait valider le texte, avec l'avocat si besoin."
@@ -463,7 +463,7 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q24",
     dialecte: "Gestion de projet",
-    q: "Le connecteur est livré le 29 mars, au lieu du 1er mars prévu au contrat. Le plan B est parti le 16 mars. Le DAF te demande depuis quand compter les pénalités. Que réponds-tu ?",
+    q: "Le connecteur est livré le 29 mars, au lieu du 1er mars prévu au contrat (pénalités par jour de retard, sans mise en demeure). Le plan B est parti le 16 mars. Le DAF te demande depuis quand compter les pénalités. Que réponds-tu ?",
     choix: [
       "« Depuis le 1er mars : c'est la date du contrat »",
       "« Depuis le 15 mars : le déclencheur du plan B, prévu au contrat »",
@@ -472,7 +472,7 @@ LEARNSQL.questions.cp14 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Les pénalités comptent depuis la date écrite au contrat, le 1er mars, jusqu'au plafond. C'est ensuite le DAF qui décide de les appliquer.",
+      "Oui. Sans mise en demeure à envoyer, les pénalités comptent depuis la date écrite au contrat, le 1er mars, jusqu'au plafond. C'est ensuite le DAF qui décide de les appliquer.",
       "Non. Le plan B est prévu au contrat, pas son déclencheur : le 15 mars est ta date interne. La PA était déjà en retard depuis 2 semaines.",
       "Non. Le début de ta recette est une date de ton planning, pas du contrat : tu offres 15 jours à la PA.",
       "Non. Le plan B protège ta date, il n'efface pas le retard de la PA : le contrat prévoit des pénalités, et le DAF décide de les appliquer."
@@ -587,11 +587,11 @@ LEARNSQL.questions.cp14 = [
     bonne: 1,
     pourquoi: [
       "Non. Le contrat engage aussi le client : le 1er mars supposait tes données au 15 janvier. Le retard vient de vous, la PA a raison.",
-      "Oui. Le retard vient de vous : tu le répares, et une nouvelle date est écrite. Le DAF sait pourquoi le 1er mars bouge. Si elle dépasse le 15 mars, le plan B part seul.",
+      "Oui. Le retard vient de vous : tu le répares, et la nouvelle date s'écrit, par un avenant que signe le DAF. Si elle dépasse le 15 mars, le plan B part seul.",
       "Non. Le DAF doit savoir, mais sans données envoyées ni nouvelle date écrite, la PA n'a plus d'échéance, et ta recette du 16 mars n'a plus de connecteur.",
       "Non. En général, les pénalités ne jouent pas quand le retard vient du client : le DAF les préparerait pour rien, et la relation se tend."
     ],
-    retenir: "Le contrat engage les deux côtés : si ton retard décale la date du prestataire, ses pénalités ne jouent pas."
+    retenir: "Le contrat engage les deux côtés : si ton retard décale la date du prestataire, ses pénalités ne jouent pas, en général. La nouvelle date s'écrit, par avenant."
   },
   {
     id: "cp14-q31",
@@ -607,10 +607,10 @@ LEARNSQL.questions.cp14 = [
     pourquoi: [
       "Non. Le DAF a décidé d'ajouter l'option, pas de payer n'importe quel prix : sans avenant, c'est la facture qui fixera le prix.",
       "Non. Un contrat signé peut changer : c'est le rôle de l'avenant. Et garder les factures sur la durée légale est une obligation.",
-      "Oui. Une décision ne change pas le contrat ; l'avenant, si. Il fixe le prix et le service, signé par le DAF avant l'activation. Le circuit qui le précède : module cp10.",
+      "Oui. Le DAF a dit oui à l'option, pas à un prix inconnu. L'avenant fixe le prix et le service ; le DAF le signe avant l'activation. Le circuit qui le précède : module cp10.",
       "Non. Presque : tu gardes une trace, mais un prix noté par toi n'engage pas la PA. Elle facturera son tarif, et l'option tourne déjà."
     ],
-    retenir: "Une décision de changement ne modifie pas le contrat : l'avenant, avec son prix, est signé avant le travail."
+    retenir: "Un avenant fixe le prix avant le travail : « le prix, on le verra », c'est la facture qui décide."
   },
   {
     id: "cp14-q32",
@@ -643,7 +643,7 @@ LEARNSQL.questions.cp14 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Une date pour les avoirs, oui, mais en prenant la livraison, tu valides le 1er mars : les pénalités de retard tombent.",
+      "Non. Une date pour les avoirs, oui. Mais prendre la livraison, c'est laisser dire que le 1er mars est tenu : les pénalités risquent de tomber.",
       "Non. Ton déclencheur est le 15 mars : le plan B part seul s'il est atteint, pas avant. D'ici là, le connecteur peut être complété.",
       "Non. Une livraison incomplète se constate par écrit : résilier le jour même, c'est la plus grosse solution, et la date légale en danger.",
       "Oui. Livrer, c'est livrer ce que dit l'annexe. Tu l'écris le jour même : livraison incomplète. Le DAF, qui a signé, sait que les pénalités peuvent courir."
@@ -664,7 +664,7 @@ LEARNSQL.questions.cp14 = [
     pourquoi: [
       "Oui. La clause est courante pour un service obligatoire. Le piège, c'est d'oublier la date : passé le préavis, tu repars pour un an. Une alerte laisse le temps de décider.",
       "Non. Sans reconduction, le service s'arrête au bout de 3 ans si personne n'a rien signé : pour une obligation légale, c'est une coupure possible.",
-      "Non. Un engagement d'1 an coûte souvent plus cher, et la mise en service se paie sur plusieurs années : tu perds plus que tu ne gagnes.",
+      "Non. Un engagement d'1 an coûte souvent plus cher, et changer de PA est un projet : tu ne le feras pas chaque année. Ta liberté, c'est la réversibilité.",
       "Non. Il n'y a rien à renégocier : la clause est courante. Le seul vrai risque, c'est d'oublier sa date."
     ],
     retenir: "Reconduction tacite : la clause est courante ; le piège, c'est d'oublier la date du préavis. Note-la, avec une alerte."
@@ -767,7 +767,7 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q40",
     dialecte: "Gestion de projet",
-    q: "Novembre. La cheffe comptable, qui signera la recette des factures fournisseurs, veut lire l'annexe « recette » du projet de contrat de la PA avant la signature. Que fais-tu ?",
+    q: "Novembre. Le DAF t'a confié la relecture des clauses opérationnelles du projet de contrat de la PA. La cheffe comptable, qui signera la recette des factures fournisseurs, veut lire l'annexe « recette » avant la signature. Que fais-tu ?",
     choix: [
       "Tu acceptes : elle la lit, et tu notes ses remarques",
       "Tu refuses : le contrat est confidentiel, réservé au DAF",
@@ -778,7 +778,7 @@ LEARNSQL.questions.cp14 = [
     pourquoi: [
       "Oui. Elle signera le PV : le délai de validation et les critères d'acceptation la concernent d'abord. Ses remarques arrivent avant la signature, quand on peut encore changer.",
       "Non. L'annexe recette n'a rien de secret pour celle qui la signera : elle la découvrirait trop tard, en pleine recette.",
-      "Non. Partager une annexe du projet avec l'utilisatrice clé qui signera le PV est dans ton rôle : monter au DAF pour ça lui fait perdre du temps.",
+      "Non. Le DAF t'a confié ces clauses : les faire relire par celle qui signera le PV en fait partie. Lui demander un accord écrit lui fait perdre du temps.",
       "Non. Elle n'a besoin que de l'annexe recette : 40 pages et un avocat, c'est lui faire perdre une journée."
     ],
     retenir: "Ceux qui signeront le PV relisent l'annexe recette avant la signature : c'est aussi leur engagement."
