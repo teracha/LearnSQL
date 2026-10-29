@@ -8,6 +8,7 @@
 // recette du 16 mars à fin avril (6 semaines + 1 semaine de marge de recette), pilote en mai, bascule en juin.
 // Règle unique pour monter d'un niveau (section 4) : le niveau actuel refuse ta 2e proposition chiffrée, recommence
 // après que tu lui en as parlé, ou ne répond pas malgré une demande claire et une date limite.
+// Exception : le sponsor qui dit non en connaissant le coût a décidé (on applique, pas de DG).
 // L'enjeu fort (une date légale) n'est exigé que pour le niveau 4 (au-dessus du sponsor).
 // Point faible de l'élève (bilan) : il choisit la plus grosse solution (DG, COPIL, tout décaler) au lieu d'agir à son niveau.
 LEARNSQL.cours.cp16 = {
@@ -54,7 +55,7 @@ LEARNSQL.cours.cp16 = {
       exemple: "Niveau 1 : Marc (ADV) manque 2 ateliers. Tu lui parles : il est noyé sous les commandes du printemps.\nNiveau 2 : il en manque un 3e. Tu le préviens, puis tu vois le responsable ADV avec une proposition chiffrée.\nNiveau 3 : le responsable ADV refuse 2 propositions. Tu le préviens, puis tu demandes au DAF de trancher.\nLe DAF dit non, en connaissant le coût ? C'est sa décision : tu appliques.\nNiveau 4 : le DAF ne répond pas, date limite dépassée, date légale en jeu. Tu le préviens, puis tu vas au DG.",
       points: [
         "1. La personne. 2. Son manager. 3. Le sponsor (le DAF). 4. Au-dessus du sponsor (le DG). Avant de monter, tu préviens celui que tu dépasses.",
-        "Tu montes d'un niveau quand ce niveau refuse ta 2e proposition chiffrée, recommence après que tu lui en as parlé, ou ne répond pas malgré une demande claire et une date limite.",
+        "Tu montes d'un niveau quand ce niveau refuse ta 2e proposition chiffrée, recommence après que tu lui en as parlé, ou ne répond pas malgré une demande claire et une date limite. Exception : le sponsor qui dit non en connaissant le coût a décidé (point suivant).",
         "Le sponsor dit non ? C'est une info sur ses priorités. Réponds avec 2 ou 3 options chiffrées. Il tranche en connaissant le coût : c'est une décision. Tu appliques, et tu notes le risque.",
         "Niveau 4 seulement si le sponsor ne répond pas : demande courte faite, date limite dépassée, enjeu fort (une date légale). Enjeu faible ? Va le voir 10 minutes.",
         "Avant le DG, tu préviens le sponsor et ton DSI. À dire (au sponsor) : « Sans décision d'ici vendredi, je demanderai au DG d'arbitrer. Je préfère te le dire avant. »"
@@ -75,7 +76,7 @@ LEARNSQL.cours.cp16 = {
     },
     {
       titre: "L'excès inverse : tout absorber",
-      exemple: "Le contrat fixe au 1er mars la livraison du connecteur Divalto de la PA. Son chef de projet rate cette date.\nTu lui en parles, il promet le 15. Le 16, rien : 2e date ratée.\nTu ne relances pas une 3e fois. Tu le préviens, puis tu appelles son responsable de compte, contrat en main.\nEt tu informes le DAF : c'est lui qui a signé le contrat. Un plan B est prévu (module cp07) ? Tu le déclenches aussi.",
+      exemple: "Le contrat fixe au 1er mars la livraison du connecteur Divalto de la PA. Son chef de projet rate cette date.\nTu lui en parles, il promet le 15. Le 16, rien : 2e date ratée.\nTu ne relances pas une 3e fois. Tu le préviens, puis tu appelles son responsable de compte, contrat en main.\nEt tu informes le DAF : c'est lui qui a signé le contrat. Le déclencheur du plan B (pas livré au 15 mars, module cp07) est atteint : tu le lances aussi.",
       points: [
         "Ne jamais monter est aussi une erreur. Relancer, attendre, absorber : le problème grossit en silence, et la date légale approche.",
         "Tu en as parlé, et ça recommence ? Tu montes d'un niveau. Ex. : le prestataire rate 2 fois une date du contrat → son responsable de compte, et tu informes le DAF.",

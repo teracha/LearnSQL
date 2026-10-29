@@ -31,7 +31,7 @@ LEARNSQL.questions.cp07 = [
   {
     id: "cp07-q02",
     dialecte: "Gestion de projet",
-    q: "Le connecteur Divalto devait être livré le 1er mars. On est le 18 mars, rien n'est livré, et la PA ne donne pas de nouvelle date. C'est quoi, et que fais-tu ?",
+    q: "Le connecteur Divalto devait être livré le 1er mars. On est le 4 mars, rien n'est livré, et la PA ne donne pas de nouvelle date. C'est quoi, et que fais-tu ?",
     choix: [
       "Un risque : tu relèves sa probabilité à 3",
       "Un problème : tu le traites dès maintenant",
@@ -41,7 +41,7 @@ LEARNSQL.questions.cp07 = [
     bonne: 1,
     pourquoi: [
       "Non. Le retard est réel : changer une note ne sert plus à rien. Pendant ce temps, la marge avant la bascule fond.",
-      "Oui. La date est passée : ce n'est plus incertain. Plan B s'il existe, nouvelle date exigée, impact chiffré pour le DAF.",
+      "Oui. La date est passée : ce n'est plus incertain. Nouvelle date exigée, plan B prêt pour le 15 mars, impact chiffré pour le DAF.",
       "Non. Attendre le COPIL mensuel pour un fait déjà arrivé, c'est perdre jusqu'à 4 semaines de marge sans rien faire.",
       "Non. Corriger la note de cadrage ne règle rien : le connecteur manque toujours, et la bascule s'approche."
     ],
@@ -309,7 +309,7 @@ LEARNSQL.questions.cp07 = [
       "Non. Hors périmètre ne veut pas dire hors de ta vue. Si personne ne le dit, l'entreprise rate une obligation légale.",
       "Non. Tu passes par-dessus le porteur : le DAF l'apprend par le DG, et ta relation avec ton sponsor en souffre. Lui d'abord.",
       "Non. Ce n'est pas un risque de ton projet : le suivre chez toi ne le fait pas démarrer. Son porteur doit le savoir vite.",
-      "Oui. C'est escalader, au sens du PMBOK : remettre le risque à son porteur, le DAF. Faits, date, ce que ton projet peut absorber ou pas. Tu préviens aussi le contrôleur de gestion."
+      "Oui. C'est escalader, au sens du PMBOK : remettre le risque à son porteur, le DAF. Faits, date, ce que ton projet peut absorber ou pas. Tu le dis d'abord au contrôleur de gestion : il ne doit pas l'apprendre par le DAF."
     ],
     retenir: "Un risque légal hors de ton périmètre se remet le jour même à son porteur : c'est escalader, au sens du PMBOK."
   },
@@ -365,7 +365,7 @@ LEARNSQL.questions.cp07 = [
     pourquoi: [
       "Non. Le risque est arrivé : ce n'est plus une note à revoir, c'est un problème. Prévenir le DAF ne lance pas Julie : la semaine avant la recette se perd.",
       "Non. Trop fort : le plan B existe pour ce cas. Décaler de 2 mois mange la marge avant la date légale, sans raison.",
-      "Oui. Le plan B part tout de suite. La cheffe comptable est absente : c'est donc le DAF, son manager, qui valide la charge de Julie.",
+      "Oui. Le plan B part tout de suite. La cheffe comptable est absente : tu informes le jour même le DAF, son manager, qui confirme la charge de Julie.",
       "Non. Tu testes un métier qui n'est pas le tien : rien n'est vraiment validé, les erreurs sortiront après la bascule."
     ],
     retenir: "Le risque arrive : on lance le plan B préparé, on ne le réévalue pas."
@@ -622,7 +622,7 @@ LEARNSQL.questions.cp07 = [
     dialecte: "Gestion de projet",
     q: "Parmi ces situations DEMAT 2027, laquelle est un point unique de défaillance ?",
     choix: [
-      "Trois personnes en compta savent saisir un avoir",
+      "Trois personnes en compta savent lettrer un règlement",
       "Le connecteur a été testé par Julie et par Sophie",
       "Seul Marc, à l'ADV, sait reprendre les flux EDI rejetés",
       "Un seul connecteur, avec le portail de la PA en secours"
@@ -686,7 +686,7 @@ LEARNSQL.questions.cp07 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Deux mentions manquent (n° de commande, code GLN : le code du lieu de livraison), pour un client à 20 % du chiffre d'affaires. Le DAF le sait le jour même, avec des pistes et ta recommandation.",
+      "Oui. Deux mentions manquent (n° de commande, code GLN : le code qui identifie un lieu, ici le magasin livré), pour un client à 20 % du chiffre d'affaires. Le DAF le sait le jour même, avec des pistes et ta recommandation.",
       "Non. Négocier un délai avec un client à 20 % du chiffre d'affaires n'est pas ton rôle, et le DAF ne sait rien : s'il refuse, des semaines sont perdues.",
       "Non. Un mois perdu sur un sujet commercial majeur : le DAF découvre en séance ce qu'il aurait pu traiter.",
       "Non. Trop fort, et pas ta décision : la bascule passe en septembre, après la date légale, pour un sujet qu'un ajout au connecteur peut régler."

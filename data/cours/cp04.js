@@ -86,7 +86,7 @@ LEARNSQL.cours.cp04 = {
       exemple: "Le DAF répond « OK, vas-y » en 2 minutes. Il n'a pas lu.\nTu demandes 20 minutes pour 3 points clés, avec des options et ta recommandation.\nIl annule ensuite les comités, et le choix de la PA attend ? Tu lui demandes 15 minutes et une réponse avant le 15.\nLe 15, rien, et la réception légale reste bloquée : tu le préviens, puis tu demandes au DG de trancher.\nLe modèle du rapport mensuel, lui, reste dans ton projet : « Sans remarque au 10, je garde celui-ci. »\nTrois mois plus tard, le commercial veut les bons de livraison dématérialisés, « hors périmètre » : tu chiffres l'impact pour le DAF.",
       points: [
         "Le sponsor (ici le DAF) valide la note par écrit. Sans elle, pas de mandat. Absent, ou il signe sans lire ? Demande-lui 15 à 20 minutes, avec des options et une date limite.",
-        "Sans réponse : décision par défaut, seulement pour un détail de ton projet. Jamais pour le périmètre, le budget, un contrat ou le temps d'un autre service. Enjeu fort ? Préviens-le, puis va au DG.",
+        "Sans réponse : décision par défaut, seulement pour un détail de ton projet. Jamais pour le périmètre, le budget, un contrat ou le temps d'un autre service. Enjeu fort ? Préviens-le, ainsi que ton DSI, puis va au DG.",
         "La note peut évoluer (un client pas prêt, une nouvelle demande), mais par un avenant ou une décision tracée du sponsor (module cp10). Jamais par glissement.",
         "Projet déjà lancé sans note ? Il n'est pas trop tard : écris un cadrage de reprise (l'existant, la suite, les limites) et fais-le valider.",
         "Pièges : cadrer seul et trop vite, écrire une solution, des critères pas mesurables (« améliorer »), oublier le hors périmètre."

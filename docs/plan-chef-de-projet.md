@@ -39,6 +39,9 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Émission et e-reporting : obligatoires pour les PME au 1er septembre 2027.
 - Tout passe par une plateforme agréée (PA, ex-PDP). Facture électronique = B2B en France.
 - E-reporting = ventes aux particuliers, opérations avec l'étranger (UE et hors UE), données de paiement.
+- Une facture émise ne se modifie pas (intégrité dès l'émission) : on la corrige par un avoir ou une facture rectificative.
+- Conservation des factures : 6 ans (fiscal), 10 ans (Code de commerce). « Durée légale » suffit dans les questions.
+- Des amendes existent (article 1737 du CGI), mais leurs montants ont changé en 2026 : ne pas citer de montant.
 
 **Le projet**
 - Périmètre : factures B2B France, clients et fournisseurs, des 3 sites ; connecteur Divalto ↔ PA ; flux EDI des factures
@@ -86,7 +89,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Monter d'un niveau (échelle de cp16 : la personne → son manager → le sponsor → le DG) : quand le niveau actuel refuse
   ta 2e proposition chiffrée, recommence après que tu lui en as parlé, ou ne répond pas malgré une demande claire et une
   date limite. L'enjeu fort (date légale) n'est exigé que pour le niveau 4 (DG). Toujours prévenir le niveau qu'on dépasse.
-  Le sponsor qui dit non en connaissant le coût : c'est une décision, on applique.
+  Exception : le sponsor qui dit non en connaissant le coût a décidé. C'est une décision, on applique (pas de DG).
 - Décision par défaut : seulement pour un détail de ton projet (ex. le modèle de PV). Jamais pour le périmètre, le budget,
   un contrat ou le temps d'un autre service.
 

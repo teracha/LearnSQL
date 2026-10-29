@@ -611,7 +611,7 @@ LEARNSQL.questions.cp04 = [
     pourquoi: [
       "Non. Tu engages un contrat sans mandat : la décision pourra être contestée, et c'est toi qui la portes.",
       "Non. La date limite est passée et une obligation légale est déjà en retard : relancer encore, c'est laisser filer.",
-      "Oui. Demande courte, options, date limite : tu as tout fait. L'enjeu est légal, donc tu escalades, en le disant d'abord au DAF.",
+      "Oui. Demande courte, options, date limite : tu as tout fait. L'enjeu est légal, donc tu escalades, en le disant d'abord au DAF, et à ton DSI.",
       "Non. Un mois de plus sans plateforme, alors que la loi s'applique déjà : un rapport ne remplace pas une décision."
     ],
     retenir: "Demande courte faite, date limite dépassée, obligation légale en jeu : on escalade, en prévenant le sponsor."
@@ -699,7 +699,7 @@ LEARNSQL.questions.cp04 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. 115 k€ sort de la fourchette validée : la décision n'est plus à toi. Et le DAF doit signer le contrat de la PA ce mois-ci : dans 3 semaines, c'est trop tard.",
+      "Non. 115 k€ sort de la fourchette validée : la décision n'est plus à toi. Et le DAF doit signer le contrat de la PA en novembre : 3 semaines d'attente retardent sa décision.",
       "Non. Tu changes seul le périmètre validé pour cacher l'écart. Hors fourchette, c'est le sponsor qui choisit : payer plus, réduire, ou négocier.",
       "Oui. L'écart sort de la tolérance (la fourchette) : le sponsor décide, et tôt. Tu viens avec l'impact et 2 ou 3 options : réduire, négocier, payer plus.",
       "Non. Le budget est au DAF : aller au DG, c'est passer au-dessus de lui. Le DG vient seulement si le DAF ne répond pas, et si l'enjeu est fort."
@@ -720,7 +720,7 @@ LEARNSQL.questions.cp04 = [
       "Non. En régie, chaque jour passé est facturé : sans note validée ni commande, c'est une dépense sans mandat. Et il construit sur un périmètre que personne n'a validé.",
       "Oui. Pas de note validée, pas de commande : tu fais arrêter, et le DAF le sait le jour même. Le travail reprendra après la validation.",
       "Non. Régulariser, c'est commander avant la note validée : le paramétrage décide du périmètre à la place du besoin.",
-      "Non. Les 3 jours se règlent avec le DAF, contrat en main. Changer d'intégrateur pour un mail du commercial, c'est disproportionné."
+      "Non. Les 3 jours se règlent à froid avec le DAF. Changer d'intégrateur pour un mail du commercial, c'est disproportionné."
     ],
     retenir: "Des travaux démarrent sans note validée ni commande : tu les fais arrêter et tu informes le sponsor le jour même."
   },
@@ -735,7 +735,7 @@ LEARNSQL.questions.cp04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un modèle de compte rendu reste dans ton projet : ta décision par défaut suffit. Le DG, c'est pour un enjeu fort qui sort de ton projet.",
+      "Non. Un modèle de compte rendu est un détail de ton projet : ta décision par défaut suffit. Le DG, c'est pour une décision qui n'est pas à toi (contrat, budget, périmètre), sponsor muet et enjeu fort.",
       "Oui. Défaut annoncé, date passée, et le choix reste dans ton projet : tu l'appliques et tu l'écris. Le DAF pourra l'ajuster à son retour.",
       "Non. Tu avais fixé une date pour ne pas attendre. Attendre son accord sur un détail de ton ressort bloque le projet pour rien.",
       "Non. Un mois perdu sur un choix qui t'appartient : ta date limite ne servait à rien."

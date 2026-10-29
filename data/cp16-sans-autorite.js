@@ -104,7 +104,7 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q06",
     dialecte: "Gestion de projet",
-    q: "La cheffe comptable a refusé tes 2 propositions. Le 5, tu as demandé au DAF, par écrit, de trancher : 2 options, date limite le 12. Relance le 13. Le 19 : rien. La date légale est menacée. Que fais-tu ?",
+    q: "La cheffe comptable a refusé tes 2 propositions. Le 5, tu as demandé au DAF, en 3 lignes, de trancher : 2 options, date limite le 12. Relance le 13. Le 19 : rien. La date légale est menacée. Que fais-tu ?",
     choix: [
       "Tu le préviens, puis tu demandes au DG d'arbitrer",
       "Tu le relances encore, avec un ton plus pressant",
@@ -237,7 +237,7 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q13",
     dialecte: "Gestion de projet",
-    q: "Le DAF refuse un 2e utilisateur clé en compta : « Une personne suffit. » Ton planning en prévoyait deux. Que fais-tu ?",
+    q: "Le DAF refuse un 2e utilisateur clé sur les factures fournisseurs, en appui de Julie : « Une personne suffit. » Ton planning en prévoyait deux. Que fais-tu ?",
     choix: [
       "Tu portes le sujet au DG, chiffres en main",
       "Tu demandes à Julie de faire le travail des deux à la fois",
@@ -260,14 +260,14 @@ LEARNSQL.questions.cp16 = [
     choix: [
       "Tu recadres l'intégrateur : les demandes passent par toi",
       "Tu demandes à Julie de refuser seule, la prochaine fois",
-      "Tu laisses faire : au moins, le projet avance plus vite",
+      "Tu écris à son responsable de compte pour te plaindre",
       "Tu demandes au DAF de menacer l'intégrateur de pénalités"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Un seul canal protège le temps que sa cheffe t'a accordé. Tu le dis calmement à l'intégrateur, et tu replanifies son test.",
       "Non. Tu laisses Julie seule face à un prestataire : ce n'est pas son rôle, et elle n'ose pas dire non.",
-      "Non. Chaque appel direct grignote le temps négocié avec sa cheffe : à la fin, elle te retirera Julie.",
+      "Non. C'est la première fois : une phrase claire à l'intégrateur suffit. Monter chez son responsable sans lui avoir parlé le braque ; tu monteras s'il recommence.",
       "Non. Tu fais monter au sponsor ce qu'une phrase claire à l'intégrateur règle : tu donnes une image de chef de projet débordé."
     ],
     retenir: "Les demandes aux utilisateurs clés passent par toi : on recadre qui contourne."
@@ -294,7 +294,7 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q16",
     dialecte: "Gestion de projet",
-    q: "Depuis 3 jours, des factures fournisseurs restent bloquées en anomalie dans Divalto. Julie sait les traiter. Sa cheffe la garde sur la clôture et a refusé tes 2 propositions : 1 h par jour, puis 30 min. Que fais-tu ?",
+    q: "Pendant le pilote, des factures fournisseurs reçues via la PA restent bloquées en anomalie dans Divalto depuis 3 jours. Julie sait les traiter. Sa cheffe la garde sur la clôture et a refusé tes 2 propositions : 1 h par jour, puis 30 min. Que fais-tu ?",
     choix: [
       "Tu demandes à Julie de venir 1 h par jour, sans sa cheffe",
       "Tu attends la fin de la clôture, dans une semaine",
@@ -398,7 +398,7 @@ LEARNSQL.questions.cp16 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le manager propose une solution qui tient dans ta marge de recette : tu acceptes, et tu gardes un allié. Le DAF est informé, pas sollicité.",
+      "Oui. Le manager propose une solution qui tient dans ta marge de recette : tu acceptes, et tu gardes un allié. Le DAF est informé au point suivant, pas sollicité.",
       "Non. Tu testes le métier de l'ADV à sa place, alors que son manager t'offre une solution qui tient dans ta marge.",
       "Non. Tu passes au-dessus d'un manager qui t'aide : il s'en souviendra la prochaine fois.",
       "Non. Une semaine de glissement couverte par la marge ne justifie pas de décaler toute la bascule."
@@ -411,14 +411,14 @@ LEARNSQL.questions.cp16 = [
     q: "La plateforme agréée (PA) ne libère pas son expert pour l'atelier prévu au contrat ce mois-ci. Leur service planning répond : « Pas avant 3 semaines. » Que fais-tu ?",
     choix: [
       "Tu demandes au DAF d'appeler leur PDG, contrat en main",
-      "Tu attends 3 semaines : tu n'y peux rien de toute façon",
+      "Tu appelles directement leur responsable de compte",
       "Tu vois le chef de projet de la PA, contrat en main",
       "Tu réécris à leur service planning pour insister"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Tu sautes le chef de projet de la PA, et ton sponsor s'implique trop tôt : tu grilles une carte que tu pourrais garder.",
-      "Non. Le contrat prévoit l'atelier ce mois-ci : attendre, c'est accepter 3 semaines de retard sans rien demander.",
+      "Non. Tu sautes le chef de projet de la PA, qui n'a pas encore été saisi : chez un prestataire aussi, on monte un niveau à la fois.",
       "Oui. Chez un prestataire, le « manager », c'est son chef de projet. Avec le contrat et le coût du retard, tu demandes une date.",
       "Non. Le planning a déjà répondu et ne fixe pas les priorités : insister au même endroit ne débloque rien, et le mois passe."
     ],
@@ -458,7 +458,7 @@ LEARNSQL.questions.cp16 = [
       "Non. Il hésite, il n'a pas dit non : sans demande chiffrée de ta part, il ne reviendra pas, et ta recette attend.",
       "Non. Prévenir après ne rend pas la phrase vraie : tu as engagé le DAF sans son accord.",
       "Non. Il n'a pas encore dit non : faire intervenir le sponsor maintenant, c'est escalader avant d'avoir négocié.",
-      "Oui. Ton besoin chiffré suffit à ouvrir la discussion. Le DAF reste une marche plus haute, si le manager dit non."
+      "Oui. Ton besoin chiffré suffit à ouvrir la discussion. Le DAF reste une marche plus haute, si le manager refuse 2 propositions chiffrées."
     ],
     retenir: "On ne parle jamais au nom du sponsor s'il n'a rien dit."
   },
@@ -522,16 +522,16 @@ LEARNSQL.questions.cp16 = [
   {
     id: "cp16-q28",
     dialecte: "Gestion de projet",
-    q: "Tu veux 1 journée de Marc (ADV) pour tester un tableau de bord des ventes, hors obligation légale. Le responsable ADV a refusé 2 fois. Ta demande courte au DAF : date limite dépassée, malgré une relance. Que fais-tu ?",
+    q: "Tu veux 1 journée de Marc (ADV) pour tester un état Divalto de suivi des factures émises (confort, hors obligation légale). Le responsable ADV a refusé 2 fois. Ta demande courte au DAF : date limite dépassée, malgré une relance. Que fais-tu ?",
     choix: [
       "Tu le préviens, puis tu vas voir le DG pour trancher",
-      "Tu retires le tableau de bord du lot, sans le dire",
+      "Tu retires cet état du lot, sans le dire",
       "Tu vois le DAF 10 minutes, et tu replanifies ce test",
       "Tu relances le DAF par écrit une 3e fois, plus ferme"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Demande courte et délai dépassé, oui. Mais l'enjeu est faible, sans date légale : monter au DG pour un tableau de bord use ta relation avec le sponsor.",
+      "Non. Demande courte et délai dépassé, oui. Mais l'enjeu est faible, sans date légale : monter au DG pour un état de suivi use ta relation avec le sponsor.",
       "Non. Retirer une fonction du périmètre, c'est au sponsor de le décider : tu changes le projet seul, et on le découvrira plus tard.",
       "Oui. Sans enjeu fort, pas de niveau 4. Tu cherches la réponse en direct, et ce test non urgent attend une période plus calme.",
       "Non. Deux écrits sont restés sans réponse : un 3e ne changera rien. Pour un petit sujet, 10 minutes en face à face valent mieux qu'un mail de plus."
@@ -583,14 +583,14 @@ LEARNSQL.questions.cp16 = [
     choix: [
       "Tu vois la cheffe comptable pour caler ta demande",
       "Tu informes tout le monde la veille, support joint",
-      "Rien : le DAF tranchera en séance",
+      "Tu demandes au DAF d'appuyer ta demande en séance",
       "Tu demandes au DG de soutenir ta demande en séance"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Pas de surprise en séance : elle a vu ta demande, proposé des jours, et le COPIL valide un accord déjà préparé.",
       "Non. Un envoi la veille ne laisse pas le temps d'en parler : c'est encore une surprise.",
-      "Non. La cheffe comptable découvre ta demande devant son patron : elle se défend au lieu de chercher une solution.",
+      "Non. Tu passes par le patron de la cheffe comptable sans l'avoir vue : elle découvre ta demande par lui, et se défend au lieu de chercher une solution.",
       "Non. Tu fais monter le DG pour une demande que sa manager n'a même pas encore vue : la plus grosse solution, trop tôt."
     ],
     retenir: "Avant un COPIL, on voit les managers concernés : personne ne découvre ta demande en séance."
@@ -685,10 +685,10 @@ LEARNSQL.questions.cp16 = [
     pourquoi: [
       "Non. Deux dates ratées : une 3e promesse du même interlocuteur ne vaut pas plus, même écrite. Tu absorbes le retard, et la recette fond.",
       "Non. Résilier, c'est la plus grosse solution, et trop tôt : son responsable de compte n'a même pas été saisi.",
-      "Oui. Tu montes d'un niveau chez le prestataire, contrat en main. Le DAF a signé le contrat : il doit savoir. Un plan B est prévu (module cp07) ? Tu le déclenches aussi.",
+      "Oui. Tu montes d'un niveau chez le prestataire, contrat en main. Le DAF a signé le contrat : il doit savoir. Et le déclencheur du 15 mars est atteint : tu lances aussi le plan B prévu au contrat (module cp07).",
       "Non. Tu fais le travail du prestataire à sa place : du code de plus à maintenir, et il s'en servira pour expliquer son retard."
     ],
-    retenir: "Un prestataire rate 2 fois une date du contrat : son responsable de compte, le sponsor informé, et le plan B s'il est prévu."
+    retenir: "Un prestataire rate 2 fois une date du contrat : son responsable de compte, le sponsor informé, et le plan B lancé si son déclencheur est atteint."
   },
   {
     id: "cp16-q37",
