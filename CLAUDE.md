@@ -59,6 +59,15 @@ Page `#/revision` : l'élève choisit au moins 2 thèmes. Le QCM fait au moins 2
 avec au moins 5 questions par thème (constantes `REVISION_*` dans `js/app.js`).
 L'export indique le score par thème des révisions.
 
+## Comptes et synchronisation
+
+- Page `#/compte` : connexion par e-mail et mot de passe (Supabase, appels `fetch` directs, sans bibliothèque).
+- Une ligne par utilisateur dans la table `progression` (JSON complet du store). Script : `outils/supabase.sql`.
+- La base (RLS) ne laisse chaque utilisateur lire et modifier que SA ligne.
+- Synchro : à l'ouverture, au retour sur l'onglet, et 1,5 s après chaque écriture. Fusion sans perte (`fusion` dans `js/app.js`).
+- Sans compte, le site marche comme avant (localStorage seul).
+- Dans le code : seulement la clé « publishable ». Jamais la clé « secret » / « service_role ».
+
 ## Format d'une question
 
 ```js

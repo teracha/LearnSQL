@@ -173,3 +173,10 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
   .module .num { width: 36px; height: 36px; }
   .module .note { grid-column: 2; text-align: left; }
 }
+
+.form label { display: block; font-weight: 700; margin: 12px 0 6px; }
+.form input {
+  width: 100%; font: inherit; padding: 10px 12px;
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--line); border-radius: 10px;
+}

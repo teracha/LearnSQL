@@ -22,8 +22,166 @@
     return videStore();
   }
 
-  function ecrire(s) {
+  function ecrireLocal(s) {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) { /* ignoré */ }
+  }
+
+  function ecrire(s) {
+    ecrireLocal(s);
+    planifierSync();
+  }
+
+  // ---------- Compte et synchronisation (Supabase) ----------
+  // La clé « publishable » est faite pour être visible dans le site :
+  // la base ne laisse chaque utilisateur lire que SA ligne (voir outils/supabase.sql).
+  var SUPA_URL = "https://kkugxebgeteijhxijohk.supabase.co";
+  var SUPA_KEY = "sb_publishable_CUaxASwOUJ1c7UWEDDvlSQ__RE0DHTA";
+  var SESSION_KEY = "learnsql-session";
+  var etatSync = "";      // texte affiché sur la page Compte
+  var minuterieSync = null;
+
+  function lireSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; }
+  }
+
+  function ecrireSession(s) {
+    try {
+      if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch (e) { /* ignoré */ }
+  }
+
+  function appelSupa(chemin, options, jeton) {
+    options = options || {};
+    var entetes = { apikey: SUPA_KEY, "Content-Type": "application/json" };
+    if (jeton) entetes.Authorization = "Bearer " + jeton;
+    Object.keys(options.entetes || {}).forEach(function (k) { entetes[k] = options.entetes[k]; });
+    return fetch(SUPA_URL + chemin, {
+      method: options.methode || "GET",
+      headers: entetes,
+      body: options.corps ? JSON.stringify(options.corps) : undefined
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var d = null;
+        try { d = t ? JSON.parse(t) : null; } catch (e) { d = t; }
+        if (!r.ok) {
+          var err = new Error((d && (d.msg || d.error_description || d.message || d.error)) || ("Erreur " + r.status));
+          err.status = r.status;
+          throw err;
+        }
+        return d;
+      });
+    });
+  }
+
+  // Jetons reçus (connexion ou lien de l'e-mail) → session complète avec l'utilisateur.
+  function ouvrirSession(jetons) {
+    return appelSupa("/auth/v1/user", {}, jetons.access_token).then(function (u) {
+      var s = {
+        access_token: jetons.access_token,
+        refresh_token: jetons.refresh_token,
+        expire: Date.now() + (Number(jetons.expires_in) || 3600) * 1000,
+        id: u.id,
+        email: u.email
+      };
+      ecrireSession(s);
+      return s;
+    });
+  }
+
+  // Renvoie une session valide (rafraîchie si besoin), ou null.
+  function sessionValide() {
+    var s = lireSession();
+    if (!s) return Promise.resolve(null);
+    if (s.expire - 60000 > Date.now()) return Promise.resolve(s);
+    return appelSupa("/auth/v1/token?grant_type=refresh_token", {
+      methode: "POST", corps: { refresh_token: s.refresh_token }
+    }).then(ouvrirSession, function (e) {
+      if (e.status === 400 || e.status === 401) ecrireSession(null);   // session révoquée
+      throw e;
+    });
+  }
+
+  // Fusionne deux progressions : on ne perd jamais un essai.
+  function fusion(a, b) {
+    var s = videStore(), vus = {};
+    a.tentatives.concat(b.tentatives).forEach(function (t) {
+      var k = t.date + "|" + t.module;
+      if (!vus[k]) { vus[k] = true; s.tentatives.push(t); }
+    });
+    s.tentatives.sort(function (x, y) { return x.date < y.date ? -1 : x.date > y.date ? 1 : 0; });
+    Object.keys(a.questions).concat(Object.keys(b.questions)).forEach(function (id) {
+      var qa = a.questions[id], qb = b.questions[id];
+      s.questions[id] = !qb || (qa && qa.vues >= qb.vues) ? qa : qb;
+    });
+    return s;
+  }
+
+  // Lit la progression en ligne, la fusionne avec celle de l'appareil, renvoie le tout.
+  function synchroniser() {
+    return sessionValide().then(function (s) {
+      if (!s) return false;
+      return appelSupa("/rest/v1/progression?select=data", {}, s.access_token).then(function (lignes) {
+        var local = lire();
+        var distant = lignes && lignes[0] && lignes[0].data;
+        var tout = distant && distant.version === 1 ? fusion(local, distant) : local;
+        var change = JSON.stringify(tout) !== JSON.stringify(local);
+        ecrireLocal(tout);
+        return appelSupa("/rest/v1/progression", {
+          methode: "POST",
+          entetes: { Prefer: "resolution=merge-duplicates,return=minimal" },
+          corps: { user_id: s.id, data: tout, maj: new Date().toISOString() }
+        }, s.access_token).then(function () {
+          etatSync = "Synchronisé à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
+          return change;
+        });
+      });
+    }).catch(function (e) {
+      etatSync = "Synchronisation impossible : " + e.message;
+      return false;
+    });
+  }
+
+  function planifierSync() {
+    if (!lireSession()) return;
+    clearTimeout(minuterieSync);
+    minuterieSync = setTimeout(synchroniser, 1500);
+  }
+
+  // Après une synchro, on réaffiche la page, sauf en plein QCM.
+  function synchroniserPuisAfficher() {
+    synchroniser().then(function (change) {
+      if (change && !quiz) route();
+      else if (location.hash.indexOf("#/compte") === 0) pageCompte();
+    });
+  }
+
+  // Retour du lien de l'e-mail : Supabase met les jetons ou l'erreur dans le #.
+  var messageCompte = "";
+  function lireRetourEmail() {
+    var h = location.hash.replace(/^#/, "");
+    if (h.indexOf("access_token=") < 0 && h.indexOf("error=") < 0) return Promise.resolve();
+    var p = {};
+    h.split("&").forEach(function (kv) {
+      var i = kv.indexOf("=");
+      if (i > 0) p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, " "));
+    });
+    history.replaceState(null, "", location.pathname + location.search + "#/compte");
+    if (p.error) {
+      messageCompte = "Le lien n'a pas marché : " + (p.error_description || p.error) + ". Connecte-toi ci-dessous.";
+      return Promise.resolve();
+    }
+    return ouvrirSession(p).then(function () {
+      messageCompte = "Adresse confirmée. Tu es connecté.";
+    }, function (e) {
+      messageCompte = "Connexion impossible : " + e.message;
+    });
+  }
+
+  function majNav() {
+    var lien = document.getElementById("lien-compte");
+    var s = lireSession();
+    if (lien) lien.textContent = s ? "Compte ✓" : "Connexion";
   }
 
   // ---------- Outils ----------
@@ -360,6 +518,7 @@
       quiz.valide = false;
       afficherQuestion();
       window.scrollTo(0, 0);
+    if (parts[0] !== "compte") messageCompte = "";
       return;
     }
     terminer();
@@ -547,6 +706,85 @@
     });
   }
 
+  function pageCompte() {
+    var s = lireSession();
+    var html = '<h1>Mon compte</h1>';
+    if (messageCompte) html += '<div class="card"><strong>' + esc(messageCompte) + '</strong></div>';
+
+    if (s) {
+      html += '<p>Connecté avec <strong>' + esc(s.email) + '</strong>.</p>' +
+        '<p class="muted">Ta progression est enregistrée en ligne. Connecte-toi avec la même adresse ' +
+        'sur un autre appareil : tu la retrouves.</p>' +
+        '<p class="muted" id="etat-sync">' + esc(etatSync) + '</p>' +
+        '<div class="actions"><button type="button" class="btn" id="sync">Synchroniser maintenant</button>' +
+        '<button type="button" class="btn ghost" id="deconnexion">Se déconnecter</button></div>';
+      app.innerHTML = html;
+      document.getElementById("sync").addEventListener("click", function () {
+        document.getElementById("etat-sync").textContent = "Synchronisation…";
+        synchroniserPuisAfficher();
+      });
+      document.getElementById("deconnexion").addEventListener("click", function () {
+        appelSupa("/auth/v1/logout", { methode: "POST" }, s.access_token).catch(function () { /* déjà expirée */ });
+        ecrireSession(null);
+        etatSync = "";
+        majNav();
+        pageCompte();
+      });
+      return;
+    }
+
+    html += '<p class="muted">Sans compte, tes notes restent sur cet appareil. ' +
+      'Avec un compte, tu les retrouves sur ton mobile, ton PC, ton Mac…</p>' +
+      '<form id="form-compte" class="card form">' +
+      '<label for="email">Adresse e-mail</label>' +
+      '<input id="email" type="email" autocomplete="email" required>' +
+      '<label for="mdp">Mot de passe (8 caractères minimum)</label>' +
+      '<input id="mdp" type="password" autocomplete="current-password" minlength="8" required>' +
+      '<div class="actions"><button type="submit" class="btn">Se connecter</button>' +
+      '<button type="button" class="btn ghost" id="inscription">Créer un compte</button></div>' +
+      '<p id="msg" class="muted"></p></form>';
+    app.innerHTML = html;
+
+    var msg = document.getElementById("msg");
+    function champs() {
+      var email = document.getElementById("email").value.trim();
+      var mdp = document.getElementById("mdp").value;
+      if (!email || mdp.length < 8) { msg.textContent = "Il faut une adresse e-mail et 8 caractères minimum."; return null; }
+      return { email: email, password: mdp };
+    }
+    function connecte() {
+      majNav();
+      messageCompte = "Connecté. Ta progression de cet appareil est ajoutée à ton compte.";
+      synchroniser().then(pageCompte);
+    }
+
+    document.getElementById("form-compte").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var c = champs();
+      if (!c) return;
+      msg.textContent = "Connexion…";
+      appelSupa("/auth/v1/token?grant_type=password", { methode: "POST", corps: c })
+        .then(ouvrirSession)
+        .then(connecte, function (err) {
+          msg.textContent = /confirm/i.test(err.message)
+            ? "Adresse pas encore confirmée : clique d'abord sur le lien reçu par e-mail."
+            : "Connexion impossible : adresse ou mot de passe faux.";
+        });
+    });
+
+    document.getElementById("inscription").addEventListener("click", function () {
+      var c = champs();
+      if (!c) return;
+      msg.textContent = "Création du compte…";
+      appelSupa("/auth/v1/signup", { methode: "POST", corps: c }).then(function (d) {
+        if (d && d.access_token) return ouvrirSession(d).then(connecte);
+        msg.textContent = "Compte créé. Ouvre l'e-mail reçu et clique sur le lien pour le confirmer.";
+      }, function (err) {
+        msg.textContent = "Création impossible : " + err.message;
+      });
+    });
+  }
+
   // ---------- Thème ----------
   function appliquerTheme(t) {
     if (t) document.documentElement.setAttribute("data-theme", t);
@@ -573,8 +811,17 @@
     else if (parts[0] === "erreurs") pageErreurs();
     else if (parts[0] === "historique") pageHistorique();
     else if (parts[0] === "export") pageExport();
+    else if (parts[0] === "compte") pageCompte();
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);
-  route();
+  // Revenir sur l'onglet = récupérer ce qui a été fait sur un autre appareil.
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && lireSession()) synchroniserPuisAfficher();
+  });
+  lireRetourEmail().then(function () {
+    majNav();
+    route();
+    if (lireSession()) synchroniserPuisAfficher();
+  });
 })();
