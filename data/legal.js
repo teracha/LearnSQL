@@ -6,7 +6,8 @@ LEARNSQL.legal = {
   mentions:
     '<h2>Éditeur</h2>' +
     '<ul class="points">' +
-    '<li><strong>Terasoft</strong>, projet personnel, non commercial.</li>' +
+    '<li><strong>Terasoft</strong> : nom d\'usage d\'un particulier. Ce n\'est pas une société.</li>' +
+    '<li>Projet personnel, non commercial.</li>' +
     '<li>Contact : <a href="mailto:contact@terasoft.com">contact@terasoft.com</a></li>' +
     '</ul>' +
 
