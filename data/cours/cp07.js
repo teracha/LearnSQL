@@ -30,18 +30,19 @@ LEARNSQL.cours.cp07 = {
         "Retours d'expérience : tes projets passés, ceux de l'intégrateur, les autres clients de la PA.",
         "Cherche les points uniques de défaillance : une seule personne qui sait, un seul consultant, un seul fichier. S'il manque, tout s'arrête.",
         "Relis les hypothèses et les dépendances de la note de cadrage : prestataire, clients EDI (échange de données informatisé), congés, clôtures.",
-        "« On pourrait être en retard » n'est pas un risque : c'est une conséquence. Cherche la cause précise. Ex. : « Seule la cheffe comptable sait traiter les avoirs. »"
+        "« On pourrait être en retard » n'est pas un risque : c'est une conséquence. Cherche la cause précise. Ex. : « Seule la cheffe comptable sait traiter les avoirs. »",
+        "Un sceptique ? Demande-lui ses 3 risques : il voit l'utilité."
       ],
       retenir: "Les risques se trouvent à plusieurs, et souvent chez les gens, pas dans la technique."
     },
     {
       titre: "Le registre : cause, risque, conséquence, et une note",
-      exemple: "Cause : seule la cheffe comptable connaît les cas d'avoirs fournisseurs, et elle est en congé 3 semaines pendant la recette.\nRisque : les avoirs ne sont pas testés à temps.\nConséquence : erreurs sur les avoirs après la bascule.\nNote : probabilité 3 (forte) × impact 2 (moyen) = 6. C'est une priorité.\nPropriétaire : la cheffe comptable. Action : former Julie avant le 15 mai. Revue : au point projet, tous les 15 jours.",
+      exemple: "Cause : seule la cheffe comptable connaît les cas d'avoirs fournisseurs, et elle est en congé 3 semaines pendant la recette.\nRisque : les avoirs ne sont pas testés à temps.\nConséquence : erreurs sur les avoirs après la bascule.\nNote : probabilité 3 (forte) × impact 2 (moyen) = 6. C'est une priorité.\nPropriétaire : le DAF, son manager (pas elle : elle sera absente). Action : former Julie avant le 15 mai. Revue : au point projet, tous les 15 jours.",
       points: [
         "Une ligne = cause → risque → conséquence. Phrase type : « Parce que [cause], il peut arriver que [risque], ce qui entraînerait [conséquence]. »",
         "Note = probabilité × impact. Chacun va de 1 (faible) à 3 (fort), en passant par 2 (moyen). La note va donc de 1 à 9.",
-        "Lire la note : 3 (forte) × 3 (fort) = 9, priorité. 3 × 2 = 6, priorité aussi. 1 (faible) × 2 (moyen) = 2 : on accepte et on surveille de loin. Exception : un impact fort sur une date légale se suit de près, même à 1 × 3 = 3.",
-        "Propriétaire = UNE personne nommée, qui suit l'action. Pas « l'équipe ». Pas toi sur toutes les lignes.",
+        "Lire la note : 3 (forte) × 3 (fort) = 9, priorité. 3 × 2 = 6, priorité aussi. 3 ou 4 : une action simple, suivie en revue. 1 (faible) × 2 (moyen) = 2 : on accepte et on surveille de loin. Exception : un impact fort sur une date légale se suit de près, même à 1 × 3 = 3.",
+        "Propriétaire = UNE personne nommée, qui suit l'action. Pas « l'équipe ». Pas toi sur toutes les lignes. Il doit pouvoir agir quand le risque arrive : jamais la personne absente elle-même.",
         "Chaque ligne a une action, une date et une prochaine revue. Sans action ni date, c'est une liste d'inquiétudes."
       ],
       retenir: "Une ligne de registre dit d'où vient le risque, combien il pèse, qui agit et quand."
@@ -54,7 +55,8 @@ LEARNSQL.cours.cp07 = {
         "Réduire = baisser la probabilité ou l'impact : former une suppléante, documenter, tester plus tôt, un pilote sur 1 site.",
         "Transférer = faire porter la conséquence par un autre : contrat (pénalités), assurance. Attention : la pénalité paie, mais le retard reste chez toi.",
         "Accepter = ne rien faire de plus, en le sachant. Pour un petit risque, ou quand rien n'est possible. L'impact compte ? Alors avec une réserve (temps, argent) ou un plan de repli.",
-        "On combine souvent : transférer l'argent ET réduire le délai."
+        "On combine souvent : transférer l'argent ET réduire le délai.",
+        "Le PMBOK prévoit une 5e réponse : escalader. Un risque hors de ton projet va à son porteur. Ex. : le e-reporting, porté par le DAF."
       ],
       retenir: "On évite l'inacceptable, on réduit le reste, on transfère l'argent, on accepte le petit."
     },
@@ -72,7 +74,7 @@ LEARNSQL.cours.cp07 = {
     },
     {
       titre: "Déclencheur, plan B, revue : quand le risque devient un problème",
-      exemple: "Risque : retard du connecteur Divalto de la PA.\nDéclencheur : « connecteur pas livré et recetté au 15 mars ».\nPlan B : déposer les factures clients sur le portail web de la PA (prévu au contrat), en attendant le connecteur.\nLe 16 mars, rien. Tu ne réévalues pas : tu déclenches le plan B, et tu préviens le DAF (directeur administratif et financier, ton sponsor).",
+      exemple: "Risque : retard du connecteur Divalto de la PA.\nDéclencheur : « connecteur pas livré et recetté au 15 mars ».\nPlan B : bascule de juin via le portail web de la PA (dépôt des factures au format Factur-X, prévu au contrat). Le connecteur viendra après.\nLe 16 mars, rien. Tu ne réévalues pas : tu déclenches le plan B, et tu préviens le DAF (directeur administratif et financier, ton sponsor).",
       points: [
         "Déclencheur = un signal observable, avec une date. « Pas livré au 15 mars », pas « si ça sent mauvais ».",
         "Plan B = ce qu'on fait si le risque arrive. Préparé à froid, pas inventé dans l'urgence.",
@@ -86,7 +88,7 @@ LEARNSQL.cours.cp07 = {
       titre: "Parler d'un risque au sponsor : ni drame, ni silence",
       exemple: "Lundi, la PA annonce 2 mois de retard. Le COPIL est dans 3 semaines.\nAvec ce retard, la bascule tombe en août, sans marge avant le 1er septembre 2027.\nTu appelles le DAF le jour même : les faits, l'impact, 2 options, ta recommandation.\nÀ l'inverse, le risque « logo mal placé sur le PDF » attendra le compte rendu du COPIL.",
       points: [
-        "Quand ? Au COPIL pour les risques suivis. Le jour même pour : un risque légal, un risque majeur proche, une décision à lui demander. Risque légal = même hors de ton périmètre. Ex. : le e-reporting (envoi au fisc des données de ventes hors facture électronique), porté par le DAF.",
+        "Quand ? Au COPIL pour les risques suivis. Le jour même pour : un risque légal, un risque majeur proche, une décision à lui demander. Risque légal = même hors de ton périmètre. Ex. : le e-reporting, porté par le DAF. Il transmet à l'administration fiscale les données des opérations sans facture électronique (ventes aux particuliers, opérations internationales) et des données de paiement.",
         "Comment ? Les faits, la probabilité, l'impact (date, coût), ce que tu fais déjà, ce que tu attends de lui.",
         "À dire : « Risque sur la date légale : la PA annonce 2 mois de retard. Je propose l'option B. J'ai besoin de ta décision d'ici vendredi. »",
         "Sans dramatiser : pas de « catastrophe », pas de COPIL extraordinaire pour un risque moyen.",
