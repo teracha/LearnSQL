@@ -620,7 +620,7 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q33",
     dialecte: "Gestion de projet",
-    q: "L'intégrateur réclame un avenant de 10 jours pour le numéro de commande AquaBleu : « Hors de mon lot. » Ton cahier des charges cite « les exigences EDI des clients de la grande distribution », sans détail. Que fais-tu d'abord ?",
+    q: "L'intégrateur veut facturer 10 jours de plus pour le numéro de commande AquaBleu : « Hors de mon lot. » Ton cahier des charges cite « les exigences EDI des clients de la grande distribution », sans détail. Que fais-tu d'abord ?",
     choix: [
       "Tu acceptes les 10 jours : le numéro de commande presse",
       "Non : le cahier des charges suffit, sans discussion",
@@ -629,10 +629,10 @@ LEARNSQL.questions.cp18 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Tu paies peut-être ce que le contrat couvre déjà : le budget glisse, et un avenant n'est pas à toi de l'accepter.",
+      "Non. Tu paies peut-être ce que le contrat couvre déjà : le budget glisse. Et des jours en plus, c'est le DAF qui les commande.",
       "Non. Le texte est général : ta lecture n'est pas encore un fait partagé. Sans le relire ensemble, il campe sur sa position, et le travail s'arrête.",
       "Non. Il n'est pas en retard : il conteste un périmètre. Des pénalités ne règlent pas un désaccord de lecture.",
-      "Oui. D'abord des faits partagés : les textes signés. Un texte général se lit de deux façons : on le relit ensemble. S'il reste un avenant, le DAF le signe."
+      "Oui. D'abord des faits partagés : les textes signés. Un texte général se lit de deux façons : on le relit ensemble. S'il reste des jours en plus, le DAF signe une nouvelle commande."
     ],
     retenir: "Un texte signé qui se lit de deux façons : on le relit ensemble, avant de payer, de refuser ou de punir."
   },

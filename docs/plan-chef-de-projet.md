@@ -38,6 +38,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Réception des factures électroniques : obligatoire pour toutes les entreprises depuis le 1er septembre 2026 (l'entreprise est déjà en retard).
 - Émission et e-reporting : obligatoires pour les PME au 1er septembre 2027.
 - Tout passe par une plateforme agréée (PA, ex-PDP). Facture électronique = B2B en France.
+- Nouvelles mentions obligatoires, dont le SIREN du client : sans lui, la facture ne peut pas être acheminée (rejet).
 - E-reporting = ventes aux particuliers, opérations avec l'étranger (UE et hors UE), données de paiement.
 - Une facture émise ne se modifie pas (intégrité dès l'émission) : on la corrige par un avoir ou une facture rectificative.
 - Conservation des factures : 6 ans (fiscal), 10 ans (Code de commerce). « Durée légale » suffit dans les questions.
@@ -57,16 +58,20 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Démarche (module cp06) : hybride. Le cœur (flux légaux, connecteur standard de la PA, bascule) est cadré au départ.
   Les écrans et états de suivi Divalto de la compta se construisent par itérations de 2 semaines, dans une enveloppe
   fixée par le DAF : 10 jours d'intégrateur. PO (product owner : celui qui classe le backlog) de cette partie : la cheffe comptable.
+  Itérations de février à avril (après la clôture annuelle, avant le pilote). Démarche validée par le DAF en octobre 2026.
+  Pendant le congé de la cheffe comptable, Julie la supplée comme PO (désignée par écrit).
 - Changements (module cp10) : sur le cœur, une demande qui touche le périmètre, le budget, une date validée ou un contrat
   = demande de changement (écrite, chiffrée, décidée par le DAF ou le COPIL, tracée au registre des changements).
   Dans ta délégation (module cp18), tu décides et tu informes. Dans la partie agile, une idée nouvelle va au backlog :
   la cheffe comptable la classe, dans l'enveloppe ; sortir de l'enveloppe = demande de changement.
   Gel des changements dès le début du pilote (mai) : seules passent les corrections d'anomalies bloquantes et les
-  obligations légales. Lever le gel pour autre chose : décision du DAF, en connaissant le risque.
+  obligations légales. Lever le gel pour autre chose : décision du DAF, en connaissant le risque. Le gel vaut jusqu'à la fin
+  de la bascule (juin), partie agile comprise. Pas de budget de changement délégué sur DEMAT : chaque jour d'intégrateur
+  en plus = une commande signée par le DAF.
 - Contrats (module cp14) : PA = abonnement signé en novembre 2026 par le DAF (connecteur standard au 1er mars,
   pénalités de retard plafonnées, SLA, plan B par le portail, réversibilité des données). Intégrateur Divalto = régie :
   bon de commande en jours (taux journalier), signé par le DAF ; des jours en plus = une nouvelle commande, signée avant
-  de commencer. Toi : les clauses opérationnelles (périmètre, livrables, planning, recette, SLA, réversibilité).
+  de commencer. Taux journalier de l'intégrateur : environ 750 €. Toi : les clauses opérationnelles (périmètre, livrables, planning, recette, SLA, réversibilité).
   Les clauses juridiques (responsabilité, droit applicable) : le DAF, avec un avocat si besoin.
 
 **Le calendrier**

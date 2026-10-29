@@ -642,7 +642,7 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q34",
     dialecte: "Gestion de projet",
-    q: "En pleine recette, Julie te demande un nouvel état Divalto des factures en attente. Il faut 2 jours de travail, hors projet. Que réponds-tu ?",
+    q: "En pleine recette, Julie te demande un nouvel état Divalto des notes de frais à valider. Il faut 2 jours de travail, hors projet. Que réponds-tu ?",
     choix: [
       "« Pas pendant la recette. Ouvre un ticket au support : je l'appuie. »",
       "« Oui, bien sûr : je te le fais ce soir, après les tests, pas de souci. »",
