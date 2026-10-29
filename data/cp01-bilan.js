@@ -43,7 +43,7 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q03",
     "dialecte": "Gestion de projet",
-    "q": "L'intégrateur Divalto a 5 jours de retard sur le paramétrage du connecteur. C'est son 1er retard, et il tient dans la marge de recette. Tu sais faire ce paramétrage. Le commercial s'agace : « La date légale approche, change d'intégrateur aujourd'hui ! » Que fais-tu ?",
+    "q": "L'intégrateur Divalto a 5 jours de retard sur le paramétrage du connecteur. C'est son 1er retard, et il tient dans la marge de recette. Tu as déjà paramétré des connecteurs Divalto. Le commercial s'agace : « La date légale approche, change d'intégrateur aujourd'hui ! » Que fais-tu ?",
     "choix": [
       "Tu le paramètres toi-même ce soir, pour rattraper les 5 jours",
       "Tu lui demandes un engagement ferme, et tu suis l'écart",
@@ -53,7 +53,7 @@ LEARNSQL.questions.cp01 = [
     "bonne": 1,
     "pourquoi": [
       "Non. Tu deviens responsable d'un paramétrage hors contrat. Au premier bug, l'intégrateur dira que ce n'est pas lui.",
-      "Oui. Un 1er retard, dans la marge : tu gères à ton niveau. Nouvelle date ferme, suivie, et tu le dis au prochain COPIL. S'il la rate, tu montes à son responsable et tu informes le DAF.",
+      "Oui. Un 1er retard, dans la marge : tu gères à ton niveau. Nouvelle date ferme, suivie, et tu le dis au prochain COPIL. S'il la rate, tu le préviens, puis tu vas voir son responsable de compte, et tu informes le DAF.",
       "Non. La marge absorbe ces 5 jours, mais sans engagement daté, rien ne dit que le retard s'arrêtera là. Au 2e retard, la marge aura fondu en silence.",
       "Non. Un 1er retard qui tient dans la marge ne justifie pas de changer d'intégrateur : ça coûte des mois. Tu surréagis à la pression d'un commercial qui ne décide pas."
     ],
@@ -104,7 +104,7 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Elle ne bouge pas : la marge de la tâche absorbe le retard",
       "Elle recule de 3 semaines, autant que la tâche en retard",
-      "Elle recule d'une semaine : l'intégrateur avance en parallèle",
+      "Elle recule de 2 semaines : l'intégrateur avance en parallèle",
       "Elle ne bouge pas si on ajoute un développeur chez nous"
     ],
     "bonne": 1,
@@ -187,10 +187,10 @@ LEARNSQL.questions.cp01 = [
     "pourquoi": [
       "Non. Tu n'es pas le valideur. Et pas de décision par défaut ici : le format touche toute la compta. S'il est faux, tu portes seul l'erreur.",
       "Non. Le RACI ne dit pas d'attendre sans fin. Sa date limite est passée : vendredi, c'est la date légale qui recule.",
-      "Oui. Demande courte, date limite dépassée, relance faite, date légale en jeu : tu montes au-dessus. Tu préviens d'abord le DAF, par écrit, pour qu'il ne le découvre pas.",
+      "Oui. Demande courte, date limite dépassée, relance faite, date légale en jeu : tu montes au-dessus. Tu préviens d'abord le DAF, par écrit, et ton DSI : personne ne le découvre après coup.",
       "Non. Elle n'a pas ce rôle au RACI. Sa validation sera contestée, et tu la mets en porte-à-faux avec son chef."
     ],
-    "retenir": "Valideur muet après une demande courte, date limite dépassée, enjeu légal : le prévenir, puis monter au-dessus, avec l'impact. → module cp09"
+    "retenir": "Valideur muet après une demande courte, date limite dépassée, enjeu légal : prévenir le sponsor et ton DSI, puis monter au-dessus, avec l'impact. → module cp09"
   },
   {
     "id": "cp01-q11",
@@ -290,7 +290,7 @@ LEARNSQL.questions.cp01 = [
   {
     "id": "cp01-q16",
     "dialecte": "Gestion de projet",
-    "q": "Le DAF va signer avec la plateforme agréée (PA). Tu relis le contrat avant. En plus du prix, que vérifies-tu en priorité ?",
+    "q": "Le DAF va signer avec la plateforme agréée (PA). Il te demande de tout relire avant. En plus du prix, que vérifies-tu en priorité ?",
     "choix": [
       "La durée d'engagement la plus longue, pour avoir une remise",
       "Les SLA et la récupération des données en fin de contrat",
@@ -482,14 +482,14 @@ LEARNSQL.questions.cp01 = [
     "dialecte": "Gestion de projet",
     "q": "Les comptables sont inquiètes : « Avec la facture électronique, on va perdre notre travail. » Que fais-tu ?",
     "choix": [
-      "Tu envoies un mail rassurant à toute l'équipe comptable",
+      "Tu les réunis pour leur promettre qu'aucun poste ne sautera",
       "Tu les rencontres pour parler de ce qui change pour elles",
       "Tu organises une grosse formation, 3 mois avant la bascule",
       "Tu laisses le DAF gérer : c'est son équipe, pas la tienne"
     ],
     "bonne": 1,
     "pourquoi": [
-      "Non. Un mail ne répond pas à une peur. Il donne l'impression qu'on évite le sujet.",
+      "Non. Tu promets ce qui ne dépend pas de toi : l'emploi, c'est le DAF. Si un poste change, ta parole ne vaut plus rien.",
       "Oui. On traite l'inquiétude en face, avec du concret. Une utilisatrice clé porte le changement de l'intérieur. Ne promets rien sur l'emploi : le DAF doit répondre à ce point, avec toi.",
       "Non. Trop tôt, la formation est oubliée. Et elle ne répond pas à l'inquiétude.",
       "Non. Le DAF répond sur l'emploi, mais l'adoption est ton résultat : vous y allez ensemble."
@@ -521,14 +521,14 @@ LEARNSQL.questions.cp01 = [
     "q": "Tu es DSI adjoint. Trois projets demandés, de la place pour deux : DEMAT (obligation légale), tableaux Power BI des ventes, refonte de l'intranet. Que fais-tu ?",
     "choix": [
       "Tu les lances dans l'ordre d'arrivée des demandes, sans discuter",
-      "Tu lances les trois en parallèle, un peu plus lentement",
+      "Tu lances les trois, la DEMAT un peu plus vite que les autres",
       "Tu mets la DEMAT d'abord, la direction arbitre le reste",
       "Tu prends celui du demandeur le plus haut placé dans l'entreprise"
     ],
     "bonne": 2,
     "pourquoi": [
       "Non. L'ordre d'arrivée ne dit rien de la valeur. L'obligation légale peut passer en dernier.",
-      "Non. Trois projets lents finissent tous en retard. Y compris celui qui est obligatoire.",
+      "Non. Trois projets pour la place de deux : tous finissent en retard, y compris la DEMAT, qui est obligatoire.",
       "Oui. L'obligation légale passe d'abord. Les autres se comparent sur valeur, risque et capacité, et la direction décide.",
       "Non. Le rang du demandeur n'est pas un critère. Les autres directions contesteront le choix."
     ],
