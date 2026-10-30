@@ -122,6 +122,33 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   pris sur la réserve (reste 6 400 €) ; intérimaire de la recette refusé en avril ; réserve rendue à la clôture.
   Clôture (juillet 2027) : 28 mensualités restantes (23 800 €), reprises par le budget du run, qui porte aussi le risque
   de hausse de prix au renouvellement de 2029 (module cp07).
+- Toi et ton DSI (modules cp02, cp03) : ton temps, environ 70 % sur DEMAT et 30 % sur le run (référent des flux EDI,
+  en appui du support N2) et les petites demandes. Point de 30 minutes avec ton DSI chaque lundi : il arbitre tes priorités
+  entre run et projet. Il attend : pas de surprise, des décisions préparées, faire faire plutôt que faire.
+- Gouvernance (module cp09) : COPIL (comité de pilotage) mensuel, le 2e mardi du mois, 1 h 30 : le DAF (sponsor : il
+  préside et décide), toi (tu prépares, animes, écris le compte rendu), ton DSI, la cheffe comptable, le responsable ADV ;
+  le contrôleur de gestion, la PA ou l'intégrateur sur invitation. Ordre du jour et rapport envoyés 3 jours avant ; compte
+  rendu sous 24 h (décisions, actions, points ouverts) ; registre des décisions tenu par toi. Point projet chaque lundi, 1 h :
+  toi, le consultant de l'intégrateur, Julie, Sophie, Marc (avancement, 15 minutes de revue des risques, jours de la régie,
+  actions) : il suit et prépare, il ne décide ni du périmètre, ni du budget, ni des dates. Comité fournisseur mensuel avec
+  la PA (module cp15). RACI (R = réalise, A = approuve, un seul A par livrable, C = consulté, I = informé) : format de
+  facture : R toi et l'intégrateur, A le DAF, C la cheffe comptable et le responsable ADV, I ton DSI ; PV de recette
+  fournisseurs : R Julie, A la cheffe comptable ; PV de recette clients : R Sophie et Marc, A le responsable ADV ; go / no-go
+  de la bascule : R toi (recommandation sur les critères), A le DAF, C la cheffe comptable, le responsable ADV et ton DSI,
+  I le DG ; budget et dates validées : A le DAF.
+- Reporting (module cp08) : rapport mensuel d'une page, envoyé avec l'ordre du jour du COPIL : météo globale et par axe
+  (délai, budget, périmètre, qualité et risques), jalons (prévu, réel, prévision), décisions attendues, les 5 plus gros
+  risques (module cp07), la ligne budget (module cp12). Météo : vert = dans les tolérances ; orange = risque de sortir des
+  tolérances (cause, impact, plan, parfois une décision à demander) ; rouge = hors tolérance, une décision du sponsor est
+  nécessaire. Tolérances : ± 2 semaines par jalon, budget sous 90 k€ (module cp04). Une alerte qui ne peut pas attendre
+  le COPIL va au DAF le jour même (module cp07).
+- Planning (module cp05) : lots : réception par le portail (novembre 2026) ; paramétrage du connecteur (décembre à février,
+  données de paramétrage dues le 15 janvier) ; écrans de la compta en itérations (février à avril) ; flux EDI de la grande
+  distribution (février à avril) ; recette du 16 mars à fin avril (6 semaines + 1 semaine de marge de recette) ; formation
+  et tests (avril à juin) ; pilote sur 1 site en mai ; bascule des 3 sites en juin ; marge légale juillet-août. Chemin
+  critique : données de paramétrage (15 janvier) → paramétrage → connecteur livré (1er mars) → recette → PV (30 avril)
+  → pilote (mai) → bascule (juin). Contraintes : clôture annuelle en janvier, gel des changements dès le pilote, pas de
+  bascule en août. Jalons validés par le DAF ; tolérance de ± 2 semaines.
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
