@@ -17,8 +17,8 @@
 // le contrôleur de gestion dit le CAPEX ; tolérance : sous 90 k€, sinon le DAF décide, prévenu le jour même ; « ne rien
 // faire » impossible. Sophie : environ 400 factures par mois hors connecteur, 2 jours par mois (comme cp15-q35).
 // Aucun montant d'amende. Plan B, gel, 15 mars : inchangés.
-// q03, q12, q14, q27, q30, q37 : « Tu es DSI adjoint » (sans portefeuille : cp25). q25, q31, q35, q41, q42 : projet
-// Snowflake + Power BI. q03, q14, q30 : migration Divalto.
+// q03, q06, q12, q14, q27, q30, q37 : « Tu es DSI adjoint » (sans portefeuille : cp25). q25, q31, q35, q41, q42 : projet
+// Snowflake + Power BI. q03, q06, q14, q30 : migration Divalto (q06 : une version majeure tous les 6 ans environ).
 // Faits ajoutés (scénarios, cohérents avec la fiche, à valider) : 2 000 factures fournisseurs par mois (8 000 en tout :
 // les 400 hors connecteur = 5 %) ; ressaisie de 4 minutes par facture, 1 minute de contrôle après le connecteur (100
 // heures gagnées par mois) ; coût horaire chargé d'une comptable : 30 € (210 € la journée de 7 heures) ; temps interne
@@ -36,12 +36,12 @@
 // Frontières : suivre le budget pendant le projet (engagé, facturé, reste à faire, atterrissage) = cp12 ; la fourchette
 // du cadrage = cp04 ; le prix de chaque offre sur 3 ans = cp13 ; le registre des risques = cp07 ; la régie au jour le
 // jour = cp15 ; choisir entre projets = cp25 ; budget SI annuel = cp27.
-// Anti-devinette : la bonne réponse est un extrême dans 10 questions sur 42 : la plus douce qui suffit (q08, q17, q19,
-// q21, q32, q37, q42), la plus forte quand elle se justifie (q06, q09, q41). « TCO / sur 3 ans / tout compris »,
+// Anti-devinette : la bonne réponse est un extrême dans 9 questions sur 42 : la plus douce qui suffit (q08, q17, q19,
+// q21, q32, q37, q42), la plus forte quand elle se justifie (q09, q41). « TCO / sur 3 ans / tout compris »,
 // « ROI / retour », « prudent », « réserve », « fourchette », « mesure », « qualitatif », « contrôleur », « DAF », des
 // chiffres et des dates sont aussi dans des choix faux ; « Rien », « Oui », « tel quel », « toujours », « jamais »,
 // « dès aujourd'hui », « le jour même » aussi dans des bonnes réponses. Le chiffre le plus prudent (coût le plus haut,
-// gain le plus bas) n'est juste que dans q06, q17 et q19.
+// gain le plus bas, date la plus tardive) n'est juste que dans q16, q17, q19 et q22.
 LEARNSQL.questions.cp11 = [
   {
     id: "cp11-q01",
@@ -141,21 +141,21 @@ LEARNSQL.questions.cp11 = [
   {
     id: "cp11-q06",
     dialecte: "Gestion de projet",
-    q: "Le DAF : « Combien coûte la PA sur toute la durée du contrat ? » Abonnement : 850 € par mois, pendant 3 ans. Mise en service du connecteur : 7,4 k€, au forfait. Que réponds-tu ?",
+    q: "Tu es DSI adjoint. Business case de la migration de votre Divalto vers sa prochaine version majeure. Vous changez de version tous les 6 ans environ. L'intégrateur chiffre le coût total sur 3 ans, « comme pour la PA ». Sur quelle durée comptes-tu le TCO ?",
     choix: [
-      "30,6 k€ : 36 mois d'abonnement à 850 €",
-      "17,6 k€ : 1 an d'abonnement et la mise en service",
-      "10,2 k€ : un an d'abonnement, comme sur la facture",
-      "38 k€ : les 36 mois d'abonnement et la mise en service"
+      "3 ans, comme pour la PA : la durée habituelle d'un TCO",
+      "1 an : l'horizon du budget annuel de la DSI",
+      "12 ans, deux versions : la migration pèse moins par an",
+      "6 ans : sa durée de vie, jusqu'à la migration suivante"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Tu oublies la mise en service, payée une fois, au forfait : 7,4 k€ de plus.",
-      "Non. Un an seulement : le contrat dure 3 ans. Il manque 2 années d'abonnement, soit 20,4 k€.",
-      "Non. Un an d'abonnement n'est pas le coût du contrat : il dure 3 ans, et la mise en service s'ajoute.",
-      "Oui. 850 × 36 = 30,6 k€, plus 7,4 k€ de mise en service : 38 k€. Sur toute la durée, tout compris."
+      "Non. Il n'y a pas de durée habituelle : 3 ans, c'est le contrat de la PA. Votre Divalto vit plus longtemps : sur 3 ans, le run et les gains des années 4 à 6 disparaissent.",
+      "Non. 1 an, c'est la vue du budget annuel (module cp27). Sur 1 an, la migration paraît énorme, et tout le run qui suit disparaît.",
+      "Non. Deux versions, c'est deux migrations : au-delà de la vie de celle-ci, coûts et gains deviennent de la fiction.",
+      "Oui. Le TCO se compte sur la durée du contrat, ou sur la vie de la solution : ici, environ 6 ans, jusqu'à la version suivante. Tu écris cette durée dans tes hypothèses."
     ],
-    retenir: "Le coût d'un abonnement se compte sur toute la durée du contrat, mise en service comprise."
+    retenir: "Le TCO se compte sur la durée du contrat ou de la vie de la solution, pas sur une durée toute faite."
   },
   {
     id: "cp11-q07",
@@ -188,9 +188,9 @@ LEARNSQL.questions.cp11 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Tu comptes deux fois la même prudence : environ 11 k€ de plus, sans raison écrite. L'incertitude des chiffres a déjà sa place : la tolérance, jusqu'à 90 k€.",
+      "Non. Tu comptes deux fois la même prudence : environ 11 k€ de plus, sans raison écrite, même sur des prix signés. Le budget passerait à près de 91 k€, au-delà de la tolérance.",
       "Non. Une marge partout ne dit plus pour quels risques elle existe. Elle se dépense sans qu'on sache pourquoi.",
-      "Non. Presque : le risque de la régie est réel, mais il est déjà dans le registre, donc dans la réserve. Tu le compterais deux fois.",
+      "Non. Presque : la régie est un vrai risque. Mais un risque se nomme au registre, avec son coût, et la réserve le couvre. 15 % à vue, c'est une marge sans raison écrite.",
       "Oui. Une réserve liée à des risques nommés se défend et se suit. Des marges en plus, partout, compteraient deux fois la même prudence."
     ],
     retenir: "Une seule réserve, liée aux risques du registre : une marge en plus sur chaque ligne, c'est compter deux fois."
@@ -236,7 +236,7 @@ LEARNSQL.questions.cp11 = [
   {
     id: "cp11-q11",
     dialecte: "Gestion de projet",
-    q: "Ton TCO de l'option B, le connecteur, s'arrête à la bascule de juin 2027. Ensuite, Sophie déposera environ 400 factures par mois sur le portail de la PA : 2 jours par mois. Que fais-tu ?",
+    q: "Ton TCO de l'option B, le connecteur, compte les jours de la compta jusqu'à la bascule de juin 2027, pas après. Ensuite, Sophie déposera environ 400 factures par mois sur le portail de la PA : 2 jours par mois. Que fais-tu ?",
     choix: [
       "Au TCO, en temps interne : 2 jours par mois jusqu'en 2029",
       "Rien : après la bascule, c'est du run, plus du projet",
@@ -265,7 +265,7 @@ LEARNSQL.questions.cp11 = [
     bonne: 3,
     pourquoi: [
       "Non. Tu oublies la sortie : 20 000 € le jour où vous partez. Sortie comprise, X coûte 10 000 € de plus.",
-      "Non. Le jour du départ, tu n'as plus de levier : X fixera son prix. Une sortie se négocie avant de signer, ou se compte.",
+      "Non. Le jour du départ, tu n'as plus de levier : tu paieras les 20 000 €. Une sortie se négocie avant de signer, ou se compte.",
       "Non. Y inclut déjà l'export : inutile de tout relancer. Le TCO, sortie comprise, suffit à départager.",
       "Oui. X : 10 000 € de moins, plus 20 000 € de sortie, soit 10 000 € de plus que Y. Le TCO compte la sortie : rester chez X pour éviter les 20 000 €, c'est déjà être enfermé."
     ],
@@ -293,7 +293,7 @@ LEARNSQL.questions.cp11 = [
   {
     id: "cp11-q14",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Migration Divalto : l'intégrateur chiffre 100 jours, 75 k€, « hors adaptation de vos 25 spécifiques : devis séparé ». La dernière fois, les adapter avait pris 15 jours. Quel chiffre donnes-tu au DAF pour son budget ?",
+    q: "Tu es DSI adjoint. Migration Divalto : l'intégrateur chiffre 100 jours, 75 k€, « hors adaptation de vos 25 spécifiques : devis séparé ». À la dernière migration, adapter ces mêmes 25 spécifiques avait pris 15 jours. Quel chiffre donnes-tu au DAF pour son budget ?",
     choix: [
       "75 k€ : c'est le chiffre écrit sur le devis de l'intégrateur",
       "Aucun chiffre : la dernière fois ne prouve rien, attends le devis",
@@ -355,14 +355,14 @@ LEARNSQL.questions.cp11 = [
       "10 minutes : la cheffe comptable connaît son service",
       "4 minutes, mesurées sur 50 factures, source écrite",
       "7 minutes : la moyenne des deux, pour ne vexer personne",
-      "5 minutes : la mesure des 50 factures, arrondie"
+      "5 minutes : la mesure sur 50 factures, plus une marge"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Une estimation contre une mesure : la mesure gagne. 10 minutes tripleraient le gain (9 minutes gagnées au lieu de 3), et le bilan après la bascule le montrerait.",
       "Oui. Un chiffre mesuré, avec sa source, se défend devant le DAF et le contrôleur de gestion. Tu montres d'abord la mesure à la cheffe comptable : elle peut la compléter (avoirs, factures difficiles).",
       "Non. Une moyenne entre un chiffre faux et un vrai reste fausse. Le business case n'est pas une négociation.",
-      "Non. Presque : proche de la mesure, mais arrondir vers le haut gonfle le gain d'un tiers (4 minutes gagnées au lieu de 3). Garde le chiffre mesuré."
+      "Non. Presque : tu pars de la mesure, mais une marge d'une minute gonfle le gain d'un tiers (4 minutes gagnées au lieu de 3). Garde le chiffre mesuré."
     ],
     retenir: "Dans un business case, une mesure vaut mieux qu'une estimation : un chiffre mesuré, avec sa source."
   },
@@ -399,7 +399,7 @@ LEARNSQL.questions.cp11 = [
     pourquoi: [
       "Oui. Du temps libéré n'est pas de l'argent économisé. Il le devient si une dépense disparaît (un intérim, une embauche évitée). Le business case l'écrit en gain de temps ; le DAF décide de son usage.",
       "Non. 1 200 × 30 = 36 000 €, mais c'est la valeur du temps, pas une économie : aucune dépense ne baisse. Le contrôleur de gestion le verra.",
-      "Non. Le calcul a l'air plus fin, mais l'erreur reste : ces 36 000 € ne sortent pas de la caisse. Aucune dépense ne baisse.",
+      "Non. Le calcul a l'air plus fin, mais l'erreur reste : ces 36 000 € sont des salaires toujours payés. Aucune dépense ne baisse.",
       "Non. Un poste en moins, c'est une décision de la direction, pas une ligne de ton business case. Et 100 heures font 2/3 d'un poste, pas un poste."
     ],
     retenir: "Du temps libéré n'est pas de l'argent économisé : il le devient seulement si une dépense disparaît."
@@ -455,8 +455,8 @@ LEARNSQL.questions.cp11 = [
     bonne: 2,
     pourquoi: [
       "Non. En novembre, les factures reçues passent par le portail : la ressaisie continue. Le gain commence quand le connecteur sert vraiment.",
-      "Non. Presque : livré n'est pas utilisé. De mars à mai, il est en recette, puis en pilote sur 1 site. Toute la compta ne l'utilise qu'à la bascule de juin.",
-      "Oui. Il démarre à la bascule et monte en charge : tes fournisseurs PME n'émettront en électronique qu'au 1er septembre 2027. Gain plein ensuite.",
+      "Non. Presque : livré n'est pas utilisé. Il est en recette jusqu'à fin avril, puis en pilote sur 1 site en mai. Toute la compta ne l'utilise qu'à la bascule de juin.",
+      "Oui. Il démarre à la bascule et monte en charge : tes fournisseurs PME ne devront émettre en électronique qu'au 1er septembre 2027. Gain plein ensuite.",
       "Non. Trop prudent : un gain se compte, avec sa date et ses hypothèses. Le retirer fausse aussi la comparaison des options."
     ],
     retenir: "Un gain se compte à partir du moment où il arrive vraiment, et il monte en charge."
@@ -544,7 +544,7 @@ LEARNSQL.questions.cp11 = [
     choix: [
       "X : il se rembourse en 12 mois, Y en 18",
       "Y : sur sa durée, 42 k€ net, contre 12 k€ pour X",
-      "Aucun : un retour au-delà d'un an, c'est trop long",
+      "Aucun : un retour d'un an ou plus, c'est trop long",
       "X, puis Y dans 2 ans, quand X ne sera plus maintenu"
     ],
     bonne: 1,
@@ -646,7 +646,7 @@ LEARNSQL.questions.cp11 = [
     pourquoi: [
       "Non. Tout projet n'est pas un investissement : une partie de ces jours peut être une charge (formation, paramétrage d'un service par abonnement). Ce n'est pas à toi de classer.",
       "Non. Le type de contrat ne décide pas : des jours en régie peuvent créer un bien immobilisé. C'est une règle comptable, pour le contrôleur de gestion.",
-      "Oui. Le classement suit des règles comptables : le contrôleur de gestion décide. Toi, tu donnes le détail : quels jours, pour quoi faire, quand.",
+      "Oui. Le contrôleur de gestion classe, selon les règles comptables. Toi, tu donnes le détail : quels jours, pour quoi faire, quand.",
       "Non. Couper en deux n'est pas une règle. Un classement faux se corrige ensuite, avec le résultat de l'année."
     ],
     retenir: "CAPEX ou OPEX : le contrôleur de gestion classe ; le chef de projet donne le détail des coûts."
@@ -654,10 +654,10 @@ LEARNSQL.questions.cp11 = [
   {
     id: "cp11-q33",
     dialecte: "Gestion de projet",
-    q: "Un collègue de la DSI propose : « Classons l'abonnement de la PA en investissement : 30,6 k€ étalés, le résultat de l'année sera meilleur. » Que réponds-tu ?",
+    q: "Un collègue de la DSI propose : « Classons l'abonnement de la PA en investissement : 30,6 k€ amortis sur 5 ans, le résultat de l'année sera meilleur. » Que réponds-tu ?",
     choix: [
-      "« Bonne idée : on étale, et l'année respire »",
-      "« Non : un abonnement est une charge (OPEX) »",
+      "« Bonne idée : on étale l'abonnement, et l'année respire »",
+      "« Non : un abonnement est une charge de l'année (OPEX) »",
       "« On demande au DG de choisir entre toi et la règle »",
       "« En CAPEX la 1re année, en OPEX les 2 suivantes »"
     ],
@@ -704,7 +704,7 @@ LEARNSQL.questions.cp11 = [
       "Oui. Payer d'avance change la date du paiement, pas la nature : c'est une consommation, une charge au fil de l'usage (OPEX). Le contrôleur de gestion le confirmera.",
       "Non. Un amortissement concerne un bien qui sert plusieurs années. Des crédits de calcul se consomment : ils restent une charge.",
       "Non. Signer la commande ne classe rien : le contrôleur de gestion classe, selon les règles comptables. Et ici, c'est une charge.",
-      "Non. Ce seuil n'existe pas : le montant ne change pas la nature d'une consommation."
+      "Non. Un seuil de montant existe pour de petits biens, passés en charges. Il ne fait pas d'une consommation un investissement."
     ],
     retenir: "Payer d'avance ne transforme pas une consommation en investissement : le calcul cloud reste une charge."
   },
@@ -715,14 +715,14 @@ LEARNSQL.questions.cp11 = [
     choix: [
       "Le total, 80 k€ : le détail ne regarde que le projet",
       "Tous les coûts, chacun avec sa nature et sa date",
-      "Ton classement CAPEX / OPEX, ligne par ligne, à valider",
+      "Ton classement CAPEX / OPEX, ligne par ligne, à appliquer",
       "Les contrats signés : il fera lui-même son tableau"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Avec un seul total, il ne peut ni classer, ni prévoir les paiements de chaque mois.",
       "Oui. Abonnement au mois, forfait de mise en service, jours en régie, formation et tests, réserve : chacun avec sa date. Il classe, et il prévoit la trésorerie.",
-      "Non. Presque : le détail y est, mais pré-classé par toi. S'il valide vite, une erreur passe dans les comptes.",
+      "Non. Presque : le détail y est, mais tu lui imposes ton classement. Classer, c'est son rôle, selon les règles comptables.",
       "Non. Des dizaines de pages pour retrouver 5 lignes : il te le redemandera. Et les jours en régie dépendent des commandes, pas seulement du contrat."
     ],
     retenir: "Au contrôleur de gestion : chaque coût, sa nature et sa date. Il classe ; tu ne pré-classes pas."
@@ -734,7 +734,7 @@ LEARNSQL.questions.cp11 = [
     choix: [
       "Tu appliques, et l'écart de 20 k€ reste écrit dans le dossier",
       "Tu refuses : l'achat est moins cher, le calcul le prouve",
-      "Tu montres l'écart au DG, pour qu'il tranche entre vous",
+      "Tu montres l'écart de 20 k€ au DG, pour qu'il tranche",
       "Tu appliques ; au prochain comité, tu remets le sujet"
     ],
     bonne: 0,
@@ -752,7 +752,7 @@ LEARNSQL.questions.cp11 = [
     q: "Novembre 2026. Contrats signés : 80 k€ de dépenses externes sur 3 ans, réserve comprise. Le DAF : « Au cadrage, tu disais 60 à 90 k€. Je retiens quoi ? »",
     choix: [
       "« La fourchette, 60 à 90 k€ : un budget reste toujours incertain »",
-      "« 90 k€ : le haut de la fourchette, par prudence »",
+      "« 90 k€ : les 80 k€, et 10 k€ de plus par prudence »",
       "« 72 k€ : sans la réserve, qui ne servira peut-être pas »",
       "« 80 k€ ; au-delà de 90 k€, tu décides, prévenu le jour même »"
     ],
@@ -761,7 +761,7 @@ LEARNSQL.questions.cp11 = [
       "Non. La fourchette servait tant que les prix étaient inconnus. Contrats signés, un chiffre de référence permet de suivre les écarts.",
       "Non. 90 k€ cacherait 10 k€ sans raison écrite : ils se dépenseraient sans décision. 90 k€ est la limite de la tolérance, pas le budget.",
       "Non. La réserve fait partie du budget : elle couvre des risques nommés. Sans elle, le 1er risque fait déborder.",
-      "Oui. Une fourchette tant que c'est incertain, un chiffre quand les contrats sont signés. 80 k€ devient la référence ; au-delà de 90 k€, le DAF décide, prévenu le jour même."
+      "Oui. Une fourchette tant que c'est incertain, un chiffre quand les contrats sont signés. 80 k€ devient la référence ; au-delà de 90 k€, le DAF décide, prévenu le jour même. En dessous aussi, chaque dépense en plus est une commande qu'il signe."
     ],
     retenir: "Contrats signés : la fourchette devient un chiffre de référence, avec sa tolérance."
   },
@@ -779,7 +779,7 @@ LEARNSQL.questions.cp11 = [
     pourquoi: [
       "Non. Garder un chiffre que tu sais faux, même plus bas, ce n'est pas de la prudence. Le business case suit les faits.",
       "Non. Presque : la mise à jour est juste, mais le DAF a validé ce business case. Un chiffre qui bouge sans qu'il le sache, c'est un dossier qu'il ne reconnaît plus.",
-      "Oui. 2 400 × 3 minutes = 7 200 minutes, soit 120 heures par mois. L'hypothèse suit les faits, avec sa source (l'extraction Divalto). Rien à décider : 2 lignes au DAF suffisent.",
+      "Oui. 2 400 × 3 minutes = 7 200 minutes, soit 120 heures par mois. L'hypothèse suit les faits, avec sa source (l'extraction Divalto). Rien à décider : 2 lignes au DAF suffisent, ou un mot au COPIL du mois.",
       "Non. Le DG n'a rien à décider, et tu passes au-dessus du DAF. Les gains se présentent d'abord au sponsor."
     ],
     retenir: "Une hypothèse change : le business case se met à jour, source citée, et le sponsor le sait."
@@ -836,8 +836,8 @@ LEARNSQL.questions.cp11 = [
     pourquoi: [
       "Non. Les autres clients ont leurs règles et leurs projets. Le contrôleur a classé selon les vôtres.",
       "Non. Classer n'est pas ton rôle : ton budget serait faux, et le contrôleur le corrigerait derrière toi.",
-      "Oui. Le classement suit les règles comptables de l'entreprise : le contrôleur de gestion décide. Le prestataire n'a pas à décider de vos comptes.",
-      "Non. Il n'y a rien à arbitrer : c'est une règle comptable, pas un désaccord entre deux parties. Le DAF n'a pas à trancher l'avis d'un fournisseur."
+      "Oui. Le contrôleur de gestion classe, selon les règles comptables de l'entreprise. Le prestataire n'a pas à décider de vos comptes.",
+      "Non. Il n'y a rien à arbitrer : l'avis d'un fournisseur ne fait pas un désaccord. Le classement est fait, selon vos règles comptables."
     ],
     retenir: "Le classement CAPEX / OPEX revient au contrôleur de gestion : ni le prestataire ni toi ne le refaites."
   }

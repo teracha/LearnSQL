@@ -47,7 +47,7 @@ LEARNSQL.cours.cp15 = {
     },
     {
       titre: "La régie : suivre les jours, chaque semaine",
-      exemple: "Commande de l'intégrateur : 40 jours. Lundi : 24 consommés.\nReste à faire, tâche par tâche : 21. 24 + 21 = 45 : 5 de trop.\nTu n'attends pas les 80 % : tu alertes le DAF le jour même, avec des options (retirer une tâche, ou une commande de plus, signée avant).",
+      exemple: "Commande de l'intégrateur : 40 jours. Fin mars : 24 consommés.\nReste à faire, tâche par tâche : 19. 24 + 19 = 43 : 3 de trop.\nTu n'attends pas les 80 % : tu alertes le DAF le jour même, avec des options (retirer une tâche, ou une commande de plus, signée avant).",
       points: [
         "Chaque semaine : consommé + reste à faire = l'atterrissage (le total probable).",
         "Le reste à faire se donne tâche par tâche. Il ne baisse pas ? Regarde ce qui est vraiment fini, dans Divalto.",

@@ -106,6 +106,22 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   Tolérance : rester sous 90 k€ ; au-delà, le DAF décide, prévenu le jour même (module cp04). « Ne rien faire » n'est pas
   une option (obligation légale) : le business case compare des façons de s'y conformer, et ses gains (fin de la
   ressaisie des factures fournisseurs, moins d'erreurs et de relances ; chiffres : module cp11).
+  Chiffres du business case (cp11) : 8 000 factures par mois, dont 2 000 factures fournisseurs (les 400 hors connecteur
+  = 5 %) ; ressaisie de 4 minutes par facture, 1 minute de contrôle avec le connecteur : 100 heures gagnées par mois, en
+  temps (pas en argent) ; coût horaire chargé d'une comptable : 30 € (210 € la journée de 7 h) ; temps interne du projet :
+  environ 100 jours ; option A (portail seul, ressaisie) : environ 45 k€ sur 3 ans ; gain plein quand les fournisseurs PME
+  émettent (1er septembre 2027). Sous 90 k€ aussi, chaque dépense en plus reste une commande signée par le DAF.
+  Suivi (cp12) : abonnement facturé de décembre 2026 à novembre 2029 (36 mensualités) ; mise en service : 3 700 € à la
+  signature, 3 700 € au PV (30 avril, 2 réserves mineures) ; les 40 jours de l'intégrateur comprennent l'enveloppe des
+  10 jours des écrans ; changements n° 7 (4 jours, faits en février) et n° 9 (3 jours, faits en mars), acceptés au COPIL
+  du 9 février, 5 250 €, référence version 2 : 85 250 € ; jours faits de la commande de base : décembre 3, janvier 2,
+  février 8, mars 11, avril 9, mai 4, juin 5 (42 sur 43) ; une facture par mois sur relevé validé. Fin mars : 1 flux EDI
+  fini sur 3 prévus, reste à faire 19 jours, atterrissage 43 jours ; le DAF signe le jour même une commande de 3 jours ;
+  engagé 81 100 €, consommé 30 350 € (le 1er jalon du forfait compte), facturé 19 850 €, atterrissage 87 500 € (réserve
+  restante comprise), écart + 2 250 €. Archivage (avenant de mars) : 50 € par mois d'avril 2027 à novembre 2029, 1 600 €,
+  pris sur la réserve (reste 6 400 €) ; intérimaire de la recette refusé en avril ; réserve rendue à la clôture.
+  Clôture (juillet 2027) : 28 mensualités restantes (23 800 €), reprises par le budget du run, qui porte aussi le risque
+  de hausse de prix au renouvellement de 2029 (module cp07).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,

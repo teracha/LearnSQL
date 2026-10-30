@@ -37,7 +37,7 @@
 // 4 000 €, cp18-q22) ; factures de l'intégrateur chaque mois, sur relevé validé.
 // Affirmations comptables ou juridiques hors fiche (générales, à faire vérifier) : la compta inscrit dans l'année le
 // travail fait non facturé (facture non parvenue) ; un PV avec réserves vaut acceptation, le solde lié au PV est dû
-// (sauf retenue écrite au contrat) ; le prix d'une commande signée tient jusqu'au bout, sauf clause de révision.
+// (sauf retenue écrite au contrat, dit au cours) ; le prix d'une commande signée tient jusqu'au bout, sauf clause de révision.
 // Frontières : cp11 = construire le budget et le business case (avant) ; cp12 = le suivre pendant le projet ; cp08 = le
 // reporting global (ici, seulement la ligne budget) ; cp15 = le suivi de la régie au point hebdo (cité, pas refait) ;
 // cp14 = forfait, régie, abonnement, PV, pénalités ; cp10 = le circuit d'un changement ; cp07 = le registre des risques ;
@@ -72,7 +72,7 @@ LEARNSQL.cours.cp12 = {
       titre: "Régie, forfait, abonnement : chacun se suit à sa façon",
       exemple: "Régie : les jours de l'intégrateur, chaque semaine (module cp15).\nForfait : la mise en service de la PA. 3 700 € à la signature, 3 700 € au PV (procès-verbal) de recette.\nAbonnement : 850 € par mois, de décembre 2026 à novembre 2029.\nSur ton projet Snowflake + Power BI, le calcul se paie à l'usage.",
       points: [
-        "Régie : chaque semaine, consommé et reste à faire. Le consultant estime, tu vérifies dans Divalto. Alerte au DAF à 80 % de la commande. Chaque commande se suit à part.",
+        "Régie : chaque semaine, consommé et reste à faire (module cp15). Alerte au DAF à 80 % de la commande. Chaque commande se suit à part.",
         "Forfait : le prix est fixe, sauf avenant. Tu suis les jalons : le solde suit le PV.",
         "Abonnement : engagé pour toute la durée du contrat, consommé chaque mois. Un budget annuel n'en compte que l'année (module cp27) : les pratiques diffèrent.",
         "Il dure après le projet : à la clôture, les mensualités restantes passent au budget du run (le fonctionnement courant, module cp22).",
@@ -84,9 +84,9 @@ LEARNSQL.cours.cp12 = {
       titre: "Les factures : le service fait, puis le bon à payer",
       exemple: "Début avril. Facture de l'intégrateur pour mars : 14 jours, 10 500 €.\nTon relevé validé dit pareil : 11 jours sur la commande de base, 3 sur celle du changement n° 9.\nTu signes le « service fait ». La compta contrôle la facture. Le DAF donne le bon à payer.",
       points: [
-        "Ce qui fait foi : la commande ou l'avenant (son prix tient jusqu'au bout), le relevé validé en régie, le PV pour un solde au forfait.",
+        "Ce qui fait foi : la commande ou l'avenant, dont le prix tient jusqu'au bout. En régie, le relevé validé. Au forfait, le PV pour le solde.",
         "Toi : le service fait. La compta : la facture (montant, TVA, mentions). Le DAF : le bon à payer, le feu vert du paiement.",
-        "Pas de PV, pas de solde ; un PV avec réserves est un PV. Pas de relevé validé, pas de jours payés.",
+        "Pas de PV, pas de solde. Un PV avec réserves est un PV : le solde est dû, sauf retenue écrite au contrat. Pas de relevé validé, pas de jours payés.",
         "Une ligne non prévue ? Tu la signales, contrat en main. Une facture émise ne se modifie pas : le prestataire fait un avoir. Un crédit du SLA (le niveau de service promis) décidé par le DAF aussi.",
         "Chaque jour s'impute à sa commande. Sinon, la base paraît finie trop tôt, et le changement paraît gratuit."
       ],
@@ -94,18 +94,18 @@ LEARNSQL.cours.cp12 = {
     },
     {
       titre: "La dérive : la voir tôt, alerter avec des options",
-      exemple: "Fin mars. Commande de base : 24 jours faits, 19 à faire. Atterrissage : 43 jours, 2 250 € de trop. Cause : les flux EDI (échange de données informatisé), sous-estimés. Le projet passe à 87 500 €, sous 90 k€.\nLe jour même, au DAF : A, retirer 2 états des écrans de la compta ; B, une commande de 3 jours ; C, ces états en juillet (même prix, plus tard). Il choisit B.",
+      exemple: "Fin mars. Commande de base : 24 jours faits, 19 à faire. Atterrissage : 43 jours, 2 250 € de trop. Cause : les flux EDI (échange de données informatisé), sous-estimés. Le projet passe à 87 500 €, sous 90 k€.\nLe jour même, au DAF, 3 options :\nA. retirer 2 états des écrans de la compta ;\nB. une commande de 3 jours ;\nC. ces états en juillet (même prix, plus tard).\nIl choisit B.",
       points: [
         "Les signaux : le consommé avance plus vite que le travail ; le reste à faire ne baisse pas. Causes : jours sous-estimés, changements jamais décidés (module cp10), attentes.",
         "Des jours en moins ne sont pas une économie si le travail est seulement décalé. Valeur acquise (PMBOK) : ce que vaut le travail fait, au prix prévu ; moins que le consommé, ça dérive.",
-        "Tu alertes dès que l'écart apparaît : la cause, l'atterrissage, 2 ou 3 options chiffrées (réduire, rallonge par commande ou avenant, décaler), ta recommandation. Le DAF tranche, pas le DG (directeur général) ; au-delà de 90 k€ (hors tolérance), le jour même.",
+        "Tu alertes dès que l'écart apparaît : la cause, l'atterrissage, 2 ou 3 options chiffrées (réduire, rallonge, décaler), ta recommandation. Le DAF tranche, pas le DG (directeur général).",
         "Les pièges : attendre la facture finale ; couper la recette pour tenir le budget ; absorber un petit dépassement sans le dire."
       ],
       retenir: "Un écart se dit tôt, avec sa cause et des options chiffrées. Le DAF tranche ; au-delà de 90 k€, le jour même."
     },
     {
       titre: "La réserve pour risques : pas un budget libre",
-      exemple: "Registre des risques (module cp07) : « La compta, peu disponible, retarde la recette. » En avril, c'est arrivé. Le DAF envisage un intérimaire, environ 4 000 €.\nTa ligne réserve : 8 000 € ; 1 600 € pris par le DAF en mars pour l'avenant d'archivage (un risque légal du registre) ; reste 6 400 €. Avec l'intérimaire : 2 400 €.",
+      exemple: "Registre des risques (module cp07) : « La compta, peu disponible, retarde la recette. » En avril, c'est arrivé. Le DAF envisage un intérimaire, environ 4 000 €.\nTa ligne réserve : 8 000 €. En mars, le DAF en a pris 1 600 € pour l'avenant d'archivage (un risque légal du registre). Reste 6 400 €. Avec l'intérimaire : 2 400 €.",
       points: [
         "Elle paie les risques du registre quand ils arrivent. Le DAF décide de chaque usage, par une commande ou un avenant qu'il signe.",
         "Un dépassement ou un changement n'est pas un risque. Le payer sur la réserve ? Seulement si le DAF le choisit, en le sachant.",
@@ -116,13 +116,13 @@ LEARNSQL.cours.cp12 = {
     },
     {
       titre: "Rendre compte : la ligne budget, et la fin",
-      exemple: "COPIL (comité de pilotage) d'avril, chiffres à fin mars :\n« Référence 85,25 k€ · engagé 81,1 k€ · consommé 30,35 k€ · atterrissage 87,5 k€ · écart + 2,25 k€ (flux EDI ; commande de 3 jours signée) · réserve 6,4 k€. »\nLe reste du rapport (planning, risques, météo du projet) : module cp08.",
+      exemple: "COPIL (comité de pilotage) d'avril, chiffres à fin mars :\n« Référence 85,25 k€ · engagé 81,1 k€ · consommé 30,35 k€ · atterrissage 87,5 k€ · écart + 2,25 k€ (flux EDI ; commande de 3 jours signée) · réserve 6,4 k€. »",
       points: [
         "Chaque mois, la même ligne, avec les mêmes mots, et la cause de l'écart. Le détail reste dans ton suivi.",
         "Un écart déjà décidé, sous 90 k€ ? Pas d'alerte de plus : il se montre au COPIL, avec la décision.",
         "Tu es DSI adjoint : chaque mois, avec le contrôleur de gestion, une ligne par projet. Il rapproche les suivis de la compta ; tu creuses les projets en écart.",
         "En décembre, un budget non dépensé n'est pas « à dépenser » : le besoin de l'an prochain va au budget de l'an prochain (module cp27).",
-        "Fin du projet (module cp22) : un bilan, chaque écart expliqué, la réserve rendue. L'abonnement continue : le run le reprend."
+        "Fin du projet (module cp22) : un bilan, chaque écart expliqué, la réserve rendue."
       ],
       retenir: "Au COPIL, une ligne budget, la même chaque mois, avec la cause de l'écart. À la fin, un bilan."
     }

@@ -25,22 +25,25 @@
 // 2026 à novembre 2029, 36 mensualités, une facture par mois (q02, q03, q31 : 8 passées à la clôture, 6 800 €, 28
 // restantes, 23 800 €, reprises par le run) ; mise en service : 3 700 € à la signature, 3 700 € au PV (q06, q15) ; les
 // 40 jours comprennent l'enveloppe des 10 jours des écrans de la compta ; changements n° 7 (4 jours) et n° 9 (3 jours)
-// acceptés le 9 février (cp10) : 5 250 €, référence à 85 250 € (q07, q08, q10) ; commande de base, jours faits :
+// acceptés au COPIL du 9 février, commandes signées ensuite (cp10) : 5 250 €, référence à 85 250 € (q07, q08, q10) ;
+// commande de base, jours faits :
 // décembre 3, janvier 2, février 8, mars 11 (cumul 24 ; plan : 3, 3, 8, 10), avril 9, mai 4, juin 5, total 42 sur 43
-// (q12, q13, q14, q20, q21, q32) ; n° 7 fait en février, n° 9 en mars (factures de 12 et 14 jours) ; fin février :
-// 1 flux EDI fini sur 3 prévus (q20) ; fin mars : reste à faire 19, atterrissage 43 jours, cause les flux EDI
+// (q12, q13, q14, q20, q21, q32) ; n° 7 fait en février, n° 9 en mars (factures de 12 et 14 jours) ; fin mars, avant le
+// reste à faire refait : 1 flux EDI fini sur 3 prévus (q20) ; puis reste à faire 19, atterrissage 43 jours, cause les flux EDI
 // sous-estimés (pas au registre), le DAF choisit une commande de 3 jours le jour même (q21, q26, q29) ; fin mars :
 // engagé 81 100 €, consommé 30 350 €, facturé 19 850 €, atterrissage 87 500 €, écart + 2 250 € (q08, q09, q10) ;
 // avenant d'archivage : 50 € par mois d'avril 2027 à novembre 2029, 1 600 €, pris sur la réserve par le DAF (risque
 // légal du registre) (q18, q27) ; intérimaire envisagé en avril, environ 4 000 € (cp18-q22), refusé ensuite (cp18-q24) :
-// réserve de 6 400 € en juin (q28, q30) ; formation et tests commandés en janvier, faits d'avril à juin, 300 € de plus
+// réserve de 6 400 € en juin, seul l'archivage l'a utilisée (q28, q30) ;
+// formation et tests commandés en janvier, faits d'avril à juin, 300 € de plus
 // en juin (q24) ; crédit du SLA de mai, 85 € (q19) ; ligne « frais d'activation » de 300 € (q18) ; révision de taux à
 // 780 € refusée (q13). Variantes : connecteur livré le 29 mars (q23, comme cp14-q24) ; atterrissage au-delà de 90 k€
 // au pilote (q25). Autres projets : Snowflake + Power BI (q33, q34, q37), chiffres des exemples (q33 à q39).
 // q34 à q39 : « Tu es DSI adjoint ».
 // Affirmations comptables ou juridiques hors fiche (générales, à faire vérifier) : le travail fait mais pas facturé
 // compte dans l'année où il est fait (facture non parvenue) (q12) ; un PV avec réserves vaut acceptation, le solde lié
-// au PV est dû, sauf retenue écrite au contrat (q16) ; le prix d'une commande signée tient jusqu'au bout, sauf clause de
+// au PV est dû, sauf retenue écrite au contrat (q16 : « sans retenue » dans l'énoncé) ;
+// le prix d'une commande signée tient jusqu'au bout, sauf clause de
 // révision (q13) ; une facture émise ne se modifie pas : avoir (fiche ; q14, q18, q19) ; en régie, rien n'est payé
 // d'avance et le jour non fait n'est pas dû (q32).
 // Déjà publiées ailleurs, pas reprises ici : cp01-q14 (60 % consommé pour 40 % du travail), cp15-q06 à q10 et q41,
@@ -98,7 +101,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q03",
     dialecte: "Gestion de projet",
-    q: "Novembre 2026. Le DAF signe le contrat de la PA : 3 ans, 850 € par mois, de décembre 2026 à novembre 2029. Que portes-tu ce mois-ci dans ton suivi, pour l'abonnement ?",
+    q: "Novembre 2026. Le DAF signe le contrat de la PA : 3 ans, 850 € par mois, de décembre 2026 à novembre 2029. Ton budget de projet couvre les 3 ans. Que portes-tu ce mois-ci dans ton suivi, pour l'abonnement ?",
     choix: [
       "Engagé : 30 600 €. Consommé : 0, le 1er mois est décembre",
       "Engagé : 850 €, la 1re mensualité ; le reste, mois par mois",
@@ -107,7 +110,7 @@ LEARNSQL.questions.cp12 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le contrat signé engage 36 mensualités : 30 600 €. Rien n'est encore consommé : le service et l'abonnement commencent en décembre. Puis 850 € de consommé chaque mois.",
+      "Oui. Le contrat signé engage 36 mensualités : 30 600 €. Rien n'est encore consommé : l'abonnement commence en décembre. Puis 850 € de consommé chaque mois.",
       "Non. Le DAF signe pour 3 ans, pas pour un mois. N'engager que 850 €, c'est cacher 29 750 € déjà promis.",
       "Non. Presque : c'est la vue d'un budget annuel (module cp27). Ton projet se suit sur 3 ans : le contrat engage les 36 mois.",
       "Non. L'engagement naît à la signature, pas à la facture. Sans lui, ton suivi ignore 30 600 € déjà promis."
@@ -136,9 +139,9 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q05",
     dialecte: "Gestion de projet",
-    q: "Avril. La recette a pris 8 jours de plus à la compta. La cheffe comptable : « Ajoute-les à la ligne budget du COPIL, à 400 € le jour. » Que fais-tu ?",
+    q: "Avril. La recette a pris 8 jours de plus à la compta. La cheffe comptable : « Ajoute-les à la ligne budget du COPIL, à 210 € le jour. » Que fais-tu ?",
     choix: [
-      "Tu les ajoutes : 8 jours, 3 200 € de plus au budget",
+      "Tu les ajoutes : 8 jours, 1 680 € de plus au budget",
       "Rien en euros : tu les montres en jours, hors du budget",
       "Tu les ajoutes, et le DAF les couvre par la réserve",
       "Rien du tout : c'est le temps de la compta, pas ton projet"
@@ -174,7 +177,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q07",
     dialecte: "Gestion de projet",
-    q: "9 février 2027. Le DAF accepte 2 changements : 7 jours d'intégrateur, 5 250 €, par 2 commandes signées. Ta référence était de 80 000 €. Que deviennent la référence et l'écart ?",
+    q: "Février 2027. Le DAF a accepté 2 changements au COPIL du 9, puis signé leurs 2 commandes : 7 jours d'intégrateur, 5 250 €. Ta référence était de 80 000 €. Que deviennent la référence et l'écart ?",
     choix: [
       "Référence 80 000 € ; écart de + 5 250 €, à montrer au COPIL",
       "Référence 85 250 €, et l'écart passe aussi à + 5 250 €",
@@ -186,7 +189,7 @@ LEARNSQL.questions.cp12 = [
       "Non. Un écart, c'est ce qui dépasse sans décision. Ici, le DAF a décidé : la référence monte. Garder 80 000 € ferait croire à une dérive.",
       "Non. Tu comptes deux fois : la référence monte de 5 250 €, l'atterrissage aussi. L'écart (atterrissage − référence) ne bouge pas.",
       "Oui. Un changement accepté par le DAF, avec ses commandes, change la référence : une version 2, datée du 9 février. Ce n'est pas un dépassement : l'écart reste le même.",
-      "Non. Les 2 commandes sont signées : c'est engagé dès aujourd'hui. Le suivi n'attend pas les factures."
+      "Non. Les 2 commandes sont signées : c'est engagé. Le suivi n'attend pas les factures."
     ],
     retenir: "Un changement accepté par le DAF change la référence (une version datée), pas l'écart."
   },
@@ -212,7 +215,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q09",
     dialecte: "Gestion de projet",
-    q: "COPIL d'avril. Le DAF : « À fin mars, 19 850 € facturés sur 85 250 € : il en reste 65 400, on est larges ! » Ton suivi dit autre chose. Que réponds-tu ?",
+    q: "COPIL d'avril. La cheffe comptable : « À fin mars, 19 850 € facturés sur 85 250 € : il en reste 65 400, on est larges ! » Ton suivi dit autre chose. Que réponds-tu ?",
     choix: [
       "« Oui : 65 400 € pour finir, la marge est large »",
       "« Non : consommé et reste à faire disent 87 500 € à la fin »",
@@ -278,7 +281,7 @@ LEARNSQL.questions.cp12 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. En comptabilité, une charge compte l'année où le travail est fait, facture reçue ou pas. Sans ton chiffre, 2026 paraît moins chère qu'elle n'est.",
+      "Non. En comptabilité, le travail fait compte dans l'année où il est fait, facture reçue ou pas. Sans ton chiffre, 2026 paraît moins chère qu'elle n'est.",
       "Non. La commande est engagée, mais seuls 3 jours sont faits en décembre. Les 37 autres seront le travail de 2027.",
       "Non. Ton suivi a le chiffre, validé : c'est toi qui connais le consommé. L'intégrateur ne fait pas la clôture de ta compta.",
       "Oui. C'est ton consommé : du travail fait, pas encore facturé. La compta l'inscrit dans l'année où il a été fait (une « facture non parvenue »). Ton suivi lui donne le chiffre."
@@ -288,7 +291,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q13",
     dialecte: "Gestion de projet",
-    q: "2 janvier 2027. L'intégrateur écrit ce matin : « Révision annuelle : notre taux passe à 780 € le jour. » Ta commande de 40 jours (3 faits), signée en novembre, dit 750 €, sans clause de révision. Que fais-tu ?",
+    q: "4 janvier 2027. L'intégrateur écrit ce matin : « Révision annuelle : notre taux passe à 780 € le jour. » Ta commande de 40 jours (3 faits), signée en novembre, dit 750 €, sans clause de révision. Que fais-tu ?",
     choix: [
       "Tu acceptes : 30 € de plus par jour, c'est l'usage chaque année",
       "Tu refuses, commande en main : ses jours restent à 750 €",
@@ -345,7 +348,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q16",
     dialecte: "Gestion de projet",
-    q: "30 avril. Le PV du connecteur est signé, avec 2 réserves mineures, datées. La PA facture le solde de la mise en service. Le contrat lie le solde au PV. Que fais-tu ?",
+    q: "30 avril. Le PV du connecteur est signé, avec 2 réserves mineures, datées. La PA facture le solde de la mise en service. Le contrat lie le solde au PV, sans retenue. Que fais-tu ?",
     choix: [
       "Tu bloques le solde jusqu'à la levée des 2 réserves du PV",
       "Tu fais payer la moitié du solde, et garder l'autre jusqu'à la levée",
@@ -354,12 +357,12 @@ LEARNSQL.questions.cp12 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Presque : bloquer protège, mais le contrat ne le prévoit pas. Le solde suit le PV, et ce PV est signé : retenir le paiement irait contre le contrat.",
+      "Non. Presque : bloquer protège, mais le contrat ne prévoit pas de retenue, et 2 défauts mineurs ne justifient pas de bloquer tout le solde. Le PV est signé : le solde est dû.",
       "Non. Le contrat ne coupe pas le solde. Une retenue jusqu'à la levée des réserves se négocie avant de signer, pas après.",
       "Non. Le DAF a signé le contrat : le solde au PV. Tu signes le service fait ; il donne le bon à payer, comme d'habitude.",
-      "Oui. Un PV avec réserves est un PV : le livrable est accepté, le solde est dû, comme le contrat le dit. Les réserves se suivent à leurs dates, à part."
+      "Oui. Un PV avec réserves est un PV : le livrable est accepté. Le contrat lie le solde au PV, sans retenue : il est dû. Les réserves se suivent à leurs dates, à part."
     ],
-    retenir: "Un PV avec réserves vaut acceptation : le solde lié au PV est dû. Les réserves se suivent à part."
+    retenir: "Un PV avec réserves vaut acceptation : sauf retenue écrite au contrat, le solde lié au PV est dû. Les réserves se suivent à part."
   },
   {
     id: "cp12-q17",
@@ -405,7 +408,7 @@ LEARNSQL.questions.cp12 = [
     q: "Le DAF a décidé d'appliquer un crédit de 85 € pour l'écart au SLA de mai. Ce matin, la facture de juin de la PA arrive : 900 €, sans ce crédit. Que fais-tu ?",
     choix: [
       "Tu signes le service de juin, et tu fais réclamer l'avoir de 85 €",
-      "Tu signes juin : le crédit viendra sur une prochaine facture",
+      "Tu signes juin : le crédit viendra sur une autre facture, sans relance",
       "Tu retires toi-même 85 € de la facture, avant de la signer",
       "Tu bloques la facture, et tu redemandes au DAF sa décision"
     ],
@@ -421,9 +424,9 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q20",
     dialecte: "Gestion de projet",
-    q: "Fin février. Commande de base : 13 jours consommés, pour 14 prévus. Mais sur 4 flux EDI, 1 seul est fini ; le plan en prévoyait 3. Le consultant : « Je suis dans les jours. » Que fais-tu d'abord ?",
+    q: "Fin mars. Commande de base : 24 jours consommés, pour 24 prévus. Mais sur 4 flux EDI, 1 seul est fini ; le plan en prévoyait 3. Le consultant : « Je suis dans les jours. » Que fais-tu d'abord ?",
     choix: [
-      "Rien : 13 jours sur 14 prévus, le budget est tenu",
+      "Rien : 24 jours sur 24 prévus, le budget est tenu",
       "Tu alertes le DAF dès aujourd'hui : l'atterrissage va dériver",
       "Tu lui demandes de finir les 2 flux en retard d'ici vendredi",
       "Tu refais le reste à faire tâche par tâche, flux par flux"
@@ -481,14 +484,14 @@ LEARNSQL.questions.cp12 = [
     q: "Le connecteur de la PA arrive le 29 mars, au lieu du 1er. En mars, l'intégrateur n'a fait que 4 jours, pour 10 prévus. Le DAF : « 6 jours d'économie, bravo ! » Que lui réponds-tu ?",
     choix: [
       "« Merci : 6 jours, soit 4 500 € de moins à l'atterrissage »",
-      "« Non : on les gardera, et on les rendra en juillet s'ils ne servent pas »",
+      "« Non : gardons ces 6 jours en réserve, pour un imprévu d'ici juillet »",
       "« Non : je demande les pénalités de retard pour payer ces jours »",
       "« Non : ces jours sont décalés, pas économisés. L'atterrissage tient »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Le travail n'a pas disparu : le paramétrage du connecteur reste à faire, en avril. Le reste à faire n'a pas baissé.",
-      "Non. Ce qui ne sert pas se rend bien à la fin. Mais ces 6 jours serviront : le travail est seulement repoussé.",
+      "Non. Ces 6 jours ne sont pas libres : ils paieront le travail repoussé en avril. Les garder pour un imprévu, c'est les compter deux fois.",
       "Non. Les pénalités, le DAF décide de les appliquer, et elles ne changent pas les jours à faire. Ici, rien n'est économisé : le travail est décalé.",
       "Oui. Consommé plus bas, reste à faire inchangé : l'atterrissage ne bouge pas. Ce sont des jours décalés, avec un planning plus serré en avril."
     ],
@@ -611,7 +614,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q30",
     dialecte: "Gestion de projet",
-    q: "Juin, après la bascule. Il reste 6 400 € de réserve. Le responsable ADV, ce matin : « Il reste de l'argent : finançons un atelier Divalto pour mon équipe, 2 000 €. » Que réponds-tu ?",
+    q: "Juin, après la bascule. La réserve n'a servi qu'à l'archivage : il en reste 6 400 €. Le responsable ADV, ce matin : « Il reste de l'argent : finançons un atelier Divalto pour mon équipe, 2 000 €. » Que réponds-tu ?",
     choix: [
       "« D'accord : 2 000 €, il restera 4 400 € pour la fin »",
       "« Oui pour l'atelier, si le DAF signe la commande avant juillet »",
@@ -658,10 +661,10 @@ LEARNSQL.questions.cp12 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. En régie, rien n'est payé d'avance : tu paies les jours faits. Le dépenser pour un état non demandé, c'est la dérive.",
+      "Non. Ta régie se paie chaque mois, sur les jours faits : rien n'est payé d'avance. Le dépenser pour un état non demandé, c'est la dérive.",
       "Non. Un besoin réel se juge, mais pas parce qu'un jour reste. Un nouvel état passe par une demande, sur sa valeur.",
       "Non. Après la clôture, les corrections passent au run et à son budget (module cp22). Garder un jour ouvert, c'est une petite réserve cachée.",
-      "Oui. La commande est un plafond : le jour non fait n'est pas dû. Il sort de l'engagé, et le bilan le dit : 42 jours sur 43."
+      "Oui. Ta commande est un plafond, payé sur les jours faits : le jour non fait n'est pas dû. Il sort de l'engagé, et le bilan le dit : 42 jours sur 43."
     ],
     retenir: "En fin de régie, les jours non faits ne sont pas « à faire » : ils sortent de l'engagé."
   },
@@ -698,7 +701,7 @@ LEARNSQL.questions.cp12 = [
     pourquoi: [
       "Oui. Tu corriges la cause (la mise en veille automatique), tu poses une alerte (un resource monitor : un plafond de crédits qui prévient, voire suspend), et tu revois l'atterrissage de l'année avec le contrôleur de gestion.",
       "Non. Presque : la cause est corrigée. Mais sans alerte, le prochain oubli se verra encore sur une facture, un mois trop tard. Et l'atterrissage de l'année a bougé.",
-      "Non. Revoir l'atterrissage, oui ; payer l'oubli, non. La cause est trouvée et se corrige : une rallonge paierait cet oubli, chaque mois.",
+      "Non. Revoir l'atterrissage, oui. Mais la cause est corrigée : une rallonge pour l'année paierait un oubli qui ne revient plus. Et sans alerte, le prochain passera inaperçu.",
       "Non. Tu échanges un coût contre un risque bien pire : des tests en production, sur les vraies données."
     ],
     retenir: "Une dérive à l'usage : corriger la cause, poser une alerte de crédits, revoir l'atterrissage."

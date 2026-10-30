@@ -51,13 +51,13 @@ LEARNSQL.cours.cp11 = {
     },
     {
       titre: "Le coût complet (TCO) : tout, sur toute la durée",
-      exemple: "Option B, chiffrée après les contrats de novembre 2026, sur 3 ans (la durée du contrat de la PA). Dépenses externes :\n– abonnement de la PA : 850 € × 36 mois = 30,6 k€ ;\n– mise en service du connecteur, au forfait : 7,4 k€ ;\n– intégrateur : 40 jours × 750 € = 30 k€, en régie ;\n– formation et tests : 4 k€ ;\n– réserve pour risques : 8 k€.\nTotal : 80 k€. Plus le temps interne : environ 100 jours (compta, ADV : administration des ventes, DSI).",
+      exemple: "Option B, chiffrée après les contrats de novembre 2026, sur 3 ans (la durée du contrat de la PA). Dépenses externes :\n– abonnement de la PA : 850 € × 36 mois = 30,6 k€ ;\n– mise en service du connecteur, au forfait (prix fixe) : 7,4 k€ ;\n– intégrateur : 40 jours × 750 € = 30 k€, en régie (au temps passé) ;\n– formation et tests : 4 k€ ;\n– réserve pour risques : 8 k€.\nTotal : 80 k€. Plus le temps interne : environ 100 jours (compta, ADV : administration des ventes, DSI).",
       points: [
-        "TCO (coût total de possession) = tout ce que le choix coûte, sur sa durée : la mise en place, le run (le fonctionnement après la bascule : abonnement, support, versions) et la sortie (reprendre ses données).",
+        "TCO (coût total de possession) = tout ce que le choix coûte, sur sa durée : la mise en place, le run et la sortie. Le run : le fonctionnement après la bascule (abonnement, support, versions). La sortie : reprendre ses données.",
         "Les dépenses externes ET le temps interne, compté ici en jours dans le business case (pas dans le budget). Il n'est pas gratuit : Julie en recette ne traite pas ses factures.",
         "La durée : celle du contrat ou de la vie de la solution. 3 ans pour la PA ; souvent plus pour un ERP.",
         "La réserve pour risques vient du registre (module cp07) : une somme pour des risques nommés, pas une marge pour tout. La dépenser : une commande ou un avenant signé par le DAF.",
-        "Pièges : un seul devis présenté comme le coût (un poste « sur devis séparé » se chiffre quand même) ; oublier le run, la sortie, le temps interne ; compter deux fois (une réserve, plus une marge sur chaque ligne)."
+        "Pièges : un seul devis présenté comme le coût (un poste « sur devis séparé » se chiffre quand même). Oublier le run, la sortie, le temps interne. Compter deux fois : une réserve, plus une marge sur chaque ligne."
       ],
       retenir: "Le TCO compte tout, sur toute la durée : dépenses externes et temps interne, projet et run, sortie comprise."
     },
@@ -66,34 +66,34 @@ LEARNSQL.cours.cp11 = {
       exemple: "2 000 factures fournisseurs par mois. Aujourd'hui, Julie et ses collègues les ressaisissent : 4 minutes chacune.\nAvec le connecteur : 1 minute de contrôle. 3 minutes gagnées × 2 000 = 100 heures par mois.\nCoût horaire chargé (salaire et charges) : 30 €. Valeur : 3 000 € par mois.\nMais aucune dépense ne disparaît : c'est du temps libéré. Le DAF dira à quoi il sert.",
       points: [
         "Chiffre ce qui se compte : volume × temps gagné × coût horaire chargé. Heures de ressaisie, erreurs évitées, relances en moins.",
-        "Du temps libéré n'est pas de l'argent économisé. Il le devient si une dépense disparaît (un intérim, une embauche évitée) ou s'il sert à un travail décidé. Sinon, écris « gain en temps ».",
+        "Du temps libéré n'est pas de l'argent économisé. Il le devient seulement si une dépense disparaît (un intérim, une embauche évitée). Sinon, écris « gain en temps ».",
         "Le qualitatif à part : conformité, clôture plus sereine, image auprès d'AquaBleu. Pas d'euros inventés.",
-        "Prudence : le gain arrive après la bascule, et monte en charge (tes fournisseurs PME émettront au 1er septembre 2027). Il reste un contrôle : jamais 100 %. Et un gain ne se compte qu'une fois : 100 heures ou « 2/3 d'un poste », pas les deux.",
+        "Prudence : le gain arrive après la bascule, et monte en charge (tes fournisseurs PME devront émettre au 1er septembre 2027). Il reste un contrôle : jamais 100 %. Et un gain ne se compte qu'une fois : 100 heures ou « 2/3 d'un poste », pas les deux.",
         "Chaque gain a sa source (une mesure, un volume de Divalto), un responsable métier (ici, la cheffe comptable), et une date pour le mesurer après la bascule."
       ],
       retenir: "Un gain se chiffre avec ses hypothèses, prudemment, et dit s'il est en argent ou en temps. Le qualitatif reste à part."
     },
     {
       titre: "Retour sur investissement et délai de retour",
-      exemple: "Ton projet Snowflake + Power BI : 30 k€ de projet. Il arrête l'ancien serveur de reporting : 1 600 € par mois de moins (licence, maintenance). Le calcul Snowflake coûte 600 € par mois.\nGain net : 1 000 € par mois. Délai de retour : 30 000 ÷ 1 000 = 30 mois.\nSur 3 ans : 36 k€ de gain net pour 30 k€ dépensés.\nROI (retour sur investissement) : (36 - 30) ÷ 30 = 20 %.",
+      exemple: "Ton projet Snowflake + Power BI : 30 k€ de projet. Il arrête l'ancien serveur de reporting : 1 600 € par mois de moins (licence, maintenance). Le calcul Snowflake coûte 600 € par mois.\nGain net : 1 000 € par mois. Délai de retour : 30 000 ÷ 1 000 = 30 mois.\nSur 3 ans : 36 k€ de gain net (run déduit) pour 30 k€ de projet.\nROI (retour sur investissement) : (36 - 30) ÷ 30 = 20 %.",
       points: [
         "ROI simple = (gains - coûts) ÷ coûts, sur la même durée, avec TES chiffres : le ROI d'un vendeur n'est pas le tien.",
         "Délai de retour (payback) = le temps pour que les gains cumulés remboursent la dépense : coût ÷ gain net par mois.",
         "Gain net = gain brut - coût du run. Oublie les 600 € de Snowflake : le délai tombe à environ 19 mois. C'est faux.",
-        "Limites : le délai de retour ne voit pas ce qui vient après lui ; un euro dans 3 ans vaut moins qu'aujourd'hui (l'actualisation, la VAN ou valeur actuelle nette : le travail du contrôleur de gestion) ; rien sur les risques ni le qualitatif.",
+        "Limites : le délai de retour ne voit pas ce qui vient après lui. Un euro dans 3 ans vaut moins qu'aujourd'hui : l'actualisation (la VAN, valeur actuelle nette) en tient compte, c'est le travail du contrôleur de gestion. Rien sur les risques ni le qualitatif.",
         "Projet obligatoire : le ROI ne décide pas s'il faut le faire, il aide à choisir la façon. Entre deux options, compte ce qui diffère : l'abonnement, payé dans les deux, ne change pas l'écart."
       ],
       retenir: "ROI = (gains - coûts) ÷ coûts ; délai de retour = coût ÷ gain net par mois. Utiles pour comparer, jamais seuls."
     },
     {
-      titre: "CAPEX, OPEX : le contrôleur de gestion classe",
+      titre: "Investissement (CAPEX) ou charge (OPEX) : le contrôleur de gestion classe",
       exemple: "Snowflake : le calcul se paie au mois, à la consommation. Ton ancien serveur, lui, avait été acheté.\nDEMAT : l'abonnement de la PA, 850 € par mois, est une charge de l'année.\nLa mise en service, les jours d'intégrateur ? Peut-être un investissement, peut-être pas.\nTu ne décides pas : tu donnes le détail au contrôleur de gestion. Il classe.",
       points: [
         "CAPEX (dépense d'investissement) : un bien qui sert plusieurs années. Il est immobilisé, et sa charge s'étale sur sa durée d'utilisation : l'amortissement. Ex. : un serveur acheté.",
-        "OPEX (dépense de fonctionnement) : une charge de l'année. Ex. : un abonnement, le calcul Snowflake au mois, le support, la formation.",
+        "OPEX (dépense de fonctionnement) : une charge de l'année. Ex. : un abonnement, le calcul Snowflake au mois, le support, en général la formation.",
         "Le cloud et les abonnements déplacent la dépense : moins d'achat au départ, une charge chaque année, tant que tu paies. Payé d'avance, le calcul reste une charge.",
-        "Le classement suit des règles comptables : le contrôleur de gestion décide. Toi, tu détailles chaque coût, par nature et par date, sans pré-classer.",
-        "Pourquoi le DAF y tient : souvent deux enveloppes (investissement, fonctionnement), et un effet sur le résultat de l'année. Le classement ne change pas l'argent qui sort."
+        "Le classement suit des règles comptables : c'est le contrôleur de gestion qui classe. Toi, tu détailles chaque coût, par nature et par date, sans pré-classer.",
+        "Pourquoi le DAF y tient : souvent deux enveloppes (investissement, fonctionnement), et un effet sur le résultat de l'année. Le classement ne change pas l'argent qui sort : la facture se paie à sa date."
       ],
       retenir: "CAPEX : un investissement, étalé sur plusieurs années. OPEX : une charge de l'année, comme un abonnement. Le contrôleur de gestion classe ; toi, tu détailles."
     },

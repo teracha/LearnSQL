@@ -51,7 +51,7 @@ LEARNSQL.cours.cp07 = {
     },
     {
       titre: "Les 4 réponses : éviter, réduire, transférer, accepter",
-      exemple: "Éviter : pas de bascule en août (congés, aucune marge). On la met en juin : ce risque disparaît.\nRéduire : former Julie aux avoirs fournisseurs. Si la cheffe comptable manque, quelqu'un sait : l'impact baisse.\nTransférer : une date et des pénalités de retard dans le contrat de la PA.\nAccepter : la PA peut augmenter ses prix au renouvellement. On garde une réserve dans le budget.\nEscalader : le e-reporting (envoyer au fisc, via la PA, les ventes aux particuliers, les opérations avec l'étranger et des données de paiement) est hors projet. Tu le remets au DAF, son porteur.",
+      exemple: "Éviter : pas de bascule en août (congés, aucune marge). On la met en juin : ce risque disparaît.\nRéduire : former Julie aux avoirs fournisseurs. Si la cheffe comptable manque, quelqu'un sait : l'impact baisse.\nTransférer : une date et des pénalités de retard dans le contrat de la PA.\nAccepter : la PA peut augmenter ses prix au renouvellement, en 2029. On prévoit une marge dans le budget du run (après le projet).\nEscalader : le e-reporting (envoyer au fisc, via la PA, les ventes aux particuliers, les opérations avec l'étranger et des données de paiement) est hors projet. Tu le remets au DAF, son porteur.",
       points: [
         "Éviter = changer le plan pour que le risque n'existe plus. Pour un risque inacceptable. Ex. : bascule en juin, ou le connecteur standard plutôt qu'un développement spécifique jamais testé.",
         "Réduire = baisser la probabilité ou l'impact : former une suppléante, documenter, tester plus tôt, un pilote sur 1 site.",

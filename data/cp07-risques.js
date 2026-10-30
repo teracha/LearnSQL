@@ -547,14 +547,14 @@ LEARNSQL.questions.cp07 = [
     q: "Au renouvellement du contrat, la PA pourra augmenter ses prix. Le contrat signé ne plafonne pas les hausses. Impact modéré, et vous ne pouvez pas vous passer de PA. Quelle réponse choisis-tu ?",
     choix: [
       "Éviter : renoncer à la PA",
-      "Accepter, avec une réserve au budget",
+      "Accepter, avec une marge au budget du run",
       "Réduire : surveiller les tarifs chaque mois",
       "Ignorer : c'est dans plus d'un an"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Passer par une plateforme agréée est obligatoire : tu ne peux pas éviter ce risque en y renonçant.",
-      "Oui. Rien ne le réduit simplement, l'impact est modéré : on accepte en le sachant, avec une réserve de budget.",
+      "Oui. Rien ne le réduit simplement, l'impact est modéré : on accepte en le sachant, avec une marge dans le budget du run, qui paiera l'abonnement après le projet.",
       "Non. Surveiller ne baisse ni la probabilité ni l'impact : c'est accepter, mais sans réserve. La hausse tombera sur le budget.",
       "Non. Accepter n'est pas ignorer : sans réserve, la hausse tombera sur un budget déjà tendu."
     ],

@@ -121,19 +121,19 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q06",
     dialecte: "Gestion de projet",
-    q: "Fin janvier. L'intégrateur, en régie, facture 9 jours pour le mois. Ton suivi n'en montre que 6 : 3 jours sans tâche visible. Le DAF doit payer la facture. Que fais-tu ?",
+    q: "Début mai. L'intégrateur, en régie, facture 12 jours pour avril. Ton suivi n'en montre que 9 : 3 jours sans tâche visible. Le DAF doit payer la facture. Que fais-tu ?",
     choix: [
       "Tu la laisses payer : en régie, il facture ce qu'il dit",
       "Tu lui demandes le détail des 3 jours, avant de les faire payer",
       "Tu demandes au DAF de bloquer toutes ses factures",
-      "Ton suivi en main, tu fais payer 6 jours, et tu refuses les 3 autres"
+      "Ton suivi en main, tu fais payer 9 jours, et tu refuses les 3 autres"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Régie ne veut pas dire chèque en blanc : tu paies le temps passé, pas le temps déclaré. Sans contrôle, l'écart se répète.",
-      "Oui. Des faits d'abord : dates, tâches, personnes. Ces 3 jours sont peut-être réels (analyse, réunion), ou une erreur. Les 6 jours suivis peuvent être payés ; les 3 autres, une fois expliqués.",
+      "Oui. Des faits d'abord : dates, tâches, personnes. Ces 3 jours sont peut-être réels (analyse, réunion), ou une erreur. Les 9 jours suivis peuvent être payés ; les 3 autres, une fois expliqués.",
       "Non. Un écart de 3 jours se vérifie en une réunion. Bloquer toutes ses factures, c'est punir avant de savoir, et risquer l'arrêt du paramétrage.",
-      "Non. Presque : payer les 6 jours suivis, oui. Mais refuser les 3 autres, c'est trancher avant de savoir : s'il a vraiment travaillé, ils lui sont dus."
+      "Non. Presque : payer les 9 jours suivis, oui. Mais refuser les 3 autres, c'est trancher avant de savoir : s'il a vraiment travaillé, ils lui sont dus."
     ],
     retenir: "En régie, tu paies le temps passé, pas le temps déclaré : un écart se vérifie avant de payer ces jours-là."
   },
@@ -178,7 +178,7 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q09",
     dialecte: "Gestion de projet",
-    q: "Fin février. La commande de l'intégrateur est épuisée depuis 2 semaines. Sa facture montre 2 jours de plus, faits sans nouvelle commande : « C'était pour finir le paramétrage. » Que fais-tu ?",
+    q: "La commande de l'intégrateur est épuisée depuis 2 semaines. Sa facture montre 2 jours de plus, faits sans nouvelle commande : « C'était pour finir le paramétrage. » Que fais-tu ?",
     choix: [
       "Tu la fais payer : le travail est fait, et il était utile",
       "Tu signes toi-même une commande de 2 jours, au prix prévu",
