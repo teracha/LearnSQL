@@ -33,7 +33,7 @@ window.LEARNSQL = { modules: [
   { id: "cp12", titre: "Suivre le budget", resume: "Engagé, facturé, reste à faire ; forfait ou régie ; dérive.", niveau: "Intermédiaire" },
   { id: "cp13", titre: "Consulter et choisir un prestataire", resume: "Cahier des charges, consultation, grille de choix pondérée.", niveau: "Avancé" },
   { id: "cp14", titre: "Contracter", resume: "Forfait, régie ou abonnement ; les clauses à relire avant de signer (PV, SLA, réversibilité) ; l'avenant.", niveau: "Avancé" },
-  { id: "cp15", titre: "Piloter prestataires et éditeurs", resume: "Comités fournisseurs, suivi des SLA, standard ou spécifique.", niveau: "Avancé" },
+  { id: "cp15", titre: "Piloter prestataires et éditeurs", resume: "Comité fournisseur, suivi d'une régie, SLA mesuré, tickets N1 à N3, versions de l'éditeur, standard ou spécifique.", niveau: "Avancé" },
   { id: "cp16", titre: "Diriger sans autorité", resume: "Utilisateurs clés, managers, prestataires : obtenir sans être le chef, escalader un niveau à la fois.", niveau: "Intermédiaire" },
   { id: "cp17", titre: "Communiquer : le bon message, les mots justes", resume: "Selon le public, à l'oral et à l'écrit : mauvaise nouvelle, escalade, dire non, recadrer.", niveau: "Intermédiaire" },
   { id: "cp18", titre: "Dire non, arbitrer, gérer un conflit", resume: "Oui, non ou « oui, mais » : qui décide, arbitrer (critères, MoSCoW), traiter un conflit et négocier.", niveau: "Avancé" },
