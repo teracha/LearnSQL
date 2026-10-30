@@ -136,7 +136,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   tracé, écrit à l'intégrateur.
 - Gouvernance (module cp09) : COPIL (comité de pilotage) mensuel, le 2e mardi du mois, 1 h 30 : le DAF (sponsor : il
   préside et décide), toi (tu prépares, animes, écris le compte rendu), ton DSI, la cheffe comptable, le responsable ADV ;
-  le contrôleur de gestion, la PA ou l'intégrateur sur invitation. Ordre du jour et rapport envoyés 3 jours avant ; compte
+  le contrôleur de gestion, la PA ou l'intégrateur sur invitation. Ordre du jour et rapport envoyés 3 jours ouvrés avant (le jeudi) ; compte
   rendu sous 24 h (décisions, actions, points ouverts) ; registre des décisions tenu par toi. Point projet chaque lundi, 1 h :
   toi, le consultant de l'intégrateur, Julie, Sophie, Marc (avancement, 15 minutes de revue des risques, actions) ; juste
   avant, 30 minutes avec le consultant seul : jours de la régie, reste à faire, blocages (module cp15). Le point projet suit
@@ -188,7 +188,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - **DAF (directeur administratif et financier)** : sponsor, manager de la cheffe comptable, signe les contrats, pressé.
 - **DG (directeur général)** : au-dessus du DAF ; niveau 4 de l'échelle d'escalade. **DSI** : ton responsable.
 - **Cheffe comptable** : inquiète ; manager de Julie et Sophie ; seule à savoir traiter les avoirs fournisseurs ;
-  signe la recette des factures fournisseurs ; en congé 3 semaines pendant la recette.
+  signe la recette des factures fournisseurs ; en congé 3 semaines pendant la recette ; avant son congé, elle désigne par
+  écrit qui signe le PV du 30 avril (pas Julie, R des tests) ; le DAF est informé.
 - **Julie** : comptable fournisseurs depuis 8 ans ; utilisatrice clé de la réception ; formée comme suppléante sur les avoirs fournisseurs.
 - **Sophie** : comptable clients ; utilisatrice clé des factures émises et des avoirs clients.
 - **Responsable ADV (administration des ventes)** : manager de Marc ; signe la recette des factures clients.

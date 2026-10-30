@@ -7,23 +7,27 @@
 // rendu sous 24 h, registre des décisions). Les méthodes divergent : PRINCE2 peut mettre un représentant du fournisseur
 // au comité, DEMAT l'invite pour un point ; PRINCE2 n'a pas de réunion de suivi pour le comité, l'usage en France est un
 // COPIL mensuel (les deux disent : le comité sert à décider).
-// - Les instances : COPIL (décide), point projet (suit et prépare), comité fournisseur (suit la PA, module cp15), point
-//   du lundi avec ton DSI (ton temps, modules cp02, cp03) ; une décision hors du 2e mardi a sa séance courte ; urgente :
-//   le DAF le jour même ; au comité de direction, le DAF porte le projet.
+// - Les instances : COPIL (décide), point projet (suit et prépare ; juste avant, 30 minutes avec le consultant seul pour
+//   la régie, module cp15), comité fournisseur (suit la PA, module cp15), point du lundi avec ton DSI (ton temps, quand
+//   l'écart dure, modules cp02, cp03) ; une décision hors du 2e mardi a sa séance courte ; urgente : le DAF le jour même ;
+//   au comité de direction, le DAF porte le projet (il peut t'inviter pour un point, comme cp01-q19).
 // - Qui siège : les décideurs et ceux qui engagent leur service, peu de monde, pas de vote, prestataire et contrôleur de
 //   gestion sur invitation, suppléant qui peut décider ; pas de COPIL sans le DAF ; DSI adjoint : gouvernance à la taille
 //   du projet, COPIL commun pour un même sponsor, un seul sponsor.
 // - Le RACI : R = Réalise, A = Approuve (« Accountable » en anglais), C = Consulté, I = Informé ; A n'est pas forcément
 //   R, le R n'approuve pas son travail ; C avant, I après ; un C n'a pas de veto ; un seul A ; pas de livrable sans A ;
-//   trop de C ralentit ; validé au cadrage, tenu à jour ; être A d'un livrable ne donne pas les dates.
-// - Préparer et animer : décisions d'abord, ordre du jour et rapport 3 jours avant (module cp08), pré-réunions (module
+//   trop de C ralentit ; validé au cadrage, tenu à jour ; A absent quand sa décision tombe : il désigne avant, par écrit,
+//   qui approuve à sa place (congé de la cheffe comptable du 12 au 30 avril, cp09-q24) ; être A d'un livrable ne donne
+//   pas les dates.
+// - Préparer et animer : décisions d'abord, ordre du jour et rapport 3 jours ouvrés avant (module cp08), pré-réunions (module
 //   cp16), tenir le temps, faire décider, reformuler, point ouvert, un COPIL qui ne décide rien.
 // - Tracer : compte rendu sous 24 h (format : module cp17), registre des décisions (date, décision, qui, impact), décision
 //   de couloir confirmée par écrit, décision écrite pas refaite.
 // Fil rouge : DEMAT 2027 (fiche fil rouge de docs/plan-chef-de-projet.md, qui fait foi), ligne « Gouvernance (module
-// cp09) » : COPIL le 2e mardi, 1 h 30, membres, invités, ordre du jour et rapport 3 jours avant, compte rendu sous 24 h,
-// registre tenu par toi ; point projet du lundi ; comité fournisseur ; RACI de la fiche (format de facture, PV de recette
-// fournisseurs et clients, go / no-go, budget et dates). Ligne « Toi et ton DSI » : point de 30 minutes chaque lundi.
+// cp09) » : COPIL le 2e mardi, 1 h 30, membres, invités, ordre du jour et rapport 3 jours ouvrés avant, compte rendu sous 24 h,
+// registre tenu par toi ; point projet du lundi, avec juste avant 30 minutes de régie (consultant seul) ; comité
+// fournisseur ; RACI de la fiche (format de facture, PV de recette fournisseurs et clients, go / no-go, budget et dates).
+// Ligne « Toi et ton DSI » : point de 30 minutes chaque lundi.
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : le COPIL du mardi 9 février 2027 (2e mardi)
 // et son ordre du jour (changements n° 7 et n° 9, 7 jours, 5 250 €, comme cp10 et cp12, durées des points) ; le compte
 // rendu du mercredi 10 février et sa ligne au registre ; la décision urgente de mi-avril prise au téléphone (cp10-q25) ;
@@ -37,13 +41,13 @@ LEARNSQL.cours.cp09 = {
   sections: [
     {
       titre: "Les instances : suivre, préparer, décider",
-      exemple: "DEMAT 2027, quatre rendez-vous :\n– COPIL (comité de pilotage), le 2e mardi du mois, 1 h 30 : le DAF (directeur administratif et financier, ton sponsor) décide.\n– Point projet (on dit aussi comité projet), chaque lundi, 1 h : avancement, 15 minutes de risques, jours de la régie, actions.\n– Comité fournisseur, chaque mois, avec la PA (plateforme agréée) : son service, son plan d'actions.\n– Point avec ton DSI (directeur des systèmes d'information), chaque lundi, 30 minutes : ton temps entre le run et le projet.",
+      exemple: "DEMAT 2027, les rendez-vous :\n– COPIL (comité de pilotage), le 2e mardi du mois, 1 h 30 : le DAF (directeur administratif et financier, ton sponsor) décide.\n– Point projet (on dit aussi comité projet), chaque lundi, 1 h : avancement, 15 minutes de risques, actions. Juste avant, 30 minutes avec le consultant seul : jours de la régie, reste à faire, blocages (module cp15).\n– Comité fournisseur, chaque mois, avec la PA (plateforme agréée) : son service, son plan d'actions.\n– Point avec ton DSI (directeur des systèmes d'information), chaque lundi, 30 minutes : ton temps entre le run et le projet.",
       points: [
         "Une instance = une réunion régulière, avec un rôle : suivre, préparer ou décider. Le COPIL décide : périmètre, budget, dates validées, demandes de changement (module cp10).",
         "Le point projet suit le travail et prépare les décisions : il ne les prend pas. Le comité fournisseur suit la PA (module cp15) ; le COPIL en reçoit l'essentiel.",
-        "Ton DSI arbitre ton temps entre le run et DEMAT (modules cp02, cp03). Il ne décide pas du projet.",
+        "Ton DSI arbitre ton temps entre le run et DEMAT, quand l'écart dure (modules cp02, cp03). Il ne décide pas du projet.",
         "Une décision qui ne tombe pas un 2e mardi ? Une séance courte, avec qui décide et qui doit être consulté. Urgente : le DAF, le jour même (module cp07).",
-        "Au comité de direction, le DAF porte le projet, en 3 lignes que tu lui prépares. Pas de second COPIL."
+        "Au comité de direction, le DAF porte le projet, en 3 lignes que tu lui prépares. Il peut t'y inviter pour un point. Pas de second COPIL."
       ],
       retenir: "Chaque décision a son instance : le point projet suit et prépare, le COPIL tranche le périmètre, le budget et les dates."
     },
@@ -78,17 +82,17 @@ LEARNSQL.cours.cp09 = {
         "Un seul A par livrable : deux A, c'est aucun. Chacun attend l'autre, ou ils se contredisent. Le PMBOK (le guide américain) le dit aussi.",
         "Pas de livrable sans A : sinon, personne ne le valide. L'A d'un livrable métier vient du métier.",
         "Trop de C ralentit : chaque avis prend des jours, et les avis se contredisent. Consulte ceux dont l'avis peut changer le livrable ; informe les autres.",
-        "Le RACI se valide au cadrage : chaque A accepte son rôle, puis le sponsor valide. Il se met à jour : nouveau livrable, départ, A confié à un autre par le sponsor. Une absence sans décision à prendre ne change rien.",
+        "Le RACI se valide au cadrage : chaque A accepte son rôle, puis le sponsor valide. Il se met à jour : nouveau livrable, départ, A confié à un autre par le sponsor. L'A part en congé quand sa décision tombe ? Il désigne avant, par écrit, qui approuve à sa place.",
         "Être A d'un livrable ne donne pas les autres décisions : le budget et les dates validées restent au DAF."
       ],
       retenir: "Un seul A par livrable, jamais de livrable sans A, peu de C. Le RACI se valide au cadrage, puis se tient à jour."
     },
     {
       titre: "Préparer et animer le COPIL",
-      exemple: "COPIL du mardi 9 février 2027. Ordre du jour, envoyé 3 jours avant, avec le rapport (module cp08) :\n1. Décisions (40 min) : faire les changements n° 7 et n° 9 ? 7 jours d'intégrateur, 5 250 €. Je recommande oui.\n2. Les 5 plus gros risques (20 min).\n3. Le rapport, déjà lu : questions (20 min).\n4. Actions et dates (10 min).\nEn séance, le DAF : « Bon, allez-y. » Toi : « Je note : n° 7 et n° 9 acceptés, 7 jours, commandes à signer. C'est bien ça ? »",
+      exemple: "COPIL du mardi 9 février 2027. Ordre du jour, envoyé 3 jours ouvrés avant, avec le rapport (module cp08) :\n1. Décisions (40 min) : faire les changements n° 7 et n° 9 ? 7 jours d'intégrateur, 5 250 €. Je recommande oui.\n2. Les 5 plus gros risques (20 min).\n3. Le rapport, déjà lu : questions (20 min).\n4. Actions et dates (10 min).\nEn séance, le DAF : « Bon, allez-y. » Toi : « Je note : n° 7 et n° 9 acceptés, 7 jours, commandes à signer. C'est bien ça ? »",
       points: [
         "L'ordre du jour : les décisions d'abord, chacune comme une question, avec son prix, ta recommandation et sa durée. Puis les risques, puis l'avancement.",
-        "3 jours avant : l'ordre du jour et le rapport. En séance, on ne le relit pas. Avant, tu vois les managers concernés (module cp16) : une pré-réunion évite les surprises, pas les désaccords.",
+        "3 jours ouvrés avant : l'ordre du jour et le rapport. En séance, on ne le relit pas. Avant, tu vois les managers concernés (module cp16) : une pré-réunion évite les surprises, pas les désaccords.",
         "Le DAF préside et décide ; toi, tu animes et tu tiens le temps. Le débat tourne en rond ? Tu résumes les positions, et tu fais décider. Un détail repart au point projet, avec une date.",
         "Chaque décision, tu la reformules à voix haute, avec ses chiffres. Pas tranché faute d'info ? Un point ouvert : ce qui manque, qui l'apporte, pour quand.",
         "Un COPIL qui ne décide rien devient une réunion d'information. PRINCE2 va plus loin : pas de réunion pour suivre ; le comité reçoit un rapport, et se réunit pour décider. Tout est décidé ? On finit plus tôt."

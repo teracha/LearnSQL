@@ -8,15 +8,15 @@
 // I = Informé ; A n'est pas forcément R ; le R n'approuve pas son propre travail ; C avant, I après ; un C n'a pas de
 // veto ; un seul A ; pas de livrable sans A ; trop de C ralentit ; validé au cadrage, tenu à jour ; être A d'un
 // livrable ne donne ni le budget ni les dates) ; préparer (décisions d'abord, chacune écrite comme une question avec son
-// prix, rapport 3 jours avant, pré-réunion) ; animer (tenir le temps, résumer et faire décider, reformuler à voix haute,
+// prix, rapport 3 jours ouvrés avant, pré-réunion) ; animer (tenir le temps, résumer et faire décider, reformuler à voix haute,
 // détail renvoyé au point projet, point ouvert, finir plus tôt, COPIL qui ne décide rien) ; tracer (compte rendu
 // contesté, registre des décisions, décision de couloir confirmée par écrit, décision écrite pas refaite, ce qui va au
 // registre). Les méthodes divergent : PRINCE2 n'a pas de réunion de suivi pour son comité (q31) et peut y mettre un
 // fournisseur ; DEMAT tient un COPIL mensuel et invite les prestataires pour un point (q08).
 // Fil rouge DEMAT 2027 (fiche fil rouge de docs/plan-chef-de-projet.md, qui fait foi), ligne « Gouvernance (module
-// cp09) » : COPIL le 2e mardi, 1 h 30, membres et invités, ordre du jour et rapport 3 jours avant, compte rendu sous
+// cp09) » : COPIL le 2e mardi, 1 h 30, membres et invités, ordre du jour et rapport 3 jours ouvrés avant, compte rendu sous
 // 24 h, registre tenu par toi, point projet du lundi ; RACI de la fiche : format de facture (q12, q16, q17, q18, q21),
-// PV de recette fournisseurs (q13, q20, q23, q24), PV de recette clients (q14), go / no-go (q05, q19), budget et dates
+// PV de recette fournisseurs (q20, q23, q24), PV de recette clients (q13, q14), go / no-go (q05, q19), budget et dates
 // (q03, q23). Ligne « Toi et ton DSI » : point du lundi, il arbitre ton temps (q02, q03). Promesses tenues : cp01-q02
 // (« Chaque décision a son instance… », retenir de la section 1 du cours) et cp01-q10, cp04 (le RACI : Réalise,
 // Approuve, Consulté, Informé).
@@ -24,11 +24,14 @@
 // 9 mars, 8 juin 2027) ; bascule prévue le lundi 14 juin, dernier test le jeudi 10, séance de go / no-go le vendredi 11
 // (q05) ; comité de direction mensuel, dont le DAF est membre (q04) ; le responsable ADV demande un mois de pilote en
 // plus, ton DSI veut valider (q03) ; guide de saisie des factures fournisseurs, livrable ajouté en mars (q15) ; la
-// cheffe comptable revient de congé 10 jours avant la fin de la recette (q24) ; elle demande 3 jours d'intégrateur de
-// plus pour la recette (q23) ; elle n'est pas d'accord avec ta recommandation sur le changement n° 7 (q28) ; Marc,
-// 3 après-midi de tests par semaine en avril, « accord » contesté (q37) ; crédits du SLA appliqués par le DAF dans un
-// couloir (q36) ; la décision urgente de mi-avril (2 jours d'intégrateur, comme cp10-q25) contestée au COPIL de mai
-// (q35) ; vécu : démat fiscale à 15 personnes au comité (q06), migration Divalto avec une décision contestée (q38) ;
+// cheffe comptable, en congé du 12 au 30 avril (fiche : la recette finit pendant son congé), désigne avant, par écrit,
+// qui signe le PV (q24, comme cp18-q14) ; elle demande 3 jours d'intégrateur de plus pour la recette (q23) ; elle n'est
+// pas d'accord avec ta recommandation sur le changement n° 7 (q28) ; Marc veut signer le PV clients (q13) ; Marc,
+// 3 après-midi de tests par semaine en avril, « accord » contesté (q37) ; crédits du SLA de mai appliqués par le DAF
+// dans un couloir, début juin (q36, comme cp12-q19 ; cp15-q19 : il renonce à ceux d'avril) ; la décision urgente de
+// mi-avril (2 jours d'intégrateur, comme cp10-q25 ; Julie consultée, sa cheffe en congé) contestée au COPIL de mai par
+// la cheffe comptable rentrée (q35) ; vécu : démat fiscale à 15 personnes au comité (q06), migration Divalto avec
+// une décision contestée (q38) ;
 // projets hors DEMAT pour les questions « Tu es DSI adjoint » (q40 à q44).
 // Pas d'affirmation juridique dans ce module.
 // Déjà publiées ailleurs, pas reprises ici : cp01-q02 et cp01-q10, cp04-q16 (sponsor qui annule les COPIL), cp10-q11
@@ -42,10 +45,10 @@
 // choisir entre projets = cp25 ; ton temps = cp02.
 // Types : instances q01 à q05 ; qui siège q06 à q11 ; RACI q12 à q24 ; préparer q25 à q28 ; animer q29 à q34 ; tracer
 // q35 à q39 ; « Tu es DSI adjoint » q40 à q44.
-// Anti-devinette : la bonne réponse est un extrême dans 10 questions sur 44 : la plus douce qui suffit (q24, q34, q35),
+// Anti-devinette : la bonne réponse est un extrême dans 9 questions sur 44 : la plus douce qui suffit (q34, q35),
 // la plus forte ou la plus complète quand elle se justifie (q05, q16, q21, q22, q30, q43, q44). La bonne réponse passe
-// par le COPIL dans q03, q10, q40 (un choix faux y passe dans 18 autres) ; elle écrit ou trace dans 9 questions (q15,
-// q21, q33, q35 à q39, q41) ; le DAF y décide dans 10 (q03, q05, q09, q12, q18, q19, q22, q23, q29, q33). « Rien »,
+// par le COPIL dans q03, q10, q40 (un choix faux y passe dans 18 autres) ; elle écrit ou trace dans 10 questions (q15,
+// q21, q24, q33, q35 à q39, q41) ; le DAF y décide dans 10 (q03, q05, q09, q12, q18, q19, q22, q23, q29, q33). « Rien »,
 // « seul », « tout », « tous », « toujours », « Oui », « D'accord » et « aujourd'hui » sont aussi dans des bonnes
 // réponses ; des chiffres et des dates aussi dans des choix faux.
 LEARNSQL.questions.cp09 = [
@@ -64,28 +67,28 @@ LEARNSQL.questions.cp09 = [
       "Non. Les créneaux de Julie se calent avec sa cheffe, puis se suivent au point projet du lundi. Le COPIL n'a pas à les voir.",
       "Non. Le plan d'actions de la PA (plateforme agréée) se suit au comité fournisseur (module cp15). Le COPIL en reçoit l'essentiel, et décide s'il le faut.",
       "Oui. Une date validée qui sort de la tolérance (± 2 semaines) : c'est au DAF (directeur administratif et financier, le sponsor) de décider, au COPIL, ou le jour même si ça presse. Le point projet la prépare.",
-      "Non. Ton temps entre le run et le projet, c'est ton DSI qui l'arbitre, au point du lundi (modules cp02, cp03)."
+      "Non. Ton temps de la semaine, tu l'organises ; un écart qui dure entre le run et le projet, ton DSI l'arbitre, au point du lundi (modules cp02, cp03)."
     ],
     retenir: "Chaque instance a son rôle : le point projet suit et prépare, le comité fournisseur suit la PA, ton DSI arbitre ton temps, le COPIL décide."
   },
   {
     id: "cp09-q02",
     dialecte: "Gestion de projet",
-    q: "La semaine prochaine, Julie est libre 3 jours pour tester. Tu voudrais les passer avec elle sur DEMAT, au lieu du run. Où le règles-tu ?",
+    q: "De février à avril, pour les écrans et la recette, tu voudrais 1 demi-journée de run par semaine, au lieu de 3. Où le règles-tu ?",
     choix: [
       "Au point projet du lundi, avec toute l'équipe",
       "Au COPIL : le DAF décide de ce qui touche DEMAT",
-      "Seul : ton agenda, c'est toi qui le tiens",
+      "Seul : un écart de ton agenda, que tu notes",
       "Lundi, au point avec ton DSI : il arbitre"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Le point projet suit DEMAT : il ne voit pas ce que le run perd. Ton DSI, si.",
       "Non. Le DAF décide du projet, pas de ton temps. Et le COPIL n'a lieu qu'une fois par mois.",
-      "Non. Presque : tu proposes ton organisation, oui. Mais le run, c'est la DSI : 3 jours de moins, ton DSI doit le savoir et trancher.",
-      "Oui. Ton temps entre le run et DEMAT (environ 70 / 30), c'est ton DSI qui l'arbitre, chaque lundi. Tu viens avec ta proposition : ce que le run perd, ce que DEMAT gagne."
+      "Non. Presque : un écart d'une semaine, tu le notes, oui (module cp02). Mais 3 mois à 1 demi-journée de run au lieu de 3, ça dure : le run est à la DSI, ton DSI tranche.",
+      "Oui. Ton temps entre le run et DEMAT (environ 70 / 30), quand l'écart dure, c'est ton DSI qui l'arbitre, au point du lundi. Tu viens avec ta proposition : ce que le run perd, ce que DEMAT gagne."
     ],
-    retenir: "Ton temps entre le run et le projet se règle au point du lundi avec ton DSI : il arbitre."
+    retenir: "Un écart qui dure entre le run et le projet se règle au point du lundi avec ton DSI : il arbitre."
   },
   {
     id: "cp09-q03",
@@ -100,7 +103,7 @@ LEARNSQL.questions.cp09 = [
     bonne: 1,
     pourquoi: [
       "Non. Ton DSI est ton responsable, pas le sponsor de DEMAT : les dates validées sont au DAF. Un COPIL informé après coup ne décide plus rien.",
-      "Oui. Une date validée qui sort de ta tolérance va au DAF. Le COPIL est dans 8 jours : tu y portes l'impact chiffré. Ton DSI arbitre ton temps, pas les dates du projet ; tu le lui dis, simplement.",
+      "Oui. Une date validée qui sort de ta tolérance va au DAF. Rien n'a encore glissé : le COPIL, dans 8 jours, suffit ; tu y portes l'impact chiffré. Ton DSI arbitre ton temps, pas les dates du projet ; tu le lui dis, simplement.",
       "Non. Ta tolérance, c'est ± 2 semaines par jalon (module cp04). Un mois de plus sur le pilote, c'est au DAF.",
       "Non. Il n'y a rien à arbitrer : la règle dit déjà qui décide. Tu l'expliques à ton DSI, sans monter au DG."
     ],
@@ -119,7 +122,7 @@ LEARNSQL.questions.cp09 = [
     bonne: 1,
     pourquoi: [
       "Non. Deux comités pour décider du même projet : les décisions se croisent, et le DAF n'est plus seul à trancher.",
-      "Oui. Le sponsor porte son projet au comité de direction, dont il est membre. Tu lui prépares 3 lignes : la météo, les jalons, une décision attendue s'il y en a une (module cp08).",
+      "Oui. Le sponsor porte son projet au comité de direction, dont il est membre. Tu lui prépares 3 lignes : la météo, les jalons, une décision attendue (module cp08). Un point lourd ? Il peut t'y inviter.",
       "Non. Presque : le DG doit savoir. Mais 20 minutes de détail chaque mois, c'est le format du COPIL, pas celui d'un comité de direction.",
       "Non. Le DG demande un point, pas des comptes rendus à lire. Il veut l'essentiel, dit par le sponsor."
     ],
@@ -138,9 +141,9 @@ LEARNSQL.questions.cp09 = [
     bonne: 0,
     pourquoi: [
       "Oui. Une décision qui ne tombe pas un 2e mardi a sa séance, courte. Au RACI : A le DAF ; C la cheffe comptable, le responsable ADV, ton DSI ; toi, R, tu recommandes. Le DG, I, est informé après.",
-      "Non. Le 8, les tests ne sont pas finis : le DAF déciderait sans les résultats. Une décision a son instance, et son moment.",
+      "Non. Le 8, les tests ne sont pas finis : le DAF déciderait sans les résultats. Le COPIL peut valider les critères, voire un go sous conditions ; la décision se prend le 11.",
       "Non. Au RACI, tu es R : tu recommandes, sur les critères. L'A (celui qui approuve) du go / no-go, c'est le DAF.",
-      "Non. Presque : le bon A, le bon jour. Mais les C (la cheffe comptable, le responsable ADV, ton DSI) n'ont pas été entendus : leur avis compte avant."
+      "Non. Presque : le bon A. Mais seul, par mail, le jour du dernier test : les C (la cheffe comptable, le responsable ADV, ton DSI) ne sont pas entendus. Leur avis compte avant."
     ],
     retenir: "Une décision qui ne tombe pas au COPIL a sa propre séance, avec l'A et les C du RACI : le R recommande, l'A décide."
   },
@@ -196,7 +199,7 @@ LEARNSQL.questions.cp09 = [
     pourquoi: [
       "Non. Le COPIL est votre instance interne : il entendrait vos débats sur ses jours et ses retards. Et en régie, son temps se paie.",
       "Non. Trop fermé : pour un changement qu'il a chiffré, son explication aide le DAF à décider. Il vient pour ce point, puis il repart.",
-      "Oui. Un prestataire vient au COPIL pour un point précis : expliquer un chiffrage, répondre à une question. Le reste du temps, ses estimations passent par toi, au point projet.",
+      "Oui. Un prestataire vient au COPIL pour un point précis : expliquer un chiffrage, répondre à une question. Le reste du temps, ses estimations passent par toi, à votre point du lundi.",
       "Non. La règle est fixée depuis le cadrage : le prestataire vient sur invitation. Tu peux répondre toi-même, sans déranger le DAF."
     ],
     retenir: "Un prestataire vient au COPIL sur invitation, pour un point : c'est votre instance interne."
@@ -235,7 +238,7 @@ LEARNSQL.questions.cp09 = [
       "Non. Un COPIL sans son décideur ne décide rien : vous débattez, puis il faut tout lui réexpliquer. Les décisions partent par mail, sans débat.",
       "Non. Ton DSI n'est pas le sponsor de DEMAT : ni le budget ni le périmètre ne sont à lui. Ses décisions seraient contestées.",
       "Non. Un mois de plus pour 2 décisions prêtes : le projet attend, sans raison. Un décalage de quelques jours suffit.",
-      "Oui. Le COPIL existe pour décider : il se tient quand le décideur est là. Quelques jours de décalage, annoncés tôt ; l'ordre du jour reste le même."
+      "Oui. Le COPIL existe pour décider : il se tient quand le décideur est là. Quelques jours de décalage, annoncés tôt. Pas de date proche ? Une séance courte sur les 2 décisions, avec lui et les C."
     ],
     retenir: "Pas de COPIL sans son décideur : on le décale de quelques jours, on ne l'annule pas pour un mois."
   },
@@ -280,19 +283,19 @@ LEARNSQL.questions.cp09 = [
   {
     id: "cp09-q13",
     dialecte: "Gestion de projet",
-    q: "Recette fournisseurs finie. Julie, R au RACI, veut signer le PV (procès-verbal) elle-même : « C'est moi qui ai tout testé. » Que fais-tu ?",
+    q: "Recette clients finie. Marc, R au RACI avec Sophie, veut signer le PV (procès-verbal) lui-même : « Les flux EDI, c'est moi qui les ai testés. » Que fais-tu ?",
     choix: [
-      "Tu acceptes, et sa cheffe en sera prévenue",
-      "Elles signent toutes les deux : c'est plus sûr",
+      "Tu acceptes, et son chef en sera prévenu",
+      "Ils signent tous les deux : c'est plus sûr",
       "Le DAF signe : il est le sponsor du projet",
-      "Sa cheffe signe, comme A, sur ses tests"
+      "Son chef signe, comme A, sur ses résultats"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Julie réalise ; elle n'approuve pas son propre travail. Prévenue après coup, sa cheffe découvre un PV qu'elle n'a pas vu.",
-      "Non. Presque : Julie compte, sa cheffe aussi. Mais deux signataires, c'est deux A : chacun compte sur l'autre. Un seul A par livrable.",
+      "Non. Marc réalise ; il n'approuve pas son propre travail. Prévenu après coup, son chef découvre un PV qu'il n'a pas vu.",
+      "Non. Presque : Marc compte, son chef aussi. Mais deux signataires, c'est deux A : chacun compte sur l'autre. Un seul A par livrable.",
       "Non. Le DAF n'est pas A de ce PV, et il n'a pas vu les tests : il approuverait sans rien savoir.",
-      "Oui. Au RACI, le PV fournisseurs : R Julie, A la cheffe comptable. Julie lui montre ses résultats ; sa cheffe signe, et répond de la recette."
+      "Oui. Au RACI, le PV clients : R Sophie et Marc, A le responsable ADV. Marc lui montre ses résultats ; son chef signe, et répond de la recette."
     ],
     retenir: "Le testeur réalise, le responsable du métier approuve : un seul A par PV, et ce n'est pas celui qui a testé."
   },
@@ -308,7 +311,7 @@ LEARNSQL.questions.cp09 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Un seul A par livrable : le RACI validé dit le responsable ADV. La cheffe comptable a un vrai intérêt : elle devient C, son avis compte avant la signature.",
+      "Oui. Un seul A par livrable : le RACI validé dit le responsable ADV. La cheffe comptable a un vrai intérêt : elle devient C, son avis compte avant la signature. Tu mets le RACI à jour, et tu le dis au COPIL.",
       "Non. Deux A, c'est aucun : s'ils ne sont pas d'accord, le PV bloque, et chacun attend l'autre.",
       "Non. Le DAF n'a pas vu les tests : il signerait à l'aveugle. Et le RACI a déjà un A.",
       "Non. Changer d'A ne se décide pas entre eux : le sponsor a validé le RACI. Et les flux EDI de l'ADV y passent aussi."
@@ -321,7 +324,7 @@ LEARNSQL.questions.cp09 = [
     q: "Mars. Nouveau livrable : le guide de saisie des factures fournisseurs, écrit par Julie. Le RACI ne lui donne pas de A. Que fais-tu ?",
     choix: [
       "Rien : Julie l'a écrit, elle sait s'il est bon",
-      "Tu le valides toi-même : tu tiens le RACI",
+      "Tu en deviens A : c'est toi qui tiens le RACI",
       "Tu proposes sa cheffe comme A ; le RACI change",
       "Tu le présentes au COPIL d'avril, et le DAF valide"
     ],
@@ -340,14 +343,14 @@ LEARNSQL.questions.cp09 = [
     q: "Format de facture. Tu l'as fini avec l'intégrateur, puis envoyé au DAF pour validation, et au responsable ADV « pour info ». Au RACI, il est C. Que fais-tu ?",
     choix: [
       "Rien de plus : l'ADV l'a reçu, il peut encore réagir",
-      "Tu lui demandes son avis, sans retarder la validation",
+      "Tu lui demandes son avis ; le DAF valide en même temps",
       "Tu le mets en copie, et le DAF valide comme prévu",
       "Tu demandes au DAF d'attendre l'avis de l'ADV"
     ],
     bonne: 3,
     pourquoi: [
       "Non. « Pour info », il lit après coup, s'il lit : son avis arrive après la décision. C'est traiter un C comme un I.",
-      "Non. Presque : tu demandes son avis. Mais si le DAF valide d'abord, l'avis arrive trop tard : on consulte avant de décider.",
+      "Non. Presque : tu demandes son avis. Mais si le DAF valide en même temps, l'avis arrive trop tard : on consulte avant de décider.",
       "Non. En copie, il est informé (I), pas consulté (C) : la décision est déjà prise quand il la lit.",
       "Oui. Un C donne son avis AVANT la décision. Le format touche ses flux EDI : quelques jours d'attente valent mieux qu'un format à refaire."
     ],
@@ -489,21 +492,21 @@ LEARNSQL.questions.cp09 = [
   {
     id: "cp09-q24",
     dialecte: "Gestion de projet",
-    q: "La cheffe comptable, A du PV de recette fournisseurs, part 3 semaines en congé pendant la recette. Elle revient 10 jours avant la fin. Que fais-tu ?",
+    q: "Mars. La cheffe comptable, A du PV de recette fournisseurs, sera en congé du 12 au 30 avril. La recette finit fin avril, pendant son congé. Que fais-tu ?",
     choix: [
-      "Julie devient A pendant ses 3 semaines de congé",
-      "Le DAF, son manager, devient A à sa place",
-      "Rien au RACI : elle signera le PV à son retour",
-      "Tu décales le PV d'un mois, et tu préviens le DAF"
+      "Tu lui demandes de désigner par écrit qui signera",
+      "Le DAF, son manager, devient A pendant son congé",
+      "Rien au RACI : elle signera le PV depuis son congé",
+      "Tu choisis qui signe, et tu mets le RACI à jour"
     ],
-    bonne: 2,
+    bonne: 0,
     pourquoi: [
-      "Non. Julie est R : elle approuverait ses propres tests. Et pendant le congé, il n'y a rien à approuver.",
-      "Non. Le DAF n'a pas vu les tests, et la cheffe comptable revient avant la fin : il n'y a rien à changer.",
-      "Oui. Le PV se signe à la fin de la recette : elle sera là. Rien à changer. Pour le backlog, Julie la supplée déjà comme PO (celle qui classe le backlog), désignée par écrit.",
-      "Non. Elle revient 10 jours avant la fin : le PV est à l'heure. Décaler d'un mois retarde le pilote pour rien."
+      "Oui. Sa décision tombe pendant son congé : avant de partir, elle désigne par écrit qui signe, quelqu'un qui peut engager la compta. Le DAF, son manager, est informé ; toi, tu mets le RACI à jour pour ces 3 semaines.",
+      "Non. Le DAF n'a pas vu les tests : il signerait sans savoir. L'A d'un livrable métier vient du métier ; le DAF est informé.",
+      "Non. Elle n'aura pas vu les 3 dernières semaines de tests : elle signerait à l'aveugle. Et un congé n'est pas un relais : chaque question l'attendrait.",
+      "Non. Presque : le RACI change, oui. Mais qui engage la compta, ce n'est pas à toi de le dire : c'est elle qui désigne, par écrit, comme un suppléant au COPIL."
     ],
-    retenir: "Un A absent un temps : le RACI ne change que si une décision tombe pendant son absence."
+    retenir: "Un A absent quand sa décision tombe : avant de partir, il désigne par écrit qui approuve à sa place, et le RACI le dit."
   },
   {
     id: "cp09-q25",
@@ -531,8 +534,8 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tu le projettes, et tu le lis plus vite, à voix haute",
       "Une semaine avant, et plus de séance du tout",
-      "3 jours avant, et tu le relis quand même en séance",
-      "3 jours avant ; en séance, questions et décisions"
+      "3 jours ouvrés avant, et tu le relis quand même en séance",
+      "3 jours ouvrés avant ; en séance, questions et décisions"
     ],
     bonne: 3,
     pourquoi: [
@@ -541,7 +544,7 @@ LEARNSQL.questions.cp09 = [
       "Non. Presque : le bon délai. Mais relu en séance, il reprend les 40 minutes : ceux qui l'ont lu s'ennuient, les autres ne le liront plus.",
       "Oui. 3 jours, c'est le temps de le lire (module cp08). En séance, on ne relit pas : on répond aux questions, et on décide."
     ],
-    retenir: "Le rapport part 3 jours avant, avec l'ordre du jour : en séance, on ne le relit pas, on décide."
+    retenir: "Le rapport part 3 jours ouvrés avant, avec l'ordre du jour : en séance, on ne le relit pas, on décide."
   },
   {
     id: "cp09-q27",
@@ -682,7 +685,7 @@ LEARNSQL.questions.cp09 = [
     q: "COPIL. Au bout de 50 minutes, les décisions sont prises et les risques vus. Personne n'a de question sur le rapport. Le DAF : « On s'arrête là ? » Que fais-tu ?",
     choix: [
       "« Non : 1 h 30 sont prévues, on les tient »",
-      "« Oui : je relis les actions, et on finit là »",
+      "« Oui : je relis les actions, et rien de plus »",
       "« Non : je vous présente l'avancement en détail »",
       "« Oui, et les COPIL dureront 50 minutes désormais »"
     ],
@@ -698,7 +701,7 @@ LEARNSQL.questions.cp09 = [
   {
     id: "cp09-q35",
     dialecte: "Gestion de projet",
-    q: "Mi-avril, urgence : le DAF a accepté au téléphone 2 jours d'intégrateur. Tu l'as écrit au registre le soir même. Au COPIL de mai, la cheffe comptable, consultée à l'époque, veut en reparler. Rien de nouveau. Que fais-tu ?",
+    q: "Mi-avril, urgence : Julie, qui supplée sa cheffe en congé, est consultée ; le DAF accepte au téléphone 2 jours d'intégrateur. Le soir même, c'est au registre. Au COPIL de mai, la cheffe comptable veut en reparler. Rien de nouveau. Que fais-tu ?",
     choix: [
       "Tu montres la ligne du registre : on ne la refait pas",
       "Tu rouvres le débat, et le registre notera ce qui en sort",
@@ -707,7 +710,7 @@ LEARNSQL.questions.cp09 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. L'urgence avait son circuit : le DAF, le jour même, après l'avoir consultée. Le registre dit quand, qui, quoi. Le COPIL la voit dans la liste des décisions du mois ; il ne la refait pas, sauf fait nouveau.",
+      "Oui. L'urgence avait son circuit : le DAF, le jour même, la compta consultée par sa suppléante. Le registre dit quand, qui, quoi. Le COPIL la voit dans la liste des décisions du mois ; il ne la refait pas, sauf fait nouveau.",
       "Non. Rien n'a changé : rouvrir le débat, c'est 20 minutes du COPIL sur une décision prise. Un fait nouveau, oui ; la même discussion, non.",
       "Non. Refaire décider ce que la bonne personne a décidé, c'est dire que sa décision ne valait rien. Et les 2 jours sont déjà faits.",
       "Non. Une urgence n'attend pas un COPIL mensuel : 3 semaines de perdues avant le pilote. Le circuit court reste la bonne voie (module cp10)."
@@ -717,7 +720,7 @@ LEARNSQL.questions.cp09 = [
   {
     id: "cp09-q36",
     dialecte: "Gestion de projet",
-    q: "Couloir, 10 h. Le DAF : « Les crédits du SLA du mois dernier, on les applique. » Tu lui avais remis le calcul la veille. Que fais-tu ?",
+    q: "Début juin, couloir, 10 h. Le DAF : « La PA a raté son niveau de service en mai : on applique les crédits. » Tu lui avais remis le calcul la veille. Que fais-tu ?",
     choix: [
       "Tu appelles la PA tout de suite, et tu le diras au COPIL",
       "Tu les inscris au COPIL, pour qu'il les valide",
@@ -843,7 +846,7 @@ LEARNSQL.questions.cp09 = [
       "Non. Il approuverait son propre travail, et le métier relirait après coup : il n'a jamais dit que ça marchait pour lui. Les cas oubliés sortiront en production.",
       "Non. Tu n'as pas fait les tests, et ce n'est pas ton métier : ta signature ne prouve rien pour les utilisateurs.",
       "Non. Presque : le métier signe, oui. Mais deux A : chacun compte sur l'autre, et le métier se sent moins engagé.",
-      "Oui. Il répond du projet ; le métier approuve ce qu'il reçoit. L'A d'un PV de recette, c'est le responsable métier : le chef de projet le prépare et le fait signer."
+      "Oui. Il répond du résultat du projet (module cp03), mais c'est le métier qui dit « ça marche pour nous ». L'A d'un PV de recette, c'est le responsable métier : le chef de projet le prépare et le fait signer."
     ],
     retenir: "Un PV de recette est approuvé par le métier : le chef de projet le prépare, il ne le signe pas."
   },
@@ -874,7 +877,7 @@ LEARNSQL.questions.cp09 = [
       "Tu fais voter le COPIL, et la majorité l'emporte",
       "Tu tranches toi-même, comme DSI adjoint, entre les deux",
       "Tu fais nommer un seul sponsor par le DG ; l'autre, consulté",
-      "Tu les laisses : ils finiront bien par s'entendre"
+      "Tu laisses les 2 sponsors : ils finiront par s'entendre"
     ],
     bonne: 2,
     pourquoi: [

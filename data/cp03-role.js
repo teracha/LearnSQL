@@ -597,7 +597,7 @@ LEARNSQL.questions.cp03 = [
     choix: [
       "Tu fais prendre ces décisions au DAF en direct, hors COPIL",
       "Tu lui fais valider chaque option avant de la montrer au DAF",
-      "Rien : le rapport part 3 jours avant le COPIL, c'est la règle pour tous",
+      "Rien : le rapport part 3 jours ouvrés avant le COPIL, c'est la règle pour tous",
       "Ta fiche du lundi annonce les décisions à venir : laquelle, qui, quand"
     ],
     bonne: 3,
@@ -615,7 +615,7 @@ LEARNSQL.questions.cp03 = [
     q: "Au COPIL de mars, tu vas demander 2 jours du support N2 pour surveiller les flux EDI du pilote. Le N2 dépend de ton DSI, qui siège au COPIL. Que fais-tu avant ?",
     choix: [
       "Tu demandes au DAF d'imposer ces 2 jours à ton DSI, en séance",
-      "Tu envoies l'ordre du jour à ton DSI 3 jours avant, comme à tous",
+      "Tu envoies l'ordre du jour à ton DSI 3 jours ouvrés avant, comme à tous",
       "Tu vois ton DSI avant : besoin, dates, et ce que le run reporte",
       "Tu demandes aux techniciens du N2, en direct, s'ils sont d'accord"
     ],

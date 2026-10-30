@@ -80,7 +80,7 @@ LEARNSQL.cours.cp02 = {
       titre: "Tes rituels : la semaine se prépare",
       exemple: "Vendredi 16 h, 30 minutes, au bureau : ta revue. Fait, en retard, promis ; tes 3 priorités ; tes créneaux posés.\nLundi, au point de 30 minutes avec ton DSI : ce qui avance, ce qui coince, ce dont tu as besoin (module cp03). Pour ton temps, ajoute ton run de la semaine passée, en demi-journées.",
       points: [
-        "Le vendredi, ta revue (la « revue hebdomadaire » de GTD) : ce qui traîne va dans ta liste. Tes deux points du lundi (ton DSI, le point projet) sont prêts. Le dimanche reste à toi.",
+        "Le vendredi, ta revue (la « revue hebdomadaire » de GTD) : ce qui traîne va dans ta liste. Tes points du lundi (ton DSI, le consultant, le point projet) sont prêts. Le dimanche reste à toi.",
         "Chaque matin, 5 minutes : tes 3 actions du jour, avant les mails.",
         "Finir avant de commencer : 7 tâches entamées, 0 finie, c'est 0 livré. La méthode Kanban limite le travail en cours."
       ],

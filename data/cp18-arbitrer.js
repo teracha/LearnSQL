@@ -270,7 +270,7 @@ LEARNSQL.questions.cp18 = [
     pourquoi: [
       "Non. La recette engage le métier : si une facture fournisseur est fausse après la bascule, c'est ta signature qu'on lira.",
       "Non. Pendant 3 semaines, personne de la compta n'a validé : le pilote démarre sur ta seule signature.",
-      "Oui. Signer pour le métier n'est pas ton rôle. La bonne voie : avant de partir, elle désigne par écrit quelqu'un de la compta, comme Julie. Le DAF, son manager, est informé.",
+      "Oui. Signer pour le métier n'est pas ton rôle. La bonne voie : avant de partir, elle désigne par écrit quelqu'un de la compta qui n'a pas fait les tests. Le DAF, son manager, est informé.",
       "Non. Trois semaines de retard pour une signature, alors qu'une personne désignée par elle règle le problème."
     ],
     retenir: "Hors de ton rôle : non, avec la bonne voie. On ne signe pas à la place du métier : c'est lui qui désigne qui signe."

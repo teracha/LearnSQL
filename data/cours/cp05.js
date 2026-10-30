@@ -85,7 +85,7 @@ LEARNSQL.cours.cp05 = {
         "Rétroplanning : on part de la date imposée et on remonte, tâche par tâche. Chaque tâche reçoit sa date de début au plus tard.",
         "Puis on avance depuis aujourd'hui : la date au plus tôt. L'écart entre les deux, c'est la marge du projet. Négatif ? Le planning ne tient pas (section 6).",
         "Les contraintes d'abord : clôture annuelle de janvier, congés d'août, congé de la cheffe comptable du 12 au 30 avril, gel dès le pilote. Une tâche due dans une période chargée se fait avant.",
-        "Une personne rare se planifie en premier : la cheffe comptable, seule sur les avoirs fournisseurs ; Marc, seul sur les rejets EDI ; le seul consultant du paramétrage.",
+        "Une personne rare se planifie en premier : la cheffe comptable, seule sur les avoirs fournisseurs ; Marc, seul à reprendre les flux EDI rejetés ; le seul consultant du paramétrage.",
         "Chemin critique de DEMAT : données de paramétrage, paramétrage, connecteur livré (1er mars), recette, PV (procès-verbal) de recette le 30 avril, pilote, bascule."
       ],
       retenir: "On part de la date légale et on remonte, contraintes posées : chaque tâche a sa date au plus tard."
@@ -98,7 +98,7 @@ LEARNSQL.cours.cp05 = {
         "Le DAF valide les jalons et les marges, pas chaque tâche. Tolérance : ± 2 semaines par jalon (module cp04). Dedans, tu ajustes et tu le dis au COPIL (comité de pilotage) ; au-delà, il décide, prévenu le jour même.",
         "Une date lointaine ? Demande des jalons intermédiaires vérifiables : un retard se voit en février, pas le 1er mars.",
         "Une marge se voit, en bout de chaîne, à la taille des risques (module cp07). Cachée dans chaque tâche, elle se perd : le travail s'étale sur le temps donné. Le PMBOK admet les deux ; la chaîne critique (Goldratt) la met à la fin.",
-        "Elle sert aux imprévus : ni d'avance, ni à un prestataire, ni à un ajout. Et la marge de recette n'est pas la marge légale."
+        "Elle sert aux imprévus : ni d'avance, ni à un prestataire, ni à un ajout. La marge de recette protège le PV ; la marge légale, le 1er septembre."
       ],
       retenir: "Un jalon se vérifie à une date. Une marge est visible, à la fin, et ne se dépense pas d'avance."
     },

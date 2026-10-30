@@ -112,14 +112,14 @@ LEARNSQL.questions.cp05 = [
     dialecte: "Gestion de projet",
     q: "Décembre. Une facture électronique sans le SIREN du client est rejetée. Dans Divalto, 300 fiches clients n'en ont pas. Ton découpage n'en parle pas. Que fais-tu ?",
     choix: [
-      "Rien pour l'instant : la recette trouvera bien ces fiches",
+      "Tu fais décaler la recette d'un mois, le temps de les corriger",
       "Une tâche : l'ADV, une charge, une date avant la recette",
       "Tu complètes toi-même les 300 fiches, ce week-end, au calme",
       "Tu l'écris au registre des risques, avec sa probabilité"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Trouvées en recette, 300 fiches font perdre des semaines au pire moment. Ce qui n'est pas découpé n'a ni date, ni responsable.",
+      "Non. Trop fort : 300 fiches se corrigent bien avant le 16 mars. Décaler la recette, c'est décaler le PV et toute la suite, pour une tâche qu'il suffit d'ajouter.",
       "Oui. Ce qui manque au découpage y entre, comme une tâche : un responsable (l'ADV, l'administration des ventes, avec l'accord de son responsable), une charge, une date avant la recette.",
       "Non. Tu fais à la place de l'ADV, sans charge prévue. Et la prochaine fiche sans SIREN n'aura toujours personne.",
       "Non. Presque : tu le notes. Mais ce n'est pas incertain : les 300 fiches manquent déjà. C'est du travail à faire : une tâche, avec un nom et une date."
@@ -186,7 +186,7 @@ LEARNSQL.questions.cp05 = [
   {
     id: "cp05-q08",
     dialecte: "Gestion de projet",
-    q: "Projet Snowflake + Power BI. Le prestataire estime le modèle de données à 15 jours : « Fini dans 3 semaines. » Son consultant est chez vous 3 jours par semaine. Que fais-tu ?",
+    q: "Projet Snowflake + Power BI. Le prestataire estime le modèle de données à 15 jours : « Fini dans 3 semaines. » Son consultant travaille pour vous 3 jours par semaine. Que fais-tu ?",
     choix: [
       "Tu notes 3 semaines, plus 1 semaine de marge, par prudence",
       "Tu notes 3 semaines : 15 jours de travail, c'est 3 semaines",
@@ -421,14 +421,14 @@ LEARNSQL.questions.cp05 = [
     choix: [
       "Tu décales l'une des 2 tâches, et tu vois ce qu'elle touche",
       "Tu demandes aujourd'hui une 2e personne au responsable ADV",
-      "Rien : Marc s'organisera, il connaît ses priorités",
+      "Tu demandes au DAF de trancher entre les 2 tâches de Marc",
       "Tu demandes 2 soirées à Marc, et tu le dis à son responsable"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une personne ne fait pas 2 temps pleins : tu lisses. L'une passe après l'autre, et tu regardes si elle touche le chemin critique.",
       "Non. Presque : son responsable est le bon interlocuteur s'il faut du monde. Mais un 2e formateur doit d'abord apprendre : décaler l'une des tâches suffit peut-être.",
-      "Non. 2 tâches à plein temps la même semaine, c'est 200 % : l'une glissera, sans que personne l'ait choisi.",
+      "Non. Trop haut : l'ordre des tâches de ton projet, c'est ta délégation (module cp18). Tu lisses toi-même ; le DAF ne tranche que si un jalon sort de ta tolérance.",
       "Non. Ses heures, c'est son responsable qui en décide (module cp16), avant, pas après. Et un planning qui compte sur des soirées n'est pas réaliste."
     ],
     retenir: "Quelqu'un à 200 % sur une semaine, c'est un planning faux : on décale une tâche, et on regarde ce qu'elle touche."
@@ -460,14 +460,14 @@ LEARNSQL.questions.cp05 = [
       "En décembre, avant les fêtes, et l'envoi dès le 4 janvier",
       "En février, après la clôture : la PA attendra un peu",
       "En janvier, avec un intérimaire pour aider la compta",
-      "Du 4 au 15 janvier : au plus près de la date, comme prévu"
+      "Du 4 au 15 janvier, et un rappel à la compta chaque lundi"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On part du 15 janvier et des contraintes : la clôture prend janvier. Le travail se fait en décembre, et l'envoi part dès la rentrée.",
       "Non. Données en retard, connecteur en retard : le 1er mars ne tient plus, et en général les pénalités de la PA non plus. Toute la suite glisse.",
       "Non. Un intérimaire ne connaît ni vos clients ni vos fournisseurs : il faudrait le former en pleine clôture. Décembre suffit, sans coût.",
-      "Non. En janvier, la compta est en clôture : ce travail passera après. Et la tâche est sur le chemin critique : chaque jour perdu se retrouve en mars."
+      "Non. Début janvier, la compta est en pleine clôture : ce travail passera après, rappels ou pas. Et la tâche est sur le chemin critique : chaque jour perdu se retrouve en mars."
     ],
     retenir: "Une tâche due dans une période chargée se planifie avant : on part de la date due, contraintes posées."
   },
@@ -483,7 +483,7 @@ LEARNSQL.questions.cp05 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Presque : Julie est formée. Mais si un cas difficile échoue, plus personne pour trancher avant le PV. Avec la cheffe comptable, c'est plus sûr, et Julie apprend.",
+      "Non. Presque : Julie est formée, c'est le filet si la cheffe comptable manque. Mais placer ces tests pendant son congé, c'est se priver de la seule experte. Un cas difficile échoue : plus personne ne tranche avant le PV.",
       "Non. Mai, c'est le pilote et le gel : le PV ne peut pas attendre. Tout glisserait, alors qu'il suffit de placer ces tests avant son congé.",
       "Non. Fin avril, elle est en congé : les cas les plus durs seraient testés sans celle qui les connaît, juste avant le PV.",
       "Oui. Une personne rare se planifie d'abord : ses cas passent avant son congé. Julie, sa suppléante, apprend à côté, et pourra retester en avril."
@@ -560,7 +560,7 @@ LEARNSQL.questions.cp05 = [
     bonne: 0,
     pourquoi: [
       "Oui. Le DAF valide ce qui l'engage : les jalons et les marges. Les tâches sont ton travail : dans ± 2 semaines par jalon, tu ajustes (module cp04).",
-      "Non. Presque : il a validé des dates macro. Mais le planning détaillé précise les jalons et pose les marges : il les valide, en sachant.",
+      "Non. Presque : au cadrage, il a validé des dates macro (« bascule en juin »). Le planning détaillé fixe les jalons au jour et ajoute la marge de recette : il les valide, en sachant.",
       "Non. Les prestataires ne voient pas leurs tâches avec le sponsor : elles passent par toi, dans ton planning. Le DAF valide les jalons et les marges.",
       "Non. 180 tâches noient le sponsor : il signera sans lire. Et chaque petit ajustement deviendrait une décision du DAF."
     ],
@@ -610,14 +610,14 @@ LEARNSQL.questions.cp05 = [
     q: "Point projet. Le consultant : « Avec juillet et août de marge, la recette peut bien prendre 2 semaines de plus. » Que lui réponds-tu ?",
     choix: [
       "« Non : on n'a aucune marge, chaque jour de recette compte »",
-      "« C'est vrai : 2 mois de marge, 2 semaines, ça passe »",
+      "« Non, et j'alerte le DAF aujourd'hui : la date est en jeu »",
       "« Non : juillet-août protège septembre, pas la recette »",
       "« D'accord : la bascule glissera à mi-juillet, c'est permis »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Presque : la recette doit tenir. Mais elle a sa marge, 1 semaine, pour un imprévu. Dire « aucune », c'est faux, et ta prochaine vraie alerte pèsera moins.",
-      "Non. Juillet-août, c'est la marge légale : elle protège la date légale d'un gros imprévu. La dépenser en recette, c'est arriver en juillet sans filet.",
+      "Non. Trop fort : une phrase en point projet n'est pas un retard. Tu recadres toi-même ; une alerte sans fait use ton crédit auprès du DAF.",
       "Oui. Deux marges, deux usages : la marge de recette (1 semaine) absorbe un petit retard de recette ; la marge légale protège le 1er septembre.",
       "Non. Mi-juillet est possible, mais sur décision du DAF, en connaissant le prix : moins de marge légale. Ce n'est pas un droit."
     ],
@@ -664,7 +664,7 @@ LEARNSQL.questions.cp05 = [
   {
     id: "cp05-q33",
     dialecte: "Gestion de projet",
-    q: "Décembre. Ton planning détaillé, tâche par tâche, met la bascule au lundi 12 juillet. Le jalon validé par le DAF : juin. Que fais-tu ?",
+    q: "Décembre. Ton planning détaillé, tâche par tâche, met la bascule au lundi 12 juillet. Le jalon validé par le DAF : mi-juin. Que fais-tu ?",
     choix: [
       "Tu demandes à l'intégrateur 2 consultants de plus en mars",
       "Tu rabotes les estimations de 15 % pour retomber en juin",
@@ -675,7 +675,7 @@ LEARNSQL.questions.cp05 = [
     pourquoi: [
       "Non. Plus de monde ne divise pas la durée : il faut les former, et le seul consultant du paramétrage ralentira. Chaque jour en plus serait aussi une commande du DAF.",
       "Non. Le planning plaît, mais il est faux : juin glissera quand même, plus tard. Une estimation baisse avec le contenu, pas avec la date voulue.",
-      "Oui. Hors tolérance, le DAF décide, prévenu le jour même. Tu lui apportes l'écart et des options sur le chemin critique (du parallèle, moins de périmètre au pilote), avec leur prix.",
+      "Oui. 4 semaines après la mi-juin : hors tolérance, le DAF décide, prévenu le jour même. Tu lui apportes l'écart et des options sur le chemin critique (du parallèle, moins de périmètre au pilote), avec leur prix.",
       "Non. Presque : le bon interlocuteur, au bon moment. Mais sans option, tu décides à sa place : un mois de plus, alors qu'il existe peut-être moins cher."
     ],
     retenir: "Planning au-delà du jalon validé : ni estimations rabotées, ni « un mois de plus » ; des options chiffrées, et le DAF choisit."
@@ -704,19 +704,19 @@ LEARNSQL.questions.cp05 = [
     dialecte: "Gestion de projet",
     q: "Projet Snowflake + Power BI : 5 tableaux promis au comité de direction du 4 octobre. Le planning réaliste en donne 3 à cette date, les 2 derniers 3 semaines après. Que proposes-tu au sponsor ?",
     choix: [
-      "3 le 4 octobre, les 2 autres après : le sponsor choisit",
-      "Les 5 au sponsor le 4 octobre, sans tester les 2 derniers",
+      "3 à la date et 2 après, ou 5 plus tard : le sponsor choisit",
+      "Les 5 au sponsor à la date, et les tests des 2 derniers après",
       "Un 2e développeur dès lundi, pour tenir les 5 au 4 octobre",
       "Une seule option : les 5 tableaux, 3 semaines plus tard"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Moins de périmètre à la date : 3 tableaux, les plus utiles, choisis par le sponsor, et les 2 autres 3 semaines après. Le triangle : un côté bouge, il choisit lequel.",
-      "Non. Des tableaux non testés devant la direction : un chiffre faux, et la confiance dans tout le projet tombe.",
+      "Oui. Deux options vraies : 3 tableaux le 4 octobre (les plus utiles) et les 2 autres 3 semaines après, ou les 5 ensemble, 3 semaines plus tard. Le triangle : un côté bouge, le sponsor choisit lequel.",
+      "Non. Des tableaux non testés devant la direction : un chiffre faux, et la confiance dans tout le projet tombe. Tester après, c'est trop tard.",
       "Non. Un nouveau doit d'abord apprendre le modèle : sur 3 semaines, il ralentit l'équipe avant d'aider. Et le sponsor ne choisit toujours rien.",
       "Non. Presque : une date réaliste, sans mentir. Mais une seule option, c'est choisir à sa place le côté du triangle qui paie : il préférerait peut-être 3 tableaux à l'heure."
     ],
-    retenir: "Pour tenir une date : moins de contenu à la date, le reste après, et le sponsor choisit. Pas des tests en moins."
+    retenir: "Pour tenir une date : moins de contenu à la date et le reste après, ou tout plus tard. Le sponsor choisit. Pas des tests en moins."
   },
   {
     id: "cp05-q36",
@@ -826,7 +826,7 @@ LEARNSQL.questions.cp05 = [
     bonne: 3,
     pourquoi: [
       "Non. Brooks parle d'un travail qui se découpe mal, sur un projet en retard. Ici, 120 états indépendants se partagent bien : le renfort aide.",
-      "Non. Presque : le prendre, oui. Mais 2 semaines de formation pour quelqu'un qui connaît Power BI, sur des états documentés, c'est perdre le gain.",
+      "Non. Presque : le prendre, oui. Mais il connaît Power BI, et les états sont documentés : une journée d'accueil suffit. Avec 2 semaines de formation, la fin passe de 6 ou 7 semaines à 8.",
       "Non. Une marge ne raccourcit rien : elle protège une date. Ici, un renfort utile est disponible.",
       "Oui. Des morceaux indépendants, un outil connu, une doc claire : le renfort travaille presque tout de suite. La durée baisse vraiment, vers 6 ou 7 semaines."
     ],
