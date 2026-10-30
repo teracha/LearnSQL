@@ -16,12 +16,12 @@
 // commande signée par le DAF. Gel des changements de mai à la fin de la bascule. Aucun montant d'amende.
 // q10, q22, q26, q36, q39, q44 : « Tu es DSI adjoint ». q37 : un autre projet de la DSI (Power BI).
 // Pages Divalto utilisées (base documentaire Divalto 10.13, lecture seule) : « Contrôle du Siret/Siren (V10.12) » (q29),
-// « Surcharge ou modification de vue » (q37), « x10 migration » (q30, q37), « Avant migration, vérifier les
+// « Surcharge ou modification de vue » et « ERP en direct » (q37), « x10 migration » (q30, q37), « Avant migration, vérifier les
 // modifications » (q30), « Les surcharges multiples » (q28, q35), « Les opérations de maintenance » (q30, q31).
 // Faits ajoutés (scénarios, cohérents avec la fiche, à valider) : commande de l'intégrateur de 40 jours (q06, q07) ;
 // 12 puis 25 spécifiques Divalto (q30, q36) ; passation sans surcoût écrite à la commande (q15, comme cp14-q23) ;
 // priorités numérotées dans l'annexe SLA (q24, q26) ; la version 1 du connecteur maintenue jusqu'en décembre
-// (cp10-q30) et une version 2 prête en octobre 2027 (q32) ; 5 % de factures hors connecteur déposées à la main (q35).
+// (cp10-q30) et une version 2 disponible depuis le printemps 2027 (q32) ; 5 % de factures hors connecteur déposées à la main (q35).
 // Affirmations juridiques hors fiche (générales, à faire vérifier) : diriger un consultant en régie comme un salarié est
 // un risque de prêt de main-d'œuvre illicite (q10) ; en régie, les jours d'attente d'un consultant disponible sont dus,
 // en général (q09) ; un prestataire peut ne plus répondre de ce qu'un autre a modifié (q13, q35).
@@ -116,7 +116,7 @@ LEARNSQL.questions.cp15 = [
     q: "Comité de mars. Après 2 pannes du portail en février, le plan de la PA tient en une ligne : « Nous allons renforcer nos équipes. » Que fais-tu ?",
     choix: [
       "Tu l'acceptes : la PA s'engage par écrit, c'est déjà ça",
-      "Tu portes ce plan vide à son responsable de compte, demain",
+      "Tu portes ce plan vide à son responsable de compte, le jour même",
       "Tu demandes des actions, chacune avec un nom et une date",
       "Tu exiges une date de fin, et tu l'écris au compte rendu"
     ],
@@ -141,12 +141,12 @@ LEARNSQL.questions.cp15 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Presque : 80 % est un seuil minimum, pas une attente obligée. 26 + 20 = 46 : l'atterrissage dépasse déjà de 6 jours. Le DAF doit le savoir avant qu'ils soient dépensés.",
+      "Non. Presque : 80 % est une limite, pas un moment à attendre. 26 + 20 = 46 : l'atterrissage dépasse déjà de 6 jours. Le DAF doit le savoir avant qu'ils soient dépensés.",
       "Non. Tu lui demandes de tenir un chiffre, pas de réduire le travail : il coupera dans les tests, ou les jours arriveront plus tard. En régie, le risque reste chez vous.",
       "Non. Le prochain COPIL peut être dans 3 semaines : des jours de plus seront partis. L'écart est connu aujourd'hui : le DAF le sait aujourd'hui.",
       "Oui. Consommé + reste à faire = 46 jours pour 40 commandés. Tu alertes tôt, avec des options : retirer une tâche, ou une nouvelle commande, signée avant le 41e jour."
     ],
-    retenir: "L'alerte à 80 % est un minimum : si consommé + reste à faire dépasse la commande, le DAF le sait tout de suite."
+    retenir: "L'alerte à 80 % est une limite, pas une attente : si consommé + reste à faire dépasse la commande, le DAF le sait tout de suite."
   },
   {
     id: "cp15-q07",
@@ -170,7 +170,7 @@ LEARNSQL.questions.cp15 = [
   {
     id: "cp15-q08",
     dialecte: "Gestion de projet",
-    q: "Point hebdo, 3e semaine de suite : le consultant annonce « encore 5 jours » pour boucler le paramétrage des statuts. Il en a consommé 12 depuis la 1re annonce. Que fais-tu ?",
+    q: "Point hebdo, 3e semaine de suite : le consultant annonce « encore 5 jours » pour boucler le paramétrage des statuts. Il en a consommé 8 depuis la 1re annonce. Que fais-tu ?",
     choix: [
       "Tu lui fixes une date de fin ferme, et tu la lui écris",
       "Tu demandes à son responsable un autre consultant, dès lundi",
@@ -182,7 +182,7 @@ LEARNSQL.questions.cp15 = [
       "Non. Une date ne dit pas ce qui reste à faire : il finira en coupant, ou il la ratera quand même. D'abord, comprendre pourquoi ça ne baisse pas.",
       "Non. Tu ne sais pas encore pourquoi ça ne baisse pas : un souci technique, un besoin flou, une donnée qui manque. Changer de consultant coûte une passation.",
       "Oui. Tu fais détailler le reste par tâche, et tu regardes dans Divalto ce qui est vraiment fini. Puis tu recalcules l'atterrissage, et tu alertes le DAF s'il dépasse.",
-      "Non. Un reste à faire qui ne baisse pas en 3 semaines est un signal : 12 jours consommés, et la fin ne bouge pas. Le croire, c'est découvrir le dérapage sur la facture."
+      "Non. Trois annonces à « encore 5 jours », et 8 jours consommés entre-temps : c'est un signal. Le croire, c'est découvrir le dérapage sur la facture."
     ],
     retenir: "Un reste à faire qui ne baisse pas : le détailler tâche par tâche, voir ce qui est vraiment fini, puis recalculer l'atterrissage."
   },
@@ -198,9 +198,9 @@ LEARNSQL.questions.cp15 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. En régie, tu organises son temps : une tâche prévue qui ne dépend pas de ces données. Et tu demandes à la cheffe comptable une date ferme pour les données.",
+      "Oui. Tu lui confies une autre tâche prévue, qui ne dépend pas de ces données. Et tu demandes à la cheffe comptable une date ferme pour les données.",
       "Non. En régie, un consultant qui attend est payé : le risque est chez vous. Chaque jour d'attente se paie, sans rien produire.",
-      "Non. Il était là et disponible : en régie, ces jours sont dus, en général. Le retard vient de chez vous, pas de lui.",
+      "Non. Il était là, disponible, et le retard vient de vous : c'est au client de fournir ses données à temps. En régie, ces jours se paient en général, sauf clause contraire de la commande.",
       "Non. Les données de la compta sont à la compta : il risque de se tromper, et tu paies ce temps-là. Les tester ensuite lui prend autant de temps que les fournir."
     ],
     retenir: "En régie, un consultant qui attend coûte : tu lui donnes une autre tâche prévue, et tu débloques ce qui l'arrête."
@@ -211,14 +211,14 @@ LEARNSQL.questions.cp15 = [
     q: "Tu es DSI adjoint. Un consultant en régie travaille dans ton équipe depuis 18 mois. Ton analyste lui fixe ses horaires et valide ses congés, comme à un salarié. Que fais-tu ?",
     choix: [
       "Rien : il est bien intégré, c'est mieux pour tout le monde",
-      "Tu l'inscris aussi aux entretiens annuels de l'équipe",
+      "Tu fais son entretien annuel, et tu fixes ses objectifs",
       "Tu demandes à ton analyste de noter ses horaires et congés",
       "Horaires et congés : son employeur. Toi, tu suis son travail"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Il reste le salarié de l'intégrateur. Le diriger comme le tien (horaires, congés) est, en général, un risque juridique : le prêt de main-d'œuvre illicite. À voir avec le DAF.",
-      "Non. Tu l'intègres encore plus, comme un salarié : le risque juridique grandit. Son évaluation, c'est son employeur ; toi, tu donnes ton avis sur le travail rendu.",
+      "Non. Tu le gères encore plus comme un salarié : le risque juridique grandit. Son évaluation, c'est son employeur ; toi, tu donnes ton avis sur le travail rendu.",
       "Non. Tu mets par écrit ce qui pose problème : il reste géré comme un salarié, et le risque juridique reste entier.",
       "Oui. Tu lui confies des tâches et tu suis le résultat. Ses horaires, ses congés, son remplaçant : c'est son employeur, avec qui tu cales la continuité. Point juridique à faire vérifier."
     ],
@@ -255,9 +255,9 @@ LEARNSQL.questions.cp15 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. En régie, le temps passé se paie, et le risque d'un seul expert est chez vous. Il peut faire un geste, pas y être obligé.",
+      "Non. En régie, il vend du temps : former un 2e consultant pour vous, ce sont des jours. Tu peux lui demander un geste, pas l'exiger.",
       "Non. Tu acceptes seul un risque qui peut bloquer le pilote : ce choix revient au DAF, qui paie. Toi, tu le chiffres.",
-      "Oui. En régie, chaque jour en plus est une commande signée par le DAF. Tu lui montres ce que ces 4 jours évitent : un départ, une absence en plein pilote. Il décide en connaissant le prix.",
+      "Oui. En régie, chaque jour en plus est une commande signée par le DAF. Tu lui montres ce que ces 4 jours évitent : une absence soudaine, en plein pilote. Il décide en connaissant le prix.",
       "Non. L'enveloppe paie les écrans de la partie agile, pas la sécurité du cœur : prendre dessus, c'est une dérive cachée (module cp10)."
     ],
     retenir: "Un binôme en régie coûte des jours : le DAF décide, avec le risque chiffré qu'il évite."
@@ -267,14 +267,14 @@ LEARNSQL.questions.cp15 = [
     dialecte: "Gestion de projet",
     q: "Recette. Un paramètre du connecteur est faux : anomalie ouverte hier. Le consultant ne l'a pas encore corrigé. Ton collègue du support N2 : « Je sais le faire : 10 minutes. » Que fais-tu ?",
     choix: [
-      "Ton collègue corrige : 10 minutes, et l'anomalie est fermée",
+      "Ton collègue corrige en 10 minutes, et tu fermes l'anomalie",
       "Tu écris au responsable du consultant : l'anomalie traîne",
       "Le consultant corrige d'ici demain, ton collègue à côté",
       "Tu attends le point hebdo de lundi pour en parler"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. La DSI corrige dans son paramétrage, sans trace : il peut ne plus répondre du résultat. Et ton collègue a appris seul, sans le consultant.",
+      "Non. La DSI touche à son paramétrage sans lui : il peut ne plus répondre du résultat. Et ton collègue n'apprend rien du consultant.",
       "Non. Il n'a encore ni refusé, ni raté d'échéance : une date claire suffit. Son responsable, c'est s'il ne la tient pas.",
       "Oui. L'anomalie reste à celui qui a paramétré, avec une échéance. Ton collègue N2 corrige avec lui : c'est le transfert de compétences, et la DSI dépendra moins de lui.",
       "Non. Une anomalie de recette a besoin d'une échéance maintenant, pas lundi : chaque jour d'attente retarde les tests."
@@ -303,7 +303,7 @@ LEARNSQL.questions.cp15 = [
   {
     id: "cp15-q15",
     dialecte: "Gestion de projet",
-    q: "L'intégrateur remplace son consultant par un collègue, et facture 3 jours de « prise de connaissance ». La commande prévoit une passation sans surcoût en cas de changement. Que fais-tu ?",
+    q: "L'intégrateur remplace son consultant par un collègue, et facture 3 jours de « prise de connaissance ». La commande dit : un changement de consultant se fait sans surcoût, passation comprise. Que fais-tu ?",
     choix: [
       "Tu paies 1,5 des 3 jours : chacun fait un pas",
       "Tu paies : il faut bien que le nouveau consultant apprenne",
@@ -313,9 +313,9 @@ LEARNSQL.questions.cp15 = [
     bonne: 3,
     pourquoi: [
       "Non. Un compromis sur des jours qui ne sont pas dus : la clause ne vaut plus rien, et la prochaine facture prendra le même chemin.",
-      "Non. La commande dit l'inverse : la passation est sans surcoût. Tu paies ce que le contrat met à sa charge.",
+      "Non. La commande dit l'inverse : un changement de consultant est sans surcoût pour vous. Tu paies ce que le contrat met à sa charge.",
       "Non. Le noter ne règle rien : la clause s'applique maintenant. Payer, c'est renoncer à ce que la commande te donne.",
-      "Oui. La clause est écrite : la passation est à sa charge. Tu le lui écris, commande en main, et le DAF, qui paie les factures, le sait."
+      "Oui. La clause est écrite : le changement, passation comprise, est à sa charge. Tu le lui écris, commande en main, et le DAF, qui paie les factures, le sait."
     ],
     retenir: "Ce que le contrat met à la charge du prestataire ne se paie pas : tu le refuses, contrat en main."
   },
@@ -365,7 +365,7 @@ LEARNSQL.questions.cp15 = [
       "Rien : la cause est trouvée, et la panne déjà corrigée",
       "L'écart au comité, cause vérifiée, et les crédits chiffrés au DAF",
       "Tu fais tester la réversibilité du contrat, pour préparer une sortie",
-      "Tu portes l'écart à son responsable de compte, dès demain matin"
+      "Tu portes l'écart à son responsable de compte aujourd'hui, plan exigé"
     ],
     bonne: 1,
     pourquoi: [
@@ -446,9 +446,9 @@ LEARNSQL.questions.cp15 = [
     bonne: 3,
     pourquoi: [
       "Non. Des plans datés, il y en a eu pendant 2 ans, sans effet durable. Un de plus repousse la décision après le préavis.",
-      "Non. Le responsable de compte a été vu 2 fois, sans effet. Le DG n'obtiendra pas ce que 2 ans de plans n'ont pas donné.",
+      "Non. Le DG n'a pas à négocier avec un prestataire (module cp18). Et sans autre offre en main, ce dernier essai ne pèse rien : la PA sait que vous n'avez pas d'autre choix.",
       "Non. Passé fin mai, le contrat repart pour un an, avec le même service, sans que le DAF ait choisi.",
-      "Oui. Mesures, plans, escalade, crédits : tout a été essayé. Changer devient l'option sérieuse. Tu consultes d'autres PA (module cp13), sortie chiffrée, et le DAF décide avant fin mai."
+      "Oui. Mesures, plans, escalade, crédits : tout a été essayé. Tu consultes d'autres PA (module cp13), sortie chiffrée : le DAF choisit avant fin mai (rester, renégocier, changer). Ces offres sont aussi ton meilleur levier."
     ],
     retenir: "Changer de fournisseur vient en dernier : quand mesures, plans, escalade et crédits n'ont rien changé, et avant la date du préavis."
   },
@@ -496,14 +496,14 @@ LEARNSQL.questions.cp15 = [
     q: "Mardi 10 h, ticket « bloquant » ouvert à la PA : prise en charge en 1 h, portail rétabli en 4 h. La cheffe comptable te demande d'appeler la PA toutes les 15 minutes. Que fais-tu ?",
     choix: [
       "Tu appelles toutes les 15 minutes : c'est bloquant, elle a raison",
-      "Tu appelles son responsable de compte dès 10 h 15",
-      "Tu relances à 11 h sans prise en charge, à 14 h sans retour",
+      "Tu écris à son responsable de compte dès 10 h 15, DAF en copie",
+      "Tu relances dès 11 h sans prise en charge, à 14 h sans retour",
       "Tu attends ce soir : prise en charge et délais sont à la PA"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Appeler toutes les 15 minutes occupe ceux qui réparent, sans rien accélérer. Tu relances aux échéances du contrat, avec les faits.",
-      "Non. À 10 h 15, aucun délai n'est dépassé : monter maintenant, c'est escalader avant d'avoir un écart.",
+      "Non. À 10 h 15, aucun délai n'est dépassé : monter maintenant, c'est escalader avant d'avoir un écart. Et le DAF n'a rien à décider.",
       "Oui. Les échéances du contrat rythment le suivi : 11 h pour la prise en charge, 14 h pour le rétablissement. Tu expliques ce rythme à la cheffe comptable, et tu la tiens informée.",
       "Non. Attendre ce soir, c'est rater les deux échéances sans le voir. Une relance à l'heure du contrat fait partie du suivi."
     ],
@@ -534,7 +534,7 @@ LEARNSQL.questions.cp15 = [
     q: "La PA a fermé ton ticket : « résolu ». Le lendemain, Julie te montre que les factures de ce fournisseur sont toujours refusées, avec le même message. Que fais-tu ?",
     choix: [
       "Tu rouvres le ticket, avec le nouveau cas de Julie",
-      "Tu écris à son responsable de compte : ticket fermé à tort",
+      "Tu écris à son responsable de compte, faits en main",
       "Tu ouvres un nouveau ticket pour Julie, en priorité 1 cette fois",
       "Tu demandes au DAF des crédits pour ce ticket mal fermé"
     ],
@@ -612,33 +612,33 @@ LEARNSQL.questions.cp15 = [
       "« D'accord : le 4 janvier, toute l'équipe est là pour tester »",
       "« Pas en janvier, ni en clôture : mi-février, tests faits »",
       "« On reste en 10.13 : on ne change pas ce qui marche »",
-      "« Plutôt le 20 décembre, juste avant les congés de fin d'année »"
+      "« Plutôt le 20 décembre : on testera pendant les fêtes, c'est calme »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Janvier, c'est la clôture annuelle : la compta n'a pas le temps de tester, et un souci de version tomberait en plein bilan.",
       "Oui. Hors clôture, et après un test de la compta sur une copie. Mi-février, la clôture annuelle est finie, et la clôture du mois aussi (5 jours ouvrés).",
       "Non. Une version n'est maintenue qu'un temps : rester trop longtemps, c'est perdre les corrections, puis le support. Une montée de version se planifie.",
-      "Non. Juste avant la fin de l'année : la clôture annuelle tournerait sur une version à peine testée, avec des équipes en congé."
+      "Non. Les fêtes sont calmes, mais la compta est en congé : personne ne teste vraiment. Et la clôture annuelle tournerait sur une version neuve, en plein bilan."
     ],
     retenir: "Une montée de version se place hors clôture, après un test du métier sur une copie : jamais en janvier."
   },
   {
     id: "cp15-q32",
     dialecte: "Gestion de projet",
-    q: "Octobre 2027. La PA rappelle que la version 1 de son connecteur ne sera plus maintenue après décembre. La version 2 est prête. Que fais-tu ?",
+    q: "Octobre 2027. La PA rappelle que la version 1 de son connecteur ne sera plus maintenue après décembre. La version 2 est disponible depuis le printemps. Que fais-tu ?",
     choix: [
       "Tu demandes, au comité, de maintenir la version 1 un an de plus",
       "Rien avant décembre : la version 1 marche très bien",
       "Mi-novembre : jours d'intégrateur commandés, tests de la compta",
-      "Tu passes en version 2 dès demain, puisqu'elle est prête chez la PA"
+      "Tu passes en version 2 dès demain ; la compta la testera après"
     ],
     bonne: 2,
     pourquoi: [
       "Non. La PA maintient ses versions pour tous ses clients : elle refusera, ou le fera payer. Et tu ne fais que repousser.",
       "Non. En janvier, plus de correctif ni de support sur ta version, en pleine clôture annuelle. Le changement se prépare avant la fin.",
       "Oui. Le moment : hors clôture, avant la fin de la maintenance. L'intégrateur installe la version 2 : ses jours, sur une commande signée avant. Et la compta teste ses cas avant la mise en service.",
-      "Non. Prête chez la PA ne veut pas dire testée chez vous : sans commande ni tests, une version mal paramétrée bloque vos factures."
+      "Non. Disponible chez la PA ne veut pas dire testée chez vous : sans commande, et testée après coup, une version mal paramétrée bloque vos factures."
     ],
     retenir: "Une version qui ne sera plus maintenue se remplace avant la fin : hors clôture, commande signée, tests du métier."
   },
@@ -657,7 +657,7 @@ LEARNSQL.questions.cp15 = [
       "Oui. Tu ne choisis pas la date, mais tu testes avant : les cas de Julie, sur un créneau vu avec sa cheffe. Un souci ? Un ticket avant le 20, et la compta est prévenue.",
       "Non. Le gel est votre règle interne : la version de la PA arrive avec ou sans lui. Il n'y a rien à lever, il y a à tester.",
       "Non. Couper le portail, c'est arrêter la réception des factures, qui est obligatoire. Et tu testerais après, au lieu d'avant.",
-      "Non. Tu peux le demander, mais un service partagé change pour tous à la même date. Ton gel vaut pour ton projet, pas pour la PA."
+      "Non. Un service partagé change pour tous à sa date : ton contrat prévoit un préavis et un espace de test, pas un gel (module cp14). Ton gel vaut pour ton projet."
     ],
     retenir: "Un service en ligne change pour tous à sa date : tu ne la choisis pas, tu testes avant, dans l'espace de test."
   },
@@ -674,7 +674,7 @@ LEARNSQL.questions.cp15 = [
     bonne: 1,
     pourquoi: [
       "Non. Tu tranches à sa place, et « sans débat » ne la convaincra pas. Un spécifique se justifie parfois : c'est à elle de choisir, en connaissant le coût.",
-      "Oui. Souvent, le standard couvre le besoin, présenté autrement. Tu le lui montres, avec Julie qui l'utilisera, et le vrai coût du spécifique, version après version. Puis elle choisit.",
+      "Oui. Souvent, le standard couvre le besoin, présenté autrement. Tu le lui montres, avec Julie qui l'utilisera, et le vrai coût du spécifique, version après version. Dans l'enveloppe, c'est elle qui choisit, en connaissant ce prix.",
       "Non. Elle classe, oui ; mais elle doit savoir que le standard a les mêmes données, et que le spécifique se repaiera à chaque montée de version.",
       "Non. Dans l'enveloppe, c'est elle qui classe, sans le DAF. Monter un choix d'état au COPIL fait perdre du temps à tout le monde."
     ],
@@ -683,7 +683,7 @@ LEARNSQL.questions.cp15 = [
   {
     id: "cp15-q35",
     dialecte: "Gestion de projet",
-    q: "Octobre 2027. Le connecteur standard de la PA couvre 95 % des factures ; sa feuille de route ne prévoit rien pour le reste. Ce reste, environ 400 factures par mois, Sophie le dépose à la main : 2 jours par mois. L'intégrateur propose un spécifique : 6 jours, puis environ 1 jour par montée de version. Que recommandes-tu au DAF ?",
+    q: "Octobre 2027. Le connecteur standard de la PA couvre 95 % des factures. Le reste, environ 400 par mois, Sophie le dépose à la main : 2 jours par mois. La feuille de route de la PA ne prévoit rien pour ce reste. L'intégrateur propose un spécifique : 6 jours, puis environ 1 jour par montée de version. Que recommandes-tu au DAF ?",
     choix: [
       "Le spécifique : 6 jours, et un par version, contre 24 jours par an",
       "Le dépôt à la main : le standard d'abord, toujours",
@@ -692,7 +692,7 @@ LEARNSQL.questions.cp15 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Ici, le spécifique se justifie : 6 jours, plus 1 par version, contre 24 jours de dépôt par an, et moins d'erreurs. Fait en surcharge (à part du standard), documenté. Le DAF décide (module cp10).",
+      "Oui. Ici, le spécifique se justifie : 6 jours, plus 1 par version, contre 24 jours de Sophie par an, et moins d'erreurs. Fait en surcharge (à part du standard), documenté. Le DAF décide (module cp10).",
       "Non. Le standard d'abord, oui, mais pas « toujours » : 24 jours de saisie par an coûtent plus qu'un petit spécifique, versions comprises. Le choix se fait sur les chiffres.",
       "Non. Sa feuille de route ne prévoit rien : attendre, c'est payer 2 jours par mois, sans date de fin.",
       "Non. Codé par la DSI, dans le Divalto que l'intégrateur paramètre : une relecture ne le rend pas responsable. Personne ne le suit aux versions, et il peut ne plus répondre du reste."
@@ -733,14 +733,14 @@ LEARNSQL.questions.cp15 = [
       "Non. L'éditeur ne change pas sa vue standard pour un client. La solution existe déjà : une vue à toi, à part.",
       "Oui. Divalto recommande une « vue de vue » : un script à part (noms en _VU) qui reprend la vue standard et ajoute le champ. Le standard reste intact à chaque version.",
       "Non. Divalto le déconseille : à une montée de version, le script standard change, et ta modification est difficile à retrouver. Elle se perd.",
-      "Non. Les tables changent d'une version à l'autre (en X.10, des champs de la table SOC ont été regroupés) : un rapport branché en direct casse sans prévenir."
+      "Non. Divalto recommande les vues, pas les tables en direct : elles changent d'une version à l'autre (en X.10, des champs de SOC ont été regroupés). Le rapport casse sans prévenir."
     ],
     retenir: "Ne modifie jamais le standard d'un éditeur : ajoute à part (une « vue de vue » chez Divalto), pour passer les versions sans perte."
   },
   {
     id: "cp15-q38",
     dialecte: "Gestion de projet",
-    q: "Janvier. Le planning de l'intégrateur prévoit de paramétrer les statuts de facture le 20 février. La PA ne livrera la liste de ses statuts que le 1er mars. Que fais-tu ?",
+    q: "Janvier. Le planning de l'intégrateur prévoit de paramétrer les statuts de facture le 20 février. La PA livrera la liste de ses statuts avec le connecteur, le 1er mars. Que fais-tu ?",
     choix: [
       "L'intégrateur paramètre le 20, au jugé, et teste en mars",
       "Tu demandes au DAF des pénalités de retard pour la PA",
@@ -750,7 +750,7 @@ LEARNSQL.questions.cp15 = [
     bonne: 2,
     pourquoi: [
       "Non. Paramétrer sans la liste, c'est payer deux fois : une au jugé, une pour corriger après les tests. Et la correction tombe en recette.",
-      "Non. La liste des statuts n'a pas de date au contrat : il n'y a pas de retard. Il y a deux plannings à caler, et c'est ton travail.",
+      "Non. La liste arrive avec le connecteur, à la date du contrat : il n'y a pas de retard. Il y a deux plannings à caler, et c'est ton travail.",
       "Oui. La livraison de l'un est l'entrée de l'autre : tu obtiens la liste plus tôt, ou tu décales la tâche. Puis tu mets le planning commun à jour.",
       "Non. Personne d'autre ne voit la frontière : le 20 février, l'intégrateur n'aura rien à paramétrer, et ses jours seront payés quand même."
     ],
@@ -763,14 +763,14 @@ LEARNSQL.questions.cp15 = [
     choix: [
       "L'éditeur coordonne : c'est son logiciel, il sait faire",
       "Rien : ils ont l'habitude, ils se coordonneront entre eux",
-      "Tu coordonnes toi-même ; tes autres projets attendront",
+      "Tu coordonnes toi-même, et tu gardes tes projets en cours",
       "Un ensemblier, payé et écrit au contrat ; tu le pilotes"
     ],
     bonne: 3,
     pourquoi: [
       "Non. L'éditeur n'est pas payé pour piloter l'intégrateur ni le matériel : il ne le fera pas, et n'en répondra pas.",
       "Non. Chacun pilote sa part, personne la frontière : les retards de l'un tombent sur l'autre, et tu les découvres trop tard.",
-      "Non. Coordonner sans temps, c'est mal le faire, et tes autres projets paient. Le temps de coordination se prévoit, ou se paie.",
+      "Non. Coordonner sans temps, c'est mal le faire : le WMS et tes projets en cours paient. Garder la main se peut, avec du temps prévu pour ça.",
       "Oui. Un ensemblier coordonne les autres et répond du tout, si son contrat le dit. Il coûte plus cher ; certaines DSI préfèrent garder la main. Toi, tu pilotes l'ensemblier : un seul interlocuteur."
     ],
     retenir: "Plusieurs prestataires : le client coordonne, ou il paie un ensemblier, rôle écrit au contrat, qu'il pilote."
@@ -859,7 +859,7 @@ LEARNSQL.questions.cp15 = [
       "Un comité par mois pour chacun, de 30 minutes seulement",
       "Selon leur criticité : comité mensuel, ou revue annuelle",
       "Aucun comité : tu les vois quand il y a un problème",
-      "Selon le montant de leurs factures : comité pour les plus chers"
+      "Selon le montant de leurs factures : comité mensuel, ou revue annuelle"
     ],
     bonne: 1,
     pourquoi: [

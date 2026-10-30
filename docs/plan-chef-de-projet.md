@@ -71,17 +71,25 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Contrats (module cp14) : PA = abonnement signé en novembre 2026 par le DAF (connecteur standard au 1er mars,
   pénalités de retard plafonnées et dues sans mise en demeure, SLA, plan B par le portail, réversibilité des données). Intégrateur Divalto = régie :
   bon de commande en jours (taux journalier), signé par le DAF ; des jours en plus = une nouvelle commande, signée avant
-  de commencer. Taux journalier de l'intégrateur : environ 750 €. Toi : les clauses opérationnelles (périmètre, livrables, planning, recette, SLA, réversibilité).
+  de commencer. Taux journalier de l'intégrateur : environ 750 €. La commande prévoit la documentation
+  du paramétrage (un livrable) et un changement de consultant sans surcoût, passation comprise. Toi : les clauses opérationnelles (périmètre, livrables, planning, recette, SLA, réversibilité).
   Les clauses juridiques (responsabilité, droit applicable) : le DAF, avec un avocat si besoin.
   Contrat de la PA (détails, module cp14) : 3 ans, reconduit chaque année, préavis de 6 mois ; mise en service du
   connecteur au forfait, en plus de l'abonnement ; le contrat et ses annexes priment sur les conditions générales de la PA ;
   annexe SLA : disponibilité 99,5 % par mois, mesurée jour et nuit ; support de 8 h à 18 h les jours ouvrés (prise en
-  charge en 1 h, portail rétabli en 4 h) ; réversibilité : export sous 30 jours, en format standard ; données de paramétrage dues à la PA le 15 janvier 2027.
+  charge en 1 h, portail rétabli en 4 h ; délais comptés aux heures de support, dès le ticket ;
+  priorités : 1 = tout est bloqué, 2 = une partie) ; réversibilité : export sous 30 jours, en format standard ; données de paramétrage dues à la PA le 15 janvier 2027.
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
   plafonnées ; le DAF décide de les appliquer. Support : N1 et N2 = le support de la DSI ; N3 = la PA ou l'intégrateur,
-  par ticket. Divalto : l'éditeur publie les versions ; l'intégrateur est son partenaire et assure le support Divalto.
+  par ticket. Divalto : l'éditeur publie les versions ; l'intégrateur est son partenaire et assure le support Divalto ;
+  il remonte à Divalto les bugs du standard. Chiffres : commande de l'intégrateur de 40 jours (environ 30 k€) ;
+  12 spécifiques Divalto en octobre 2027 (25 plus tard) ; connecteur de la PA : version 2 disponible au printemps 2027,
+  version 1 maintenue jusqu'en décembre 2027, passage en version 2 à la mi-novembre ; environ 400 factures par mois
+  hors connecteur (5 %), déposées sur le portail par Sophie.
+  Après la clôture du projet (juillet 2027), le comité fournisseur mensuel avec la PA continue : le chef de projet le tient
+  jusqu'à fin 2027 ; le passage au run (module cp22) dira qui le reprend.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
