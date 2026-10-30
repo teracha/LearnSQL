@@ -96,6 +96,16 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   A = la 1re (78), B = l'autre finaliste (74), C = écartée avant la fin ; le choix du DAF peut varier selon la question.
   Archivage : le contrat de novembre 2026 ne couvre pas la durée légale ; une option d'archivage est ajoutée par avenant
   en mars 2027 (cp14-q31, cp16-q39). C'est l'entreprise qui doit garder ses factures la durée légale ; elle choisit où.
+- Budget et business case (modules cp11, cp12) : coût total sur 3 ans (TCO, la durée du contrat de la PA) = dépenses
+  externes + temps interne (compta, ADV, DSI ; compté en jours dans le business case, pas dans le budget).
+  Budget de référence des dépenses externes : 80 k€, validé par le DAF en novembre 2026, après les contrats, dans la
+  fourchette du cadrage (60 à 90 k€). Détail : PA = abonnement 850 € par mois (30,6 k€ sur 3 ans) + mise en service au
+  forfait 7,4 k€ ; intégrateur = 40 jours à 750 € (30 k€, en régie) ; formation et tests : 4 k€ ; réserve pour risques :
+  8 k€ (liée au registre des risques ; chaque dépense passe par une commande ou un avenant signé par le DAF).
+  L'abonnement est une charge (OPEX) ; ce qui peut être immobilisé (CAPEX) : le contrôleur de gestion le dit.
+  Tolérance : rester sous 90 k€ ; au-delà, le DAF décide, prévenu le jour même (module cp04). « Ne rien faire » n'est pas
+  une option (obligation légale) : le business case compare des façons de s'y conformer, et ses gains (fin de la
+  ressaisie des factures fournisseurs, moins d'erreurs et de relances ; chiffres : module cp11).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
