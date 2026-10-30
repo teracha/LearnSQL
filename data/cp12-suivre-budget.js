@@ -541,8 +541,8 @@ LEARNSQL.questions.cp12 = [
     q: "Début avril. Le DAF a signé la commande de 3 jours qui couvre le dépassement de l'intégrateur. Atterrissage : 87 500 €, sous 90 k€. COPIL le 13 avril. Que fais-tu de cet écart ?",
     choix: [
       "Rien de plus : le DAF a signé, le sujet est clos",
-      "Rien d'urgent : au COPIL du 14, avec sa cause",
-      "Un mail au DAF ce soir, sans attendre le COPIL du 14",
+      "Rien d'urgent : au COPIL du 13, avec sa cause",
+      "Un mail au DAF ce soir, sans attendre le COPIL du 13",
       "Tu le retires de la ligne budget : la commande le couvre"
     ],
     bonne: 1,

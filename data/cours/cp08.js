@@ -17,7 +17,7 @@
 //   puis mesure contre la nouvelle date validée ; par axe, puis la globale ; pas de pente douce ; la pastèque ; ni
 //   maquiller, ni dramatiser.
 // - Le rapport mensuel d'une page : décisions attendues en tête, météo, jalons, 5 plus gros risques, ligne budget ;
-//   même modèle chaque mois ; avec l'ordre du jour, 3 jours avant ; chiffres arrêtés à une date ; le rapport est le tien.
+//   même modèle chaque mois ; avec l'ordre du jour, 3 jours ouvrés avant ; chiffres arrêtés à une date ; le rapport est le tien.
 // - L'alerte : le jour même au DAF (hors tolérance, risque légal, décision qui n'attend pas) ; pas d'alerte dans la
 //   tolérance ; plan d'actions daté, suivi chaque lundi.
 // - La recette : cas joués et OK, bloquantes ouvertes ; prévision au rythme réel ; pas de PV avec une bloquante ;
@@ -26,7 +26,7 @@
 // cp08) » : rapport mensuel d'une page envoyé avec l'ordre du jour du COPIL, météo globale et par axe (délai, budget,
 // périmètre, qualité et risques), jalons (prévu, réel, prévision), décisions attendues, 5 plus gros risques (cp07),
 // ligne budget (cp12) ; vert / orange / rouge ; tolérances ± 2 semaines par jalon et budget sous 90 k€ (cp04) ; alerte
-// au DAF le jour même (cp07). Ligne « Gouvernance (cp09) » : COPIL le 2e mardi (13 avril 2027), rapport 3 jours avant,
+// au DAF le jour même (cp07). Ligne « Gouvernance (cp09) » : COPIL le 2e mardi (13 avril 2027), rapport 3 jours ouvrés avant,
 // point projet chaque lundi. Ligne « Budget (cp12) » : fin mars, reste à faire 19 jours, atterrissage 43 jours, le DAF
 // signe une commande de 3 jours le jour même ; atterrissage 87,5 k€. Planning (cp05) : recette du 16 mars à fin avril,
 // PV le 30 avril, pilote en mai, bascule en juin.
@@ -58,7 +58,7 @@ LEARNSQL.cours.cp08 = {
     },
     {
       titre: "Le tableau de bord : peu d'indicateurs, une source, un seuil",
-      exemple: "Le tableau de bord de DEMAT 2027, à jour chaque vendredi. Par ligne, sa source et son seuil :\n– jalons (planning ; ± 2 semaines) ;\n– reste à faire, en jours (point projet ; la commande dépassée) ;\n– cas de recette joués et OK (cahier de recette ; la marge mangée) ;\n– anomalies bloquantes (outil de tickets ; 0 au PV, le procès-verbal de recette) ;\n– rejets de la PA, la plateforme agréée (son portail ; 2 %) ;\n– atterrissage du budget (ton suivi ; 90 k€).",
+      exemple: "Le tableau de bord de DEMAT 2027, à jour chaque vendredi. Par ligne, sa source et son seuil :\n– jalons (planning ; ± 2 semaines) ;\n– reste à faire, en jours (le consultant ; la commande dépassée) ;\n– cas de recette joués et OK (cahier de recette ; la marge mangée) ;\n– anomalies bloquantes (outil de tickets ; 0 au PV, le procès-verbal de recette) ;\n– rejets de la PA, la plateforme agréée (son portail ; 2 %) ;\n– atterrissage du budget (ton suivi ; 90 k€).",
       points: [
         "5 à 7 indicateurs, pour décider : la date, le budget, la qualité. Le résultat (cas OK, rejets), pas l'activité (heures, réunions).",
         "Chacun a une définition écrite, la même partout, une source, un seuil fixé à l'avance et un responsable. Une impression (« moral : bon ») n'en est pas un. Une définition ne change pas pour faire plus joli.",
@@ -70,23 +70,23 @@ LEARNSQL.cours.cp08 = {
     },
     {
       titre: "La météo : vert, orange, rouge",
-      exemple: "Rapport d'avril, chiffres à fin mars :\nDélai : orange. Flux EDI en retard : le PV du 30 avril est en risque, encore dans la tolérance. Plan : 4 actions datées.\nBudget : vert. 87,5 k€ prévus à la fin, sous 90 k€.\nPérimètre : vert. Qualité et risques : vert.\nGlobale : orange.",
+      exemple: "Rapport d'avril, chiffres à fin mars :\nDélai : orange. Flux EDI en retard, recette lente : le PV du 30 avril est en risque, encore dans la tolérance. Plan : 4 actions datées.\nBudget : vert. 87,5 k€ prévus à la fin, sous 90 k€.\nPérimètre : vert. Qualité et risques : vert.\nGlobale : orange.",
       points: [
         "Vert : dans les tolérances (± 2 semaines par jalon, budget sous 90 k€, module cp04 ; pour la qualité, les critères de succès). Pas « tout va bien » : aucun seuil n'est franchi.",
-        "Orange : risque d'en sortir. La cause, l'impact, le plan, parfois une décision à demander. Orange tant que le risque reste ; le rapport montre où en est le plan.",
-        "Rouge : hors tolérance, ou seuil déjà perdu ; une décision du sponsor est nécessaire. Rouge jusqu'à sa décision, même avec un bon plan. Après, on mesure contre la nouvelle date validée, et le rapport dit pourquoi.",
-        "Une couleur par axe ; la globale = l'axe le plus mauvais. Les seuils font la couleur, pas l'humeur (une inquiétude se creuse, pour le registre), ni une pente douce : vert puis rouge d'un coup, si les faits le disent.",
+        "Orange : risque d'en sortir. La cause, l'impact, le plan, parfois une décision à demander : si elle n'attend pas, le DAF le jour même. Orange tant que le risque reste.",
+        "Rouge : la prévision est hors tolérance, ou le seuil déjà perdu : le sponsor doit décider. Rouge jusqu'à sa décision, même avec un bon plan. Après, on mesure contre la nouvelle date validée, et le rapport dit pourquoi.",
+        "Une couleur par axe ; la globale = l'axe le plus mauvais (règle de DEMAT). Les seuils font la couleur, pas l'humeur (une inquiétude se creuse, pour le registre), ni une pente douce : vert puis rouge d'un coup, si les faits le disent.",
         "La pastèque : verte dehors, rouge dedans. Le signal de l'équipe se vérifie tout de suite. Ni maquiller (rester vert pour ne pas inquiéter), ni dramatiser (rouge pour faire réagir). Les mots : module cp17."
       ],
       retenir: "La couleur suit les seuils : vert dedans, orange en risque, rouge dehors, avec une décision à prendre."
     },
     {
       titre: "Le rapport mensuel : une page pour décider",
-      exemple: "COPIL du mardi 13 avril. Le rapport part 3 jours avant, avec l'ordre du jour. Une page :\n1. Décision attendue : un intérimaire pour la recette, environ 4 000 €, oui ou non.\n2. La météo, par axe et globale.\n3. Les jalons : prévu, réel, prévision.\n4. Les 5 plus gros risques (module cp07).\n5. La ligne budget (module cp12).",
+      exemple: "COPIL du mardi 13 avril. Le rapport part 3 jours ouvrés avant, avec l'ordre du jour. Une page :\n1. Décision attendue : un intérimaire pour la recette, environ 4 000 €, oui ou non.\n2. La météo, par axe et globale.\n3. Les jalons : prévu, réel, prévision.\n4. Les 5 plus gros risques (module cp07).\n5. La ligne budget (module cp12).",
       points: [
         "En tête, les décisions attendues. Rien à décider ? Écris-le : « Aucune décision attendue. » Les 5 plus gros risques : par leur note, avec action et propriétaire. Le budget : l'écart et sa cause, même sous 90 k€.",
         "Une page, le même modèle chaque mois, même quand tout est vert : le COPIL compare d'un mois à l'autre. Le détail reste dans le tableau de bord.",
-        "Envoyé avec l'ordre du jour, 3 jours avant : on lit avant, on décide en séance. Les chiffres sont arrêtés à une date, écrite dessus. Une seule version.",
+        "Envoyé avec l'ordre du jour, 3 jours ouvrés avant : on lit avant, on décide en séance. Les chiffres sont arrêtés à une date, écrite dessus. Une seule version.",
         "Le rapport est le tien : tu vérifies les faits avec la PA ou l'intégrateur, mais la couleur, c'est toi qui la mets.",
         "Pas de surprise : l'urgent, le DAF l'a déjà su (section suivante). Animer le COPIL, son compte rendu, le registre des décisions : module cp09."
       ],
@@ -94,13 +94,13 @@ LEARNSQL.cours.cp08 = {
     },
     {
       titre: "L'alerte qui n'attend pas le COPIL",
-      exemple: "Fin mars, point projet. Il reste 16 jours sur la commande de l'intégrateur, et 19 jours de travail. Atterrissage : 43 jours pour 40 (module cp12).\nIl faut une commande avant de faire ces jours : la décision n'attend pas le COPIL du 13 avril.\nLe jour même, tu appelles le DAF : la cause, l'impact, 3 options, ta recommandation. Il signe une commande de 3 jours.\nPuis un plan d'actions : chaque action, un nom et une date, revue chaque lundi.",
+      exemple: "Fin mars, point du lundi avec le consultant. Il reste 16 jours sur la commande de l'intégrateur, et 19 jours de travail. Atterrissage : 43 jours pour 40 (module cp12).\nIl faut une commande avant de faire ces jours : la décision n'attend pas le COPIL du 13 avril.\nLe jour même, tu appelles le DAF : la cause, l'impact, 3 options, ta recommandation. Il signe une commande de 3 jours.\nPuis un plan d'actions : chaque action, un nom et une date, revue chaque lundi.",
       points: [
         "Le jour même, au DAF : hors tolérance, risque légal, ou décision qui ne peut pas attendre le COPIL. Les faits, l'impact, les options, ta recommandation (module cp17).",
         "Même si le rapport part dans 2 jours : le DAF l'apprend de toi, aujourd'hui, pas en le lisant.",
-        "Dans la tolérance, c'est ta délégation (module cp18) : tu ajustes, le rapport le dit. Cause connue, plan daté, rien à décider : le COPIL suffit. Trop d'alertes usent l'alerte.",
+        "Dans la tolérance, c'est ta délégation (module cp18) : tu ajustes, le rapport le dit. Un petit glissement, cause connue, rien à décider : le COPIL suffit. Trop d'alertes usent l'alerte.",
         "Après l'alerte, un plan d'actions daté : chaque action a un nom et une date. Suivi chaque lundi, au point projet ; au COPIL, ce qui est fait et ce qui glisse.",
-        "Une action glisse, et la tolérance est encore menacée ? Nouvelle alerte, avec les faits. Escalader n'est pas punir (module cp16)."
+        "Une action glisse, et la prévision sort de la tolérance ? Nouvelle alerte, avec les faits. Escalader n'est pas punir (module cp16)."
       ],
       retenir: "Ce qui ne peut pas attendre va au DAF le jour même ; ensuite, un plan d'actions daté, suivi chaque lundi."
     },
@@ -112,7 +112,7 @@ LEARNSQL.cours.cp08 = {
         "La fin se prévoit au rythme réel : cas restants ÷ cas joués par semaine. Pas au rythme du plan, ni sur l'espoir de rattraper.",
         "Pas de PV avec une anomalie bloquante ouverte (module cp14) : il faut la corriger, puis la retester. Tu donnes une date, avec sa condition.",
         "Un pourcentage cache les bloquantes : « 95 % OK » peut cacher un flux entier qui ne passe pas. Les bloquantes se montrent à part.",
-        "La marge de recette mangée et le PV qui recule : orange. Hors tolérance : rouge, et le DAF le jour même. La stratégie de recette : module cp19."
+        "La marge de recette qui fond, ou le PV qui recule dans la tolérance : orange. Hors tolérance : rouge, et le DAF le jour même. La stratégie de recette : module cp19."
       ],
       retenir: "La date du PV se calcule chaque semaine : les cas restants au rythme réel, puis zéro bloquante, corrigée et retestée."
     }

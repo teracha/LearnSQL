@@ -91,7 +91,7 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q05",
     dialecte: "Gestion de projet",
-    q: "Chaque vendredi, tu envoies au DAF un rapport de 2 pages. Il ne répond jamais, et te pose des questions dont la réponse y était. Que changes-tu ?",
+    q: "Ton rapport mensuel au DAF fait 2 pages. Il te pose des questions dont la réponse y était. Que changes-tu ?",
     choix: [
       "Tu l'envoies aussi au DG, pour être sûr qu'il soit lu",
       "Tu arrêtes le rapport : il n'en a visiblement pas besoin",
@@ -305,14 +305,14 @@ LEARNSQL.questions.cp17 = [
       "Tu appelles le DAF ce soir : lundi, ce serait trop tard",
       "Tu lui écris ce soir faits et cause, et lui demandes de rappeler",
       "Lundi matin, 5 lignes au DAF : faits, cause, solution",
-      "Rien d'écrit : tu en parleras au COPIL de fin de mois"
+      "Rien d'écrit : tu en parleras au prochain COPIL"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Rien ne se décide ce week-end : la cause est trouvée, la correction est lundi. Tu déranges le sponsor pour rien.",
       "Non. Presque : le bon message, au mauvais moment. Tu demandes à un sponsor en congé de te rappeler pour un problème déjà traité.",
       "Oui. Le problème est compris et traité, sans risque légal ce week-end. Lundi, il a les faits et la suite.",
-      "Non. 6 % de rejets en pilote, c'est un écart au critère de succès : le sponsor doit le savoir avant la fin du mois."
+      "Non. 6 % de rejets en pilote, c'est un écart au critère de succès : le sponsor doit le savoir avant le COPIL."
     ],
     retenir: "Une mauvaise nouvelle déjà traitée, sans décision à prendre : le prochain jour ouvré suffit."
   },

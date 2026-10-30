@@ -8,7 +8,7 @@
 // l'équipe chaque semaine contre le rapport du DAF chaque mois ; la météo (vert dans les tolérances, orange = risque d'en
 // sortir, rouge = hors tolérance ou seuil déjà perdu et décision du sponsor nécessaire, rouge jusqu'à sa décision, puis
 // mesure contre la nouvelle date validée ; globale = l'axe le plus mauvais ; pas de pente douce ; ni maquiller, ni
-// dramatiser) ; le rapport mensuel (décisions en tête, 5 plus gros risques, ligne budget, 3 jours avant, chiffres datés,
+// dramatiser) ; le rapport mensuel (décisions en tête, 5 plus gros risques, ligne budget, 3 jours ouvrés avant, chiffres datés,
 // « aucune décision attendue », le rapport est le tien) ; l'alerte (le jour même, même si le rapport part bientôt ; pas
 // dans la tolérance ; puis un plan d'actions daté, suivi chaque lundi) ; le suivi de la recette (cas joués et OK,
 // bloquantes, prévision au rythme réel, date du PV avec sa condition, un pourcentage cache les bloquantes). Les
@@ -28,7 +28,7 @@
 // PV qui recule de 3 jours par semaine (q04) ; 6 écrans sur 9 de la partie agile (q05) ; 18 jours de l'intégrateur faits
 // à la mi-mars (q06) ; 3,5 % de rejets au pilote, 40 fiches clients incomplètes (q23) ; PV prévu au 21 mai, 5 jours à
 // commander (q25) ; contrôle fiscal de 4 semaines (q26) ; 4 % de rejets après la bascule (q27, à 0 % ensuite : 2,8 % sur
-// juin) ; correctif des avoirs clients en juillet (q33) ; recette de 100 cas (q37) ; 3 bloquantes, PV le vendredi
+// le 1er mois, du 14 juin au 13 juillet) ; correctif des avoirs clients en juillet (q33) ; recette de 100 cas (q37) ; 3 bloquantes, PV le vendredi
 // 30 avril (q38) ; factures EDI d'AquaBleu rejetées (q39). Autres projets : Snowflake + Power BI (q11, q12), WMS (q40).
 // q15 et q40 à q42 : « Tu es DSI adjoint ».
 // Affirmations juridiques hors fiche : aucune (pas de PV avec une anomalie bloquante : cp14 ; les pénalités, le DAF
@@ -37,14 +37,15 @@
 // (consommé contre travail fait), cp15-q08 (« encore 5 jours » : q01 porte sur la mesure du tableau de bord, pas sur ce
 // qu'on demande au consultant), cp06-q17 (« fini » en agile : q02 porte sur un jalon du contrat), cp04-q42 et cp18-q36
 // (glissement dans la tolérance : q22 porte sur la ligne du jalon), cp07-q07 (5 risques au COPIL : q30 porte sur
-// lesquels), cp17-q05 (rapport trop long), cp17-q12 et cp12-q25 (alerte, COPIL lointain : q33 porte sur le rapport qui
-// part dans 2 jours), cp12-q10 et q26 (la ligne budget : q24 porte sur la couleur), cp18-q18 (Excel ou tickets).
+// lesquels), cp17-q05 (rapport trop long), cp17-q12, cp17-q15 et cp12-q25 (alerte avant le COPIL : q33 porte sur le rapport qui
+// part dans 2 jours), cp17-q16 (rejets au pilote : q23 porte sur la couleur), cp09-q26 (3 jours ouvrés avant : q29 porte
+// sur les chiffres datés et la version unique), cp12-q10 et q26 (la ligne budget : q24 porte sur la couleur), cp18-q18 (Excel ou tickets).
 // Frontières : planifier = cp05 ; animer le COPIL, compte rendu, registre des décisions = cp09 ; la ligne budget = cp12 ;
 // le registre des risques = cp07 ; les mots = cp17 ; l'escalade = cp16 ; ta délégation = cp18 ; la régie au point hebdo
 // et le comité fournisseur = cp15 ; la stratégie de recette = cp19 ; le PV au contrat = cp14 ; la démarche = cp06.
 // Anti-devinette : la bonne météo est verte dans q05, q16, q17, q22, q24 ; orange dans q04, q18, q20, q21, q23 ; rouge
 // dans q25, q26, q27 ; pas de changement de couleur, mais une action, dans q16, q21, q22, q24. Alerter le DAF n'est juste
-// que dans q26 et q33 (faux dans q10, q13, q14, q16, q20, q22, q23, q24, q34, q35). La bonne réponse est un extrême dans
+// que dans q26 et q33 (faux dans q10, q13, q14, q16, q20, q22, q23, q34, q35). La bonne réponse est un extrême dans
 // 11 questions sur 42 : la plus douce (q22), la plus forte ou la plus complète quand elle se justifie (q01, q06, q08, q09,
 // q12, q25, q26, q27, q30, q38). « Tout », « rien », « seul », « aucun », « jamais », « Oui », « D'accord »,
 // « aujourd'hui », « dès », « le jour même », « tout de suite » sont aussi dans des bonnes réponses.
@@ -73,7 +74,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "1er mars, date du contrat : la PA livre le connecteur, mais les avoirs fournisseurs ne passent pas. Correctif promis le 10. Au rapport du COPIL du 9 mars, que dit ce jalon ?",
     choix: [
-      "« Tenu : livré le 1er mars, à la date du contrat »",
+      "« Tenu : livré le 1er mars, correctif le 10 »",
       "« Raté : rouge, et pénalités de retard à appliquer »",
       "« Tenu à 90 % : jalon presque atteint, sauf les avoirs »",
       "« Pas tenu : prévision 10 mars, dans la tolérance »"
@@ -133,7 +134,7 @@ LEARNSQL.questions.cp08 = [
       "Vert : 6 écrans sur 9 prévus fin avril, 3 en attente",
       "Orange ; 3 jours de plus d'ici fin avril, pour les 9 écrans",
       "Vert ; le contenu, c'est l'affaire de la compta",
-      "Rouge : 3 écrans sur 9 ne seront pas livrés"
+      "Rouge : 6 écrans sur 9 ; 3 ne seront pas livrés"
     ],
     bonne: 0,
     pourquoi: [
@@ -171,7 +172,7 @@ LEARNSQL.questions.cp08 = [
       "Tu prends les 25 : plus on mesure, mieux on pilote",
       "Un seul : le pourcentage d'avancement, facile à lire",
       "Tu en gardes 6, chacun avec sa source et son seuil",
-      "Tu en gardes 6 : ceux dont la source est la plus simple"
+      "Tu en gardes 6 : ceux dont la source est simple"
     ],
     bonne: 2,
     pourquoi: [
@@ -188,7 +189,7 @@ LEARNSQL.questions.cp08 = [
     q: "Ton tableau de bord a une ligne « Adhésion de la compta : bonne ». C'est ton impression, après le dernier atelier. Que fais-tu de cette ligne ?",
     choix: [
       "Tu la gardes : l'adhésion compte autant que les chiffres",
-      "Un fait : les créneaux de recette tenus, contre prévus",
+      "Tu la remplaces par un fait : créneaux de recette tenus",
       "Tu la gardes, avec une note sur 10 de la cheffe comptable",
       "Tu la supprimes : l'adhésion des gens ne se mesure pas"
     ],
@@ -264,7 +265,7 @@ LEARNSQL.questions.cp08 = [
     q: "Ton projet Power BI. Ton tableau : délai moyen de paiement des clients, 52 jours. Le contrôleur de gestion, dans son fichier : 47. Le DAF demande lequel est juste. Que fais-tu ?",
     choix: [
       "Tu donnes 47, et tu cales ton tableau sur son chiffre",
-      "Vous trouvez l'écart, puis une seule définition écrite, partout",
+      "Tu vois l'écart avec lui, puis une définition écrite",
       "Tu retires l'indicateur du tableau, pour éviter le débat",
       "Tu donnes 52 : ton tableau lit Divalto directement"
     ],
@@ -280,19 +281,19 @@ LEARNSQL.questions.cp08 = [
   {
     id: "cp08-q13",
     dialecte: "Gestion de projet",
-    q: "Ton DSI : « Envoie au DAF ton tableau de bord d'équipe, chaque lundi : 3 pages, 60 tâches. Il verra tout. » Que proposes-tu ?",
+    q: "Ton DSI : « Envoie au DAF, chaque lundi, le tableau de bord de l'équipe et ses 60 actions : 3 pages. Il verra tout. » Que proposes-tu ?",
     choix: [
       "« Le tableau reste à l'équipe ; au DAF, le rapport et les alertes »",
       "« D'accord : chaque lundi, le tableau de l'équipe, au DAF »",
       "« Non : le DAF n'a rien à voir avant le COPIL du mois »",
-      "« D'accord, avec un résumé de 5 lignes en tête, chaque lundi »"
+      "« D'accord, mais un lundi sur deux, pour ne pas l'encombrer »"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Deux publics : le tableau, chaque semaine, pour que l'équipe agisse ; le rapport d'une page, chaque mois, pour que le DAF décide. Entre deux, ce qui ne peut pas attendre va au DAF le jour même.",
-      "Non. 60 tâches chaque semaine : le DAF ne les lira pas, et une vraie alerte s'y noiera.",
+      "Non. 60 actions chaque semaine : le DAF ne les lira pas, et une vraie alerte s'y noiera.",
       "Non. Le détail, il n'en a pas besoin, c'est vrai. Mais ce qui ne peut pas attendre le COPIL part le jour même : une alerte, pas un tableau.",
-      "Non. Presque : un résumé en tête aide. Mais chaque lundi, c'est le rythme de l'équipe, pas celui du sponsor : il décide au COPIL, ou le jour même sur alerte."
+      "Non. Presque : moins souvent, c'est moins de bruit. Mais 60 actions restent le détail de l'équipe : le DAF décide sur le rapport du mois, ou le jour même sur alerte."
     ],
     retenir: "Le tableau de bord, chaque semaine, pour l'équipe ; le rapport, chaque mois, pour le DAF ; l'alerte, le jour même."
   },
@@ -303,7 +304,7 @@ LEARNSQL.questions.cp08 = [
     choix: [
       "Tu continues seul, et tu le lis à voix haute chaque lundi",
       "Tu le tiens à jour, et tu l'envoies aussi au DAF",
-      "Tu arrêtes le tableau : personne ne le lit, 2 heures de gagnées",
+      "Plus de tableau : personne ne le lit, 2 heures de gagnées",
       "Chacun met à jour ses lignes ; la réunion part du tableau"
     ],
     bonne: 3,
@@ -375,7 +376,7 @@ LEARNSQL.questions.cp08 = [
   {
     id: "cp08-q18",
     dialecte: "Gestion de projet",
-    q: "Rapport du mois. Délai : vert. Budget : orange, l'atterrissage monte. Périmètre : vert. Qualité et risques : vert. Quelle météo globale ?",
+    q: "Rapport du mois. Délai : vert. Budget : orange, l'atterrissage approche les 90 k€. Périmètre : vert. Qualité et risques : vert. Quelle météo globale ?",
     choix: [
       "Vert : la plupart des axes sont verts",
       "Rouge : un axe en risque, c'est tout le projet",
@@ -387,7 +388,7 @@ LEARNSQL.questions.cp08 = [
       "Non. La globale n'est pas un vote : un seul axe en risque, et c'est le projet qui est en risque.",
       "Non. Presque : un axe en risque met bien le projet en risque. Mais en risque, c'est orange ; rouge, c'est déjà hors tolérance.",
       "Non. Une globale verte avec un axe orange, c'est une pastèque : le DAF lit la 1re couleur, pas la note du bas.",
-      "Oui. La globale reprend l'axe le plus mauvais : le budget risque de sortir de la tolérance, donc le projet aussi. Le rapport dit la cause et le plan."
+      "Oui. Règle du modèle de DEMAT (ailleurs, le chef de projet juge parfois) : la globale reprend l'axe le plus mauvais. Le budget risque de sortir de la tolérance, donc le projet aussi."
     ],
     retenir: "La météo globale reprend l'axe le plus mauvais : jamais plus verte que lui."
   },
@@ -413,7 +414,7 @@ LEARNSQL.questions.cp08 = [
   {
     id: "cp08-q20",
     dialecte: "Gestion de projet",
-    q: "Recette : depuis 2 semaines, Julie manque 1 créneau sur 2. La marge couvre encore le retard. Le responsable ADV : « Mets tout en rouge, le DAF réagira. » Quelle météo pour le délai ?",
+    q: "Fin mars. Recette : depuis 2 semaines, Julie manque 1 créneau sur 2. La marge couvre encore, mais à ce rythme, elle sera mangée. Le responsable ADV : « Mets tout en rouge, le DAF réagira. » Quelle météo pour le délai ?",
     choix: [
       "Orange, et tu demandes au DAF de libérer Julie aujourd'hui",
       "Vert : la marge de recette couvre encore le retard",
@@ -474,33 +475,33 @@ LEARNSQL.questions.cp08 = [
     choix: [
       "Rouge, et le DAF le jour même : critère raté",
       "Vert : la cause est connue, et le critère compte en juin",
-      "Orange, au COPIL : rien à décider, le plan est daté",
+      "Orange : critère en risque ; rien à décider, plan daté",
       "Rouge : 3,5 %, presque deux fois le seuil"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Rien n'est raté, et rien n'est à décider : la cause est connue, le plan daté. Une alerte le jour même serait de trop.",
       "Non. Le pilote sert justement à prévoir. À 3,5 %, le critère est en risque : le cacher jusqu'en juin, c'est le découvrir trop tard.",
-      "Oui. Orange : risque de rater le critère. La cause est connue, le plan est daté (40 fiches d'ici le 21), rien n'est à décider : le COPIL le voit dans le rapport.",
+      "Oui. Orange : risque de rater le critère. Cause connue, plan daté (40 fiches d'ici le 21), rien à décider : le DAF l'apprend de toi en quelques lignes, sans urgence (module cp17).",
       "Non. Rouge = hors tolérance, avec une décision du sponsor à prendre. Le critère se mesure après la bascule, et un plan daté corrige la cause."
     ],
-    retenir: "Au pilote, un critère en risque, cause connue et plan daté : orange, au COPIL. Pas d'alerte sans décision à prendre."
+    retenir: "Au pilote, un critère en risque, cause connue et plan daté : orange. Pas d'alerte le jour même sans décision à prendre."
   },
   {
     id: "cp08-q24",
     dialecte: "Gestion de projet",
-    q: "Ligne budget d'avril : référence 85,25 k€, atterrissage 87,5 k€, écart + 2,25 k€ (flux EDI), commande signée par le DAF. La réserve couvre les risques ouverts. Météo du budget ?",
+    q: "Ligne budget d'avril : référence 85,25 k€, atterrissage 87,5 k€ réserve comprise, écart + 2,25 k€ (flux EDI), commande signée par le DAF. La réserve couvre les risques ouverts. Météo du budget ?",
     choix: [
-      "Rouge, et tu préviens le DAF : on dépasse le budget",
+      "Rouge : l'atterrissage dépasse la référence de 2,25 k€",
       "Vert : sous 90 k€, l'écart et sa cause restent écrits",
-      "Orange : l'atterrissage dépasse la référence",
+      "Orange : l'atterrissage a monté de 2,25 k€ ce mois-ci",
       "Vert, sans l'écart : il est décidé, c'est réglé"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Rouge = hors tolérance : ici, on reste sous 90 k€, et l'écart est déjà décidé par le DAF. Rien à lui redire.",
+      "Non. Rouge = hors tolérance. La tolérance, c'est 90 k€, pas la référence ; et cet écart, le DAF l'a déjà décidé.",
       "Oui. Sous 90 k€, et la réserve couvre les risques : vert. La ligne budget garde l'écart, sa cause et la décision prise. La couleur et les chiffres disent la même chose.",
-      "Non. Presque : il y a un écart, et il se montre. Mais la tolérance, c'est 90 k€ : 87,5 k€, réserve comprise, n'est pas en risque de la dépasser.",
+      "Non. Presque : une hausse se surveille. Mais celle-ci est décidée, payée par une commande, et la réserve couvre les risques : rien ne menace les 90 k€.",
       "Non. Vert, oui, mais l'écart se montre chaque mois, avec sa cause (module cp12). Sinon, le projet paraît tenu à 85,25 k€."
     ],
     retenir: "La couleur du budget se lit contre la tolérance (90 k€) ; l'écart à la référence se montre quand même, avec sa cause."
@@ -537,8 +538,8 @@ LEARNSQL.questions.cp08 = [
     bonne: 2,
     pourquoi: [
       "Non. Les couleurs suivent les faits, pas une pente douce. 4 semaines d'arrêt : le PV sort de la tolérance dès aujourd'hui.",
-      "Non. La cause est hors du projet, l'impact est dedans : la recette s'arrête, et le PV recule de 4 semaines.",
-      "Oui. 4 semaines de recette perdues : hors tolérance, et une décision du DAF est nécessaire (un renfort, ou la bascule à mi-juillet). Le jour même : les faits, l'impact, les options.",
+      "Non. La cause est hors du projet, l'impact est dedans : la recette s'arrête, et le PV recule d'au moins 3 semaines.",
+      "Oui. 4 semaines de recette perdues : hors tolérance, et une décision du DAF est nécessaire (un renfort, ou la bascule à mi-juillet). Il connaît le contrôle, pas son effet sur DEMAT : le jour même, les faits, l'impact, les options.",
       "Non. Presque : la durée compte. Mais 4 semaines annoncées suffisent : c'est hors tolérance. Tu le dis au DAF aujourd'hui, et tu affineras."
     ],
     retenir: "La couleur suit les faits, pas une progression : hors tolérance d'un coup, c'est rouge tout de suite, et le DAF le jour même."
@@ -546,19 +547,19 @@ LEARNSQL.questions.cp08 = [
   {
     id: "cp08-q27",
     dialecte: "Gestion de projet",
-    q: "Bascule le 1er juin. Critère : moins de 2 % de rejets le 1er mois. Après 3 semaines, à volumes égaux chaque semaine : 4 % de rejets. Météo de la qualité ?",
+    q: "Bascule le lundi 14 juin. Critère : moins de 2 % de rejets le 1er mois. Après 3 semaines, à volumes égaux chaque semaine : 4 % de rejets. Météo de la qualité ?",
     choix: [
-      "Orange, et tu feras le calcul exact à la fin du mois de juin",
+      "Orange, et tu feras le calcul exact à la fin du 1er mois",
       "Vert : les factures rejetées finissent par passer",
-      "Orange : le mois n'est pas fini, tout peut changer",
-      "Rouge : même sans rejet d'ici fin juin, on dépasse 2 %"
+      "Orange : le mois n'est pas fini, on peut repasser sous 2 %",
+      "Rouge : même à 0 % jusqu'au 13 juillet, on dépasse 2 %"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Attendre la fin du mois pour un résultat déjà certain, c'est perdre plus d'une semaine pour agir.",
       "Non. Le critère compte les rejets, pas ce qui passe ensuite : chaque rejet, c'est du travail en plus pour Sophie et Marc, et un client qui attend.",
-      "Non. Presque : le mois n'est pas fini. Mais le calcul est déjà fait : même à 0 % jusqu'au 30 juin, la moyenne reste près de 3 %. Le critère est raté, quoi qu'il arrive.",
-      "Oui. 3 semaines à 4 %, puis 0 % jusqu'au 30 juin : la moyenne du mois fait encore 2,8 %. Le critère est raté. Rouge : le DAF le sait le jour même, et décide de la suite."
+      "Non. Presque : le mois n'est pas fini. Mais le calcul est déjà fait : même à 0 % jusqu'au 13 juillet, la moyenne reste près de 3 %. Le critère est raté, quoi qu'il arrive.",
+      "Oui. 3 semaines à 4 %, puis 0 % jusqu'au 13 juillet : la moyenne du mois fait encore 2,8 %. Le critère est raté. Rouge : le DAF le sait le jour même, et décide de la suite."
     ],
     retenir: "Quand le calcul dit que le seuil est déjà perdu, c'est rouge tout de suite : on n'attend pas la fin de la période."
   },
@@ -570,7 +571,7 @@ LEARNSQL.questions.cp08 = [
       "Le détail des tâches de la semaine, personne par personne",
       "Les décisions attendues, en tête, avec leur date",
       "Rien : avec ces 4 blocs, le COPIL a tout",
-      "Le compte rendu du dernier point projet, avec ses dates"
+      "Le compte rendu du dernier point projet, daté"
     ],
     bonne: 1,
     pourquoi: [
@@ -586,19 +587,19 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "COPIL mardi. Tu voudrais envoyer ton rapport le matin même, pour avoir les chiffres les plus frais. Que fais-tu ?",
     choix: [
-      "3 jours avant, avec l'ordre du jour, chiffres datés",
+      "3 jours ouvrés avant, avec l'ordre du jour, chiffres datés",
       "Tu ne l'envoies pas : tu le présentes à l'écran, en séance",
-      "3 jours avant, puis une 2e version le matin, si un chiffre bouge",
-      "Le matin même : des chiffres frais sont toujours plus justes"
+      "3 jours ouvrés avant, puis une 2e version le matin, si un chiffre bouge",
+      "Le matin même, pour des chiffres plus frais"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Envoyé avec l'ordre du jour, 3 jours avant : chacun lit et prépare sa décision. La date d'arrêt des chiffres est écrite dessus.",
+      "Oui. Envoyé avec l'ordre du jour, 3 jours ouvrés avant : chacun lit et prépare sa décision. La date d'arrêt des chiffres est écrite dessus.",
       "Non. Découvrir en séance, c'est décider à chaud, ou ne pas décider.",
       "Non. Presque : envoyé à temps. Mais deux versions, ce sont deux vérités. Un fait nouveau se dit en ouverture, en une phrase ; s'il ne pouvait pas attendre, le DAF l'a déjà su.",
       "Non. Personne ne l'aura lu : la séance servira à découvrir, pas à décider."
     ],
-    retenir: "Le rapport part avec l'ordre du jour, 3 jours avant le COPIL, chiffres arrêtés à une date écrite."
+    retenir: "Le rapport part avec l'ordre du jour, 3 jours ouvrés avant le COPIL, chiffres arrêtés à une date écrite."
   },
   {
     id: "cp08-q30",
@@ -643,7 +644,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "Le chef de projet de la PA veut relire ton rapport avant le COPIL : « Pour corriger la ligne du connecteur, qui est orange. » Que fais-tu ?",
     choix: [
-      "Tu acceptes, et tu prends ses corrections telles quelles",
+      "Oui, et tu prends toutes ses corrections telles quelles",
       "Oui pour les faits et les dates ; la couleur reste la tienne",
       "Tu passes la ligne en vert, pour garder une bonne relation avec lui",
       "Tu refuses tout échange : ton rapport est interne"
@@ -660,7 +661,7 @@ LEARNSQL.questions.cp08 = [
   {
     id: "cp08-q33",
     dialecte: "Gestion de projet",
-    q: "Jeudi, la PA t'écrit : son correctif des avoirs clients n'arrivera pas avant juillet. Sans lui, la bascule de juin ne tient pas. Ton rapport du COPIL part dans 2 jours. Que fais-tu ?",
+    q: "La PA t'écrit : son correctif des avoirs clients n'arrivera pas avant juillet. Sans lui, la bascule de juin ne tient pas. Ton rapport du COPIL part dans 2 jours. Que fais-tu ?",
     choix: [
       "Le DAF dès aujourd'hui, au téléphone : faits, impact, options",
       "Tu attends que la PA propose une solution, pour arriver avec",
@@ -688,7 +689,7 @@ LEARNSQL.questions.cp08 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Le DAF a décidé : il n'a pas à suivre les flux chaque jour. Il le saura au COPIL, ou le jour même si la tolérance est encore menacée.",
+      "Non. Le DAF a décidé : il n'a pas à suivre les flux chaque jour. Il le saura au COPIL, ou le jour même s'il faut de nouveau décider.",
       "Non. La commande paie les jours ; elle ne garantit pas que les flux finiront. Sans plan suivi, la même dérive revient.",
       "Non. Presque : un plan, oui. Mais vu une fois par mois, une action qui glisse se voit 4 semaines trop tard.",
       "Oui. Après une alerte, un plan d'actions daté : qui fait quoi, pour quand. Suivi chaque lundi au point projet ; le COPIL voit ce qui est fait, et ce qui glisse."
@@ -758,7 +759,7 @@ LEARNSQL.questions.cp08 = [
     q: "Recette des factures clients. Vendredi 23 avril : tous les cas sont joués ; 3 anomalies bloquantes restent ouvertes. Corrections mardi 27 au soir ; retest : 2 jours. Quelle prévision de PV ?",
     choix: [
       "Mardi 27 avril : le jour des corrections",
-      "Aucune date : tu attends la fin du retest",
+      "Aucune date : tu attends le retest des 3",
       "Vendredi 23 avril : tous les cas sont joués",
       "Le 30 avril, si le retest des 3 est OK"
     ],
@@ -816,7 +817,7 @@ LEARNSQL.questions.cp08 = [
     choix: [
       "Un orange tôt est attendu : tu le lui dis, et tu le défends au comité",
       "Tu la recadres, et tu le notes pour son entretien annuel",
-      "Tu la laisses faire : c'est elle qui connaît son projet",
+      "Elle décide : c'est elle qui connaît son projet, pas toi",
       "Tu passes son projet en orange toi-même, pour la couvrir"
     ],
     bonne: 0,

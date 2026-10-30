@@ -151,7 +151,14 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   risques (module cp07), la ligne budget (module cp12). Météo : vert = dans les tolérances ; orange = risque de sortir des
   tolérances (cause, impact, plan, parfois une décision à demander) ; rouge = hors tolérance, une décision du sponsor est
   nécessaire. Tolérances : ± 2 semaines par jalon, budget sous 90 k€ (module cp04). Une alerte qui ne peut pas attendre
-  le COPIL va au DAF le jour même (module cp07).
+  le COPIL va au DAF le jour même (module cp07). Règles du modèle de DEMAT : la météo globale = l'axe le plus mauvais
+  (ailleurs, le chef de projet juge parfois) ; seuil de l'axe qualité = les critères de succès (moins de 2 % de rejets le
+  1er mois) ; rouge = la prévision est hors tolérance, ou le seuil déjà perdu ; orange avec une décision qui n'attend pas :
+  le DAF le jour même (cp01-q09). Tableau de bord de l'équipe : 6 lignes (jalons, reste à faire, cas de recette joués et
+  OK, anomalies bloquantes, rejets de la PA, atterrissage), chacune avec sa source et son seuil, à jour chaque vendredi ;
+  anomalies de recette dans l'outil de tickets. 4 flux EDI (fin mars : 1 fini sur 3 prévus à cette date). Recette :
+  120 cas en 6 semaines ; fin de la 3e semaine, 45 joués, PV prévu au 7 mai (orange), revenu au 30 avril. Rapport
+  d'avril : délai orange (flux EDI en retard, recette lente) ; décision attendue : un intérimaire, environ 4 000 € (refusé).
 - Planning (module cp05) : lots : réception par le portail (novembre 2026) ; paramétrage du connecteur (décembre à février,
   données de paramétrage dues le 15 janvier) ; écrans de la compta en itérations (février à avril) ; flux EDI de la grande
   distribution (février à avril) ; recette du 16 mars à fin avril (6 semaines + 1 semaine de marge de recette) ; formation
