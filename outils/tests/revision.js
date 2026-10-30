@@ -20,16 +20,21 @@ const { chromium } = require('playwright');
   await p.uncheck('.theme input[value="m03"]');
   verifie('après un décoché :', await etat('[data-groupe="sql"]'), 'moitié');
   verifie('info :', await info(), '15 modules choisis.');
+  await p.check('[data-groupe="sql"]');
+  await p.uncheck('[data-groupe="sql"]');
+  await p.check('.theme input[value="m01"]');
+  verifie('un seul module :', await info(), 'Choisis encore 1 module(s).');
 
   await p.goto(U + '#/compte'); await p.fill('#email', 'a@x.fr'); await p.fill('#mdp', 'motdepasse1'); await p.click('button[type=submit]'); await p.waitForTimeout(700);
   await p.goto(U + '#/revision');
   verifie('admin, thèmes :', (await p.$$eval('.noeud.niv1 > .tete input', l => l.map(x => x.getAttribute('data-groupe')))).join(','), 'sql,chef-projet,divalto');
   await p.click('.noeud.niv1:has([data-groupe="chef-projet"]) > details > summary');
-  await p.check('[data-groupe="cp-demarrer"]');
-  verifie('sous-thème Démarrer :', await info(), 'Choisis encore 1 module(s).');
-  verifie('thème CP à moitié :', await etat('[data-groupe="chef-projet"]'), 'moitié');
   // Nombre de modules lu dans la page (« · N module(s) ») : le test ne dépend pas du contenu publié.
   const nbDe = g => p.$eval('.noeud:has(> .tete [data-groupe="' + g + '"]) > .tete small', s => parseInt(s.textContent.replace(/\D+/g, ''), 10));
+  const nDem = await nbDe('cp-demarrer');
+  await p.check('[data-groupe="cp-demarrer"]');
+  verifie('sous-thème Démarrer :', await info(), nDem >= 2 ? nDem + ' modules choisis.' : 'Choisis encore ' + (2 - nDem) + ' module(s).');
+  verifie('thème CP à moitié :', await etat('[data-groupe="chef-projet"]'), 'moitié');
   const nCP = await nbDe('chef-projet'), nDV = await nbDe('divalto');
   await p.check('[data-groupe="chef-projet"]');
   verifie('thème CP entier :', await info(), nCP + ' modules choisis.');
