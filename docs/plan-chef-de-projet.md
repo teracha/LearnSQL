@@ -77,6 +77,11 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   connecteur au forfait, en plus de l'abonnement ; le contrat et ses annexes priment sur les conditions générales de la PA ;
   annexe SLA : disponibilité 99,5 % par mois, mesurée jour et nuit ; support de 8 h à 18 h les jours ouvrés (prise en
   charge en 1 h, portail rétabli en 4 h) ; réversibilité : export sous 30 jours, en format standard ; données de paramétrage dues à la PA le 15 janvier 2027.
+- Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
+  alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
+  daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
+  plafonnées ; le DAF décide de les appliquer. Support : N1 et N2 = le support de la DSI ; N3 = la PA ou l'intégrateur,
+  par ticket. Divalto : l'éditeur publie les versions ; l'intégrateur est son partenaire et assure le support Divalto.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
