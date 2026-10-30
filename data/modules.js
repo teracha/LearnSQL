@@ -31,7 +31,7 @@ window.LEARNSQL = { modules: [
   { id: "cp10", titre: "Les demandes de changement", resume: "Anomalie ou changement, impact chiffré, bonne autorité, registre, commande avant de commencer ; dérive, gel, partie agile.", niveau: "Intermédiaire" },
   { id: "cp11", titre: "Budget et business case", resume: "CAPEX, OPEX, coût total (TCO), retour sur investissement.", niveau: "Intermédiaire" },
   { id: "cp12", titre: "Suivre le budget", resume: "Engagé, facturé, reste à faire ; forfait ou régie ; dérive.", niveau: "Intermédiaire" },
-  { id: "cp13", titre: "Consulter et choisir un prestataire", resume: "Cahier des charges, consultation, grille de choix pondérée.", niveau: "Avancé" },
+  { id: "cp13", titre: "Consulter et choisir un prestataire", resume: "Consulter ou vérifier un devis, cahier des charges, équité, grille pondérée fixée avant les offres, démo sur tes cas, négocier, faire choisir.", niveau: "Avancé" },
   { id: "cp14", titre: "Contracter", resume: "Forfait, régie ou abonnement ; les clauses à relire avant de signer (PV, SLA, réversibilité) ; l'avenant.", niveau: "Avancé" },
   { id: "cp15", titre: "Piloter prestataires et éditeurs", resume: "Comité fournisseur, suivi d'une régie, SLA mesuré, tickets N1 à N3, versions de l'éditeur, standard ou spécifique.", niveau: "Avancé" },
   { id: "cp16", titre: "Diriger sans autorité", resume: "Utilisateurs clés, managers, prestataires : obtenir sans être le chef, escalader un niveau à la fois.", niveau: "Intermédiaire" },
