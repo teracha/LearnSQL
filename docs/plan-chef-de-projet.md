@@ -33,6 +33,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Compta : 6 personnes (la cheffe comptable, Julie, Sophie et 3 comptables), plus une stagiaire récente.
   En août, 2 personnes sur 6. Exercice civil : clôture annuelle en janvier. Clôture mensuelle en 5 jours ouvrés.
 - Clients EDI de la grande distribution, dont AquaBleu : chaîne de magasins de piscine, 20 % du chiffre d'affaires.
+- Saison des piscines au printemps : plus de commandes EDI et d'incidents pendant la recette (mars-avril) ; pic des dépôts
+  en mai (modules cp02, cp16, cp18).
 
 **La réglementation (vérifiée en octobre 2026)**
 - Réception des factures électroniques : obligatoire pour toutes les entreprises depuis le 1er septembre 2026 (l'entreprise est déjà en retard).
@@ -125,6 +127,10 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Toi et ton DSI (modules cp02, cp03) : ton temps, environ 70 % sur DEMAT et 30 % sur le run (référent des flux EDI,
   en appui du support N2) et les petites demandes. Point de 30 minutes avec ton DSI chaque lundi : il arbitre tes priorités
   entre run et projet. Il attend : pas de surprise, des décisions préparées, faire faire plutôt que faire.
+  Ton temps se compte en demi-journées : 7 sur DEMAT, 3 sur le run, sur 10. Un écart subi d'une semaine : tu le règles dans
+  ta liste. Changer le partage (des jours du run pour DEMAT) ou un dépassement qui dure : ton DSI, au point du lundi (le jour
+  même si une échéance tombe avant). Un jalon qui sort de la tolérance : le DAF, le jour même. Une heure d'aide d'un collègue
+  de la DSI se demande en direct ; des jours de son temps, à ton DSI.
 - Gouvernance (module cp09) : COPIL (comité de pilotage) mensuel, le 2e mardi du mois, 1 h 30 : le DAF (sponsor : il
   préside et décide), toi (tu prépares, animes, écris le compte rendu), ton DSI, la cheffe comptable, le responsable ADV ;
   le contrôleur de gestion, la PA ou l'intégrateur sur invitation. Ordre du jour et rapport envoyés 3 jours avant ; compte

@@ -65,7 +65,7 @@ LEARNSQL.questions.cp02 = [
       "Oui. Sans ces données, la PA ne paramètre pas : le connecteur du 1er mars glisse, puis la recette. Ce qui fait avancer la date légale passe d'abord.",
       "Non. Trier 40 mails donne l'impression d'avancer, et prend la matinée. Une vraie urgence arrive par un appel, pas au fond de la boîte.",
       "Non. Urgent pour lui, pas pour la date légale. C'est une petite demande du run : elle a sa place dans ton créneau run, après.",
-      "Non. Tu fragilises la seule échéance du contrat pour un tableau qui peut attendre. Le connecteur du 1er mars dépend de ces données."
+      "Non. Tu fragilises une échéance du contrat pour un tableau qui peut attendre. Le connecteur du 1er mars dépend de ces données."
     ],
     retenir: "D'abord ce qui fait avancer la date légale. L'urgence d'un autre n'est pas forcément ta priorité."
   },
@@ -94,14 +94,14 @@ LEARNSQL.questions.cp02 = [
     q: "Novembre 2026. « Préparer avec Julie les cas de test » est sur ta liste depuis 3 semaines. La recette commence le 16 mars. Rien ne presse cette semaine. Que fais-tu ?",
     choix: [
       "Tu les écris seul cette semaine ; Julie les relira début mars",
-      "Tu poses dès maintenant des dates en février, avec sa cheffe",
+      "Dès maintenant, ses dates de janvier-février, avec sa cheffe",
       "Tu demandes au DAF d'imposer des dates à la compta",
       "Rien pour l'instant : ce sera urgent en février, pas avant"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les cas de test viennent du métier : écrits sans Julie, ils manqueront ses vrais cas. Et une relecture en mars arrive trop tard.",
-      "Oui. Important, pas urgent : tu le planifies, daté. Le temps de Julie se réserve avec sa cheffe (module cp16), après la clôture de janvier.",
+      "Oui. Important, pas urgent : tu le planifies, daté. Le temps de Julie se réserve avec sa cheffe (module cp16), autour de la clôture de janvier.",
       "Non. Personne n'a refusé : le DAF n'a rien à imposer. La cheffe comptable gère le temps de Julie : c'est elle que tu vois.",
       "Non. Important et pas urgent : c'est la case qu'on sacrifie. En février, les créneaux de la compta seront déjà pris."
     ],
@@ -167,7 +167,7 @@ LEARNSQL.questions.cp02 = [
   {
     id: "cp02-q07",
     dialecte: "Gestion de projet",
-    q: "Le N2 veut te passer un incident : un état de stock Divalto donne des chiffres faux. « Tu connais Divalto mieux que moi. » Ce n'est pas un flux EDI. Que fais-tu ?",
+    q: "Le N2 veut te passer un incident qu'il n'a pas encore analysé : un état de stock Divalto donne des chiffres faux. « Tu connais Divalto mieux que moi. » Ce n'est pas un flux EDI. Que fais-tu ?",
     choix: [
       "Tu l'aides 2 heures cet après-midi, juste pour cette fois",
       "Tu demandes à ton DSI qui doit prendre cet incident",
@@ -176,7 +176,7 @@ LEARNSQL.questions.cp02 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Presque : aider un collègue, c'est bien. Mais « juste cette fois » devient la règle, et le circuit existe : l'intégrateur.",
+      "Non. Presque : aider un collègue, c'est bien. Mais il n'a pas encore cherché : tu ferais son analyse, et « juste cette fois » devient la règle.",
       "Non. La règle est déjà claire : hors EDI, le N2, puis l'intégrateur. Ton DSI n'a rien à trancher.",
       "Oui. Hors EDI, ce n'est pas à toi : tu dis non, et tu donnes le circuit. Le N2 analyse ; pour Divalto, le N3 est l'intégrateur, par ticket. Tu gardes ton temps pour DEMAT.",
       "Non. Ce n'est pas ton run : ton rôle, ce sont les flux EDI. Le prendre cette fois, c'est le prendre les fois suivantes, sur ton temps DEMAT."
@@ -191,14 +191,14 @@ LEARNSQL.questions.cp02 = [
       "Tu acceptes : demain après-midi, dans ton créneau run",
       "Tout de suite : 30 minutes, autant s'en débarrasser",
       "Tu demandes à ton DSI si ça passe avant DEMAT",
-      "Non : jusqu'en juin, tu ne fais plus que DEMAT"
+      "« Pas maintenant : dans ma liste, pour juillet »"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. C'est une petite demande : elle fait partie de tes 30 %. Rien n'est bloqué : elle va dans ton créneau run, sans casser DEMAT.",
       "Non. Rien n'est bloqué : tout de suite, c'est casser ton créneau DEMAT pour une demande qui peut attendre demain.",
       "Non. Ton DSI a déjà arbitré : 70 / 30. Une demande de 30 minutes entre dans tes 30 % ; rien à lui demander.",
-      "Non. Tes 30 % de run comptent aussi les petites demandes : celle-ci en est une. Tout refuser jusqu'en juin, c'est sortir de ton rôle."
+      "Non. Presque : « pas maintenant » sert quand ta semaine déborde. Elle est normale, et 30 minutes entrent dans tes 30 % de run."
     ],
     retenir: "Une petite demande fait partie de ton run : tu l'acceptes, dans ton créneau run, sauf vraie urgence."
   },
@@ -226,7 +226,7 @@ LEARNSQL.questions.cp02 = [
     dialecte: "Gestion de projet",
     q: "Depuis un mois, le N1 t'envoie directement chaque appel sur l'EDI, sans passer par le N2. Une dizaine par semaine. La plupart sont des rejets simples. Que fais-tu ?",
     choix: [
-      "Tu cales le circuit avec le N2, et tu le formes une heure",
+      "Tu cales le circuit avec le N1 et le N2 ; tu formes le N2",
       "Tu demandes à ton DSI d'interdire au N1 de t'appeler",
       "Tu les prends tous : c'est ton rôle de référent EDI",
       "Plus aucun appel EDI dès lundi : tu le dis au N1 et au N2"
@@ -243,7 +243,7 @@ LEARNSQL.questions.cp02 = [
   {
     id: "cp02-q11",
     dialecte: "Gestion de projet",
-    q: "Vendredi. Cette semaine, le run t'a pris 4 demi-journées sur 10, au lieu de 3 : un partenaire EDI a changé de format. Les semaines d'avant : 3. Que fais-tu ?",
+    q: "Vendredi. Cette semaine, le run t'a pris 4 demi-journées sur 10, au lieu de 3 : un partenaire EDI a changé de format, c'est réglé. Les semaines d'avant : 3. Que fais-tu ?",
     choix: [
       "Tu rattrapes la demi-journée samedi, pour rester à 70 %",
       "Tu demandes lundi à ton DSI un renfort du N2 pour le run",
@@ -265,14 +265,14 @@ LEARNSQL.questions.cp02 = [
     q: "Fin février. Trois semaines de suite, le run t'a pris 5 demi-journées sur 10. La préparation de la recette a pris 1 semaine de retard. Que fais-tu ?",
     choix: [
       "Lundi, à ton DSI : la moitié en run, ce qui a glissé, 2 options",
-      "Tu rattrapes le soir : DEMAT ne doit pas en souffrir",
+      "Tu le notes, et tu en parles à ton DSI si ça dure encore",
       "Tu préviens le DAF : le run fait glisser la recette",
       "Dès aujourd'hui, tu refuses tout run au N2 jusqu'à la recette"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Run et projet débordent ensemble, et ça dure : c'est ton DSI qui arbitre, au point du lundi. Avec les faits : 5 demi-journées sur 10, 1 semaine de retard, 2 options.",
-      "Non. Le soir cache le problème : ton DSI croit à 70 / 30, et rien ne change. Trois semaines, c'est une tendance.",
+      "Non. Presque : noter suffit pour une semaine. Trois semaines, c'est une tendance, et la recette a déjà glissé : ton DSI doit arbitrer dès lundi.",
       "Non. Presque : alerter, oui, mais pas le bon interlocuteur. Ton temps, c'est ton DSI qui l'arbitre ; le DAF ne gère pas le run.",
       "Non. Tu tranches seul ce qui n'est pas à toi : le run a besoin de son référent EDI. C'est ton DSI qui choisit."
     ],
@@ -331,7 +331,7 @@ LEARNSQL.questions.cp02 = [
       "Oui. Ton DSI arbitre ton temps ; un jalon hors tolérance, c'est le DAF qui tranche (module cp04). Ton DSI voit l'impact, et le DAF le sait le jour même.",
       "Non. Refuser ton DSI n'est pas à toi. Et une panne grave peut aussi bloquer la facturation : le choix se fait avec l'impact, pas contre lui.",
       "Non. Presque : ton DSI arbitre ton temps. Mais un jalon validé qui sort de la tolérance, c'est la décision du DAF : sans lui, DEMAT glisse sans que le sponsor le sache.",
-      "Non. Le DG vient quand le sponsor ne répond pas. Ici, ton DSI et le DAF peuvent décider tout de suite."
+      "Non. Le DG, c'est le dernier niveau : si ton DSI et le DAF ne s'accordent pas. Ils n'en ont même pas encore parlé."
     ],
     retenir: "Ton DSI arbitre ton temps. Si son choix fait sortir un jalon de la tolérance, le DAF tranche, prévenu le jour même."
   },
@@ -378,14 +378,14 @@ LEARNSQL.questions.cp02 = [
     dialecte: "Gestion de projet",
     q: "Tu comptes une journée : Teams, mails et téléphone t'ont interrompu 40 fois. Tu n'as fini aucune tâche DEMAT. Que changes-tu d'abord ?",
     choix: [
-      "Tu travailles de chez toi, pour qu'on te dérange moins",
+      "Tes créneaux DEMAT, tu les passes chez toi, au calme",
       "En créneau, notifications coupées ; messages à heures fixes",
       "Tu réponds à tout dans la minute, et DEMAT le soir",
       "Teams et téléphone fermés toute la journée, chaque jour"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Teams et le téléphone te suivent chez toi. Ce sont tes règles qui changent les choses, pas le lieu.",
+      "Non. Presque : un créneau, oui, mais Teams et le téléphone te suivent chez toi. Ce sont tes règles qui changent les choses, pas le lieu.",
       "Oui. Tu regroupes : en créneau, rien ne sonne, sauf l'urgence convenue (le téléphone, pour le N2). Le reste attend une heure fixe : 11 h, 14 h, 17 h.",
       "Non. Tout, tout de suite, c'est 40 coupures par jour : chaque reprise coûte du temps, et DEMAT finit le soir, épuisé.",
       "Non. Tout fermer, chaque jour, c'est rater aussi la vraie urgence : un flux bloqué. On coupe pendant un créneau, pas tout le temps."
@@ -414,7 +414,7 @@ LEARNSQL.questions.cp02 = [
   {
     id: "cp02-q20",
     dialecte: "Gestion de projet",
-    q: "Ton créneau DEMAT, téléphone en silencieux sauf pour le N2. Le DAF t'appelle 2 fois en 5 minutes, puis t'écrit : « Rappelle-moi. » Que fais-tu ?",
+    q: "Mardi 10 h, ton créneau DEMAT jusqu'à 11 h, téléphone en silencieux sauf pour le N2. Le DAF t'appelle 2 fois en 5 minutes, puis t'écrit : « Rappelle-moi. » Que fais-tu ?",
     choix: [
       "Tu le rappelles tout de suite : c'est un vrai signal",
       "Tu lui écris : « En créneau jusqu'à 11 h, je te rappelle »",
@@ -471,7 +471,7 @@ LEARNSQL.questions.cp02 = [
   {
     id: "cp02-q23",
     dialecte: "Gestion de projet",
-    q: "Ta revue du vendredi le montre : 3 semaines de suite, tes créneaux DEMAT ont sauté, pris par des réunions posées par d'autres. Que fais-tu ?",
+    q: "Ta revue du vendredi le montre : 3 semaines de suite, tes créneaux DEMAT, gardés en tête sans être dans ton agenda, ont sauté : d'autres y ont posé des réunions. Que fais-tu ?",
     choix: [
       "Tu demandes à ton DSI d'interdire les réunions le matin",
       "Tu abandonnes tes créneaux : ils ne tiennent jamais",
@@ -492,14 +492,14 @@ LEARNSQL.questions.cp02 = [
     dialecte: "Gestion de projet",
     q: "Ce matin, dans le couloir, tu as dit à Julie : « Je t'envoie le modèle jeudi. » Au N2 : « Je regarde ton flux demain. » Que fais-tu de ces deux promesses ?",
     choix: [
-      "Rien : ce sont deux petites choses, tu t'en souviendras",
+      "Deux post-it, à recopier dans ta liste vendredi",
       "Tu les écris tout de suite dans ta liste, avec leur date",
       "Un mail à chacun pour confirmer, avec leur chef en copie",
       "Tu leur demandes de te relancer, au cas où tu oublierais"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Deux aujourd'hui, cinq demain : la mémoire perd des promesses. Une promesse oubliée coûte ton crédit.",
+      "Non. Presque : ta liste, oui, mais vendredi, et ta promesse au N2, c'est demain. Une promesse se note tout de suite, avec sa date.",
       "Oui. Chaque engagement va dans ta liste, tout de suite, avec sa date. Jeudi et demain, tu le retrouves sans y penser.",
       "Non. Leur chef en copie pour deux promesses à toi : c'est lourd, et ça ressemble à de la pression. Ta liste suffit.",
       "Non. Tu leur passes ta charge : chacun devient ton pense-bête. Ta liste le fait mieux, sans les déranger."
@@ -568,14 +568,14 @@ LEARNSQL.questions.cp02 = [
     dialecte: "Gestion de projet",
     q: "Lundi 8 mars. Ta semaine : la recette démarre le 16, il faut tout préparer. Tu comptes 12 demi-journées pour 10. Que fais-tu ?",
     choix: [
-      "Tu dis au N2 que tu ne prends aucun run cette semaine",
+      "Ton run glisse au N2 cette semaine : tu le lui dis",
       "Tu préviens le DAF le jour même : la recette est menacée",
       "À ton DSI, au point : 120 %, ce qui peut glisser ou pas",
       "Tu tiens : 2 soirées et le samedi, la recette d'abord"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Tu tranches seul ce qui revient à ton DSI. Et un flux EDI bloqué cette semaine serait quand même pour toi.",
+      "Non. Tu tranches seul ce qui revient à ton DSI : le temps du N2 dépend de lui. Et un flux EDI bloqué cette semaine serait quand même pour toi.",
       "Non. Presque : le dire, oui, mais au mauvais interlocuteur, et en dramatisant. Ton temps, c'est ton DSI qui l'arbitre ; la recette n'est pas encore menacée.",
       "Oui. 12 sur 10, c'est 120 % : tu le dis tôt à ton DSI, au point du lundi. Ne glisse pas : la recette du 16. Peut glisser : la doc d'un flux, une petite demande. Il choisit.",
       "Non. Absorber cache le dépassement : ton DSI croit que tout tient. Et tu arrives épuisé au début de la recette."
@@ -589,14 +589,14 @@ LEARNSQL.questions.cp02 = [
     choix: [
       "Tu refuses toute demande nouvelle cette semaine",
       "Tu le signales lundi à ton DSI, avec 2 options",
-      "Tu glisses la doc d'un flux EDI à la semaine suivante",
+      "Tu glisses d'une semaine une tâche DEMAT sans date",
       "Tu demandes au N2 de reprendre ton run jusqu'à vendredi"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Tout refuser, c'est sortir de ton rôle pour une demi-journée de trop. Une petite demande peut encore entrer.",
       "Non. Ton DSI arbitre ce qui dure, ou ce qui menace une échéance. Un pic d'une semaine se règle dans ta liste.",
-      "Oui. Un pic court, sans échéance menacée : tu tries ta liste. La semaine suivante, à 9 sur 10, absorbe la demi-journée en trop.",
+      "Oui. Un pic court, sans échéance menacée : tu tries ta liste. Une tâche DEMAT sans date attend une semaine ; la suivante, à 9 sur 10, l'absorbe.",
       "Non. Tu déplaces ton pic sur le N2, qui a sa propre charge, pour une demi-journée de trop. Ta liste a une réponse plus simple."
     ],
     retenir: "Un pic court, sans échéance menacée, se règle dans ta liste : tu glisses ce qui peut attendre."
@@ -618,7 +618,7 @@ LEARNSQL.questions.cp02 = [
       "Non. Presque : la bonne personne, trop tard. Lundi, vendredi est déjà raté : ton DSI l'apprend après coup, sans avoir pu choisir.",
       "Oui. Tôt, c'est dès que tu le sais : aujourd'hui. Ton DSI choisit encore : attendre 2 jours, ou t'alléger d'autre chose."
     ],
-    retenir: "Un retard se dit dès que tu le vois, pas au rendez-vous suivant."
+    retenir: "Un retard qui tombe avant ton point du lundi se dit le jour même, pas au point."
   },
   {
     id: "cp02-q31",
@@ -626,14 +626,14 @@ LEARNSQL.questions.cp02 = [
     q: "Ton rapport mensuel pour le COPIL : tu prévois 1 heure. Les 3 derniers mois, il t'en a pris 3 chaque fois. Que fais-tu pour celui de ce mois-ci ?",
     choix: [
       "Tu prévois 1 heure : cette fois, tu iras plus vite",
-      "Tu le confies au consultant de l'intégrateur, qui a le temps",
+      "Tu prévois 1 h 30 : un peu plus, par prudence",
       "Tu prévois 3 heures, dans un créneau posé à l'agenda",
       "Tu demandes au DAF d'alléger le rapport, pour tenir 1 heure"
     ],
     bonne: 2,
     pourquoi: [
       "Non. C'est le biais de planification : on croit toujours aller plus vite. 3 fois sur 3, c'était 3 heures : c'est ta vraie mesure.",
-      "Non. Le rapport du COPIL, c'est ton travail de chef de projet. Le consultant en régie coûte, et ne voit pas tout le projet.",
+      "Non. Presque : tu ajoutes une marge, mais au jugé. 3 fois sur 3, c'était 3 heures : c'est ta mesure, pas ton espoir.",
       "Oui. Ton temps réel, noté, vaut mieux que ton estimation. 3 heures, dans un créneau posé : ta charge de la semaine est juste.",
       "Non. Le rapport sert au DAF, tel qu'il est. Ce qui est faux, c'est ton estimation, pas son format."
     ],
@@ -683,14 +683,14 @@ LEARNSQL.questions.cp02 = [
     q: "Jeudi 8 avril, 14 h. En même temps : 12 factures AquaBleu rejetées en recette, le portail de la PA lent, et ton DSI qui te demande un chiffre pour 16 h. Que fais-tu d'abord ?",
     choix: [
       "Tu demandes à ton DSI de reprendre la main sur deux sujets",
-      "Le chiffre de ton DSI d'abord, puis les rejets",
+      "Tu classes par rang : le chiffre de ton DSI d'abord",
       "Tu traites les trois en même temps, au téléphone et sur Teams",
       "Tu les écris, tu les classes par impact, puis un à un"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Rien ne dépasse ton rôle ici : tu sais trier. Demander de l'aide, c'est quand tu bloques, pas avant d'avoir trié.",
-      "Non. Le rang de celui qui demande n'est pas un critère. Son chiffre est pour 16 h ; les rejets touchent la recette.",
+      "Non. Presque : classer, oui, mais le rang de celui qui demande n'est pas un critère. Son chiffre est pour 16 h ; les rejets touchent la recette.",
       "Non. Trois sujets à la fois, ce sont trois sujets à moitié faits, et des erreurs. Sous pression, on ralentit 5 minutes pour aller plus vite après.",
       "Oui. Sous pression : t'arrêter 5 minutes, écrire, classer par impact (ce qui bloque, la date légale), puis une chose à la fois. Le portail lent : un ticket du N2 à la PA."
     ],
@@ -709,7 +709,7 @@ LEARNSQL.questions.cp02 = [
     bonne: 3,
     pourquoi: [
       "Non. À chaud, tu te défends au lieu de répondre. Ce que tu écris ce soir, tu risques de le regretter demain.",
-      "Non. Un appel à chaud reste à chaud : tu parles de toi, pas des incidents. Et rien ne presse ce soir.",
+      "Non. Appeler apaise quand l'autre est tendu (module cp17) ; ici, c'est toi qui es à chaud. Tu parlerais de toi, pas des incidents, et rien ne presse ce soir.",
       "Non. Attendre lundi, ce sont des jours de silence sur 3 incidents : ton DSI s'inquiétera. Demain matin suffit.",
       "Oui. Une question à 19 h, quand tu le prends mal : tu réponds à froid, le lendemain, avec les faits. Ton DSI aura une réponse, pas une défense (module cp17)."
     ],
@@ -729,7 +729,7 @@ LEARNSQL.questions.cp02 = [
     pourquoi: [
       "Non. Une journée bloqué, c'est déjà tard. Être référent, ce n'est pas tout trouver seul : c'est savoir qui peut aider.",
       "Non. Ce rejet touche la recette : le mettre de côté, c'est le retrouver en mai, au pilote.",
-      "Oui. Demander de l'aide tôt : après une journée bloqué, celui qui sait est à côté. Une heure à deux vaut mieux qu'une 2e journée seul (module cp03).",
+      "Oui. Demander de l'aide tôt : celui qui sait est à côté. Une heure d'un collègue se demande en direct ; des jours de son temps, à ton DSI (module cp03).",
       "Non. Attendre le point projet, c'est rester bloqué des jours, pour une question qu'une personne peut régler ce matin."
     ],
     retenir: "Bloqué plus d'une demi-journée ? Tu demandes de l'aide, tôt, à celui qui sait."
@@ -775,7 +775,7 @@ LEARNSQL.questions.cp02 = [
   {
     id: "cp02-q39",
     dialecte: "Gestion de projet",
-    q: "Depuis 4 semaines, tu finis à 21 h, tu dors mal. Hier, tu t'es emporté contre Julie, et tu as oublié un atelier. Que fais-tu ?",
+    q: "Avril, en pleine recette. Depuis 4 semaines, tu finis à 21 h, tu dors mal. Hier, tu t'es emporté contre Julie, et tu as oublié un atelier. Que fais-tu ?",
     choix: [
       "Tu en parles à ton DSI cette semaine, sans attendre",
       "Tu tiens jusqu'à la bascule : tu te reposeras en juillet",

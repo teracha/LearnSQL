@@ -58,7 +58,7 @@ LEARNSQL.cours.cp02 = {
       exemple: "Ton temps : 70 % sur DEMAT, 30 % sur le run, soit 7 et 3 demi-journées sur 10.\nTon run : référent des flux EDI (échange de données informatisé), en appui du N2, et les petites demandes.\nUn état de stock Divalto faux ? Pas un flux EDI : le N2 analyse, puis l'intégrateur, par ticket (le N3, 3e niveau).\nLe N2 bloque sur le flux des factures d'AquaBleu (20 % du chiffre d'affaires) ? Là, c'est pour toi.",
       points: [
         "Une petite demande (un export, une colonne dans un état), non bloquante : oui, dans ton créneau run, par exemple l'après-midi.",
-        "Le reste n'est pas à toi. Le support d'abord : N1, N2, puis toi ; le N3 par ticket (module cp15). « Juste cette fois » devient la règle.",
+        "Le reste n'est pas à toi : le N2 analyse, puis le N3 par ticket (module cp15). Toi, tu viens après le N2 sur l'EDI seulement. « Juste cette fois » devient la règle.",
         "Les mêmes appels reviennent ? Forme le N2 : une heure sur les rejets simples, et ils ne passent plus par toi.",
         "Vraie urgence de ton rôle : un flux bloqué qui empêche de facturer, que personne d'autre ne trouve. Tu lâches le projet une heure. Si quelqu'un sait faire, tu confies, avec un point à heure fixe."
       ],
@@ -68,10 +68,10 @@ LEARNSQL.cours.cp02 = {
       titre: "Les interruptions : les regrouper",
       exemple: "Mardi, 9 h-11 h, ton créneau DEMAT : 9 messages Teams, 2 appels, Sophie au bureau « 2 minutes ». Rien ne bloquait une facture. Matinée perdue.\nMardi suivant : Teams en « ne pas déranger », téléphone pour le N2 seulement, réponses à 11 h.",
       points: [
-        "Une interruption coûte plus que sa durée : il faut du temps pour s'y remettre. Tes créneaux de 2 heures sont réservés à l'avance dans l'agenda, comme un rendez-vous, notifications coupées ; les messages, à heures fixes (11 h, 14 h, 17 h).",
+        "Une interruption coûte plus que sa durée : il faut du temps pour s'y remettre. Tes créneaux de 2 heures sont réservés à l'avance dans l'agenda, comme un rendez-vous, notifications coupées. Les messages, à heures fixes (11 h, 14 h, 17 h).",
         "Pas bloquant ? « Je regarde à 14 h. » « Urgent » ne suffit pas : « Qu'est-ce qui est bloqué, et pour quand ? »",
-        "Le créneau cède à la vraie urgence (une facturation bloquée, la date légale), à des appels répétés, et à quelqu'un bloqué par toi : 10 minutes qui débloquent le consultant passent d'abord. On regroupe, on ne coupe pas tout.",
-        "Les méthodes divergent. GTD (Getting Things Done, de David Allen) : moins de 2 minutes, fais-le tout de suite. Les créneaux protégés : note-le. Hors créneau, les 2 minutes ; dedans, tu notes.",
+        "Le créneau cède à la vraie urgence (une facturation bloquée, la date légale), à des appels répétés, et à quelqu'un bloqué par toi. 10 minutes qui débloquent le consultant passent d'abord. On regroupe, on ne coupe pas tout.",
+        "Les méthodes divergent. GTD (Getting Things Done, de David Allen) : moins de 2 minutes, fais-le tout de suite. Les créneaux protégés : note-le. Hors créneau, les 2 minutes, pour tes tâches ; dedans, tu notes.",
         "Une réunion où tu ne décides ni n'apportes rien : le compte rendu suffit. Tu es DSI adjoint ? Pour ton équipe, un point court le matin, une porte ouverte à heure fixe."
       ],
       retenir: "Tu regroupes, et tu dis quand. Sauf vraie urgence, ou quelqu'un bloqué par toi."
@@ -93,19 +93,19 @@ LEARNSQL.cours.cp02 = {
         "Ta charge = tout ce que tu as à faire (projet, run, formation), en demi-journées, divisé par 10. Une journée, c'est 2 demi-journées.",
         "Tes estimations sont souvent trop courtes (le « biais de planification ») : prévois avec ton temps réel, noté.",
         "Un pic court (11 sur 10, puis 9), sans échéance menacée : tu glisses ce qui peut attendre. Pas d'alerte, pas de soirée.",
-        "Au-delà (120 %, plusieurs semaines, une échéance en jeu) : tu le dis à ton DSI dès que tu le vois, pas au rendez-vous suivant. Absorber en silence, le soir, cache le problème : personne ne peut choisir.",
+        "Au-delà (120 %, plusieurs semaines, une échéance en jeu) : tu le dis tôt à ton DSI, au point du lundi. Une échéance tombe avant ? Le jour même. Absorber en silence, le soir, cache le problème : personne ne peut choisir.",
         "Une demande utile, en pleine semaine chargée : « pas maintenant », avec une date. Le fond : module cp18 ; les mots : module cp17."
       ],
       retenir: "Ta charge se compte. Un pic court se règle dans ta liste ; un dépassement se dit tôt à ton DSI."
     },
     {
       titre: "Ton DSI arbitre, sur tes faits",
-      exemple: "Fin février, 3 semaines de suite : 5 demi-journées de run sur 10, et la recette prend du retard.\nAu point du lundi : « Run : 5 sur 10 depuis 3 semaines. Ne glisse pas : le 16 mars. A : le N2 reprend les rejets simples. B : la doc des flux attend avril. Je recommande A. » Ton DSI choisit.",
+      exemple: "Fin février, 3 semaines de suite : 5 demi-journées de run sur 10, et la recette prend du retard.\nAu point du lundi : « Run : 5 sur 10 depuis 3 semaines. Ne glisse pas : le 16 mars. A : le N2 traite les rejets simples. B : la doc des flux attend avril. Je recommande A. » Ton DSI choisit.",
       points: [
-        "Un écart d'un jour ou d'une semaine : tu le règles ou tu le confies, et tu le notes. Run et projet qui débordent ensemble, et ça dure : ton DSI arbitre. Pas le DAF (directeur administratif et financier, ton sponsor) : il ne gère pas le temps de la DSI.",
+        "Un écart subi d'un jour ou d'une semaine : tu le règles ou tu le confies, et tu le notes. Ça dure, ou tu veux changer le partage (3 jours du run pour DEMAT) : ton DSI arbitre. Pas le DAF (directeur administratif et financier, ton sponsor) : il ne gère pas le temps de la DSI.",
         "Tu apportes des faits, ce qui peut glisser ou pas (la date légale, une échéance du contrat), 2 options, ta recommandation.",
         "Il te charge en plus ? « Oui. Alors, que décale-t-on ? » Il a décidé ? Tu appliques, et tu préviens tout de suite ceux qui attendaient.",
-        "Son choix fait sortir un jalon de la tolérance (± 2 semaines, module cp04) ? Le DAF tranche, prévenu le jour même.",
+        "Son choix fait sortir un jalon de la tolérance (± 2 semaines, module cp04) ? Le DAF le sait le jour même : le jalon, c'est lui qui le change.",
         "Tu es DSI adjoint : « ça va » ne suffit pas, demande des chiffres. Faits et options reçus : tu tranches vite, et tu l'écris."
       ],
       retenir: "Ton DSI arbitre ce qui dure, sur tes faits et tes options. Un jalon hors tolérance : le DAF."
@@ -114,8 +114,8 @@ LEARNSQL.cours.cp02 = {
       titre: "Tenir sous pression",
       exemple: "Jeudi 8 avril, 14 h : 12 factures AquaBleu rejetées en recette, le portail de la PA lent, un chiffre pour ton DSI à 16 h.\nTu t'arrêtes 5 minutes, tu écris, tu classes par impact, puis une chose à la fois.\nTes pics sont connus : janvier (clôture annuelle, données du 15), mars-avril (recette, en pleine saison des piscines), juin (bascule).",
       points: [
-        "Découper : une tâche qui fait peur (« préparer la bascule ») devient sa prochaine action, concrète, de moins d'une heure.",
-        "Rien à chaud : un message qui te pique, le soir, attend le lendemain (module cp17). Bloqué plus d'une demi-journée ? Demande de l'aide à celui qui sait.",
+        "Découper : une tâche qui fait peur (« préparer la bascule ») devient sa prochaine action, concrète, de moins d'une heure. Bloqué plus d'une demi-journée ? Demande de l'aide à celui qui sait.",
+        "Rien à chaud : un message qui te pique, le soir, attend le lendemain. C'est l'autre qui est tendu ? Tu l'appelles (module cp17).",
         "Un pic prévisible se prépare des mois avant, avec ton DSI : le N2 formé, le run allégé, pas deux gros sujets le même mois.",
         "Tes signaux : soirs tardifs devenus la règle, sommeil court, irritation, oublis. Parles-en tôt à ton DSI, ou aux RH (ressources humaines), au médecin du travail.",
         "Le soir, sans blocage, la réponse attend le matin : le Code du travail prévoit un droit à la déconnexion ; ton entreprise en fixe les règles."
