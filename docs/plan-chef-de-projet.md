@@ -87,6 +87,15 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   compta ; 2 finalistes présentées au DAF, qui choisit ; contrat signé en novembre 2026. Pas de service achats : le DAF achète.
   Intégrateur Divalto : le partenaire déjà en place, sans mise en concurrence pour DEMAT ; son devis (jours, profils, taux)
   est vérifié avant la commande.
+  Détails (cp13) : cahier des charges de 8 pages ; 8 PA de la liste officielle ont un connecteur standard pour Divalto,
+  3 consultées ; grille validée par le DAF avant les offres : éliminatoires (liste officielle ; connecteur standard pour
+  Divalto ; réception possible dès novembre), puis 100 points (cas en démo 20, connecteur et sécurité 25, prix sur 3 ans 20,
+  SLA 15, références sous Divalto 10, réversibilité 5, solidité 5) ; la compta note ses cas (6 cas réels, démos de 2 h),
+  la DSI le connecteur et la sécurité, le chef de projet le prix ; 2 finalistes notées 78 et 74 ; négociation : support
+  porté de 9 h-17 h à 8 h-18 h (d'où l'annexe SLA), portail du plan B inclus, export sous 30 jours. Lettres des QCM :
+  A = la 1re (78), B = l'autre finaliste (74), C = écartée avant la fin ; le choix du DAF peut varier selon la question.
+  Archivage : le contrat de novembre 2026 ne couvre pas la durée légale ; une option d'archivage est ajoutée par avenant
+  en mars 2027 (cp14-q31, cp16-q39). C'est l'entreprise qui doit garder ses factures la durée légale ; elle choisit où.
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,

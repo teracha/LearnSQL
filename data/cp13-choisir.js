@@ -27,7 +27,7 @@
 // une PA (q18) ; support proposé de 9 h à 17 h, négocié à 8 h-18 h (q34) ; chiffres des exemples (q02, q03, q23, q24,
 // q32, q43) ; archivage limité à 2 ans contre une remise (q36) ; hausse de 10 % la veille de la signature (q37).
 // Affirmations juridiques hors fiche (générales, à faire vérifier) : une entreprise privée n'a pas les règles de la
-// commande publique (cours) ; la loi impose de garder les factures la durée légale, pas que la PA les garde (q36) ;
+// commande publique (cours) ; la loi impose de garder les factures la durée légale, et laisse choisir où (la PA ou un autre service) (q36) ;
 // une invitation n'est pas en soi une preuve de corruption, mais se refuse pendant la consultation (q17).
 // Déjà publiées ailleurs, pas reprises ici : cp01-q12 et q15, cp04-q01, q18, q23, q34 et q39, cp07-q27, cp10-q06,
 // cp14-q10, q12, q23, q35 et q36, cp15-q22 et q43, cp18-q32.
@@ -43,7 +43,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q01",
     dialecte: "Gestion de projet",
-    q: "Octobre 2026. Le DAF : « Pour l'intégrateur Divalto aussi, consulte 3 sociétés, comme pour la PA. » C'est votre partenaire en place : il connaît votre paramétrage depuis des années. Que lui proposes-tu ?",
+    q: "Octobre 2026. Le DAF : « Pour l'intégrateur Divalto aussi, consulte 3 sociétés, comme pour la PA. » C'est votre partenaire en place : il connaît votre paramétrage depuis des années, et il donne satisfaction. Que lui proposes-tu ?",
     choix: [
       "Tu consultes 3 intégrateurs Divalto, sur le même cahier des charges",
       "Tu gardes celui en place, et le DAF signe son devis tel quel",
@@ -195,7 +195,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q09",
     dialecte: "Gestion de projet",
-    q: "Les 3 PA ont répondu. L'une donne un prix par facture, l'autre un forfait par mois, la 3e « sur devis » pour le connecteur. Impossible de comparer. Que fais-tu ?",
+    q: "Les 3 PA ont répondu. Ton cahier des charges n'imposait pas de forme pour les prix. L'une donne un prix par facture, l'autre un forfait par mois, la 3e « sur devis » pour le connecteur. Impossible de comparer. Que fais-tu ?",
     choix: [
       "Tu compares au mieux, en estimant toi-même les prix qui manquent",
       "Tu écartes la PA « sur devis » : son offre est incomplète",
@@ -276,21 +276,21 @@ LEARNSQL.questions.cp13 = [
       "Tu lui réponds au téléphone : elle a eu le bon réflexe",
       "Tu réponds « Non : tout est dans le cahier des charges »",
       "Tu réponds aux 3 PA, puis tu dis que la question vient de C",
-      "Tu réponds, puis la question et la réponse partent aux 3 PA"
+      "La question et ta réponse partent aux 3 PA en même temps"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Elle seule chiffre sur le vrai volume ; les 2 autres chiffrent à l'aveugle. Les offres ne se comparent plus, et l'équité est rompue.",
       "Non. Ton cahier des charges a un trou : refuser, c'est laisser chaque PA deviner. Les prix seront faux pour tous.",
       "Non. Presque : la réponse va bien aux 3, mais sans dire qui a demandé. Sa question montre ce qu'elle cherche : c'est son information.",
-      "Oui. Une question utile mérite une réponse, pour tous : la question et la réponse partent aux 3, par écrit, sans dire qui a demandé."
+      "Oui. Une question utile mérite une réponse, pour tous, en même temps. La question et ta réponse partent aux 3, par écrit, sans dire qui a demandé."
     ],
     retenir: "La question d'un candidat : la réponse part à tous, par écrit, sans dire qui l'a posée."
   },
   {
     id: "cp13-q14",
     dialecte: "Gestion de projet",
-    q: "2 jours avant la date de réponse, la PA C demande une semaine de plus : « Notre avant-vente est débordée. » A et B répondront à temps. Que fais-tu ?",
+    q: "2 jours avant la date de réponse, la PA C demande une semaine de plus : « Notre avant-vente est débordée. » A et B répondront à temps. La réception est déjà en retard. Que fais-tu ?",
     choix: [
       "Tu lui accordes la semaine : son offre sera peut-être la meilleure",
       "Une semaine de plus pour les 3 PA, pour rester équitable",
@@ -359,7 +359,7 @@ LEARNSQL.questions.cp13 = [
       "Non. Pendant une consultation, une invitation fausse ton jugement, ou le fait croire aux autres candidats. Et la cheffe comptable note les démos.",
       "Non. Presque : déclarer est bien, mais ne rend pas l'invitation neutre. Pendant la consultation, on refuse.",
       "Oui. Pendant la consultation, cadeaux et invitations se refusent, poliment. Le DAF, qui achète, le sait : tout reste clair.",
-      "Non. Une invitation n'est pas une preuve de corruption : elle se refuse, sans sanction. C garde sa place, sur la même grille."
+      "Non. Une invitation, à elle seule, ne prouve pas une corruption : elle se refuse, sans sanction. C garde sa place, sur la même grille."
     ],
     retenir: "Pendant une consultation, les invitations d'un candidat se refusent, poliment, et le DAF le sait."
   },
@@ -442,19 +442,19 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q22",
     dialecte: "Gestion de projet",
-    q: "Ta grille met en éliminatoire « un connecteur standard pour Divalto ». L'offre de B est la moins chère et la plus complète. Mais son connecteur serait développé pour vous, au forfait. Que fais-tu ?",
+    q: "Ta grille met en éliminatoire « un connecteur standard pour Divalto ». L'offre de C est la moins chère et la plus complète. Mais son connecteur serait développé pour vous, au forfait. Que fais-tu ?",
     choix: [
-      "B est écartée aujourd'hui, quelles que soient ses autres notes",
-      "B reste en course : au forfait, le connecteur a un prix fixe",
-      "B perd 15 points sur le connecteur, et reste au classement",
-      "Tu présentes B au DAF, avec ce risque écrit en rouge"
+      "C est écartée aujourd'hui, quelles que soient ses autres notes",
+      "C reste en course : au forfait, le connecteur a un prix fixe",
+      "C perd 15 points sur le connecteur, et reste au classement",
+      "Tu présentes C au DAF, avec ce risque écrit en rouge"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Un critère éliminatoire, raté, sort l'offre, quelles que soient ses autres notes. Tu l'écris à B le jour même, poliment, avec la raison.",
+      "Oui. Un critère éliminatoire, raté, sort l'offre, quelles que soient ses autres notes. Tu l'écris à C le jour même, poliment, avec la raison.",
       "Non. Le prix est fixe, pas le risque : un connecteur fait pour vous seul est un spécifique, à revoir à chaque version (module cp15).",
       "Non. Presque : tu le pénalises, mais un critère éliminatoire ne se compense pas. Sinon, une offre rachète par le prix ce qui la rend inutilisable.",
-      "Non. La règle a été fixée et validée avant les offres : le DAF n'a pas à la rejuger pour une offre. Tu lui diras que B est écartée, et pourquoi."
+      "Non. La règle a été fixée et validée avant les offres : le DAF n'a pas à la rejuger pour une offre. Tu lui diras que C est écartée, et pourquoi."
     ],
     retenir: "Un critère éliminatoire ne se compense pas : raté, l'offre sort, même la moins chère."
   },
@@ -594,7 +594,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q30",
     dialecte: "Gestion de projet",
-    q: "La PA C, finaliste, est bien notée et la moins chère. Elle a 3 ans, 40 clients, et ses derniers comptes publiés montrent une perte. Que fais-tu ?",
+    q: "La PA C est bien notée et la moins chère. Elle a 3 ans, 40 clients, et ses derniers comptes publiés montrent une perte. Que fais-tu ?",
     choix: [
       "Rien de spécial : le prix et la démo comptent plus que ses comptes",
       "Tu baisses toutes ses notes de moitié ; le DAF le saura",
@@ -613,7 +613,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q31",
     dialecte: "Gestion de projet",
-    q: "La démo sur vos cas et 2 références ont levé tes doutes sur la PA C, finaliste. Elle propose en plus un essai gratuit de 6 semaines sur vos données. Que fais-tu ?",
+    q: "La démo sur vos cas et 2 références ont levé tes doutes sur la PA B, finaliste. Elle propose en plus un essai gratuit de 6 semaines sur vos données. Que fais-tu ?",
     choix: [
       "Tu acceptes : c'est gratuit, et ça ne peut pas nuire",
       "Tu acceptes, mais en 2 semaines, pour lever les derniers doutes",
@@ -632,7 +632,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q32",
     dialecte: "Gestion de projet",
-    q: "Autre projet de la DSI : Power BI sur Snowflake. 2 prestataires finalistes. Doute fort : vos 50 millions de lignes de ventes, affichées en moins de 5 secondes ? Que fais-tu ?",
+    q: "Autre projet de la DSI : Power BI sur Snowflake. 2 prestataires finalistes. Doute fort : l'historique de vos stocks, jour par jour, 50 millions de lignes, affiché en moins de 5 secondes ? Que fais-tu ?",
     choix: [
       "Tu prends celui qui promet 2 secondes, par écrit dans son offre",
       "Un essai de 5 jours sur vos données, même scénario pour les 2",
@@ -655,7 +655,7 @@ LEARNSQL.questions.cp13 = [
     choix: [
       "Tu le prends : les opérateurs EDI se relient toujours entre eux",
       "Tu demandes à AquaBleu de passer chez ce nouvel opérateur, moins cher",
-      "Un échange test avec AquaBleu avant le choix ; sinon, tu l'écartes",
+      "Un envoi test vers AquaBleu avant le choix ; sinon, tu l'écartes",
       "Tu le notes un peu moins bien sur la grille, et tu le gardes"
     ],
     bonne: 2,
@@ -670,17 +670,17 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q34",
     dialecte: "Gestion de projet",
-    q: "Négociation avec A, finaliste. Son prix est déjà le plus bas des deux. Son SLA : support de 9 h à 17 h. Ta compta travaille de 8 h à 18 h. Que fais-tu ?",
+    q: "Négociation avec A, finaliste. Son prix tient dans ton budget. Son SLA : support de 9 h à 17 h. Ta compta travaille de 8 h à 18 h. Que fais-tu ?",
     choix: [
       "Tu acceptes son prix, et tu négocies le support de 8 h à 18 h",
       "Tu demandes 10 % de remise en plus : un prix se négocie toujours",
-      "Rien de plus : le meilleur prix, et tu fais signer au plus vite",
+      "Rien de plus : le prix tient, et tu fais signer au plus vite",
       "Tu exiges un support 24 h sur 24, 7 jours sur 7, et 10 % de remise"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On négocie ce qui compte pour toi : ici, le SLA, aux heures de ta compta. Le prix n'est qu'un levier parmi d'autres.",
-      "Non. Le prix est déjà le plus bas : 10 % de plus ne règle pas ton vrai risque. Une panne à 8 h 30, sans support, bloque la compta jusqu'à 9 h.",
+      "Non. Le prix tient déjà : une remise ne règle pas ton vrai risque. Une panne à 8 h 30, sans support, bloque la compta jusqu'à 9 h.",
       "Non. Le prix n'est qu'un point. Signer avec un support qui ouvre après ta compta, c'est accepter 2 heures par jour sans aide.",
       "Non. Ta compta ne travaille pas la nuit : tu paierais un service inutile. Et A refusera tout, ou le facturera cher."
     ],
@@ -708,7 +708,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q36",
     dialecte: "Gestion de projet",
-    q: "La PA B propose 8 % de remise si elle ne garde vos factures que 2 ans, au lieu de la durée légale. Que fais-tu ?",
+    q: "La PA B propose 8 % de remise si son option d'archivage ne garde vos factures que 2 ans, au lieu de la durée légale. Que fais-tu ?",
     choix: [
       "Tu acceptes les 8 % ; l'archivage, tu verras dans 2 ans",
       "Tu refuses net : la loi impose de garder les factures",
@@ -718,9 +718,9 @@ LEARNSQL.questions.cp13 = [
     bonne: 3,
     pourquoi: [
       "Non. Dans 2 ans, il sera tard : la durée légale reste à tenir, et sans solution, l'entreprise est hors la loi. Tu ne sais même pas ce que coûtera la suite.",
-      "Non. Presque : la loi impose de garder les factures la durée légale, pas que la PA les garde. Une autre solution peut le faire : il faut la chiffrer.",
+      "Non. Presque : la loi t'impose de garder tes factures la durée légale, intactes ; elle te laisse choisir où. Un autre service d'archivage peut le faire : il faut le chiffrer.",
       "Non. Au-delà de la durée légale, tu paies pour rien. Et tu exiges ce que la loi ne demande pas.",
-      "Oui. L'obligation ne se discute pas ; la façon de la tenir, si. Tu ajoutes au coût sur 3 ans de B le prix d'un archivage ailleurs, sur la durée légale, puis tu compares."
+      "Oui. L'obligation ne se discute pas ; la façon de la tenir, si. Tu ajoutes au coût sur 3 ans de B un archivage fiable ailleurs (factures intactes, durée légale, transfert compris), puis tu compares."
     ],
     retenir: "Jamais sur l'obligation légale ; la façon de la tenir se compare, en coût sur 3 ans."
   },
@@ -767,7 +767,7 @@ LEARNSQL.questions.cp13 = [
     dialecte: "Gestion de projet",
     q: "Tu recommandes A (78 sur 100). Le DAF choisit B (74), 10 % moins chère sur 3 ans. Il connaît l'écart et ses risques. Que fais-tu ?",
     choix: [
-      "D'accord : c'est B. Tu écris ses risques, puis le contrat",
+      "D'accord : c'est B. Tu notes ses risques ; le contrat suit",
       "Tu reprends 15 minutes avec lui, et tu plaides encore pour A",
       "Tu revois les notes de B, pour que la grille suive son choix",
       "Tu demandes au DG de revoir ce choix, risques en main"
@@ -803,7 +803,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q41",
     dialecte: "Gestion de projet",
-    q: "Le contrat avec A est signé. B, l'autre finaliste, et C, sortie plus tôt, attendent une réponse. Que leur envoies-tu ?",
+    q: "Le contrat avec A est signé. B, l'autre finaliste, attend ta réponse. C, écartée plus tôt, demande pourquoi. Que leur envoies-tu ?",
     choix: [
       "Rien : ne pas recevoir de commande, c'est déjà une réponse",
       "Un mot poli, et les points faibles de leur offre, rien sur A",

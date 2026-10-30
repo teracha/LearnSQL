@@ -197,7 +197,7 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q10",
     dialecte: "Gestion de projet",
-    q: "Novembre. Le devis de l'intégrateur dit : « Paramétrage du connecteur, en régie, au taux journalier. » Aucun nombre de jours. Le DAF va signer la commande. Que vérifies-tu ?",
+    q: "Novembre. Le projet de commande de l'intégrateur dit : « Paramétrage du connecteur, en régie, au taux journalier. » Aucun plafond de jours. Le DAF va la signer. Que vérifies-tu ?",
     choix: [
       "Qu'il donne une estimation chiffrée, pour info",
       "Qu'elle décrit la mission, avec un plafond de jours",

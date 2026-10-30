@@ -32,7 +32,7 @@
 // 6 cas réels en démo ; finalistes notés 78 et 74 sur 100.
 // Affirmations juridiques hors fiche (générales, à faire vérifier) : une entreprise privée n'a pas les règles de la
 // commande publique (elle consulte selon ses propres règles) ; la loi impose de garder les factures la durée légale,
-// pas que la PA les garde (un autre service d'archivage peut le faire).
+// et laisse choisir où (la PA ou un autre service) (un autre service d'archivage peut le faire).
 // Frontières :
 // - cp04 = cadrer AVANT de consulter (note de cadrage ≠ cahier des charges) ; cp13 = consulter et choisir ;
 //   cp14 = contracter après le choix (clauses, avenant, pénalités) ; cp15 = piloter, et le bilan fournisseur qui
@@ -49,7 +49,7 @@ LEARNSQL.cours.cp13 = {
         "Tu consultes quand l'enjeu est fort, le montant élevé, le contrat long, et que plusieurs prestataires savent faire.",
         "Un devis vérifié suffit pour un petit montant, ou pour le partenaire en place sur ton ERP. Vérifier : les jours tâche par tâche, le profil, le taux, ce qui est inclus, comparés à un projet passé.",
         "Le partenaire en place a déçu (son bilan écrit, module cp15), et le projet est gros ? Tu consultes, lui compris.",
-        "Urgence : on consulte plus court, pas moins bien. Une entreprise privée n'a pas les règles de la commande publique : elle suit les siennes. Ici, le DAF (directeur administratif et financier, ton sponsor) achète."
+        "Urgence : on consulte plus court, pas moins bien. Ton entreprise, privée, n'a pas les règles de la commande publique (les achats de l'État et des collectivités) : elle suit les siennes. Ici, le DAF (directeur administratif et financier, ton sponsor) achète."
       ],
       retenir: "Gros enjeu, plusieurs prestataires : tu consultes. Petit montant ou partenaire en place : un devis vérifié. L'urgence raccourcit la consultation, sans la supprimer."
     },
@@ -67,7 +67,7 @@ LEARNSQL.cours.cp13 = {
     },
     {
       titre: "Les mêmes règles pour tous",
-      exemple: "Lundi, la PA C t'appelle : « Combien de fournisseurs vous envoient déjà des factures électroniques ? » Le cahier des charges ne le dit pas.\nTu réponds. Puis la question et la réponse partent aux 3 PA, par écrit, sans dire qui a demandé.\nMercredi, la PA B t'invite à un match, en loge. Tu déclines, et le DAF le sait.",
+      exemple: "Lundi, la PA C t'appelle : « Combien de fournisseurs vous envoient déjà des factures électroniques ? » Le cahier des charges ne le dit pas.\nLe jour même, la question et ta réponse partent aux 3 PA, par écrit, sans dire qui a demandé.\nMercredi, la PA B t'invite à un match, en loge. Tu déclines, et le DAF le sait.",
       points: [
         "Mêmes informations, même délai pour tous. Un délai ne s'allonge que pour tous, et pour une raison qui vient de la consultation (un oubli du cahier des charges).",
         "Une offre est confidentielle : jamais le prix ni le contenu d'un concurrent, même pour faire baisser un prix.",
@@ -91,7 +91,7 @@ LEARNSQL.cours.cp13 = {
     },
     {
       titre: "Vérifier : tes cas, des références, la solidité",
-      exemple: "Démos de 2 heures, une par PA, devant Julie et Sophie.\nPas le spectacle du vendeur : tes 6 cas réels, envoyés avant, les mêmes pour les 3. Un avoir fournisseur, une facture sans SIREN (le numéro de l'entreprise), une facture EDI d'AquaBleu…\nPuis, pour chaque finaliste, tu appelles 2 clients sous Divalto.",
+      exemple: "Démos de 2 heures, une par PA, devant la cheffe comptable, Julie et Sophie.\nPas le spectacle du vendeur : tes 6 cas réels, envoyés avant, les mêmes pour les 3. Un avoir fournisseur, une facture sans SIREN (le numéro de l'entreprise), une facture EDI d'AquaBleu…\nPuis, pour chaque finaliste, tu appelles 2 clients sous Divalto.",
       points: [
         "La démo du vendeur montre ce qui marche chez lui. La tienne joue tes cas, notés par ceux qui s'en serviront.",
         "Références : des clients comparables (sous Divalto, ta taille), appelés par toi, avec tes questions : délais, support, rejets. Une liste de logos ne prouve rien.",
@@ -106,7 +106,7 @@ LEARNSQL.cours.cp13 = {
       exemple: "Deux finalistes : A (78 sur 100) et B (74).\nTu négocies avec A, B en réserve : support de 8 h à 18 h, portail du plan B inclus, export des données sous 30 jours.\nPuis une page au DAF : les 2 finalistes, leurs notes, le coût sur 3 ans, les risques, ta recommandation.\nIl choisit, et il signe en novembre.",
       points: [
         "On négocie après la liste courte, avec une solution de rechange : l'autre finaliste (ta MESORE, meilleure solution de rechange : module cp18). Avec les 2 en même temps, ou le 1er seul : les pratiques varient. Tu gardes l'autre jusqu'à la signature.",
-        "Pas que le prix : le SLA, la réversibilité, le planning. Jamais l'obligation légale : la réception, déjà obligatoire, ne s'échange pas contre une remise. La façon de la tenir se compare : qui garde les factures la durée légale, et à quel prix.",
+        "Pas que le prix : le SLA, la réversibilité, le planning. Jamais l'obligation légale : la réception, déjà obligatoire, ne s'échange pas contre une remise. La façon de la tenir se compare : tu dois garder tes factures la durée légale, chez la PA ou ailleurs. À quel prix ?",
         "Tu recommandes ; le DAF choisit et signe. Il prend la 2e en connaissant l'écart ? C'est décidé : tu appliques, et tu écris le risque.",
         "Les non-retenus : une réponse écrite et polie, sur les points faibles de LEUR offre, rien sur les autres. L'autre finaliste : une date de réponse, puis l'annonce dès la signature.",
         "Ton bilan du fournisseur (module cp15) nourrit le prochain choix. En 2029, la PA en place répondra aussi, sur la même grille."
