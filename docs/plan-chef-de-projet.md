@@ -39,6 +39,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Émission et e-reporting : obligatoires pour les PME au 1er septembre 2027.
 - Tout passe par une plateforme agréée (PA, ex-PDP). Facture électronique = B2B en France.
 - Nouvelles mentions obligatoires, dont le SIREN du client : sans lui, la facture ne peut pas être acheminée (rejet).
+- La DGFiP publie sur impots.gouv.fr la liste officielle des PA immatriculées : on choisit dans cette liste
+  (un comparateur privé ne la remplace pas).
 - E-reporting = ventes aux particuliers, opérations avec l'étranger (UE et hors UE), données de paiement.
 - Une facture émise ne se modifie pas (intégrité dès l'émission) : on la corrige par un avoir ou une facture rectificative.
 - Conservation des factures : 6 ans (fiscal), 10 ans (Code de commerce). « Durée légale » suffit dans les questions.
@@ -79,6 +81,12 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   annexe SLA : disponibilité 99,5 % par mois, mesurée jour et nuit ; support de 8 h à 18 h les jours ouvrés (prise en
   charge en 1 h, portail rétabli en 4 h ; délais comptés aux heures de support, dès le ticket ;
   priorités : 1 = tout est bloqué, 2 = une partie) ; réversibilité : export sous 30 jours, en format standard ; données de paramétrage dues à la PA le 15 janvier 2027.
+- Choix de la PA (module cp13) : en octobre 2026, cahier des charges court tiré de la note de cadrage validée ; 3 PA consultées,
+  toutes dans la liste officielle ; 2 semaines pour répondre ; grille pondérée fixée avant de lire les offres (connecteur
+  Divalto, SLA, réversibilité, prix sur 3 ans, références de clients sous Divalto, solidité) ; démo sur les cas réels de la
+  compta ; 2 finalistes présentées au DAF, qui choisit ; contrat signé en novembre 2026. Pas de service achats : le DAF achète.
+  Intégrateur Divalto : le partenaire déjà en place, sans mise en concurrence pour DEMAT ; son devis (jours, profils, taux)
+  est vérifié avant la commande.
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
