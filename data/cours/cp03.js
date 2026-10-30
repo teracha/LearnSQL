@@ -59,7 +59,7 @@ LEARNSQL.cours.cp03 = {
         "À toi : cadrer, planifier, piloter, communiquer, suivre les risques, préparer les décisions et les faire prendre. Ça ne se délègue pas. Le consultant t'apporte ses risques au point projet du lundi. Le registre (la liste des risques suivis) et le rapport restent à toi.",
         "Tu fais faire : le paramétrage, sa documentation, les corrections (l'intégrateur, la PA : plateforme agréée). Et les tests et le travail du métier (Julie et Sophie à la compta, Marc à l'ADV). Il manque quelqu'un au métier ? Son manager organise ; toi, tu aides.",
         "Confier, c'est dire quoi, pour quand, et à quoi on voit que c'est fini. Puis un point d'étape avant l'échéance. Confier, puis ne plus regarder, c'est lâcher.",
-        "Tu suis les résultats (livrables, tests), pas chaque ligne. Corriger chaque soir le travail du consultant, c'est lui retirer sa responsabilité.",
+        "Tu suis les résultats (livrables, tests), pas chaque ligne. Corriger chaque soir le travail du consultant, c'est lui retirer sa responsabilité. Un 1er retard dans la marge : une date ferme, pas d'escalade.",
         "Le résultat reste à toi. « C'est la faute de la PA » ne suffit pas, « c'est ma faute » non plus. On attend la suite : l'impact, le plan, la décision à prendre."
       ],
       retenir: "Tu réponds du résultat. Les tâches, tu les confies clairement, et tu suis."
@@ -71,14 +71,14 @@ LEARNSQL.cours.cp03 = {
         "La tentation : paramétrer, corriger un flux, écrire une requête. C'est rapide, rassurant, et tu sais faire. Ce n'est pas une économie : pendant ce temps, personne ne pilote.",
         "Le prix : ta correction n'a ni test, ni trace. Le prestataire n'en répond plus. Et tu deviens le seul à savoir. Ton expertise sert autrement : trouver la cause, poser la bonne question, relire, tester.",
         "Une petite tâche de ton propre rôle (une requête pour ton rapport) ? Tu la fais toi-même : faire faire vaut pour le travail des autres.",
-        "Mettre les mains, rarement : une urgence réelle (un blocage, pas un confort), et personne d'autre à temps. Alors ton DSI est d'accord, tu testes, tu traces, tu l'écris au prestataire, et tu rends la main.",
+        "Mettre les mains, rarement : une urgence réelle (un blocage, pas un confort), et personne d'autre à temps. Alors, ton DSI d'accord (certains l'interdisent) : tu testes, tu traces, tu l'écris au prestataire, et tu rends la main.",
         "Pas d'habitude : si ça revient, c'est un besoin à confier, avec ton DSI (documentation, un 2e qui sait, un prestataire). Il te demande de faire ? Il arbitre ton temps : montre-lui le prix, puis il décide."
       ],
       retenir: "Tu diagnostiques, tu fais faire. Toi-même : rarement, en urgence, quand personne d'autre ne peut, en le disant."
     },
     {
       titre: "Rendre compte à ton DSI : le point du lundi",
-      exemple: "Lundi 11 janvier, 30 minutes avec ton DSI. Ta fiche :\n« Avance : paramétrage du connecteur au planning ; budget tenu.\nCoince : les cas de test de la compta, 1 semaine de retard (clôture annuelle). Dans 4 semaines : la PA livre, et elle vient de rater un petit jalon (une date clé).\nBesoin : ton avis sur ma note au DAF (2 options), avant jeudi. »",
+      exemple: "Lundi 11 janvier, 30 minutes avec ton DSI. Ta fiche :\n« Avance : paramétrage du connecteur au planning ; budget tenu.\nCoince : les cas de test de la compta, 1 semaine de retard (clôture annuelle). Le 1er mars : la PA livre, et elle vient de rater un petit jalon (une date clé).\nBesoin : ton avis sur ma note au DAF (2 options), avant jeudi. »",
       points: [
         "Ta fiche : ce qui avance, ce qui coince (et ce qui va coincer), ce dont tu as besoin de lui. Pas la liste de tes tâches. Tout va bien ? Dis-le en 2 minutes, et rends-lui son temps.",
         "Entre deux lundis, une mauvaise nouvelle : il l'apprend par toi, le jour même, avant les autres. En réunion ? Un message court, sans retarder le DAF. Ton erreur aussi : tu la dis toi-même, vite.",
@@ -90,12 +90,13 @@ LEARNSQL.cours.cp03 = {
     },
     {
       titre: "Anticiper : voir venir, préparer, proposer",
-      exemple: "Lundi 8 février. Tu regardes les 6 semaines à venir.\nUn risque : la PA doit livrer le connecteur le 1er mars, et elle a raté 2 petits jalons.\nUne charge : la clôture de mars, début avril, tombera en pleine recette.\nUne décision : si la recette glisse, le DAF devra choisir, fin mars, entre un renfort et un report.\nTu prépares ces options dès maintenant, et tu vois le DAF et ton DSI avant le COPIL.",
+      exemple: "Lundi 8 février. Tu regardes les 2 mois à venir.\nUn risque : la PA doit livrer le connecteur le 1er mars, et elle a raté 2 petits jalons.\nUne charge : la clôture de mars, début avril, tombera en pleine recette.\nUne décision : si la recette glisse, le DAF devra choisir, fin mars, entre un renfort et un report.\nTu prépares ces options dès maintenant, et tu vois le DAF et ton DSI avant le COPIL.",
       points: [
         "Voir venir, chaque semaine : les risques (module cp07), les charges (qui sera pris, quand, toi compris), les décisions (laquelle, qui décide, pour quand).",
         "Préparer le terrain : personne ne découvre en séance une demande qui le touche. Une demande sur les équipes de la DSI ? Ton DSI la voit avant le COPIL.",
         "Proposer plutôt que subir : un problème arrive avec 2 options chiffrées et ta recommandation. « Débrouille-toi » ne veut pas dire « décide seul » : le budget et le périmètre restent au sponsor.",
-        "Penser au run avant la bascule (la mise en service) : qui traitera les incidents, formé quand ? Une version bientôt plus maintenue : quand la remplacer ? Tu le proposes tôt, chiffré, à ton DSI."
+        "Penser au run avant la bascule (la mise en service) : qui traitera les incidents, formé quand ? Une version bientôt plus maintenue : quand la remplacer ? Tu le proposes tôt, chiffré, à ton DSI.",
+        "Ton congé en plein pilote ? Il se prépare tôt avec ton DSI, qui choisit ton suppléant."
       ],
       retenir: "Voir venir les risques, les charges et les décisions ; préparer le terrain ; arriver avec des propositions."
     },

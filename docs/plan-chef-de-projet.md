@@ -130,7 +130,10 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   Ton temps se compte en demi-journées : 7 sur DEMAT, 3 sur le run, sur 10. Un écart subi d'une semaine : tu le règles dans
   ta liste. Changer le partage (des jours du run pour DEMAT) ou un dépassement qui dure : ton DSI, au point du lundi (le jour
   même si une échéance tombe avant). Un jalon qui sort de la tolérance : le DAF, le jour même. Une heure d'aide d'un collègue
-  de la DSI se demande en direct ; des jours de son temps, à ton DSI.
+  de la DSI se demande en direct ; des jours de son temps, à ton DSI. Ta fiche du lundi : ce qui avance, ce qui coince, ce
+  dont tu as besoin (module cp03). Ton DSI dispose du support N1-N2 et d'un administrateur réseau. Comme référent des flux
+  EDI, tu as des droits sur le connecteur en production : tu n'y touches qu'en urgence réelle, ton DSI d'accord, testé,
+  tracé, écrit à l'intégrateur.
 - Gouvernance (module cp09) : COPIL (comité de pilotage) mensuel, le 2e mardi du mois, 1 h 30 : le DAF (sponsor : il
   préside et décide), toi (tu prépares, animes, écris le compte rendu), ton DSI, la cheffe comptable, le responsable ADV ;
   le contrôleur de gestion, la PA ou l'intégrateur sur invitation. Ordre du jour et rapport envoyés 3 jours avant ; compte

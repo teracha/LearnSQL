@@ -42,11 +42,13 @@
 // cp02-q10 et q38 (former le N2), cp02-q13 (« Oui. Alors, que décale-t-on ? »), cp02-q30 (un retard dit tout de suite).
 // Voisines, autre angle : q30 (ton DSI, avant le COPIL, pour ses équipes) et cp16-q31 ; q15 (ton diagnostic, code EDI
 // 380 / 381) et cp15-q13 ; q28 (tu consultes ton DSI pour tout) et cp18-q36 ; q21 (ton DSI te demande de faire :
-// le prix, puis il choisit) et cp02-q13 ; q39 (DSI adjoint : nommer un référent EDI) et cp02-q10.
+// le prix, puis il choisit) et cp02-q13 ; q39 (DSI adjoint : nommer un référent EDI) et cp02-q10 ;
+// q31 (version 2 : la proposer tôt à ton DSI) et cp10-q30 (pas de version 2 en pleine recette), cp15-q32 (mi-novembre).
 // Frontières : cp02 = ton temps et tes priorités (le 70 / 30, le run contre le projet, les interruptions) ; cp09 = les
 // instances et le RACI ; cp08 = le rapport du COPIL ; cp16 = l'échelle d'escalade ; cp17 = les mots ; cp18 = ta
 // délégation, arbitrer ; cp15 = piloter le prestataire ; cp07 = les risques ; cp22 = le passage en run ; cp23 =
 // l'adoption ; cp24 à cp27 = vers DSI adjoint (cités).
+// (Comptes de l'expert, d'avant la relecture du testeur ; recalculés après : toutes les règles sous les seuils.)
 // Anti-devinette : 40 questions (attentes du DSI 6, faire ou faire faire 11, rendre compte 9, anticiper 5, posture 3,
 // DSI adjoint 6). La bonne réponse est un extrême dans 10 questions : la plus douce qui suffit (q08, q10, q16, q22, q38,
 // q40), la plus forte quand elle se justifie (q05, q24, q25, q26). Un choix « faire faire » est juste dans 14
@@ -173,7 +175,7 @@ LEARNSQL.questions.cp03 = [
   {
     id: "cp03-q07",
     dialecte: "Gestion de projet",
-    q: "Juin, 2 semaines après la bascule. Date et budget tenus. Mais la compta ressaisit encore 30 % des factures fournisseurs dans Divalto, « par sécurité ». Ton DSI : « DEMAT, c'est fini ? » Que réponds-tu ?",
+    q: "Juin, 2 semaines après la bascule. Date et budget tenus. Mais la compta ressaisit encore dans Divalto 30 % des factures fournisseurs reçues par la PA, « par sécurité ». Ton DSI : « DEMAT, c'est fini ? » Que réponds-tu ?",
     choix: [
       "« Bientôt : dès demain, je bloque la saisie à la main dans Divalto, pour tous »",
       "« Oui : date et budget tenus. La ressaisie, c'est leur affaire »",
@@ -202,8 +204,8 @@ LEARNSQL.questions.cp03 = [
     bonne: 2,
     pourquoi: [
       "Non. Ce n'est pas une question d'argent : même gratuit, le pilotage reste à toi. Le DAF n'a rien à payer ici.",
-      "Non. Presque : tu gardes le rapport. Mais le registre est ton outil de pilotage : celui qui le tient choisit ce que le sponsor verra.",
-      "Oui. Piloter et rendre compte restent à toi. Ses risques sont précieux : il te les apporte chaque lundi, au point projet ; toi, tu les tiens.",
+      "Non. Presque : tu gardes le rapport. Mais le registre est ton outil de pilotage : celui qui le tient choisit ce que le sponsor verra, y compris ses propres retards.",
+      "Oui. Piloter et rendre compte restent à toi : un appui interne peut t'aider à tenir le registre, pas le prestataire, dont les retards y figurent. Ses risques sont précieux : il te les apporte au point projet du lundi ; toi, tu les tiens.",
       "Non. Faire faire vaut pour les tâches : paramétrer, tester. Piloter, suivre les risques, rendre compte au sponsor, c'est ton rôle même : il ne se délègue pas."
     ],
     retenir: "Piloter, suivre les risques et rendre compte ne se délèguent pas. Les autres t'apportent leurs risques ; toi, tu les tiens."
@@ -254,14 +256,14 @@ LEARNSQL.questions.cp03 = [
       "Tu ne relis ni ne corriges plus rien : c'est son paramétrage",
       "Tu ne corriges plus rien : tu lui dis, et tu juges aux tests",
       "Rien : grâce à toi, la recette trouvera bien moins d'erreurs",
-      "Tu demandes un 2e consultant à l'intégrateur, pour relire et tester"
+      "Tu demandes à ton DSI un 2e consultant, pour relire et tester"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Presque : arrêter de corriger, oui. Mais ne plus rien regarder, c'est lâcher. Tu suis ses livrables et les tests.",
       "Oui. Tu lui rends sa responsabilité : tu dis ce que tu vois, il corrige. Tu juges sur les résultats (les tests), pas ligne par ligne.",
       "Non. Il ne répond plus de son travail : il compte sur toi. Et chaque soir passé à corriger, tu ne pilotes pas.",
-      "Non. Tu paierais des jours pour un problème de rôle. Il suffit que chacun reprenne le sien."
+      "Non. Tu ferais payer des jours d'intégrateur pour un problème de rôle. Il suffit que chacun reprenne le sien."
     ],
     retenir: "Tu suis les résultats, pas chaque ligne : corriger à sa place retire sa responsabilité au prestataire."
   },
@@ -272,14 +274,14 @@ LEARNSQL.questions.cp03 = [
     choix: [
       "Tu demandes à sa cheffe de vérifier son travail avant le début",
       "Tu écris toi-même des cas de secours, au cas où il en manquerait le jour J",
-      "Rien : tu lui fais confiance, vous verrez bien le 1er jour",
+      "Tu lui envoies un rappel : la recette commence dans 5 jours",
       "Tu fais le point avec elle aujourd'hui : ce qui est prêt, ce qui manque"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Tu n'as pas encore regardé : passer par sa cheffe, c'est mettre Julie en cause pour un suivi que tu n'as pas fait.",
       "Non. Tu doubles son travail sans savoir s'il manque quelque chose. Et tes cas testent ce que tu crois, pas son travail réel.",
-      "Non. Confier n'est pas lâcher. Découvrir un manque le 1er jour, c'est une recette qui commence en retard.",
+      "Non. Presque : tu te manifestes avant le début. Mais un rappel ne te dit pas ce qui est prêt : un manque découvert le 1er jour, c'est une recette qui commence en retard.",
       "Oui. Faire faire, c'est suivre : le point d'étape, tout de suite, puisqu'il n'y en a pas eu. 5 jours laissent le temps de combler un manque."
     ],
     retenir: "Faire faire, c'est suivre : un point d'étape avant l'échéance, pas une surprise le jour J."
@@ -327,14 +329,14 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "Recette. Depuis 2 jours, le consultant cherche pourquoi les avoirs d'AquaBleu sont rejetés. En 5 minutes, tu vois la cause : le message EDI porte le code 380 (facture) au lieu de 381 (avoir). Il revient demain matin. Que fais-tu ?",
     choix: [
-      "Rien : chercher la cause, c'est le travail qu'il facture",
+      "Tu le laisses chercher demain ; à midi, tu lui donnes ta piste",
       "Tu préviens son responsable, et tu demandes un consultant plus solide",
       "Tu lui montres ce que tu as vu ; il vérifie, corrige et reteste",
       "Tu corriges et testes le mapping ce soir : 2 jours perdus, ça suffit"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Garder un diagnostic pour toi coûte des jours payés et retarde la recette. Le partager, ce n'est pas faire son travail.",
+      "Non. Presque : tu donneras ta piste, mais trop tard. Une matinée de plus à chercher ce que tu sais déjà, ce sont des heures payées et une recette qui attend.",
       "Non. Une cause difficile à trouver n'est pas une faute. Changer de consultant en pleine recette coûterait bien plus que 2 jours.",
       "Oui. Ton expertise sert à trouver la cause, pas à faire le travail. Il vérifie, corrige, reteste, et met sa documentation à jour : le paramétrage reste le sien.",
       "Non. Rien ne presse au point de faire à sa place. Corrigé par toi, sans trace, le mapping n'est plus le sien : il n'en répond plus."
@@ -353,8 +355,8 @@ LEARNSQL.questions.cp03 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Une petite tâche de ton propre rôle, le pilotage : 20 minutes. La faire faire coûterait plus que de l'écrire. Faire faire vaut pour le travail des autres.",
-      "Non. Le temps du N2 est au run, et ton DSI en dispose. Pour 20 minutes de ton propre travail, tu déranges une équipe.",
+      "Oui. Une petite tâche de ton propre rôle, le pilotage : 20 minutes une fois, puis tu la relances chaque mois. Faire faire vaut pour le travail des autres.",
+      "Non. Le temps du N2 est au run, et ton DSI en dispose : pour 20 minutes de ton propre travail, tu déranges une équipe. Si d'autres en avaient besoin chaque semaine, ce serait un besoin à confier.",
       "Non. Un état de l'intégrateur, c'est au moins 1 jour, donc une commande signée par le DAF, pour 20 minutes de travail.",
       "Non. Le temps de Julie, c'est sa cheffe qui en décide. Et compter à la main se trompe, là où une requête ne se trompe pas."
     ],
@@ -382,21 +384,21 @@ LEARNSQL.questions.cp03 = [
   {
     id: "cp03-q18",
     dialecte: "Gestion de projet",
-    q: "Vendredi 16 h, pilote. 150 factures fournisseurs bloquées dans le connecteur ; la clôture du mois commence lundi. Le seul consultant qui sait est en congé, injoignable, jusqu'à mercredi. Tu as trouvé la cause, et tu sais corriger. Que fais-tu ?",
+    q: "Vendredi 16 h, pilote. 150 factures fournisseurs bloquées dans le connecteur ; la clôture du mois commence lundi. Le seul consultant qui sait est en congé, injoignable, jusqu'à mercredi. Tu as trouvé la cause, tu sais corriger, et tu as les droits. Que fais-tu ?",
     choix: [
       "Tu demandes à l'intégrateur un autre consultant dès lundi matin, avec un plan",
-      "Tu préviens ton DSI, et vous attendez mercredi : c'est le paramétrage de l'intégrateur",
-      "Tu corriges toi-même ce soir : testé, ton DSI d'accord, écrit à l'intégrateur",
+      "Tu écris à ton DSI que tout attend mercredi : c'est le paramétrage de l'intégrateur",
+      "Ton DSI d'accord, tu corriges toi-même ce soir : testé, écrit à l'intégrateur",
       "Tu corriges tout de suite en production ; le consultant le découvrira mercredi"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Presque : faire faire reste le réflexe. Mais personne d'autre ne connaît ce paramétrage : un nouveau consultant découvrira tout, pendant que la clôture attend.",
-      "Non. Prévenir ton DSI, oui. Mais 150 factures bloquées pendant la clôture, c'est un vrai blocage : attendre mercredi par principe, c'est faire payer le métier.",
-      "Oui. Les conditions y sont : urgence réelle, personne d'autre à temps. Tu le fais proprement : testé en recette, ton DSI d'accord, une trace écrite. Mercredi, le consultant reprend la main.",
+      "Non. Presque : faire faire reste le réflexe. Mais personne d'autre ne connaît ce paramétrage : lundi, un nouveau consultant devra d'abord le comprendre, pendant que la clôture attend.",
+      "Non. Prévenir ton DSI, oui, mais pour qu'il choisisse, pas pour lui annoncer l'attente. 150 factures bloquées pendant la clôture, c'est un vrai blocage : attendre par principe, c'est faire payer le métier.",
+      "Oui. Les conditions y sont : urgence réelle, personne d'autre à temps, et ton DSI d'accord (s'il interdit toute action en production, on attend). Tu le fais proprement : testé en recette, tracé, écrit à l'intégrateur ; mercredi, le consultant reprend la main.",
       "Non. Le bon geste, mal fait : sans test, tu peux bloquer plus de factures. Et sans le dire, l'intégrateur découvre un paramétrage changé dans son dos."
     ],
-    retenir: "Faire toi-même : rarement, en urgence, quand personne d'autre ne peut. Alors testé, tracé, dit, et tu rends la main."
+    retenir: "Faire toi-même : rarement, en urgence, quand personne d'autre ne peut, ton DSI d'accord. Alors testé, tracé, dit, et tu rends la main."
   },
   {
     id: "cp03-q19",
@@ -444,14 +446,14 @@ LEARNSQL.questions.cp03 = [
       "Tu acceptes, et tu lui en rendras compte sur ta fiche du lundi",
       "Tu refuses : ce n'est pas le rôle d'un chef de projet",
       "Tu demandes au DAF, ton sponsor, de trancher entre ton DSI et toi",
-      "Tu lui montres le prix (pilotage, risque) : il choisit, et tu appliques"
+      "Tu lui montres le prix (pilotage, risque) ; s'il insiste, tu acceptes"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Presque : c'est bien ton DSI qui arbitre ton temps, et tu lui rendras compte. Mais il doit décider en connaissant le prix : 15 jours sans pilote.",
       "Non. Un refus sec, sans chiffres : il décidera sans voir le coût. Ce n'est pas interdit, c'est un choix à faire en connaissant le prix.",
       "Non. Ton temps, c'est ton DSI qui en décide, pas le DAF. Tu le mettrais en porte-à-faux pour rien.",
-      "Oui. Il arbitre ton temps, en connaissant le prix : 15 jours où personne ne pilote, un travail dont l'intégrateur ne répond plus. S'il maintient, tu appliques."
+      "Oui. Il arbitre ton temps, mais en connaissant le prix : 15 jours où personne ne pilote, un travail dont l'intégrateur ne répond plus. S'il insiste, c'est décidé : tu acceptes."
     ],
     retenir: "Ton DSI te demande de faire : montre-lui le prix (pilotage, risque), puis il décide en le connaissant."
   },
@@ -567,7 +569,7 @@ LEARNSQL.questions.cp03 = [
       "Non. Fin janvier, c'est trop tard : ton DSI ne pourra plus planifier son administrateur. Et la PA ne fait que son côté ; l'ouverture chez vous, c'est la DSI.",
       "Non. Presque : faire faire, oui. Mais le réseau est celui de la DSI : un prestataire n'y touche pas sans elle. Et ses jours en plus demandent une commande."
     ],
-    retenir: "Ce que tu ne sais pas faire, tu le demandes tôt à qui sait : les équipes de la DSI passent par ton DSI."
+    retenir: "Ce que tu ne sais pas faire, tu le demandes tôt à qui sait. Des jours d'une équipe de la DSI : par ton DSI."
   },
   {
     id: "cp03-q28",
@@ -622,7 +624,7 @@ LEARNSQL.questions.cp03 = [
       "Non. Tu passes par le sponsor pour forcer ton propre chef : tu perds sa confiance pour 2 jours.",
       "Non. Presque : il est informé avant. Mais par l'ordre du jour, il découvre une demande sur ses équipes sans avoir pu en parler. Ça se cale avec lui, avant.",
       "Oui. Personne ne découvre en séance une demande qui le touche, ton DSI compris. Avant le COPIL, vous calez le besoin, les dates, et ce que le run reportera.",
-      "Non. Presque : tu prépares, mais avec les mauvaises personnes. Le temps du N2, c'est ton DSI qui en dispose."
+      "Non. Presque : tu prépares, mais avec les mauvaises personnes. Une heure d'aide se demande en direct ; 2 jours du N2, c'est ton DSI qui en dispose."
     ],
     retenir: "Une demande qui touche les équipes de ton DSI se prépare avec lui, avant le COPIL."
   },
@@ -631,14 +633,14 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "Avril 2027. La PA annonce la version 2 de son connecteur ; la version 1 ne sera plus maintenue après décembre. Ta bascule de juin se fera en version 1. Que fais-tu ?",
     choix: [
-      "Tu passes en version 2 avant la bascule : un seul changement à faire",
+      "Tu l'annonces dès le prochain COPIL : passage en version 2 en novembre",
       "Rien pour l'instant : la PA préviendra bien avant décembre",
       "Tu le mets dans les risques du bilan de juillet, pour ton DSI",
       "Tu proposes dès maintenant à ton DSI un passage à l'automne, chiffré"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Changer de version juste avant la bascule, c'est refaire des tests et risquer la date. Et les changements sont gelés dès le pilote de mai.",
+      "Non. Annoncer n'est pas préparer : ton DSI, qui portera ce passage, le découvrirait en séance, sans chiffres. Une demande qui touche ses équipes se voit avec lui avant.",
       "Non. Subir, c'est découvrir en novembre qu'il faut des jours d'intégrateur et un budget que personne n'a prévus.",
       "Non. Presque : ton DSI et le run porteront ce passage. Mais en juillet, sans proposition, il aura perdu 3 mois pour le planifier et le budgéter.",
       "Oui. Proposer plutôt que subir : la charge, le coût, une date à l'automne, après la bascule et avant décembre. Ton DSI peut le prévoir."
@@ -657,10 +659,10 @@ LEARNSQL.questions.cp03 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Voir venir, c'est aussi voir ta propre absence. Ton DSI choisit qui te supplée ; tu lui passes le relais (décisions en cours, risques, contacts), et le DAF le sait. Le projet ne dépend plus d'une seule personne.",
+      "Oui. Voir venir, c'est aussi voir ta propre absence, tôt. Ton DSI choisit qui te supplée (il peut aussi te demander de décaler ta semaine) ; tu passes le relais (décisions en cours, risques, contacts), et le DAF le sait.",
       "Non. Presque : quelqu'un te supplée. Mais le prestataire ne pilote pas son propre contrat, et ne rend pas compte au DAF à ta place. Le suppléant vient de la DSI.",
       "Non. Joignable tous les jours, ce n'est ni un congé, ni un relais : chaque question t'attendra. Il faut un suppléant, préparé avant.",
-      "Non. Le réflexe du héros : le projet repose sur toi seul, et la prochaine absence (une maladie) n'aura pas de relais. Un suppléant préparé règle le vrai problème."
+      "Non. Le réflexe du héros, décidé seul : le projet repose toujours sur toi, et la prochaine absence (une maladie) n'aura pas de relais. Décaler ou non se voit avec ton DSI ; un suppléant règle le vrai problème."
     ],
     retenir: "Anticiper, c'est aussi préparer ta propre absence : un suppléant choisi avec ton DSI, et un relais préparé."
   },
@@ -677,11 +679,11 @@ LEARNSQL.questions.cp03 = [
     bonne: 1,
     pourquoi: [
       "Non. Presque : des options chiffrées, oui. Mais tu passes au-dessus du sponsor sans les lui avoir montrées. C'est lui qui porte le budget, et qui choisit.",
-      "Oui. « Débrouille-toi » ne veut pas dire « décide seul ». Tu proposes, par exemple 2 tableaux de moins, ou une partie plus tard, chacun avec son risque. Le sponsor choisit.",
+      "Oui. « Débrouille-toi » ne veut pas dire « décide seul ». Tu proposes, par exemple 2 tableaux de moins ou une partie plus tard, chacun avec son risque, et ta recommandation : le sponsor choisit.",
       "Non. Tu décides seul, et la qualité paie en silence. Le sponsor croit le projet intact ; les erreurs arriveront en production.",
       "Non. Un budget validé peut changer, par décision du sponsor. Refuser sans options, c'est subir autrement : il décidera sans toi."
     ],
-    retenir: "Proposer plutôt que subir : face à une contrainte, 2 options chiffrées avec leur risque. Le sponsor choisit."
+    retenir: "Proposer plutôt que subir : face à une contrainte, 2 options chiffrées avec leur risque, et ta recommandation. Le sponsor choisit."
   },
   {
     id: "cp03-q34",
