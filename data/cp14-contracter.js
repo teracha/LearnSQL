@@ -477,7 +477,7 @@ LEARNSQL.questions.cp14 = [
       "Non. Le début de ta recette est une date de ton planning, pas du contrat : tu offres 15 jours à la PA.",
       "Non. Le plan B protège ta date, il n'efface pas le retard de la PA : le contrat prévoit des pénalités, et le DAF décide de les appliquer."
     ],
-    retenir: "Les pénalités comptent depuis la date du contrat (1er mars), pas depuis ton déclencheur du plan B (15 mars)."
+    retenir: "Contrat « sans mise en demeure » : les pénalités comptent dès sa date (1er mars), pas depuis ton déclencheur du plan B (15 mars)."
   },
   {
     id: "cp14-q25",

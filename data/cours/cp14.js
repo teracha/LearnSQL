@@ -71,13 +71,13 @@ LEARNSQL.cours.cp14 = {
       titre: "Pénalités, SLA, garantie : ce que tu peux exiger",
       exemple: "Contrat signé de la PA : pénalités par jour de retard après le 1er mars, sans mise en demeure (aucun courrier officiel à envoyer), plafonnées (un maximum écrit). Le 15 mars n'est pas dans le contrat : c'est ton déclencheur du plan B (module cp07).\nAnnexe SLA : disponibilité 99,5 % par mois, jour et nuit (environ 3 h 30 de panne permise). Support de 8 h à 18 h les jours ouvrés : prise en charge en 1 h, portail rétabli en 4 h.",
       points: [
-        "Pénalités de retard : elles comptent depuis la date du contrat, jusqu'au plafond (c'est courant). Le contrat exige une mise en demeure (un courrier officiel) ? Elles ne comptent qu'après : le DAF l'envoie dès le lendemain.",
+        "Pénalités de retard : par défaut, la loi demande d'abord une mise en demeure (un courrier officiel) ; elles comptent après. Le contrat dit « sans mise en demeure » ? Elles comptent dès sa date, jusqu'au plafond. Sinon, le DAF envoie le courrier dès le lendemain.",
         "Elles paient une partie du coût, pas ta date (module cp07). Ta date, c'est le plan B, écrit au contrat avec son prix : il part seul au déclencheur.",
         "Appliquer, réduire ou échanger des pénalités : le DAF décide, il a signé. Toi, tu apportes les faits : date du contrat, date réelle, calcul, plafond.",
         "Un SLA s'exige s'il se mesure : chiffre, période, heures, qui mesure. « Meilleurs efforts » ne se mesure pas. Lis les exclusions : pas de maintenance pendant ta clôture.",
         "Anomalie (non conforme à l'écrit) : au forfait, corrigée sans frais, avant le PV et pendant la garantie (durée écrite). En régie, en général, pas de garantie, sauf clause : la correction se paie en jours, sur commande signée avant."
       ],
-      retenir: "Une pénalité compte depuis la date du contrat ; le DAF décide de l'appliquer. Un SLA s'exige s'il se mesure. Ta date, le plan B la protège."
+      retenir: "Une pénalité compte dès la date du contrat s'il le prévoit, sinon après une mise en demeure ; le DAF décide de l'appliquer. Un SLA s'exige s'il se mesure. Ta date, le plan B la protège."
     },
     {
       titre: "Tes données, ton spécifique, et la sortie",
