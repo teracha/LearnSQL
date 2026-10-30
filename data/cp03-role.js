@@ -11,7 +11,7 @@
 // le prix) ; rendre compte (fiche du lundi : ce qui avance, ce qui coince, ce dont tu as besoin ; 2 minutes si tout va
 // bien ; la mauvaise nouvelle le jour même, par toi, sans retarder le DAF ; ton erreur aussi ; trier, pas tout en copie ;
 // demander de l'aide tôt ; ta délégation) ; anticiper (les décisions à venir, préparer le terrain avec ton DSI, proposer
-// plutôt que subir, former le N2 avant la bascule) ; vers DSI adjoint (une ligne par projet, confier un projet,
+// plutôt que subir, préparer ta propre absence) ; vers DSI adjoint (une ligne par projet, confier un projet,
 // « que proposes-tu ? », une mauvaise nouvelle facile à apporter, transmettre son expertise).
 // Les méthodes divergent sur la part de « faire » : Scrum n'a pas de chef de projet ; en PME, le chef de projet est
 // souvent aussi l'expert. Ici, il fait rarement, en urgence, en le disant (q16, q18 : la bonne réponse est de faire).
@@ -19,9 +19,9 @@
 // cp02, cp03) » : environ 70 % de ton temps sur DEMAT, 30 % sur le run (référent des flux EDI, en appui du support N2) ;
 // point de 30 minutes avec ton DSI chaque lundi ; il attend : pas de surprise, des décisions préparées, faire faire
 // plutôt que faire. Un seul consultant de l'intégrateur connaît le paramétrage ; sa documentation est un livrable de la
-// commande (q10, q19). Des jours en plus = une commande signée par le DAF avant de commencer (q25). Support : N1 et N2 =
-// la DSI, N3 = la PA ou l'intégrateur (q32). Connecteur : version 2 au printemps 2027, version 1 maintenue jusqu'en
-// décembre 2027 (q31). Gel des changements dès le pilote de mai : la correction bloquante de q18 le passe (cp10-q26).
+// commande (q10, q19). Des jours en plus = une commande signée par le DAF avant de commencer (q25). Connecteur :
+// version 2 au printemps 2027, version 1 maintenue jusqu'en décembre 2027 (q31). Gel des changements dès le pilote
+// de mai : la correction bloquante de q18 le passe (cp10-q26).
 // Plan B (portail de la PA) depuis le 16 mars dans la branche de q14 (comme cp18-q32). Sophie dépose environ 400
 // factures par mois hors connecteur, 2 jours par mois (cp11, cp15) : 90 en une semaine, une demi-journée (q13).
 // COPIL le 2e mardi du mois (mars : le 9 ; avril : le 13). Aucun montant d'amende.
@@ -29,8 +29,8 @@
 // avance, ce qui coince, ce dont tu as besoin) ; ton DSI dispose d'un administrateur réseau (q27) ; un collègue chef de
 // projet de la DSI porte un projet « étiquettes d'expédition » dans Divalto (q26 ; cp18-q40 l'orientait vers la DSI) ;
 // comme référent des flux EDI, tu as des droits sur le connecteur en production (q18, q19) ; projet Snowflake + Power BI
-// à 30 k€ (cp11), et son sponsor qui demande 10 % de moins (q33). Variantes, chiffres d'exemple : connecteur annoncé
-// avec 3 semaines de retard (q06) ; 30 % de ressaisie après la bascule (q07) ; 6 jours de paramétrage faits par toi,
+// à 30 k€ (cp11), et son sponsor qui demande 10 % de moins (q33) ; ta semaine de congé en mai, posée depuis longtemps
+// (q32). Variantes, chiffres d'exemple : connecteur annoncé avec 3 semaines de retard (q06) ; 30 % de ressaisie après la bascule (q07) ; 6 jours de paramétrage faits par toi,
 // 4 500 € (q17) ; 150 factures bloquées un vendredi de pilote, consultant en congé (q18) ; recette qui déborde de
 // 2 semaines (q24, comme cp17-q12) ; 1 jour de consultant sans commande (q25) ; 40 mails par semaine (q23).
 // q34 à q39 : « Tu es DSI adjoint » (migration Divalto, état de stock, cheffe de projet junior, EDI).
@@ -38,18 +38,20 @@
 // Déjà publiées ailleurs, pas reprises ici : cp01-q03 (1er retard de l'intégrateur, tu sais paramétrer), cp15-q13 (le
 // N2 corrige à la place du consultant), cp16-q08 et q17 (faire les tests ou les règles du métier), cp16-q11 (l'export
 // de 30 minutes), cp16-q31 (voir les managers avant le COPIL), cp17-q21 (« Ça va, DEMAT ? », consultant absent en mai),
-// cp18-q36 (le DSI qui veut tout faire valider par le DAF), cp10-q26 (correction urgente par le consultant au pilote).
+// cp18-q36 (le DSI qui veut tout faire valider par le DAF), cp10-q26 (correction urgente par le consultant au pilote),
+// cp02-q10 et q38 (former le N2), cp02-q13 (« Oui. Alors, que décale-t-on ? »), cp02-q30 (un retard dit tout de suite).
 // Voisines, autre angle : q30 (ton DSI, avant le COPIL, pour ses équipes) et cp16-q31 ; q15 (ton diagnostic, code EDI
-// 380 / 381) et cp15-q13 ; q28 (tu consultes ton DSI pour tout) et cp18-q36.
+// 380 / 381) et cp15-q13 ; q28 (tu consultes ton DSI pour tout) et cp18-q36 ; q21 (ton DSI te demande de faire :
+// le prix, puis il choisit) et cp02-q13 ; q39 (DSI adjoint : nommer un référent EDI) et cp02-q10.
 // Frontières : cp02 = ton temps et tes priorités (le 70 / 30, le run contre le projet, les interruptions) ; cp09 = les
 // instances et le RACI ; cp08 = le rapport du COPIL ; cp16 = l'échelle d'escalade ; cp17 = les mots ; cp18 = ta
 // délégation, arbitrer ; cp15 = piloter le prestataire ; cp07 = les risques ; cp22 = le passage en run ; cp23 =
 // l'adoption ; cp24 à cp27 = vers DSI adjoint (cités).
 // Anti-devinette : 40 questions (attentes du DSI 6, faire ou faire faire 11, rendre compte 9, anticiper 5, posture 3,
-// DSI adjoint 6). La bonne réponse est un extrême dans 11 questions : la plus douce qui suffit (q08, q10, q16, q22, q38,
-// q40), la plus forte quand elle se justifie (q05, q24, q25, q26, q32). Un choix « faire faire » est juste dans 14
+// DSI adjoint 6). La bonne réponse est un extrême dans 10 questions : la plus douce qui suffit (q08, q10, q16, q22, q38,
+// q40), la plus forte quand elle se justifie (q05, q24, q25, q26). Un choix « faire faire » est juste dans 14
 // questions et faux dans 19 ; « faire toi-même » est juste dans q08 (garder le pilotage), q16 et q18, faux dans 22 ;
-// un choix qui informe ou consulte le DSI est juste dans 19 questions et faux dans 20 (règles cp03 : 38 %, 10 %, 42 %
+// un choix qui informe ou consulte le DSI est juste dans 19 questions et faux dans 19 (règles cp03 : 38 %, 10 %, 44 %
 // là où le choix existe). « Rien », « tout », « seul », « personne », « toujours », « Oui », « D'accord »,
 // « aujourd'hui », « le jour même », « dès » sont aussi dans des bonnes réponses ; « options », « chiffré », « fiche »,
 // « test » aussi dans des choix faux.
@@ -442,7 +444,7 @@ LEARNSQL.questions.cp03 = [
       "Tu acceptes, et tu lui en rendras compte sur ta fiche du lundi",
       "Tu refuses : ce n'est pas le rôle d'un chef de projet",
       "Tu demandes au DAF, ton sponsor, de trancher entre ton DSI et toi",
-      "Tu lui montres le prix : pilotage, risque. Il choisit"
+      "Tu lui montres le prix (pilotage, risque) : il choisit, et tu appliques"
     ],
     bonne: 3,
     pourquoi: [
@@ -646,21 +648,21 @@ LEARNSQL.questions.cp03 = [
   {
     id: "cp03-q32",
     dialecte: "Gestion de projet",
-    q: "Février. Après la bascule, les incidents du connecteur et de la PA arriveront au support N2 de la DSI. Personne au N2 ne connaît encore la PA ni le connecteur. Que fais-tu ?",
+    q: "Février. Tu as posé depuis longtemps une semaine de congé en mai, en plein pilote. Personne d'autre ne connaît tout le projet. Que fais-tu ?",
     choix: [
-      "Le N2 formé avant le pilote de mai, avec ton DSI",
-      "La PA les traitera : ce sont ses incidents, et son connecteur",
-      "Tu en parleras à ton DSI après la bascule, si le N2 a un souci",
-      "Tu les traiteras toi-même après la bascule : tu connais tout"
+      "Tu prépares avec ton DSI, dès maintenant, qui te supplée, et tu le formes",
+      "Tu demandes au consultant de piloter à ta place cette semaine-là",
+      "Tu pars, et tu resteras joignable tous les jours, au cas où",
+      "Tu annules ta semaine : le pilote passe avant tout le reste"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Protéger le run, c'est le préparer avant : le N2 formé avant le pilote, sur de vrais cas, avec le temps que ton DSI lui donne.",
-      "Non. La PA est le dernier niveau (N3), par ticket. Les incidents arrivent d'abord à la DSI : sans formation, le N2 renverra tout vers toi.",
-      "Non. Attendre le souci, c'est le subir : en pleine bascule, plus personne n'a le temps de former.",
-      "Non. Le piège de l'expert : tu deviens le support du projet, pour des mois. Le run doit savoir faire sans toi."
+      "Oui. Voir venir, c'est aussi voir ta propre absence. Ton DSI choisit qui te supplée ; tu lui passes le relais (décisions en cours, risques, contacts), et le DAF le sait. Le projet ne dépend plus d'une seule personne.",
+      "Non. Presque : quelqu'un te supplée. Mais le prestataire ne pilote pas son propre contrat, et ne rend pas compte au DAF à ta place. Le suppléant vient de la DSI.",
+      "Non. Joignable tous les jours, ce n'est ni un congé, ni un relais : chaque question t'attendra. Il faut un suppléant, préparé avant.",
+      "Non. Le réflexe du héros : le projet repose sur toi seul, et la prochaine absence (une maladie) n'aura pas de relais. Un suppléant préparé règle le vrai problème."
     ],
-    retenir: "Protéger le run : former le support avant la bascule. Sinon, l'expert du projet devient le support."
+    retenir: "Anticiper, c'est aussi préparer ta propre absence : un suppléant choisi avec ton DSI, et un relais préparé."
   },
   {
     id: "cp03-q33",
@@ -782,14 +784,14 @@ LEARNSQL.questions.cp03 = [
     q: "Tu es DSI adjoint. Le N2 t'appelle encore pour chaque rejet EDI difficile : tu restes le seul à savoir. Ton agenda déborde. Que fais-tu ?",
     choix: [
       "Tu ne prends plus les appels du N2 : ce n'est plus ton rôle",
-      "Tu formes quelqu'un du N2, et tu l'appuies le temps qu'il sache",
+      "Tu nommes un référent EDI dans l'équipe, formé avec toi, puis tu te retires",
       "Tu confies tout l'EDI à un prestataire extérieur, avec un contrat de support",
       "Tu continues, et tu prends ces appels le soir, après ta journée"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Couper d'un coup laisse le N2 sans solution, et les rejets s'accumulent chez les clients.",
-      "Oui. Tu transmets : une personne formée sur de vrais cas, toi en appui, puis tu te retires. Faire faire, à ton nouveau niveau.",
+      "Oui. Tu transmets : un référent nommé dans ton équipe, formé avec toi sur de vrais cas, puis tu te retires. Faire faire, à ton nouveau niveau : c'est ton équipe, tu peux le nommer.",
       "Non. Trop fort : un savoir à transmettre ne justifie pas un contrat. Et tu crées une dépendance à un prestataire.",
       "Non. Seul à savoir, c'est un risque pour la DSI (le jour où tu es absent), et du temps pris à ton nouveau rôle."
     ],

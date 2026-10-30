@@ -92,7 +92,7 @@ LEARNSQL.cours.cp03 = {
       titre: "Anticiper : voir venir, préparer, proposer",
       exemple: "Lundi 8 février. Tu regardes les 6 semaines à venir.\nUn risque : la PA doit livrer le connecteur le 1er mars, et elle a raté 2 petits jalons.\nUne charge : la clôture de mars, début avril, tombera en pleine recette.\nUne décision : si la recette glisse, le DAF devra choisir, fin mars, entre un renfort et un report.\nTu prépares ces options dès maintenant, et tu vois le DAF et ton DSI avant le COPIL.",
       points: [
-        "Voir venir, chaque semaine : les risques (module cp07), les charges (qui sera pris, quand), les décisions (laquelle, qui décide, pour quand).",
+        "Voir venir, chaque semaine : les risques (module cp07), les charges (qui sera pris, quand, toi compris), les décisions (laquelle, qui décide, pour quand).",
         "Préparer le terrain : personne ne découvre en séance une demande qui le touche. Une demande sur les équipes de la DSI ? Ton DSI la voit avant le COPIL.",
         "Proposer plutôt que subir : un problème arrive avec 2 options chiffrées et ta recommandation. « Débrouille-toi » ne veut pas dire « décide seul » : le budget et le périmètre restent au sponsor.",
         "Penser au run avant la bascule (la mise en service) : qui traitera les incidents, formé quand ? Une version bientôt plus maintenue : quand la remplacer ? Tu le proposes tôt, chiffré, à ton DSI."
@@ -107,7 +107,7 @@ LEARNSQL.cours.cp03 = {
         "Du technique au budget et aux personnes : la conformité (cp24), manager une équipe (cp26), le budget annuel de la DSI (cp27).",
         "Confier un projet : le résultat attendu, ses marges (délai, budget), ce que le chef de projet décide seul, un point chaque semaine. Puis « que proposes-tu ? » plutôt que ta réponse. Tu ne reprends pas son projet en main.",
         "Une mauvaise nouvelle doit être facile à t'apporter : d'abord merci, puis les faits et le plan. Le reproche d'abord fait cacher la suivante.",
-        "Tu ne restes pas le seul expert (l'EDI, par exemple) : tu formes quelqu'un, tu restes en appui, puis tu te retires."
+        "Tu ne restes pas le seul expert (l'EDI, par exemple) : tu nommes un référent, tu le formes, puis tu te retires."
       ],
       retenir: "DSI adjoint : plusieurs projets, le budget, les personnes. Tu attends de tes chefs de projet ce que ton DSI attendait de toi."
     }

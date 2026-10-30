@@ -129,8 +129,9 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   préside et décide), toi (tu prépares, animes, écris le compte rendu), ton DSI, la cheffe comptable, le responsable ADV ;
   le contrôleur de gestion, la PA ou l'intégrateur sur invitation. Ordre du jour et rapport envoyés 3 jours avant ; compte
   rendu sous 24 h (décisions, actions, points ouverts) ; registre des décisions tenu par toi. Point projet chaque lundi, 1 h :
-  toi, le consultant de l'intégrateur, Julie, Sophie, Marc (avancement, 15 minutes de revue des risques, jours de la régie,
-  actions) : il suit et prépare, il ne décide ni du périmètre, ni du budget, ni des dates. Comité fournisseur mensuel avec
+  toi, le consultant de l'intégrateur, Julie, Sophie, Marc (avancement, 15 minutes de revue des risques, actions) ; juste
+  avant, 30 minutes avec le consultant seul : jours de la régie, reste à faire, blocages (module cp15). Le point projet suit
+  et prépare, il ne décide ni du périmètre, ni du budget, ni des dates. Le DAF porte le projet au comité de direction. Comité fournisseur mensuel avec
   la PA (module cp15). RACI (R = réalise, A = approuve, un seul A par livrable, C = consulté, I = informé) : format de
   facture : R toi et l'intégrateur, A le DAF, C la cheffe comptable et le responsable ADV, I ton DSI ; PV de recette
   fournisseurs : R Julie, A la cheffe comptable ; PV de recette clients : R Sophie et Marc, A le responsable ADV ; go / no-go
@@ -148,7 +149,9 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   et tests (avril à juin) ; pilote sur 1 site en mai ; bascule des 3 sites en juin ; marge légale juillet-août. Chemin
   critique : données de paramétrage (15 janvier) → paramétrage → connecteur livré (1er mars) → recette → PV (30 avril)
   → pilote (mai) → bascule (juin). Contraintes : clôture annuelle en janvier, gel des changements dès le pilote, pas de
-  bascule en août. Jalons validés par le DAF ; tolérance de ± 2 semaines.
+  bascule en août. Jalons validés par le DAF ; tolérance de ± 2 semaines. Bascule le lundi 14 juin 2027 : dernier test
+  le jeudi 10, go / no-go le vendredi 11 (le COPIL de juin est le mardi 8). Congé de la cheffe comptable : du 12 au
+  30 avril 2027 (Julie la supplée).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
