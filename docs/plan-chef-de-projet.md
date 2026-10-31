@@ -168,6 +168,27 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   bascule en août. Jalons validés par le DAF ; tolérance de ± 2 semaines. Bascule le lundi 14 juin 2027 : dernier test
   le jeudi 10, go / no-go le vendredi 11 (le COPIL de juin est le mardi 8). Congé de la cheffe comptable : du 12 au
   30 avril 2027 (Julie la supplée).
+- Recette (module cp19) : stratégie écrite au cadrage (périmètre, cas, critères d'acceptation, qui teste, qui signe) ;
+  120 cas, préparés en janvier-février par Julie (fournisseurs), Sophie et Marc (clients) ; données de test : les vrais
+  clients (le SIREN sert à l'acheminement), données personnelles masquées (cp01-q27) ; anomalies dans l'outil de tickets,
+  classées bloquante (on ne peut plus facturer ou recevoir), majeure (contournement coûteux), mineure (gêne) ; tests de
+  non-régression après chaque correctif ; recette du 16 mars au 30 avril ; PV : 0 anomalie bloquante ni majeure, des
+  réserves mineures possibles avec une date de correction ; PV fournisseurs (signé par la personne que la cheffe
+  comptable a désignée, pas Julie) et PV clients (responsable ADV) le 30 avril, avec 2 réserves mineures ; le PV ouvre le
+  solde de la mise en service de la PA (cp12, cp14).
+- Reprise de données (module cp20) : vers la PA, environ 2 000 fiches clients et 600 fiches fournisseurs (SIREN, adresses
+  de facturation et de livraison, catégorie de l'opération, e-mail de contact) ; dans Divalto, les codes TVA. En décembre
+  2026, 300 fiches clients sans SIREN : nettoyage à la source, dans Divalto, par l'ADV (clients) et la compta
+  (fournisseurs), avec l'utilitaire Divalto de contrôle Siret-Siren (cp15-q29). Propriétaires des données : le responsable
+  ADV (clients), la cheffe comptable (fournisseurs). Règles de reprise écrites ; 2 essais à blanc (fin février, mi-mai
+  pendant le pilote) ; contrôles : comptages, rapprochements, échantillons, validation par le métier (cp01-q23). Gel des
+  créations de tiers le vendredi 11 juin à 12 h ; reprise définitive le week-end des 12 et 13 juin.
+- Bascule (module cp21) : critères de go fixés au COPIL du mardi 11 mai : 0 anomalie bloquante ou majeure ouverte ; PV
+  signés ; pilote : moins de 2 % de rejets sur ses 2 dernières semaines ; reprise des tiers validée par le métier ;
+  formation faite ; retour arrière testé. Go / no-go le vendredi 11 juin à 14 h (A le DAF, sur ta recommandation ; module
+  cp09). Plan de bascule heure par heure, du vendredi 11 au lundi 14 (qui fait quoi, contrôles, contacts). Retour
+  arrière : repasser par le portail de la PA (le plan B), décidé au plus tard le lundi 14 à 12 h. Hypercare (support
+  renforcé) de 2 semaines, du 14 au 25 juin, point chaque jour à 9 h 30 ; puis passage en run (module cp22).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
