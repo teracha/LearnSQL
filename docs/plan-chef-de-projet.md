@@ -211,6 +211,24 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   l'environnement de test (la reprise des tiers, elle, se répète par ses essais à blanc : module cp20). Lundi 8 h : Marc vérifie les 1res factures EDI d'AquaBleu. Hypercare : point de 20 minutes (toi,
   le consultant, Julie, Sophie, Marc, le N2), 3 lignes au DAF chaque soir ; une majeure : contournement, correction après
   le gel (sauf décision du DAF).
+- Passage en run et clôture (module cp22) : fin de l'hypercare le vendredi 25 juin si ses critères de sortie sont tenus
+  (aucune anomalie bloquante ouverte, rejets sous 2 % sur la semaine, le support formé). Transfert au support N1-N2 de la
+  DSI avec un dossier d'exploitation (flux, contacts de la PA et de l'intégrateur, procédures : rejets, avoirs, panne du
+  connecteur, retour au portail ; supervision ; droits ; calendrier des versions), accepté par écrit par le N2 ; le run est
+  porté par ton DSI. Clôture au COPIL du mardi 13 juillet 2027 : bilan (date, budget, qualité, adoption), retour
+  d'expérience avec l'équipe, bilan des fournisseurs (module cp15), réserve rendue (6 400 €, cp12), mensualités restantes
+  au budget du run ; les 2 réserves du PV corrigées le 9 juillet (cp19). Comité fournisseur avec la PA : tenu par toi
+  jusqu'à fin 2027, puis par le support N2 ; ton DSI en reste responsable. L'adoption et les gains se mesurent au 3e mois
+  (septembre 2027), par la cheffe comptable (cp11).
+- Conduite du changement (module cp23) : populations : la compta (6 personnes et la stagiaire), l'ADV (le responsable,
+  Marc et ses collègues), les 3 responsables de site, les commerciaux (ils répondent aux clients), le DAF et la direction ;
+  dehors : les clients EDI (par le commercial) et les fournisseurs (par la compta). Utilisateurs clés : Julie
+  (fournisseurs), Sophie (clients), Marc (EDI), relais dans leur équipe. Formation : la compta du 3 au 28 mai, sessions
+  de 2 h sur les vrais cas, animées par Julie et Sophie avec le consultant ; une 3e session en juin (2 personnes en plus,
+  cp12) ; l'ADV : 2 ateliers (le 3e refusé par le DAF, cp17) ; fin mai, 90 % de la compta formée. La cheffe comptable
+  est inquiète : la charge pendant la clôture, la peur des rejets. Adoption mesurée au 3e mois (septembre 2027) : plus
+  aucune facture fournisseur ressaisie à la main (cp04) ; gain plein quand les fournisseurs PME émettent (1er septembre
+  2027, cp11).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
