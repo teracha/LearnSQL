@@ -42,8 +42,8 @@ window.LEARNSQL = { modules: [
   { id: "cp21", titre: "Bascule et go / no-go", resume: "Critères de go, préparer la décision, plan heure par heure, retour arrière et point de non-retour, hypercare.", niveau: "Avancé" },
   { id: "cp22", titre: "Passage en run et clôture", resume: "Sortir de l'hypercare sur critères, dossier d'exploitation, transfert au support, budget du run, bilan, retour d'expérience, clôture.", niveau: "Intermédiaire" },
   { id: "cp23", titre: "Conduite du changement", resume: "Carte des impacts, sponsor et managers qui portent, utilisateurs clés relais, communiquer, former juste avant, résistances, adoption.", niveau: "Intermédiaire" },
-  { id: "cp24", titre: "Conformité dans un projet SI", resume: "RGPD, sécurité, facture électronique.", niveau: "Avancé" },
-  { id: "cp25", titre: "Portefeuille et priorisation", resume: "Valeur, obligation légale, risque, capacité : choisir.", niveau: "Avancé" },
+  { id: "cp24", titre: "Conformité dans un projet SI", resume: "Règles vérifiées à la source, rôles du RGPD et registre, durées et effacement, violation de données et 72 h, accès, charte et licences.", niveau: "Avancé" },
+  { id: "cp25", titre: "Portefeuille et priorisation", resume: "Une seule porte, des critères écrits, la capacité d'abord : classer, dire « pas maintenant », arrêter.", niveau: "Avancé" },
   { id: "cp26", titre: "Manager une équipe", resume: "Recruter, déléguer, entretiens annuels, feedback.", niveau: "Avancé" },
   { id: "cp27", titre: "Budget SI annuel et direction générale", resume: "Construire et défendre le budget, parler valeur.", niveau: "Expert" }
 ], questions: {}, cours: {} };
