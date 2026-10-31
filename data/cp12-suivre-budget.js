@@ -86,7 +86,7 @@ LEARNSQL.questions.cp12 = [
     choix: [
       "Rien de consommé pour février : sans facture, rien ne compte",
       "850 € consommés ; la compta réclame la facture à la PA",
-      "850 € consommés et payés, pour garder un suivi juste",
+      "850 € consommés et payés ; le suivi reste juste",
       "Tu demandes au DAF de bloquer mars jusqu'à la facture"
     ],
     bonne: 1,
@@ -619,7 +619,7 @@ LEARNSQL.questions.cp12 = [
       "« D'accord : 2 000 €, il restera 4 400 € pour la fin »",
       "« Oui pour l'atelier, si le DAF signe la commande avant juillet »",
       "« Non : on garde la réserve, et on la dépensera en juillet »",
-      "« Non : la réserve n'est pas à dépenser ; demande-le au DAF »"
+      "« Non : la réserve n'est pas à dépenser, demande-le au DAF »"
     ],
     bonne: 3,
     pourquoi: [

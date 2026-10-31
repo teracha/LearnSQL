@@ -229,7 +229,7 @@ LEARNSQL.questions.cp02 = [
       "Tu cales le circuit avec le N1 et le N2 ; tu formes le N2",
       "Tu demandes à ton DSI d'interdire au N1 de t'appeler",
       "Tu les prends tous : c'est ton rôle de référent EDI",
-      "Plus aucun appel EDI dès lundi : tu le dis au N1 et au N2"
+      "Plus aucun appel EDI dès lundi ; tu le dis au N1 et au N2"
     ],
     bonne: 0,
     pourquoi: [

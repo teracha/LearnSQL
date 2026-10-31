@@ -305,7 +305,7 @@ LEARNSQL.questions.cp09 = [
     q: "PV de recette clients. Au RACI : R Sophie et Marc, A le responsable ADV. La cheffe comptable veut le signer aussi : « Sophie est dans mon équipe. » Que fais-tu ?",
     choix: [
       "Un seul A, le responsable ADV ; elle est C",
-      "Ils le signent tous les deux, chacun pour son équipe",
+      "Ils le signent tous les deux ; chacun pour son équipe",
       "Le DAF tranche, et signe le PV à leur place",
       "Elle devient A à la place du responsable ADV"
     ],
@@ -325,7 +325,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Rien : Julie l'a écrit, elle sait s'il est bon",
       "Tu en deviens A : c'est toi qui tiens le RACI",
-      "Tu proposes sa cheffe comme A ; le RACI change",
+      "Tu proposes sa cheffe comme A, et le RACI change",
       "Tu le présentes au COPIL d'avril, et le DAF valide"
     ],
     bonne: 2,
@@ -363,7 +363,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tous en C : plus il y a d'avis, moins il y a d'erreurs",
       "Les C du RACI restent ; les autres seront informés",
-      "Tous en C, et tu leur laisses 48 h pour répondre",
+      "Tous en C ; tu leur laisses 48 h pour répondre",
       "Aucun C : le DAF décide seul, ce sera plus rapide"
     ],
     bonne: 1,
@@ -380,7 +380,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Format de facture : ton DSI est I au RACI. En congé 2 semaines, il ne l'a pas lu. Les C ont donné leur avis, le DAF est prêt à valider. Que fais-tu ?",
     choix: [
-      "Le DAF valide ; ton DSI l'apprendra au retour",
+      "Le DAF valide, et ton DSI l'apprendra au retour",
       "Tu demandes au DAF d'attendre son retour",
       "Tu le fais valider par son adjoint, à sa place",
       "Tu appelles ton DSI en congé dès aujourd'hui, puis le DAF valide"
@@ -399,7 +399,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Go / no-go de la bascule. Tes critères sont tous verts. Le responsable ADV, C au RACI, est contre : « Marc n'est pas prêt. » Que fais-tu ?",
     choix: [
-      "Tu décides go : les critères sont verts, ça suffit",
+      "Tu décides go : les critères sont verts ; ça suffit",
       "No-go : un C est contre, on ne bascule pas",
       "Tu demandes au DG de trancher, DAF prévenu",
       "Tu vérifies ; le DAF décide, avec les deux avis"
@@ -420,7 +420,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "« D'accord : deux signatures sur le PV, deux contrôles »",
       "« Non : le RACI a été validé, on n'y touche plus »",
-      "« Un seul A : elle signe ; toi, tu reçois le PV »",
+      "« Un seul A : elle signe, et toi, tu reçois le PV »",
       "« Alors signe-le seul, et elle sera informée »"
     ],
     bonne: 2,
@@ -534,7 +534,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tu le projettes, et tu le lis plus vite, à voix haute",
       "Une semaine avant, et plus de séance du tout",
-      "3 jours ouvrés avant, et tu le relis quand même en séance",
+      "3 jours ouvrés avant ; tu le relis quand même en séance",
       "3 jours ouvrés avant ; en séance, questions et décisions"
     ],
     bonne: 3,
@@ -629,7 +629,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tu rends sa présence obligatoire, DG en copie",
       "Le rapport lu avant ; la séance, toujours pour décider",
-      "Plus de détails à l'écran, pour les intéresser",
+      "Plus de détails à l'écran ; ça les intéressera",
       "Un COPIL tous les 3 mois, pour réunir plus de décisions"
     ],
     bonne: 1,
@@ -836,7 +836,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Un de tes chefs de projet veut signer lui-même les PV de recette : « J'ai tout piloté, je réponds du résultat. » Que lui dis-tu ?",
     choix: [
-      "« D'accord : tu signes, et le métier relit après »",
+      "« D'accord : tu signes ; le métier relit après »",
       "« Je signerai moi-même les PV, comme DSI adjoint »",
       "« Signez à deux : toi et le responsable métier »",
       "« Le métier approuve le PV ; toi, tu le prépares »"
@@ -876,7 +876,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tu fais voter le COPIL, et la majorité l'emporte",
       "Tu tranches toi-même, comme DSI adjoint, entre les deux",
-      "Tu fais nommer un seul sponsor par le DG ; l'autre, consulté",
+      "Tu fais nommer un seul sponsor par le DG, l'autre consulté",
       "Tu laisses les 2 sponsors : ils finiront par s'entendre"
     ],
     bonne: 2,

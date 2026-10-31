@@ -175,7 +175,7 @@ LEARNSQL.questions.cp10 = [
     q: "Le connecteur n'était pas livré au 15 mars : le plan B (le portail de la PA, prévu au contrat) est parti le 16, DAF prévenu. L'intégrateur te dit : « Il faut ouvrir une demande de changement, pour régulariser. » Que fais-tu ?",
     choix: [
       "Tu l'ouvres : le DAF signe, et le COPIL valide le plan B",
-      "Non : décidé d'avance ; tu mets le planning à jour",
+      "Non : décidé d'avance, tu mets le planning à jour",
       "Non : rien à écrire, le plan B était prévu",
       "Tu l'ouvres pour le COPIL d'avril, qui tranchera"
     ],
@@ -271,7 +271,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Tu lances l'intégrateur : c'est lui qui décide, c'est son droit",
       "Tu lui donnes le prix d'ici jeudi ; il décide, tu l'écris",
-      "Tu refuses, et tu lui envoies le formulaire à remplir",
+      "Tu refuses ; tu lui envoies le formulaire à remplir",
       "Tu en parles d'abord à ton DSI, pour qu'il le raisonne"
     ],
     bonne: 1,
@@ -326,7 +326,7 @@ LEARNSQL.questions.cp10 = [
     dialecte: "Gestion de projet",
     q: "Le DAF a décidé : les avoirs clients sortent du pilote de mai, et entreront à la bascule de juin. Que mets-tu à jour ?",
     choix: [
-      "Le contrat de la PA, par un avenant signé du DAF",
+      "Le contrat de la PA ; un avenant signé du DAF",
       "Rien : c'est provisoire, tout revient après le pilote",
       "Le planning et les tests du pilote ; la décision au registre",
       "La note de cadrage, le budget et la commande de l'intégrateur"
@@ -347,7 +347,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Tu continues : chacune reste petite, c'est la règle",
       "Tu prends la semaine sur la recette, et tu n'en parles pas",
-      "Tu montres le total au DAF ; ensuite, chaque demande au registre",
+      "Tu montres le total au DAF, puis chaque demande va au registre",
       "Tu gèles toute demande dès aujourd'hui, jusqu'à la bascule"
     ],
     bonne: 2,
@@ -459,7 +459,7 @@ LEARNSQL.questions.cp10 = [
     dialecte: "Gestion de projet",
     q: "Mars. Deux demandes de 3 jours chacune. L'une : un état de suivi pour le commercial, utile, sans échéance. L'autre : un code qu'un client EDI exige dès juin. Que fais-tu ?",
     choix: [
-      "Les deux chiffrées, et le DAF décide des deux ce mois-ci",
+      "Les deux chiffrées ; le DAF décide des deux ce mois-ci",
       "Les deux tout de suite, et tu préviens le DAF ensuite",
       "L'état en juillet ; le code au circuit, décidé ce mois-ci",
       "Les deux en juillet : le gel protège la bascule"
@@ -557,7 +557,7 @@ LEARNSQL.questions.cp10 = [
       "Non : le gel vaut pour tout le monde, lui compris",
       "Tu le fais faire : c'est lui qui a fixé le gel",
       "Tu vérifies d'abord auprès du DG, puis tu donnes ta réponse au DAF",
-      "Tu donnes risque et prix ; s'il lève le gel, tu appliques"
+      "Tu donnes risque et prix : s'il lève le gel, tu appliques"
     ],
     bonne: 3,
     pourquoi: [
@@ -592,7 +592,7 @@ LEARNSQL.questions.cp10 = [
     dialecte: "Gestion de projet",
     q: "Début mars. Julie propose un écran des factures fournisseurs bloquées, par motif : 1 jour d'intégrateur. Il reste 3 jours dans l'enveloppe des écrans de suivi compta. Que fais-tu ?",
     choix: [
-      "Tu le fais faire tout de suite, et tu le dis à la cheffe",
+      "Tu le fais faire tout de suite ; tu le dis à la cheffe",
       "Tu le mets au backlog ; la cheffe comptable le classera",
       "Tu le classes toi-même en tête du backlog",
       "Tu chiffres l'impact de l'idée, et le DAF décide s'il la veut"
@@ -650,7 +650,7 @@ LEARNSQL.questions.cp10 = [
     q: "Février, avant la 1re itération. Le backlog des écrans de suivi compta compte 14 jours d'idées, toutes « utiles » selon la cheffe comptable. L'enveloppe est de 10 jours. Que fais-tu ?",
     choix: [
       "Tu fais les 14 jours : 4 de plus, c'est presque la même enveloppe",
-      "Elle classe ; si elle veut plus, demande de changement au DAF",
+      "Elle classe : si elle veut plus, demande de changement au DAF",
       "Tu retires 4 jours du backlog, et tu le dis à la cheffe",
       "Tu demandes au DAF de porter l'enveloppe à 14 jours"
     ],

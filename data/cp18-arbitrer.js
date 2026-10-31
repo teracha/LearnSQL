@@ -301,7 +301,7 @@ LEARNSQL.questions.cp18 = [
     choix: [
       "Tu demandes au DG d'arbitrer : la date légale est en jeu",
       "Non : juin est validé, il ne bouge plus",
-      "Tu acceptes, et tu en informes le DAF ensuite",
+      "Tu acceptes ; tu en informes le DAF ensuite",
       "Tu prépares 3 options chiffrées ; le DAF tranche"
     ],
     bonne: 3,

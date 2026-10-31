@@ -270,7 +270,7 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "L'intégrateur propose de lancer la 1re itération des écrans de la compta le 4 janvier. La cheffe comptable, PO de cette partie, est prise par la clôture annuelle jusqu'à fin janvier. Que fais-tu ?",
     choix: [
-      "Tu lances l'itération le 4 : l'intégrateur commence sans elle",
+      "Tu lances l'itération le 4 ; l'intégrateur commence sans elle",
       "Tu lances les itérations en février ; le cœur ne bouge pas",
       "Tu écris toi-même les spécifications des écrans en janvier",
       "Tu demandes au DAF de la libérer 1 jour par semaine en janvier"
@@ -423,7 +423,7 @@ LEARNSQL.questions.cp06 = [
     q: "Dernier jour d'une itération. L'état des avoirs fournisseurs en attente n'est pas fini : il manque 1 jour de travail. Le consultant propose : « Allongeons l'itération d'une semaine, je finis tranquillement. » Que fais-tu ?",
     choix: [
       "Non : l'itération finit à sa date ; l'état retourne au backlog",
-      "Oui : on allonge l'itération, l'état sera fini proprement",
+      "Oui : on allonge l'itération ; l'état sera fini proprement",
       "Il finit ce week-end, en heures en plus, pour tenir la démo",
       "Tu demandes au DAF d'accorder une semaine de plus"
     ],
@@ -574,7 +574,7 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Projet de portail fournisseurs, besoin encore flou. Le DAF veut un forfait (prix fixe) « pour maîtriser le prix ». Que proposes-tu ?",
     choix: [
-      "Un forfait sur le besoin actuel, et des avenants pour les écarts",
+      "Un forfait sur le besoin actuel ; des avenants pour les écarts",
       "Définir le besoin d'abord ; sinon, une régie plafonnée",
       "Une régie sans enveloppe : on paiera ce qu'il faudra, à la fin",
       "Un forfait sur un cahier des charges complet, livré en sprints"
@@ -669,7 +669,7 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "Les factures des fournisseurs étrangers arrivent encore en PDF. Le DSI te confie l'essai d'un outil de lecture automatique. Personne ne sait s'il marchera sur vos factures. Quelle démarche ?",
     choix: [
-      "Des essais courts, sur vos factures ; stop s'il échoue",
+      "Des essais courts sur vos factures, et stop s'il échoue",
       "Prédictif : le cahier des charges complet de l'outil",
       "Hybride : tout l'outil spécifié, puis des essais en itérations",
       "Attendre qu'un autre client l'ait essayé sur ses factures"

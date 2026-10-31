@@ -130,7 +130,7 @@ LEARNSQL.questions.cp21 = [
     q: "Jeudi 10 juin. Pilote : 2,4 % de rejets sur ses 2 dernières semaines ; critère : moins de 2 %. Le DAF : « Mets le seuil à 3 %, et on est bons. » Que fais-tu ?",
     choix: [
       "Tu passes le seuil à 3 % : c'est lui qui a validé les critères",
-      "Tu passes à 3 %, et tu écris ce changement au registre",
+      "Tu passes à 3 % ; tu écris ce changement au registre",
       "Tu gardes 2 % ; tu montres l'écart, et il décide en le sachant",
       "Tu refuses tout go tant que le pilote dépasse 2 %"
     ],
@@ -379,7 +379,7 @@ LEARNSQL.questions.cp21 = [
       "Ven. 17 h : arrêt de la facturation, Sophie ; Marc contrôle, à 17 h 30",
       "Vendredi : arrêt de la facturation par l'équipe, puis contrôle",
       "Ven. 17 h : arrêt de la facturation, Sophie, 30 minutes, avec soin",
-      "Ven. 17 h : arrêt de la facturation par Sophie, puis contrôle par l'ADV"
+      "Ven. 17 h : arrêt de la facturation par Sophie ; puis contrôle par l'ADV"
     ],
     bonne: 0,
     pourquoi: [
@@ -491,7 +491,7 @@ LEARNSQL.questions.cp21 = [
     q: "Lundi 14, 15 h. Les factures d'un client EDI sont rejetées ; toutes les autres passent. Le DAF : « On repasse tout le monde par le portail ? » Que réponds-tu ?",
     choix: [
       "« Oui : tout le monde au portail, par sécurité »",
-      "« Non : un ticket, et ce client attend la correction »",
+      "« Non : un ticket ; ce client attend la correction »",
       "« Non : midi est passé ; ce client au portail, on corrige »",
       "« Oui, si l'intégrateur n'a toujours pas trouvé à 18 h »"
     ],
@@ -588,7 +588,7 @@ LEARNSQL.questions.cp21 = [
       "Tu notes chaque appel dans ton cahier, et tu rappelles",
       "Tu ne prends plus d'appel, et tu renvoies tout au support",
       "Tu demandes au DAF un 2e chef de projet pour l'hypercare",
-      "Tout en ticket, même tes appels ; tri à 9 h 30"
+      "Tout en ticket, même tes appels, avec un tri à 9 h 30"
     ],
     bonne: 3,
     pourquoi: [
@@ -778,7 +778,7 @@ LEARNSQL.questions.cp21 = [
       "« Bien : la même méthode pour tous les projets, c'est simple »",
       "« Une liste courte, l'ancien état gardé ; l'ADV dit go »",
       "« Rien de tout ça : un état pour l'ADV, on le met en production »",
-      "« Une liste courte, et c'est toi qui dis go, sans l'ADV »"
+      "« Une liste courte ; c'est toi qui dis go, sans l'ADV »"
     ],
     bonne: 1,
     pourquoi: [
@@ -796,7 +796,7 @@ LEARNSQL.questions.cp21 = [
     choix: [
       "Tu lui demandes de recommander go : le sponsor le veut",
       "Tu décides toi-même le no-go : tu es au-dessus de lui",
-      "Tu revois les faits avec lui ; son avis reste le sien",
+      "Tu revois les faits avec lui : son avis reste le sien",
       "Tu demandes au DG de trancher entre le sponsor et lui"
     ],
     bonne: 2,

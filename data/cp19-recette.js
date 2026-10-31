@@ -156,7 +156,7 @@ LEARNSQL.questions.cp19 = [
     q: "Ta stratégie de recette dit : « PV signé quand le connecteur fonctionne bien. » Ton DSI relit : « Ce critère ne vaut rien. » Que mets-tu à la place ?",
     choix: [
       "« Quand 100 % des cas sont OK, sans la moindre anomalie »",
-      "« Quand 95 % des 120 cas sont OK, à la fin de la recette »",
+      "« Quand 95 % des 120 cas sont OK ; à la fin de la recette »",
       "« 0 bloquante, 0 majeure ; le mineur en réserve datée »",
       "« Quand la cheffe comptable et l'ADV se disent rassurés »"
     ],
@@ -175,7 +175,7 @@ LEARNSQL.questions.cp19 = [
     q: "Janvier. Le consultant propose que les tests se fassent dans sa copie de Divalto, celle où il paramètre : « Elle est prête, et je corrige en direct. » Que décides-tu ?",
     choix: [
       "Sa copie : prête tout de suite, et ses corrections iront plus vite",
-      "Une copie à part pour la recette ; ses correctifs y sont livrés",
+      "Une copie à part pour la recette, où ses correctifs sont livrés",
       "Le Divalto de production, relié à l'espace de test de la PA",
       "Tu le laisses choisir : l'environnement, c'est son métier"
     ],
@@ -461,7 +461,7 @@ LEARNSQL.questions.cp19 = [
     choix: [
       "D'accord : 9 mineures de moins, le tableau de bord sera plus beau",
       "Les bloquantes, puis les majeures ; les mineures après",
-      "Les plus anciennes d'abord, bloquantes ou pas : chacune son tour",
+      "Les plus anciennes d'abord, bloquantes ou pas ; chacune son tour",
       "3 jours de plus au DAF, pour les majeures et tout le reste"
     ],
     bonne: 1,
