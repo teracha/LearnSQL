@@ -141,7 +141,7 @@ LEARNSQL.questions.cp09 = [
     bonne: 0,
     pourquoi: [
       "Oui. Une décision qui ne tombe pas un 2e mardi a sa séance, courte. Au RACI : A le DAF ; C la cheffe comptable, le responsable ADV, ton DSI ; toi, R, tu recommandes. Le DG, I, est informé après.",
-      "Non. Le 8, les tests ne sont pas finis : le DAF déciderait sans les résultats. Le COPIL peut valider les critères, voire un go sous conditions ; la décision se prend le 11.",
+      "Non. Le 8, les tests ne sont pas finis : le DAF déciderait sans les résultats. Les critères sont validés depuis le COPIL du 11 mai ; la décision se prend le 11 juin.",
       "Non. Au RACI, tu es R : tu recommandes, sur les critères. L'A (celui qui approuve) du go / no-go, c'est le DAF.",
       "Non. Presque : le bon A. Mais seul, par mail, le jour du dernier test : les C (la cheffe comptable, le responsable ADV, ton DSI) ne sont pas entendus. Leur avis compte avant."
     ],

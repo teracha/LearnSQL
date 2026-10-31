@@ -50,7 +50,7 @@ LEARNSQL.cours.cp21 = {
         "Go = on y va. Les critères se fixent avant, par celui qui décidera, sur ta proposition. Le jour J, on compare, sans débat.",
         "Mesurable : un seuil, une période, une preuve. « La compta se sent prête » n'en est pas un. On mesure le résultat : des cas « joués » ne disent pas s'ils ont réussi.",
         "Critère de go ≠ critère de succès : le go se juge avant, sur la fin du pilote ; le succès, après (moins de 2 % de rejets le 1er mois).",
-        "Presque atteint ? Go sous conditions, écrit : quoi, qui, pour quand, qui vérifie, et sinon. La parade doit être sûre. Sinon, no-go.",
+        "Presque atteint ? Go sous conditions, écrit : quoi, qui, pour quand, qui vérifie, et sinon. La parade doit être sûre. Sinon, no-go : l'hypercare traite les petits écarts, pas une bloquante ou une majeure connue.",
         "La veille, on ne réécrit pas un critère pour qu'il passe : on montre l'écart, le DAF décide en le connaissant, et c'est écrit."
       ],
       retenir: "Critères fixés avant, mesurables, connus de tous. Le jour J, on compare ; on ne les réécrit pas."
@@ -85,7 +85,7 @@ LEARNSQL.cours.cp21 = {
       points: [
         "Écrit et testé avant le go : c'est un critère. « Le portail, on connaît » : en réception, oui ; en émission, la compta ne l'a jamais fait.",
         "Il dit : les signaux d'alerte (un seuil, une heure), qui fait quoi pour revenir, en combien de temps, qui décide, jusqu'à quand.",
-        "Il défait le go : le DAF le décide, sur ta recommandation, le jour même. Injoignable ? Il désigne avant, par écrit, qui décide à sa place. Le plan B de mars, lui, partait seul (module cp07).",
+        "Il défait le go : le DAF le décide, sur ta recommandation, le jour même. Injoignable ? Il désigne avant, par écrit, qui décide à sa place. Le plan B, lui, part seul à son déclencheur (module cp07).",
         "Le point de non-retour, lundi midi : le matin, on voit les vrais flux ; après, trop de factures sont parties, revenir coûterait plus que corriger. On corrige en avant, avec des contournements.",
         "Revenir en arrière n'est pas un échec : c'est le plan qui marche. Tu le dis sans drame : ce qui change, quand vient la suite. La nouvelle date est au DAF."
       ],
@@ -109,7 +109,7 @@ LEARNSQL.cours.cp21 = {
       points: [
         "Tout passe par un ticket, même ce qui arrive dans ton bureau. Sinon, rien n'est trié, et le grave se noie (module cp15).",
         "Le point de 9 h 30 est court : les tickets nouveaux, leur gravité, qui fait quoi, pour quand.",
-        "Trier : bloquant (on ne peut plus facturer ou recevoir), tout de suite ; majeur (contournement coûteux), le contournement puis la correction ; mineur (une gêne), une date. Une demande nouvelle n'est pas une anomalie : elle attend la fin du gel.",
+        "Trier : bloquant (on ne peut plus facturer ou recevoir), tout de suite. Majeur (contournement coûteux) : le contournement, puis la correction après le gel, sauf décision du DAF. Mineur (une gêne) : une date. Une demande nouvelle n'est pas une anomalie : elle attend la fin du gel.",
         "Corriger en production : testé avant, tracé, dit à l'équipe, même pressé, même la nuit. Une correction sans trace se rattrape tout de suite : ticket, trace, test.",
         "Chaque soir, 3 lignes au DAF : tickets ouverts, rejets du jour, ce qui l'attend. Fin de l'hypercare et passage au run : module cp22."
       ],

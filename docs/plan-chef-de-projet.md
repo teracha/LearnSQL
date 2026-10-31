@@ -70,7 +70,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   la cheffe comptable la classe, dans l'enveloppe ; sortir de l'enveloppe = demande de changement.
   Gel des changements dès le début du pilote (mai) : seules passent les corrections d'anomalies bloquantes et les
   obligations légales. Lever le gel pour autre chose : décision du DAF, en connaissant le risque. Le gel vaut jusqu'à la fin
-  de la bascule (juin), partie agile comprise. Pas de budget de changement délégué sur DEMAT : chaque jour d'intégrateur
+  de l'hypercare (vendredi 25 juin), partie agile comprise. Pas de budget de changement délégué sur DEMAT : chaque jour d'intégrateur
   en plus = une commande signée par le DAF.
 - Contrats (module cp14) : PA = abonnement signé en novembre 2026 par le DAF (connecteur standard au 1er mars,
   pénalités de retard plafonnées et dues sans mise en demeure, SLA, plan B par le portail, réversibilité des données). Intégrateur Divalto = régie :
@@ -190,7 +190,12 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   arrière : repasser par le portail de la PA (le plan B), décidé au plus tard le lundi 14 à 12 h. Hypercare (support
   renforcé) de 2 semaines, du 14 au 25 juin, point chaque jour à 9 h 30 ; puis passage en run (module cp22). Le gel des
   changements court jusqu'à la fin de l'hypercare, le vendredi 25 juin. Retour arrière testé fin mai (Sophie émet et Julie
-  reçoit quelques factures par le portail).
+  reçoit quelques factures par le portail). Retour arrière décidé par le DAF, sur ta recommandation (absent : la personne
+  qu'il a désignée par écrit) ; signal d'alerte : plus de 5 % de rejets le lundi matin (il déclenche l'appel au DAF, pas le
+  retour arrière). Messages au DAF et à ton DSI samedi et dimanche à 18 h. Répétition de toute la bascule sur
+  l'environnement de test. Lundi 8 h : Marc vérifie les 1res factures EDI d'AquaBleu. Hypercare : point de 20 minutes (toi,
+  le consultant, Julie, Sophie, Marc, le N2), 3 lignes au DAF chaque soir ; une majeure : contournement, correction après
+  le gel (sauf décision du DAF).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,

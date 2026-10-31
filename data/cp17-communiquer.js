@@ -312,7 +312,7 @@ LEARNSQL.questions.cp17 = [
       "Non. Rien ne se décide ce week-end : la cause est trouvée, la correction est lundi. Tu déranges le sponsor pour rien.",
       "Non. Presque : le bon message, au mauvais moment. Tu demandes à un sponsor en congé de te rappeler pour un problème déjà traité.",
       "Oui. Le problème est compris et traité, sans risque légal ce week-end. Lundi, il a les faits et la suite.",
-      "Non. 6 % de rejets en pilote, c'est un écart au critère de succès : le sponsor doit le savoir avant le COPIL."
+      "Non. 6 % de rejets en pilote, c'est un risque pour la bascule de juin : le sponsor doit le savoir avant le COPIL."
     ],
     retenir: "Une mauvaise nouvelle déjà traitée, sans décision à prendre : le prochain jour ouvré suffit."
   },

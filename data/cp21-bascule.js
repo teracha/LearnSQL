@@ -15,8 +15,8 @@
 // PA de 8 h à 18 h les jours ouvrés, délais comptés aux heures de support : q14), « Reprise » (gel des créations de
 // tiers le vendredi 11 à 12 h : q20). Promesse tenue : cp01-q24 (« Go / no-go : comparer aux critères fixés avant,
 // montrer le retour arrière, recommander ; le sponsor décide » : q05, q08, q12, q13), sans refaire son cas.
-// Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : rejets du pilote par semaine (q04 : 5, 3,
-// 1,8 et 1,6 % ; q05 : 2,4 % ; q34 : 3 %) ; une comptable malade, de retour le 21 juin (q06) ; 30 rejets EDI du pilote,
+// Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : rejets du pilote par semaine (q04 : 6, 3,
+// 1,8 et 1,6 %, la 1re semaine comme cp17-q16 ; q05 : 2,4 % ; q34 : 3 %) ; une comptable malade, de retour le 21 juin (q06) ; 30 rejets EDI du pilote,
 // condition du DAF (q07) ; 2 réserves mineures du PV datées au 9 juillet, après le gel, comme cp19-q31 (q11) ; avoirs
 // fournisseurs bloqués la veille du go (q12) ; une majeure ouverte, contournement de 2 h par jour pour Sophie (q13) ;
 // répétition de la bascule entière, 50 minutes par site pour activer le connecteur (q16, q17) ; arrêt de la facturation le
@@ -24,16 +24,17 @@
 // portail (q21) ; seuil d'alerte de 5 % de rejets, 18 % le lundi à 10 h 30 (q23) ; un client EDI rejeté le lundi à 15 h
 // (q24) ; le DAF en avion le lundi matin (q25) ; retour arrière décidé à 11 h 30 (q26) ; 15 % de rejets et une piste de
 // l'intégrateur pour 16 h (q41) ; 25 appels en un jour (q29) ; point de 1 h 15 (q30) ; alerte sur les avoirs demandée
-// par Julie (q32) ; correction de nuit sans ticket (q33) ; le gel court jusqu'à la fin de l'hypercare, le 25 juin (lu
+// par Julie, que le consultant veut installer pendant le gel (q32) ; correction de nuit sans ticket (q33) ; le gel court jusqu'à la fin de l'hypercare, le 25 juin (lu
 // comme « la fin de la bascule » de la fiche : q11, q32) ; projets hors DEMAT pour « Tu es DSI adjoint » (q36 à q40).
 // Affirmations juridiques hors fiche (générales, à faire vérifier) : un doublon de facture se corrige par un avoir (q28 ;
-// la fiche dit : une facture émise se corrige par un avoir ou une facture rectificative). Rien d'autre.
+// la fiche dit : une facture émise se corrige par un avoir ou une facture rectificative) ; on ne fait pas travailler une
+// personne en arrêt maladie (q06 : son contrat est suspendu). Rien d'autre.
 // Déjà publiées ailleurs, pas reprises ici : cp01-q24 (veille de bascule, 2 majeures, le DAF veut y aller), cp09-q05 (où
 // se décide le go / no-go), cp09-q19 (un C contre), cp10-q26 et cp03-q18 (correction en production pendant le pilote),
 // cp10-q27 et q29 (le gel), cp17-q19 (AquaBleu prévenu), cp17-q20 (annonce du report), cp17-q35 (le DG veut mai),
 // cp18-q08, q09, q12, q16 (dates et site du pilote), cp08-q23 et q27 (météo des rejets), cp02-q44 (deux pics en juin).
-// Voisines, avec un autre angle : q33 (correction déjà faite, sans trace) et cp10-q26 ; q32 (demande nouvelle pendant
-// l'hypercare) et cp10-q27 ; q27 (à quoi sert le pilote) et cp17-q35 ; q25 (A absent) et cp09-q24.
+// Voisines, avec un autre angle : q33 (correction déjà faite, sans trace) et cp10-q26 ; q32 (un ajout « testé et tracé »
+// pendant le gel) et cp10-q27, q33 (une correction) ; q27 (à quoi sert le pilote) et cp17-q35 ; q25 (A absent) et cp09-q24.
 // Frontières : qui décide = cp09 ; la recette et les gravités = cp19 ; la reprise = cp20 ; le gel = cp10 ; les mots =
 // cp17 ; le plan B = cp07 ; les tickets = cp15 ; la fin de l'hypercare et le run = cp22 ; formation et adoption = cp23.
 // Types : critères de go q01 à q07 ; préparer la décision q08 à q13 ; plan de bascule q14 à q20 ; retour arrière q22 à
@@ -42,8 +43,8 @@
 // Anti-devinette : la bonne réponse est un extrême dans 8 questions sur 28 avec un axe d'action (la plus forte qui se
 // justifie : q12, q15, q21, q22, q23, q41 ; la plus douce : q13, q35). Go est la bonne réponse dans q06, q11, q35 ;
 // no-go ou report dans q12, q34 ; le retour arrière dans q41 ; le DAF qui décide dans q02, q05, q13, q23, q25 (et un
-// choix faux le fait décider dans 7 autres). Sans connaître le sujet, toutes les règles restent sous 37 % ; « prendre
-// go » 22 %, « no-go ou reporter » 20 %, « le retour arrière » 24 %, « celui qui fait décider le DAF » 29 %. « Tout »,
+// choix faux le fait décider dans 7 autres). Sans connaître le sujet (recalcul du testeur), toutes les règles restent sous
+// 45 % ; « prendre go » 20 %, « no-go ou reporter » 20 %, « le retour arrière » 24 %, « celui qui fait décider le DAF » 30 %. « Tout »,
 // « tous », « aujourd'hui », « le jour même », « dès », « D'accord », « Oui » et « Non : » sont aussi dans des bonnes
 // réponses ; chiffres et dates aussi dans des choix faux.
 LEARNSQL.questions.cp21 = [
@@ -107,16 +108,16 @@ LEARNSQL.questions.cp21 = [
   {
     id: "cp21-q04",
     dialecte: "Gestion de projet",
-    q: "Pilote, rejets par semaine, à volumes égaux : 5 %, 3 %, 1,8 %, 1,6 %. Critère de go : moins de 2 % sur ses 2 dernières semaines. Est-il atteint ?",
+    q: "Pilote, rejets par semaine, à volumes égaux : 6 %, 3 %, 1,8 %, 1,6 %. Critère de go : moins de 2 % sur ses 2 dernières semaines. Est-il atteint ?",
     choix: [
-      "Non : 2,85 % en moyenne sur les 4 semaines du pilote",
+      "Non : 3,1 % en moyenne sur les 4 semaines du pilote",
       "Oui : 1,7 % en moyenne sur les 2 semaines de fin",
-      "Non : la 1re semaine dépasse 2 %, elle est à 5 %",
+      "Non : la 1re semaine dépasse 2 %, elle est à 6 %",
       "Oui : 1,6 % la dernière semaine, c'est sous 2 %"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. C'est la moyenne des 4 semaines : (5 + 3 + 1,8 + 1,6) / 4 = 2,85 %. Mais le critère validé ne regarde que les 2 dernières, quand les causes sont corrigées.",
+      "Non. C'est la moyenne des 4 semaines : (6 + 3 + 1,8 + 1,6) / 4 = 3,1 %. Mais le critère validé ne regarde que les 2 dernières, quand les causes sont corrigées.",
       "Oui. À volumes égaux : (1,8 + 1,6) / 2 = 1,7 %, sous 2 %. Les 1res semaines servent à corriger : c'est pour ça que le critère porte sur la fin du pilote.",
       "Non. La 1re semaine n'est pas dans le critère : on y corrigeait encore les fiches. Juger dessus, c'est punir le pilote d'avoir servi.",
       "Non. Presque : le critère est atteint, mais pas pour cette raison. Il porte sur 2 semaines : une dernière semaine à 1,6 % après une semaine à 2,6 % ne suffirait pas."
@@ -157,7 +158,7 @@ LEARNSQL.questions.cp21 = [
       "Non. Le critère est presque atteint, avec une parade sûre : un report coûterait des semaines pour une personne, dont le travail est couvert.",
       "Non. « Sur le tas », sans date, ce sont des erreurs sur de vraies factures. Le critère n'est ni atteint, ni compensé par écrit.",
       "Non. On ne fait pas travailler une personne en arrêt maladie. Et sa formation se cale avec sa cheffe, à son retour.",
-      "Oui. Presque atteint, cause connue, parade datée : un go sous conditions. Écrit : quoi (sa formation), qui (sa cheffe), pour quand (le 21). Le DAF décide en le lisant."
+      "Oui. Presque atteint, cause connue, parade datée : un go sous conditions. Écrit : quoi (sa formation), qui (sa cheffe), pour quand (le 21), et sinon (pas de facture pour elle avant). Le DAF décide en le lisant."
     ],
     retenir: "Un critère presque atteint, avec une parade sûre : go sous conditions, écrit et daté. Sans parade : no-go."
   },
@@ -173,7 +174,7 @@ LEARNSQL.questions.cp21 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Un go sous conditions s'écrit : quoi (les 30 rejets), qui (Marc, vu avec son chef), pour quand (vendredi 18 h), qui vérifie, et sinon (appel au DAF). Il relit, puis c'est au registre.",
+      "Oui. Un go sous conditions s'écrit : quoi (les 30 rejets), qui (Marc, vu avec son chef), pour quand (vendredi 16 h 30), qui vérifie, et sinon (appel au DAF). Il relit, puis c'est au registre.",
       "Non. Presque : la condition est écrite. Mais sans qui, pour quand, qui vérifie, ni ce qu'on fait si elle n'est pas remplie, lundi personne ne saura quoi contrôler.",
       "Non. Reprendre les rejets EDI, c'est le travail de l'ADV (administration des ventes) : Marc sait le faire, son chef organise son temps. Toi, tu tiens le plan du week-end.",
       "Non. Le DAF a décidé, en connaissant l'écart : c'est son rôle. Une condition claire et vérifiable rend le go plus sûr, pas moins."
@@ -269,9 +270,9 @@ LEARNSQL.questions.cp21 = [
     bonne: 1,
     pourquoi: [
       "Non. L'hypercare (le support renforcé d'après la bascule) traite les petits écarts. Une bloquante, sans cause ni date, c'est un incident annoncé sur de vraies factures.",
-      "Oui. Le critère « 0 bloquante » est rouge, sans parade. Tu recommandes no-go, avec les dates possibles (mi-juillet, par exemple) et leur prix. Le DAF décide.",
+      "Oui. Le critère « 0 bloquante ou majeure » est rouge, sans correction datée. Tu recommandes no-go, avec les dates possibles (mi-juillet, par exemple) et leur prix. Le DAF décide.",
       "Non. Une condition peut sauver un go, si elle peut se tenir. Sans cause ni date, « corrigée avant lundi » est un espoir, pas une condition.",
-      "Non. Presque : un contournement existe. Mais une bloquante contournée à grand coût reste une majeure, et le critère dit 0 majeure. Sans cause connue, la saisie à la main peut durer des semaines."
+      "Non. Presque : un contournement existe. Mais ressaisir chaque avoir, sans date de fin, coûte cher : contournée, la bloquante devient une majeure, et le critère dit 0 majeure. Il reste rouge."
     ],
     retenir: "Un critère rouge, sans parade datée : tu recommandes no-go, avec les dates possibles. Le DAF décide."
   },
@@ -473,14 +474,14 @@ LEARNSQL.questions.cp21 = [
       "Tu lances toi-même le retour arrière : le seuil est dépassé",
       "Tu appelles le DAF tout de suite : les faits, ta recommandation",
       "Tu attends 12 h : l'intégrateur aura peut-être trouvé d'ici là",
-      "Tu ouvres un ticket en priorité 1 à la PA, et tu attends"
+      "Tu ouvres un ticket en priorité 2 à la PA, et tu attends"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le retour arrière défait le go : c'est au DAF de le décider, comme le go. Le seuil du plan déclenche l'alerte, pas le retour arrière.",
       "Oui. Seuil dépassé, cause inconnue, point de non-retour à 12 h : tu appelles le DAF maintenant. Les faits, ce que fait l'intégrateur, ta recommandation (ici : revenir). Il décide avant midi.",
       "Non. 12 h, c'est l'heure limite du retour arrière : attendre jusque-là, c'est laisser le DAF sans choix. Et chaque heure, des factures rejetées de plus.",
-      "Non. La PA doit chercher aussi, oui. Mais attendre son ticket, c'est laisser filer l'heure limite sans que le DAF le sache. Le ticket part, et le DAF est appelé."
+      "Non. Le ticket, oui : priorité 2, une partie est bloquée (module cp15). Mais attendre sa réponse, c'est laisser filer l'heure limite sans que le DAF le sache. Le ticket part, et le DAF est appelé."
     ],
     retenir: "Seuil d'alerte dépassé avant le point de non-retour : le DAF tout de suite, avec les faits et ta recommandation. Il décide."
   },
@@ -530,14 +531,14 @@ LEARNSQL.questions.cp21 = [
       "« La bascule a échoué. Nous cherchons les responsables. »",
       "« Petit souci technique : rien ne change pour vous. »",
       "« Retour arrière vers le portail : on rebascule demain 8 h. »",
-      "« Retour arrière, prévu : le portail dès 12 h, suite jeudi. »"
+      "« Retour arrière, prévu : le portail dès 12 h, infos jeudi. »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Un retour arrière décidé à temps n'est pas un échec : c'est le plan qui marche. Chercher des coupables maintenant fait taire ceux qui ont vu le problème.",
       "Non. C'est faux : dès midi, les équipes déposent par le portail. Le jour où elles le découvrent seules, elles ne te croient plus.",
       "Non. Presque : sans drame, avec une suite. Mais la cause n'est pas connue, et la nouvelle date est au DAF. Annoncer demain 8 h, c'est promettre ce que tu n'as pas.",
-      "Oui. Le fait, sans drame : le plan prévu s'applique. Ce qui change pour les équipes (le portail, dès 12 h), et quand elles en sauront plus. La cause et la nouvelle date viendront, décidées par le DAF."
+      "Oui. Le fait, sans drame : le plan prévu s'applique. Ce qui change pour les équipes (le portail, dès 12 h), et quand elles en sauront plus (jeudi). La cause et la nouvelle date viendront, décidées par le DAF."
     ],
     retenir: "Revenir en arrière n'est pas un échec : on le dit sans drame, avec ce qui change et quand vient la suite."
   },
@@ -587,14 +588,14 @@ LEARNSQL.questions.cp21 = [
       "Tu notes chaque appel dans ton cahier, et tu rappelles",
       "Tu ne prends plus d'appel, et tu renvoies tout au support",
       "Tu demandes au DAF un 2e chef de projet pour l'hypercare",
-      "Tout en ticket, même chez toi ; tri à 9 h 30"
+      "Tout en ticket, même tes appels ; tri à 9 h 30"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Presque : c'est écrit. Mais dans ton cahier, personne d'autre ne le voit : ni le tri de 9 h 30, ni le N2, ni la PA. Et tout repasse par toi.",
       "Non. Le support est le bon canal, mais couper les appels en pleine hypercare, c'est rater l'appel grave. Tu prends l'appel, puis il part en ticket.",
       "Non. Le problème n'est pas le nombre de bras, c'est le canal : avec des tickets, l'équipe en place suffit.",
-      "Oui. Un appel peut arriver chez toi ; il repart en ticket, même court. Au point de 9 h 30, on voit tout, on trie, on donne une date. Rien ne se perd."
+      "Oui. Un appel peut t'arriver directement ; il repart en ticket, même court. Au point de 9 h 30, on voit tout, on trie, on donne une date. Rien ne se perd."
     ],
     retenir: "En hypercare, tout passe par un ticket, même ce qui arrive dans ton bureau : sinon, rien n'est trié."
   },
@@ -611,7 +612,7 @@ LEARNSQL.questions.cp21 = [
     bonne: 0,
     pourquoi: [
       "Oui. Un point court, sur les tickets : ce qui est nouveau, sa gravité, qui s'en charge, pour quand. Les récits et les débats se règlent après, à deux.",
-      "Non. 1 h 15 chaque matin, à 6 personnes : plus d'une journée de travail perdue chaque jour, en pleine hypercare. Et l'urgent se perd dans les récits.",
+      "Non. 1 h 15 chaque matin, à 6 personnes : 7 h 30, plus d'une journée de travail, en pleine hypercare. Et l'urgent se perd dans les récits.",
       "Non. Les tickets disent ce qui ne va pas ; le point fait décider qui s'en charge, chaque jour. Sans lui, le tri attend.",
       "Non. Plus court, oui. Mais en hypercare, les incidents vont vite : un point par semaine, c'est 5 jours de tri en retard. Le plan dit chaque jour."
     ],
@@ -639,21 +640,21 @@ LEARNSQL.questions.cp21 = [
   {
     id: "cp21-q32",
     dialecte: "Gestion de projet",
-    q: "Hypercare, jour 5. Julie : « Il me faudrait une alerte quand un fournisseur envoie un avoir. Le consultant dit : 1 jour. » Que fais-tu ?",
+    q: "Hypercare, jour 5. Le consultant : « Julie veut une alerte quand un fournisseur envoie un avoir. 1 jour : je l'installe ce soir, testé et tracé. » Que fais-tu ?",
     choix: [
-      "Oui : en hypercare, on règle tout ce qui gêne la compta",
-      "Tu l'écris : une demande nouvelle attend la fin du gel",
-      "Tu la chiffres, et le DAF lève le gel pour elle",
-      "Tu la fais classer bloquante : elle passera le gel"
+      "D'accord : testé et tracé, c'est la règle en production",
+      "Tu l'arrêtes : écrite, la demande attend la fin du gel",
+      "Tu le laisses faire, si la cheffe comptable l'accepte par écrit",
+      "Tu préviens son responsable, et tu lui retires ses accès"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. L'hypercare corrige ce qui ne marche pas. Une alerte nouvelle, c'est un changement : en pleine bascule, chaque ajout est un risque de plus.",
-      "Oui. Rien n'est cassé : c'est une demande nouvelle. Tu l'écris (qui, quoi, pourquoi) ; elle attend la fin du gel, le 25 juin, puis suit son circuit (module cp10). Julie sait quand.",
-      "Non. Le DAF peut lever le gel, mais pour une alerte utile qui peut attendre une semaine ? Tu le déranges pour rien, et tu ouvres la porte aux suivantes.",
-      "Non. L'étiquette ne change pas la nature : sans l'alerte, tout marche. Tricher sur la gravité, c'est casser le tri pour tout le monde."
+      "Non. Presque : testé et tracé, c'est la règle pour corriger en production. Mais rien n'est cassé : c'est un ajout. Pendant le gel, seuls passent le bloquant et le légal.",
+      "Oui. Une alerte nouvelle n'est pas une correction : elle attend la fin du gel, le 25 juin. Tu l'écris (qui, quoi, pourquoi), puis elle suit son circuit (module cp10). Julie sait quand.",
+      "Non. La cheffe comptable classe les demandes de la compta, mais pendant le gel, même acceptée, une demande nouvelle attend. Lever le gel, c'est le DAF, en connaissant le risque.",
+      "Non. Trop fort : il t'a prévenu avant d'agir, c'est ce qu'on attend de lui. Tu lui redis la règle du gel. Lui couper l'accès, c'est perdre le seul qui connaît le paramétrage, en pleine hypercare."
     ],
-    retenir: "En hypercare, une anomalie se corrige ; une demande nouvelle s'écrit et attend la fin du gel."
+    retenir: "Pendant le gel, « testé et tracé » ne suffit pas pour un ajout : une demande nouvelle s'écrit et attend la fin du gel."
   },
   {
     id: "cp21-q33",
@@ -670,7 +671,7 @@ LEARNSQL.questions.cp21 = [
       "Oui. On rattrape : le ticket (quoi, où, pourquoi), la trace du réglage, et un test des autres dépôts. Puis la règle, redite au point de 9 h 30 : en production, testé et tracé, même la nuit.",
       "Non. Presque : le ticket, oui. Mais vendredi, c'est 2 jours sans trace, et rien n'est testé : si un autre dépôt casse demain, personne ne fera le lien.",
       "Non. Défaire une correction qui marche, c'est rebloquer les factures de ce dépôt. Le circuit se rattrape : trace et test, maintenant.",
-      "Non. 1re fois, et il a réglé un vrai blocage : le dénoncer, c'est lui apprendre à cacher. La règle se redit ; si ça recommence, tu montes d'un niveau (module cp16)."
+      "Non. Il a réglé un vrai blocage, et il te l'a dit lui-même : le dénoncer, c'est lui apprendre à cacher. La règle se redit ; si ça recommence, tu montes d'un niveau (module cp16)."
     ],
     retenir: "Une correction en production sans trace se rattrape tout de suite : ticket, trace, test. Puis la règle se redit à tous."
   },
@@ -777,14 +778,14 @@ LEARNSQL.questions.cp21 = [
       "« Bien : la même méthode pour tous les projets, c'est simple »",
       "« Une liste courte, l'ancien état gardé ; l'ADV dit go »",
       "« Rien de tout ça : un état pour l'ADV, on le met en production »",
-      "« Une liste courte, et c'est toi qui dis go : c'est ton projet »"
+      "« Une liste courte, et c'est toi qui dis go, sans l'ADV »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un go / no-go avec le DAF pour un état : son temps pour rien, et une méthode lourde que les chefs de projet finiront par sauter.",
       "Oui. La méthode se taille au risque : quelques critères, une preuve, un retour arrière simple (l'ancien état gardé). Le responsable ADV, qui s'en sert, dit go.",
       "Non. Même petit, un état faux arrive chez l'ADV : on vérifie qu'il est testé et validé, et on garde de quoi revenir.",
-      "Non. Presque : la bonne taille. Mais le chef de projet recommande ; le go revient à celui qui porte le métier, le responsable ADV."
+      "Non. Presque : la bonne taille. Mais sans l'ADV, personne du métier ne dit que l'état lui convient. Le chef de projet recommande ; le responsable ADV, qui s'en sert, dit go."
     ],
     retenir: "Le go / no-go se taille au risque : petit changement, liste courte, l'ancien gardé, le métier dit go."
   },
