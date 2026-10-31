@@ -38,7 +38,7 @@
 // bloquantes et les obligations légales) ; le solde de 3 700 € (fiche, cp12).
 // Affirmations juridiques hors fiche (générales, à faire vérifier) : un PV ne promet pas zéro défaut ; un défaut trouvé
 // après se corrige selon le contrat (garantie, support : cp14) ; une réserve vague (« sous réserve de bon
-// fonctionnement ») ne protège rien ; les données personnelles des contacts se masquent dans les données de test
+// fonctionnement ») ne protège presque rien ; ce qui est vu et pas mis en réserve est en général accepté ; les données personnelles des contacts se masquent dans les données de test
 // (cp01-q27, cp24). Fiche : une facture émise est définitive ; facture électronique = B2B en France.
 // Frontières : suivre la recette (taux, météo, prévision du PV) = cp08 ; qui signe au RACI = cp09 ; PV, réserves,
 // délai de validation et recette tacite au contrat = cp14 ; anomalie ou changement = cp10 ; un bon ticket = cp15 ;
@@ -79,7 +79,7 @@ LEARNSQL.cours.cp19 = {
         "Ils viennent du vrai travail : avoirs, rejets EDI, AquaBleu. Un fournisseur étranger hors PA doit passer comme avant. Ce qui change d'un site à l'autre a ses cas. Les rares mais coûteux d'abord.",
         "Le métier les écrit avant, en janvier-février ; tu les relis. Écrits en testant, ils testent ce qui vient, pas ce qui compte.",
         "Le cahier de recette : la liste des cas, avec leurs résultats. Il sert au suivi, à la non-régression, au PV.",
-        "Les données : les vrais clients, car le SIREN (le numéro de l'entreprise) achemine la facture. Les contacts (noms, e-mails) sont masqués : rien ne part chez un vrai client (module cp24)."
+        "Les données : les vrais clients, car le SIREN (le numéro de l'entreprise) achemine la facture. Les contacts (noms, e-mails) sont masqués : rien ne part chez un vrai client (module cp24). La reprise, elle, s'essaie sur les vraies données, protégées (module cp20)."
       ],
       retenir: "Un cas de test : un vrai cas du métier, écrit avant, avec son résultat attendu."
     },
@@ -103,7 +103,7 @@ LEARNSQL.cours.cp19 = {
         "Le lot : 15 à 20 cas clés, choisis avant la recette. Un par flux, plus les cas rares et coûteux. Pas les 120, ni rien. Un cas qui a cassé fort y entre.",
         "Les correctifs arrivent par livraisons groupées et annoncées, ici le mardi et le jeudi. Le lot se rejoue après chacune. Rien au fil de l'eau.",
         "Le lot resservira : au pilote, à chaque version de la PA ou de Divalto (module cp15). Le logiciel l'automatise souvent ; un ERP en PME le rejoue souvent à la main.",
-        "Piège : couper des cas pour tenir la date. Les rares et coûteux restent. Dans ta tolérance, tu ajustes ; au-delà, le DAF (directeur administratif et financier, ton sponsor) choisit, risque connu (module cp18). Le pilote confirme la recette, il ne la remplace pas."
+        "Piège : couper des cas pour tenir la date. Dans ta tolérance, tu décales la date ; au-delà, le DAF (directeur administratif et financier, ton sponsor) choisit, risque connu (module cp18). Le pilote confirme la recette, il ne la remplace pas."
       ],
       retenir: "Après chaque livraison de correctifs, on rejoue le lot de cas clés : pas tout, jamais rien."
     },
@@ -111,10 +111,10 @@ LEARNSQL.cours.cp19 = {
       titre: "Le PV et les réserves",
       exemple: "Vendredi 30 avril : 0 bloquante, 0 majeure.\nPV clients : signé par le responsable ADV. PV fournisseurs : par la personne que la cheffe comptable, en congé, a désignée par écrit. Pas Julie : elle a fait les tests.\n2 réserves mineures : un libellé du PDF, un tri d'écran. Chacune avec son ticket et sa date : le 9 juillet, après le gel et la bascule.\nLe PV ouvre le solde de la mise en service de la PA : 3 700 € (module cp12).",
       points: [
-        "Le PV dit : ce livrable, dans cette version, est accepté sur ces cas et ces critères, avec ces réserves. Il ne promet pas zéro défaut : un défaut trouvé après se corrige selon le contrat (module cp14).",
+        "Le PV dit : ce livrable, dans cette version, est accepté sur ces cas et ces critères, avec ces réserves. Il ne promet pas zéro défaut : ce qu'aucun cas n'a vu se corrige selon le contrat (module cp14). Ce qui est vu, sans réserve, est en général accepté.",
         "Ses critères sont ceux de la stratégie : une bloquante ou une majeure ouverte, pas de PV. Corrigée mais pas encore retestée : pas encore de PV.",
-        "Une réserve vise un défaut mineur précis : son ticket, sa date, qui le reteste. « Sous réserve de bon fonctionnement » ne protège rien. Une bloquante ne se met pas en réserve.",
-        "Qui signe : l'A du RACI (celui qui approuve), le responsable du métier (module cp09). Ni celui qui a testé, ni toi, ni l'intégrateur. Absent ? Il désigne avant, par écrit.",
+        "Une réserve vise un défaut mineur précis : son ticket, sa date, qui le reteste. « Sous réserve de bon fonctionnement » ne protège presque rien. Une bloquante ne se met pas en réserve.",
+        "Qui signe : l'A du RACI (le tableau des rôles : A = celui qui approuve), le responsable du métier (module cp09). Ni celui qui a testé, ni toi, ni l'intégrateur. Absent ? Il désigne avant, par écrit.",
         "Le PV déclenche le solde de la mise en service, puis le pilote de mai. Les réserves se suivent jusqu'à leur levée écrite, par le métier, après retest et lot. La recette tacite : module cp14."
       ],
       retenir: "Le PV se signe par le métier, sur les critères écrits : zéro bloquante, zéro majeure, des réserves précises et datées."

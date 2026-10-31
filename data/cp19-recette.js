@@ -25,20 +25,21 @@
 // Divalto à part de celle de l'intégrateur, reliée à l'espace de test de la PA (q07) ; livraisons de correctifs le mardi
 // et le jeudi (q21, q26, q27) ; lot de 20 cas clés choisi en février (q25, q28) ; cas F-17, F-22 (q23, q24) ; guide EDI
 // d'AquaBleu : 5 factures de test validées par AquaBleu (q09) ; numéros de facture et adresses propres à chaque dépôt
-// (q10) ; fournisseur espagnol hors PA (q15) ; copie de Divalto qui a gardé les vrais e-mails (q16) ; 2 bloquantes,
-// 5 majeures, 18 mineures fin de 4e semaine (q22) ; réserves datées au 9 juillet, après le gel et la bascule (q31).
-// Variantes (le temps d'une question, sans changer la fiche) : une majeure encore ouverte le 29 avril (q29) ; la dernière
+// (q10) ; fournisseur espagnol hors PA (q15) ; copie de Divalto qui a gardé par erreur les vrais e-mails (q16) ; 2 bloquantes,
+// 3 majeures, 9 mineures fin de 4e semaine (q22) ; réserves datées au 9 juillet, après le gel et la bascule (q31).
+// Variantes (le temps d'une question, sans changer la fiche) : une majeure encore ouverte le 29 avril, recette clients (q29) ; la dernière
 // bloquante retestée le 30 au matin (q34) ; le PV 3 jours plus tard, dans la tolérance (q35).
 // Affirmations juridiques hors fiche (générales, à faire vérifier) : un PV ne promet pas zéro défaut, un défaut trouvé
-// après se corrige selon le contrat (q30) ; une réserve générale (« sous réserve de bon fonctionnement ») ne protège rien
-// (q30) ; un fournisseur établi hors de France n'émet pas ses factures par la PA (q15, d'après la fiche : facture
+// après se corrige selon le contrat (q30) ; une réserve générale (« sous réserve de bon fonctionnement ») ne protège presque
+// rien (q30) ; un fournisseur établi hors de France n'émet pas ses factures par la PA (q15, d'après la fiche : facture
 // électronique = B2B en France) ; données personnelles masquées dans les copies de test (q16, comme cp01-q27).
 // Déjà publiées ailleurs, pas reprises ici : cp01-q22 et q27, cp02-q03, cp03-q09 et q12, cp05-q23 et q34, cp06-q03,
 // q04 et q25, cp08-q36 à q39, cp09-q13, q14, q20, q24 et q42, cp10-q01, q16, q25 et q41, cp12-q15 à q17 et q22,
 // cp14-q16, q26 à q28, q32 et q40, cp15-q24 et q27, cp16-q08, q27 et q34, cp17-q38 et q42, cp18-q02, q13, q14 et q25.
 // Voisines, avec un autre angle : q02 et cp01-q22 (les tests du fournisseur comme critère d'entrée) ; q16 et cp01-q27
 // (un incident d'envoi, pas une copie à donner) ; q21 et cp15-q27 (la règle de fermeture) ; q23 et cp15-q24 (l'attendu
-// et l'obtenu d'un cas) ; q26 et cp10-q16 (une régression trouvée) ; q29 et cp14-q26 / q27 (une majeure ouverte) ; q35 et
+// et l'obtenu d'un cas) ; q26 et cp10-q16 (une régression trouvée) ; q29 et cp14-q26 / q27 (une majeure ouverte) ; q31 et cp14-q26 (les 2 mêmes réserves :
+// ici, leur date après le gel) ; q35 et
 // cp12-q22 (la date, pas le budget, dans la tolérance) ; q36 et cp18-q13 (le pilote) ; q41 et cp18-q25 (DSI adjoint).
 // Frontières : suivre la recette (taux, météo, prévision du PV) = cp08 ; qui signe au RACI = cp09 ; PV, délai de
 // validation et recette tacite au contrat = cp14 ; anomalie ou changement = cp10 ; un bon ticket = cp15 ; la qualité
@@ -79,14 +80,14 @@ LEARNSQL.questions.cp19 = [
     q: "Janvier. Le chef de projet de la PA : « Notre connecteur est testé chez 50 clients Divalto. Votre recette peut tenir en 2 jours. » Que réponds-tu ?",
     choix: [
       "« D'accord : 2 jours suffisent, la compta gagne 5 semaines »",
-      "« Non. Et nous rejouerons aussi vos tests chez les 50 clients »",
+      "« Non. Et nous ajoutons même 2 semaines, pour être sûrs »",
       "« Le DAF choisira entre 2 jours et 6 semaines, à leur prix »",
       "« Nos 120 cas restent. Vos tests : un compte rendu avant le 16 »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Ses 50 clients n'ont ni vos SIREN, ni AquaBleu, ni vos avoirs. Ses tests prouvent que le connecteur marche en général, pas chez vous.",
-      "Non. Trop fort : refaire ses tests chez 50 clients ne vous apprend rien. Ce qui manque, ce sont vos cas, pas les siens.",
+      "Non. Trop fort : sa phrase ne change pas vos risques. 2 semaines de plus repoussent le PV et le pilote, sans un cas de plus.",
       "Non. La stratégie de recette est validée : tu n'as pas à la remettre en jeu pour l'idée d'un prestataire. Le DAF (directeur administratif et financier, le sponsor) n'a rien à trancher.",
       "Oui. Ses tests sont un critère d'entrée : utiles, prouvés par un compte rendu avant le 16 mars. Ils ne remplacent pas la recette : la compta et l'ADV jouent leurs cas, comme la stratégie le prévoit."
     ],
@@ -98,7 +99,7 @@ LEARNSQL.questions.cp19 = [
     q: "Vendredi 12 mars. Le consultant : « Mes tests d'intégration ? Pas eu le temps. Vos testeurs trouveront les erreurs en recette, ça ira plus vite. » Que fais-tu ?",
     choix: [
       "Tu acceptes : la recette trouvera ses erreurs en même temps",
-      "Tu fais ses tests toi-même ce week-end, pour tenir le 16",
+      "Tu fais ses tests toi-même ce week-end, compte rendu compris",
       "Non : ses tests lundi, avec un compte rendu avant mardi",
       "Tu décales la recette de 2 semaines, et le DAF est prévenu"
     ],
@@ -116,14 +117,14 @@ LEARNSQL.questions.cp19 = [
     dialecte: "Gestion de projet",
     q: "Lundi 15 mars, veille de la recette. Julie commence demain à 9 h. Tu as 2 heures devant toi. Qu'en fais-tu de plus utile ?",
     choix: [
-      "Tu joues 5 cas simples : accès, données, tout répond-il ?",
+      "Tu vérifies l'environnement : accès, données, un envoi simple",
       "Tu joues ses cas de la 1re semaine, pour lui éviter les surprises",
       "Rien de plus : l'intégrateur a dit que tout était prêt",
       "L'intégrateur joue cette nuit tous les cas, avant qu'elle arrive"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Vérifier la veille que l'environnement marche, c'est ton rôle : un critère d'entrée, pas une validation. Demain, Julie teste, au lieu de chercher un mot de passe.",
+      "Oui. Vérifier la veille que l'environnement marche, c'est ton rôle : un critère d'entrée, pas une validation. Tu ne juges aucun de ses cas. Demain, Julie teste, au lieu de chercher un mot de passe.",
       "Non. Jouer ses cas, c'est faire la recette à sa place : ton test ne vaut pas validation, et elle n'aura plus qu'à cocher.",
       "Non. « Tout est prêt » n'est pas une preuve. Un accès qui manque, et Julie perd sa 1re matinée.",
       "Non. Il testerait son propre travail, en une nuit, sur les cas du métier : ça ne vaut pas recette, et tu paies ces heures."
@@ -171,7 +172,7 @@ LEARNSQL.questions.cp19 = [
   {
     id: "cp19-q07",
     dialecte: "Gestion de projet",
-    q: "Janvier. Ta stratégie ne dit pas où tester. Le consultant propose sa copie de Divalto, celle où il paramètre : « Elle est prête, et je corrige en direct. » Que décides-tu ?",
+    q: "Janvier. Le consultant propose que les tests se fassent dans sa copie de Divalto, celle où il paramètre : « Elle est prête, et je corrige en direct. » Que décides-tu ?",
     choix: [
       "Sa copie : prête tout de suite, et ses corrections iront plus vite",
       "Une copie à part pour la recette ; ses correctifs y sont livrés",
@@ -195,14 +196,14 @@ LEARNSQL.questions.cp19 = [
       "Un créneau de retest par semaine, réservé avec leurs managers",
       "Rien de plus : la semaine de marge servira aux retests",
       "Les retests attendront le pilote de mai, sur de vraies factures",
-      "Tu étires la recette à 10 semaines : PV mi-juin, le DAF le sait"
+      "Tu étires la recette à 10 semaines : PV fin mai, le DAF le sait"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Une anomalie corrigée se rejoue, et le lot de non-régression aussi : c'est du temps du métier, à réserver comme le reste, avec leurs managers (module cp16).",
-      "Non. Presque : la marge aide. Mais elle est là pour les imprévus. Prévue pour les retests, elle est mangée avant le 1er problème.",
+      "Non. Presque : la marge aide. Mais les retests et le lot reviennent après chaque livraison, chaque semaine : ils n'attendent pas la 7e semaine. Et la marge reste pour les imprévus.",
       "Non. Le PV ne se signe pas sur des anomalies jamais retestées. Et au pilote, l'erreur part sur de vraies factures.",
-      "Non. Trop fort : quelques heures par semaine suffisent. Décaler le PV de 6 semaines, c'est casser le pilote et la bascule."
+      "Non. Trop fort : quelques heures par semaine suffisent. Décaler le PV d'un mois, hors tolérance, c'est casser le pilote de mai et la bascule."
     ],
     retenir: "Une stratégie prévoit le temps des retests et de la non-régression : la marge reste pour les imprévus."
   },
@@ -228,7 +229,7 @@ LEARNSQL.questions.cp19 = [
   {
     id: "cp19-q10",
     dialecte: "Gestion de projet",
-    q: "Ta stratégie prévoit de tout tester sur le dépôt principal. Les 2 autres dépôts ont leurs propres numéros de facture et leurs adresses. Que fais-tu ?",
+    q: "Octobre. Ton brouillon de stratégie prévoit de tout tester sur le dépôt principal. Les 2 autres dépôts ont leurs propres numéros de facture et leurs adresses. Que fais-tu ?",
     choix: [
       "Rien de plus : c'est le même Divalto, un site suffit",
       "Les 120 cas sur chacun des 3 sites, soit 360 cas à jouer",
@@ -315,7 +316,7 @@ LEARNSQL.questions.cp19 = [
     pourquoi: [
       "Oui. Sophie écrit, avec sa cheffe, la TVA attendue : celle du montant de l'avoir. Puis elle rejoue. L'écart reste ? C'est une anomalie, avec sa gravité.",
       "Non. Sans attendu écrit avant, on valide ce que le système fait. « C'est comme ça » ne veut pas dire « c'est juste ».",
-      "Non. Tu ne sais pas encore ce qui est juste : l'attendu, c'est au métier de l'écrire. La gravité se fixe ensuite, avec lui, sur les définitions.",
+      "Non. L'écart ressemble à une anomalie, mais l'attendu s'écrit d'abord, par le métier. Et la gravité se fixe avec lui, sur les définitions, pas par toi seul.",
       "Non. Trop fort : un cas sans attendu ne rend pas les autres faux. Et l'intégrateur jugerait son propre travail."
     ],
     retenir: "Sans résultat attendu écrit avant, on valide ce que le système fait : on écrit l'attendu, puis on rejoue."
@@ -334,7 +335,7 @@ LEARNSQL.questions.cp19 = [
     pourquoi: [
       "Non. Le projet change la réception des factures dans Divalto. Ce qui reste hors PA doit encore marcher : sinon, ses factures se perdent, sans que personne le voie.",
       "Oui. Un flux hors du projet peut être cassé par lui : un cas vérifie qu'il passe toujours comme avant. C'est de la non-régression sur l'existant.",
-      "Non. La facture électronique vise les échanges entre entreprises établies en France : lui n'en émet pas par la PA. Et ce serait changer le périmètre.",
+      "Non. La facture électronique vise les échanges entre entreprises établies en France : lui n'est pas tenu de passer par une PA. Et ce serait changer le périmètre.",
       "Non. Presque : le cas, oui. Mais l'e-reporting est hors du périmètre de DEMAT : le contrôleur de gestion le porte, et le teste dans son projet."
     ],
     retenir: "La recette vérifie aussi que ce qui reste hors du projet passe toujours comme avant."
@@ -342,21 +343,21 @@ LEARNSQL.questions.cp19 = [
   {
     id: "cp19-q16",
     dialecte: "Gestion de projet",
-    q: "Mardi, en recette. Le comptable d'AquaBleu appelle : il a reçu par e-mail une facture de test. La copie de Divalto a gardé les vrais e-mails des clients. Que fais-tu d'abord ?",
+    q: "Mardi, en recette. Le comptable d'AquaBleu appelle : il a reçu par e-mail une facture de test. La copie de Divalto a gardé, par erreur, les vrais e-mails des clients. Que fais-tu d'abord ?",
     choix: [
       "Rien : une facture de test n'a aucune valeur pour lui",
       "Le commercial appelle AquaBleu pour s'excuser, tout de suite",
       "Tu notes l'incident, et tu le traiteras après la recette",
-      "Les envois coupés dans l'heure, puis l'ADV explique à AquaBleu"
+      "Les envois coupés dans l'heure, puis Sophie rappelle AquaBleu"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Il l'a reçue, avec un montant : il peut la saisir, ou la payer. Et d'autres clients vont en recevoir, tant que l'envoi tourne.",
-      "Non. Presque : AquaBleu doit être rassuré. Mais l'envoi tourne toujours : d'autres factures partent pendant l'appel. Et pour ses factures, AquaBleu parle à l'ADV, pas au commercial.",
+      "Non. Presque : AquaBleu doit être rassuré. Mais l'envoi tourne toujours : d'autres factures partent pendant l'appel. D'abord couper, puis expliquer.",
       "Non. Tant que l'envoi tourne, chaque test part chez un vrai client. Attendre la fin de la recette, ce sont des semaines de fuite.",
-      "Oui. D'abord arrêter la fuite : les envois de la copie coupés. Puis l'ADV, qui suit les factures d'AquaBleu, lui explique. Ensuite, les e-mails des contacts sont masqués."
+      "Oui. D'abord arrêter la fuite : les envois de la copie coupés. Puis Sophie, comptable clients, explique au comptable d'AquaBleu que c'est un test ; le commercial, qui gère la relation, est prévenu. Ensuite, les e-mails des contacts sont masqués."
     ],
-    retenir: "Dans une copie de test, les vrais e-mails des contacts se masquent : rien ne doit partir chez un vrai client."
+    retenir: "Dans la copie de recette, les e-mails des contacts se masquent : rien ne doit partir chez un vrai client."
   },
   {
     id: "cp19-q17",
@@ -456,9 +457,9 @@ LEARNSQL.questions.cp19 = [
   {
     id: "cp19-q22",
     dialecte: "Gestion de projet",
-    q: "Fin de la 4e semaine : 2 bloquantes, 5 majeures, 18 mineures ouvertes. Le consultant a 3 jours cette semaine. Il veut commencer par les 18 mineures : « Vite fait, le compteur baissera. » Que fais-tu ?",
+    q: "Fin de la 4e semaine : 2 bloquantes, 3 majeures, 9 mineures ouvertes. Le consultant a 3 jours cette semaine. Il veut commencer par les 9 mineures : « Vite fait, le compteur baissera. » Que fais-tu ?",
     choix: [
-      "D'accord : 18 mineures de moins, le tableau de bord sera plus beau",
+      "D'accord : 9 mineures de moins, le tableau de bord sera plus beau",
       "Les bloquantes, puis les majeures ; les mineures après",
       "Les plus anciennes d'abord, bloquantes ou pas : chacune son tour",
       "3 jours de plus au DAF, pour les majeures et tout le reste"
@@ -498,7 +499,7 @@ LEARNSQL.questions.cp19 = [
     choix: [
       "« Non : rien de plus, une erreur de saisie n'est pas une anomalie »",
       "« Oui : tout échec se trace. Ouvre une anomalie mineure »",
-      "« Oui, et Julie revoit la saisie en formation, avant de continuer »",
+      "« Non, mais Julie revoit la saisie en formation, avant de continuer »",
       "« Oui, et le cas entre dans le lot de non-régression »"
     ],
     bonne: 0,
@@ -556,14 +557,14 @@ LEARNSQL.questions.cp19 = [
       "Deux livraisons par semaine, annoncées, puis le lot rejoué",
       "Rien : plus il corrige vite, plus la recette avance",
       "Plus aucun correctif dans la copie avant la fin de la recette",
-      "Julie rejoue tous ses cas chaque soir, et note la version"
+      "Julie rejoue le lot chaque soir, et note la version"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Des livraisons groupées et annoncées (ici, le mardi et le jeudi), avec la liste des correctifs. Julie sait ce qui a changé ; le lot de non-régression se rejoue après chacune.",
       "Non. Un terrain qui bouge chaque heure : un cas OK le matin peut échouer le soir, et personne ne sait quelle version est testée.",
       "Non. Trop fort : sans correctif, les anomalies restent ouvertes, et le PV ne se signe jamais.",
-      "Non. Tous ses cas, chaque soir : elle n'avance plus. Le problème, c'est le rythme des livraisons, pas son effort."
+      "Non. Presque : le lot, oui. Mais chaque soir, Julie n'avance plus sur ses cas. Le problème, c'est le rythme des livraisons, pas son effort."
     ],
     retenir: "Les correctifs arrivent par livraisons groupées et annoncées ; le lot de non-régression se rejoue après chacune."
   },
@@ -589,19 +590,19 @@ LEARNSQL.questions.cp19 = [
   {
     id: "cp19-q29",
     dialecte: "Gestion de projet",
-    q: "Jeudi 29 avril, recette fournisseurs : 0 bloquante, 1 majeure ouverte (des avoirs à relier à la main, 30 par semaine), 3 mineures. La PA demande le PV. Que fais-tu signer ?",
+    q: "Jeudi 29 avril, recette clients : 0 bloquante, 1 majeure ouverte (des avoirs à relier à la main, 30 par semaine), 2 mineures. La PA demande le PV. Que fais-tu signer ?",
     choix: [
-      "Pas encore de PV : la majeure d'abord, puis 3 réserves datées",
-      "Un PV avec 4 réserves, et la majeure suivie chaque jour",
-      "Aucun PV avant que la majeure et les 3 mineures soient corrigées",
+      "Pas encore de PV : la majeure d'abord, puis 2 réserves datées",
+      "Un PV avec 3 réserves datées, et la majeure suivie chaque jour",
+      "Aucun PV avant que la majeure et les 2 mineures soient corrigées",
       "Un PV sans réserve : rien n'est bloquant, c'est l'essentiel"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le critère est écrit : 0 bloquante, 0 majeure. La majeure se corrige et se reteste ; le PV suit, avec les 3 mineures en réserves, chacune datée.",
+      "Oui. Le critère est écrit : 0 bloquante, 0 majeure. La majeure se corrige et se reteste ; le PV suit, avec les 2 mineures en réserves, chacune datée.",
       "Non. Presque : des réserves, oui, pour le mineur. Mais ta stratégie dit 0 majeure : une réserve sur une majeure, c'est accepter un contournement coûteux sans l'avoir décidé.",
       "Non. Trop fort : les mineures n'empêchent pas le PV. Des réserves datées font le travail, sans bloquer le solde ni le pilote.",
-      "Non. La stratégie dit aussi « 0 majeure » : Julie relierait 30 avoirs à la main chaque semaine, après la bascule. Et sans réserve, les mineures sont acceptées."
+      "Non. La stratégie dit aussi « 0 majeure » : Sophie relierait 30 avoirs à la main chaque semaine, après la bascule. Et sans réserve, les mineures sont acceptées."
     ],
     retenir: "Le PV suit les critères écrits : une majeure ouverte le retient ; les mineures partent en réserves datées."
   },
@@ -618,7 +619,7 @@ LEARNSQL.questions.cp19 = [
     bonne: 2,
     pourquoi: [
       "Non. Personne ne garantit zéro défaut. Le PV dit : sur ces cas et ces critères, c'est accepté. Ce qu'aucun cas n'a vu se corrige après.",
-      "Non. Une réserve générale ne vise aucun défaut précis : elle ne protège rien, et la PA la contestera. Une réserve, c'est un défaut, un ticket, une date.",
+      "Non. Une réserve générale ne vise aucun défaut précis : elle ne protège presque rien, et la PA la contestera. Une réserve, c'est un défaut, un ticket, une date.",
       "Oui. Il signe ce qu'il a vu : ses cas passent, selon les critères écrits. Un défaut trouvé après se corrige, selon le contrat (garantie, support : module cp14). Ce n'est pas sa faute.",
       "Non. Sans PV, ni solde ni pilote ; et les PV signés sont un critère de go de la bascule (module cp21). Attendre juin bloque tout, sans rien rendre plus sûr."
     ],
@@ -627,7 +628,7 @@ LEARNSQL.questions.cp19 = [
   {
     id: "cp19-q31",
     dialecte: "Gestion de projet",
-    q: "PV du 30 avril, 2 réserves mineures : un libellé du PDF, un tri d'écran. La PA propose d'écrire « corrigées dans une prochaine version ». Le gel commence avec le pilote, en mai. Qu'écris-tu ?",
+    q: "PV du 30 avril, 2 réserves mineures : un libellé du PDF, un tri d'écran. La PA propose d'écrire « corrigées dans une prochaine version du connecteur », à installer dans Divalto. Le gel commence avec le pilote, en mai. Qu'écris-tu ?",
     choix: [
       "Tu acceptes : la PA sait mieux quand sortent ses versions",
       "Une date pour chacune : le 14 mai, pendant le pilote",
@@ -637,28 +638,28 @@ LEARNSQL.questions.cp19 = [
     bonne: 3,
     pourquoi: [
       "Non. « Une prochaine version » n'a pas de date : la réserve ne se lève jamais, et tu n'as plus de levier.",
-      "Non. Presque : une date, oui. Mais le 14 mai, c'est le gel : vous n'installerez pas un correctif mineur en plein pilote. Ta date serait fausse dès le départ.",
+      "Non. Presque : une date, oui. Mais le 14 mai, c'est le gel : l'intégrateur n'installera pas une version du connecteur pour 2 défauts mineurs, en plein pilote. Ta date serait fausse dès le départ.",
       "Non. Trop fort : 2 défauts mineurs ne retiennent pas le PV. Des réserves datées suffisent (module cp14).",
-      "Oui. Une réserve se date. Ici, après la bascule : pendant le gel, de mai à la fin de la bascule, seules passent les anomalies bloquantes et les obligations légales (module cp10)."
+      "Oui. Une réserve se date. Ici, après la bascule : pendant le gel, du pilote au 25 juin, seules passent les anomalies bloquantes et les obligations légales (module cp10)."
     ],
     retenir: "Chaque réserve a une date réaliste, écrite au PV : ici, après le gel et la bascule."
   },
   {
     id: "cp19-q32",
     dialecte: "Gestion de projet",
-    q: "Juillet. La PA livre dans son espace de test la correction des 2 réserves. Que fais-tu avant de la passer en production ?",
+    q: "Juillet. La PA livre la version du connecteur qui corrige les 2 réserves. Que fais-tu avant de l'installer en production ?",
     choix: [
       "Rien de plus : des défauts mineurs, que la PA a déjà testés",
       "Les 2 cas et le lot rejoués, puis la levée écrite par le métier",
       "Toute la recette rejouée : les 120 cas, 6 semaines",
-      "Tu vérifies toi-même les 2 points, puis tu lèves les réserves"
+      "Tu rejoues toi-même les 2 cas et le lot, puis tu lèves les réserves"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Mineurs, mais une version peut casser ailleurs. Et une réserve ne se lève pas sur la parole du fournisseur.",
-      "Oui. Le métier rejoue les 2 cas, puis le lot de non-régression. Puis il lève les réserves par écrit, comme il les a posées.",
+      "Oui. Le métier rejoue les 2 cas, puis le lot de non-régression, dans la copie de recette. Puis il lève les réserves par écrit, comme il les a posées.",
       "Non. Trop fort : 6 semaines pour un libellé et un tri. Le lot de cas clés vérifie que rien d'autre n'a cassé.",
-      "Non. Tu n'as pas signé le PV : lever une réserve, c'est au métier qui l'a posée. Ton test ne vaut pas validation."
+      "Non. Presque : les bons tests. Mais tu n'as pas signé le PV : lever une réserve, c'est au métier qui l'a posée. Ton test ne vaut pas validation."
     ],
     retenir: "Une réserve se lève par écrit, par le métier, après le retest et le lot de non-régression."
   },
@@ -706,18 +707,18 @@ LEARNSQL.questions.cp19 = [
     q: "Mi-avril. Il manque 3 jours pour tenir le PV du 30 avril. Le consultant propose de sauter les cas de rejets EDI : « Ça n'arrive presque jamais. » Que fais-tu ?",
     choix: [
       "D'accord : 3 jours gagnés, et le PV reste au 30 avril",
-      "Tu coupes plutôt des cas courants, déjà bien couverts",
+      "Tu coupes plutôt les cas propres aux 2 autres dépôts",
       "Non : ces cas restent. PV 3 jours plus tard, dit au COPIL",
       "Tu demandes un intérimaire au DAF, et tu gardes la date"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Rares, mais coûteux : un flux rejeté en juin, c'est une facture AquaBleu bloquée, et Marc seul pour la reprendre. On ne coupe pas le risque pour tenir une date.",
-      "Non. Presque : ils sont moins risqués. Mais retirer des cas change ce que le PV prouve : ni toi ni le consultant ne le décidez seuls. Et 3 jours tiennent dans ta tolérance.",
-      "Oui. Les cas rares et coûteux passent d'abord. 3 jours de plus, c'est dans ta tolérance (± 2 semaines) : tu ajustes, et tu le dis au COPIL. Au-delà, le DAF choisirait, risque connu (module cp18).",
-      "Non. Trop fort : 3 jours dans la tolérance ne demandent pas de dépense. Tu ajustes, et tu informes."
+      "Non. Presque : les rejets EDI restent. Mais ce qui change d'un dépôt à l'autre (numéros, adresses) n'est testé nulle part ailleurs. Et 3 jours tiennent dans ta tolérance.",
+      "Oui. Les cas qui portent le risque restent : en retirer changerait ce que le PV prouve. 3 jours de plus, c'est dans ta tolérance (± 2 semaines) : tu décales, et tu le dis au COPIL. Au-delà, le DAF choisirait, risque connu (module cp18).",
+      "Non. Trop fort : 3 jours dans la tolérance ne demandent pas de dépense. Tu décales, et tu informes."
     ],
-    retenir: "Pour tenir une date, on ne coupe pas les cas rares et coûteux : dans ta tolérance, tu ajustes ; au-delà, le DAF choisit, risque connu."
+    retenir: "Pour tenir une date, on ne coupe pas les cas qui portent le risque : dans ta tolérance, tu décales ; au-delà, le DAF choisit, risque connu."
   },
   {
     id: "cp19-q36",
@@ -727,14 +728,14 @@ LEARNSQL.questions.cp19 = [
       "« D'accord : un mois en vrai vaut mieux que des cas écrits »",
       "« Non : le pilote confirme la recette, il ne la remplace pas »",
       "« Je le propose au DAF : 2 semaines de gagnées sur la recette »",
-      "« Alors pilote et recette en même temps, dès le 15 avril »"
+      "« Alors fin au 15 avril, et un pilote de 2 mois »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Au pilote, ce sont de vraies factures : une erreur part chez le client, et se corrige par un avoir. Et le gel commence : seules les bloquantes passent.",
       "Oui. La recette prouve, sur des cas écrits, avant toute vraie facture. Le pilote confirme, sur 1 site et en vrai volume, ce qu'elle a prouvé. L'un ne remplace pas l'autre.",
       "Non. Rien à faire décider : la stratégie de recette est validée. Tu n'as pas besoin du DAF pour garder une recette contre une idée qui l'abîme.",
-      "Non. Un pilote sur une version pas encore recettée : de vraies factures non testées, et le gel en pleine recette."
+      "Non. Un pilote plus long ne rattrape pas une recette coupée : ses erreurs partent sur de vraies factures. Et 2 mois de pilote font glisser la bascule de juin."
     ],
     retenir: "Le pilote confirme en vrai ce que la recette a prouvé : il ne la remplace pas."
   },

@@ -175,7 +175,13 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   non-régression après chaque correctif ; recette du 16 mars au 30 avril ; PV : 0 anomalie bloquante ni majeure, des
   réserves mineures possibles avec une date de correction ; PV fournisseurs (signé par la personne que la cheffe
   comptable a désignée, pas Julie) et PV clients (responsable ADV) le 30 avril, avec 2 réserves mineures ; le PV ouvre le
-  solde de la mise en service de la PA (cp12, cp14).
+  solde de la mise en service de la PA (cp12, cp14). Faits fixés par cp19 : stratégie d'une page, validée avec la note de
+  cadrage (octobre 2026) ; environnement : une copie de Divalto réservée à la recette, à part de celle de l'intégrateur,
+  reliée à l'espace de test de la PA ; correctifs livrés le mardi et le jeudi ; lot de non-régression de 20 cas clés,
+  choisi en février, rejoué après chaque livraison ; les 2 réserves du PV (un libellé du PDF, un tri d'écran) sont
+  corrigées par une version du connecteur, installée par l'intégrateur après le gel, et datées au 9 juillet. Le gel vaut
+  pour ce que le projet installe (connecteur, Divalto) ; une version de la PA commune à tous ses clients ne se gèle pas :
+  on la teste avant (cp14-q05, cp15-q33).
 - Reprise de données (module cp20) : vers la PA, environ 2 000 fiches clients et 600 fiches fournisseurs (SIREN, adresses
   de facturation et de livraison, catégorie de l'opération, e-mail de contact) ; dans Divalto, les codes TVA. En décembre
   2026, 300 fiches clients sans SIREN : nettoyage à la source, dans Divalto, par l'ADV (clients) et la compta

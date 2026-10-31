@@ -513,7 +513,7 @@ LEARNSQL.questions.cp14 = [
       "Non. Presque : les défauts sont écrits, mais hors du PV. Signé sans réserve, il accepte tout : ton mail devient une demande que la PA peut faire attendre, ou facturer.",
       "Non. Bloquer le PV pour un libellé, c'est retenir un paiement pour des détails. Des réserves datées font le même travail, sans bloquer.",
       "Non. Il n'y a pas de retard à punir : des défauts mineurs se traitent par des réserves, pas par des pénalités.",
-      "Oui. Pas de défaut bloquant : le connecteur est accepté, avec réserves. Chaque défaut a une date de correction écrite. Le métier signe (cheffe comptable, responsable ADV)."
+      "Oui. Pas de défaut bloquant : le connecteur est accepté, avec réserves. Chaque défaut a une date de correction écrite. Le métier signe (le responsable ADV ; pour les fournisseurs, la personne désignée par la cheffe comptable)."
     ],
     retenir: "Défauts mineurs : PV avec réserves datées. Anomalie bloquante : pas de PV, un refus écrit."
   },
