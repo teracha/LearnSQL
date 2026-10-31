@@ -188,7 +188,9 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   formation faite ; retour arrière testé. Go / no-go le vendredi 11 juin à 14 h (A le DAF, sur ta recommandation ; module
   cp09). Plan de bascule heure par heure, du vendredi 11 au lundi 14 (qui fait quoi, contrôles, contacts). Retour
   arrière : repasser par le portail de la PA (le plan B), décidé au plus tard le lundi 14 à 12 h. Hypercare (support
-  renforcé) de 2 semaines, du 14 au 25 juin, point chaque jour à 9 h 30 ; puis passage en run (module cp22).
+  renforcé) de 2 semaines, du 14 au 25 juin, point chaque jour à 9 h 30 ; puis passage en run (module cp22). Le gel des
+  changements court jusqu'à la fin de l'hypercare, le vendredi 25 juin. Retour arrière testé fin mai (Sophie émet et Julie
+  reçoit quelques factures par le portail).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,
