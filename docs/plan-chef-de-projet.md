@@ -48,6 +48,12 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Une facture émise ne se modifie pas (intégrité dès l'émission) : on la corrige par un avoir ou une facture rectificative.
 - Conservation des factures : 6 ans (fiscal), 10 ans (Code de commerce). « Durée légale » suffit dans les questions.
 - Des amendes existent (article 1737 du CGI), mais leurs montants ont changé en 2026 : ne pas citer de montant.
+- NIS2 (directive européenne de 2022 sur la cybersécurité) : en France, la loi qui la transpose (projet de loi
+  « résilience ») n'est pas votée fin octobre 2026 (adoptée au Sénat en mars 2025 ; son examen à l'Assemblée nationale
+  a été retiré de l'ordre du jour le 6 octobre 2026, sans nouvelle date). Ne citer ni date d'application, ni délai, ni
+  sanction, ni liste d'obligations. Le négociant vend des produits de traitement de l'eau : la directive vise aussi la
+  distribution de produits chimiques. Concerné ou pas : on le vérifie (test de l'ANSSI sur MonEspaceNIS2, avis d'un
+  juriste), on ne le suppose pas (module cp24).
 
 **Le projet**
 - Périmètre : factures B2B France, clients et fournisseurs, des 3 sites ; connecteur Divalto ↔ PA ; flux EDI des factures
@@ -250,6 +256,31 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   hors connecteur (5 %), déposées sur le portail par Sophie.
   Après la clôture du projet (juillet 2027), le comité fournisseur mensuel avec la PA continue : le chef de projet le tient
   jusqu'à fin 2027 ; le passage au run (module cp22) dira qui le reprend.
+- Conformité (module cp24) : RGPD : l'entreprise est responsable du traitement (représentée par le DG). DPO externe
+  (un cabinet), désigné sans obligation : il conseille et contrôle, il ne décide pas. Registre des traitements tenu
+  avec lui : chaque service décrit les siens (le traitement « factures » a été mis à jour avec le DPO en novembre 2026,
+  à la signature de la PA, nouveau sous-traitant). La PA et l'intégrateur sont sous-traitants (contrat, module cp14).
+  Violation de données (fichier perdu ou envoyé au mauvais destinataire, compte piraté) : on la stoppe, on prévient le
+  DPO le jour même ; notifiée à la CNIL dans les meilleurs délais, 72 h au plus tard après en avoir pris connaissance,
+  sauf si elle ne présente pas de risque pour les personnes (décision de la direction, sur l'avis du DPO, qui fait la
+  déclaration) ; toute violation, même non notifiée, est notée au registre interne ; les personnes sont prévenues si
+  le risque est élevé. Droit à l'effacement : il ne vaut pas pour ce qu'une loi oblige à garder (factures : durée
+  légale). Sécurité : droits d'accès à Divalto et à la PA revus chaque année par chaque manager, sur la liste fournie
+  par la DSI ; comptes des prestataires fermés à la clôture (cp22) ; charte informatique : aucune donnée de
+  l'entreprise dans un outil en ligne non validé par la DSI.
+- Portefeuille (module cp25) : toute demande à la DSI arrive sur une fiche d'une page (besoin, sponsor, valeur,
+  obligation, urgence, charge estimée). Moins de 5 jours : petite demande, classée chaque lundi par le DSI (par toi,
+  DSI adjoint). 5 jours et plus : un projet, classé une fois par trimestre au comité de direction : le DSI propose un
+  seul classement, sur des critères écrits et connus d'avance (obligation légale vérifiée, valeur, risque de ne pas
+  faire, coût, capacité de la DSI et des métiers) ; le DG arbitre. Capacité : environ 60 % du temps de l'équipe va au
+  run, le reste aux projets. Un projet reporté ou arrêté se dit à son sponsor, avec la raison. Toi, chef de projet :
+  tu ne choisis pas entre les projets ; tu donnes les faits (charge, dates, conflits de ressources) à ton DSI, qui
+  arbitre ou fait arbitrer (cp05, cp22). Demandes pour 2028 : migration de Divalto vers sa prochaine version majeure
+  (environ 100 jours d'intégrateur, 75 k€, hors adaptation des spécifiques, cp11), WMS (logiciel d'entrepôt) des
+  3 dépôts (sponsor : le directeur logistique), CRM (gestion des clients) et prise de commande des commerciaux
+  (sponsor : le directeur commercial), portail fournisseurs (sponsor : le DAF), tableaux Power BI des ventes, sécurité
+  (double authentification, sauvegardes), refonte de l'intranet. Les charges et les valeurs de chaque demande : fixées
+  par cp25.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
@@ -263,6 +294,11 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 
 **Les personnages (rôles fixes)**
 - **Toi** : chef de projet SI, rattaché au DSI. Tu n'es le manager de personne (sauf questions qui commencent par « Tu es DSI adjoint »).
+- **« Tu es DSI adjoint »** (cadre des questions qui commencent ainsi ; bloc E, modules cp24 à cp27) : même entreprise,
+  plus tard (2028 et après, sauf date donnée). Tu es l'adjoint du DSI et tu le remplaces en son absence. Tu manages
+  l'équipe de la DSI, 8 personnes : 2 chefs de projet (dont une junior), un analyste Divalto, un développeur Power BI et
+  SQL, un analyste EDI, 2 techniciens du support N1-N2, un administrateur réseau. Le comité de direction (mensuel) :
+  le DG (il arbitre), le DAF, le directeur commercial, le directeur logistique, le DSI.
 - **DAF (directeur administratif et financier)** : sponsor, manager de la cheffe comptable, signe les contrats, pressé.
 - **DG (directeur général)** : au-dessus du DAF ; niveau 4 de l'échelle d'escalade. **DSI** : ton responsable.
 - **Cheffe comptable** : inquiète ; manager de Julie et Sophie ; seule à savoir traiter les avoirs fournisseurs ;
