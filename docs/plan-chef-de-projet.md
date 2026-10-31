@@ -41,6 +41,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Émission et e-reporting : obligatoires pour les PME au 1er septembre 2027.
 - Tout passe par une plateforme agréée (PA, ex-PDP). Facture électronique = B2B en France.
 - Nouvelles mentions obligatoires, dont le SIREN du client : sans lui, la facture ne peut pas être acheminée (rejet).
+- RGPD : en cas de doute (copie de données, violation possible), l'avis du DPO, ou du référent RGPD s'il n'y a pas de DPO.
 - La DGFiP publie sur impots.gouv.fr la liste officielle des PA immatriculées : on choisit dans cette liste
   (un comparateur privé ne la remplace pas).
 - E-reporting = ventes aux particuliers, opérations avec l'étranger (UE et hors UE), données de paiement.
@@ -188,7 +189,15 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   (fournisseurs), avec l'utilitaire Divalto de contrôle Siret-Siren (cp15-q29). Propriétaires des données : le responsable
   ADV (clients), la cheffe comptable (fournisseurs). Règles de reprise écrites ; 2 essais à blanc (fin février, mi-mai
   pendant le pilote) ; contrôles : comptages, rapprochements, échantillons, validation par le métier (cp01-q23). Gel des
-  créations de tiers le vendredi 11 juin à 12 h ; reprise définitive le week-end des 12 et 13 juin.
+  tiers (créations et modifications) le vendredi 11 juin à 12 h ; reprise définitive le week-end des 12 et 13 juin :
+  samedi, sauvegarde complète de Divalto, codes TVA, tiers vers la PA ; dimanche, contrôles et signatures des deux
+  propriétaires, avant la bascule. Faits fixés par cp20 : Divalto a 3 400 fiches clients, environ 2 000 reprises (les
+  professionnels en France, actifs depuis 2 ans ou avec un en-cours) ; table des codes TVA (ancien → nouveau), propriétaire
+  la cheffe comptable ; AquaBleu : 30 fiches (une par magasin, même SIREN ; le routage Divalto vers la PA est par SIRET) ;
+  essai 1 (fin février) : 2 600 fiches, 260 rejets, 18 heures ; essai 2 (week-end des 15 et 16 mai) : 26 rejets expliqués,
+  13 heures, validé le dimanche 16 ; le critère de go « reprise validée » se juge sur l'essai 2. Pilote : les tiers du site
+  pilote sont chargés dans la PA avant le pilote, avec les règles validées après l'essai 1 ; la reprise de juin charge les
+  tiers des 3 sites.
 - Bascule (module cp21) : critères de go fixés au COPIL du mardi 11 mai : 0 anomalie bloquante ou majeure ouverte ; PV
   signés ; pilote : moins de 2 % de rejets sur ses 2 dernières semaines ; reprise des tiers validée par le métier ;
   formation faite ; retour arrière testé. Go / no-go le vendredi 11 juin à 14 h (A le DAF, sur ta recommandation ; module
@@ -199,7 +208,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   reçoit quelques factures par le portail). Retour arrière décidé par le DAF, sur ta recommandation (absent : la personne
   qu'il a désignée par écrit) ; signal d'alerte : plus de 5 % de rejets le lundi matin (il déclenche l'appel au DAF, pas le
   retour arrière). Messages au DAF et à ton DSI samedi et dimanche à 18 h. Répétition de toute la bascule sur
-  l'environnement de test. Lundi 8 h : Marc vérifie les 1res factures EDI d'AquaBleu. Hypercare : point de 20 minutes (toi,
+  l'environnement de test (la reprise des tiers, elle, se répète par ses essais à blanc : module cp20). Lundi 8 h : Marc vérifie les 1res factures EDI d'AquaBleu. Hypercare : point de 20 minutes (toi,
   le consultant, Julie, Sophie, Marc, le N2), 3 lignes au DAF chaque soir ; une majeure : contournement, correction après
   le gel (sauf décision du DAF).
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,

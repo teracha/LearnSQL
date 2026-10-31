@@ -25,7 +25,7 @@
 // recommandation) ; plan heure par heure du vendredi 11 au lundi 14 ; retour arrière par le portail de la PA (le plan B),
 // décidé au plus tard le lundi 14 à 12 h ; hypercare du 14 au 25 juin, point à 9 h 30 ; puis le run (cp22). Lignes
 // « Planning » (pilote sur 1 site en mai, 3 sites en juin, marge légale juillet-août, pas d'août, report à mi-juillet sur
-// décision du DAF), « Changements » (gel dès le pilote : le bloquant et le légal), « Reprise » (gel des créations de tiers
+// décision du DAF), « Changements » (gel dès le pilote : le bloquant et le légal), « Reprise » (gel des tiers, créations et modifications
 // le vendredi 11 à 12 h, reprise les 12 et 13 juin), « Contrats » (support de la PA de 8 h à 18 h, les jours ouvrés),
 // « Recette » (PV avec 2 réserves mineures ; gravités bloquante, majeure, mineure).
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : retour arrière testé fin mai (Sophie émet
@@ -69,7 +69,7 @@ LEARNSQL.cours.cp21 = {
     },
     {
       titre: "Le plan de bascule : heure par heure",
-      exemple: "Extrait, du vendredi 11 au lundi 14 :\nVen. 12 h · gel des créations de tiers. 14 h · go / no-go.\nSam. et dim. · sauvegarde de Divalto, reprise des tiers vers la PA, contrôles, signatures (module cp20).\nSam. et dim. 18 h · ton message au DAF et à ton DSI.\nLun. 8 h · 1res factures par le connecteur. Marc vérifie celles d'AquaBleu, en EDI (échange de données informatisé).",
+      exemple: "Extrait, du vendredi 11 au lundi 14 :\nVen. 12 h · gel des tiers (créations et modifications). 14 h · go / no-go.\nSam. et dim. · sauvegarde de Divalto, reprise des tiers vers la PA, contrôles, signatures (module cp20).\nSam. et dim. 18 h · ton message au DAF et à ton DSI.\nLun. 8 h · 1res factures par le connecteur. Marc vérifie celles d'AquaBleu, en EDI (échange de données informatisé).",
       points: [
         "Chaque étape : une heure, un nom (vu avec son manager), une durée, un contrôle avec un nom, et quoi faire s'il échoue.",
         "Les contacts : nom, numéro, heures. Le support de la PA répond de 8 h à 18 h, les jours ouvrés : pour le week-end, une présence s'obtient avant, par écrit.",

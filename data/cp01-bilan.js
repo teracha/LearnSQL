@@ -427,7 +427,7 @@ LEARNSQL.questions.cp01 = [
     "choix": [
       "Tu importes tout, les rejets en production diront ce qui est faux",
       "Tu regardes une dizaine de fiches à l'écran, au hasard",
-      "Tu fais des comptages et des rapprochements, puis la compta valide",
+      "Tu fais des comptages et des rapprochements, puis le métier valide",
       "Tu laisses l'intégrateur contrôler, c'est lui qui a fait le script"
     ],
     "bonne": 2,

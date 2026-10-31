@@ -21,7 +21,8 @@
 // l'utilitaire « Validation conformité Siret-Siren Factur-X », contrôle dans la base Sirene, lancement par processus) ;
 // « Sauvegarder une base ERP (avec SQL Server) » et « Restaurer une base ERP (avec SQL Server) » (q27 : .BAK, dictionnaires
 // Harmony .DHSD, fichiers FHSQL). Consultées en appui : « Guide pratique pour la bascule vers règlement new - SANS assistant »
-// (q10 : Divalto contrôle par requêtes en lecture et corrige par ses programmes), « Migrer ».
+// (q10 : Divalto contrôle par requêtes en lecture et corrige surtout par ses programmes ; son étape 6 donne un UPDATE écrit
+// par l'éditeur : d'où « UPDATE maison » dans q10 et au cours), « Migrer ».
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : Divalto a 3 400 fiches clients, environ 2 000
 // reprises (pros en France, actifs depuis 2 ans ou avec un en-cours) (q02, q03) ; codes TVA : table ancien → nouveau code,
 // propriétaire la cheffe comptable (q12, q44) ; AquaBleu : 30 fiches, une par magasin, même SIREN (q08, q22, q23) ; décembre :
@@ -32,7 +33,8 @@
 // mi-avril : toutes corrigées, Marc propose l'utilitaire chaque semaine (q09) ; essai 2, week-end des 15 et 16 mai : 60
 // rejets à 23 h et une règle changée sur place (q13), 13 heures chronométrées (q41), 26 rejets expliqués, fournisseurs
 // 600 = 594 + 6 (q45), 12 fiches en trop dans la PA de test (q24), 3e essai proposé (q18) ; début juin : 25 clients créés en
-// mai sans SIREN (q14) ; vendredi 11 juin, 15 h : un client urgent (q25) ; samedi 12 : l'ordre (q26), la sauvegarde (q27) ;
+// mai sans SIREN, signalés par l'utilitaire (q14) ; vendredi 11 juin, 15 h : un client urgent (q25) ; samedi 12 : l'ordre
+// (q26), la sauvegarde (q27) ;
 // dimanche 13, 17 h : 9 fiches clients inexpliquées (q28) ; lundi 14 : 30 adresses de livraison fausses (q32) ; fin juin :
 // les fichiers chez le consultant (q36) ; 48 colonnes extraites, 8 utiles (q33) ; 180 entrepreneurs individuels (q35).
 // Vécu : migration Divalto (2e essai raté puis bascule, q19 ; reprise sans gel, q29 ; encours 1 284 350,20 € contre
@@ -42,8 +44,9 @@
 // entreprises passent aussi par une PA (q03) ; un avoir cite le numéro de la facture d'origine (q04) ; les données d'un
 // entrepreneur individuel sont des données personnelles, même avec un SIREN (q35, comme cp14) ; reprendre des données pour
 // facturer ne demande pas l'accord des personnes : facturer est une obligation légale (q35) ; le RGPD demande de ne copier
-// que le nécessaire (q33) ; une copie interne en trop n'est pas en soi une fuite à déclarer : le DPO juge ce qui doit être
-// déclaré (q34) ; la PA, qui traite ces données pour l'entreprise, est un sous-traitant prévu au contrat (q35, cp14).
+// que le nécessaire (q33) ; une copie interne en trop n'est pas en soi une fuite à déclarer : le DPO, ou le référent RGPD,
+// analyse ce qui doit être déclaré (q34, comme cp01-q27) ; la PA, qui traite ces données pour l'entreprise, est un
+// sous-traitant prévu au contrat (q35, cp14).
 // Déjà publiées ailleurs, pas reprises ici : cp01-q23 (comptages, rapprochements, la compta valide), cp01-q27 (copie de la
 // base pour les tests de l'intégrateur), cp05-q04 (300 fiches sans SIREN = une tâche), cp07-q20 (risque sur les codes TVA
 // gardé pour soi), cp08-q23 (rejets au pilote), cp14-q21 (clause RGPD du contrat), cp15-q29 (l'utilitaire avant un
@@ -62,6 +65,9 @@
 // nombre dans 2, le plus petit dans 1, au milieu dans les autres. « Oui » / « D'accord » ouvrent 3 bonnes réponses (q09, q36,
 // q45) ; « Non » ouvre des choix faux dans 9 questions, et 5 bonnes réponses ; des absolus (« tout », « seul », « aucune », « seules »), des chiffres
 // et des dates sont aussi dans des bonnes réponses.
+// Relecture du testeur (scores recalculés) : un choix faux compte ou contrôle aussi en q05, q11, q24 et q31 (« prendre
+// celui qui contrôle ou compte » : 60 % → 47 %) ; le « ; » n'est plus réservé aux bonnes réponses (q13, q34, q36, q37,
+// q38 : 68 % → 42 %).
 LEARNSQL.questions.cp20 = [
   {
     id: "cp20-q01",
@@ -134,7 +140,7 @@ LEARNSQL.questions.cp20 = [
     pourquoi: [
       "Non. Garder ses factures la durée légale, c'est l'obligation de l'entreprise, là où elle veut. Les charger dans la PA ne sert pas à facturer, et coûte des jours et des contrôles.",
       "Oui. On reprend ce qui sert : la PA émet et reçoit les factures à partir de la bascule. Les anciennes restent dans Divalto, gardées la durée légale, consultables là où elles sont.",
-      "Non. Presque : moins d'historique, oui. Mais un avoir n'a pas besoin de la facture d'origine dans la PA : il cite son numéro. Ces 2 ans ne servent à rien.",
+      "Non. Presque : moins d'historique, oui. Mais un avoir n'a pas besoin de la facture d'origine dans la PA : il cite son numéro et sa date. Ces 2 ans ne servent à rien.",
       "Non. Rien à faire monter : ce chargement ne sert pas le périmètre. Tu réponds toi-même, avec la règle « on reprend ce qui sert »."
     ],
     retenir: "On ne reprend pas l'historique par réflexe : les anciennes factures restent où elles sont, gardées la durée légale."
@@ -146,14 +152,14 @@ LEARNSQL.questions.cp20 = [
     choix: [
       "Tu mesures, en chiffres : SIREN vides ou faux, doublons",
       "Tu demandes à l'ADV quelles fiches lui semblent fausses",
-      "Tu lances un essai à blanc : ses rejets diront ce qui ne va pas",
+      "Tu lances un essai à blanc, et tu comptes ses rejets",
       "Rien : la qualité des fiches, c'est l'affaire de l'ADV"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On mesure avant : combien de vides, de formats faux, de doublons, par propriétaire. Tes requêtes le donnent en une heure. Ces chiffres fixent le travail de nettoyage, et on suit leur baisse.",
       "Non. L'ADV connaît quelques cas, pas les chiffres : sa mémoire ne trouve ni les doublons, ni les SIREN faux. Les requêtes, si.",
-      "Non. Presque : un essai trouve des défauts. Mais pas avant février, et seulement ceux qui bloquent le chargement : un doublon passe. Mesurer d'abord donne deux mois de plus pour nettoyer.",
+      "Non. Presque : compter, oui. Mais un essai demande des règles écrites, et ses rejets ne montrent que ce qui bloque le chargement : un doublon passe. Mesurer d'abord, c'est deux mois de plus pour nettoyer.",
       "Non. Elle corrigera, oui. Mais sans chiffres, ni elle ni toi ne savez combien il y a à faire, ni pour quand."
     ],
     retenir: "La qualité se mesure avant la reprise, en chiffres : c'est le point de départ du nettoyage."
@@ -228,7 +234,7 @@ LEARNSQL.questions.cp20 = [
     bonne: 2,
     pourquoi: [
       "Non. Le nettoyage tient jusqu'au gel, pas jusqu'à avril : environ 120 fiches de plus d'ici juin, sans contrôle. Les erreurs reviennent par les nouvelles fiches.",
-      "Non. Trop fort : sans nouveaux clients, plus de nouvelles commandes, en pleine saison. Le gel ne vient que le 11 juin, à midi.",
+      "Non. Trop fort : sans nouveaux clients, plus de nouvelles commandes, en pleine saison. Le gel des tiers ne vient que le 11 juin, à midi.",
       "Oui. Dans Divalto, l'utilitaire « Validation conformité Siret-Siren Factur-X » peut tourner seul, en processus, chaque semaine. Il marque les SIREN faux ; l'ADV corrige au fil de l'eau. La qualité se tient jusqu'au gel.",
       "Non. Presque : un contrôle complet, oui. Mais la veille du gel, plus le temps de corriger : les erreurs partent dans la reprise définitive."
     ],
@@ -247,28 +253,28 @@ LEARNSQL.questions.cp20 = [
     bonne: 0,
     pourquoi: [
       "Oui. Ta liste fait gagner des heures : l'ADV n'a plus qu'à confirmer chaque SIREN et à le saisir dans Divalto. Le propriétaire corrige à la source, avec les contrôles de l'outil.",
-      "Non. 95 % de 85 : environ 4 clients sur le SIREN d'un autre, deux sociétés au même nom, dans la même ville. Et un UPDATE contourne les contrôles de Divalto, sans trace.",
+      "Non. 95 % de 85 : environ 4 clients sur le SIREN d'un autre, deux sociétés au même nom, dans la même ville. Et un UPDATE maison contourne les contrôles de Divalto, sans trace.",
       "Non. Presque : le métier vérifie. Mais après coup, sur des fiches déjà changées hors de Divalto, sans trace : une erreur passe inaperçue.",
       "Non. L'essai 2 dira si le format passe, pas si c'est le bon client. Et tu as la liste en main : deux mois perdus."
     ],
-    retenir: "Tes requêtes trouvent ; le métier confirme et corrige dans Divalto. Pas d'UPDATE en masse dans la base d'un progiciel."
+    retenir: "Tes requêtes trouvent ; le métier confirme et corrige dans Divalto. Pas d'UPDATE maison sur les données d'un progiciel."
   },
   {
     id: "cp20-q11",
     dialecte: "Gestion de projet",
     q: "140 clients n'ont pas d'e-mail de contact. Le consultant propose de leur mettre celui de l'ADV par défaut : « Ça ne bloquera rien. » Que fais-tu ?",
     choix: [
-      "D'accord : un e-mail par défaut ne bloque rien",
-      "Tu prends l'e-mail général de la société, et tu préviens l'ADV",
-      "Ces 140 fiches sont rejetées jusqu'à ce qu'elles aient un e-mail",
+      "D'accord : l'e-mail de l'ADV par défaut ne bloque rien",
+      "Tu prends l'e-mail général de la société, et tu comptes ces fiches",
+      "Tu fais rejeter ces 140 fiches, le temps qu'elles aient un e-mail",
       "Le responsable ADV choisit la règle, et on compte ces fiches"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Une valeur par défaut cache un vide : ce que la PA envoie à ces 140 clients arriverait à l'ADV, sans que personne le sache.",
-      "Non. Presque : une valeur moins mauvaise. Mais ce n'est pas à toi de la choisir : c'est le propriétaire qui décide, et qui sait ce que ce choix coûte.",
-      "Non. Trop fort : 140 clients hors de la PA, ce sont leurs factures bloquées. Un e-mail manquant ne vaut pas un rejet, si le propriétaire en décide ainsi.",
-      "Oui. Une valeur par défaut est une règle : le propriétaire la choisit (une valeur, ou des e-mails à demander), et on compte les fiches qui la reçoivent. Le vide reste visible."
+      "Non. Presque : une valeur moins mauvaise, et comptée. Mais ce n'est pas à toi de la choisir : c'est le propriétaire qui décide, et qui sait ce que ce choix coûte.",
+      "Non. Trop fort, et pas à toi d'en décider : 140 clients hors de la PA, ce sont leurs factures bloquées. Rejeter peut être la règle, mais c'est le propriétaire qui la choisit, en connaissant ce prix.",
+      "Oui. Une valeur par défaut est une règle : le propriétaire la choisit (une valeur, un rejet, ou des e-mails à demander), et on compte les fiches qui la reçoivent. Le vide reste visible."
     ],
     retenir: "Une valeur par défaut cache un vide : le propriétaire la choisit, et on compte les fiches qui la reçoivent."
   },
@@ -298,14 +304,14 @@ LEARNSQL.questions.cp20 = [
     choix: [
       "Bien joué : il a sauvé l'essai, et la règle est corrigée",
       "Tu fais tout annuler, et rejeter ces 60 fiches comme avant",
-      "Tu notes le changement ; le responsable ADV le valide lundi",
+      "Tu notes la nouvelle règle, et l'ADV la valide dimanche",
       "Tu arrêtes l'essai 2, et tu en prévois un 3e en juin"
     ],
     bonne: 2,
     pourquoi: [
       "Non. La règle a peut-être raison, mais personne ne l'a validée, et elle n'est écrite nulle part. Le jour J, on rejouera… laquelle ?",
       "Non. Annuler perd une correction peut-être juste, et le chronométrage de l'essai. Le problème n'est pas le changement : c'est qu'il n'est ni écrit ni validé.",
-      "Oui. Une règle qui change : nouvelle version, écrite, revalidée par le propriétaire. L'essai continue, le changement noté ; le jour J rejouera la version validée.",
+      "Oui. Une règle qui change : nouvelle version, écrite, revalidée par son propriétaire, le responsable ADV, dimanche, avant de signer l'essai. Le jour J rejouera la version validée.",
       "Non. Trop fort : un changement écrit et revalidé suffit. Un 3e essai, c'est quand l'essai 2 échoue, pas pour une règle corrigée."
     ],
     retenir: "Une règle de reprise ne change pas en douce : nouvelle version, écrite, revalidée par le propriétaire."
@@ -313,17 +319,17 @@ LEARNSQL.questions.cp20 = [
   {
     id: "cp20-q14",
     dialecte: "Gestion de projet",
-    q: "Début juin, 25 clients créés en mai n'ont pas de SIREN. Le consultant propose « 000000000 » : « Le contrôle de format passera. » Que réponds-tu ?",
+    q: "Début juin, l'utilitaire signale 25 clients créés en mai, sans SIREN. Le consultant propose « 000000000 » : « Le contrôle de format passera. » Que réponds-tu ?",
     choix: [
       "Non : ces 25 fiches sont rejetées ; l'ADV les complète avant le gel",
-      "D'accord, s'ils sont listés, puis corrigés dans la PA",
+      "D'accord, si l'ADV les corrige ensuite dans la PA",
       "D'accord : 25 petits clients, quelques factures par an",
       "Non : tu fais reporter la reprise jusqu'à ce que tout soit complet"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Jamais un faux SIREN pour passer un contrôle : ce numéro n'existe pas, leurs factures seraient rejetées. Sans SIREN, la fiche est rejetée ; l'ADV, qui en est propriétaire, la complète avant le gel.",
-      "Non. Presque : une liste, c'est tracé. Mais un faux SIREN chargé, ce sont des factures rejetées dès lundi. Et corriger dans la PA laisse Divalto faux.",
+      "Non. Presque : l'ADV corrige. Mais un faux SIREN chargé, ce sont des factures rejetées dès le 14 juin. Et corriger dans la PA laisse Divalto faux.",
       "Non. Peu de factures, mais chacune rejetée. Et le faux SIREN reste dans Divalto, où plus personne ne le cherche.",
       "Non. Trop fort : 25 fiches sur 2 000 n'arrêtent pas la reprise. Elles sont rejetées puis complétées ; les autres passent."
     ],
@@ -362,7 +368,7 @@ LEARNSQL.questions.cp20 = [
     pourquoi: [
       "Non. 100 fiches choisies montrent les défauts qu'on connaît déjà. Les autres sont dans les 2 500 restantes.",
       "Non. Presque : tu veux la durée. Mais le temps ne suit pas le nombre de fiches : lots, attentes de la PA, rejets. Et les défauts restent cachés.",
-      "Oui. Un essai à blanc se fait sur toutes les données réelles : les vrais défauts, les vrais volumes, la vraie durée. Dans l'environnement de test, protégé, et la copie effacée après.",
+      "Oui. Un essai à blanc se fait sur toutes les données réelles : les vrais défauts, la vraie durée. La recette masque les contacts (module cp19) ; l'essai les reprend, donc il les teste : PA de test sans envoi, copie effacée après.",
       "Non. Des données inventées ne testent rien des vraies : ni les SIREN faux, ni les doublons. On protège les vraies données, on ne les remplace pas."
     ],
     retenir: "Un essai à blanc se fait sur toutes les données réelles : la seule façon de voir les vrais défauts et la vraie durée."
@@ -506,14 +512,14 @@ LEARNSQL.questions.cp20 = [
     q: "Essai 2, fournisseurs : 600 extraits, 6 rejetés. La PA en montre 606. Le consultant : « Il y en a plus que prévu, donc rien n'est perdu. » Que fais-tu ?",
     choix: [
       "D'accord : 606, c'est plus que les 594 attendus",
-      "Tu fais supprimer les 12 dernières fiches créées",
+      "Tu fais recompter les deux côtés, pour confirmer les 12",
       "Tu fais rapprocher les listes : d'où viennent les 12 ?",
       "Tu fais vider la PA de test et recharger les 600"
     ],
     bonne: 2,
     pourquoi: [
       "Non. 12 en trop, c'est aussi un écart : des doublons, ou des restes. Un fournisseur en double, et ses factures se rangent sous la mauvaise fiche.",
-      "Non. Tu supprimes au hasard : les 12 dernières ne sont peut-être pas les mauvaises. On cherche avant d'agir.",
+      "Non. Presque : vérifier, oui. Mais un recomptage redonnera 606 : il dit combien, pas lesquelles. Le rapprochement, fiche par fiche, le dit.",
       "Oui. 600 − 6 = 594 attendus ; 606 − 594 = 12 en trop. Le rapprochement fiche par fiche dit lesquelles : un lot chargé deux fois, ou des restes de l'essai 1. Un écart s'explique, dans un sens comme dans l'autre.",
       "Non. Trop fort : vider et recharger sans connaître la cause, et les 12 reviendront peut-être. Le rapprochement d'abord."
     ],
@@ -527,14 +533,14 @@ LEARNSQL.questions.cp20 = [
       "Tu le fais créer tout de suite : un gros client ne se refuse pas",
       "Sur la liste d'attente : l'ADV le crée lundi, après la bascule",
       "Tu demandes au DAF de lever le gel pour ce client",
-      "L'ADV le crée maintenant ; le consultant l'ajoute lundi dans la PA"
+      "L'ADV le crée maintenant ; le consultant le saisit lundi dans la PA"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. La photo de midi sert aux comptages : une fiche créée après n'est ni dans l'extraction, ni dans les chiffres. Le rapprochement de dimanche aura un écart.",
+      "Non. Le gel fixe la photo de midi, et les comptages sont faits dessus. Une fiche créée après la fausse : dimanche, un écart de plus à expliquer.",
       "Oui. Le gel vaut pour tous : la fiche attend sur une liste, et l'ADV la crée lundi matin, après la bascule, par le circuit normal. Le client commande sans retard.",
       "Non. Trop fort : rien n'est bloqué. Lundi matin, le client sera créé à temps. Pas besoin de déranger le DAF pour une fiche.",
-      "Non. Presque : le client existe lundi. Mais deux saisies hors des règles, dont une à la main dans la PA : hors de la photo de midi, sans contrôle ni trace."
+      "Non. Presque : le client existe lundi. Mais créé pendant le gel, il fausse la photo de midi ; et saisi à la main dans la PA, il échappe aux règles de reprise et aux contrôles."
     ],
     retenir: "Pendant le gel, une urgence attend sur une liste : la fiche est créée après la bascule, par le circuit normal."
   },
@@ -562,7 +568,7 @@ LEARNSQL.questions.cp20 = [
     dialecte: "Gestion de projet",
     q: "Samedi 12 juin, avant de modifier les codes TVA, le consultant lance un backup SQL Server de la base Divalto : « Avec le .bak, on peut tout restaurer. » Que vérifies-tu ?",
     choix: [
-      "Rien : un .bak complet suffit pour restaurer la base",
+      "Rien : un .bak complet suffit pour restaurer Divalto",
       "Qu'une copie du .bak part aussi chez toi, sur une clé",
       "Qu'il refait un backup toutes les heures du week-end",
       "Le .bak, mais aussi les dictionnaires et les fichiers FHSQL"
@@ -590,7 +596,7 @@ LEARNSQL.questions.cp20 = [
     pourquoi: [
       "Non. Une fiche sans explication peut cacher une règle fausse qui en touche d'autres. Et lundi, les factures de ces clients seront rejetées.",
       "Non. Trop tôt : 9 fiches se trouvent souvent en une heure. Le no-go se décide si la cause n'est pas trouvée à temps, pas avant de chercher.",
-      "Oui. Pas de signature avec un écart inexpliqué, ni sous la pression de l'heure. On cherche : souvent, une heure suffit. Le DAF sait où on en est ; si la signature ne vient pas avant le point de non-retour, il décide de la suite (module cp21).",
+      "Oui. Pas de signature avec un écart inexpliqué, ni sous la pression de l'heure. On cherche : souvent, une heure suffit. Le DAF sait où on en est ; sans signature dimanche, c'est lui qui décide de la suite (module cp21).",
       "Non. Presque : comme une réserve de recette (module cp19). Mais une réserve porte sur un défaut connu, avec une date. Ici, personne ne sait ce qui manque."
     ],
     retenir: "Une reprise ne se signe pas avec un écart inexpliqué : on cherche d'abord, et le DAF décide si l'heure tourne."
@@ -609,7 +615,7 @@ LEARNSQL.questions.cp20 = [
     pourquoi: [
       "Non. De nuit ou de jour, sans gel, une saisie pendant l'extraction passe entre les deux systèmes. C'est le gel qui protège, pas l'heure.",
       "Oui. Le gel fixe une photo : après l'heure dite, plus de saisie. Les comptages se font sur cette photo, et l'extraction ne rate rien. Annoncé tôt, il ne surprend personne.",
-      "Non. Presque : rattraper vaut mieux que perdre. Mais un 2e chargement non prévu, le jour de la bascule, ajoute un risque de doublons au lieu d'éviter le trou.",
+      "Non. Presque : rattraper vaut mieux que perdre. Mais un 2e chargement le jour de la bascule, sous pression, ajoute un risque de doublons au lieu d'éviter le trou.",
       "Non. Trop fort : une semaine sans saisie, c'est une semaine sans commandes. Un gel court, à l'heure dite, suffit."
     ],
     retenir: "Une reprise définitive commence par un gel à une heure dite : la photo sur laquelle on extrait et on compte."
@@ -641,14 +647,14 @@ LEARNSQL.questions.cp20 = [
       "Tu chiffres ce que seul le métier peut faire",
       "D'accord : il connaît Divalto, il saura faire",
       "Non : sans l'ADV et la compta pour valider, pas de reprise",
-      "D'accord, et tu valideras toi-même à leur place"
+      "D'accord, et tu contrôleras toi-même chaque essai"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Le sponsor décide en connaissant le prix : environ 50 heures d'ADV pour nettoyer, quelques heures pour valider chaque essai. L'intégrateur ne peut pas le faire à leur place. Le DAF choisit, informé ; le temps de l'ADV se cale avec son responsable.",
       "Non. L'intégrateur connaît l'outil, pas vos clients : il ne sait pas quel SIREN est le bon. Et il validerait son propre travail.",
       "Non. Un refus sec au sponsor, sans chiffres : il ne sait pas ce qu'il te demande. Montre-lui le besoin, il décidera.",
-      "Non. Presque : quelqu'un valide. Mais tu ne connais pas chaque client, et ce n'est pas ton rôle : la validation est au propriétaire."
+      "Non. Presque : quelqu'un contrôle. Mais tu ne connais pas chaque client, et ce n'est pas ton rôle : la validation est au propriétaire."
     ],
     retenir: "La reprise ne se délègue pas à l'intégrateur seul : le métier nettoie et valide ; le sponsor le sait, chiffres en main."
   },
@@ -698,14 +704,14 @@ LEARNSQL.questions.cp20 = [
       "Rien : ce sont des fichiers internes, entre gens de confiance",
       "Tu déclares une fuite de données, le jour même",
       "Tu demandes à chacun de protéger sa copie par un mot de passe",
-      "Une seule copie, protégée ; les autres effacées"
+      "Une seule copie, protégée, et les autres effacées"
     ],
     bonne: 3,
     pourquoi: [
       "Non. 4 copies de 2 600 fiches avec des contacts : 4 risques de perte, dont un portable qui sort de l'entreprise. Plus personne ne sait qui a quoi.",
-      "Non. Trop fort : rien n'est sorti ni perdu, à ce stade. Si un doute existe, c'est le DPO qui juge ce qui doit être déclaré. Tu ranges d'abord.",
+      "Non. Trop fort : rien n'est perdu, et seuls des gens autorisés y ont eu accès. Au moindre doute, le DPO, ou le référent RGPD, analyse s'il faut déclarer. Tu ranges d'abord.",
       "Non. Presque : protéger, oui. Mais 4 copies protégées restent 4 copies, dont une sur un portable. Une seule, au bon endroit.",
-      "Oui. Une seule copie, dans un dossier protégé, à l'accès limité ; les autres effacées, mails compris. La règle vaut pour l'essai 2. Le DPO (délégué à la protection des données) est tenu au courant."
+      "Oui. Une seule copie, dans un dossier protégé, à l'accès limité ; les autres effacées, mails compris. La règle vaut pour l'essai 2. Le DPO (délégué à la protection des données), ou le référent RGPD, est tenu au courant."
     ],
     retenir: "Les fichiers de transit ne traînent pas : une seule copie, protégée, effacée après validation."
   },
@@ -724,7 +730,7 @@ LEARNSQL.questions.cp20 = [
       "Oui. Leurs données sont personnelles : on en copie le minimum, on les protège, et le DPO donne son avis. La PA les traite pour vous : son contrat le prévoit (module cp14).",
       "Non. Un entrepreneur individuel, c'est une personne : son nom, son adresse (souvent chez lui) sont des données personnelles, même avec un SIREN.",
       "Non. Trop fort : leurs factures doivent passer par la PA, comme les autres. Les retirer, c'est bloquer leur facturation.",
-      "Non. Facturer est une obligation légale : la reprise n'attend pas leur accord. Elle doit être limitée et protégée, c'est tout."
+      "Non. Facturer est une obligation légale : la reprise n'attend pas leur accord. Elle doit être limitée et protégée, avec l'avis du DPO."
     ],
     retenir: "Les données d'un entrepreneur individuel sont des données personnelles : le minimum, protégé, avec l'avis du DPO."
   },
@@ -735,7 +741,7 @@ LEARNSQL.questions.cp20 = [
     choix: [
       "D'accord avec le consultant : ils peuvent encore servir",
       "Tu les récupères, et tu les gardes sur le partage de la DSI",
-      "D'accord avec le DPO ; on garde la preuve, pas les données",
+      "D'accord avec le DPO, en gardant la preuve, pas les données",
       "Tu demandes au DAF de trancher entre le DPO et lui"
     ],
     bonne: 2,
@@ -754,7 +760,7 @@ LEARNSQL.questions.cp20 = [
     choix: [
       "D'accord : c'est son projet et son essai, il connaît ses risques",
       "D'accord, si l'éditeur garantit la reprise et paie les écarts",
-      "Non : le 2e essai reste ; sinon, c'est le planning qui bouge",
+      "Non : le 2e essai reste, sinon c'est le planning qui bouge",
       "Non : tu fais reporter de 3 mois la mise en service"
     ],
     bonne: 2,
@@ -774,7 +780,7 @@ LEARNSQL.questions.cp20 = [
       "D'accord : la DSI a les outils et les accès",
       "Tu demandes au DG d'imposer un propriétaire au commercial",
       "Tu nommes un de tes analystes propriétaire des articles",
-      "Il nomme un propriétaire dans ses équipes ; la DSI outille"
+      "Il nomme un propriétaire dans ses équipes, et la DSI outille"
     ],
     bonne: 3,
     pourquoi: [

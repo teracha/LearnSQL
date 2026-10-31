@@ -12,8 +12,8 @@
 // q35) ; plan du vendredi 11 au lundi 14 (q14 à q20) ; retour arrière par le portail de la PA au plus tard le lundi 14 à
 // 12 h (q21 à q26, q41) ; hypercare du 14 au 25 juin, point à 9 h 30 (q29 à q33). Lignes « Planning » (report à
 // mi-juillet sur décision du DAF, pas d'août : q12, q34), « Changements » (gel : q11, q32), « Contrats » (support de la
-// PA de 8 h à 18 h les jours ouvrés, délais comptés aux heures de support : q14), « Reprise » (gel des créations de
-// tiers le vendredi 11 à 12 h : q20). Promesse tenue : cp01-q24 (« Go / no-go : comparer aux critères fixés avant,
+// PA de 8 h à 18 h les jours ouvrés, délais comptés aux heures de support : q14), « Reprise » (gel des tiers, créations et
+// modifications, le vendredi 11 à 12 h : q20). Promesse tenue : cp01-q24 (« Go / no-go : comparer aux critères fixés avant,
 // montrer le retour arrière, recommander ; le sponsor décide » : q05, q08, q12, q13), sans refaire son cas.
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : rejets du pilote par semaine (q04 : 6, 3,
 // 1,8 et 1,6 %, la 1re semaine comme cp17-q16 ; q05 : 2,4 % ; q34 : 3 %) ; une comptable malade, de retour le 21 juin (q06) ; 30 rejets EDI du pilote,
@@ -421,8 +421,8 @@ LEARNSQL.questions.cp21 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Depuis vendredi 12 h, les créations de tiers sont gelées ; l'intégrateur, la PA et Marc sont mobilisés ; les clients EDI sont prévenus d'une pause. Tout ça se défait, et vite.",
-      "Oui. Un no-go a son plan aussi : rouvrir les créations de tiers, libérer le week-end de l'intégrateur et de la PA, prévenir les sites et les clients, et dire quand le DAF décidera de la suite.",
+      "Non. Depuis vendredi 12 h, les tiers sont gelés (créations et modifications) ; l'intégrateur, la PA et Marc sont mobilisés ; les clients EDI sont prévenus d'une pause. Tout ça se défait, et vite.",
+      "Oui. Un no-go a son plan aussi : rouvrir les tiers (créations et modifications), libérer le week-end de l'intégrateur et de la PA, prévenir les sites et les clients, et dire quand le DAF décidera de la suite.",
       "Non. La nouvelle date dépend de la cause du no-go et du DAF : écrire tout un plan avant, c'est travailler pour rien. Il faut la branche no-go, pas un 2e plan.",
       "Non. « Presque tous verts » n'est pas « tous verts ». Un no-go improvisé à 14 h, c'est un week-end de messages contradictoires."
     ],
