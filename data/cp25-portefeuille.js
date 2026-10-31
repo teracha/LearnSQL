@@ -41,18 +41,20 @@
 //   janvier 2028 : retenus, dans l'ordre, la sécurité, la migration de Divalto, le WMS, les tableaux Power BI des ventes
 //   (600 jours, 40 de marge ; 245 k€ de dépenses externes, environ 256 k€ avec les spécifiques) ; pas maintenant,
 //   revus en avril 2028 : le CRM (business case à faire), la prise de commande (après le CRM), le portail fournisseurs,
-//   l'intranet. Le portail est retenu plus tard, puis arrêté en février 2029 (q26).
+//   l'intranet. Le portail est retenu plus tard, puis arrêté en février 2029 (q26). La migration doit finir en juin
+//   2028 (q19) ; en juin, elle glisse de 3 mois (q29). Le WMS : la consultation des éditeurs dès janvier 2028, la mise
+//   en place après la migration (q19).
 // - Une demande de quelques heures, dans un créneau run, se fait sans fiche (comme cp02-q08) ; en 2026-2027, le même
 //   circuit existe déjà (fiche, lundi, trimestre) : ton DSI classe.
-// - Scénarios : AquaBleu ouvre 2 magasins, 2 jours (q01) ; maquette de CRM, 3 jours, en couloir (q02) ; état des factures
-//   en attente, 3 jours (q03) ; contrôle automatique d'un rejet EDI, 8 jours (q04) ; état des rejets EDI demandé au
-//   consultant, 4 jours (q05) ; le DAF veut le portail dans DEMAT en novembre 2026 (q06) ; 3 fiches de 4 jours (q07) ;
+// - Scénarios : AquaBleu ouvre 2 magasins, 2 jours (q01) ; maquette de CRM, 3 jours, en couloir (q02) ; état des notes de
+//   frais en attente, 3 jours (q03 ; hors de DEMAT) ; contrôle automatique d'un rejet EDI, 8 jours (q04) ; état des rejets EDI demandé au
+//   consultant, 4 jours (q05) ; le DAF veut le portail (environ 60 jours) dans DEMAT en novembre 2026 (q06) ; 3 fiches de 4 jours (q07) ;
 //   critère « image de l'entreprise » proposé la veille (q08) ; BL annoncés « obligatoires » par le commercial (q13) ;
 //   développeur Power BI et SQL : 120 jours de projets, 140 demandés, prestataire à 750 € le jour (q17) ; 80 jours des
 //   dépôts pour le WMS (q18) ; 8 jours libres une semaine pour les petites demandes (q21) ; ateliers du WMS décalés de
 //   2 semaines pour l'inventaire (q22) ; portail : 25 k€ dépensés, 35 k€ à venir, 3 fournisseurs sur 600 intéressés
-//   (q26) ; WMS : 210 k€ au lieu de 150, 20 k€ pour finir, mars 2029 (q27) ; écran des rejets à moitié fait, 3 jours sur
-//   6, doublon du portail de la PA (q28) ; la migration glisse de 3 mois en juin 2028 (q29) ; un ancien projet du
+//   (q26) ; WMS : 210 k€ au lieu de 150, 20 k€ pour finir, mars 2029 (q27) ; écran des rejets à moitié fait, 2 jours sur
+//   4, dans l'enveloppe, début avril 2027, doublon du portail de la PA (q28) ; la migration glisse de 3 mois en juin 2028 (q29) ; un ancien projet du
 //   directeur logistique promettait 50 k€ par an, jamais mesurés (q31) ; un collègue ouvre les commandes EDI d'un
 //   nouveau client en mars 2027 (q32) ; le directeur logistique veut le consultant 3 jours (q33) ; ton DSI veut 2 jours
 //   par semaine de ton temps, le PV glisserait de 3 semaines (q35) ; l'administrateur réseau d'abord sur un autre
@@ -89,7 +91,9 @@
 // réelle 49 %, l'action moyenne 39 %, extrêmes écartés + chiffre ou date 40 %, + mot de méthode 38 %, écarter « rien »
 // et le plus fort puis deux actions 37 %, le choix à deux actions 35 % (où il y en a), écarter absolus, oui, DAF / COPIL
 // 33 %, jamais au-dessus du manager 25 %, toujours le sponsor 24 %, la plus longue 22 %, la plus courte 20 %, la plus
-// forte si urgence 13 %, le seul choix avec un point-virgule 0 % (3 questions, toujours un choix faux). « Aujourd'hui »,
+// forte si urgence 13 %, le seul choix avec un point-virgule 0 % (3 questions, toujours un choix faux). Testeur :
+// le seul choix entre guillemets n'existe plus (q08, q22, q33 corrigés : il était bon 3 fois sur 3) ; le seul choix qui
+// ne commence pas par « Tu » était bon 6 fois sur 7 : q04, q07, q12, q32 corrigés (reste q11, faux). « Aujourd'hui »,
 // « le jour même », « dès », « Oui », « D'accord », « Tu acceptes », « Non : », le DG, le comité, le COPIL, le sponsor,
 // « tout », « rien », « seul » : aussi dans des bonnes réponses ; chiffres, dates et points-virgules aussi dans des
 // choix faux ; un « presque juste » dans 20 questions.
@@ -135,7 +139,7 @@ LEARNSQL.questions.cp25 = [
   {
     id: "cp25-q03",
     dialecte: "Gestion de projet",
-    q: "Février 2027. Julie remplit une fiche de demande : un état des factures en attente, 3 jours, porté par la cheffe comptable. Case urgence, elle écrit « très urgent ». Que lui conseilles-tu ?",
+    q: "Février 2027. Julie remplit une fiche de demande : un état des notes de frais en attente, 3 jours, porté par la cheffe comptable. Case urgence, elle écrit « très urgent ». Que lui conseilles-tu ?",
     choix: [
       "« Parfait : avec ce mot, sa fiche passera devant »",
       "« Ajoute que le DAF la veut : ça comptera lundi »",
@@ -159,7 +163,7 @@ LEARNSQL.questions.cp25 = [
       "Tu y passes 8 jours de ton run : le risque disparaît vite",
       "Une fiche, comme tout le monde : c'est un projet",
       "Tu continues à corriger chaque matin : c'est ton run",
-      "Tu demandes au DG de le financer, en urgence"
+      "Au DG, pour qu'il le finance en urgence"
     ],
     bonne: 1,
     pourquoi: [
@@ -192,7 +196,7 @@ LEARNSQL.questions.cp25 = [
   {
     id: "cp25-q06",
     dialecte: "Gestion de projet",
-    q: "Novembre 2026. Le DAF, ton sponsor : « Au passage, ajoute à DEMAT un portail pour que nos fournisseurs suivent leurs factures. » Que fais-tu ?",
+    q: "Novembre 2026. Le DAF, ton sponsor : « Au passage, ajoute à DEMAT un portail pour que nos fournisseurs suivent leurs factures. » Un tel portail : environ 60 jours de travail. Que fais-tu ?",
     choix: [
       "Un autre besoin : une demande à la DSI, classée à part",
       "Tu l'ajoutes : le sponsor décide du périmètre de DEMAT",
@@ -201,9 +205,9 @@ LEARNSQL.questions.cp25 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le portail a sa propre valeur, et la loi ne l'exige pas : tout passe par la PA (plateforme agréée). C'est une demande nouvelle : la fiche, puis le classement du trimestre. DEMAT garde son objectif et sa date.",
+      "Oui. Le portail a sa propre valeur, et la facture électronique ne l'exige pas : tout passe par la PA (plateforme agréée). 60 jours, c'est un projet à part : la fiche, puis le classement du trimestre. DEMAT garde son objectif et sa date.",
       "Non. Il décide du périmètre de DEMAT, pas de la place de la DSI. Glisser un autre projet dans un projet légal, c'est le faire passer devant les autres sans classement.",
-      "Non. Presque : il tranche les changements de DEMAT (module cp10). Mais un changement ajuste ce que DEMAT livre ; un portail est un autre projet, qui se compare aux autres demandes.",
+      "Non. Presque : il tranche les changements de DEMAT, comme un état de plus (module cp10). Mais un changement ajuste ce que DEMAT livre ; un portail de 60 jours est un autre projet, qui se compare aux autres demandes.",
       "Non. Trop sec, et faux : DEMAT fait aussi du confort (les écrans de la compta). Le portail peut être utile ; il se classe ailleurs, pas dans DEMAT."
     ],
     retenir: "Un besoin nouveau ne se glisse pas dans un projet en cours, même par son sponsor : il passe par la fiche et le classement."
@@ -216,7 +220,7 @@ LEARNSQL.questions.cp25 = [
       "Tu classes les 3 fiches lundi : chacune fait moins de 5 jours",
       "Tu en passes une par semaine, sans bruit, pour l'aider",
       "Un seul besoin de 12 jours : un projet, revu au trimestre",
-      "Tu les refuses aujourd'hui, et tu signales la ruse au DG"
+      "Refusées aujourd'hui, et la ruse signalée au DG"
     ],
     bonne: 2,
     pourquoi: [
@@ -234,7 +238,7 @@ LEARNSQL.questions.cp25 = [
     choix: [
       "Tu l'ajoutes ce soir, et tu renotes les 8 demandes",
       "« Oui, au prochain classement, annoncé à tous »",
-      "Tu refuses : les critères ne changent jamais",
+      "« Non : les critères ne changent jamais »",
       "Tu en fais un critère pour les projets du DG seulement"
     ],
     bonne: 1,
@@ -310,7 +314,7 @@ LEARNSQL.questions.cp25 = [
     choix: [
       "Tu le classes au milieu, faute de mieux",
       "Sans gain chiffré, il attend son business case",
-      "Tu complètes toi-même sa fiche, avec un gain estimé",
+      "Sa fiche complétée par toi, avec un gain estimé",
       "Tu le mets en tête : sans CRM, on perd des clients"
     ],
     bonne: 1,
@@ -325,7 +329,7 @@ LEARNSQL.questions.cp25 = [
   {
     id: "cp25-q13",
     dialecte: "Gestion de projet",
-    q: "Novembre 2026. Le commercial : « Les BL dématérialisés sont obligatoires aussi. Ajoute-les à DEMAT, il est prioritaire. » Que fais-tu ?",
+    q: "Novembre 2026. Le commercial : « Les BL (bons de livraison) dématérialisés sont obligatoires aussi. Ajoute-les à DEMAT, il est prioritaire. » Que fais-tu ?",
     choix: [
       "Tu les ajoutes ; légaux comme DEMAT, ils sont prioritaires",
       "Tu lui dis non : il n'a aucune autorité sur DEMAT",
@@ -439,7 +443,7 @@ LEARNSQL.questions.cp25 = [
   {
     id: "cp25-q19",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Le directeur logistique, sponsor du WMS (logiciel d'entrepôt) : « Il rapporte 100 k€ par an, le plus gros gain. Lançons-le en janvier, avant la migration de Divalto. » Que proposes-tu ?",
+    q: "Tu es DSI adjoint. Le directeur logistique, sponsor du WMS (logiciel d'entrepôt) : « Il rapporte 100 k€ par an, le plus gros gain. Lançons-le en janvier, avant la migration de Divalto. » La migration finira en juin. Aucun éditeur n'a encore été consulté. Que proposes-tu ?",
     choix: [
       "Son choix dès janvier, sa mise en place après la migration",
       "Le WMS en janvier : le plus gros gain passe d'abord",
@@ -448,9 +452,9 @@ LEARNSQL.questions.cp25 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. La dépendance décide de l'ordre : la consultation des éditeurs (module cp13) ne dépend pas de Divalto, elle part en janvier. L'interface, elle, se construit sur la nouvelle version.",
+      "Oui. La dépendance décide de l'ordre : la consultation des éditeurs (module cp13) ne dépend pas de Divalto, elle part en janvier et prend le printemps, la saison des dépôts. En juillet, l'interface se construit une fois, sur la nouvelle version.",
       "Non. Le gain ne suffit pas : le WMS se branche sur Divalto. Construit avant la migration, son interface serait à refaire juste après : des jours payés deux fois.",
-      "Non. Presque : on gagne quelques mois. Mais l'interface se paie deux fois, et la DSI travaille deux fois sur le même sujet, alors que la place manque déjà.",
+      "Non. Presque : partir tôt semble faire gagner des mois. Mais l'éditeur ne sera pas choisi avant le printemps, la saison des dépôts : on gagnerait quelques semaines, pour une interface payée deux fois, alors que la place manque déjà.",
       "Non. Trop fort : c'est le plus gros gain, et la migration lui ouvre la voie. Rien ne justifie de l'écarter des années."
     ],
     retenir: "Un projet qui dépend d'un autre vient après lui ; ce qui ne dépend de rien peut commencer avant."
@@ -468,7 +472,7 @@ LEARNSQL.questions.cp25 = [
     bonne: 2,
     pourquoi: [
       "Non. 8 projets à la fois sur 640 jours : chacun avance lentement, les équipes passent d'un sujet à l'autre, et aucun ne livre son gain avant longtemps. En avril, rien ne sera fini.",
-      "Non. Trop serré : un seul projet laisse des compétences sans travail (le développeur Power BI n'a rien à faire sur le WMS). Et le gain seul ne fait pas le classement : le risque, le coût, les dépendances comptent.",
+      "Non. Trop serré : un seul projet laisse des compétences sans travail (le développeur Power BI a peu à faire sur le WMS). Et le gain seul ne fait pas le classement : le risque, le coût, les dépendances comptent.",
       "Oui. Limiter les projets en cours : finir avant de commencer. 4 projets servis à plein livrent leur gain plus tôt ; les autres sont revus en avril, sur les critères.",
       "Non. 2 recrues en janvier ne seront pas efficaces avant des mois, et ce budget n'est pas voté (module cp27). Le problème reste : trop de projets ouverts."
     ],
@@ -499,7 +503,7 @@ LEARNSQL.questions.cp25 = [
     q: "Tu es DSI adjoint. Le WMS (logiciel d'entrepôt) est retenu. Pour l'inventaire des dépôts, son chef de projet veut décaler ses ateliers de 2 semaines. Le directeur logistique approuve ; rien d'autre ne bouge. Que fais-tu ?",
     choix: [
       "Tu le portes au comité de direction du mois",
-      "Tu refuses : un planning validé ne bouge plus",
+      "« Non : un planning validé ne bouge plus »",
       "Tu demandes d'abord l'accord écrit du DG",
       "« D'accord : c'est du calendrier »"
     ],
@@ -610,17 +614,17 @@ LEARNSQL.questions.cp25 = [
   {
     id: "cp25-q28",
     dialecte: "Gestion de projet",
-    q: "Avril 2027. L'écran de suivi des rejets est à moitié fait : 3 jours d'intégrateur sur 6. La recette montre que le portail de la PA affiche déjà les rejets et leur motif. La cheffe comptable : « On a payé 3 jours, finissons-le. » Que fais-tu ?",
+    q: "Début avril 2027. Dans l'enveloppe des écrans de la compta, l'écran de suivi des rejets est à moitié fait : 2 jours d'intégrateur sur 4. En recette, on voit que le portail de la PA affiche déjà les rejets et leur motif. La cheffe comptable : « On a payé 2 jours, finissons-le. » Que fais-tu ?",
     choix: [
-      "Tu le finis : 3 jours déjà payés, l'arrêter serait du gâchis",
-      "Tu lui montres le doublon, 3 jours de plus : elle choisit",
+      "Tu le finis : 2 jours déjà payés, l'arrêter serait du gâchis",
+      "Tu lui montres le doublon, 2 jours de plus : elle choisit",
       "Tu l'arrêtes toi-même, et tu le dis au DAF au COPIL",
       "Tu le gardes au backlog, sans rien décider, au cas où"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Les 3 jours sont payés dans tous les cas. La question : 3 jours de plus, pour quoi ? Pour un écran que le portail de la PA fait déjà.",
-      "Oui. Ce qui est dépensé ne compte pas : 3 jours de plus pour un doublon, ce sont 3 jours de moins pour une autre idée du backlog. Elle est la PO (celle qui classe le backlog) : elle décide.",
+      "Non. Les 2 jours sont payés dans tous les cas. La question : 2 jours de plus, pour quoi ? Pour un écran que le portail de la PA fait déjà.",
+      "Oui. Ce qui est dépensé ne compte pas : 2 jours de plus pour un doublon, ce sont 2 jours de moins pour une autre idée du backlog. Elle est la PO (celle qui classe le backlog) : elle décide.",
       "Non. Classer le backlog, c'est le rôle de la PO, pas le tien. Et ce détail, dans l'enveloppe, ne monte pas au DAF.",
       "Non. Un écran inutile qui reste au backlog garde sa place pour rien. Le fait est connu : il faut le dire, et qu'elle décide."
     ],
@@ -691,7 +695,7 @@ LEARNSQL.questions.cp25 = [
       "Tu fixes l'ordre avec ton collègue, puis tu le dis à ton DSI",
       "Tu laisses Marc choisir : il sait que DEMAT est légal",
       "Les faits à ton DSI : besoins, dates, ce qui glisse",
-      "Tu demandes au DG de trancher entre les deux projets"
+      "Au DG de trancher entre les deux projets"
     ],
     bonne: 2,
     pourquoi: [
@@ -710,7 +714,7 @@ LEARNSQL.questions.cp25 = [
       "L'impact à ton DSI : 3 jours sur ton chemin critique",
       "« D'accord : 3 jours, DEMAT ne le verra même pas »",
       "« D'accord, s'il passe une commande à part, chiffrée »",
-      "« Non : DEMAT est légal, il passe avant tout le reste »"
+      "Un refus : DEMAT est légal, il passe avant tout le reste"
     ],
     bonne: 0,
     pourquoi: [
@@ -755,7 +759,7 @@ LEARNSQL.questions.cp25 = [
       "Non. 2 jours par semaine ne se rattrapent pas le soir, en pleine recette. Et ton DSI décide sur une fausse image : il croit que DEMAT ne perd rien.",
       "Oui. Tu donnes l'impact chiffré : le PV glisse de 3 semaines, au-delà de la tolérance de ± 2 semaines. Un jalon hors tolérance, c'est le DAF qui tranche : ton DSI le fait arbitrer, le jour même.",
       "Non. Ton temps, c'est ton DSI qui l'arbitre : refuser n'est pas à toi. Ton rôle : lui montrer ce que ça coûte.",
-      "Non. Presque : le DAF doit savoir. Mais au COPIL d'avril, la recette est déjà entamée et le jalon déjà perdu. Hors tolérance, le DAF tranche avant, le jour même."
+      "Non. Presque : le DAF doit savoir. Mais au COPIL du 13 avril, plus de la moitié de la recette est passée, et le jalon déjà perdu. Hors tolérance, le DAF tranche avant, le jour même."
     ],
     retenir: "Ton DSI arbitre ton temps ; si son choix fait sortir un jalon de la tolérance, le sponsor tranche, prévenu le jour même."
   },

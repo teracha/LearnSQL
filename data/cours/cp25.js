@@ -63,7 +63,7 @@ LEARNSQL.cours.cp25 = {
         "La fiche : le besoin, le sponsor (le directeur qui la porte), la valeur, l'obligation avec sa source, l'urgence (une date et pourquoi), la charge estimée par ceux qui feront.",
         "Moins de 5 jours de travail : une petite demande, classée chaque lundi par le DSI, prise sur le run (le fonctionnement courant). 5 jours et plus : un projet, classé une fois par trimestre au comité de direction.",
         "Un besoin découpé en 3 demandes de 4 jours reste un besoin de 12 jours : un projet. Quelques heures dans un créneau run, elles, se font sans fiche (module cp02).",
-        "Pendant un projet, ajuster ce qu'il livre, c'est un changement (module cp10). Un besoin nouveau, avec sa propre valeur, c'est une fiche, même s'il vient du sponsor du projet."
+        "Pendant un projet, ajuster ce qu'il livre (un état de plus), c'est un changement (module cp10). Un besoin nouveau, avec sa propre valeur (un portail), c'est une fiche, même s'il vient du sponsor du projet."
       ],
       retenir: "Une seule porte : la fiche de demande. Petite demande (moins de 5 jours) le lundi ; projet au trimestre."
     },

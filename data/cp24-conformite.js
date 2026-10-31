@@ -511,7 +511,7 @@ LEARNSQL.questions.cp24 = [
     q: "Août 2027. Le nouveau consultant de l'intégrateur demande qu'on rouvre le compte de son prédécesseur : « Ses droits sont déjà réglés, on gagne du temps. » Que fais-tu ?",
     choix: [
       "D'accord, avec un mot de passe neuf, rien que pour lui",
-      "Tu lui prêtes ton accès ; tu as des droits sur le connecteur",
+      "Prêter ton accès : tu as des droits sur le connecteur",
       "Refusé : plus jamais d'accès pour l'intégrateur",
       "Un accès à son nom, par ticket, pour la durée de l'intervention"
     ],
@@ -855,7 +855,7 @@ LEARNSQL.questions.cp24 = [
       "Rien : des données d'analyse, ce n'est pas du RGPD",
       "Une durée par usage, avec le métier et le DPO ; après, anonyme",
       "Dès ce week-end, tout effacer sauf l'année en cours, puis le registre",
-      "Tu gardes tout ; c'est la durée légale des factures"
+      "Tout garder ; c'est la durée légale des factures"
     ],
     bonne: 1,
     pourquoi: [

@@ -288,8 +288,24 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   (environ 100 jours d'intégrateur, 75 k€, hors adaptation des spécifiques, cp11), WMS (logiciel d'entrepôt) des
   3 dépôts (sponsor : le directeur logistique), CRM (gestion des clients) et prise de commande des commerciaux
   (sponsor : le directeur commercial), portail fournisseurs (sponsor : le DAF), tableaux Power BI des ventes, sécurité
-  (double authentification, sauvegardes), refonte de l'intranet. Les charges et les valeurs de chaque demande : fixées
-  par cp25.
+  (double authentification, sauvegardes), refonte de l'intranet. Une demande de quelques heures, dans un créneau run, se fait sans fiche (cp02-q08). Faits fixés par cp25 : capacité
+  de la DSI en 2028 : 8 personnes × environ 200 jours = 1 600 jours ; run environ 60 % = 960 ; projets 640. Demandes
+  2028 (jours de la DSI ; dépenses externes ; gain ; sponsor) : sécurité 60 j, 20 k€, un risque évité, le DSI ;
+  migration de Divalto 200 j (en plus des 100 jours d'intégrateur), 75 k€ hors spécifiques, environ 86 k€ avec eux
+  (cp11-q14), gain direct faible, le DAF ; WMS 300 j, 150 k€, 100 k€ par an, après la migration, le directeur
+  logistique ; tableaux Power BI des ventes (un 2e lot, après le projet Snowflake + Power BI) 40 j, 0 € externe (faits
+  en interne), 15 k€ par an, le directeur commercial ; CRM 100 j, 40 k€, gain non chiffré, le directeur commercial ;
+  prise de commande 80 j, 60 k€ (cp06-q29), 40 k€ par an, après le CRM, le directeur commercial ; portail fournisseurs
+  60 j, 30 k€ (besoin encore flou, cp06-q30), 10 k€ par an, « obligatoire » annoncé mais faux (tout passe par la PA),
+  le DAF ; intranet 50 j, 15 k€, gain faible, le DG. Total 890 jours pour 640 ; 390 k€ (401 k€ avec les spécifiques).
+  Critères validés par le DG, envoyés aux directeurs en décembre 2027. Comité de janvier 2028 : retenus la sécurité,
+  la migration, le WMS, les tableaux Power BI des ventes (600 jours, 245 k€, environ 256 k€ avec les spécifiques) ;
+  pas maintenant, revus en avril : CRM, prise de commande, portail, intranet. Calendrier : migration de janvier à juin
+  2028 ; WMS : consultation des éditeurs dès janvier, mise en place après la migration, hors saison. Juin 2028 : la
+  migration glisse de 3 mois, le WMS aussi. Février 2029 : le portail, retenu plus tard, est arrêté (25 k€ dépensés,
+  35 k€ encore nécessaires, le double du devis ; 3 fournisseurs sur 600 intéressés). Mars 2029 : WMS à 210 k€ au lieu
+  de 150, 20 k€ pour le finir, gain maintenu. Les tableaux Power BI des ventes et l'intranet, déjà demandés pendant
+  DEMAT (cp01-q28), avaient attendu.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
