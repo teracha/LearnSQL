@@ -24,6 +24,12 @@
 // 800 factures papier ou PDF en juillet 2027 (q24, cp23) ; l'ADV, propriétaire des données clients (q12, q14, cp20) ;
 // AquaBleu, 20 % du chiffre d'affaires (q14, q30) ; demande de WMS pour 2028 (q35, cp25). Cadre « Tu es DSI adjoint »
 // (2028 et après) : q27 à q41.
+// Relecture du testeur (31/10/2026) : q04, q09, q16, q17, q21, q22, q24, q26, q30, q32, q34, q38, q40, q41 retouchées (voir
+// changements.txt du testeur). Scénarios changés : rumeur « C'est voté » (q04) ; compte oublié à la clôture (q32) ;
+// prix et remises dans l'IA (q38) ; Snowflake sans date de fin (q41). Ajouts juridiques vérifiés : les 72 h se
+// comptent week-end compris (q22 ; règlement CEE n° 1182/71, art. 3) ; la PA ne notifie en votre nom que si le
+// contrat le prévoit, avec votre accord (q21 ; clauses types de sous-traitance de la CNIL). Les chiffres anti-devinette
+// ci-dessous sont ceux de l'expert, avant relecture.
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : pendant DEMAT, une violation va au DPO le
 // jour même (par écrit s'il est injoignable), et à ton DSI et au DAF ; la direction décide de notifier (le DG
 // représente l'entreprise, q40) ; le registre interne des violations est tenu avec le DPO ; une demande d'une personne
@@ -141,7 +147,7 @@ LEARNSQL.questions.cp24 = [
   {
     id: "cp24-q04",
     dialecte: "Gestion de projet",
-    q: "Novembre 2026. Un collègue a lu sur un forum : « La facture électronique est reportée à 2029. » La cheffe comptable veut tout ralentir. Que fais-tu ?",
+    q: "Novembre 2026. Un collègue a lu sur un forum : « C'est voté : la facture électronique est reportée à 2029. » La cheffe comptable veut tout ralentir. Que fais-tu ?",
     choix: [
       "Tu vérifies sur impots.gouv.fr ; sans texte, rien ne change",
       "Tu ralentis le projet, le temps de vérifier",
@@ -152,7 +158,7 @@ LEARNSQL.questions.cp24 = [
     pourquoi: [
       "Oui. Une date légale se lit à sa source officielle. Sans texte nouveau, le planning reste : la réception est déjà obligatoire, l'émission le sera au 1er septembre 2027.",
       "Non. Vérifier, oui ; ralentir, non. Tu ralentis sur une rumeur : si elle est fausse, la marge légale fond. Une date se vérifie en 5 minutes, sans toucher au planning.",
-      "Non. Presque : la date ne change pas. Mais ta vérification date d'octobre, et un texte peut bouger. Revérifie aujourd'hui, puis montre la source : elle te croira mieux.",
+      "Non. Presque : la date ne change sans doute pas. Mais la rumeur parle d'un vote récent : ta vérification d'octobre ne peut pas le savoir. Revérifie aujourd'hui, puis montre la source : elle te croira mieux.",
       "Non. Rien à trancher : c'est un fait à vérifier, en 5 minutes. Et d'ici le COPIL, la rumeur aura fait le tour de la compta."
     ],
     retenir: "Une rumeur sur la loi se vérifie à la source officielle avant de changer quoi que ce soit."
@@ -241,14 +247,14 @@ LEARNSQL.questions.cp24 = [
       "Rien : ce sont ses serveurs, elle en fait ce qu'elle veut",
       "Tu le signales au DAF et au DPO, contrat en main",
       "Tu demandes au DAF de résilier le contrat, dès aujourd'hui",
-      "Tu l'ajoutes au registre, comme un nouvel usage de vos données"
+      "Tu l'ajoutes au registre avec le DPO, comme un nouvel usage"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La PA est votre sous-traitant : elle traite vos données pour vous, sur vos instructions. Les utiliser pour elle-même sort de ce cadre.",
       "Oui. Par défaut, un sous-traitant ne traite pas vos données pour son propre compte. Le DPO dit le risque ; le DAF, qui a signé, le règle avec la PA, contrat en main.",
       "Non. Trop fort, et trop tôt : on ne sait même pas si vos données sont visées. Un contrat se fait d'abord respecter.",
-      "Non. Presque : le registre décrit vos traitements. Mais ici, la PA veut se servir de vos données pour elle-même : ce n'est pas votre usage, c'est un écart au contrat. Le DAF le règle avec elle, sur l'avis du DPO."
+      "Non. Presque : le DPO doit le savoir. Mais le registre décrit vos traitements ; ici, la PA veut se servir de vos données pour elle-même : c'est un écart au contrat, pas votre usage. Le DAF le règle avec elle, sur l'avis du DPO."
     ],
     retenir: "Un sous-traitant traite vos données pour vous, jamais pour lui : un écart se règle par le DAF, contrat en main, avec le DPO."
   },
@@ -379,11 +385,11 @@ LEARNSQL.questions.cp24 = [
     bonne: 2,
     pourquoi: [
       "Non. Presque : le risque est sans doute faible. Mais une perte reste une violation : le DPO vérifie (chiffrement, mot de passe), et elle va au registre interne, même sans notification.",
-      "Non. Le DPO, oui. Mais notifier se décide sur le risque réel, pas « contre tout risque » : un disque chiffré, sans son mot de passe, ne présente en général pas de risque pour les personnes.",
-      "Oui. Le DPO vérifie le chiffrement et le mot de passe. Sans risque pour les personnes, la direction peut décider de ne pas notifier la CNIL ; la violation va quand même au registre interne.",
+      "Non. Le DPO, oui. Mais notifier se décide après son analyse, sur le risque réel, par la direction ; pas d'avance, « contre tout risque ». Un disque chiffré, sans son mot de passe, ne présente en général pas de risque pour les personnes.",
+      "Oui. Le DPO vérifie le chiffrement et le mot de passe ; les données existent encore dans Divalto. Sans risque pour les personnes, la direction peut décider de ne pas notifier la CNIL ; la violation va quand même au registre interne.",
       "Non. Trop fort : on prévient les personnes quand le risque est élevé. Disque chiffré, mot de passe ailleurs : tu inquiètes des dizaines de fournisseurs pour rien."
     ],
-    retenir: "Toute violation va au registre interne ; sans risque pour les personnes (un disque chiffré, par exemple), elle n'est pas notifiée."
+    retenir: "Toute violation va au registre interne ; sans risque pour les personnes (disque chiffré, mot de passe resté secret), elle n'a pas à être notifiée."
   },
   {
     id: "cp24-q17",
@@ -392,7 +398,7 @@ LEARNSQL.questions.cp24 = [
     choix: [
       "Son compte bloqué tout de suite ; le DPO le jour même",
       "Tu fais couper tout de suite le portail pour tous, le temps d'enquêter",
-      "Tu lui fais changer le mot de passe du compte, sans plus",
+      "Tu lui fais changer son mot de passe le jour même, sans plus",
       "Tu cherches ce qui a été vu ; le DPO quand tu sauras"
     ],
     bonne: 0,
@@ -473,7 +479,7 @@ LEARNSQL.questions.cp24 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. La PA est votre sous-traitant : elle doit vous prévenir sans tarder, et vous aider. Mais c'est l'entreprise, responsable du traitement, qui décide et notifie ; pas la PA à sa place.",
+      "Non. La PA est votre sous-traitant : elle doit vous prévenir sans tarder, et vous aider. Par défaut, l'entreprise, responsable du traitement, décide et notifie ; la PA ne notifie en votre nom que si le contrat le prévoit, et avec votre accord.",
       "Oui. Le DPO le sait le jour même, avec le message de la PA. La direction décide, sur son avis, et le DPO fait la déclaration. La PA donne les faits : quelles factures, combien, depuis quand.",
       "Non. La faute ne change rien : ce sont vos clients et vos factures. L'entreprise reste responsable du traitement, même chez son sous-traitant.",
       "Non. Tu es le contact de la PA, pas l'entreprise : la décision revient à la direction, sur l'avis du DPO, qui déclare. Toi, tu transmets le jour même."
@@ -492,9 +498,9 @@ LEARNSQL.questions.cp24 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le DPO lira ton mail lundi matin ; ton DSI et le DAF, ce soir : la décision revient à la direction, et les 72 h courent. Le registre suivra.",
+      "Oui. Le DPO lira ton mail lundi matin ; ton DSI et le DAF le savent ce soir : la décision revient à la direction. Les 72 h courent, week-end compris : elles finissent lundi soir. Le registre suivra.",
       "Non. Presque : c'est stoppé, et prouvé. Mais une violation va toujours au DPO et au registre, et le risque doit être jugé : les 72 h courent depuis ce soir.",
-      "Non. Le DPO conseille, mais la décision est à la direction, et le délai court. Ton DSI et le DAF doivent le savoir ce soir.",
+      "Non. Le délai court déjà, week-end compris : 72 h après vendredi soir, c'est lundi soir. Attendre lundi pour prévenir, c'est laisser quelques heures pour juger et décider. Le DPO se prévient le jour même, par écrit s'il est injoignable ; la direction aussi.",
       "Non. Notifier se décide par la direction, sur l'avis du DPO, qui déclare. Seul, un vendredi soir, tu engages l'entreprise sans elle ; prévenir le DPO après ne change rien."
     ],
     retenir: "DPO injoignable : on lui écrit quand même, et la direction le sait le jour même ; le délai court."
@@ -531,11 +537,11 @@ LEARNSQL.questions.cp24 = [
     bonne: 1,
     pourquoi: [
       "Non. Des factures, avec des noms et des contacts, sont parties chez un inconnu, qui peut les garder ou les réutiliser. La charte l'interdit : aucun outil en ligne non validé par la DSI.",
-      "Oui. On stoppe d'abord, par sa cheffe, qui manage son travail. Le DPO, le jour même : des données sont sorties, il dit s'il y a violation. Et le besoin est réel : ton DSI peut proposer un outil validé.",
+      "Oui. On stoppe d'abord, par sa cheffe, qui manage son travail. Le DPO, le jour même : des données personnelles sont sorties, il dit s'il y a violation. Et le besoin est réel : ton DSI peut proposer un outil validé.",
       "Non. Trop fort : couper un service du web ne règle ni les 2 semaines de dépôts, ni le besoin. On traite ce cas, puis le besoin.",
       "Non. Presque : expliquer la charte, oui. Mais un « site plus sûr » reste non validé : c'est la DSI qui valide un outil. Et les dépôts déjà faits vont au DPO."
     ],
-    retenir: "Des données de l'entreprise dans un outil en ligne non validé : on arrête, le DPO le sait le jour même, et le besoin va à la DSI."
+    retenir: "Des données personnelles dans un outil en ligne non validé : on arrête, le DPO le sait le jour même, et le besoin va à la DSI."
   },
   {
     id: "cp24-q25",
@@ -569,7 +575,7 @@ LEARNSQL.questions.cp24 = [
     bonne: 3,
     pourquoi: [
       "Non. Dans un an, qui se souviendra de cet appel ? Une conformité se prouve : l'avis du DPO doit pouvoir se montrer.",
-      "Non. Presque : l'équipe le sait. Mais une parole redite reste une parole : dans un an, rien ne prouvera son avis. Il faut un écrit, rangé.",
+      "Non. Presque : l'équipe le sait. Mais redit en réunion, même noté au compte rendu, c'est ton résumé d'un appel : rien ne montre quelle liste le DPO a vue, ni ce qu'il a dit. Il faut son avis écrit, rangé.",
       "Non. Presque : tu gardes une trace. Mais tes notes ne prouvent pas son avis, et personne d'autre ne les trouvera. Une preuve s'écrit par celui qui donne l'avis, et se range.",
       "Oui. La liste, son avis, la date : 3 lignes suffisent. Rangées dans le dossier du projet, elles prouvent que le choix a été conseillé. Le RGPD demande de pouvoir le montrer."
     ],
@@ -645,7 +651,7 @@ LEARNSQL.questions.cp24 = [
     bonne: 2,
     pourquoi: [
       "Non. Tu affirmes une conformité que personne n'a vérifiée. Si AquaBleu le découvre, c'est la confiance qui saute, et peut-être le contrat.",
-      "Non. Presque : rien n'est encore vérifié, c'est vrai. Mais alors « Non » n'est pas plus sûr que « Oui ». Et tu inquiètes ton plus gros client pour rien.",
+      "Non. Presque : rien n'est encore vérifié, c'est vrai. Mais « Non » affirme aussi ce que vous ignorez : vous n'êtes peut-être pas concernés. Et tu inquiètes ton plus gros client sans raison.",
       "Oui. Ce que vous faites vraiment (par exemple, les accès revus chaque année), et où vous en êtes sur NIS2 : la vérification en cours. Ton DSI valide ; le directeur commercial envoie.",
       "Non. Ne pas répondre à son plus gros client, c'est déjà une réponse. On répond avec ce qu'on sait, et ce qu'on vérifie."
     ],
@@ -673,7 +679,7 @@ LEARNSQL.questions.cp24 = [
   {
     id: "cp24-q32",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Pendant la revue des accès, tu vois un compte de l'ancien consultant de l'intégrateur, encore actif sur la PA. Dernière connexion : hier, 23 h. Que fais-tu ?",
+    q: "Tu es DSI adjoint. Pendant la revue des accès, tu vois un compte de l'ancien consultant de l'intégrateur, oublié à la clôture de DEMAT, encore actif sur la PA. Dernière connexion : hier, 23 h. Que fais-tu ?",
     choix: [
       "Tu le notes ; il sera fermé à la fin de la revue",
       "Tu demandes pourquoi à l'intégrateur et au DPO, et tu attends",
@@ -685,7 +691,7 @@ LEARNSQL.questions.cp24 = [
       "Non. Un compte d'ancien prestataire, utilisé hier à 23 h : quelqu'un s'en sert peut-être. Attendre la fin de la revue, c'est laisser la porte ouverte.",
       "Non. Presque : il faut savoir pourquoi. Mais pendant que tu attends, le compte reste ouvert. D'abord bloquer, puis demander.",
       "Non. Presque : bloquer, oui. Mais une connexion inconnue sur des factures, c'est peut-être une violation : le DPO doit le savoir le jour même, pour juger le risque.",
-      "Oui. Stopper d'abord : le compte bloqué. Puis le DPO, le jour même, et l'enquête : qui, quoi, depuis quand. Et la règle à corriger : le compte d'un prestataire se ferme à son départ."
+      "Oui. Stopper d'abord : le compte bloqué. Puis le DPO, le jour même, et l'enquête : qui, quoi, depuis quand. Et le trou à boucher : la PA manquait à la liste des accès fermés à la clôture."
     ],
     retenir: "Un compte d'ancien prestataire encore utilisé : on le bloque tout de suite, et le DPO le sait le jour même."
   },
@@ -714,14 +720,14 @@ LEARNSQL.questions.cp24 = [
     q: "Tu es DSI adjoint. Ton développeur Power BI t'avoue, gêné : un rapport des ventes, avec des noms de clients entrepreneurs individuels, est en lien public depuis 3 jours. Que fais-tu ?",
     choix: [
       "Tu coupes le lien ; inutile d'en parler, même au DPO",
-      "Un avertissement écrit, pour qu'il retienne la leçon",
+      "Lien coupé, le DPO le jour même ; un avertissement écrit",
       "Lien coupé, le DPO le jour même ; merci à lui",
       "Tu fais fermer tout Power BI, le jour même, le temps d'auditer"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Presque : le lien est coupé. Mais 3 jours en public, c'est une violation possible : le DPO l'évalue, et elle va au registre. Se taire, c'est cacher.",
-      "Non. Il est venu te le dire : le punir, c'est apprendre à tous à se taire. Et le lien est toujours ouvert. Manager l'équipe : module cp26.",
+      "Non. Presque : le lien est coupé, le DPO prévenu. Mais il est venu te le dire : le punir, c'est apprendre à tous à se taire, et la prochaine fuite restera cachée. Manager l'équipe : module cp26.",
       "Oui. Stopper : le lien coupé. Le DPO, le jour même : un lien public de 3 jours a pu être vu, il juge le risque. Et le remercier : avouer vite, c'est ce qui limite les dégâts.",
       "Non. Trop fort : les ventes et la compta perdent leurs rapports, pour un seul lien. On coupe ce lien, puis on vérifie les autres."
     ],
@@ -787,7 +793,7 @@ LEARNSQL.questions.cp24 = [
   {
     id: "cp24-q38",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Les commerciaux collent les prix et les noms de leurs clients dans un service d'IA gratuit, pour rédiger leurs offres. Leur directeur : « Ça marche, laissez-les. » Que fais-tu ?",
+    q: "Tu es DSI adjoint. Les commerciaux collent les prix et les remises de leurs clients dans un service d'IA gratuit, pour rédiger leurs offres. Leur directeur : « Ça marche, laissez-les. » Que fais-tu ?",
     choix: [
       "Rien ; leur directeur décide pour son équipe",
       "Tu fais bloquer tout de suite tous les sites d'IA de l'entreprise",
@@ -836,7 +842,7 @@ LEARNSQL.questions.cp24 = [
     pourquoi: [
       "Non. Ses clients, mais pas sa décision : la direction décide pour l'entreprise. Le relancer ne suffit pas : dans 24 h, le délai de 72 h est dépassé.",
       "Non. Presque : le DPO fait la déclaration. Mais il conseille ; la décision de notifier revient à la direction. Elle doit la prendre, et vite.",
-      "Oui. Le DG représente l'entreprise, responsable du traitement : il décide, aujourd'hui, sur l'avis écrit du DPO. Il reste 24 h. Tu préviens le directeur commercial que tu y vas.",
+      "Oui. Le DG représente l'entreprise, responsable du traitement : il décide, aujourd'hui, sur l'avis écrit du DPO. Il reste 24 h. Ton DSI le sait ; tu préviens le directeur commercial que tu y vas.",
       "Non. Presque : le registre, oui, dans tous les cas. Mais le risque est déjà jugé réel : attendre une plainte, c'est laisser passer le délai."
     ],
     retenir: "Notifier une violation : la direction décide, sur l'avis du DPO, dans les 72 h. Un directeur concerné ne bloque pas le délai."
@@ -844,11 +850,11 @@ LEARNSQL.questions.cp24 = [
   {
     id: "cp24-q41",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Votre entrepôt Snowflake garde toutes les ventes depuis 2012, avec les noms des clients entrepreneurs individuels. Aucune durée n'est écrite au registre. Que fais-tu ?",
+    q: "Tu es DSI adjoint. Votre entrepôt Snowflake garde toutes ses ventes, sans date de fin, avec les noms des clients entrepreneurs individuels. Aucune durée n'est écrite au registre. Que fais-tu ?",
     choix: [
       "Rien : des données d'analyse, ce n'est pas du RGPD",
       "Une durée par usage, avec le métier et le DPO ; après, anonyme",
-      "Dès ce week-end, tout effacer avant 2020, puis le registre",
+      "Dès ce week-end, tout effacer sauf l'année en cours, puis le registre",
       "Tu gardes tout ; c'est la durée légale des factures"
     ],
     bonne: 1,

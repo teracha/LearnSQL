@@ -749,7 +749,7 @@ LEARNSQL.questions.cp20 = [
       "Non. « Au cas où » n'est pas un besoin : 2 600 fiches avec des contacts, chez un prestataire, six mois de plus. Chaque copie gardée est un risque.",
       "Non. Presque : chez vous plutôt que chez lui. Mais la question n'est pas où les garder : sans besoin, on ne les garde pas.",
       "Oui. La reprise est validée : les données vivent dans Divalto et la PA. On efface les fichiers de transit ; on garde la preuve sans les données : comptages, rejets expliqués, signatures.",
-      "Non. Rien à trancher : la règle était écrite (effacés après validation). Le DPO l'applique, tu la fais respecter."
+      "Non. Rien à trancher : la règle était écrite (effacés après validation). Le DPO la rappelle, tu la fais respecter."
     ],
     retenir: "Après la reprise, on efface les fichiers de transit ; on garde la preuve sans les données : comptages, rejets, signatures."
   },

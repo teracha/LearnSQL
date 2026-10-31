@@ -56,6 +56,9 @@
 // Frontières : la clause RGPD du contrat = cp14 ; les données de test masquées = cp19 ; la reprise (le minimum, protégé,
 // effacé après) = cp20 ; les accès des prestataires fermés à la clôture = cp22 ; classer les projets (une « obligation »
 // vérifiée d'abord) = cp25 ; manager l'équipe = cp26 ; le budget SI annuel = cp27. Cités en une ligne, pas refaits.
+// Relecture du testeur (31/10/2026) : section 4, point 3 (72 h comptées week-end compris : règlement CEE n° 1182/71,
+// art. 3 ; pas de notification sans risque, exemple du portable chiffré perdu sans son mot de passe : cnil.fr) ; sections
+// 5 et 6 raccourcies d'autant (« pas plus » ; renvoi à cp26, déjà dans q34).
 LEARNSQL.cours.cp24 = {
   intro: "Ta démat fiscale : la règle venait-elle du texte officiel, ou de ce qu'en disait l'éditeur ? Tes flux EDI (échange de données informatisé) portent le nom et l'e-mail des acheteurs : ce sont des données personnelles. Ton entrepôt Snowflake : combien de temps y gardes-tu les clients ? Ici, sans être juriste : savoir quelles règles s'appliquent, qui décide, et le prouver.",
   sections: [
@@ -101,7 +104,7 @@ LEARNSQL.cours.cp24 = {
       points: [
         "Violation de données : des données personnelles perdues, détruites, modifiées, ou vues par qui ne devait pas. Un fichier au mauvais destinataire, un portable perdu, un compte piraté.",
         "D'abord stopper : faire supprimer, bloquer le compte, changer le mot de passe. Puis le DPO, le jour même. Celui qui s'est trompé doit pouvoir le dire tout de suite : chaque heure compte.",
-        "La CNIL est notifiée dans les meilleurs délais, 72 h au plus tard après en avoir pris connaissance, sauf si la violation ne présente pas de risque pour les personnes. La direction décide, sur l'avis du DPO, qui fait la déclaration.",
+        "La CNIL est notifiée dans les meilleurs délais : 72 h au plus tard après en avoir pris connaissance, week-end compris. Sans risque pour les personnes, pas de notification (souvent : portable chiffré, perdu sans son mot de passe). La direction décide, sur l'avis du DPO, qui fait la déclaration.",
         "Tout n'est pas encore su ? On notifie avec ce qu'on sait, puis on complète. Risque élevé : on prévient aussi les personnes. Toute violation, même non notifiée, va au registre interne.",
         "Chez un sous-traitant (la PA) ? Il doit vous prévenir sans tarder, et vous aider. La décision et la notification restent à l'entreprise, responsable du traitement."
       ],
@@ -111,7 +114,7 @@ LEARNSQL.cours.cp24 = {
       titre: "Accès, outils en ligne, licences",
       exemple: "Revue annuelle des accès. La DSI (direction des systèmes d'information) donne à chaque manager la liste des comptes Divalto et PA de son équipe. Chacun coche : garder, réduire, fermer.\nLa cheffe comptable trouve le compte d'une ancienne stagiaire, encore actif : fermé.",
       points: [
-        "Chaque accès suit le besoin du poste, pas plus. Le manager sait qui fait quoi : c'est lui qui revoit ; la DSI applique, et garde la liste signée.",
+        "Chaque accès suit le besoin du poste. Le manager sait qui fait quoi : c'est lui qui revoit ; la DSI applique, et garde la liste signée.",
         "Un compte = une personne : un mot de passe ne se prête pas. Les comptes à privilèges (administrateur) : peu nombreux, nominatifs, séparés du compte de tous les jours.",
         "Prestataires : un accès à leur nom, le temps de l'intervention, puis fermé. À la clôture du projet, tous fermés (module cp22).",
         "La charte informatique : aucune donnée de l'entreprise dans un outil en ligne non validé par la DSI. Un service gratuit d'IA (intelligence artificielle) ou d'OCR (lecture automatique) peut garder ou réutiliser ce qu'on y dépose. Le besoin est souvent réel : on le porte à la DSI.",
@@ -127,7 +130,7 @@ LEARNSQL.cours.cp24 = {
         "Des rôles clairs : le DPO conseille et contrôle ; les managers revoient leurs accès ; ton équipe applique ; la direction décide. Chaque service porte ses traitements.",
         "Garder les preuves : le registre à jour, les listes d'accès signées, les avis du DPO, le registre des violations, les réponses aux demandes. Le RGPD demande de pouvoir montrer qu'on respecte les règles.",
         "Une obligation incertaine (NIS2) : on vérifie avant d'engager un budget. Les risques déjà connus se traitent sans attendre une loi.",
-        "Le plan passe au comité de direction : le DG arbitre les moyens (projets : module cp25 ; budget : module cp27). Manager l'équipe : module cp26."
+        "Le plan passe au comité de direction : le DG arbitre les moyens (projets : module cp25 ; budget : module cp27)."
       ],
       retenir: "Un plan court, classé par le risque : pour chaque ligne, un responsable, une date, une preuve."
     }

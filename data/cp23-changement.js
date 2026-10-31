@@ -816,7 +816,7 @@ LEARNSQL.questions.cp23 = [
   {
     id: "cp23-q40",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Au même trimestre, 3 projets changent le travail de l'ADV : un CRM (gestion des clients), une prise de commande, la facture électronique. Chacun a sa carte des impacts. Que fais-tu ?",
+    q: "Tu es DSI adjoint. Au même trimestre, 3 projets changent le travail de l'ADV : un CRM (gestion des clients), une prise de commande, le nouvel outil de traduction EDI. Chacun a sa carte des impacts. Que fais-tu ?",
     choix: [
       "Rien : chaque projet a sa carte, chacun gère la sienne",
       "Une carte commune, et tu fais étaler avec les sponsors",

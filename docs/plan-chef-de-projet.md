@@ -53,7 +53,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   a été retiré de l'ordre du jour le 6 octobre 2026, sans nouvelle date). Ne citer ni date d'application, ni délai, ni
   sanction, ni liste d'obligations. Le négociant vend des produits de traitement de l'eau : la directive vise aussi la
   distribution de produits chimiques. Concerné ou pas : on le vérifie (test de l'ANSSI sur MonEspaceNIS2, avis d'un
-  juriste), on ne le suppose pas (module cp24).
+  juriste), on ne le suppose pas (module cp24). Dans le fil rouge, la vérification lancée fin 2026 est encore en
+  cours en 2028 : son résultat dépend de la loi française (cp24-q30, cp25-q11).
 
 **Le projet**
 - Périmètre : factures B2B France, clients et fournisseurs, des 3 sites ; connecteur Divalto ↔ PA ; flux EDI des factures
@@ -261,13 +262,21 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   avec lui : chaque service décrit les siens (le traitement « factures » a été mis à jour avec le DPO en novembre 2026,
   à la signature de la PA, nouveau sous-traitant). La PA et l'intégrateur sont sous-traitants (contrat, module cp14).
   Violation de données (fichier perdu ou envoyé au mauvais destinataire, compte piraté) : on la stoppe, on prévient le
-  DPO le jour même ; notifiée à la CNIL dans les meilleurs délais, 72 h au plus tard après en avoir pris connaissance,
+  DPO le jour même (par écrit s'il est injoignable ; pendant DEMAT, ton DSI et le DAF aussi) ; notifiée à la CNIL dans
+  les meilleurs délais, 72 h au plus tard (week-end compris) après en avoir pris connaissance,
   sauf si elle ne présente pas de risque pour les personnes (décision de la direction, sur l'avis du DPO, qui fait la
   déclaration) ; toute violation, même non notifiée, est notée au registre interne ; les personnes sont prévenues si
   le risque est élevé. Droit à l'effacement : il ne vaut pas pour ce qu'une loi oblige à garder (factures : durée
   légale). Sécurité : droits d'accès à Divalto et à la PA revus chaque année par chaque manager, sur la liste fournie
   par la DSI ; comptes des prestataires fermés à la clôture (cp22) ; charte informatique : aucune donnée de
   l'entreprise dans un outil en ligne non validé par la DSI.
+  Faits fixés par cp24 : la direction décide de notifier (le DG représente l'entreprise) ; le registre interne des
+  violations est tenu avec le DPO ; une demande d'une personne (accès, effacement) est traitée par le service qui tient
+  ses données (l'ADV pour les clients, la compta pour les fournisseurs), avec l'aide du DPO, réponse sous un mois ;
+  chaque consultant a un accès à son nom, ouvert par ticket ; le compte d'un prestataire se ferme à son départ ; un
+  droit donné pour la recette se retire après, sur décision du manager ; l'avenant d'archivage de mars 2027 met à jour
+  la ligne « factures » du registre (durée, lieu, accès) ; DSI adjoint, 2028 : plan classé par le risque (comptes à
+  privilèges fin février, revue des accès fin mars, NIS2 vérifiée avant tout budget).
 - Portefeuille (module cp25) : toute demande à la DSI arrive sur une fiche d'une page (besoin, sponsor, valeur,
   obligation, urgence, charge estimée). Moins de 5 jours : petite demande, classée chaque lundi par le DSI (par toi,
   DSI adjoint). 5 jours et plus : un projet, classé une fois par trimestre au comité de direction : le DSI propose un
@@ -295,7 +304,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 **Les personnages (rôles fixes)**
 - **Toi** : chef de projet SI, rattaché au DSI. Tu n'es le manager de personne (sauf questions qui commencent par « Tu es DSI adjoint »).
 - **« Tu es DSI adjoint »** (cadre des questions qui commencent ainsi ; bloc E, modules cp24 à cp27) : même entreprise,
-  plus tard (2028 et après, sauf date donnée). Tu es l'adjoint du DSI et tu le remplaces en son absence. Tu manages
+  plus tard (2028 et après, sauf date donnée ; tu l'es dès décembre 2027, pour préparer le classement de 2028,
+  cp25-q17, q18). Tu es l'adjoint du DSI et tu le remplaces en son absence. Tu manages
   l'équipe de la DSI, 8 personnes : 2 chefs de projet (dont une junior), un analyste Divalto, un développeur Power BI et
   SQL, un analyste EDI, 2 techniciens du support N1-N2, un administrateur réseau. Le comité de direction (mensuel) :
   le DG (il arbitre), le DAF, le directeur commercial, le directeur logistique, le DSI.
