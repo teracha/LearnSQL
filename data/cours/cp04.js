@@ -47,7 +47,7 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Critères de succès, contraintes et hypothèses",
-      exemple: "Le DAF dit : « Le succès, c'est d'être dans les temps. » C'est utile, mais pas suffisant.\nDélai : 100 % des factures aux clients professionnels en France émises via la PA au 1er septembre 2027.\nQualité : moins de 2 % de factures rejetées le 1er mois, et clôture mensuelle toujours en 5 jours ouvrés.\nAdoption : au 3e mois, plus aucune facture fournisseur ressaisie à la main.\nContrainte : la date légale. Hypothèse : « Le connecteur standard de la PA marche avec Divalto 10.13. »",
+      exemple: "Le DAF dit : « Le succès, c'est d'être dans les temps. » C'est utile, mais pas suffisant.\nDélai : 100 % des factures aux clients professionnels en France émises via la PA au 1er septembre 2027.\nQualité : moins de 2 % de factures rejetées le 1er mois, et clôture mensuelle toujours en 5 jours ouvrés.\nAdoption : au 3e mois, plus aucune facture reçue par la PA ressaisie à la main.\nContrainte : la date légale. Hypothèse : « Le connecteur standard de la PA marche avec Divalto 10.13. »",
       points: [
         "Critère de succès = un chiffre, une date ou un seuil. Pour chacun, écris comment le mesurer : quel rapport, qui mesure.",
         "Couvre le délai, mais aussi la qualité (taux de rejet) et l'adoption (les gens utilisent vraiment l'outil). Un projet peut être à l'heure et raté.",

@@ -29,7 +29,7 @@
 // les fournisseurs par la compta) ; utilisateurs clés Julie, Sophie, Marc ; formation de la compta du 3 au 28 mai,
 // sessions de 2 h sur les vrais cas, animées par Julie et Sophie avec le consultant, une 3e session en juin ; l'ADV, 2
 // ateliers ; fin mai, 90 % de la compta formée ; la cheffe comptable inquiète (la charge pendant la clôture, la peur
-// des rejets) ; adoption au 3e mois (septembre 2027) : plus aucune facture fournisseur ressaisie à la main, mesurée par
+// des rejets) ; adoption au 3e mois (septembre 2027) : plus aucune facture reçue par la PA ressaisie à la main, mesurée par
 // la cheffe comptable ; gain plein quand les fournisseurs PME émettent (1er septembre 2027). Lignes « Bascule » (hypercare
 // du 14 au 25 juin, cp21) et « Passage en run » (cp22).
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : les 90 % de fin mai se lisent sur les
@@ -38,8 +38,9 @@
 // manqué et aux nouveaux ; sessions placées hors des jours de clôture ; les commerciaux : une page et 10 minutes en
 // réunion d'équipe, début juin ; ils ne saisissent rien, mais transmettent le SIREN de leurs nouveaux clients ; les
 // fournisseurs reçoivent une lettre de la compta (« vos délais de paiement ne changent pas ») ; Marc montre à l'ADV
-// comment reprendre un rejet EDI ; juillet : 1 200 factures fournisseurs reçues par la PA, 0 ressaisie, 800 papiers
-// saisis à la main (fournisseurs PME) ; Sophie garde un Excel des factures émises ; une page de questions-réponses.
+// comment reprendre un rejet EDI ; juillet : 1 200 factures fournisseurs reçues par la PA, 0 ressaisie, 800 saisies
+// à la main (papier ou PDF : PME, pas tenues d'émettre avant le 1er septembre 2027, et étranger, hors PA) ; Sophie
+// garde un Excel des factures émises ; une page de questions-réponses.
 // Frontières : le temps des utilisateurs clés et l'escalade = cp16 ; les mots (annonce, mauvaise nouvelle) = cp17 ; le
 // go / no-go, son critère « formation faite » et l'hypercare = cp21 ; la sortie d'hypercare, le transfert au support,
 // le run, la clôture et la mesure des gains = cp22 ; le gel des changements = cp10 ; les gains du business case = cp11 ;
@@ -53,21 +54,21 @@ LEARNSQL.cours.cp23 = {
       points: [
         "Population = un groupe touché de la même façon. Pour chacune : ce qui change, quand, à quel point.",
         "L'effort suit l'impact : fort, on forme et on accompagne ; faible, on informe. Le message passe par le manager.",
-        "La carte : faite au cadrage, mise à jour après la recette. Un rôle peut changer plus que son groupe : Marc, seul sur les rejets EDI.",
+        "La carte : faite au cadrage, mise à jour après la recette.",
         "Ceux qu'on oublie : qui répond aux questions sans toucher l'outil (les commerciaux), le site pilote, et le dehors, par qui tient la relation.",
-        "Plusieurs projets sur la même équipe en même temps ? On additionne les impacts : trop, c'est la saturation (module cp25)."
+        "Plusieurs projets sur la même équipe ? On additionne les impacts : trop, c'est la saturation (module cp25)."
       ],
       retenir: "Une carte des impacts : chaque population, ce qui change, quand, à quel point. Sans oublier ceux qui répondent aux questions."
     },
     {
       titre: "Le sponsor et les managers portent le changement",
-      exemple: "Mai, 1re session de formation de la compta.\nLe DAF (directeur administratif et financier, le sponsor) ouvre, 5 minutes : pourquoi on change (la loi, la fin de la ressaisie), ce qu'il attend.\nPuis la cheffe comptable : ce qui change pour son équipe, et la clôture.\nToi, tu as tout préparé : planning, supports, réponses aux questions.",
+      exemple: "Mai, 1re session de formation de la compta.\nLe DAF (directeur administratif et financier, le sponsor) ouvre, 5 minutes : pourquoi on change (la loi, la fin de la ressaisie), ce qu'il attend.\nPuis la cheffe comptable : ce qui change pour son équipe, et la clôture.\nToi, tu as tout préparé.",
       points: [
         "On écoute son chef. Le « pourquoi » vient de la direction ; le « ce qui change pour moi », du manager direct (cheffe comptable, responsable ADV, responsables de site).",
-        "Ton rôle : préparer et outiller. Aux managers, les messages clés, les dates, les réponses aux questions probables. Tu ne portes pas le changement seul, à leur place.",
+        "Ton rôle : préparer et outiller. Aux managers, les messages clés, les dates, les réponses aux questions. Tu ne portes pas le changement à leur place.",
         "Un manager qui doute, son équipe le sent. Tu le vois avant, seul à seul : ses craintes, puis ce qu'il dira.",
         "Le sponsor se montre : au lancement, au COPIL (comité de pilotage), quand il faut un moyen. Une 1re réussite ? Il la cite.",
-        "Repère : les 8 étapes de Kotter (l'urgence, une équipe qui porte, une vision, la dire, lever les obstacles, des victoires rapides, consolider, ancrer). Un modèle, pas une loi."
+        "Repère : les 8 étapes de Kotter, dont « une équipe qui porte » et « des victoires rapides ». Un modèle, pas une loi."
       ],
       retenir: "Le sponsor dit pourquoi ; les managers portent au quotidien ; toi, tu prépares et tu outilles."
     },
@@ -88,7 +89,7 @@ LEARNSQL.cours.cp23 = {
       exemple: "Aux commerciaux, début juin : 10 minutes en réunion d'équipe, et une page.\n« Dès le 14 juin, vos clients reçoivent leurs factures par une plateforme agréée.\nPour vous, rien à saisir ; vos prix, vos commandes : rien ne change.\nUn nouveau client ? Son SIREN, sinon ses factures sont rejetées.\nUn client appelle pour une facture rejetée ? L'ADV. »",
       points: [
         "Chacun veut savoir : ce qui change pour moi, quand, qui m'aide. La technique et le contrat ne l'intéressent pas.",
-        "Dire aussi ce qui ne change pas : ça rassure, ça coupe les rumeurs. La lettre de la compta aux fournisseurs : « Vos délais de paiement ne changent pas. »",
+        "Dire aussi ce qui ne change pas : ça rassure, ça coupe les rumeurs. Aux fournisseurs : « Vos délais de paiement ne changent pas. »",
         "Le bon canal : la compta par sa cheffe, en réunion d'équipe ; les commerciaux, une page ; les fournisseurs, une lettre.",
         "Le bon moment : le pourquoi et les grandes dates tôt, le détail juste avant. Et on répète, par plusieurs canaux : un message lu une fois s'oublie.",
         "À double sens : on note les questions, on répond à tous (une page de questions-réponses, à jour). Les mots justes : module cp17."
@@ -97,22 +98,22 @@ LEARNSQL.cours.cp23 = {
     },
     {
       titre: "Former : juste avant, sur les vrais cas, court",
-      exemple: "Compta, du 3 au 28 mai : 2 sessions de 2 h (« recevoir », « émettre »), sur les vraies factures, hors des jours de clôture. Julie et Sophie animent, avec le consultant. Chacun garde un support de 2 pages.\nFin mai, feuilles signées : 9 présences sur 10 prévues (5 personnes, 2 sessions chacune), 90 %. Qui manque ? La liste le dit.\nJuin : une 3e session, pour qui a manqué et pour les nouveaux.",
+      exemple: "Compta, du 3 au 28 mai : 2 sessions de 2 h (« recevoir », « émettre »), sur les vraies factures, hors des jours de clôture. Julie et Sophie animent, avec le consultant. Chacun garde un support de 2 pages.\nFin mai, feuilles signées : 9 présences sur 10 prévues (5 personnes à former, 2 sessions chacune), 90 %. Qui manque ? La liste le dit.\nJuin : une 3e session, pour qui a manqué et pour les nouveaux.",
       points: [
         "Sur les vrais cas : leurs factures, un avoir, un rejet. Une démo générale s'oublie. Court : 2 h, pas 2 jours.",
         "Juste avant d'en avoir besoin : trop tôt, on oublie ; trop tard, on apprend sur de vraies factures. Les 1ers cas vont à qui sait déjà. La bascule recule ? Un rappel court.",
         "Selon l'impact : la compta, 2 sessions ; l'ADV, 2 ateliers ; les commerciaux, une page. Les 2 pages : les gestes du quotidien, qui appeler.",
         "Mesurer par nom : qui, quelle session, quand. Un pourcentage cache qui manque. Les nouveaux arrivants se forment après, par l'utilisateur clé, avec les 2 pages.",
-        "Former ne suffit pas. ADKAR, le modèle du cabinet Prosci (5 initiales anglaises) : comprendre pourquoi, le vouloir, savoir faire, pouvoir le faire, que ça tienne. La formation donne surtout le savoir. Un modèle, pas une loi."
+        "Former ne suffit pas. ADKAR, modèle du cabinet Prosci (5 initiales anglaises) : comprendre pourquoi, le vouloir, savoir faire, pouvoir le faire, que ça tienne. La formation donne surtout le savoir."
       ],
       retenir: "On forme juste avant, sur les vrais cas, court ; on sait qui est formé, par nom ; et former ne suffit pas."
     },
     {
       titre: "Les résistances : chercher la cause",
-      exemple: "Avril. La cheffe comptable : « Former en mai, avec la clôture ? Et en juin, des rejets partout : c'est nous qui ramerons. »\nPas un refus : 2 craintes précises.\nLa charge : les sessions hors des jours de clôture.\nLes rejets : le pilote les mesure en mai ; la procédure dit qui les traite ; 2 semaines de support renforcé (l'hypercare) suivent la bascule.",
+      exemple: "Début avril. La cheffe comptable : « Former en mai, avec la clôture ? Et en juin, des rejets partout : c'est nous qui ramerons. »\nPas un refus : 2 craintes précises.\nLa charge : les sessions hors des jours de clôture.\nLes rejets : le pilote les mesure en mai ; après la bascule, 2 semaines de support renforcé (l'hypercare).",
       points: [
         "Résister est normal. La cause est souvent précise : la peur, la charge, un savoir-faire perdu, une mauvaise expérience.",
-        "Écouter d'abord, et reconnaître ce qui marchait : « Qu'est-ce qui t'inquiète le plus ? » Puis répondre à cette cause, avec du concret : ses cas, un chiffre, une date. Pas de promesse ; l'emploi, c'est la direction.",
+        "Écouter d'abord, reconnaître ce qui marchait : « Qu'est-ce qui t'inquiète le plus ? » Puis répondre à cette cause, avec du concret : ses cas, un chiffre, une date. Pas de promesse ; l'emploi, c'est la direction.",
         "Pas d'étiquette « résistant » : le dialogue se ferme. Souvent, la résistance montre un vrai problème : un cas oublié, un écran lent, un mauvais moment.",
         "Un savoir-faire perdu se remplace par un rôle : l'experte de la saisie devient la référente des contrôles. Son manager le décide.",
         "La courbe du changement : le refus, la résistance, l'essai, puis l'adhésion. Chacun à son rythme ; juste après la bascule, on ralentit souvent. Un repère, pas une loi."
@@ -121,13 +122,13 @@ LEARNSQL.cours.cp23 = {
     },
     {
       titre: "L'adoption : la mesurer, accompagner après",
-      exemple: "Juillet, dans Divalto :\n– 1 200 factures fournisseurs reçues par la PA : 0 ressaisie ;\n– 800 saisies à la main : du papier de fournisseurs PME, qui n'émettront qu'au 1er septembre 2027. Normal jusque-là.\nMais Sophie tient encore un Excel des factures émises, « pour vérifier ». Pourquoi ?\nSeptembre, 3e mois : la cheffe comptable mesure le critère.",
+      exemple: "Juillet, dans Divalto :\n– 1 200 factures fournisseurs reçues par la PA : 0 ressaisie ;\n– 800 saisies à la main, papier ou PDF : des PME (pas tenues d'émettre avant le 1er septembre 2027) et de l'étranger (hors PA). Normal.\nMais Sophie tient encore un Excel des factures émises, « pour vérifier ». Pourquoi ?\nSeptembre, 3e mois : la cheffe comptable mesure le critère.",
       points: [
         "Adoption = le métier se sert vraiment de l'outil, sans double circuit. Elle se mesure par des faits : les factures ressaisies, les fichiers à côté, les tickets « comment faire ».",
-        "Lire les chiffres : saisir un papier qu'aucune plateforme n'envoie encore, c'est normal ; ressaisir une facture reçue par la PA, c'est un contournement.",
+        "Lire les chiffres : saisir une facture qu'aucune PA n'envoie, c'est normal ; ressaisir une facture reçue par la PA, c'est un contournement.",
         "Un contournement (l'Excel à côté, la ressaisie « par sécurité ») se cherche et se comprend : une peur, un manque, un défaut ? On répond à la cause.",
-        "Après la bascule : l'hypercare (module cp21) ; puis les pannes vont au support, et un point court avec les relais suit l'adoption jusqu'à la mesure. Une question revient dans les tickets ? Une réponse ciblée.",
-        "Critère de DEMAT : au 3e mois, plus aucune facture fournisseur ressaisie à la main. Le gain plein vient quand les fournisseurs PME émettent (module cp11). Le run et les gains : cp22."
+        "Après l'hypercare (module cp21), les pannes vont au support ; un point court avec les relais suit l'adoption jusqu'à la mesure. Une question revient dans les tickets ? Une réponse ciblée.",
+        "Critère de DEMAT : au 3e mois, plus aucune facture reçue par la PA ressaisie à la main. Le gain plein vient quand les PME émettent (module cp11). Le run et les gains : cp22."
       ],
       retenir: "L'adoption se mesure par des faits ; un contournement se comprend avant de se corriger ; on accompagne jusqu'au 3e mois."
     }

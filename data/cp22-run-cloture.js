@@ -29,23 +29,23 @@
 // d'expérience : q34, q35) ; fiche, pilotage des prestataires (qui reprend le comité fournisseur : q15).
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : ceux du cours (critères fixés avant ;
 // « support formé » = le N2 a refait seul chaque procédure ; le DAF décide d'une prolongation ; réunion de transfert le
-// jeudi 24 juin, signature le vendredi 25 ; REX le lundi 5 juillet ; accès fermés à la clôture, puis par ticket ; dossier
+// jeudi 24 juin, signature le vendredi 25 ; REX le mercredi 30 juin, avant la clôture comptable de juin ; accès fermés à la clôture, puis par ticket ; dossier
 // vivant tenu par le N2 ; modèle de projet de la DSI) ; scénarios : le DAF veut arrêter l'hypercare le mercredi 23 (q03) ;
 // variante : une bloquante encore ouverte le 25 juin, correctif promis le mardi 29, 1 jour de commande restant (q04) ;
 // Julie veut garder le point de 9 h 30 (q05) ; le consultant propose d'écrire seul le dossier, 3 jours (q07) ; un mot de
 // passe manque à l'étape 3, coffre-fort des mots de passe de la DSI en exemple (q08) ; un rejet pour SIREN absent (q09) ;
-// 3 tickets mineurs et la procédure des avoirs non testée au transfert (q12) ; Sophie t'appelle le mardi 29 à 8 h 20,
+// 3 tickets mineurs et le remplaçant du consultant en août, pas encore connu, au transfert (q12) ; Sophie t'appelle le mardi 29 à 8 h 20,
 // connecteur arrêté depuis 7 h (q13) ; le N2 veut passer par le chef de projet de la PA (q14) ; le N2 propose de reprendre
 // le comité dès août (q15) ; un écran de suivi des avoirs, 3 jours, demandé le 20 juillet (q19) ; le DAF veut clôturer le
 // lundi 28 juin (q20) ; l'avoir de 85 € du crédit du SLA de mai (cp12-q19) pas arrivé à la clôture (q26) ; un compte
 // administrateur du consultant encore ouvert (q27) ; le bilan de la PA note les petits jalons ratés en janvier et février
 // (cp03), son chef de projet veut les retirer (q29) ; Marc accuse le consultant au REX (q30) ; Julie en congé le 16 juillet,
-// Marc le 19 (q31) ; REX de 15 pages et 42 remarques (q33) ; variante : 60 heures gagnées par mois en septembre, pour 100
+// Marc le 19 (q31) ; REX de 15 pages et 42 remarques (q33) ; la cheffe comptable veut te confier la mesure de septembre (q34) ; variante : 70 heures gagnées par mois en septembre, pour 100
 // promises (q35) ; la cheffe comptable demande de ne pas clôturer à cause des 400 factures (q36) ; ton DSI veut garder la
 // réserve pour la version 2 (q37) ; projets et situations hors DEMAT pour « Tu es DSI adjoint » (q38 à q43).
 // Calculs vérifiés : q17 (12 × 850 = 10 200 € ; 5 × 850 = 4 250 € ; 11 × 850 = 9 350 € ; 4 250 + 10 200 + 9 350 =
 // 23 800 €) ; q23 (référence 40 + 7 = 47 jours, fait 42 + 7 = 49, écart + 2 jours × 750 € = + 1 500 €). Dates : 23, 24,
-// 25, 28 et 29 juin, 2, 5, 9 et 13 juillet 2027 tombent le jour de la semaine écrit.
+// 25, 28, 29 et 30 juin, 2, 9 et 13 juillet 2027 tombent le jour de la semaine écrit.
 // Affirmations juridiques hors fiche : aucune.
 // Déjà publiées ailleurs, pas reprises ici : cp01-q25 (tous les appels chez toi 2 mois après), cp02-q09 et q10 (le N2,
 // le N1 et l'EDI), cp03-q03 (accès administrateur permanent), cp03-q07 (adoption 2 semaines après), cp03-q13 (dépôts sur
@@ -57,7 +57,7 @@
 // cp12-q19 (ici : l'avoir encore absent à la clôture) ; q29 et cp15-q43 (ici : le fournisseur veut retirer des faits) ;
 // q25 et cp19-q32 (ici : la levée manque à la liste de clôture) ; q36 et cp15-q35 (ici : ces factures ne retiennent pas
 // la clôture) ; q37 et cp12-q30, q39 (ici : garder la réserve pour un besoin du run) ; q43 et cp21-q39 (ici : la sortie
-// d'hypercare taillée au risque) ; q34, q35 et cp11-q40 (ici : qui mesure, et un gain plus faible que promis).
+// d'hypercare taillée au risque) ; q34 et cp11-q23 (ici : la cheffe comptable veut te confier la mesure) ; q35 et cp11-q40 (ici : un gain plus faible que promis).
 // Frontières : l'hypercare et le go / no-go = cp21 ; le PV = cp19 ; la reprise = cp20 ; le budget et la réserve = cp12 ;
 // les gains = cp11 ; le bilan et le comité fournisseur = cp15 ; la formation et l'adoption = cp23 ; le portefeuille =
 // cp25 ; le budget SI annuel = cp27.
@@ -122,14 +122,14 @@ LEARNSQL.questions.cp22 = [
     choix: [
       "« D'accord : ce soir, le N2 se débrouillera avec le dossier »",
       "« Non : 2 semaines de plus, le calme ne dure jamais »",
-      "« Vendredi, comme convenu : le N2 n'a pas encore tout refait seul »",
+      "« Plutôt vendredi, comme convenu : le N2 n'a pas tout refait seul »",
       "« D'accord, et je prends les appels moi-même jusqu'à vendredi »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Le calme est un bon signe, pas un critère : le transfert n'est pas fait, et le N2 n'a pas joué les procédures. Il hériterait d'un run qu'il ne connaît pas.",
       "Non. Trop fort : rien ne justifie 2 semaines de plus. Les critères se jugent vendredi ; s'ils sont tenus, on sort.",
-      "Oui. Des critères manquent : la semaine de rejets n'est pas finie, et le support n'est pas formé (le transfert est jeudi). Vendredi, on juge les 3 critères, comme prévu. S'il veut arrêter ce soir quand même, c'est sa décision, prise en le sachant.",
+      "Oui. Des critères manquent : la semaine de rejets n'est pas finie, et le support n'est pas formé (le transfert est jeudi). Tu conseilles de juger les 3 critères vendredi, comme prévu. Finir plus tôt, c'est au DAF : s'il le veut quand même, c'est sa décision, prise en le sachant.",
       "Non. Presque : quelqu'un répond. Mais c'est toi, pas le support : l'hypercare finit sur le papier, et tu deviens le « support caché »."
     ],
     retenir: "Le calme n'est pas un critère : on sort de l'hypercare quand les critères sont tenus, ni avant, ni après."
@@ -142,13 +142,13 @@ LEARNSQL.questions.cp22 = [
       "Fin ce soir, comme prévu : le N2 suivra le correctif de mardi",
       "Tu recommandes au DAF, le jour même, une semaine de plus",
       "Tu décides une semaine de plus, sur le dernier jour de sa commande",
-      "Tu prolonges d'un mois : plus jamais une sortie avec une bloquante"
+      "Tu recommandes au DAF un mois de plus, par prudence"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un critère n'est pas tenu : sortir à la date, c'est donner au N2 un incident ouvert et lever le gel en pleine panne. On sort sur les critères, pas sur la date.",
-      "Oui. Pas tenu : tu recommandes une prolongation courte, avec ce qui manque (le correctif, testé) et une date (vendredi 2 juillet). Le DAF décide : le gel continue, et les jours en plus sont une commande qu'il signe avant.",
-      "Non. Presque : une semaine, c'est la bonne mesure. Mais ce n'est pas ta décision : 1 jour de commande ne couvre pas une semaine de consultant, et prolonger le gel touche tout le monde. C'est au DAF.",
+      "Oui. Pas tenu : tu recommandes une prolongation courte, avec ce qui manque (le correctif, testé) et une date (vendredi 2 juillet). Le DAF décide, ton DSI consulté : le gel continue, et les jours en plus sont une commande qu'il signe avant.",
+      "Non. Presque : une semaine, c'est la bonne mesure. Mais même dans la tolérance des dates, ce n'est pas ta décision : 1 jour de commande ne couvre pas une semaine de plus avec le consultant (des jours en plus, c'est une commande du DAF), et prolonger le gel touche tout le monde.",
       "Non. Trop fort : un mois de gel et de consultant pour un correctif attendu mardi. La prolongation se taille sur ce qui manque."
     ],
     retenir: "Critères pas tenus à la date : tu recommandes une prolongation courte, avec ce qui manque. Le DAF décide."
@@ -166,7 +166,7 @@ LEARNSQL.questions.cp22 = [
     bonne: 1,
     pourquoi: [
       "Non. C'est l'hypercare qui continue sous un autre nom : le gel est levé, le N2 a signé, mais tout repasse par toi.",
-      "Oui. L'hypercare est finie : le run marche par tickets. Julie appelle le N1 ; le N2 a les procédures. Ce qui rassure, c'est un support qui répond, pas une réunion.",
+      "Oui. L'hypercare est finie : le run marche par tickets. Julie appelle le N1 ; le N2 a les procédures. Ce qui rassure, c'est un support qui répond. L'adoption, elle, se suit à part, avec les relais, toutes les 2 semaines (module cp23).",
       "Non. Presque : le N2 a la main. Mais une réunion chaque matin, même ticket par ticket, c'est l'hypercare qui dure : le run trie par tickets, et le N2 suit d'autres applications.",
       "Non. Le point s'arrête, oui. Mais en recevant ses appels, tu deviens le « support caché » : le N2 n'apprend rien, et rien n'est tracé."
     ],
@@ -187,7 +187,7 @@ LEARNSQL.questions.cp22 = [
       "Oui. Le connecteur en panne longtemps ? Le support doit savoir repasser les factures par le portail de la PA (le plan B) : qui décide, qui dépose, comment. Sinon, il t'appellera.",
       "Non. L'historique va aux archives du projet. Le dossier d'exploitation dit quoi faire demain, pas ce qui a été décidé hier.",
       "Non. Le planning servait au projet, qui se termine. Le support a besoin de procédures et de contacts, pas de l'histoire du projet.",
-      "Non. Le connecteur est le produit de la PA : elle le corrige, sur ticket (N3). Le support n'y touche pas : il ouvre le ticket."
+      "Non. Le connecteur est le produit de la PA : elle le corrige, sur ticket (N3). Le support ne touche pas à son code : il le relance, puis ouvre le ticket."
     ],
     retenir: "Le dossier d'exploitation dit quoi faire demain, retour au portail compris. L'histoire du projet va aux archives."
   },
@@ -289,7 +289,7 @@ LEARNSQL.questions.cp22 = [
   {
     id: "cp22-q12",
     dialecte: "Gestion de projet",
-    q: "Réunion de transfert. Restent 3 tickets mineurs, et une procédure pas encore testée : les avoirs fournisseurs. Le N2 : « Je signe, mais pas pour ces 4 points. » Que fais-tu ?",
+    q: "Réunion de transfert. Restent 3 tickets mineurs, et une ligne vide au dossier : qui remplace le consultant en août. Le N2 : « Je signe, mais pas pour ces 4 points. » Que fais-tu ?",
     choix: [
       "Il signe, avec la liste des 4 points : un nom et une date chacun",
       "Il signe tout : il les prendra comme le reste, au fil de l'eau",
@@ -298,8 +298,8 @@ LEARNSQL.questions.cp22 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Comme un PV avec réserves : le transfert est accepté, et chaque point ouvert a un responsable et une date (la procédure des avoirs, testée par le N2 avec Julie d'ici le 2 juillet, par exemple). Rien ne reste sans nom.",
-      "Non. Presque : le transfert est signé. Mais une procédure non testée, il ne peut pas la prendre : il l'a dit. Ce qui n'est pas transféré reste un risque, sans nom ni date.",
+      "Oui. Comme un PV avec réserves : le transfert est accepté, et chaque point ouvert a un responsable et une date (le remplaçant d'août, demandé à l'intégrateur pour le 2 juillet, par exemple). Rien ne reste sans nom.",
+      "Non. Presque : le transfert est signé. Mais une ligne vide, il ne peut pas la prendre : il l'a dit. Ce qui n'est pas transféré reste un risque, sans nom ni date.",
       "Non. Gardés « de ton côté », ils ne sont écrits nulle part : tu deviens le support caché, et le jour où tu pars sur un autre projet, ils sont perdus.",
       "Non. Attendre que tout soit parfait, c'est garder l'hypercare pour des mineurs. Les points ouverts se listent, avec une date."
     ],
@@ -349,7 +349,7 @@ LEARNSQL.questions.cp22 = [
     q: "Juillet, DEMAT se clôture. Le N2 : « Le comité fournisseur mensuel avec la PA, je le reprends dès août ? » Que réponds-tu ?",
     choix: [
       "« Oui, dès août : le projet est clos, le run est à toi »",
-      "« Non : je le garde aussi en 2028, tu as assez à faire »",
+      "« Non : je le garde aussi en 2028 ; tu as assez à faire »",
       "« Non : jusqu'à fin 2027, c'est moi ; tu y viens dès l'automne »",
       "« Personne : le projet est fini, le contrat suffit »"
     ],
@@ -631,7 +631,7 @@ LEARNSQL.questions.cp22 = [
   {
     id: "cp22-q30",
     dialecte: "Gestion de projet",
-    q: "REX de DEMAT, lundi 5 juillet. Marc : « Le retard des flux EDI, c'est la faute du consultant. Écris-le. » Le consultant est dans la salle. Que fais-tu ?",
+    q: "REX de DEMAT, mercredi 30 juin. Marc : « Le retard des flux EDI, c'est la faute du consultant. Écris-le. » Le consultant est dans la salle. Que fais-tu ?",
     choix: [
       "Tu reviens aux faits : comment les jours ont été estimés",
       "Tu l'écris, sans le nom du consultant, pour rester neutre",
@@ -653,14 +653,14 @@ LEARNSQL.questions.cp22 = [
     q: "Mi-juin, pendant l'hypercare. Tu prévois le REX de DEMAT. Julie part en congé le 16 juillet, Marc le 19. Quand le fais-tu ?",
     choix: [
       "En septembre, après la mesure des gains : on aura du recul",
-      "Début juillet, avec toute l'équipe, avant le COPIL du 13",
-      "Au point de 9 h 30, dès demain : toute l'équipe y est",
+      "Fin juin, juste après l'hypercare, avec toute l'équipe",
+      "Au point d'hypercare, dès demain : toute l'équipe y est",
       "Seul, fin juillet, à ton rythme : plus rapide qu'une réunion"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En septembre, les souvenirs ont fondu, et les congés sont passés par là. Le REX du projet n'attend pas la mesure des gains : elle a son propre rendez-vous.",
-      "Oui. Tôt, tant que tout est frais, et avant les départs : le REX nourrit le bilan du 13 juillet. Le recul sur les gains viendra en septembre, avec la mesure.",
+      "Oui. Tôt, tant que tout est frais : le mercredi 30 juin, avant la clôture comptable de juin (du 1er au 7 juillet) et avant les départs. Le REX nourrit le bilan du 13 juillet ; le recul sur les gains viendra en septembre.",
       "Non. Le point de 9 h 30 traite les incidents en 20 minutes, en pleine hypercare. Un REX demande du temps et du recul, hors de l'urgence.",
       "Non. Écrit seul, c'est ton avis, pas celui de l'équipe : tu rates ce que les autres ont vu, et personne ne s'y reconnaît."
     ],
@@ -707,38 +707,38 @@ LEARNSQL.questions.cp22 = [
   {
     id: "cp22-q34",
     dialecte: "Gestion de projet",
-    q: "COPIL de clôture. Le DAF : « La mesure des gains et de l'adoption, en septembre : qui la fait ? » Que proposes-tu ?",
+    q: "Juillet. La cheffe comptable : « La mesure des gains de septembre, fais-la, toi : tu connais les chiffres. » Que réponds-tu ?",
     choix: [
-      "La cheffe comptable : son service gagne ; tu l'aides",
-      "Toi : tu connais par cœur les chiffres du business case",
-      "Le consultant : 2 jours, sur une commande à part",
-      "Le N2 : le run lui appartient depuis le 25 juin"
+      "« C'est ton résultat, et je t'aide : la méthode, les données »",
+      "« D'accord : je la fais, et je te l'envoie fin septembre »",
+      "« Le consultant la fera : 2 jours, sur une commande à part »",
+      "« Non : c'est ton travail ; je l'écris au DAF »"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le gain se prend dans son service : elle s'y est engagée, elle le mesure (module cp11). Tu lui donnes la méthode et les chiffres de départ ; elle présente le résultat au DAF.",
-      "Non. Si c'est toi, le projet ne finit pas : tu restes sur DEMAT pendant ton prochain projet. Et c'est son service qui doit s'approprier le résultat.",
+      "Oui. Le gain se prend dans son service : elle s'y est engagée (module cp11), elle le mesure et présente le résultat au DAF. Toi, tu l'aides : la méthode, les chiffres de départ, une extraction de Divalto.",
+      "Non. Presque : la mesure sera faite, et à la date. Mais si c'est toi, le projet ne finit pas : tu restes sur DEMAT pendant ton prochain projet. Et son service ne s'approprie pas son résultat.",
       "Non. Un prestataire payé pour mesurer son propre résultat, et des jours en plus : ni neutre, ni utile. Les données sont dans Divalto.",
-      "Non. Le N2 fait tourner le run ; il ne mesure pas le travail de la compta. Le gain, c'est du temps de comptable : sa cheffe le mesure."
+      "Non. Trop fort : elle demande de l'aide, elle ne refuse rien. Il n'y a rien à faire trancher au DAF : tu lui proposes ton aide."
     ],
-    retenir: "Après la clôture, le métier qui gagne mesure les gains, à une date fixée. Le chef de projet l'aide."
+    retenir: "Après la clôture, le métier qui gagne mesure les gains, à une date fixée. Le chef de projet l'aide, sans mesurer à sa place."
   },
   {
     id: "cp22-q35",
     dialecte: "Gestion de projet",
-    q: "Septembre 2027. La mesure de la cheffe comptable : 60 heures gagnées par mois, pour 100 promises. Elle propose : « Rouvrons DEMAT pour aller chercher le reste. » Que réponds-tu ?",
+    q: "Septembre 2027. La mesure de la cheffe comptable : 70 heures gagnées par mois, pour 100 promises. Elle propose : « Rouvrons DEMAT pour aller chercher le reste. » Que réponds-tu ?",
     choix: [
       "« D'accord : on rouvre DEMAT, avec un nouveau COPIL »",
       "« Rien à faire : le projet est clos, c'est le résultat »",
-      "« Réécrivons le business case à 60 heures, pour qu'il colle »",
+      "« Réécrivons le business case à 70 heures, pour qu'il colle »",
       "« Les causes d'abord, puis des actions au run, avec le DAF »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Rouvrir un projet pour chaque écart, c'est un projet qui ne finit jamais. Le projet a livré ; ce qui reste se traite au run, ou dans un nouveau projet décidé comme tel.",
-      "Non. Le business case promettait 100 heures : 40 manquent. Ne rien faire, c'est accepter la perte sans savoir pourquoi.",
+      "Non. Le business case promettait 100 heures : 30 manquent. Ne rien faire, c'est accepter la perte sans savoir pourquoi.",
       "Non. Réécrire la promesse efface ce qu'on apprend. On compare le promis et le réel, et on agit sur l'écart (module cp11).",
-      "Oui. D'abord pourquoi : fournisseurs qui n'émettent pas encore, habitudes, factures hors connecteur ? Puis des actions ciblées, au run ou dans la compta, décidées par le DAF, chacune avec un nom et une date."
+      "Oui. D'abord pourquoi : fournisseurs qui n'émettent pas encore, habitudes, contrôle plus long que la minute prévue ? Puis des actions ciblées, au run ou dans la compta, décidées par le DAF, chacune avec un nom et une date."
     ],
     retenir: "Un gain plus faible que promis : ses causes, puis des actions au run, décidées par le sponsor. On ne rouvre pas le projet."
   },
@@ -748,7 +748,7 @@ LEARNSQL.questions.cp22 = [
     q: "COPIL de clôture. La cheffe comptable : « Ne clôturez pas : 400 factures par mois passent encore par le portail. » La note de cadrage prévoyait ce reste (5 %). Que réponds-tu ?",
     choix: [
       "« D'accord : on clôture quand le connecteur prendra tout »",
-      "« On clôture ; aller plus loin, c'est une demande nouvelle au run »",
+      "« On clôture : aller plus loin, c'est une demande nouvelle au run »",
       "« On clôture, et je les dépose moi-même chaque mois »",
       "« Ce n'est plus mon sujet : vois ça avec le DAF »"
     ],
@@ -767,15 +767,15 @@ LEARNSQL.questions.cp22 = [
     q: "Clôture. Ton DSI : « Ne rends pas les 6 400 € de réserve : garde-les pour la version 2 du connecteur, en novembre. » Que lui réponds-tu ?",
     choix: [
       "« D'accord : je les garde jusqu'à la version 2, au cas où »",
-      "« D'accord, si le DAF accepte de les garder pour la V2 »",
-      "« Je les rends ; la version 2 va au budget du run »",
+      "« Je les rends, et 6 400 € vont au run pour la version 2 »",
+      "« Je les rends, et la version 2 se chiffre au budget du run »",
       "« Je rends la moitié, et je garde 3 200 € au cas où »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. La réserve couvrait les risques de DEMAT, qui sont fermés. Gardée « au cas où », c'est un budget caché, et un projet ouvert jusqu'en novembre.",
-      "Non. Presque : le DAF décide de la réserve. Mais la garder pour un besoin du run, c'est mêler les budgets : le projet resterait ouvert jusqu'en novembre.",
-      "Oui. La réserve est rendue à la clôture, et le COPIL le constate. La version 2 est un besoin du run : chiffrée, dans le budget de ton DSI, avec une commande que le DAF signe le moment venu.",
+      "Non. Presque : la réserve est rendue, et la version 2 va au run. Mais 6 400 €, c'est ce qui reste de la réserve, pas le prix de la version 2 : il se chiffre (jours d'intégrateur, tests de la compta). Et l'argent rendu, c'est le DAF qui dit où il va.",
+      "Oui. Ses risques sont fermés : la réserve est rendue, et le COPIL le constate. La version 2 est un besoin du run : chiffrée dans le budget de ton DSI, avec une commande que le DAF signe le moment venu. L'argent rendu, le DAF dit où il va.",
       "Non. Les 3 200 € gardés « au cas où » restent un budget caché : aucun risque de DEMAT ne les justifie."
     ],
     retenir: "À la clôture, la réserve est rendue. Un besoin du run se budgète au run, pas sur la réserve du projet."

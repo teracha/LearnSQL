@@ -123,7 +123,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   engagé 81 100 €, consommé 30 350 € (le 1er jalon du forfait compte), facturé 19 850 €, atterrissage 87 500 € (réserve
   restante comprise), écart + 2 250 €. Archivage (avenant de mars) : 50 € par mois d'avril 2027 à novembre 2029, 1 600 €,
   pris sur la réserve (reste 6 400 €) ; intérimaire de la recette refusé en avril ; réserve rendue à la clôture.
-  Clôture (juillet 2027) : 28 mensualités restantes (23 800 €), reprises par le budget du run, qui porte aussi le risque
+  Clôture (juillet 2027) : 28 mensualités restantes (23 800 €) et l'archivage (50 € par mois jusqu'en novembre 2029),
+  repris par le budget du run, qui porte aussi le risque
   de hausse de prix au renouvellement de 2029 (module cp07).
 - Toi et ton DSI (modules cp02, cp03) : ton temps, environ 70 % sur DEMAT et 30 % sur le run (référent des flux EDI,
   en appui du support N2) et les petites demandes. Point de 30 minutes avec ton DSI chaque lundi : il arbitre tes priorités
@@ -180,7 +181,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   cadrage (octobre 2026) ; environnement : une copie de Divalto réservée à la recette, à part de celle de l'intégrateur,
   reliée à l'espace de test de la PA ; correctifs livrés le mardi et le jeudi ; lot de non-régression de 20 cas clés,
   choisi en février, rejoué après chaque livraison ; les 2 réserves du PV (un libellé du PDF, un tri d'écran) sont
-  corrigées par une version du connecteur, installée par l'intégrateur après le gel, et datées au 9 juillet. Le gel vaut
+  corrigées par une version du connecteur, livrée et installée par la PA après le gel, comme ses correctifs (cp10-q41 ; aucun jour de l'intégrateur,
+  cp12-q32), et datées au 9 juillet. Le gel vaut
   pour ce que le projet installe (connecteur, Divalto) ; une version de la PA commune à tous ses clients ne se gèle pas :
   on la teste avant (cp14-q05, cp15-q33).
 - Reprise de données (module cp20) : vers la PA, environ 2 000 fiches clients et 600 fiches fournisseurs (SIREN, adresses
@@ -211,13 +213,14 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   l'environnement de test (la reprise des tiers, elle, se répète par ses essais à blanc : module cp20). Lundi 8 h : Marc vérifie les 1res factures EDI d'AquaBleu. Hypercare : point de 20 minutes (toi,
   le consultant, Julie, Sophie, Marc, le N2), 3 lignes au DAF chaque soir ; une majeure : contournement, correction après
   le gel (sauf décision du DAF).
-- Passage en run et clôture (module cp22) : fin de l'hypercare le vendredi 25 juin si ses critères de sortie sont tenus
-  (aucune anomalie bloquante ouverte, rejets sous 2 % sur la semaine, le support formé). Transfert au support N1-N2 de la
+- Passage en run et clôture (module cp22) : fin de l'hypercare le vendredi 25 juin si ses critères de sortie, fixés avant la
+  bascule, sont tenus (aucune anomalie bloquante ouverte, rejets sous 2 % sur la semaine, le support formé : le N2 a
+  refait seul chaque procédure) ; la prolonger ou la finir plus tôt : le DAF décide, ton DSI consulté. Transfert au support N1-N2 de la
   DSI avec un dossier d'exploitation (flux, contacts de la PA et de l'intégrateur, procédures : rejets, avoirs, panne du
   connecteur, retour au portail ; supervision ; droits ; calendrier des versions), accepté par écrit par le N2 ; le run est
   porté par ton DSI. Clôture au COPIL du mardi 13 juillet 2027 : bilan (date, budget, qualité, adoption), retour
-  d'expérience avec l'équipe, bilan des fournisseurs (module cp15), réserve rendue (6 400 €, cp12), mensualités restantes
-  au budget du run ; les 2 réserves du PV corrigées le 9 juillet (cp19). Comité fournisseur avec la PA : tenu par toi
+  d'expérience avec l'équipe (le mercredi 30 juin, avant la clôture comptable de juin), bilan des fournisseurs (module cp15), réserve rendue (6 400 €, cp12), mensualités restantes
+  et archivage au budget du run ; les 2 réserves du PV corrigées le 9 juillet (cp19). Comité fournisseur avec la PA : tenu par toi
   jusqu'à fin 2027, puis par le support N2 ; ton DSI en reste responsable. L'adoption et les gains se mesurent au 3e mois
   (septembre 2027), par la cheffe comptable (cp11).
 - Conduite du changement (module cp23) : populations : la compta (6 personnes et la stagiaire), l'ADV (le responsable,
@@ -225,10 +228,17 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   dehors : les clients EDI (par le commercial) et les fournisseurs (par la compta). Utilisateurs clés : Julie
   (fournisseurs), Sophie (clients), Marc (EDI), relais dans leur équipe. Formation : la compta du 3 au 28 mai, sessions
   de 2 h sur les vrais cas, animées par Julie et Sophie avec le consultant ; une 3e session en juin (2 personnes en plus,
-  cp12) ; l'ADV : 2 ateliers (le 3e refusé par le DAF, cp17) ; fin mai, 90 % de la compta formée. La cheffe comptable
+  cp12) ; l'ADV : 2 ateliers (le 3e refusé par le DAF, cp17) ; fin mai, 90 % : 9 présences signées sur 10 prévues (5 personnes à former : la cheffe
+  comptable, les 3 comptables, la stagiaire ; 2 sessions, « recevoir » et « émettre »). La cheffe comptable
   est inquiète : la charge pendant la clôture, la peur des rejets. Adoption mesurée au 3e mois (septembre 2027) : plus
-  aucune facture fournisseur ressaisie à la main (cp04) ; gain plein quand les fournisseurs PME émettent (1er septembre
-  2027, cp11).
+  aucune facture reçue par la PA ressaisie à la main (cp04). Une facture qu'aucune PA n'envoie se saisit encore, sans
+  être un contournement : papier ou PDF d'une PME, pas tenue d'émettre avant le 1er septembre 2027 ; PDF d'un fournisseur
+  étranger, hors PA (cp19-q15, cp06-q35). Gain plein quand les fournisseurs PME émettent (1er septembre 2027, cp11).
+  Faits fixés par cp23 : pilote dès le lundi 3 mai, ses factures traitées par Julie et Sophie la 1re semaine ; sessions
+  hors des jours de clôture ; 3e session de juin (entre le 8 et le 10, après la clôture de mai et avant le go) ;
+  commerciaux : une page et 10 minutes début juin ; lettre aux 600 fournisseurs ; juillet 1 200 factures par la PA et
+  800 à la main, août 1 300 et 700 ; après l'hypercare, un point toutes les 2 semaines avec les relais, repris par la
+  cheffe comptable à la clôture ; nouvelle comptable en novembre 2027, formée par Julie.
 - Pilotage des prestataires (module cp15) : point hebdo avec le consultant de l'intégrateur (jours consommés, reste à faire,
   alerte à 80 % de la commande) ; comité fournisseur mensuel avec le chef de projet de la PA (SLA, retards, plan d'actions
   daté), avec son responsable de compte s'il le faut. Écarts au SLA : pénalités sous forme de crédits sur l'abonnement,

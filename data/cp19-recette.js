@@ -638,7 +638,7 @@ LEARNSQL.questions.cp19 = [
     bonne: 3,
     pourquoi: [
       "Non. « Une prochaine version » n'a pas de date : la réserve ne se lève jamais, et tu n'as plus de levier.",
-      "Non. Presque : une date, oui. Mais le 14 mai, c'est le gel : l'intégrateur n'installera pas une version du connecteur pour 2 défauts mineurs, en plein pilote. Ta date serait fausse dès le départ.",
+      "Non. Presque : une date, oui. Mais le 14 mai, c'est le gel : personne n'installera une version du connecteur pour 2 défauts mineurs, en plein pilote. Ta date serait fausse dès le départ.",
       "Non. Trop fort : 2 défauts mineurs ne retiennent pas le PV. Des réserves datées suffisent (module cp14).",
       "Oui. Une réserve se date. Ici, après la bascule : pendant le gel, du pilote au 25 juin, seules passent les anomalies bloquantes et les obligations légales (module cp10)."
     ],

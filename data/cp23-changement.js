@@ -16,7 +16,7 @@
 // q15, q25, q26) ; formation de la compta du 3 au 28 mai, sessions de 2 h sur les vrais cas, animées par Julie et
 // Sophie avec le consultant (q13, q21, q22, q25) ; 3e session en juin (q23) ; l'ADV, 2 ateliers, le 3e refusé par le
 // DAF (q11, q26) ; 90 % de la compta formée fin mai (q23) ; la cheffe comptable inquiète, la clôture et les rejets
-// (q07, q27) ; adoption au 3e mois, plus aucune facture fournisseur ressaisie à la main, mesurée par la cheffe
+// (q07, q27) ; adoption au 3e mois, plus aucune facture reçue par la PA ressaisie à la main, mesurée par la cheffe
 // comptable (q35, q36, q38) ; gain plein quand les fournisseurs PME émettent, le 1er septembre 2027 (q34). Lignes
 // « Bascule » (hypercare du 14 au 25 juin, point de 9 h 30, gel jusqu'au 25 juin : q12, q31, q32, q36), « Planning »
 // (pilote en mai, report à mi-juillet décidé par le DAF : q25, q26), « Changements » (le gel ; chaque jour
@@ -35,12 +35,14 @@
 // 15 juin (q31) ; une trentaine de questions par jour à Julie en hypercare (q12) ; un écran des rejets à 6 clics
 // (q32) ; une comptable de 20 ans de maison (q29) ; une migration de Divalto il y a 3 ans, 2 mois de retards (q30) ;
 // Julie compte à la main chaque soir en juillet (q33) ; août : 1 300 factures fournisseurs par la PA, 700 en papier
-// (q34) ; juillet : 40 tickets « comment faire », 30 sur 3 questions (q37) ; septembre : 12 ressaisies sur 2 000
-// (q38) ; un point court avec les relais toutes les 2 semaines, jusqu'à la mesure de septembre (q36 ; les pannes vont
+// ou en PDF, PME et étranger (q34) ; juillet : 40 tickets « comment faire », 30 sur 3 questions (q37) ; septembre : 12
+// factures reçues par la PA, puis ressaisies (q38) ; un point court avec les relais toutes les 2 semaines, jusqu'à la
+// mesure de septembre (q36 ; les pannes vont
 // au support, comme cp22-q05) ; une nouvelle comptable en novembre 2027, formée par Julie (q24) ; variante : ateliers
 // ADV fin mai, puis report à mi-juillet (q26). Projets hors DEMAT pour « Tu es DSI adjoint » (q39 à q42).
-// Affirmations juridiques : aucune hors de la fiche. Une seule est déduite de la fiche, à faire vérifier : jusqu'au 1er
-// septembre 2027, un fournisseur PME peut encore facturer sur papier (q34 ; cours, section 7).
+// Affirmations juridiques : aucune hors de la fiche. Une seule est déduite de la fiche, à faire vérifier : un fournisseur
+// PME n'est tenu d'émettre par une PA qu'au 1er septembre 2027 (d'ici là, papier ou PDF) ; un fournisseur étranger reste
+// hors de la PA (q34, q38 ; cours, section 7).
 // Déjà publiées ailleurs, pas reprises ici : cp01-q26 (peur pour l'emploi), cp03-q07 (30 % ressaisis « par sécurité »),
 // cp16-q01, q09, q12 (le temps de Julie, la stagiaire), cp16-q10 (citer Julie au COPIL), cp17-q02 (le plan B dit à
 // Sophie), cp17-q06 (la cheffe comptable tendue), cp17-q19 (AquaBleu prévenu par le commercial), cp17-q20 (annonce par
@@ -59,7 +61,10 @@
 // justifie : q04, q12, q13, q29 ; la plus douce, ou à égalité : q11, le oui simple, q31, q34, q41). Former ou
 // communiquer plus n'est juste que dans q04, q19, q23 (faux dans 21 questions) ; écouter ou associer est juste dans 13
 // questions et faux seul dans 7 ; passer par le manager est juste dans 11 et faux dans 5 (q14, q28, q30, q32, q41).
-// Sans connaître le sujet, toutes les règles restent sous 50 % : « prendre le choix qui forme ou communique plus »
+// Recalcul du testeur, après ses corrections (q08, q09, q13, q19, q24, q26, q33, q36, q40, q42 : un « presque juste » du
+// milieu reçoit aussi un mot de méthode, la cheffe ou les relais) : toutes les règles sous 52 % ; la meilleure trouvée,
+// « extrêmes écartés, puis méthode, écoute ou manager », 51 % (63 % avant) ; « + mot de méthode » 48 % (55 % avant).
+// Calcul de l'expert, avant ces corrections : toutes les règles sous 50 % : « prendre le choix qui forme ou communique plus »
 // 18 %, « celui qui écoute ou associe » 38 %, « celui qui passe par le manager » 39 %, « la plus petite action réelle »
 // 46 %, « écarter « rien » et le plus fort, puis le choix à deux actions » 45 %, « le choix à deux actions » 34 %,
 // « l'action moyenne » 35 %, « extrêmes écartés + chiffre ou date » 35 %, « + mot de méthode » 40 %, « écarter absolus,
@@ -111,7 +116,7 @@ LEARNSQL.questions.cp23 = [
     q: "Ton plan prévoit la même session de 2 h pour la compta, l'ADV, les 3 responsables de site et les commerciaux. Qu'en penses-tu ?",
     choix: [
       "Bien : la même session pour tous, et personne n'est oublié",
-      "Une journée pour tous, et un test à la fin pour chacun",
+      "Une journée pour tous ; à la fin, un test pour chacun",
       "Former la compta seule : l'ADV change trop peu pour ça",
       "Former la compta et l'ADV ; informer le reste"
     ],
@@ -167,7 +172,7 @@ LEARNSQL.questions.cp23 = [
     dialecte: "Gestion de projet",
     q: "Le DAF : « La conduite du changement, c'est ton affaire. Moi, je signe. » Que réponds-tu ?",
     choix: [
-      "« Je prépare tout ; il me faut 5 minutes de toi au lancement »",
+      "« Je prépare tout : il me faut 5 minutes de toi au lancement »",
       "« D'accord : je m'en charge, et je te tiens au courant »",
       "« Non : c'est ton rôle de sponsor, pas le mien »",
       "« J'en parle au DG : un sponsor doit s'impliquer »"
@@ -208,14 +213,14 @@ LEARNSQL.questions.cp23 = [
       "Le dossier technique du connecteur, pour qu'ils sachent tout",
       "Les messages clés, les dates, les réponses aux questions",
       "Rien : ils connaissent leurs équipes bien mieux que toi",
-      "Un texte à lire mot pour mot, que tu as relu et validé"
+      "Les messages clés, dans un texte à lire mot pour mot"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Leurs équipes veulent savoir ce qui change pour elles, pas comment marche le connecteur. Un manager noyé dans la technique ne porte rien.",
       "Oui. Tu outilles : le pourquoi, ce qui change, les dates, qui aide, et les questions qu'on leur posera, avec leurs réponses. Ils le disent avec leurs mots.",
       "Non. Presque : ils connaissent leurs équipes, c'est pour ça qu'ils portent. Mais sans dates ni réponses, chacun improvise, et les messages se contredisent.",
-      "Non. Un texte lu mot pour mot sonne faux : l'équipe entend que ce n'est pas leur message. Les mêmes faits, oui ; leurs mots, à eux."
+      "Non. Presque : les messages clés, oui. Mais lus mot pour mot, ils sonnent faux : l'équipe entend que ce n'est pas le message de son manager. Les mêmes faits ; leurs mots, à eux."
     ],
     retenir: "Tu outilles les managers : messages clés, dates, réponses aux questions. Eux le disent avec leurs mots."
   },
@@ -225,15 +230,15 @@ LEARNSQL.questions.cp23 = [
     q: "Pilote, 3e semaine. Les factures fournisseurs du site pilote arrivent seules dans Divalto ; Julie gagne environ 1 h par jour. Que fais-tu de cette nouvelle ?",
     choix: [
       "Rien pour l'instant : on fêtera ça après la bascule",
-      "Un mail à toute l'entreprise, et une affiche dans les dépôts",
-      "Tu annonces 1 h par jour gagnée pour chaque comptable",
+      "Un mail à toute l'entreprise ; une affiche dans les dépôts",
+      "Sa cheffe annonce 1 h par jour gagnée pour chaque comptable",
       "Sa cheffe le dit à la compta, et le DAF le cite au COPIL"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Une 1re réussite, c'est ce qui convainc ceux qui doutent. Attendre juin, c'est laisser toute la place aux rumeurs de rejets.",
       "Non. Presque : la faire connaître, oui. Mais un mail à 120 personnes, pour la plupart pas concernées, se perd. Ce sont les managers qu'on écoute.",
-      "Non. Un site, 3 semaines, une personne : on ne promet pas encore le gain de toute la compta. Une promesse trop forte se retourne au 1er écart.",
+      "Non. Presque : par sa cheffe, oui. Mais un site, 3 semaines, une personne : on ne promet pas encore ce gain à toute la compta. Une promesse trop forte se retourne au 1er écart.",
       "Oui. Une victoire rapide (Kotter), dite par ceux qu'on écoute : sa cheffe à son équipe, le DAF au COPIL. Julie la raconte elle-même, si elle le veut."
     ],
     retenir: "Une 1re réussite se fait connaître tôt, par la cheffe à son équipe et par le sponsor : c'est une victoire rapide."
@@ -283,7 +288,7 @@ LEARNSQL.questions.cp23 = [
     choix: [
       "Tu la félicites : répondre aux questions, c'est son rôle",
       "Dès aujourd'hui, tout passe par un ticket ; tu vois sa cheffe",
-      "Tu l'écoutes, et tu l'encourages à tenir encore 2 semaines",
+      "Tu l'écoutes ; tu l'encourages à tenir encore 2 semaines",
       "Tu lui fais une page de réponses, à donner à ses collègues"
     ],
     bonne: 1,
@@ -298,17 +303,17 @@ LEARNSQL.questions.cp23 = [
   {
     id: "cp23-q13",
     dialecte: "Gestion de projet",
-    q: "Avril. Le consultant : « Je forme seul toute la compta en mai. Julie et Sophie ont assez à faire. » Que fais-tu ?",
+    q: "Début avril. Le consultant : « Je forme seul toute la compta en mai. Julie et Sophie ont assez à faire. » Que fais-tu ?",
     choix: [
       "D'accord : former, c'est son métier, pas le leur",
-      "Julie et Sophie animent seules : le consultant coûte cher",
+      "Julie et Sophie seules ; leur cheffe donne son accord",
       "Tu animes toi-même, et le consultant répond aux questions",
-      "Elles animent avec lui ; leur temps, vu avec leur cheffe"
+      "Elles animent avec lui, leur temps vu avec leur cheffe"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Un consultant forme à l'outil ; un collègue montre le vrai travail, et il reste après. Sans elles en formatrices, la compta n'a plus de relais en juin.",
-      "Non. Presque : ce sont les bonnes formatrices. Mais seules, elles bloquent à la 1re question technique. Le binôme répond à tout, et la formation est déjà commandée.",
+      "Non. Presque : ce sont les bonnes formatrices, et leur cheffe doit dire oui. Mais seules, elles bloquent à la 1re question technique. Le binôme répond à tout, et la formation est déjà commandée.",
       "Non. Tu ne fais pas leur métier : tu ne sais pas traiter un avoir comme elles. Et après la bascule, ce n'est pas toi que la compta ira voir.",
       "Oui. Julie et Sophie connaissent les vrais cas et ont la confiance de leurs collègues ; le consultant répond au technique. Leur temps se cale avec leur cheffe (module cp16)."
     ],
@@ -412,19 +417,19 @@ LEARNSQL.questions.cp23 = [
   {
     id: "cp23-q19",
     dialecte: "Gestion de projet",
-    q: "Le 1er mars, tu as écrit à la compta les dates des sessions de mai. Fin avril, la moitié ne connaît pas sa date. Que fais-tu ?",
+    q: "Le 1er mars, tu as écrit à la compta les dates des sessions de mai. Début avril, la moitié ne connaît pas sa date. Que fais-tu ?",
     choix: [
       "Leur cheffe le redit, et chacune a son invitation",
       "Rien : c'était écrit, à chacune de relire son mail",
       "Tu demandes au DAF un rappel à l'ordre à la compta",
-      "Tu renvoies le même mail, et tu mets « URGENT » dans l'objet"
+      "Leur cheffe renvoie le même mail, avec « URGENT » en objet"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. On répète, par plusieurs canaux : la cheffe comptable en réunion d'équipe, et une invitation dans l'agenda de chacune, avec un rappel. La date ne se perd plus.",
       "Non. Un message lu une fois s'oublie : c'est normal, pas une faute. Si tu ne répètes pas, des places resteront vides en mai.",
-      "Non. Personne n'a refusé : elles ont oublié un mail d'il y a 2 mois. Un rappel à l'ordre braque, pour un problème de canal.",
-      "Non. Presque : répéter, oui. Mais le même mail, au même endroit, aura le même sort. Et « URGENT » use le mot pour les vraies urgences."
+      "Non. Personne n'a refusé : elles ont oublié un mail d'il y a un mois. Un rappel à l'ordre braque, pour un problème de canal.",
+      "Non. Presque : répéter, oui, et par leur cheffe. Mais le même mail, au même endroit, aura le même sort. Et « URGENT » use le mot pour les vraies urgences."
     ],
     retenir: "Un message ne suffit pas : on répète, par plusieurs canaux, et par le manager."
   },
@@ -435,14 +440,14 @@ LEARNSQL.questions.cp23 = [
     choix: [
       "« C'est la loi : émettre par une PA devient obligatoire en 2027 »",
       "« Ça marche, mais le DAF l'a décidé : on n'en discute pas »",
-      "« Oui, ça marche. Mais la loi change ; et toi, plus de ressaisie »",
+      "« Oui, ça marche. Mais la loi change, et tu ressaisiras moins »",
       "« Pour gagner 100 heures par mois : moins de postes à la compta »"
     ],
     bonne: 2,
     pourquoi: [
       "Non. Presque : c'est vrai, et c'est le point de départ. Mais « c'est la loi » dit pourquoi l'entreprise change, pas ce qu'elle y gagne, elle.",
       "Non. Un ordre sans raison obtient l'obéissance, pas l'adhésion : elle fera le minimum, et gardera ses habitudes à côté.",
-      "Oui. Tu reconnais que sa façon marche ; puis deux raisons : la loi (émettre par une plateforme agréée au 1er septembre 2027), et ce qu'elle y gagne : finie la ressaisie des factures fournisseurs.",
+      "Oui. Tu reconnais que sa façon marche ; puis deux raisons : la loi (émettre par une plateforme agréée au 1er septembre 2027), et ce qu'elle y gagne : bien moins de factures à saisir à la main. Sans promettre « plus du tout » : l'étranger, hors de la PA, restera à saisir.",
       "Non. C'est faux : les 100 heures sont du temps gagné, pas des postes (module cp11). Et l'emploi n'est pas ton sujet : c'est la direction."
     ],
     retenir: "Le pourquoi se dit en deux parties : pourquoi l'entreprise change, et ce que chacun y gagne."
@@ -453,14 +458,14 @@ LEARNSQL.questions.cp23 = [
     q: "Novembre 2026. Le consultant : « Formons la compta en janvier, pendant qu'on a le temps. » La bascule est en juin. Que réponds-tu ?",
     choix: [
       "« D'accord : janvier, c'est tôt, elles auront le temps d'assimiler »",
-      "« En mai, juste avant le pilote et la bascule, hors clôture »",
+      "« En mai, pendant le pilote, avant la bascule, hors clôture »",
       "« En juin, après la bascule : elles apprendront sur le vrai »",
       "« En janvier, puis encore en mai : deux fois, c'est plus sûr »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. En janvier, c'est la clôture annuelle : la compta n'a pas le temps. Et 5 mois avant, sur un connecteur pas encore livré, tout sera oublié.",
-      "Oui. Juste avant d'en avoir besoin : du 3 au 28 mai, hors des jours de clôture, quand l'outil est recetté. Elles apprennent ce qu'elles feront la semaine d'après.",
+      "Oui. Juste avant d'en avoir besoin : du 3 au 28 mai, hors des jours de clôture, quand l'outil est recetté. Chacune rejoint le pilote après sa session, puis bascule en juin.",
       "Non. Trop tard : elles apprendraient sur de vraies factures, avec de vrais rejets, en pleine hypercare (le support renforcé d'après la bascule).",
       "Non. Deux fois coûte double, et la 1re session, sur un outil pas encore livré, sème le doute. Une fois, au bon moment, suffit."
     ],
@@ -498,7 +503,7 @@ LEARNSQL.questions.cp23 = [
     bonne: 0,
     pourquoi: [
       "Oui. On mesure par nom : elle doit savoir recevoir avant la bascule. La 3e session de juin, avant le go / no-go du 11, sur ses vrais avoirs ; la feuille signée le prouvera.",
-      "Non. Le taux est bon, mais il cache qui manque : la seule à savoir traiter les avoirs fournisseurs, et la manager qui porte le changement. Ce nom compte plus que le chiffre.",
+      "Non. Le taux est bon, mais il cache qui manque : celle qui traite les avoirs fournisseurs, et la manager qui porte le changement. Ce nom compte plus que le chiffre.",
       "Non. Trop fort : une session de 2 h suffit, d'ici le 11 juin. Décaler le go pour une personne, c'est entamer la marge légale pour rien.",
       "Non. Presque : Julie la supplée, c'est prévu. Mais une suppléante ne remplace pas une cheffe formée : c'est elle qui valide, et qui porte le changement devant son équipe."
     ],
@@ -509,14 +514,14 @@ LEARNSQL.questions.cp23 = [
     dialecte: "Gestion de projet",
     q: "Novembre 2027, projet clos. Une nouvelle comptable arrive. Sa cheffe te demande : « Tu peux la former à la PA ? » Que réponds-tu ?",
     choix: [
-      "« Oui : je la forme moi-même, ce sera plus rapide »",
+      "« Oui : je la forme moi-même ; j'ai les 2 pages »",
       "« Je demande 1 jour au consultant, et le DAF signe la commande »",
       "« Julie la forme, avec les 2 pages ; je reste en appui »",
       "« Non : elle apprendra sur le tas, comme tout nouveau »"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Le projet est clos : former les nouveaux est devenu le travail du métier. Si tu le fais, tu le feras à chaque arrivée.",
+      "Non. Presque : les 2 pages, oui. Mais le projet est clos : former les nouveaux est devenu le travail du métier. Si tu le fais, tu le feras à chaque arrivée.",
       "Non. Un jour de consultant, c'est une commande à faire signer, pour ce que Julie montre en 2 h sur les vrais cas.",
       "Oui. Prévu à la clôture : l'utilisatrice clé forme les nouveaux, avec le support de 2 pages, tenu à jour. Toi, tu restes un appui, pas le formateur.",
       "Non. Sur le tas, sans support, elle apprendra sur de vraies factures, avec les erreurs et les rejets qui vont avec. Un nouvel arrivant se forme aussi."
@@ -535,7 +540,7 @@ LEARNSQL.questions.cp23 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Une comptable pas encore formée traiterait de vraies factures du pilote : des erreurs, et des rejets comptés dans le critère de go.",
+      "Non. Une comptable pas encore formée traiterait de vraies factures du pilote : des erreurs, et des rejets qui brouillent ce que le pilote doit mesurer.",
       "Oui. On forme juste avant d'en avoir besoin : les 1res factures vont à celles qui savent déjà, Julie et Sophie, utilisatrices clés de la recette. Les autres les rejoignent après leurs sessions.",
       "Non. Le consultant ne fait pas le travail de la compta : il ne connaît ni vos fournisseurs, ni vos avoirs. Et le pilote doit montrer la vraie vie.",
       "Non. Le pilote attendrait 4 semaines : la bascule de juin glisse. Celles qui savent déjà peuvent commencer."
@@ -549,14 +554,14 @@ LEARNSQL.questions.cp23 = [
     choix: [
       "Rien : ils sont formés, c'est fait, et c'est signé",
       "Tu refais les 2 ateliers complets, la semaine d'avant",
-      "Tu redemandes au DAF le 3e atelier qu'il avait refusé",
+      "Tu redemandes au DAF un 3e atelier, juste avant la bascule",
       "Un seul rappel d'1 h par Marc, juste avant, sur leurs cas"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Un mois et demi sans pratiquer, c'est beaucoup d'oubli. « Formé » en mai ne veut pas dire « sait faire » en juillet.",
       "Non. Tout refaire coûte des jours de consultant (une commande à faire signer), et reprend ce qu'ils savent encore. Un rappel ciblé suffit.",
-      "Non. Presque : il y a un fait nouveau, le report. Mais un atelier complet, c'est trop pour un rappel : Marc le fait en 1 h, et le DAF n'a rien à signer.",
+      "Non. Presque : il y a un fait nouveau, le report, et le moment est bon. Mais un atelier complet, que le DAF avait refusé, c'est trop pour un rappel : Marc le fait en 1 h, sans rien à signer.",
       "Oui. Juste avant d'en avoir besoin : 1 h, par leur relais, sur les gestes qui comptent (le SIREN, un rejet EDI), avec le support de 2 pages. Court, sans coût de plus."
     ],
     retenir: "Un report entre la formation et l'usage : un rappel court, juste avant, par le relais. Pas tout refaire."
@@ -569,7 +574,7 @@ LEARNSQL.questions.cp23 = [
       "Tu regardes avec elle chaque rejet, sa cause, la tendance",
       "Tu la rassures : 3 %, c'est presque rien, tout ira bien",
       "Tu proposes au DAF d'arrêter le pilote : bien trop de rejets",
-      "Tu la vois seule, tu l'écoutes, et vous en reparlez fin mai"
+      "Tu la vois seule, tu l'écoutes ; vous en reparlez fin mai"
     ],
     bonne: 0,
     pourquoi: [
@@ -583,10 +588,10 @@ LEARNSQL.questions.cp23 = [
   {
     id: "cp23-q28",
     dialecte: "Gestion de projet",
-    q: "Point projet. Le consultant, à propos de Sophie : « Elle pose sans arrêt des questions. C'est une résistante. » Que fais-tu ?",
+    q: "Après le point projet, le consultant, à propos de Sophie : « Elle pose sans arrêt des questions. C'est une résistante. » Que fais-tu ?",
     choix: [
       "Tu notes au registre des risques : « Sophie, résistante »",
-      "Tu laisses passer, et tu en parles à Sophie si ça continue",
+      "Tu laisses passer ; tu en parles à Sophie si ça continue",
       "Tu refuses le mot ; tu demandes à Sophie ce qui la gêne",
       "Tu demandes à sa cheffe de recadrer Sophie, sans attendre"
     ],
@@ -644,7 +649,7 @@ LEARNSQL.questions.cp23 = [
     choix: [
       "« Oui : avec ces rejets, je prépare le retour au portail »",
       "« Je mets le consultant à plein temps tout l'été, par sécurité »",
-      "« Non : on ralentit au début ; les rejets tiennent »",
+      "« Non : on ralentit au début, et les rejets tiennent »",
       "« Je ne sais pas : je réunis la compta, et je te rappelle »"
     ],
     bonne: 2,
@@ -664,11 +669,11 @@ LEARNSQL.questions.cp23 = [
       "Une demande pour après le gel ; d'ici là, le plus court chemin",
       "Tu fais simplifier l'écran par le consultant, cette semaine",
       "Tu lui dis de s'y faire : c'est le standard, il ne bougera pas",
-      "Tu préviens sa cheffe, et tu lui fais retirer son tableau"
+      "Tu préviens sa cheffe ; tu lui fais retirer son tableau"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Sa résistance montre un vrai problème : c'est une demande, écrite, pour après le gel (la cheffe comptable la classera). D'ici là, tu lui montres le chemin le plus court. Son tableau perd sa raison d'être.",
+      "Oui. Sa résistance montre un vrai problème : c'est une demande, écrite, pour après le gel, qui suivra son circuit. D'ici là, tu lui montres le chemin le plus court. Son tableau perd sa raison d'être.",
       "Non. On est en plein gel, jusqu'au 25 juin : seuls passent le bloquant et le légal. 6 clics, c'est une gêne, pas un blocage.",
       "Non. Il a vu un vrai défaut : 6 clics pour un geste fait des dizaines de fois par jour. Le balayer, c'est le pousser vers son tableau, pour de bon.",
       "Non. Retirer son tableau sans traiter la cause : il en refera un en cachette. Et le défaut qu'il a vu restera là pour tous."
@@ -680,14 +685,14 @@ LEARNSQL.questions.cp23 = [
     dialecte: "Gestion de projet",
     q: "Juillet. Julie, formée et à l'aise, compte chaque soir à la main les factures de la PA et celles de Divalto : 1 h par jour. « J'ai peur d'en perdre une. » Que fais-tu ?",
     choix: [
-      "Tu lui proposes une formation de plus, pour la rassurer",
+      "Avec sa cheffe : une formation de plus, pour la rassurer",
       "Avec sa cheffe : 5 minutes de contrôle par jour, un mois",
       "Tu lui demandes d'arrêter : le connecteur est testé, rien ne se perd",
-      "Rien : 1 h par jour, si ça la rassure, c'est son choix"
+      "Rien : 1 h par jour ; si ça la rassure, c'est son choix"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Elle sait faire : une formation ne touche pas sa peur. Le savoir n'est qu'une marche (ADKAR) : il lui manque la confiance.",
+      "Non. Presque : avec sa cheffe, oui. Mais elle sait faire : une formation ne touche pas sa peur. Le savoir n'est qu'une marche (ADKAR) : il lui manque la confiance.",
       "Oui. Sa peur est précise : perdre une facture. Réponse concrète : comparer les 2 compteurs (PA, Divalto), 5 minutes par jour, pendant un mois. Sans écart, sa cheffe et elle décident d'espacer.",
       "Non. Un ordre ne fait pas partir une peur : elle comptera en cachette. Et « rien ne se perd », il faut le lui montrer, pas le dire.",
       "Non. 1 h par jour, c'est le gain du projet qui fond. Et une peur laissée seule s'installe : c'est un contournement."
@@ -697,21 +702,21 @@ LEARNSQL.questions.cp23 = [
   {
     id: "cp23-q34",
     dialecte: "Gestion de projet",
-    q: "Août. 2 000 factures fournisseurs : 1 300 reçues par la PA, 0 ressaisie ; 700 en papier, saisies à la main. Le DAF : « 35 % à la main : l'adoption a raté ? »",
+    q: "Août. 2 000 factures fournisseurs : 1 300 reçues par la PA, 0 ressaisie ; 700 en papier ou en PDF, saisies à la main. Le DAF : « 35 % à la main : l'adoption a raté ? »",
     choix: [
-      "« Oui : 700 factures à la main, on est loin de zéro »",
+      "« Oui : 700 factures hors PA, on est loin de zéro »",
       "« Je réunis la compta pour comprendre ces saisies à la main »",
       "« Oui : je fais refaire la formation de toute la compta »",
-      "« Non : ces 700 viennent de PME qui n'émettent pas encore »"
+      "« Non : ces 700 viennent de PME et de l'étranger, hors PA »"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Tu mélanges 2 choses : saisir un papier qu'aucune plateforme n'envoie encore, et ressaisir une facture reçue par la PA. La 2e est le vrai contournement : 0 ici.",
+      "Non. Tu mélanges 2 choses : saisir une facture qu'aucune PA n'envoie, et ressaisir une facture reçue par la PA. La 2e est le vrai contournement : 0 ici.",
       "Non. Presque : comprendre avant d'agir, c'est la règle. Mais ici, la cause se lit déjà dans les chiffres : réunir la compta pour ça, c'est du temps pris en août, quand elles sont 2 sur 6.",
-      "Non. Former qui ? La compta ne ressaisit rien de ce que la PA envoie. Le papier n'est pas un problème de formation.",
-      "Oui. Les 700 viennent de fournisseurs PME, qui n'émettront qu'au 1er septembre 2027 : normal jusque-là. Sur les 1 300 reçues par la PA : 0 ressaisie. L'adoption tient ; le gain plein viendra en septembre."
+      "Non. Former qui ? La compta ne ressaisit rien de ce que la PA envoie. Le papier et le PDF ne sont pas un problème de formation.",
+      "Oui. Une PME n'est tenue d'émettre par une PA qu'au 1er septembre 2027 : d'ici là, papier ou PDF. L'étranger reste hors de la PA. Sur les 1 300 reçues par la PA : 0 ressaisie. L'adoption tient ; le gain grandira en septembre, avec les PME."
     ],
-    retenir: "Lire l'adoption : saisir un papier qu'aucune plateforme n'envoie encore est normal ; ressaisir ce que la PA a reçu est un contournement."
+    retenir: "Lire l'adoption : saisir une facture qu'aucune PA n'envoie est normal ; ressaisir ce que la PA a reçu est un contournement."
   },
   {
     id: "cp23-q35",
@@ -740,14 +745,14 @@ LEARNSQL.questions.cp23 = [
       "« Pas encore : un point avec les relais toutes les 2 semaines »",
       "« Oui : tout passe au support N1-N2 de la DSI, dès lundi »",
       "« Non : l'hypercare continue jusqu'en septembre »",
-      "« Non : une formation de rappel pour toute la compta en juillet »"
+      "« Non : les relais reforment toute la compta en juillet »"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Les pannes vont au support, par ticket (module cp22). L'adoption se suit à part : un point court avec les relais, toutes les 2 semaines, sur les contournements. En septembre, la cheffe comptable mesure le critère.",
+      "Oui. Les pannes vont au support, par ticket, et le point de 9 h 30 s'arrête (module cp22). L'adoption se suit à part : un point court avec les relais, toutes les 2 semaines, sur les contournements. À la clôture, la cheffe comptable le reprend, jusqu'à sa mesure de septembre.",
       "Non. Presque : les tickets vont au support (module cp22). Mais l'adoption n'est pas acquise : le support répond aux pannes, il ne voit pas l'Excel à côté.",
       "Non. Trop fort : l'hypercare est un support renforcé, avec un point chaque jour. 3 mois de plus coûteraient cher, pour un besoin plus léger.",
-      "Non. Tout le monde reformé, sans savoir ce qui manque : du temps pris pour rien. Un rappel se cible sur une question qui revient."
+      "Non. Presque : les relais, oui. Mais tout le monde reformé, sans savoir ce qui manque : du temps pris pour rien. Un rappel se cible sur une question qui revient."
     ],
     retenir: "Après l'hypercare, l'accompagnement continue jusqu'à la mesure du 3e mois : points courts avec les relais, puis la mesure."
   },
@@ -773,18 +778,18 @@ LEARNSQL.questions.cp23 = [
   {
     id: "cp23-q38",
     dialecte: "Gestion de projet",
-    q: "Septembre 2027, 3e mois. Critère : plus aucune facture fournisseur ressaisie à la main. La cheffe comptable en compte 12 sur 2 000. Que fais-tu ?",
+    q: "Septembre 2027, 3e mois. Critère : plus aucune facture reçue par la PA ressaisie à la main. La cheffe comptable en trouve 12 dans le mois. Que fais-tu ?",
     choix: [
-      "« Atteint : 12 sur 2 000, c'est presque zéro »",
+      "« Atteint : 12 en un mois, c'est presque zéro »",
       "« Pas atteint : 12, ce n'est pas zéro. On regarde chacune »",
-      "Tu bloques la saisie à la main, et tu préviens la compta",
+      "Tu bloques la saisie à la main ; tu préviens la compta",
       "Une formation de rappel pour toute la compta, en octobre"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Le critère dit « plus aucune » : 12, ce n'est pas 0. Arrondir, c'est cacher 12 contournements, peut-être 12 causes à traiter.",
-      "Oui. Le critère se lit tel qu'il est écrit : pas atteint. Mais 12 sur 2 000, c'est peu : on regarde les 12, une par une (une habitude, un fournisseur, un défaut ?), et on traite chaque cause.",
-      "Non. Bloquer avant de connaître les causes peut bloquer un cas légitime. Et ce serait la décision de la cheffe comptable, pas la tienne.",
+      "Oui. Le critère se lit tel qu'il est écrit : pas atteint. Mais 12 en un mois, c'est peu : on regarde les 12, une par une (une habitude, un fournisseur, un défaut ?), et on traite chaque cause.",
+      "Non. Bloquer avant de connaître les causes bloque aussi un cas légitime : le PDF d'un fournisseur étranger, hors de la PA, se saisit à la main. Et ce serait la décision de la cheffe comptable, pas la tienne.",
       "Non. Toute la compta pour 12 factures, peut-être faites par une seule personne : on cherche d'abord la cause."
     ],
     retenir: "Un critère d'adoption se lit tel qu'il est écrit ; s'il manque peu, on cherche la cause de chaque écart."
@@ -814,35 +819,35 @@ LEARNSQL.questions.cp23 = [
     q: "Tu es DSI adjoint. Au même trimestre, 3 projets changent le travail de l'ADV : un CRM (gestion des clients), une prise de commande, la facture électronique. Chacun a sa carte des impacts. Que fais-tu ?",
     choix: [
       "Rien : chaque projet a sa carte, chacun gère la sienne",
-      "Une carte commune ; tu fais étaler avec les sponsors",
+      "Une carte commune, et tu fais étaler avec les sponsors",
       "Dès aujourd'hui, tu reportes 2 projets, et tu préviens l'ADV",
-      "Tu demandes à l'ADV un effort particulier ce trimestre"
+      "Une carte commune ; tu demandes un effort à l'ADV"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Chaque carte dit « moyen » ; ensemble, c'est trop : 3 formations, 3 façons de faire en même temps. L'ADV décroche, et les 3 projets ratent leur adoption.",
       "Oui. Tu additionnes les impacts sur la même population. Trop pour un trimestre ? Tu proposes aux sponsors un étalement, avec son coût (le portefeuille : module cp25).",
       "Non. Trop fort, et pas ta seule décision : les dates engagent les sponsors. Tu leur montres la charge ; ils arbitrent (module cp25).",
-      "Non. Compter sur l'effort, c'est cacher le problème : la saturation se paie en erreurs et en contournements."
+      "Non. Presque : la carte commune, oui. Mais compter sur l'effort de l'ADV, c'est cacher le problème : la saturation se paie en erreurs et en contournements. Étaler, c'est aux sponsors."
     ],
     retenir: "Plusieurs projets sur la même population : on additionne les impacts, et on fait étaler si c'est trop."
   },
   {
     id: "cp23-q41",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Pour le nouveau WMS (logiciel d'entrepôt), ton chef de projet écarte Paul, magasinier depuis 25 ans, respecté et sceptique : « Il va tout bloquer. » Que lui conseilles-tu ?",
+    q: "Tu es DSI adjoint. Pour le nouveau WMS (logiciel d'entrepôt), ton chef de projet écarte des utilisateurs clés Paul, magasinier depuis 25 ans, respecté et sceptique : « Il va tout bloquer. » Que lui conseilles-tu ?",
     choix: [
       "« Tu as raison : prends plutôt les plus enthousiastes »",
       "« Prends-le, et confie-lui tout le pilotage du dépôt »",
       "« Écarte-le, et préviens son chef qu'il freine »",
-      "« Prends-le : s'il est convaincu, toute l'équipe suivra »"
+      "« Prends-le : ses doutes montreront les vrais problèmes »"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Des enthousiastes, l'équipe s'en méfie : « ils diraient oui à tout ». Et Paul, écarté, critiquera de l'extérieur, avec plus de poids.",
+      "Non. Presque : des enthousiastes aident aussi. Mais écarter Paul sur une étiquette, c'est perdre celui que l'équipe écoute : écarté, il critiquera de l'extérieur, avec plus de poids.",
       "Non. Utilisateur clé ne veut pas dire chef du projet : il teste, il relaie. Le pilotage, c'est un autre rôle.",
       "Non. Lui coller l'étiquette de frein avant qu'il ait parlé, c'est en faire un opposant. Le doute n'est pas une faute.",
-      "Oui. Il connaît le travail réel, et ses collègues l'écoutent. Ses objections montrent les vrais problèmes, tôt. Convaincu, il convainc ; écarté, il bloque de l'extérieur."
+      "Oui. Il connaît le travail réel, et ses collègues l'écoutent. Tu lui proposes le rôle, son chef d'accord : ses objections montrent les vrais problèmes, tôt. Convaincu, il convainc ; écarté, il bloque de l'extérieur."
     ],
     retenir: "Un sceptique respecté peut faire un excellent utilisateur clé : convaincu, il convainc."
   },
@@ -853,14 +858,14 @@ LEARNSQL.questions.cp23 = [
     choix: [
       "Tu l'aides à faire porter : leur directeur, des relais",
       "Tu la félicites : c'est l'engagement qu'on attend",
-      "Tu reprends toi-même la formation des commerciaux",
+      "Tu formes toi-même 2 relais parmi les commerciaux",
       "Tu demandes au DG de nommer un responsable du changement"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Son rôle : préparer et outiller. Le directeur commercial dit pourquoi et ce qu'il attend ; 2 commerciaux respectés forment leurs collègues ; elle prépare les supports et mesure.",
       "Non. Seule, elle porte ce que les managers devraient porter, et elle s'épuise avant la fin. Les commerciaux écoutent leur directeur, pas la cheffe de projet.",
-      "Non. Tu fais à sa place, et rien ne change : c'est toujours la DSI qui porte, pas le métier.",
+      "Non. Presque : des relais, oui. Mais tu fais à sa place, et leur directeur ne dit toujours pas pourquoi : c'est encore la DSI qui porte, pas le métier.",
       "Non. Trop fort : un poste de plus ne règle pas qui porte. Le changement se porte par la ligne managériale du métier."
     ],
     retenir: "Le chef de projet prépare et outille ; le changement se porte par les managers du métier et des relais."

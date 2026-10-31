@@ -12,7 +12,7 @@ Pour le module demandé, vérifie chaque question :
 1. **Justesse** : la bonne réponse est-elle vraie ? Pour Divalto, ouvre la page `source` dans `/home/user/divalto_10/Pages/` et vérifie que la page le dit vraiment.
 2. **Une seule bonne réponse** : aucun choix faux ne doit être défendable.
 3. **Choix faux crédibles** : pas de choix gratuit ou absurde.
-4. **Indices involontaires** : longueur, mot répété de la question, « toujours » / « jamais ».
+4. **Indices involontaires** : longueur, mot répété de la question, « toujours » / « jamais », ponctuation réservée à la bonne réponse (le seul choix avec un point-virgule : bon au plus 1 fois sur 2).
 5. **Explications** : chaque « Non. » dit pourquoi ; le « Oui. » ne contredit pas la source.
 Lance aussi `node outils/verifier.js <module>`.
 
