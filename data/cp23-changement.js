@@ -421,7 +421,7 @@ LEARNSQL.questions.cp23 = [
     choix: [
       "Leur cheffe le redit, et chacune a son invitation",
       "Rien : c'était écrit, à chacune de relire son mail",
-      "Tu demandes au DAF un rappel à l'ordre à la compta",
+      "Un rappel à l'ordre du DAF à la compta",
       "Leur cheffe renvoie le même mail, avec « URGENT » en objet"
     ],
     bonne: 0,
@@ -476,10 +476,10 @@ LEARNSQL.questions.cp23 = [
     dialecte: "Gestion de projet",
     q: "Le consultant propose 2 journées de formation par comptable, sur toutes les fonctions de la PA. Que fais-tu ?",
     choix: [
-      "Tu acceptes : mieux vaut trop de formation que pas assez",
+      "Ses 2 journées : mieux vaut trop de formation que pas assez",
       "Une vidéo de la PA, à regarder seule, quand elle peut",
       "2 journées, mais le samedi, pour ne pas gêner la compta",
-      "2 h sur leurs vrais cas, et un support de 2 pages"
+      "Tu réduis : 2 h sur leurs cas, et un support de 2 pages"
     ],
     bonne: 3,
     pourquoi: [
@@ -610,7 +610,7 @@ LEARNSQL.questions.cp23 = [
     q: "Une comptable, 20 ans de maison, la reine de la saisie, se ferme : « Avant, on venait me voir pour tout. Maintenant, la machine fait. » Que fais-tu ?",
     choix: [
       "Tu lui expliques que c'est le progrès, et qu'il faut suivre",
-      "Avec sa cheffe : un rôle pour son savoir, comme les litiges",
+      "Tu proposes à sa cheffe de lui confier les litiges",
       "Tu lui promets que son poste ne changera en rien",
       "Tu l'inscris à 2 sessions de plus, pour la remettre à niveau"
     ],

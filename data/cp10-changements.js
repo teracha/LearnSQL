@@ -386,7 +386,7 @@ LEARNSQL.questions.cp10 = [
       "Tu acceptes : ces jours sont déjà payés, rien ne bouge",
       "Tu acceptes 1 jour sur les 2 : chacun fait un pas",
       "Tu la fais chiffrer à nouveau, pour le DAF",
-      "Non : refusée, et ces jours servent à autre chose"
+      "Tu refuses : ces jours servent à autre chose"
     ],
     bonne: 3,
     pourquoi: [
@@ -402,7 +402,7 @@ LEARNSQL.questions.cp10 = [
     dialecte: "Gestion de projet",
     q: "Tu découvres que l'intégrateur a ajouté un champ aux factures émises, à la demande directe du commercial. 1 jour facturé. Personne d'autre ne le savait. Que fais-tu ?",
     choix: [
-      "Il repasse par le circuit : on décide de le garder ou non",
+      "Tu le fais repasser par le circuit : le garder ou non",
       "Tu rappelles la règle aux deux ; le champ reste, c'est fait",
       "Tu dis au commercial d'aller le défendre auprès du DAF",
       "Tu fais retirer le champ dès demain, aux frais de l'intégrateur"
@@ -479,7 +479,7 @@ LEARNSQL.questions.cp10 = [
     q: "Mi-avril, en recette. Julie trouve un cas que personne n'avait écrit : un fournisseur facture 2 dépôts à la fois, et Divalto ne sait pas répartir. 2 jours d'intégrateur, avant le pilote de mai. Le COPIL est dans 3 semaines. Que fais-tu ?",
     choix: [
       "Tu décides seul : c'est urgent, et ce n'est que 2 jours",
-      "Impact chiffré aujourd'hui, décision du DAF au téléphone",
+      "Tu chiffres l'impact aujourd'hui, le DAF décide au téléphone",
       "Tu le notes pour juillet : le pilote passe d'abord",
       "Tu décales le pilote de 3 semaines, le temps du COPIL"
     ],
@@ -650,7 +650,7 @@ LEARNSQL.questions.cp10 = [
     q: "Février, avant la 1re itération. Le backlog des écrans de suivi compta compte 14 jours d'idées, toutes « utiles » selon la cheffe comptable. L'enveloppe est de 10 jours. Que fais-tu ?",
     choix: [
       "Tu fais les 14 jours : 4 de plus, c'est presque la même enveloppe",
-      "Elle classe : si elle veut plus, demande de changement au DAF",
+      "Tu la laisses classer : au-delà, demande de changement au DAF",
       "Tu retires 4 jours du backlog, et tu le dis à la cheffe",
       "Tu demandes au DAF de porter l'enveloppe à 14 jours"
     ],

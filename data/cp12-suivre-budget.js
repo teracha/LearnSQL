@@ -464,7 +464,7 @@ LEARNSQL.questions.cp12 = [
     dialecte: "Gestion de projet",
     q: "Fin mars. Le consultant : « Pour tenir les 40 jours, je peux supprimer mes tests de non-régression : 3 jours de gagnés. » Que fais-tu ?",
     choix: [
-      "Tu acceptes : 40 jours tenus, et le DAF n'a rien à signer",
+      "Oui : 40 jours tenus, et le DAF n'a rien à signer",
       "Non : l'écart au DAF aujourd'hui, avec ses vraies options",
       "Option du milieu : 1 jour et demi de tests en moins",
       "Non, et tu demandes à son responsable un autre consultant"

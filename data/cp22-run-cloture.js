@@ -311,7 +311,7 @@ LEARNSQL.questions.cp22 = [
     q: "Mardi 29 juin, 8 h 20. Sophie t'appelle : « Aucune facture n'est partie par le connecteur depuis 7 h. » Le transfert est signé ; le N2 est à son bureau. Que fais-tu ?",
     choix: [
       "Tu lui donnes le portable du N2 : plus rapide qu'un ticket",
-      "Ticket au N1, tout de suite : le N2 a la procédure",
+      "Tu la renvoies au N1 par ticket : le N2 a la procédure",
       "Tu appelles la PA en priorité 1 : tu la connais bien",
       "Tu relances toi-même le connecteur : tu as les droits"
     ],
@@ -560,7 +560,7 @@ LEARNSQL.questions.cp22 = [
       "Tu reportes la clôture : on ne clôt pas avec un avoir en attente",
       "Tu relances la PA chaque jour, et tu en parles au DAF",
       "Tu demandes au DAF de bloquer la facture de juillet de la PA",
-      "Un point ouvert au bilan : la compta le suit, toi au comité"
+      "Tu en fais un point ouvert : la compta le suit, toi au comité"
     ],
     bonne: 3,
     pourquoi: [
@@ -576,7 +576,7 @@ LEARNSQL.questions.cp22 = [
     dialecte: "Gestion de projet",
     q: "Clôture. Le consultant a encore un compte administrateur sur la production de Divalto : « Laissez-le ouvert, il servira pour la version 2 en novembre. » Que fais-tu ?",
     choix: [
-      "Fermé, ton DSI d'accord ; rouvert par ticket en novembre",
+      "Tu le fais fermer avec ton DSI, et rouvrir par ticket",
       "Tu le fermes toi-même tout de suite, sans prévenir personne",
       "Tu le laisses ouvert : il reviendra en novembre de toute façon",
       "Tu le laisses ouvert, et tu tiens la liste de ses connexions"

@@ -100,7 +100,7 @@ LEARNSQL.questions.cp19 = [
     choix: [
       "Tu acceptes : la recette trouvera ses erreurs en même temps",
       "Tu fais ses tests toi-même ce week-end, compte rendu compris",
-      "Non : ses tests lundi, avec un compte rendu avant mardi",
+      "Tu refuses : ses tests lundi, compte rendu avant mardi",
       "Tu décales la recette de 2 semaines, et le DAF est prévenu"
     ],
     bonne: 2,
@@ -213,7 +213,7 @@ LEARNSQL.questions.cp19 = [
     q: "Février. Le guide EDI d'AquaBleu l'exige : avant tout nouveau circuit de facturation, AquaBleu valide 5 factures de test. Ta stratégie de recette n'en parle pas. Que fais-tu ?",
     choix: [
       "Rien : la recette suffit, AquaBleu verra ses factures en juin",
-      "Tu le notes, et tu verras ses 5 factures de test après le PV",
+      "Ses 5 factures de test notées, pour après le PV",
       "Le commercial négocie une dispense : AquaBleu nous connaît",
       "Tu l'ajoutes : 5 factures de test en avril, dates calées dès maintenant"
     ],
@@ -309,7 +309,7 @@ LEARNSQL.questions.cp19 = [
     choix: [
       "Le résultat attendu écrit avec sa cheffe, puis elle rejoue",
       "Rien : Sophie connaît ses avoirs mieux que personne d'autre",
-      "Tu ouvres une anomalie, et tu la classes bloquante",
+      "Une anomalie ouverte, et classée bloquante",
       "L'intégrateur revoit tous les cas qu'elle a déjà cochés"
     ],
     bonne: 0,
@@ -347,8 +347,8 @@ LEARNSQL.questions.cp19 = [
     choix: [
       "Rien : une facture de test n'a aucune valeur pour lui",
       "Le commercial appelle AquaBleu pour s'excuser, tout de suite",
-      "Tu notes l'incident, et tu le traiteras après la recette",
-      "Les envois coupés dans l'heure, puis Sophie rappelle AquaBleu"
+      "L'incident noté, pour le traiter après la recette",
+      "Tu coupes les envois dans l'heure, puis Sophie rappelle AquaBleu"
     ],
     bonne: 3,
     pourquoi: [
@@ -538,7 +538,7 @@ LEARNSQL.questions.cp19 = [
       "Tu attends : Julie rejouera ce cas la semaine prochaine",
       "Tu le notes, et tu en reparleras à la livraison de jeudi",
       "Tu rejoues le cas toi-même, pour être sûr de l'échec",
-      "Un ticket bloquant, lié à la livraison : il cherche là"
+      "Tu ouvres un ticket bloquant : il cherche dans sa livraison"
     ],
     bonne: 3,
     pourquoi: [
@@ -687,7 +687,7 @@ LEARNSQL.questions.cp19 = [
     dialecte: "Gestion de projet",
     q: "Jeudi 29 avril, 17 h. La dernière bloquante est corrigée, pas encore retestée : Julie la rejoue demain à 9 h. La personne désignée pour signer : « Je signe ce soir, le retest n'est qu'une formalité. » Que fais-tu ?",
     choix: [
-      "Demain, après le retest OK : le PV signé le 30, comme prévu",
+      "Tu fais signer demain, après le retest OK, comme prévu",
       "D'accord : on gagne une soirée, et le retest suivra demain",
       "Ce soir, avec une réserve écrite : « sous réserve du retest »",
       "Tu fais rejouer les 120 cas avant de signer le moindre PV"

@@ -462,7 +462,7 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "Lundi. Tout suit le plan : recette à l'heure, budget tenu, aucun risque nouveau. Tu as 30 minutes avec ton DSI. Que fais-tu ?",
     choix: [
-      "« Rien de neuf, tout est vert, pas de besoin. » Et tu lui rends le temps",
+      "Tu dis : « Rien de neuf, tout est vert. » Et tu lui rends le temps",
       "Tu détailles les 30 cas de test passés, pour montrer le travail",
       "Tu proposes de passer le point à 1 heure, et de tout revoir",
       "Tu cherches un sujet à lui remonter, pour ne pas paraître vide"
@@ -481,7 +481,7 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "Ton DSI : « Je reçois 40 mails DEMAT par semaine en copie. Je ne les lis plus. » Que changes-tu ?",
     choix: [
-      "Tu le retires de toutes les copies ; il verra tout au COPIL",
+      "Plus aucune copie pour lui ; il verra tout au COPIL",
       "Rien : au moins, il ne pourra pas dire qu'il ne savait pas",
       "La fiche du lundi, et un appel le jour même si c'est grave",
       "Un résumé écrit des faits chaque soir, à la place des copies"
@@ -576,7 +576,7 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "Avant chaque choix, même l'ordre des tests ou un créneau, tu demandes à ton DSI : « Tu ferais quoi ? » Il finit par te dire : « C'est ton projet. » Que changes-tu ?",
     choix: [
-      "Dans ta délégation, tu décides et tu l'informes ; ailleurs, ta recommandation",
+      "Tu décides dans ta délégation et tu l'informes. Ailleurs, tu recommandes",
       "Tu lui écris tes questions, avec les options, et il répond quand il peut",
       "Tu ne lui parles plus de tes choix, jusqu'au prochain COPIL",
       "Tu demandes au DAF, ton sponsor, de trancher à sa place"
@@ -672,7 +672,7 @@ LEARNSQL.questions.cp03 = [
     q: "Ton projet Snowflake + Power BI : 30 k€. Le sponsor : « La direction veut 10 % de moins. Débrouille-toi. » Que fais-tu ?",
     choix: [
       "Tu demandes à voir la direction, options chiffrées en main",
-      "Sous 1 semaine, 2 options chiffrées et leur risque",
+      "Tu proposes 2 options chiffrées, avec leur risque",
       "Tu retires 3 k€ de tests : personne ne verra la différence",
       "Tu refuses : le budget est validé, on n'y touche plus"
     ],

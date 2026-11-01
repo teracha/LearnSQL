@@ -171,7 +171,7 @@ LEARNSQL.questions.cp02 = [
     choix: [
       "Tu l'aides 2 heures cet après-midi, juste pour cette fois",
       "Tu demandes à ton DSI qui doit prendre cet incident",
-      "« Non : tu l'analyses, puis l'intégrateur par ticket »",
+      "Tu dis non : il cherche d'abord, puis l'intégrateur",
       "Tu le prends : tu connais Divalto, ce sera plus rapide"
     ],
     bonne: 2,
@@ -190,7 +190,7 @@ LEARNSQL.questions.cp02 = [
     choix: [
       "Tu acceptes : demain après-midi, dans ton créneau run",
       "Tout de suite : 30 minutes, autant s'en débarrasser",
-      "Tu demandes à ton DSI si ça passe avant DEMAT",
+      "Ton DSI d'abord, pour savoir si ça passe avant DEMAT",
       "« Pas maintenant : dans ma liste, pour juillet »"
     ],
     bonne: 0,
@@ -341,7 +341,7 @@ LEARNSQL.questions.cp02 = [
     q: "Mardi 9 h 30, ton créneau DEMAT jusqu'à 11 h. Le N2 t'appelle : un nouveau fournisseur passe en EDI dans 2 semaines, il a une question de format. Que fais-tu ?",
     choix: [
       "Tu réponds tout de suite : l'EDI, c'est ton rôle",
-      "« Je te rappelle à 11 h, après mon créneau »",
+      "Tu dis : « Je te rappelle à 11 h, après mon créneau »",
       "Tu lui dis d'ouvrir un ticket chez l'intégrateur",
       "Tu ne décroches pas avant 11 h : créneau protégé"
     ],
@@ -379,7 +379,7 @@ LEARNSQL.questions.cp02 = [
     q: "Tu comptes une journée : Teams, mails et téléphone t'ont interrompu 40 fois. Tu n'as fini aucune tâche DEMAT. Que changes-tu d'abord ?",
     choix: [
       "Tes créneaux DEMAT, tu les passes chez toi, au calme",
-      "En créneau, notifications coupées ; messages à heures fixes",
+      "Notifications coupées en créneau, messages à heures fixes",
       "Tu réponds à tout dans la minute, et DEMAT le soir",
       "Teams et téléphone fermés toute la journée, chaque jour"
     ],
@@ -495,7 +495,7 @@ LEARNSQL.questions.cp02 = [
       "Deux post-it, à recopier dans ta liste vendredi",
       "Tu les écris tout de suite dans ta liste, avec leur date",
       "Un mail à chacun pour confirmer, avec leur chef en copie",
-      "Tu leur demandes de te relancer, au cas où tu oublierais"
+      "Une relance de leur part, au cas où tu oublierais"
     ],
     bonne: 1,
     pourquoi: [
@@ -511,7 +511,7 @@ LEARNSQL.questions.cp02 = [
     dialecte: "Gestion de projet",
     q: "8 h 30, tu ouvres tes mails. À midi, rien de ta liste n'a avancé. C'est la 3e fois cette semaine. Que changes-tu ?",
     choix: [
-      "5 minutes pour tes 3 actions du jour ; les mails à 11 h",
+      "Tu choisis tes 3 actions en 5 minutes, et les mails à 11 h",
       "Tu arrives à 7 h 30, pour gagner une heure avant les mails",
       "Tu lis tes mails en une heure, puis tu passes à ta liste",
       "Tu ne lis plus tes mails qu'une fois par semaine"
@@ -570,7 +570,7 @@ LEARNSQL.questions.cp02 = [
     choix: [
       "Ton run glisse au N2 cette semaine : tu le lui dis",
       "Tu préviens le DAF le jour même : la recette est menacée",
-      "À ton DSI, au point : 120 %, ce qui peut glisser ou pas",
+      "Tu dis à ton DSI, au point : 120 %, ce qui glisse ou pas",
       "Tu tiens : 2 soirées et le samedi, la recette d'abord"
     ],
     bonne: 2,
@@ -666,7 +666,7 @@ LEARNSQL.questions.cp02 = [
       "Tu attends la fin du pilote pour y voir plus clair",
       "Tu demandes à l'intégrateur de l'écrire pour toi",
       "Tu bloques un vendredi entier pour la faire d'un coup",
-      "Sa prochaine action : 1 h avec Marc, sur les flux EDI"
+      "Tu notes la prochaine action : 1 h avec Marc, sur l'EDI"
     ],
     bonne: 3,
     pourquoi: [
@@ -704,7 +704,7 @@ LEARNSQL.questions.cp02 = [
       "Tu réponds ce soir, point par point, pour te défendre",
       "Tu l'appelles ce soir pour lui expliquer que ce n'est pas toi",
       "Tu ne réponds pas : vous en parlerez lundi, au point",
-      "Demain 9 h, à froid : les faits, la cause, ta proposition"
+      "Tu réponds demain à 9 h, à froid : faits, cause, proposition"
     ],
     bonne: 3,
     pourquoi: [
@@ -739,7 +739,7 @@ LEARNSQL.questions.cp02 = [
     dialecte: "Gestion de projet",
     q: "Novembre 2026. Ton DSI prévoit de te confier, mi-janvier, le démarrage EDI d'un nouveau client. En janvier : clôture annuelle, et les données de la PA à rendre le 15. Que fais-tu ?",
     choix: [
-      "Dès lundi, au point : ton mois de janvier, et il choisit",
+      "Tu lui montres dès lundi ton mois de janvier : il choisit",
       "Tu demandes au DAF de faire glisser les données du 15",
       "Tu refuses : un nouveau client n'est pas ton projet",
       "Tu acceptes : tu feras les deux en janvier, en serrant les dents"
@@ -855,7 +855,7 @@ LEARNSQL.questions.cp02 = [
     choix: [
       "Tu le crois : il connaît son projet mieux que toi",
       "Tu le recadres en réunion d'équipe, pour l'exemple",
-      "Des chiffres, pas « ça va » : sa charge, ce qui glisse",
+      "Tu demandes des chiffres : sa charge, ce qui glisse",
       "Tu reprends toi-même ses 2 prochaines échéances"
     ],
     bonne: 2,

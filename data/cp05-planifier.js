@@ -573,7 +573,7 @@ LEARNSQL.questions.cp05 = [
     choix: [
       "Tu les prends, et tu ajoutes ta marge de 20 % à la fin",
       "Tu les prends comme elles sont : on n'a jamais trop de sécurité",
-      "Ses durées probables, et une seule marge, visible, à la fin",
+      "Tu demandes ses durées probables, et une seule marge, à la fin",
       "Tu retires les 20 % partout, sans lui en parler"
     ],
     bonne: 2,
@@ -799,7 +799,7 @@ LEARNSQL.questions.cp05 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. En mars, deux projets comptent chacun sur ton analyste Divalto à plein temps : la migration et un nouveau flux EDI. Leurs chefs de projet ne le savent pas. Que fais-tu ?",
     choix: [
-      "Les 2 plannings ensemble, puis un choix de priorité",
+      "Tu croises les 2 plannings, puis un choix de priorité",
       "Tu le partages à 50 % sur chacun ; les 2 dates restent",
       "Tu lances le recrutement d'un 2e analyste pour mars",
       "Rien : chaque chef de projet gère son propre planning"

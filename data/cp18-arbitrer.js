@@ -74,7 +74,7 @@ LEARNSQL.questions.cp18 = [
       "Tu la fais corriger : c'est le sponsor qui te le demande",
       "Tu demandes à l'intégrateur si Divalto permet de le faire",
       "Tu fais corriger la facture, puis tu préviens le client",
-      "Non : elle ne se modifie pas. Avoir, puis nouvelle facture"
+      "Tu dis non : on n'y touche pas. Avoir, puis nouvelle facture"
     ],
     bonne: 3,
     pourquoi: [
@@ -245,7 +245,7 @@ LEARNSQL.questions.cp18 = [
       "Tu acceptes : 2 semaines de gagnées, c'est la date qui compte",
       "Tu sautes la recette, mais seulement pour AquaBleu",
       "Tu chiffres le gain, et le DAF choisit en connaissant le prix",
-      "Non : une facture émise est définitive. La recette reste"
+      "Tu refuses : une facture émise est définitive. La recette reste"
     ],
     bonne: 3,
     pourquoi: [
@@ -359,7 +359,7 @@ LEARNSQL.questions.cp18 = [
       "Le rapport du commercial d'abord : c'est lui qui insiste le plus",
       "Rejets, libellé et rapport : on serre les tests du pilote",
       "Rejets EDI et libellé ; le rapport, noté pour juillet",
-      "Tu demandes au DAF de classer les trois, avec leur coût"
+      "Le DAF classe les trois, avec leur coût"
     ],
     bonne: 2,
     pourquoi: [
@@ -492,7 +492,7 @@ LEARNSQL.questions.cp18 = [
       "Tu tranches : les logs de l'intégrateur te semblent plus clairs",
       "Tu demandes au DAF des pénalités, pour la PA et l'intégrateur",
       "Tu attends : entre experts, ils finiront bien par trouver",
-      "Un test commun : 10 factures, les deux présents, les mêmes logs"
+      "Tu réunis les deux : un test sur 10 factures, les mêmes logs"
     ],
     bonne: 3,
     pourquoi: [

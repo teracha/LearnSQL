@@ -790,9 +790,9 @@ LEARNSQL.questions.cp11 = [
     q: "Juin 2027, la bascule est faite. Le DAF : « Le business case a servi à lancer le projet. On peut le ranger. » Que proposes-tu ?",
     choix: [
       "D'accord : le projet est livré ; le dossier a servi",
-      "« Oui, après la mesure des gains réels, cet automne »",
+      "Tu dis oui, après la mesure des gains réels, cet automne",
       "Une mesure des gains réels dès la 1re semaine après la bascule",
-      "Tu réécris les gains avec les vrais chiffres, pour qu'il colle"
+      "Les gains réécrits avec les vrais chiffres, pour qu'il colle"
     ],
     bonne: 1,
     pourquoi: [

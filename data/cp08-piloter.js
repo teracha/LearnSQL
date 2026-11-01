@@ -58,7 +58,7 @@ LEARNSQL.questions.cp08 = [
       "Fini ou pas, pour chaque livrable, et le reste à faire en jours",
       "Rien : chacun connaît son travail, et 90 %, c'est presque fini",
       "Le % des jours consommés, plus fiable que le % déclaré",
-      "Tu gardes les %, mais datés ; on verra ce qui stagne"
+      "Les mêmes %, mais datés ; on verra ce qui stagne"
     ],
     bonne: 0,
     pourquoi: [

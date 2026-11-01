@@ -684,7 +684,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "Un message Teams court : « Désolé, refusé par le DAF »",
       "Un mail détaillé des raisons, le DAF en copie pour appuyer",
-      "Tu laisses le DAF le lui annoncer : c'est sa décision",
+      "Le DAF le lui annonce : c'est sa décision, pas la tienne",
       "Tu vas le voir, avec une autre piste, puis tu écris"
     ],
     bonne: 3,

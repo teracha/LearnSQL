@@ -200,7 +200,7 @@ LEARNSQL.questions.cp13 = [
       "Tu compares au mieux, en estimant toi-même les prix qui manquent",
       "Tu écartes la PA « sur devis » : son offre est incomplète",
       "Tu relances toute la consultation, avec un nouveau cahier",
-      "Un même tableau de prix aux 3, sur vos volumes, sous 3 jours"
+      "Tu envoies aux 3 le même tableau de prix, sur vos volumes"
     ],
     bonne: 3,
     pourquoi: [
@@ -276,7 +276,7 @@ LEARNSQL.questions.cp13 = [
       "Tu lui réponds au téléphone : elle a eu le bon réflexe",
       "Tu réponds « Non : tout est dans le cahier des charges »",
       "Tu réponds aux 3 PA, puis tu dis que la question vient de C",
-      "La question et ta réponse partent aux 3 PA en même temps"
+      "Tu envoies la question et ta réponse aux 3 en même temps"
     ],
     bonne: 3,
     pourquoi: [
@@ -387,7 +387,7 @@ LEARNSQL.questions.cp13 = [
     dialecte: "Gestion de projet",
     q: "L'intégrateur Divalto pousse la PA C : « Notre partenaire, un connecteur éprouvé. » Tu apprends qu'il touche une commission sur chaque client apporté. Que fais-tu ?",
     choix: [
-      "C reste candidate, même grille, et la commission est écrite",
+      "Tu gardes C, même grille, et tu fais écrire la commission",
       "Tu prends C : l'intégrateur connaît Divalto mieux que personne",
       "Tu ne lui demandes plus d'avis, et la DSI note seule les PA",
       "Tu écartes C : avec sa commission, l'avis n'est plus neutre"
@@ -407,7 +407,7 @@ LEARNSQL.questions.cp13 = [
     q: "Tu relis le projet de grille. Il donne 20 points sur 100 au critère « dans la liste officielle des PA ». Les 3 PA consultées y sont. Que fais-tu ?",
     choix: [
       "Tu le gardes à 20 points : c'est le critère le plus sûr",
-      "Éliminatoire, et ses 20 points vont aux critères qui départagent",
+      "Tu le rends éliminatoire : ses 20 points vont aux autres critères",
       "Tu le passes à 40 points, et tu enlèves 20 points au prix",
       "Tu demandes au DAF de fixer lui-même ce poids, puisqu'il valide"
     ],
@@ -444,7 +444,7 @@ LEARNSQL.questions.cp13 = [
     dialecte: "Gestion de projet",
     q: "Ta grille met en éliminatoire « un connecteur standard pour Divalto ». L'offre de C est la moins chère et la plus complète. Mais son connecteur serait développé pour vous, au forfait. Que fais-tu ?",
     choix: [
-      "C est écartée aujourd'hui, quelles que soient ses autres notes",
+      "Tu écartes C aujourd'hui, quelles que soient ses autres notes",
       "C reste en course : au forfait, le connecteur a un prix fixe",
       "C perd 15 points sur le connecteur, et reste au classement",
       "Tu présentes C au DAF, avec ce risque écrit en rouge"
@@ -502,7 +502,7 @@ LEARNSQL.questions.cp13 = [
     q: "Les 2 finalistes : A, 1re de la grille ; B, 2e, 15 % moins chère sur 3 ans. Le DAF : « Passe le prix de 20 à 40 points, que B passe devant. » Que fais-tu ?",
     choix: [
       "Tu passes le prix à 40 : il a validé la grille, il peut la changer",
-      "Grille telle quelle, et tu lui montres ce que B gagne et perd",
+      "Tu gardes la grille, et tu lui montres ce que B gagne et perd",
       "Tu refuses B : la grille validée a désigné A, c'est réglé",
       "Tu le préviens, puis tu en parles au DG : il fausse la grille"
     ],
@@ -580,7 +580,7 @@ LEARNSQL.questions.cp13 = [
       "Comme acquis : il l'a dit en démo, devant toute la compta",
       "Comme une promesse, et tu la fais écrire dans son offre",
       "Comme acquis, et tu le feras écrire au contrat de la PA",
-      "Tu écartes A : une promesse faite en démo ne vaut rien"
+      "Comme une raison d'écarter A : une promesse en démo ne vaut rien"
     ],
     bonne: 1,
     pourquoi: [
@@ -655,7 +655,7 @@ LEARNSQL.questions.cp13 = [
     choix: [
       "Tu le prends : les opérateurs EDI se relient toujours entre eux",
       "Tu demandes à AquaBleu de passer chez ce nouvel opérateur, moins cher",
-      "Un envoi test vers AquaBleu avant le choix ; sinon, tu l'écartes",
+      "Tu exiges un envoi test vers AquaBleu avant le choix, sinon il sort",
       "Tu le notes un peu moins bien sur la grille, et tu le gardes"
     ],
     bonne: 2,
@@ -786,9 +786,9 @@ LEARNSQL.questions.cp13 = [
     dialecte: "Gestion de projet",
     q: "Le DAF a choisi A. La signature est dans 10 jours, après la relecture du contrat. B, l'autre finaliste, demande où en est la décision. Que lui dis-tu ?",
     choix: [
-      "Tu lui dis tout de suite qu'elle est écartée, et tu la remercies",
+      "Qu'elle est écartée, tout de suite, avec tes remerciements",
       "Rien : tu lui répondras après la signature avec A",
-      "Une date de réponse ; tu la préviens dès la signature avec A",
+      "Tu donnes une date, puis l'annonce dès la signature avec A",
       "Qu'elle a encore toutes ses chances, pour la garder motivée"
     ],
     bonne: 2,

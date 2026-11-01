@@ -244,7 +244,7 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "« Oui, on peut le retirer du registre »",
       "« Non : les pénalités ne servent à rien ici »",
-      "« Une partie du coût, oui ; la date légale, non »",
+      "« Une partie du coût, oui, mais pas la date légale »",
       "« Oui, si le montant couvre nos pertes »"
     ],
     bonne: 2,
@@ -339,7 +339,7 @@ LEARNSQL.questions.cp07 = [
     choix: [
       "Le standard, et les 5 % restants traités à part",
       "Le spécifique, avec des pénalités de retard",
-      "Tu laisses l'intégrateur choisir : c'est son métier",
+      "Le choix laissé à l'intégrateur : c'est son métier",
       "Le spécifique, et deux fois plus de tests"
     ],
     bonne: 0,

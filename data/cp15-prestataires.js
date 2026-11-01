@@ -153,7 +153,7 @@ LEARNSQL.questions.cp15 = [
     dialecte: "Gestion de projet",
     q: "Point hebdo. Commande de l'intégrateur : 40 jours. Consommés : 32, soit 80 %. Reste à faire, tâche par tâche : 8 jours. Tout tient. Que fais-tu ?",
     choix: [
-      "Deux lignes au DAF : 80 %, atterrissage à 40, rien à signer",
+      "Tu écris 2 lignes au DAF : 80 %, atterrissage à 40, rien à signer",
       "Tu fais signer au DAF 5 jours de plus, par prudence",
       "Tu lui demandes de finir en 6 jours : 38 au total, au lieu de 40",
       "Tu réunis le DAF et le consultant : à 80 %, on revoit chaque tâche"
@@ -174,7 +174,7 @@ LEARNSQL.questions.cp15 = [
     choix: [
       "Tu lui fixes une date de fin ferme, et tu la lui écris",
       "Tu demandes à son responsable un autre consultant, dès lundi",
-      "Le reste à faire par tâche, et ce qui est fini, dans Divalto",
+      "Tu fais détailler le reste par tâche, et tu vérifies Divalto",
       "Tu le crois : c'est lui qui connaît le mieux son paramétrage"
     ],
     bonne: 2,
@@ -325,7 +325,7 @@ LEARNSQL.questions.cp15 = [
     q: "Comité de novembre 2027. Rapport de la PA pour octobre : disponibilité 99,9 %. Tes tickets montrent deux pannes du portail, 5 h en tout. Que fais-tu ?",
     choix: [
       "Tu écris à son responsable de compte : son rapport est faux",
-      "Tes tickets face à son rapport, et le détail de sa mesure",
+      "Tu apportes tes tickets, et tu demandes comment elle mesure",
       "Tu prends son chiffre : c'est son outil qui mesure",
       "Tu demandes au DAF les crédits, et tu joins tes tickets"
     ],
@@ -419,10 +419,10 @@ LEARNSQL.questions.cp15 = [
     dialecte: "Gestion de projet",
     q: "Septembre 2027. Depuis un mois, le connecteur s'arrête chaque lundi vers 7 h. La PA le relance en 30 minutes : SLA tenu. C'est arrivé 4 fois. Que fais-tu ?",
     choix: [
-      "Tu demandes au DAF les crédits : 4 arrêts en un mois",
+      "Les crédits du SLA, demandés au DAF : 4 arrêts en un mois",
       "Rien : chaque arrêt est réglé dans les délais du SLA",
       "Ta DSI le relance elle-même chaque lundi, à 6 h 30, avec un ticket",
-      "La cause de fond au comité, avec un plan daté"
+      "Tu portes la cause de fond au comité, avec un plan daté"
     ],
     bonne: 3,
     pourquoi: [
@@ -516,7 +516,7 @@ LEARNSQL.questions.cp15 = [
     choix: [
       "Tu fais écrire par avenant : tout ticket est en priorité 1",
       "Tu laisses ton équipe faire : ça met la PA sous pression",
-      "Ton équipe suit les définitions de priorité du contrat",
+      "Tu fais suivre à ton équipe les priorités du contrat",
       "Tu laisses la PA fixer elle-même la priorité de chaque ticket"
     ],
     bonne: 2,
@@ -669,7 +669,7 @@ LEARNSQL.questions.cp15 = [
       "Le standard, sans débat : un spécifique coûte toujours trop",
       "Tu lui montres le standard avec Julie, et le coût du spécifique",
       "Le spécifique : c'est elle qui classe, c'est dans l'enveloppe",
-      "Tu chiffres les deux, et le DAF choisit au prochain COPIL"
+      "Les deux chiffrés, et le DAF choisit au prochain COPIL"
     ],
     bonne: 1,
     pourquoi: [
@@ -763,8 +763,8 @@ LEARNSQL.questions.cp15 = [
     choix: [
       "L'éditeur coordonne : c'est son logiciel, il sait faire",
       "Rien : ils ont l'habitude, ils se coordonneront entre eux",
-      "Tu coordonnes toi-même, et tu gardes tes projets en cours",
-      "Un ensemblier, payé et écrit au contrat ; tu le pilotes"
+      "La coordination par toi, en plus de tes projets en cours",
+      "Un ensemblier, payé et écrit au contrat, que tu pilotes"
     ],
     bonne: 3,
     pourquoi: [
@@ -782,7 +782,7 @@ LEARNSQL.questions.cp15 = [
     choix: [
       "Un merci à l'oral, au point hebdo, avec les faits",
       "Tu lui fais offrir 2 jours de plus sur la commande, en prime",
-      "Un écrit à lui, son responsable en copie, avec les faits",
+      "Tu lui écris, son responsable en copie, avec les faits",
       "Rien de spécial : il est payé pour faire du bon travail"
     ],
     bonne: 2,

@@ -132,7 +132,7 @@ LEARNSQL.questions.cp20 = [
     q: "Le consultant propose de charger aussi dans la PA vos factures clients des 10 dernières années : « Tout sera au même endroit. » Que réponds-tu ?",
     choix: [
       "Oui : 10 ans d'historique, c'est la durée légale",
-      "L'historique reste là où il est, dans Divalto",
+      "Tu laisses l'historique là où il est, dans Divalto",
       "Oui, mais seulement les 2 dernières années, pour les avoirs",
       "Tu demandes au DAF de choisir, avec le devis du consultant"
     ],
@@ -191,7 +191,7 @@ LEARNSQL.questions.cp20 = [
       "D'accord : la fiche la plus récente est la plus à jour",
       "On reprend les deux ; l'ADV triera après, dans la PA",
       "Tu fusionnes toi-même les 45 doublons, par une requête",
-      "L'ADV choisit, dans Divalto, en voyant les pièces"
+      "Tu laisses l'ADV choisir, dans Divalto, pièces en main"
     ],
     bonne: 3,
     pourquoi: [
@@ -799,7 +799,7 @@ LEARNSQL.questions.cp20 = [
       "Les 10 ans, et tu décales le planning de 3 semaines",
       "Tu lui montres le coût ; il choisit, le reste archivé",
       "Aucun historique : on repart de zéro, c'est plus propre",
-      "Tu demandes au DG de trancher entre lui et la DSI"
+      "Le DG, pour trancher entre lui et la DSI"
     ],
     bonne: 1,
     pourquoi: [

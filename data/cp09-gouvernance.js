@@ -115,7 +115,7 @@ LEARNSQL.questions.cp09 = [
     q: "Le DG (directeur général) veut un point sur DEMAT à chaque comité de direction, une fois par mois. Que proposes-tu ?",
     choix: [
       "Un 2e COPIL chaque mois, présidé par le DG",
-      "Le DAF le porte : 3 lignes que tu lui prépares",
+      "Tu prépares 3 lignes pour le DAF, qui le porte",
       "Tu y présentes ton rapport complet, 20 minutes",
       "Rien de plus : le DG lira les comptes rendus"
     ],
@@ -285,7 +285,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Recette clients finie. Marc, R au RACI avec Sophie, veut signer le PV (procès-verbal) lui-même : « Les flux EDI, c'est moi qui les ai testés. » Que fais-tu ?",
     choix: [
-      "Tu acceptes, et son chef en sera prévenu",
+      "Marc signe, et son chef en sera prévenu",
       "Ils signent tous les deux : c'est plus sûr",
       "Le DAF signe : il est le sponsor du projet",
       "Son chef signe, comme A, sur ses résultats"
@@ -497,7 +497,7 @@ LEARNSQL.questions.cp09 = [
       "Tu lui demandes de désigner par écrit qui signera",
       "Le DAF, son manager, devient A pendant son congé",
       "Rien au RACI : elle signera le PV depuis son congé",
-      "Tu choisis qui signe, et tu mets le RACI à jour"
+      "Un signataire choisi par toi, et le RACI à jour"
     ],
     bonne: 0,
     pourquoi: [
@@ -514,7 +514,7 @@ LEARNSQL.questions.cp09 = [
     q: "COPIL de janvier : les 2 décisions étaient en fin d'ordre du jour. À la 80e minute, le DAF est parti. Que changes-tu pour février ?",
     choix: [
       "Un COPIL plus long : 2 h 30 au lieu d'1 h 30",
-      "Les décisions avant tout, chacune avec sa durée",
+      "Tu mets les décisions en tête, chacune avec sa durée",
       "Les décisions envoyées par mail au DAF, après la séance",
       "Tu demandes au DAF de rester jusqu'au bout"
     ],
@@ -570,7 +570,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Avant le COPIL, tu vois la cheffe comptable. Sur le changement n° 7, demandé par l'ADV, elle n'est pas d'accord avec ta recommandation. Que fais-tu ?",
     choix: [
-      "En séance : les options, ton avis, et son désaccord",
+      "Tu dis en séance : options, ton avis, son désaccord",
       "Tu changes ta recommandation, pour arriver d'accord",
       "Tu retires le n° 7, et vous en reparlez en mars",
       "Tu demandes au DAF de la convaincre avant la séance"
@@ -608,7 +608,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Fin du débat sur le changement n° 7. Le DAF : « Bon, allez-y. » Que fais-tu ?",
     choix: [
-      "« Je note : n° 7 accepté, 4 jours. D'accord ? »",
+      "Tu reformules : « n° 7 accepté, 4 jours. D'accord ? »",
       "Tu passes au point suivant : c'est clair pour tous",
       "Tu lui demandes d'écrire sa décision, par mail",
       "Tu écris « n° 7 : accord du DAF » au compte rendu"
@@ -627,7 +627,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Tes 3 derniers COPIL : 1 h 30 d'avancement projeté à l'écran, aucune décision. Le DAF envoie maintenant son assistante. Que changes-tu ?",
     choix: [
-      "Tu rends sa présence obligatoire, DG en copie",
+      "Sa présence rendue obligatoire, DG en copie",
       "Le rapport lu avant ; la séance, toujours pour décider",
       "Plus de détails à l'écran ; ça les intéressera",
       "Un COPIL tous les 3 mois, pour réunir plus de décisions"

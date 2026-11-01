@@ -289,7 +289,7 @@ LEARNSQL.questions.cp06 = [
     dialecte: "Gestion de projet",
     q: "Le consultant de l'intégrateur veut commencer par l'écran le plus simple, « pour bien démarrer ». La cheffe comptable, PO, veut d'abord l'état des factures bloquées. Aucune dépendance technique. Que fais-tu ?",
     choix: [
-      "Tu demandes au DAF de trancher l'ordre des deux",
+      "L'ordre du DAF : il tranche entre les deux",
       "L'ordre du consultant : la PO suivra le faisable",
       "L'ordre de la PO : c'est elle qui classe",
       "Ton ordre : tu choisis ce qui te semble le plus utile"
@@ -330,7 +330,7 @@ LEARNSQL.questions.cp06 = [
       "Tu acceptes, et tu notes le risque dans le registre",
       "Tu acceptes : la recette le testera de toute façon",
       "Tu le comptes à moitié ; il le finit à l'itération suivante",
-      "Non : pas fini tant qu'il n'est pas testé et accepté"
+      "Tu refuses : pas fini tant qu'il n'est pas testé et accepté"
     ],
     bonne: 3,
     pourquoi: [
@@ -444,7 +444,7 @@ LEARNSQL.questions.cp06 = [
       "Tu acceptes : le pilote de mai les testera en vrai",
       "Tu commandes 5 jours de plus : il est déjà là",
       "Tu acceptes, si la cheffe comptable les teste elle-même",
-      "Les 3 attendent : enveloppe fixe, contenu variable"
+      "Tu les fais attendre : enveloppe fixe, contenu variable"
     ],
     bonne: 3,
     pourquoi: [

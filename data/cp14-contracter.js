@@ -525,7 +525,7 @@ LEARNSQL.questions.cp14 = [
       "Tu laisses la PA juger si l'anomalie est bloquante",
       "Tu fais signer le PV : la bascule de juin ne doit pas glisser",
       "Tu fais signer un PV avec une réserve sur les avoirs",
-      "Pas de PV : un refus écrit, avec l'anomalie décrite"
+      "Tu refuses le PV par écrit, avec l'anomalie décrite"
     ],
     bonne: 3,
     pourquoi: [
@@ -543,7 +543,7 @@ LEARNSQL.questions.cp14 = [
     choix: [
       "Tu attends : sans PV ni réserves écrites, rien n'est accepté",
       "Tu appelles la PA : réserve orale sur les 2 cas",
-      "Avant le 10, tes réserves écrites, dont les 2 cas à tester",
+      "Tu écris tes réserves avant le 10, dont les 2 cas à tester",
       "Tu demandes au DAF de suspendre le contrat jusqu'aux tests"
     ],
     bonne: 2,
@@ -600,7 +600,7 @@ LEARNSQL.questions.cp14 = [
     choix: [
       "Tu acceptes : le DAF a décidé, c'est le principal",
       "Tu refuses l'option : elle n'était pas dans le contrat signé",
-      "D'abord l'avenant signé, avec son prix ; puis l'activation",
+      "D'abord l'avenant signé, avec son prix, puis l'activation",
       "Tu fais activer, et tu notes par écrit le prix pour l'avenant"
     ],
     bonne: 2,

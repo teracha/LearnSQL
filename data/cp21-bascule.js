@@ -339,7 +339,7 @@ LEARNSQL.questions.cp21 = [
     q: "Fin mai. Le plan de bascule n'a jamais été joué. Le consultant : « Pas besoin de répétition : j'en ai fait vingt chez d'autres clients. » Que fais-tu ?",
     choix: [
       "Tu le crois : il connaît son métier mieux que toi",
-      "Une répétition avant le 11 juin, chronomètre en main",
+      "Tu répètes le plan avant le 11 juin, montre en main",
       "Tu relis le plan seul, aujourd'hui, étape par étape",
       "Tu reportes d'un mois : le temps d'une vraie répétition"
     ],
@@ -416,7 +416,7 @@ LEARNSQL.questions.cp21 = [
     choix: [
       "Rien de plus : si c'est no-go, tout reste comme avant",
       "D'accord : tu ajoutes la branche no-go, qui prévenir, quoi défaire",
-      "Tu écris un 2e plan complet, pour une bascule à mi-juillet",
+      "Un 2e plan complet, pour une bascule à mi-juillet",
       "Rien pour l'instant : les critères sont presque tous verts"
     ],
     bonne: 1,
@@ -604,7 +604,7 @@ LEARNSQL.questions.cp21 = [
     dialecte: "Gestion de projet",
     q: "Hypercare, jour 3. Le point de 9 h 30 dure 1 h 15 : chacun raconte sa journée de la veille. Que fais-tu ?",
     choix: [
-      "20 minutes : tickets nouveaux, tri, qui, pour quand",
+      "Tu le recentres : 20 minutes, nouveaux tickets, qui, quand",
       "Tu le laisses durer : il faut que chacun puisse s'exprimer",
       "Tu le supprimes : l'outil de tickets suffit à tout suivre",
       "Tu le passes à 1 fois par semaine : c'est plus raisonnable"
