@@ -12,7 +12,7 @@
 // L'enjeu fort (une date légale) n'est exigé que pour le niveau 4 (au-dessus du sponsor).
 // Point faible de l'élève (bilan) : il choisit la plus grosse solution (DG, COPIL, tout décaler) au lieu d'agir à son niveau.
 LEARNSQL.cours.cp16 = {
-  intro: "Sur un projet, presque personne ne dépend de toi, mais tu as besoin de leur temps. Ce module te donne une méthode : la bonne personne, une demande chiffrée, une escalade à petits pas, des phrases prêtes à dire. Et savoir quand monter sans attendre.",
+  intro: "Sur ta démat fiscale ou ta migration Divalto, comment obtenais-tu le temps de gens qui ne dépendaient pas de toi ? Sur un projet, presque personne ne dépend de toi, mais tu as besoin de leur temps. Ce module te donne une méthode : la bonne personne, une demande chiffrée, une escalade à petits pas, des phrases prêtes à dire. Et savoir quand monter sans attendre.",
   sections: [
     {
       titre: "Partir de ton vécu : tu n'es le chef de personne",
@@ -58,7 +58,7 @@ LEARNSQL.cours.cp16 = {
         "Tu montes d'un niveau quand ce niveau refuse ta 2e proposition chiffrée, recommence après que tu lui en as parlé, ou ne répond pas malgré une demande claire et une date limite. Exception : le sponsor qui dit non en connaissant le coût a décidé (point suivant).",
         "Le sponsor dit non ? C'est une info sur ses priorités. Réponds avec 2 ou 3 options chiffrées. Il tranche en connaissant le coût : c'est une décision. Tu appliques, et tu notes le risque.",
         "Niveau 4 seulement si le sponsor ne répond pas : demande courte faite, date limite dépassée, enjeu fort (une date légale). Enjeu faible ? Va le voir 10 minutes.",
-        "Avant le DG, tu préviens le sponsor et ton DSI. À dire (au sponsor) : « Sans décision d'ici vendredi, je demanderai au DG d'arbitrer. Je préfère te le dire avant. »"
+        "Avant le DG, tu préviens le sponsor et ton DSI (directeur des systèmes d'information). À dire (au sponsor) : « Sans décision d'ici vendredi, je demanderai au DG d'arbitrer. Je préfère te le dire avant. »"
       ],
       retenir: "On monte d'un niveau à la fois, en prévenant. Le sponsor qui tranche en connaissant le coût a décidé : on applique."
     },

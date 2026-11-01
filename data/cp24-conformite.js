@@ -246,7 +246,7 @@ LEARNSQL.questions.cp24 = [
     choix: [
       "Rien : ce sont ses serveurs, elle en fait ce qu'elle veut",
       "Tu le signales au DAF et au DPO, contrat en main",
-      "Tu demandes au DAF de résilier le contrat, dès aujourd'hui",
+      "Le contrat résilié par le DAF, dès aujourd'hui",
       "Tu l'ajoutes au registre avec le DPO, comme un nouvel usage"
     ],
     bonne: 1,
@@ -359,7 +359,7 @@ LEARNSQL.questions.cp24 = [
     q: "Mai 2027, pilote. Tu envoies par erreur à un fournisseur le fichier des rejets du jour : 40 clients, dont des entrepreneurs individuels. Tu t'en aperçois 5 minutes après. Que fais-tu d'abord ?",
     choix: [
       "Tu préviens le DPO, et tu attends son avis écrit avant d'appeler",
-      "Tu l'appelles : il efface tout, confirmé par écrit",
+      "Tu l'appelles toi-même : il efface tout, confirmé par écrit",
       "Tu déclares toi-même la violation à la CNIL, dans l'heure",
       "Rien : c'est un partenaire de confiance, il ne lira pas"
     ],
@@ -379,7 +379,7 @@ LEARNSQL.questions.cp24 = [
     choix: [
       "Rien : le disque est chiffré ; il n'y a aucun risque",
       "Le DPO prévenu, puis la CNIL notifiée sous 72 h, contre tout risque",
-      "Le DPO le jour même ; même sans notification, le registre",
+      "Tu préviens le DPO le jour même ; sans notification, le registre",
       "Tu préviens, le jour même, chaque fournisseur cité dans le fichier"
     ],
     bonne: 2,
@@ -491,7 +491,7 @@ LEARNSQL.questions.cp24 = [
     dialecte: "Gestion de projet",
     q: "Vendredi 17 h 30, pilote. Un fichier de factures est parti au mauvais destinataire ; il l'a supprimé, par écrit. Le cabinet du DPO est fermé jusqu'à lundi. Que fais-tu ?",
     choix: [
-      "Un mail au DPO ce soir ; ton DSI et le DAF prévenus aussi",
+      "Tu écris au DPO ce soir ; ton DSI et le DAF prévenus aussi",
       "Rien de plus : c'est supprimé, l'affaire est close",
       "Tu attends lundi ; juger le risque, c'est le rôle du DPO",
       "Tu notifies toi-même la CNIL, le jour même, et tu préviens le DPO"
@@ -721,7 +721,7 @@ LEARNSQL.questions.cp24 = [
     choix: [
       "Tu coupes le lien ; inutile d'en parler, même au DPO",
       "Lien coupé, le DPO le jour même ; un avertissement écrit",
-      "Lien coupé, le DPO le jour même ; merci à lui",
+      "Tu coupes le lien, le DPO le jour même ; merci à lui",
       "Tu fais fermer tout Power BI, le jour même, le temps d'auditer"
     ],
     bonne: 2,
@@ -836,7 +836,7 @@ LEARNSQL.questions.cp24 = [
       "Tu attends son accord ; tu le relances aujourd'hui",
       "Le DPO notifie seul : son avis suffit, c'est réglé",
       "Tu fais décider le DG aujourd'hui, avis du DPO en main",
-      "Tu notes au registre ; on notifiera si un client se plaint"
+      "Une ligne au registre ; on notifiera si un client se plaint"
     ],
     bonne: 2,
     pourquoi: [

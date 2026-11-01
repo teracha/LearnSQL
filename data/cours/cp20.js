@@ -65,7 +65,7 @@ LEARNSQL.cours.cp20 = {
   sections: [
     {
       titre: "L'inventaire : quoi, d'où, vers où, à qui",
-      exemple: "DEMAT 2027. Vers la PA (plateforme agréée) : environ 2 000 fiches clients et 600 fiches fournisseurs. Pour chacune : SIREN (le numéro de l'entreprise), adresses de facturation et de livraison, catégorie de l'opération, e-mail de contact.\nDans Divalto : les codes TVA.\nSur 3 400 fiches clients, on reprend les professionnels en France, actifs (une facture depuis 2 ans) ou avec une pièce en cours.\nPropriétaires : le responsable ADV (administration des ventes) pour les clients, la cheffe comptable pour les fournisseurs.",
+      exemple: "DEMAT 2027. Vers la PA (plateforme agréée) : environ 2 000 fiches clients et 600 fiches fournisseurs. Pour chacune : SIREN (le numéro de l'entreprise), adresses de facturation et de livraison, catégorie de l'opération, e-mail de contact.\nDans Divalto : les codes TVA (taxe sur la valeur ajoutée).\nSur 3 400 fiches clients, on reprend les professionnels en France, actifs (une facture depuis 2 ans) ou avec une pièce en cours.\nPropriétaires : le responsable ADV (administration des ventes) pour les clients, la cheffe comptable pour les fournisseurs.",
       points: [
         "L'inventaire : chaque donnée, sa source, sa cible, son volume, son propriétaire.",
         "Le propriétaire est au métier : il sait ce que la donnée veut dire, fait corriger, valide. Pas la DSI (direction des systèmes d'information), ni l'intégrateur : eux extraient et chargent.",

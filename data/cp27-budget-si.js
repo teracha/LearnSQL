@@ -384,7 +384,7 @@ LEARNSQL.questions.cp27 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Le contrôleur de gestion : « 20 licences Power BI ne se sont pas connectées depuis 3 mois. Coupe-les : 3 360 € par an. » Que fais-tu ?",
     choix: [
-      "Tu les coupes toutes demain ; tu notes l'économie",
+      "Toutes coupées demain ; tu notes l'économie",
       "« D'accord, après l'avis de chaque manager »",
       "« Non : une licence peut toujours resservir »",
       "Tu en coupes la moitié, au hasard, pour voir qui réclame"
@@ -424,7 +424,7 @@ LEARNSQL.questions.cp27 = [
     choix: [
       "Tu lances son projet, et tu le dis au comité ensuite",
       "Tu les gardes en réserve pour la DSI, sans le dire",
-      "La révision le montre ; le DG en décide, au comité",
+      "Tu l'inscris à la révision ; le DG décide, au comité",
       "« Non : ce qui n'est pas dépensé est perdu »"
     ],
     bonne: 2,
@@ -536,7 +536,7 @@ LEARNSQL.questions.cp27 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Décembre 2027, avant la décision du DG. La page du budget dit : « MCO : 200 k€. Build : 256 k€. Tenant cloud en hausse. » Ton DSI te la fait relire. Que changes-tu ?",
     choix: [
-      "Les mots du métier : « faire tourner l'existant »",
+      "Tu traduis : « faire tourner l'existant »",
       "Rien : le DG apprendra nos mots, ils sont plus précis",
       "Tu ajoutes 2 pages de glossaire en annexe",
       "Tu retires les chiffres, et tu gardes les mots"

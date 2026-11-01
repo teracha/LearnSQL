@@ -83,11 +83,11 @@ LEARNSQL.cours.cp10 = {
     },
     {
       titre: "Urgence et gel des changements",
-      exemple: "Mardi 6 avril. Un client EDI de la grande distribution exige un nouveau code dans ses factures dès juin : 2 jours d'intégrateur. Le COPIL est dans 3 semaines.\nCircuit court : l'impact le jour même, la décision du DAF au téléphone, une ligne au registre le soir, la commande signée vendredi.\nMai : le pilote démarre, et le gel avec lui. Le commercial veut un tri de plus dans un état : « 2 heures. » Noté, pour après la bascule.",
+      exemple: "Mardi 20 avril. Un client EDI de la grande distribution exige un nouveau code dans ses factures dès juin : 2 jours d'intégrateur. Le COPIL est dans 3 semaines.\nCircuit court : l'impact le jour même, la décision du DAF au téléphone, une ligne au registre le soir, la commande signée vendredi.\nMai : le pilote démarre, et le gel avec lui. Le commercial veut un tri de plus dans un état : « 2 heures. » Noté, pour après la bascule.",
       points: [
         "Exigé avant une date proche ? Au circuit, vite. Utile, sans échéance ? « Pas maintenant », avec une date (module cp18).",
         "Urgent ne veut pas dire sans circuit : l'impact en quelques heures, la décision le jour même, la trace écrite, la commande signée avant de commencer.",
-        "Le gel va du pilote (mai) à l'après-bascule. Seules passent les corrections d'anomalies bloquantes et les obligations légales : testées avant la production, et tracées, même pressées.",
+        "Le gel va du pilote (mai) à la fin de l'hypercare, le vendredi 25 juin (module cp21). Seules passent les corrections d'anomalies bloquantes et les obligations légales : testées avant la production, et tracées, même pressées.",
         "Le reste attend, écrit, avec une date : une amélioration, une anomalie non bloquante. L'appeler « bloquante » ne la fait pas passer.",
         "Lever le gel pour autre chose : c'est la décision du DAF, en connaissant le risque. Même quand c'est lui qui demande."
       ],
@@ -101,7 +101,7 @@ LEARNSQL.cours.cp10 = {
         "La PO la classe, dans l'enveloppe : ajouter, c'est souvent retirer autre chose. Personne ne classe à sa place.",
         "L'itération en cours ne bouge pas : une idée qui arrive en route attend la suivante. Pas de demande directe au consultant.",
         "Sortir de l'enveloppe (des jours en plus) = une demande de changement au DAF. Toucher au cœur (flux légaux, connecteur, envoi des factures) aussi, même si la PO est d'accord.",
-        "Pendant le gel, la partie agile attend aussi : les idées restent au backlog jusqu'après la bascule."
+        "Pendant le gel, la partie agile attend aussi : les idées restent au backlog jusqu'à la fin de l'hypercare."
       ],
       retenir: "Partie agile : le backlog, classé par la PO, dans l'enveloppe. En sortir, ou toucher au cœur : demande de changement."
     }

@@ -142,7 +142,7 @@ LEARNSQL.questions.cp22 = [
       "Fin ce soir, comme prévu : le N2 suivra le correctif de mardi",
       "Tu recommandes au DAF, le jour même, une semaine de plus",
       "Tu décides une semaine de plus, sur le dernier jour de sa commande",
-      "Tu recommandes au DAF un mois de plus, par prudence"
+      "Une recommandation au DAF : un mois de plus, par prudence"
     ],
     bonne: 1,
     pourquoi: [
@@ -197,7 +197,7 @@ LEARNSQL.questions.cp22 = [
     q: "Le consultant propose d'écrire seul le dossier d'exploitation : 3 jours, livré le 25 juin, dernier jour de l'hypercare. Que fais-tu ?",
     choix: [
       "D'accord : c'est lui qui connaît le mieux le paramétrage",
-      "Le N2 l'écrit avec lui, en faisant, puis le teste seul",
+      "Tu le confies au N2 : écrit avec lui, puis testé seul",
       "Tu l'écris toi-même ce week-end : ce sera plus rapide",
       "Le N2 l'écrit seul, puis le consultant le relit"
     ],
@@ -218,7 +218,7 @@ LEARNSQL.questions.cp22 = [
       "Il signe jeudi quand même : tu lui donneras le mot de passe",
       "Tu reportes le transfert d'un mois : il revoit seul chaque procédure",
       "Tu ajoutes le mot de passe à l'étape 3, le jour même",
-      "L'étape complétée aujourd'hui, il rejoue seul la procédure"
+      "Tu complètes l'étape aujourd'hui, il rejoue seul la procédure"
     ],
     bonne: 3,
     pourquoi: [
@@ -521,7 +521,7 @@ LEARNSQL.questions.cp22 = [
     choix: [
       "D'accord : un mail à tous ce soir, et le projet est clos",
       "Ton bilan au COPIL du 13 juillet : le DAF prononce la clôture",
-      "Un mail au DAF seul, sans COPIL, pour qu'il valide la clôture",
+      "Un mail au DAF seul, sans COPIL, avec les faits, pour qu'il valide",
       "Pas de clôture en juillet : tu attends la mesure de septembre"
     ],
     bonne: 1,
@@ -738,9 +738,9 @@ LEARNSQL.questions.cp22 = [
       "Non. Rouvrir un projet pour chaque écart, c'est un projet qui ne finit jamais. Le projet a livré ; ce qui reste se traite au run, ou dans un nouveau projet décidé comme tel.",
       "Non. Le business case promettait 100 heures : 30 manquent. Ne rien faire, c'est accepter la perte sans savoir pourquoi.",
       "Non. Réécrire la promesse efface ce qu'on apprend. On compare le promis et le réel, et on agit sur l'écart (module cp11).",
-      "Oui. D'abord pourquoi : fournisseurs qui n'émettent pas encore, habitudes, contrôle plus long que la minute prévue ? Puis des actions ciblées, au run ou dans la compta, décidées par le DAF, chacune avec un nom et une date."
+      "Oui. D'abord pourquoi : fournisseurs qui n'émettent pas encore, habitudes, contrôle plus long que la minute prévue ? Puis des actions ciblées, dans la compta, décidées par le DAF, ou au run, classées par ton DSI (module cp25), chacune avec un nom et une date."
     ],
-    retenir: "Un gain plus faible que promis : ses causes, puis des actions au run, décidées par le sponsor. On ne rouvre pas le projet."
+    retenir: "Un gain plus faible que promis : ses causes, puis des actions : le sponsor décide pour la compta, ton DSI classe celles du run. On ne rouvre pas le projet."
   },
   {
     id: "cp22-q36",
@@ -861,7 +861,7 @@ LEARNSQL.questions.cp22 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Chaque projet livre son dossier d'exploitation dans son propre format. Ton N2 s'y perd. Que fais-tu ?",
     choix: [
-      "Un sommaire commun à tous : flux, contacts, procédures, droits",
+      "Tu imposes un sommaire à tous : flux, contacts, procédures, droits",
       "Tu laisses faire : chaque projet est différent, son dossier aussi",
       "Le N2 écrit lui-même tous les dossiers, à la fin de chaque projet",
       "Tu achètes un outil de documentation, et tu fais tout ressaisir"

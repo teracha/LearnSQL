@@ -74,8 +74,8 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "Le plan B démarre. Le DAF, la compta et l'intégrateur doivent le savoir aujourd'hui. Que fais-tu ?",
     choix: [
-      "Trois messages courts : mêmes faits, un angle par public",
-      "Un seul long mail à tous : chacun y prend sa part",
+      "Tu écris 3 messages courts : mêmes faits, un angle par public",
+      "Un seul mail de 40 lignes à tous : chacun y prend sa part",
       "Tu préviens le DAF : il fera passer l'info aux autres",
       "Une réunion de 2 h avec tous, le jour même, pour tout expliquer"
     ],
@@ -285,7 +285,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "Tu l'appelles aujourd'hui, puis tu le présentes en séance",
       "Tu l'annonces en séance : tous l'apprennent en même temps",
-      "Ce soir, un mail à tous les membres du COPIL, pour préparer",
+      "Ce soir, 10 lignes à tout le COPIL : la cause, pour préparer",
       "Tu retires le point du COPIL, le temps d'y voir plus clair"
     ],
     bonne: 0,
@@ -304,7 +304,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "Tu appelles le DAF ce soir : lundi, ce serait trop tard",
       "Tu lui écris ce soir faits et cause, et lui demandes de rappeler",
-      "Lundi matin, 5 lignes au DAF : faits, cause, solution",
+      "Tu attends lundi matin : 5 lignes au DAF, faits, cause, solution",
       "Rien d'écrit : tu en parleras au prochain COPIL"
     ],
     bonne: 2,
@@ -378,7 +378,7 @@ LEARNSQL.questions.cp17 = [
     dialecte: "Gestion de projet",
     q: "Le DAF a décidé : la bascule passe de juin à mi-juillet. Les 6 personnes de la compta doivent le savoir. Que fais-tu ?",
     choix: [
-      "Un mail aux 6, le jour même, pour que ce soit clair",
+      "5 lignes aux 6, le jour même, pour que ce soit clair",
       "Tu vois la cheffe comptable, puis vous l'annoncez ensemble",
       "Tu attends le COPIL suivant, pour l'annoncer officiellement",
       "Le DAF l'annonce lui-même, puis tu réponds aux questions"
@@ -646,7 +646,7 @@ LEARNSQL.questions.cp17 = [
     choix: [
       "« Pas pendant la recette. Ouvre un ticket au support : je l'appuie. »",
       "« Oui, bien sûr : je te le fais ce soir, après les tests, pas de souci. »",
-      "« Pas pendant la recette, je suis débordé. On verra plus tard. »",
+      "« Pas pendant la recette, je suis débordé. On en reparle ? »",
       "« Ce n'est pas mon rôle : vois ça avec quelqu'un d'autre. »"
     ],
     bonne: 0,
@@ -932,7 +932,7 @@ LEARNSQL.questions.cp17 = [
       "Un mail court « comme convenu », créneaux en agenda",
       "Rien : c'est écrit sur Teams, ça suffit largement",
       "Tu lui fais signer un engagement formel de 3 semaines",
-      "Tu confirmes par mail, le DAF en copie pour sécuriser"
+      "Tu confirmes, trace écrite, le DAF en copie pour sécuriser"
     ],
     bonne: 0,
     pourquoi: [
@@ -946,7 +946,7 @@ LEARNSQL.questions.cp17 = [
   {
     id: "cp17-q50",
     dialecte: "Gestion de projet",
-    q: "La cheffe comptable devait te rendre lundi le PV de recette signé. On est jeudi. Le pilote démarre lundi prochain. Tu la relances. Quelle phrase ?",
+    q: "La personne que la cheffe comptable a désignée devait te rendre lundi le PV de recette signé. On est jeudi. Le pilote démarre lundi prochain. Tu la relances. Quelle phrase ?",
     choix: [
       "« Je n'ai toujours pas ton PV, comme d'habitude avec la compta. »",
       "« Il me faut le PV vendredi 12 h, pour le pilote. Un souci ? »",

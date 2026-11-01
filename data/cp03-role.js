@@ -197,7 +197,7 @@ LEARNSQL.questions.cp03 = [
     q: "Le consultant de l'intégrateur propose : « Je peux tenir le registre des risques et écrire le rapport du COPIL. Je connais le projet mieux que personne. » 2 jours par mois, payés au jour. Que réponds-tu ?",
     choix: [
       "« Si le DAF accepte de payer ces 2 jours, d'accord »",
-      "« Le registre des risques pour toi, le rapport pour moi »",
+      "« Le registre des risques pour toi, le rapport pour moi ? »",
       "« Non : tout reste à moi. Tes risques, au point projet »",
       "« D'accord : faire faire, c'est le rôle d'un chef de projet »"
     ],
@@ -331,7 +331,7 @@ LEARNSQL.questions.cp03 = [
     choix: [
       "Tu le laisses chercher demain ; à midi, tu lui donnes ta piste",
       "Tu préviens son responsable, et tu demandes un consultant plus solide",
-      "Tu lui montres ce que tu as vu ; il vérifie, corrige et reteste",
+      "Tu lui montres toi-même ce que tu as vu ; il vérifie, corrige, reteste",
       "Tu corriges et testes le mapping ce soir : 2 jours perdus, ça suffit"
     ],
     bonne: 2,
@@ -484,7 +484,7 @@ LEARNSQL.questions.cp03 = [
       "Plus aucune copie pour lui ; il verra tout au COPIL",
       "Rien : au moins, il ne pourra pas dire qu'il ne savait pas",
       "La fiche du lundi, et un appel le jour même si c'est grave",
-      "Un résumé écrit des faits chaque soir, à la place des copies"
+      "10 lignes de faits chaque soir, à la place des copies"
     ],
     bonne: 2,
     pourquoi: [
@@ -519,7 +519,7 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "La règle : des jours en plus, c'est une commande signée par le DAF avant de commencer. Hier, tu as laissé le consultant faire 1 jour de plus sans elle. Personne ne l'a vu. Que fais-tu ?",
     choix: [
-      "Tu le dis à ton DSI ; le DAF le saura au bilan de juillet",
+      "Tu le montres à ton DSI ; le DAF le saura au bilan de juillet",
       "Tu demandes au consultant de ne pas le compter, et tu n'en dis rien",
       "Rien : 750 €, la commande suivante le couvrira bien",
       "Tu le dis aujourd'hui au DAF et à ton DSI : ton erreur, la commande"
@@ -538,7 +538,7 @@ LEARNSQL.questions.cp03 = [
     dialecte: "Gestion de projet",
     q: "Mardi. Le projet « étiquettes d'expédition » d'un collègue de la DSI a réservé le seul consultant qui connaît ton paramétrage, 2 semaines dès le 16 mars : le début de ta recette. L'intégrateur fige son planning vendredi. Que fais-tu ?",
     choix: [
-      "Tu en parles à ton DSI lundi prochain, impact chiffré en main",
+      "Tu en parles à ton DSI lundi prochain, cause et impact chiffrés",
       "Rien : ta recette commencera par des tests qui n'ont pas besoin de lui",
       "Tu vois ton DSI dès demain : l'impact sur ta recette, tes options",
       "Tu appelles l'intégrateur, et tu exiges qu'il garde ce consultant pour toi"
@@ -577,7 +577,7 @@ LEARNSQL.questions.cp03 = [
     q: "Avant chaque choix, même l'ordre des tests ou un créneau, tu demandes à ton DSI : « Tu ferais quoi ? » Il finit par te dire : « C'est ton projet. » Que changes-tu ?",
     choix: [
       "Tu décides dans ta délégation et tu l'informes. Ailleurs, tu recommandes",
-      "Tu lui écris tes questions, avec les options, et il répond quand il peut",
+      "Tu lui écris tes questions, faits et options, et il répond quand il peut",
       "Tu ne lui parles plus de tes choix, jusqu'au prochain COPIL",
       "Tu demandes au DAF, ton sponsor, de trancher à sa place"
     ],
@@ -635,7 +635,7 @@ LEARNSQL.questions.cp03 = [
     choix: [
       "Tu l'annonces dès le prochain COPIL : passage en version 2 en novembre",
       "Rien pour l'instant : la PA préviendra bien avant décembre",
-      "Tu le mets dans les risques du bilan de juillet, pour ton DSI",
+      "Tu le montres dans les risques du bilan de juillet, à ton DSI",
       "Tu proposes dès maintenant à ton DSI un passage à l'automne, chiffré"
     ],
     bonne: 3,

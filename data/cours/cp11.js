@@ -55,7 +55,7 @@ LEARNSQL.cours.cp11 = {
       points: [
         "TCO (coût total de possession) = tout ce que le choix coûte, sur sa durée : la mise en place, le run et la sortie. Le run : le fonctionnement après la bascule (abonnement, support, versions). La sortie : reprendre ses données.",
         "Les dépenses externes ET le temps interne, compté ici en jours dans le business case (pas dans le budget). Il n'est pas gratuit : Julie en recette ne traite pas ses factures.",
-        "La durée : celle du contrat ou de la vie de la solution. 3 ans pour la PA ; souvent plus pour un ERP.",
+        "La durée : celle du contrat ou de la vie de la solution. 3 ans pour la PA ; souvent plus pour un ERP (progiciel de gestion intégré).",
         "La réserve pour risques vient du registre (module cp07) : une somme pour des risques nommés, pas une marge pour tout. La dépenser : une commande ou un avenant signé par le DAF.",
         "Pièges : un seul devis présenté comme le coût (un poste « sur devis séparé » se chiffre quand même). Oublier le run, la sortie, le temps interne. Compter deux fois : une réserve, plus une marge sur chaque ligne."
       ],
@@ -68,7 +68,7 @@ LEARNSQL.cours.cp11 = {
         "Chiffre ce qui se compte : volume × temps gagné × coût horaire chargé. Heures de ressaisie, erreurs évitées, relances en moins.",
         "Du temps libéré n'est pas de l'argent économisé. Il le devient seulement si une dépense disparaît (un intérim, une embauche évitée). Sinon, écris « gain en temps ».",
         "Le qualitatif à part : conformité, clôture plus sereine, image auprès d'AquaBleu. Pas d'euros inventés.",
-        "Prudence : le gain arrive après la bascule, et monte en charge (tes fournisseurs PME devront émettre au 1er septembre 2027). Il reste un contrôle : jamais 100 %. Et un gain ne se compte qu'une fois : 100 heures ou « 2/3 d'un poste », pas les deux.",
+        "Prudence : le gain arrive après la bascule, et monte en charge (tes fournisseurs PME, petites et moyennes entreprises, devront émettre au 1er septembre 2027). Il reste un contrôle : jamais 100 %. Et un gain ne se compte qu'une fois : 100 heures ou « 2/3 d'un poste », pas les deux.",
         "Chaque gain a sa source (une mesure, un volume de Divalto), un responsable métier (ici, la cheffe comptable), et une date pour le mesurer après la bascule."
       ],
       retenir: "Un gain se chiffre avec ses hypothèses, prudemment, et dit s'il est en argent ou en temps. Le qualitatif reste à part."

@@ -537,7 +537,7 @@ LEARNSQL.questions.cp06 = [
     q: "Mars. Malgré un créneau fixe et deux rétrospectives, la partie agile de DEMAT patine. Les derniers écrans sont devenus clairs : tu veux les passer en spécifications écrites, comme le cœur. Que fais-tu ?",
     choix: [
       "Tu gardes l'agile coûte que coûte : la démarche est validée",
-      "Tu changes, et tu l'annonces au prochain COPIL",
+      "Tu changes, et tu montres faits et options au prochain COPIL",
       "Tu le proposes au DAF, avec l'impact, avant de changer",
       "Tu demandes au DG de trancher, avec l'impact des deux"
     ],

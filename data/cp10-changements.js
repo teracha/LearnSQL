@@ -138,7 +138,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Il commence demain : le DAF a dit oui devant le COPIL",
       "Il commence demain : le compte rendu du COPIL vaut commande",
-      "Il commence quand le DAF a signé la commande",
+      "Tu attends la commande signée par le DAF, puis il commence",
       "Tu attends le COPIL de mars, qui validera le registre"
     ],
     bonne: 2,
@@ -442,7 +442,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Rien : la demande est refusée, on n'y revient pas",
       "Tu la fais faire : 8 000 € perdus, ça suffit à décider",
-      "Tu renvoies au DAF le dossier de février, tel quel",
+      "Le dossier de février renvoyé au DAF, tel quel",
       "Tu la rouvres, avec ce fait et de nouvelles options"
     ],
     bonne: 3,
@@ -518,7 +518,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Elle est PO : si elle la dit bloquante, elle passe le gel",
       "Tu chiffres le tri, et le DAF décide de lever le gel",
-      "Tu la remets au backlog, pour après la bascule",
+      "Tu la remets au backlog : elle attend la fin du gel",
       "Tu la notes pour la fin du pilote, avant la bascule"
     ],
     bonne: 2,
@@ -633,7 +633,7 @@ LEARNSQL.questions.cp10 = [
       "Oui : 2 heures, dans l'enveloppe, et Sophie sera contente",
       "Non : Sophie n'a pas à demander quoi que ce soit",
       "Tu la fais passer par le circuit : chiffrée, puis le DAF",
-      "Au backlog : la cheffe comptable la classera pour la suite"
+      "Tu la mets au backlog : la cheffe comptable la classera"
     ],
     bonne: 3,
     pourquoi: [
@@ -742,7 +742,7 @@ LEARNSQL.questions.cp10 = [
   {
     id: "cp10-q39",
     dialecte: "Gestion de projet",
-    q: "Tu prépares l'impact d'une demande de changement. Elle demande aussi 2 jours de tests à Marc, assistant ADV. Le DAF décidera au COPIL de jeudi. Que fais-tu d'abord ?",
+    q: "Tu prépares l'impact d'une demande de changement. Elle demande aussi 2 jours de tests à Marc, assistant ADV. Le DAF décidera au COPIL de mardi. Que fais-tu d'abord ?",
     choix: [
       "Tu vois son manager, et tu chiffres ces 2 jours avec lui",
       "Tu demandes à Marc s'il peut se libérer 2 jours",
@@ -784,7 +784,7 @@ LEARNSQL.questions.cp10 = [
     choix: [
       "Tu la fais passer par le circuit, jusqu'au COPIL",
       "Tu demandes au DAF de valider ce correctif avant",
-      "Tu acceptes, et Sophie reteste ses factures mardi",
+      "D'accord, et Sophie reteste ses factures mardi",
       "Tu acceptes mardi, si la PA paie le temps de test de Sophie"
     ],
     bonne: 2,

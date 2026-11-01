@@ -427,7 +427,7 @@ LEARNSQL.questions.cp12 = [
     q: "Fin mars. Commande de base : 24 jours consommés, pour 24 prévus. Mais sur 4 flux EDI, 1 seul est fini ; le plan en prévoyait 3. Le consultant : « Je suis dans les jours. » Que fais-tu d'abord ?",
     choix: [
       "Rien : 24 jours sur 24 prévus, le budget est tenu",
-      "Tu alertes le DAF dès aujourd'hui : l'atterrissage va dériver",
+      "Alerte au DAF dès aujourd'hui : l'atterrissage va dériver",
       "Tu lui demandes de finir les 2 flux en retard d'ici vendredi",
       "Tu refais le reste à faire tâche par tâche, flux par flux"
     ],
@@ -481,7 +481,7 @@ LEARNSQL.questions.cp12 = [
   {
     id: "cp12-q23",
     dialecte: "Gestion de projet",
-    q: "Le connecteur de la PA arrive le 29 mars, au lieu du 1er. En mars, l'intégrateur n'a fait que 4 jours, pour 10 prévus. Le DAF : « 6 jours d'économie, bravo ! » Que lui réponds-tu ?",
+    q: "Le connecteur de la PA arrive le 29 mars, au lieu du 1er. En mars, sur le connecteur, l'intégrateur n'a fait que 4 jours, pour 10 prévus. Le DAF : « 6 jours d'économie, bravo ! » Que lui réponds-tu ?",
     choix: [
       "« Merci : 6 jours, soit 4 500 € de moins à l'atterrissage »",
       "« Non : gardons ces 6 jours en réserve, pour un imprévu d'ici juillet »",
@@ -523,7 +523,7 @@ LEARNSQL.questions.cp12 = [
     choix: [
       "Tu présentes l'atterrissage au COPIL, avec des options chiffrées",
       "Tu fais faire les jours : sans eux, le pilote échoue",
-      "Le DAF le jour même : la cause, l'atterrissage, les options",
+      "Tu alertes le DAF le jour même : cause, atterrissage, options",
       "Le DG le jour même : au-delà de 90 k€, ce n'est plus le DAF"
     ],
     bonne: 2,
@@ -562,7 +562,7 @@ LEARNSQL.questions.cp12 = [
       "Tu refuses : la réserve est pour les risques, pas pour un avenant",
       "Tu acceptes : 1 600 € engagés dès aujourd'hui ; reste 6 400 €",
       "D'accord : 50 € pris sur la réserve ; le reste, chaque mois",
-      "Tu lui proposes d'abord le COPIL : la réserve est à tout le projet"
+      "D'abord le COPIL : la réserve est à tout le projet"
     ],
     bonne: 1,
     pourquoi: [
@@ -599,7 +599,7 @@ LEARNSQL.questions.cp12 = [
     choix: [
       "L'écart au DAF, options chiffrées, réserve comprise : il choisit",
       "Tu les prends sur la réserve : elle est faite pour l'imprévu",
-      "Tu les prends sur la réserve, et tu le dis au COPIL du mois",
+      "Sur la réserve, et le COPIL du mois en est informé",
       "Non : la réserve ne se touche pas avant la fin du projet"
     ],
     bonne: 0,

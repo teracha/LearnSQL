@@ -2,7 +2,7 @@
 // Un état des lieux AVANT le parcours : l'élève ne révise pas, il se situe.
 // Fil rouge « DEMAT 2027 » : un négociant en équipement de piscines (ERP Divalto) passe à la facture électronique.
 LEARNSQL.cours.cp01 = {
-  intro: "Ton dernier projet (EDI, démat, migration Divalto, Power BI) : qu'est-ce qui t'a le plus coûté ? Ce bilan t'aide à trouver tes 2 ou 3 points faibles, pour savoir quels modules faire en premier.",
+  intro: "Ton dernier projet (EDI : échange de données informatisé ; démat, migration Divalto, Power BI) : qu'est-ce qui t'a le plus coûté ? Ce bilan t'aide à trouver tes 2 ou 3 points faibles, pour savoir quels modules faire en premier.",
   sections: [
     {
       titre: "Comment utiliser ce bilan",
@@ -41,7 +41,7 @@ LEARNSQL.cours.cp01 = {
       retenir: "Argent et posture sont souvent les points faibles d'un profil technique : sois honnête sur ces notes."
     },
     {
-      titre: "Auto-évaluation : livrer, passer en run, vers DSI adjoint",
+      titre: "Auto-évaluation : livrer, passer en run, vers DSI (directeur des systèmes d'information) adjoint",
       exemple: "Veille de mise en service (la bascule). Deux anomalies graves sont encore ouvertes.\nLe DAF veut y aller quand même.\nSais-tu qui décide, et sur quels critères ? Si tu hésites, note 2.",
       points: [
         "D. Recette : « Je sais faire valider les tests par le métier, avec un PV (procès-verbal) signé. »",

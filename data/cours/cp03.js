@@ -66,7 +66,7 @@ LEARNSQL.cours.cp03 = {
     },
     {
       titre: "L'expert devenu chef de projet : la tentation de faire",
-      exemple: "Recette (les tests du métier). 40 factures fournisseurs rejetées. En 5 minutes, tu trouves la cause : une règle de TVA du connecteur. Tu sais la corriger en 10 minutes.\nLe consultant est là demain matin, et Julie a d'autres cas à tester d'ici là.\nTu lui donnes ton diagnostic. Il corrige, reteste, et met sa documentation à jour.",
+      exemple: "Recette (les tests du métier). 40 factures fournisseurs rejetées. En 5 minutes, tu trouves la cause : une règle de TVA (taxe sur la valeur ajoutée) du connecteur. Tu sais la corriger en 10 minutes.\nLe consultant est là demain matin, et Julie a d'autres cas à tester d'ici là.\nTu lui donnes ton diagnostic. Il corrige, reteste, et met sa documentation à jour.",
       points: [
         "La tentation : paramétrer, corriger un flux, écrire une requête. C'est rapide, rassurant, et tu sais faire. Ce n'est pas une économie : pendant ce temps, personne ne pilote.",
         "Le prix : ta correction n'a ni test, ni trace. Le prestataire n'en répond plus. Et tu deviens le seul à savoir. Ton expertise sert autrement : trouver la cause, poser la bonne question, relire, tester.",

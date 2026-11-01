@@ -130,7 +130,7 @@ LEARNSQL.questions.cp18 = [
     choix: [
       "Tu acceptes : c'est légal aussi, et c'est la même PA",
       "Non : le e-reporting est hors de ton périmètre",
-      "Tu demandes au DG de trancher entre les deux obligations",
+      "Le DG tranche entre les deux obligations, à ta demande",
       "Tu chiffres l'effet sur DEMAT, et le DAF choisit"
     ],
     bonne: 3,
@@ -185,7 +185,7 @@ LEARNSQL.questions.cp18 = [
     dialecte: "Gestion de projet",
     q: "L'intégrateur propose de livrer son paramétrage en 2 lots au lieu d'1. Même date de fin, même prix. Le 1er lot arriverait 2 semaines plus tôt, pour vos tests techniques. Que fais-tu ?",
     choix: [
-      "Tu acceptes, et tu adaptes ton planning",
+      "D'accord, et tu adaptes ton planning",
       "Tu fais chiffrer l'avenant, puis valider par le DAF",
       "Tu refuses : un seul lot, c'est ce que dit le contrat",
       "Tu acceptes, si la cheffe comptable valide d'abord"
@@ -299,9 +299,9 @@ LEARNSQL.questions.cp18 = [
     dialecte: "Gestion de projet",
     q: "La cheffe comptable veut décaler la bascule de juin à mi-juillet : « Mon équipe sera plus disponible. » C'est faisable, mais la marge légale avant le 1er septembre fond. Que fais-tu ?",
     choix: [
-      "Tu demandes au DG d'arbitrer : la date légale est en jeu",
+      "Au DG d'arbitrer : la date légale est en jeu",
       "Non : juin est validé, il ne bouge plus",
-      "Tu acceptes ; tu en informes le DAF ensuite",
+      "Tu acceptes ; tu en informes le DAF ensuite, faits en main",
       "Tu prépares 3 options chiffrées ; le DAF tranche"
     ],
     bonne: 3,
@@ -318,7 +318,7 @@ LEARNSQL.questions.cp18 = [
     dialecte: "Gestion de projet",
     q: "Julie et Sophie se renvoient une tâche : lire chaque matin la liste des rejets de la PA (factures reçues et émises). Tu les as vues 2 fois, options posées : pas d'accord. La procédure doit être prête lundi. Que fais-tu ?",
     choix: [
-      "Une 3e réunion avec elles deux, pour qu'elles s'accordent",
+      "Une 3e réunion, ensemble, pour qu'elles s'accordent enfin",
       "Tu tranches toi-même, et tu l'écris dans la procédure",
       "Tu les préviens, puis le DAF tranche sur tes options",
       "Tu les préviens, puis leur cheffe tranche sur tes options"
@@ -568,7 +568,7 @@ LEARNSQL.questions.cp18 = [
       "Une réunion avec les deux, pour qu'ils se répartissent la tâche",
       "Tu fais faire la conversion par l'intégrateur, en régie",
       "Tu écris à la PA, contrat en main : la conversion est à elle",
-      "Tu demandes au DAF de relire le contrat et d'arbitrer"
+      "Le DAF relit le contrat et arbitre, à ta demande"
     ],
     bonne: 2,
     pourquoi: [

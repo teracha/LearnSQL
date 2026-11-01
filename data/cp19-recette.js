@@ -193,7 +193,7 @@ LEARNSQL.questions.cp19 = [
     dialecte: "Gestion de projet",
     q: "Février. Ton calendrier de recette : 120 cas en 6 semaines, 20 par semaine, puis 1 semaine de marge. Rien n'est prévu pour les retests. Que fais-tu ?",
     choix: [
-      "Un créneau de retest par semaine, réservé avec leurs managers",
+      "Tu réserves un créneau de retest par semaine, avec les managers",
       "Rien de plus : la semaine de marge servira aux retests",
       "Les retests attendront le pilote de mai, sur de vraies factures",
       "Tu étires la recette à 10 semaines : PV fin mai, le DAF le sait"
@@ -270,7 +270,7 @@ LEARNSQL.questions.cp19 = [
     q: "Julie a écrit ses cas fournisseurs. La moitié portent sur le même gros fournisseur : « C'est 40 % de nos factures. » Que fais-tu ?",
     choix: [
       "Tu valides : ses cas suivent le volume réel des factures",
-      "Un cas par situation : avoir, acompte, litige, plusieurs dépôts",
+      "Tu demandes un cas par situation : avoir, acompte, litige, dépôts",
       "Tu lui fais tester toutes les factures d'un mois, une à une",
       "L'intégrateur choisit les cas qui manquent : il voit le système"
     ],
@@ -650,7 +650,7 @@ LEARNSQL.questions.cp19 = [
     q: "Juillet. La PA livre la version du connecteur qui corrige les 2 réserves. Que fais-tu avant de l'installer en production ?",
     choix: [
       "Rien de plus : des défauts mineurs, que la PA a déjà testés",
-      "Les 2 cas et le lot rejoués, puis la levée écrite par le métier",
+      "Tu fais rejouer les 2 cas et le lot, puis le métier lève par écrit",
       "Toute la recette rejouée : les 120 cas, 6 semaines",
       "Tu rejoues toi-même les 2 cas et le lot, puis tu lèves les réserves"
     ],
@@ -764,7 +764,7 @@ LEARNSQL.questions.cp19 = [
     q: "Tu es DSI adjoint. Sur tes 3 projets, aucune stratégie de recette écrite : les PV arrivent la veille des mises en service, signés « pour ne pas bloquer ». Que fais-tu ?",
     choix: [
       "Tu signes toi-même les PV : tu as la vue sur tous les projets",
-      "Une page de stratégie, exigée au cadrage de chaque projet",
+      "Tu exiges une page de stratégie au cadrage de chaque projet",
       "Tu recrutes une équipe de 3 testeurs, dédiée à tous les projets",
       "Rien : chaque chef de projet fait sa stratégie à sa façon"
     ],

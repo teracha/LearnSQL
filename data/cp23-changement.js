@@ -194,7 +194,7 @@ LEARNSQL.questions.cp23 = [
       "Tu la reprends devant l'équipe : il n'y aura pas de papier",
       "Rien : chacun a le droit de douter, elle aussi",
       "Tu la vois seule après : ses craintes, puis son message",
-      "Tu en parles au DAF le jour même, pour qu'il la recadre"
+      "Au DAF le jour même, pour qu'il la recadre"
     ],
     bonne: 2,
     pourquoi: [
@@ -308,7 +308,7 @@ LEARNSQL.questions.cp23 = [
       "D'accord : former, c'est son métier, pas le leur",
       "Julie et Sophie seules ; leur cheffe donne son accord",
       "Tu animes toi-même, et le consultant répond aux questions",
-      "Elles animent avec lui, leur temps vu avec leur cheffe"
+      "Tu les fais animer avec lui, temps vu avec leur cheffe"
     ],
     bonne: 3,
     pourquoi: [

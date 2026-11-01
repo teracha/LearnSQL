@@ -11,7 +11,7 @@
 // sans tomber dans l'excès inverse : un risque majeur ou légal se dit au sponsor le jour même (section 6).
 // « Escalader » en section 4 = la 5e réponse du PMBOK (remettre un risque à son porteur), pas l'échelle d'escalade de cp16.
 LEARNSQL.cours.cp07 = {
-  intro: "Gérer les risques, c'est agir avant que le souci arrive, quand ça coûte encore peu. Ce module te donne un registre simple, 4 réponses possibles, et une règle : la réponse a la taille du risque, ni plus grosse, ni plus petite.",
+  intro: "Sur ta démat fiscale, quel souci t'a surpris alors que quelqu'un le voyait venir ? Gérer les risques, c'est agir avant que le souci arrive, quand ça coûte encore peu. Ce module te donne un registre simple, 4 réponses possibles, et une règle : la réponse a la taille du risque, ni plus grosse, ni plus petite.",
   sections: [
     {
       titre: "Partir de ton vécu : risque, problème, hypothèse",
@@ -27,7 +27,7 @@ LEARNSQL.cours.cp07 = {
     },
     {
       titre: "Trouver les risques : à plusieurs, et chez les gens",
-      exemple: "Atelier d'1 h, avec :\n– la cheffe comptable ;\n– Julie, comptable fournisseurs ;\n– Sophie, comptable clients ;\n– le responsable ADV (administration des ventes) ;\n– l'intégrateur Divalto ;\n– le chef de projet de la PA.\nQuestion posée : « Qu'est-ce qui peut faire rater la bascule de juin ? » (bascule = mise en service)\nL'intégrateur raconte un autre client : la reprise des codes TVA avait coûté 3 semaines.\nJulie dit : « Les avoirs fournisseurs, seule la cheffe comptable sait les traiter. »",
+      exemple: "Atelier d'1 h, avec :\n– la cheffe comptable ;\n– Julie, comptable fournisseurs ;\n– Sophie, comptable clients ;\n– le responsable ADV (administration des ventes) ;\n– l'intégrateur Divalto ;\n– le chef de projet de la PA.\nQuestion posée : « Qu'est-ce qui peut faire rater la bascule de juin ? » (bascule = mise en service)\nL'intégrateur raconte un autre client : la reprise des codes TVA (taxe sur la valeur ajoutée) avait coûté 3 semaines.\nJulie dit : « Les avoirs fournisseurs, seule la cheffe comptable sait les traiter. »",
       points: [
         "Atelier court, avec les métiers ET les prestataires. Seul à ton bureau, tu ne vois que la technique.",
         "Retours d'expérience : tes projets passés, ceux de l'intégrateur, les autres clients de la PA.",

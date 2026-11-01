@@ -73,7 +73,7 @@ LEARNSQL.cours.cp19 = {
     },
     {
       titre: "Les cas de test : les vrais cas, écrits avant",
-      exemple: "Cas F-17, écrit par Julie en février :\nSituation : un avoir fournisseur, lié à sa facture du mois.\nDonnées : facture de 1 200 € HT, avoir de 150 € HT.\nÉtapes : l'avoir arrive par la PA ; Julie le contrôle dans Divalto.\nRésultat attendu : avoir lié à sa facture, TVA de 30 €, reste à payer 1 260 € TTC.",
+      exemple: "Cas F-17, écrit par Julie en février :\nSituation : un avoir fournisseur, lié à sa facture du mois.\nDonnées : facture de 1 200 € HT, avoir de 150 € HT.\nÉtapes : l'avoir arrive par la PA ; Julie le contrôle dans Divalto.\nRésultat attendu : avoir lié à sa facture, TVA (taxe sur la valeur ajoutée) de 30 €, reste à payer 1 260 € TTC.",
       points: [
         "Un cas = une situation réelle, ses données, ses étapes, son résultat attendu. Sans attendu écrit avant, on valide ce que le système fait. Pour un tableau Power BI : un chiffre sûr, comme un mois clos.",
         "Ils viennent du vrai travail : avoirs, rejets EDI, AquaBleu. Un fournisseur étranger hors PA doit passer comme avant. Ce qui change d'un site à l'autre a ses cas. Les rares mais coûteux d'abord.",
@@ -102,7 +102,7 @@ LEARNSQL.cours.cp19 = {
         "Un correctif peut casser ailleurs, surtout un réglage commun : TVA, numéros, format. La non-régression vérifie que ce qui marchait marche encore.",
         "Le lot : 15 à 20 cas clés, choisis avant la recette. Un par flux, plus les cas rares et coûteux. Pas les 120, ni rien. Un cas qui a cassé fort y entre.",
         "Les correctifs arrivent par livraisons groupées et annoncées, ici le mardi et le jeudi. Le lot se rejoue après chacune. Rien au fil de l'eau.",
-        "Le lot resservira : au pilote, à chaque version de la PA ou de Divalto (module cp15). Le logiciel l'automatise souvent ; un ERP en PME le rejoue souvent à la main.",
+        "Le lot resservira : au pilote, à chaque version de la PA ou de Divalto (module cp15). Le logiciel l'automatise souvent ; un ERP (progiciel de gestion intégré) en PME (petite ou moyenne entreprise) le rejoue souvent à la main.",
         "Piège : couper des cas pour tenir la date. Dans ta tolérance, tu décales la date ; au-delà, le DAF (directeur administratif et financier, ton sponsor) choisit, risque connu (module cp18). Le pilote confirme la recette, il ne la remplace pas."
       ],
       retenir: "Après chaque livraison de correctifs, on rejoue le lot de cas clés : pas tout, jamais rien."

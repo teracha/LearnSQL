@@ -161,7 +161,7 @@ LEARNSQL.questions.cp13 = [
     choix: [
       "Tu l'envoies telle quelle : elle est validée, et c'est plus rapide",
       "Tu demandes à chaque PA de t'envoyer son propre questionnaire",
-      "Un cahier des charges court, tiré d'elle, avec volumes et dates",
+      "Tu en tires un cahier des charges court : volumes, délais, EDI",
       "Un cahier des charges de 40 pages, détaillé écran par écran"
     ],
     bonne: 2,
@@ -350,8 +350,8 @@ LEARNSQL.questions.cp13 = [
     q: "Pendant la consultation, le commercial de la PA C t'invite, avec la cheffe comptable, à un match en loge, « pour mieux se connaître ». Que fais-tu ?",
     choix: [
       "Vous y allez : un match n'engage à rien, et ça crée du lien",
-      "Vous y allez, et tu le déclares au DAF dès votre retour",
-      "Vous déclinez poliment, et tu le dis au DAF le jour même",
+      "Vous y allez ensemble, et tu le déclares au DAF au retour",
+      "Tu déclines poliment, et tu le dis au DAF le jour même",
       "Tu écartes C de la consultation, pour tentative de corruption"
     ],
     bonne: 2,
@@ -485,7 +485,7 @@ LEARNSQL.questions.cp13 = [
       "A : 5 000 € de moins ; c'est l'écart entre les deux offres",
       "A, car les jours de l'intégrateur sont dans un autre budget",
       "Tu relances la consultation avec un critère de plus",
-      "B : 6 250 € de moins, jours de l'intégrateur compris"
+      "Tu prends B : 6 250 € de moins, jours d'intégrateur inclus"
     ],
     bonne: 3,
     pourquoi: [
@@ -499,7 +499,7 @@ LEARNSQL.questions.cp13 = [
   {
     id: "cp13-q25",
     dialecte: "Gestion de projet",
-    q: "Les 2 finalistes : A, 1re de la grille ; B, 2e, 15 % moins chère sur 3 ans. Le DAF : « Passe le prix de 20 à 40 points, que B passe devant. » Que fais-tu ?",
+    q: "Les 2 finalistes : A, 1re de la grille ; B, 2e, 10 % moins chère sur 3 ans. Le DAF : « Passe le prix de 20 à 40 points, que B passe devant. » Que fais-tu ?",
     choix: [
       "Tu passes le prix à 40 : il a validé la grille, il peut la changer",
       "Tu gardes la grille, et tu lui montres ce que B gagne et perd",
@@ -509,7 +509,7 @@ LEARNSQL.questions.cp13 = [
     bonne: 1,
     pourquoi: [
       "Non. Changer les poids après avoir lu les offres, c'est choisir le gagnant d'abord. La grille ne sert plus qu'à habiller ce choix.",
-      "Oui. La grille ne bouge pas. Tu montres l'écart : 15 % de moins sur 3 ans, contre un connecteur moins bien noté. S'il choisit B en le sachant, c'est son choix, écrit comme tel.",
+      "Oui. La grille ne bouge pas. Tu montres l'écart : 10 % de moins sur 3 ans, contre un connecteur moins bien noté. S'il choisit B en le sachant, c'est son choix, écrit comme tel.",
       "Non. La grille éclaire, le DAF décide. Il peut prendre la 2e finaliste en connaissant l'écart : tu n'as pas à le lui refuser.",
       "Non. Il n'a rien faussé : il propose, tu expliques, et il peut choisir B ouvertement. Le DG n'a rien à trancher."
     ],
@@ -827,7 +827,7 @@ LEARNSQL.questions.cp13 = [
       "Tu ne la consultes pas : le DAF a raison, son prix est connu",
       "Elle répond, avec 10 points d'avance ; on la connaît bien",
       "Tu lui donnes les prix des autres, pour qu'elle s'aligne",
-      "Elle répond aussi, sur la même grille que les autres"
+      "Tu la consultes aussi, sur la même grille que les autres"
     ],
     bonne: 3,
     pourquoi: [

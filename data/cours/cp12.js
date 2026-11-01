@@ -85,7 +85,7 @@ LEARNSQL.cours.cp12 = {
       exemple: "Début avril. Facture de l'intégrateur pour mars : 14 jours, 10 500 €.\nTon relevé validé dit pareil : 11 jours sur la commande de base, 3 sur celle du changement n° 9.\nTu signes le « service fait ». La compta contrôle la facture. Le DAF donne le bon à payer.",
       points: [
         "Ce qui fait foi : la commande ou l'avenant, dont le prix tient jusqu'au bout. En régie, le relevé validé. Au forfait, le PV pour le solde.",
-        "Toi : le service fait. La compta : la facture (montant, TVA, mentions). Le DAF : le bon à payer, le feu vert du paiement.",
+        "Toi : le service fait. La compta : la facture (montant, mentions, TVA : la taxe sur la valeur ajoutée). Le DAF : le bon à payer, le feu vert du paiement.",
         "Pas de PV, pas de solde. Un PV avec réserves est un PV : le solde est dû, sauf retenue écrite au contrat. Pas de relevé validé, pas de jours payés.",
         "Une ligne non prévue ? Tu la signales, contrat en main. Une facture émise ne se modifie pas : le prestataire fait un avoir. Un crédit du SLA (le niveau de service promis) décidé par le DAF aussi.",
         "Chaque jour s'impute à sa commande. Sinon, la base paraît finie trop tôt, et le changement paraît gratuit."

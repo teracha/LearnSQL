@@ -247,7 +247,7 @@ LEARNSQL.questions.cp05 = [
     choix: [
       "Tu mets 8 jours : c'est lui qui fait, c'est son estimation",
       "Tu lui demandes ce qui a changé. Sans raison, tu gardes 12",
-      "Tu mets 8, et tu gardes 4 jours de côté, sans le dire",
+      "8 au planning, et 4 jours gardés de côté, sans le dire",
       "10 jours : l'option du milieu, chacun fait un pas"
     ],
     bonne: 1,
@@ -591,7 +591,7 @@ LEARNSQL.questions.cp05 = [
     q: "Février. Le consultant regarde ton planning : « Il y a une semaine de marge de recette. Je livrerai donc les flux EDI une semaine plus tard, sans souci. » Que réponds-tu ?",
     choix: [
       "« Non : votre date tient. La marge ne se donne jamais »",
-      "« D'accord, si vous l'annoncez vous-même au COPIL »",
+      "« D'accord. Vous l'annoncez vous-même au COPIL ? »",
       "« Une semaine, oui, mais pas un jour de plus »",
       "« D'accord : c'est à ça que sert la marge de recette »"
     ],
@@ -630,7 +630,7 @@ LEARNSQL.questions.cp05 = [
     choix: [
       "Le DAF le jour même : 4 semaines de recul, bascule en juillet",
       "Rien de plus : ils ne sont pas sur le chemin critique",
-      "Planning à jour (3 semaines de recul) ; tu le dis au COPIL",
+      "Les faits au COPIL : planning à jour, 3 semaines de recul",
       "Le DAF le jour même : 3 semaines de recul, et des options"
     ],
     bonne: 3,
@@ -649,7 +649,7 @@ LEARNSQL.questions.cp05 = [
     choix: [
       "Tu suis son conseil : plus tôt, et ta marge en secret",
       "Tu annonces la date de ton planning, marge visible comprise",
-      "Tu donnes la date tôt à l'équipe, celle du planning au DAF",
+      "Tu montres la date tôt à l'équipe, celle du planning au DAF",
       "Tu n'annonces plus de date, que des jalons « en cours »"
     ],
     bonne: 1,
@@ -668,7 +668,7 @@ LEARNSQL.questions.cp05 = [
     choix: [
       "Tu demandes à l'intégrateur 2 consultants de plus en mars",
       "Tu rabotes les estimations de 15 % pour retomber en juin",
-      "Au DAF, aujourd'hui : l'écart et 2 options chiffrées",
+      "Tu vas au DAF aujourd'hui : l'écart, 2 options chiffrées",
       "Au DAF, le jour même : « Il me faut un mois de plus »"
     ],
     bonne: 2,

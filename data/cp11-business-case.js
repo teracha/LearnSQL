@@ -182,7 +182,7 @@ LEARNSQL.questions.cp11 = [
     q: "Ton budget DEMAT a une réserve de 8 k€, tirée des risques du registre. L'intégrateur conseille d'ajouter 15 % sur chaque ligne, « par sécurité », sans risque précis. Que fais-tu ?",
     choix: [
       "Tu ajoutes 15 % partout : on n'est jamais trop prudent",
-      "Tu remplaces la réserve par 15 % sur chaque ligne : plus simple",
+      "15 % sur chaque ligne à la place de la réserve : plus simple",
       "15 % sur l'intégrateur seulement : la régie est un risque",
       "Tu gardes la réserve seule, chaque euro lié à un risque"
     ],
@@ -449,7 +449,7 @@ LEARNSQL.questions.cp11 = [
     choix: [
       "Rien : le contrat de la PA démarre bien en novembre 2026",
       "Tu le comptes dès mars 2027, à la livraison du connecteur",
-      "Il démarre dès la bascule de juin, et il est plein en septembre 2027",
+      "Tu le fais démarrer à la bascule de juin, plein en septembre 2027",
       "Tu le retires : un gain futur n'est jamais certain"
     ],
     bonne: 2,
@@ -773,7 +773,7 @@ LEARNSQL.questions.cp11 = [
       "Rien : 2 000 est plus prudent, et le dossier est validé",
       "Tu mets l'hypothèse à jour, sans le dire : la nouvelle est bonne",
       "Tu mets l'hypothèse à jour, source citée, et 2 lignes au DAF",
-      "Tu annonces au DG 20 % de gains en plus, dès aujourd'hui"
+      "Au DG, dès aujourd'hui : 20 % de gains en plus"
     ],
     bonne: 2,
     pourquoi: [

@@ -7,7 +7,7 @@
 // l'étranger (UE et hors UE) et données de paiement = e-reporting, obligatoire aussi pour les PME au 1er septembre 2027.
 // Décision par défaut : alignée sur cp16 (seulement si elle reste dans ton projet ; sinon, enjeu fort : prévenir le sponsor, puis le DG).
 LEARNSQL.cours.cp04 = {
-  intro: "Un projet mal cadré dérape presque toujours, car chacun a sa propre idée du résultat. La note de cadrage met tout le monde d'accord AVANT de dépenser, et te sert ensuite pour dire non.",
+  intro: "Sur ta migration Divalto, qui avait écrit ce qui était inclus, et ce qui ne l'était pas ? Un projet mal cadré dérape presque toujours, car chacun a sa propre idée du résultat. La note de cadrage met tout le monde d'accord AVANT de dépenser, et te sert ensuite pour dire non.",
   sections: [
     {
       titre: "Pourquoi cadrer : partir de ton vécu",
@@ -23,7 +23,7 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "Objectif et enjeux : le besoin, pas la solution",
-      exemple: "Rappel : recevoir des factures électroniques est obligatoire pour toutes les entreprises depuis le 1er septembre 2026.\nLes émettre devient obligatoire pour une PME comme le négociant au 1er septembre 2027.\nVersion 1 : « Installer la plateforme X et le connecteur Divalto. »\nVersion 2 : « Recevoir et émettre nos factures entre entreprises en électronique, via une plateforme agréée (PA),\npour respecter la loi : émission avant septembre 2027, sans retarder la clôture mensuelle. »\nLa version 1 décrit une solution. La version 2 décrit le résultat attendu, et laisse comparer plusieurs plateformes.",
+      exemple: "Rappel : recevoir des factures électroniques est obligatoire pour toutes les entreprises depuis le 1er septembre 2026.\nLes émettre devient obligatoire pour une PME (petite ou moyenne entreprise) comme le négociant au 1er septembre 2027.\nVersion 1 : « Installer la plateforme X et le connecteur Divalto. »\nVersion 2 : « Recevoir et émettre nos factures entre entreprises en électronique, via une plateforme agréée (PA),\npour respecter la loi : émission avant septembre 2027, sans retarder la clôture mensuelle. »\nLa version 1 décrit une solution. La version 2 décrit le résultat attendu, et laisse comparer plusieurs plateformes.",
       points: [
         "L'objectif dit QUOI obtenir et POURQUOI. Il ne dit pas avec quel outil.",
         "Les enjeux disent ce qu'on risque si on ne fait rien : amende, client perdu, surcharge en compta, image.",
@@ -83,7 +83,7 @@ LEARNSQL.cours.cp04 = {
     },
     {
       titre: "La validation par le sponsor, et les pièges",
-      exemple: "Le DAF répond « OK, vas-y » en 2 minutes. Il n'a pas lu.\nTu demandes 20 minutes pour 3 points clés, avec des options et ta recommandation.\nIl annule ensuite les comités, et le choix de la PA attend ? Tu lui demandes 15 minutes et une réponse avant le 15.\nLe 15, rien, et la réception légale reste bloquée : tu le préviens, puis tu demandes au DG de trancher.\nLe modèle du rapport mensuel, lui, reste dans ton projet : « Sans remarque au 10, je garde celui-ci. »\nTrois mois plus tard, le commercial veut les bons de livraison dématérialisés, « hors périmètre » : tu chiffres l'impact pour le DAF.",
+      exemple: "Le DAF répond « OK, vas-y » en 2 minutes. Il n'a pas lu.\nTu demandes 20 minutes pour 3 points clés, avec des options et ta recommandation.\nIl annule ensuite les comités, et le choix de la PA attend ? Tu lui demandes 15 minutes et une réponse avant le 15.\nLe 15, rien, et la réception légale reste bloquée : tu le préviens, puis tu demandes au DG (directeur général) de trancher.\nLe modèle du rapport mensuel, lui, reste dans ton projet : « Sans remarque au 10, je garde celui-ci. »\nTrois mois plus tard, le commercial veut les bons de livraison dématérialisés, « hors périmètre » : tu chiffres l'impact pour le DAF.",
       points: [
         "Le sponsor (ici le DAF) valide la note par écrit. Sans elle, pas de mandat. Absent, ou il signe sans lire ? Demande-lui 15 à 20 minutes, avec des options et une date limite.",
         "Sans réponse : décision par défaut, seulement pour un détail de ton projet. Jamais pour le périmètre, le budget, un contrat ou le temps d'un autre service. Enjeu fort ? Préviens-le, ainsi que ton DSI, puis va au DG.",

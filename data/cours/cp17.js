@@ -23,9 +23,9 @@ LEARNSQL.cours.cp17 = {
   sections: [
     {
       titre: "Un fait, trois messages : direction, métier, technique",
-      exemple: "Ton projet Snowflake + Power BI : as-tu expliqué un retard de la même façon au directeur et aux développeurs ?\nDEMAT 2027, 16 mars : le connecteur de la plateforme agréée (PA) n'est pas livré. Tu lances le plan B : en juin, on bascule avec le portail de la PA, le temps que le connecteur arrive.\nAu DAF (direction) : « Juin tient, grâce au plan B. Coût : 20 minutes de plus par jour pour la compta, 6 semaines après la bascule. Rien à décider aujourd'hui. »\nÀ Sophie (métier) : « Dès juin, pendant 6 semaines, tu déposes les factures clients sur le portail. On te forme en mai, 1 h. »\nÀ l'intégrateur (technique) : « Il me faut l'export des factures au format Factur-X (un PDF qui contient aussi les données), testé sur 10 cas, pour le 22. »",
+      exemple: "Ton projet Snowflake + Power BI : as-tu expliqué un retard de la même façon au directeur et aux développeurs ?\nDEMAT 2027, 16 mars : le connecteur de la plateforme agréée (PA) n'est pas livré. Tu lances le plan B : en juin, on bascule avec le portail de la PA, le temps que le connecteur arrive.\nAu DAF (directeur administratif et financier : la direction) : « Juin tient, grâce au plan B. Coût : 20 minutes de plus par jour pour la compta, 6 semaines après la bascule. Rien à décider aujourd'hui. »\nÀ Sophie (métier) : « Dès juin, pendant 6 semaines, tu déposes les factures clients sur le portail. On te forme en mai, 1 h. »\nÀ l'intégrateur (technique) : « Il me faut l'export des factures au format Factur-X (un PDF qui contient aussi les données), testé sur 10 cas, pour le 22. »",
       points: [
-        "Direction (DG, DAF, COPIL : comité de pilotage) : des euros, des dates, des risques, et la décision attendue. Pas de technique.",
+        "Direction (DG : directeur général ; DAF ; COPIL : comité de pilotage) : des euros, des dates, des risques, et la décision attendue. Pas de technique.",
         "Métier (compta, ADV : administration des ventes) : ce qui change pour eux, quand, combien de temps, et qui les aide. Leur manager le sait avant eux.",
         "Technique (intégrateur, PA) : précis et vérifiable. Quoi, combien, depuis quand, pour quand. Jamais « ça ne marche pas ».",
         "Mêmes faits, mêmes chiffres pour tous. On change l'angle, jamais la vérité.",
@@ -47,7 +47,7 @@ LEARNSQL.cours.cp17 = {
     },
     {
       titre: "Annoncer une mauvaise nouvelle",
-      exemple: "Mardi, tu découvres que la recette a 2 semaines de retard, à cause des rejets EDI d'AquaBleu. La marge de recette ne suffit plus.\nTrop mou : « Petit retard, rien de grave, je gère. »\nTrop dur : « La recette est un échec, juin est perdu. »\nJuste (au DAF, le jour même, au téléphone) : « Mauvaise nouvelle : la recette a 2 semaines de retard, à cause des rejets AquaBleu. Juin est menacé, pas perdu. L'intégrateur corrige d'ici jeudi. Je te dis jeudi soir si juin tient. »\nPuis 5 lignes par mail, pour la trace.",
+      exemple: "Mardi, tu découvres que la recette a 2 semaines de retard, à cause des rejets EDI (échange de données informatisé) d'AquaBleu. La marge de recette ne suffit plus.\nTrop mou : « Petit retard, rien de grave, je gère. »\nTrop dur : « La recette est un échec, juin est perdu. »\nJuste (au DAF, le jour même, au téléphone) : « Mauvaise nouvelle : la recette a 2 semaines de retard, à cause des rejets AquaBleu. Juin est menacé, pas perdu. L'intégrateur corrige d'ici jeudi. Je te dis jeudi soir si juin tient. »\nPuis 5 lignes par mail, pour la trace.",
       points: [
         "Tôt : le jour même pour un risque légal ou un coût qui change. Le sponsor l'apprend de toi, jamais en séance ni dans un couloir. Déjà réglé, rien à décider ? Le prochain jour ouvré suffit.",
         "Nomme-la : « Mauvaise nouvelle : … ». Ni « petit souci » (tu minimises), ni « catastrophe » (tu affoles).",
@@ -64,7 +64,7 @@ LEARNSQL.cours.cp17 = {
         "Escalader, ce n'est pas punir : tu demandes une décision que ton niveau ne peut pas prendre. Un désaccord ? Proposez d'aller voir l'arbitre ensemble.",
         "Prévenir = un fait daté : quand, et ce que tu feras. Pas de formule floue (« je serais dans le regret »), pas de reproche.",
         "Chez le DG : la décision attendue et sa date, l'enjeu, « le DAF est prévenu », les options, ta recommandation. Rien sur la personne.",
-        "Par écrit : le DAF en copie, jamais en copie cachée. Ton DSI est informé avant.",
+        "Par écrit : le DAF en copie, jamais en copie cachée. Ton DSI (directeur des systèmes d'information) est informé avant.",
         "Avec un prestataire, même ton : le contrat parle, pas toi. À dire : « Il me faut une date ferme. Sans livraison le 15, je lance le plan B prévu au contrat. »"
       ],
       retenir: "On prévient avec une date et une action, sans menace ; on escalade avec une décision à prendre, sans accuser."
@@ -95,7 +95,7 @@ LEARNSQL.cours.cp17 = {
     },
     {
       titre: "Mail, compte rendu, Teams : le bon canal",
-      exemple: "Avant : objet « Point DEMAT ». 30 lignes. 3 demandes mélangées. Le DAF en copie « pour info ».\nAprès (PV = procès-verbal) :\nObjet : « Pour signature avant jeudi 12 h : PV de recette fournisseurs »\n« Bonjour,\nIl me faut ton PV signé jeudi 12 h, pour lancer le pilote lundi.\nLe PV est joint ; tes 3 réserves sont en page 2.\nUn souci ? Appelle-moi. »\nÀ : la cheffe comptable. Copie : personne.",
+      exemple: "Avant : objet « Point DEMAT ». 30 lignes. 3 demandes mélangées. Le DAF en copie « pour info ».\nAprès (PV = procès-verbal) :\nObjet : « Pour signature avant jeudi 12 h : PV de recette fournisseurs »\n« Bonjour,\nIl me faut ton PV signé jeudi 12 h, pour lancer le pilote lundi.\nLe PV est joint ; tes 2 réserves sont en page 2.\nUn souci ? Appelle-moi. »\nÀ : la personne que la cheffe comptable, en congé, a désignée pour signer. Copie : personne.",
       points: [
         "Objet = la demande + la date. Une demande par mail, 5 lignes, le détail en pièce jointe.",
         "« À » : ceux qui doivent agir. « Copie » : ceux qui doivent savoir. Pas de copie au chef pour mettre la pression : elle se lit comme une dénonciation.",

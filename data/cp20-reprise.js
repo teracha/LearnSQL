@@ -115,7 +115,7 @@ LEARNSQL.questions.cp20 = [
       "Rien : la règle est validée, et il n'est plus facturé",
       "Sophie fera cet avoir en PDF, une seule fois, hors de la PA",
       "Tu reprends tous les clients des 5 dernières années",
-      "La règle ajoute « ou un en-cours », revalidée"
+      "Tu ajoutes « ou un en-cours » à la règle, revalidée"
     ],
     bonne: 3,
     pourquoi: [
@@ -303,7 +303,7 @@ LEARNSQL.questions.cp20 = [
     q: "Essai 2, samedi 15 mai, 23 h. 60 clients rejetés. Le consultant change une règle sur place et relance : « Ça passe. » Que fais-tu ?",
     choix: [
       "Bien joué : il a sauvé l'essai, et la règle est corrigée",
-      "Tu fais tout annuler, et rejeter ces 60 fiches comme avant",
+      "Tout annulé, et ces 60 fiches rejetées comme avant",
       "Tu notes la nouvelle règle, et l'ADV la valide dimanche",
       "Tu arrêtes l'essai 2, et tu en prévois un 3e en juin"
     ],
@@ -549,7 +549,7 @@ LEARNSQL.questions.cp20 = [
     dialecte: "Gestion de projet",
     q: "Samedi 12 juin, 9 h. Le consultant veut charger les clients avant les codes TVA, pour finir 2 heures plus tôt. L'essai 2 a fait l'inverse. Que réponds-tu ?",
     choix: [
-      "L'ordre de l'essai 2 : celui qui a été testé",
+      "Tu suis l'ordre de l'essai 2 : celui déjà testé",
       "D'accord : 2 heures de gagnées, c'est de la marge",
       "D'accord, s'il refait d'abord un essai rapide",
       "Tu demandes au DAF de trancher, au téléphone"
@@ -589,7 +589,7 @@ LEARNSQL.questions.cp20 = [
     choix: [
       "Tu fais signer : 9 fiches sur 2 000, c'est 0,45 %",
       "Tu annonces au DAF un no-go : la bascule est reportée",
-      "Pas de signature : on cherche les 9 tout de suite, DAF prévenu",
+      "Tu ne signes pas : on cherche les 9 tout de suite, DAF prévenu",
       "Signature avec une réserve sur les 9 fiches, à revoir lundi"
     ],
     bonne: 2,
@@ -627,7 +627,7 @@ LEARNSQL.questions.cp20 = [
     choix: [
       "D'accord : après la bascule, la saison sera passée",
       "Tu les corriges toi-même, et l'ADV relira ensuite",
-      "Tu demandes au DAF d'imposer la correction à l'ADV",
+      "Le DAF impose la correction à l'ADV, à ta demande",
       "Tu lui montres l'impact, et vous fixez une date avant l'essai 2"
     ],
     bonne: 3,
@@ -704,7 +704,7 @@ LEARNSQL.questions.cp20 = [
       "Rien : ce sont des fichiers internes, entre gens de confiance",
       "Tu déclares une fuite de données, le jour même",
       "Tu demandes à chacun de protéger sa copie par un mot de passe",
-      "Une seule copie, protégée, et les autres effacées"
+      "Tu n'en gardes qu'une, protégée, et tu effaces les autres"
     ],
     bonne: 3,
     pourquoi: [

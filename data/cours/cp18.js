@@ -88,7 +88,7 @@ LEARNSQL.cours.cp18 = {
     },
     {
       titre: "Traiter un conflit : intérêts, faits, solution de rechange",
-      exemple: "La compta et l'ADV se renvoient les factures rejetées. Tu demandes à chacun : « Que veux-tu protéger ? »\nCompta : ne pas modifier les fiches clients. ADV : ne pas toucher aux factures.\nRègle trouvée ensemble : rejet sur une donnée client (SIREN, adresse) → l'ADV ; sur un montant → Sophie, par un avoir.\nLa PA et l'intégrateur s'accusent ? Pas de débat : un test commun, 10 factures, les deux présents, les mêmes logs. Puis le contrat dit qui corrige.",
+      exemple: "La compta et l'ADV se renvoient les factures rejetées. Tu demandes à chacun : « Que veux-tu protéger ? »\nCompta : ne pas modifier les fiches clients. ADV : ne pas toucher aux factures.\nRègle trouvée ensemble : rejet sur une donnée client (le SIREN, numéro de l'entreprise, ou l'adresse) → l'ADV ; sur un montant → Sophie, par un avoir.\nLa PA et l'intégrateur s'accusent ? Pas de débat : un test commun, 10 factures, les deux présents, les mêmes logs. Puis le contrat dit qui corrige.",
       points: [
         "Sépare les personnes du problème : vous attaquez le problème ensemble, pas l'autre. C'est la méthode de Harvard (Fisher et Ury).",
         "Derrière une position (« pas nous »), cherche l'intérêt (« ne pas toucher aux fiches clients »). Deux positions s'opposent ; deux intérêts se combinent souvent.",

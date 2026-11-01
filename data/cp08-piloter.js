@@ -28,7 +28,7 @@
 // PV qui recule de 3 jours par semaine (q04) ; 6 écrans sur 9 de la partie agile (q05) ; 18 jours de l'intégrateur faits
 // à la mi-mars (q06) ; 3,5 % de rejets au pilote, 40 fiches clients incomplètes (q23) ; PV prévu au 21 mai, 5 jours à
 // commander (q25) ; contrôle fiscal de 4 semaines (q26) ; 4 % de rejets après la bascule (q27, à 0 % ensuite : 2,8 % sur
-// le 1er mois, du 14 juin au 13 juillet) ; correctif des avoirs clients en juillet (q33) ; recette de 100 cas (q37) ; 3 bloquantes, PV le vendredi
+// le 1er mois, du 14 juin au 13 juillet) ; correctif des avoirs clients en juillet (q33) ; recette de 120 cas (q37) ; 3 bloquantes, PV le vendredi
 // 30 avril (q38) ; factures EDI d'AquaBleu rejetées (q39). Autres projets : Snowflake + Power BI (q11, q12), WMS (q40).
 // q15 et q40 à q42 : « Tu es DSI adjoint ».
 // Affirmations juridiques hors fiche : aucune (pas de PV avec une anomalie bloquante : cp14 ; les pénalités, le DAF
@@ -172,7 +172,7 @@ LEARNSQL.questions.cp08 = [
       "Tu prends les 25 : plus on mesure, mieux on pilote",
       "Un seul : le pourcentage d'avancement, facile à lire",
       "Tu en gardes 6, chacun avec sa source et son seuil",
-      "Tu en gardes 6 : ceux dont la source est simple"
+      "6 seulement : ceux dont la source est simple"
     ],
     bonne: 2,
     pourquoi: [
@@ -247,7 +247,7 @@ LEARNSQL.questions.cp08 = [
     choix: [
       "Rien : un chiffre de Snowflake ne se trompe jamais",
       "Tu coupes le tableau ; tu fais décaler la réunion",
-      "Le chargement vérifié ; avant 10 h : « données à jeudi »",
+      "Tu vérifies le chargement ; avant 10 h : « données à jeudi »",
       "Tu saisis le vrai montant à la main avant 10 h"
     ],
     bonne: 2,
@@ -416,7 +416,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "Fin mars. Recette : depuis 2 semaines, Julie manque 1 créneau sur 2. La marge couvre encore, mais à ce rythme, elle sera mangée. Le responsable ADV : « Mets tout en rouge, le DAF réagira. » Quelle météo pour le délai ?",
     choix: [
-      "Orange, et tu demandes au DAF de libérer Julie aujourd'hui",
+      "Orange, et tu montres au DAF qu'il faut libérer Julie aujourd'hui",
       "Vert : la marge de recette couvre encore le retard",
       "Orange : la cause, la marge qui fond, ta demande à sa cheffe",
       "Rouge : c'est le moyen le plus sûr d'avoir l'aide du DAF"
@@ -512,7 +512,7 @@ LEARNSQL.questions.cp08 = [
     q: "Prévision du PV : 21 mai, 3 semaines après la date validée. Pour revenir au 7 mai : 5 jours d'intégrateur, à commander. Le DAF le sait depuis hier, sans avoir signé. Météo du délai ?",
     choix: [
       "Rouge : hors tolérance ; la commande à signer en tête",
-      "Orange : un plan existe pour revenir dans la tolérance",
+      "Orange : un plan, avec ses dates, pour revenir dans la tolérance",
       "Vert : le DAF le sait, la décision est entre ses mains",
       "Rouge, et tu demandes au DG de signer à sa place"
     ],
@@ -587,7 +587,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "COPIL mardi. Tu voudrais envoyer ton rapport le matin même, pour avoir les chiffres les plus frais. Que fais-tu ?",
     choix: [
-      "3 jours ouvrés avant, avec l'ordre du jour, chiffres datés",
+      "Tu l'envoies 3 jours ouvrés avant, avec l'ordre du jour, chiffres datés",
       "Tu ne l'envoies pas : tu le présentes à l'écran, en séance",
       "3 jours ouvrés avant, puis une 2e version le matin, si un chiffre bouge",
       "Le matin même, pour des chiffres plus frais"
@@ -663,7 +663,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "La PA t'écrit : son correctif des avoirs clients n'arrivera pas avant juillet. Sans lui, la bascule de juin ne tient pas. Ton rapport du COPIL part dans 2 jours. Que fais-tu ?",
     choix: [
-      "Le DAF dès aujourd'hui, au téléphone : faits, impact, options",
+      "Tu appelles le DAF dès aujourd'hui : faits, impact, options",
       "Tu attends que la PA propose une solution, pour arriver avec",
       "Tu demandes au DG une réunion de crise dès demain",
       "En tête du rapport, avec les options : le DAF le lira dans 2 jours"
@@ -684,7 +684,7 @@ LEARNSQL.questions.cp08 = [
     choix: [
       "Un point quotidien avec le DAF, jusqu'à la fin des flux EDI",
       "Rien de plus : le DAF a signé, le sujet est clos",
-      "Un plan d'actions, que tu montreras au COPIL d'avril",
+      "Un plan d'actions, avec des dates, montré au COPIL d'avril",
       "Un plan, chaque action datée, vu chaque lundi"
     ],
     bonne: 3,
@@ -737,19 +737,19 @@ LEARNSQL.questions.cp08 = [
   {
     id: "cp08-q37",
     dialecte: "Gestion de projet",
-    q: "Recette : 100 cas en 5 semaines, 20 par semaine, puis 1 semaine de marge. Fin de la 2e semaine : 30 cas joués. Au rythme réel, quand finit-elle ?",
+    q: "Recette : 120 cas en 6 semaines, 20 par semaine, puis 1 semaine de marge. Fin de la 2e semaine : 30 cas joués. Au rythme réel, quand finit-elle ?",
     choix: [
-      "En 7e semaine : 1 semaine après la marge",
-      "En 5e semaine : on rattrapera le retard",
-      "En 9e semaine : 100 cas à 15 par semaine",
-      "En 6e semaine : la marge absorbe le retard"
+      "En 8e semaine : 1 semaine après la marge",
+      "En 6e semaine : on rattrapera le retard",
+      "En 10e semaine : 120 cas à 15 par semaine",
+      "En 7e semaine : la marge absorbe le retard"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. 30 cas en 2 semaines : 15 par semaine. Il en reste 70 : un peu moins de 5 semaines. Fin en 7e semaine, une semaine après la marge : la prévision du PV recule d'autant.",
-      "Non. Rien ne dit que le rythme doublera : la prévision part du rythme réel, pas de l'espoir.",
-      "Non. Tu recomptes les 30 cas déjà joués : il en reste 70, pas 100. 70 ÷ 15, c'est moins de 5 semaines.",
-      "Non. Presque : la marge sert à ça. Mais il reste 70 cas : à 15 par semaine, presque 5 semaines. 2 + 5 = 7 : la marge ne suffit pas."
+      "Oui. 30 cas en 2 semaines : 15 par semaine. Il en reste 90 : 6 semaines. Fin en 8e semaine, une semaine après la marge : la prévision du PV recule d'autant.",
+      "Non. Rien ne dit que le rythme passera de 15 à plus de 22 cas par semaine : la prévision part du rythme réel, pas de l'espoir.",
+      "Non. Tu recomptes les 30 cas déjà joués : il en reste 90, pas 120. 90 ÷ 15, c'est 6 semaines, pas 8.",
+      "Non. Presque : la marge sert à ça. Mais il reste 90 cas : à 15 par semaine, 6 semaines. 2 + 6 = 8 : la marge ne suffit pas."
     ],
     retenir: "La fin de recette se prévoit au rythme réel : cas restants ÷ cas joués par semaine."
   },
@@ -796,7 +796,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Le projet WMS (logiciel d'entrepôt) est vert depuis 5 mois. Dans son rapport, la colonne « réel » des jalons est vide depuis 3 mois. Que fais-tu ?",
     choix: [
-      "Tu le signales au DG ; il cache peut-être un retard",
+      "Un mot au DG ; il cache peut-être un retard",
       "Rien : vert depuis 5 mois, le projet tient la route",
       "Tu lui demandes ses livrables et ses dates réelles",
       "Tu le passes toi-même en rouge, faute de dates réelles"
@@ -815,7 +815,7 @@ LEARNSQL.questions.cp08 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Une cheffe de projet de ton équipe : « Si je passe orange, le DG va me tomber dessus. Je reste vert jusqu'au bout. » Que fais-tu ?",
     choix: [
-      "Un orange tôt est attendu : tu le lui dis, et tu le défends au comité",
+      "Tu lui dis qu'un orange tôt est attendu, et tu le défends au comité",
       "Tu la recadres, et tu le notes pour son entretien annuel",
       "Elle décide : c'est elle qui connaît son projet, pas toi",
       "Tu passes son projet en orange toi-même, pour la couvrir"

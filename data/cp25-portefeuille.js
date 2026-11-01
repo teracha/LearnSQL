@@ -161,7 +161,7 @@ LEARNSQL.questions.cp25 = [
     q: "Septembre 2027. Référent EDI, tu corriges chaque matin le même rejet chez 3 clients. Un contrôle automatique demanderait 8 jours de travail. Que fais-tu ?",
     choix: [
       "Tu y passes 8 jours de ton run : le risque disparaît vite",
-      "Une fiche, comme tout le monde : c'est un projet",
+      "Tu fais une fiche, comme tout le monde : c'est un projet",
       "Tu continues à corriger chaque matin : c'est ton run",
       "Au DG, pour qu'il le finance en urgence"
     ],
@@ -198,7 +198,7 @@ LEARNSQL.questions.cp25 = [
     dialecte: "Gestion de projet",
     q: "Novembre 2026. Le DAF, ton sponsor : « Au passage, ajoute à DEMAT un portail pour que nos fournisseurs suivent leurs factures. » Un tel portail : environ 60 jours de travail. Que fais-tu ?",
     choix: [
-      "Un autre besoin : une demande à la DSI, classée à part",
+      "Tu la sépares de DEMAT : un autre besoin, classé à part",
       "Tu l'ajoutes : le sponsor décide du périmètre de DEMAT",
       "Une demande de changement chiffrée, qu'il tranche au COPIL",
       "Tu refuses : DEMAT ne fait que ce que la loi impose"
@@ -296,7 +296,7 @@ LEARNSQL.questions.cp25 = [
       "Tu notes « à vérifier » et tu la classes sur son risque",
       "En tête, au nom de NIS2 : la loi passe d'abord",
       "Tu l'écartes du classement, et tu fais vérifier NIS2",
-      "Tu laisses le DG dire au comité si NIS2 vous concerne"
+      "Le DG dira au comité si NIS2 vous concerne"
     ],
     bonne: 0,
     pourquoi: [
@@ -410,7 +410,7 @@ LEARNSQL.questions.cp25 = [
       "Tu lui demandes de choisir lui-même l'ordre de ses projets",
       "Il fera les 140 jours, avec des heures en plus",
       "2 options au DG : 20 jours de prestataire, ou un projet décalé",
-      "Tu retires un projet du classement, sans le dire"
+      "Un projet retiré du classement, sans le dire"
     ],
     bonne: 2,
     pourquoi: [
@@ -484,7 +484,7 @@ LEARNSQL.questions.cp25 = [
     q: "Tu es DSI adjoint. Lundi : 3 petites demandes sans lien, de 1, 2 et 3 jours, chacune utile. Cette semaine, 8 jours sont libres pour elles. Que fais-tu ?",
     choix: [
       "Tu en prends une ; les 2 autres attendront lundi prochain",
-      "Tu acceptes les trois : elles tiennent, tout simplement",
+      "D'accord pour les trois : elles tiennent, tout simplement",
       "Tu les passes au comité : 6 jours en tout, c'est un projet",
       "Tu demandes d'abord une fiche plus détaillée pour chacune"
     ],
@@ -694,7 +694,7 @@ LEARNSQL.questions.cp25 = [
     choix: [
       "Tu fixes l'ordre avec ton collègue, puis tu le dis à ton DSI",
       "Tu laisses Marc choisir : il sait que DEMAT est légal",
-      "Les faits à ton DSI : besoins, dates, ce qui glisse",
+      "Tu apportes les faits à ton DSI : besoins, dates, décalages",
       "Au DG de trancher entre les deux projets"
     ],
     bonne: 2,
@@ -752,7 +752,7 @@ LEARNSQL.questions.cp25 = [
       "Tu acceptes, et tu rattrapes le soir et le week-end",
       "Tu lui dis : 3 semaines, hors tolérance, le DAF tranche",
       "Tu refuses à ton DSI : la recette passe avant tout",
-      "Tu acceptes, et tu annonces 3 semaines au COPIL d'avril"
+      "Tu acceptes, et tu portes 3 semaines et options au COPIL d'avril"
     ],
     bonne: 1,
     pourquoi: [

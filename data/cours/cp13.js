@@ -47,7 +47,7 @@ LEARNSQL.cours.cp13 = {
       points: [
         "Consulter : demander une offre à plusieurs prestataires, sur le même besoin, puis comparer. Le PMBOK (le guide américain) parle de « conduire les approvisionnements ».",
         "Tu consultes quand l'enjeu est fort, le montant élevé, le contrat long, et que plusieurs prestataires savent faire.",
-        "Un devis vérifié suffit pour un petit montant, ou pour le partenaire en place sur ton ERP. Vérifier : les jours tâche par tâche, le profil, le taux, ce qui est inclus, comparés à un projet passé.",
+        "Un devis vérifié suffit pour un petit montant, ou pour le partenaire en place sur ton ERP (progiciel de gestion intégré). Vérifier : les jours tâche par tâche, le profil, le taux, ce qui est inclus, comparés à un projet passé.",
         "Le partenaire en place a déçu (son bilan écrit, module cp15), et le projet est gros ? Tu consultes, lui compris.",
         "Urgence : on consulte plus court, pas moins bien. Ton entreprise, privée, n'a pas les règles de la commande publique (les achats de l'État et des collectivités) : elle suit les siennes. Ici, le DAF (directeur administratif et financier, ton sponsor) achète."
       ],

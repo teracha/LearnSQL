@@ -118,7 +118,7 @@ LEARNSQL.questions.cp15 = [
       "Tu l'acceptes : la PA s'engage par écrit, c'est déjà ça",
       "Tu portes ce plan vide à son responsable de compte, le jour même",
       "Tu demandes des actions, chacune avec un nom et une date",
-      "Tu exiges une date de fin, et tu l'écris au compte rendu"
+      "Tu exiges des dates de fin, et tu les écris au compte rendu"
     ],
     bonne: 2,
     pourquoi: [
@@ -132,19 +132,19 @@ LEARNSQL.questions.cp15 = [
   {
     id: "cp15-q06",
     dialecte: "Gestion de projet",
-    q: "Point hebdo. Commande de l'intégrateur : 40 jours, dont 26 consommés. Le consultant détaille son reste à faire, tâche par tâche : 20 jours. Règle du projet : alerte au DAF à 80 %. Que fais-tu ?",
+    q: "Point hebdo. Commande de l'intégrateur : 40 jours, dont 24 consommés. Le consultant détaille son reste à faire, tâche par tâche : 19 jours. Règle du projet : alerte au DAF à 80 %. Que fais-tu ?",
     choix: [
       "Pas d'alerte avant 32 jours consommés : la règle dit 80 %",
-      "Tu lui demandes de tenir en 14 jours, pas un de plus",
+      "Tu lui demandes de tenir en 16 jours, pas un de plus",
       "Tu notes l'écart, et tu préviens le DAF au prochain COPIL",
-      "Tu alertes le DAF aujourd'hui : 46 jours, avec des options"
+      "Tu alertes le DAF aujourd'hui : 43 jours, avec des options"
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Presque : 80 % est une limite, pas un moment à attendre. 26 + 20 = 46 : l'atterrissage dépasse déjà de 6 jours. Le DAF doit le savoir avant qu'ils soient dépensés.",
+      "Non. Presque : 80 % est une limite, pas un moment à attendre. 24 + 19 = 43 : l'atterrissage dépasse déjà de 3 jours. Le DAF doit le savoir avant qu'ils soient dépensés.",
       "Non. Tu lui demandes de tenir un chiffre, pas de réduire le travail : il coupera dans les tests, ou les jours arriveront plus tard. En régie, le risque reste chez vous.",
       "Non. Le prochain COPIL peut être dans 3 semaines : des jours de plus seront partis. L'écart est connu aujourd'hui : le DAF le sait aujourd'hui.",
-      "Oui. Consommé + reste à faire = 46 jours pour 40 commandés. Tu alertes tôt, avec des options : retirer une tâche, ou une nouvelle commande, signée avant le 41e jour."
+      "Oui. Consommé + reste à faire = 43 jours pour 40 commandés. Tu alertes tôt, avec des options : retirer une tâche, ou une nouvelle commande, signée avant le 41e jour."
     ],
     retenir: "L'alerte à 80 % est une limite, pas une attente : si consommé + reste à faire dépasse la commande, le DAF le sait tout de suite."
   },
@@ -403,7 +403,7 @@ LEARNSQL.questions.cp15 = [
       "Tu le notes, et tu prépares un changement de PA à l'échéance",
       "Tu mesures ces lenteurs, et tu les portes au prochain comité",
       "Rien de plus : le SLA est tenu, la PA est dans son droit",
-      "Tu demandes au DAF les crédits prévus par le contrat, pour mars"
+      "Au DAF : les crédits prévus par le contrat, pour mars"
     ],
     bonne: 1,
     pourquoi: [
@@ -441,7 +441,7 @@ LEARNSQL.questions.cp15 = [
       "Un nouveau plan daté de la PA, et un suivi de près au comité",
       "Le DG chez leur direction générale, pour un dernier essai",
       "Tu laisses passer fin mai : vous verrez au prochain préavis",
-      "D'autres PA consultées, et le choix du DAF avant fin mai"
+      "Tu consultes d'autres PA, pour le choix du DAF avant fin mai"
     ],
     bonne: 3,
     pourquoi: [
@@ -692,7 +692,7 @@ LEARNSQL.questions.cp15 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Ici, le spécifique se justifie : 6 jours, plus 1 par version, contre 24 jours de Sophie par an, et moins d'erreurs. Fait en surcharge (à part du standard), documenté. Le DAF décide (module cp10).",
+      "Oui. Ici, le spécifique se justifie : 6 jours, plus 1 par version, contre 24 jours de Sophie par an, et moins d'erreurs. Fait en surcharge (à part du standard), documenté. Après la clôture, c'est une demande du run : ton DSI la classe, le DAF signe la commande (modules cp22, cp25).",
       "Non. Le standard d'abord, oui, mais pas « toujours » : 24 jours de saisie par an coûtent plus qu'un petit spécifique, versions comprises. Le choix se fait sur les chiffres.",
       "Non. Sa feuille de route ne prévoit rien : attendre, c'est payer 2 jours par mois, sans date de fin.",
       "Non. Codé par la DSI, dans le Divalto que l'intégrateur paramètre : une relecture ne le rend pas responsable. Personne ne le suit aux versions, et il peut ne plus répondre du reste."
@@ -740,9 +740,9 @@ LEARNSQL.questions.cp15 = [
   {
     id: "cp15-q38",
     dialecte: "Gestion de projet",
-    q: "Janvier. Le planning de l'intégrateur prévoit de paramétrer les statuts de facture le 20 février. La PA livrera la liste de ses statuts avec le connecteur, le 1er mars. Que fais-tu ?",
+    q: "Janvier. Le planning de l'intégrateur prévoit de paramétrer les statuts de facture le 22 février. La PA livrera la liste de ses statuts avec le connecteur, le 1er mars. Que fais-tu ?",
     choix: [
-      "L'intégrateur paramètre le 20, au jugé, et teste en mars",
+      "L'intégrateur paramètre le 22, au jugé, et teste en mars",
       "Tu demandes au DAF des pénalités de retard pour la PA",
       "Tu cales les deux dates avec eux, dans un planning commun",
       "Rien : chacun son planning, ils s'arrangeront entre eux"
@@ -752,7 +752,7 @@ LEARNSQL.questions.cp15 = [
       "Non. Paramétrer sans la liste, c'est payer deux fois : une au jugé, une pour corriger après les tests. Et la correction tombe en recette.",
       "Non. La liste arrive avec le connecteur, à la date du contrat : il n'y a pas de retard. Il y a deux plannings à caler, et c'est ton travail.",
       "Oui. La livraison de l'un est l'entrée de l'autre : tu obtiens la liste plus tôt, ou tu décales la tâche. Puis tu mets le planning commun à jour.",
-      "Non. Personne d'autre ne voit la frontière : le 20 février, l'intégrateur n'aura rien à paramétrer, et ses jours seront payés quand même."
+      "Non. Personne d'autre ne voit la frontière : le 22 février, l'intégrateur n'aura rien à paramétrer, et ses jours seront payés quand même."
     ],
     retenir: "Plusieurs prestataires : la livraison de l'un est l'entrée de l'autre. Tu cales leurs dates dans un planning commun."
   },

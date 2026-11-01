@@ -66,7 +66,7 @@ LEARNSQL.cours.cp06 = {
       titre: "L'hybride : un cœur cadré, des parties en itérations",
       exemple: "DEMAT 2027. Le DAF (directeur administratif et financier, ton sponsor) a validé en octobre 2026 :\n– le cœur, cadré au départ : flux légaux, connecteur standard de la PA, bascule ;\n– les écrans et états de suivi Divalto de la compta : par itérations de 2 semaines, de février à avril ;\n– une enveloppe fixée par le DAF : 10 jours d'intégrateur ;\n– un PO pour cette partie : la cheffe comptable. Elle classe le backlog.",
       points: [
-        "Hybride = un cœur cadré, plus des parties en itérations. Sur le terrain, c'est le plus fréquent en projet d'ERP (progiciel de gestion intégré) de PME : un constat, pas une règle.",
+        "Hybride = un cœur cadré, plus des parties en itérations. Sur le terrain, c'est le plus fréquent en projet d'ERP (progiciel de gestion intégré) de PME (petites et moyennes entreprises) : un constat, pas une règle.",
         "D'abord découper : ce qui est fixe (la loi, le contrat, un produit standard, la bascule) se cadre ; ce qui est flou s'itère. Pas l'inverse.",
         "Chaque partie a sa règle, et la partie agile ne touche pas au cœur. À la fin, la recette teste l'ensemble, de bout en bout.",
         "Le changement : dans le cœur, une demande de changement ; dans la partie agile, une idée va au backlog, dans l'enveloppe. Le circuit : module cp10.",
@@ -76,7 +76,7 @@ LEARNSQL.cours.cp06 = {
     },
     {
       titre: "Faire vivre l'agile : PO, démo, enveloppe",
-      exemple: "Janvier : clôture annuelle. La cheffe comptable, PO, n'a pas une heure. Les itérations commencent donc en février.\nPendant la recette, elle part 3 semaines. Avant, elle classe le backlog, et désigne par écrit Julie comme suppléante.\nFin avril, les 10 jours sont consommés. Deux idées restent en bas du backlog : avec le gel de mai, elles attendent l'après-bascule.\nToi, tu n'es pas le PO : tu protèges son créneau et l'enveloppe.",
+      exemple: "Janvier : clôture annuelle. La cheffe comptable, PO, n'a pas une heure. Les itérations commencent donc en février.\nPendant la recette, elle part 3 semaines. Avant, elle classe le backlog, et désigne par écrit Julie comme suppléante.\nFin avril, les 10 jours sont consommés. Deux idées restent en bas du backlog : avec le gel de mai, elles attendent la fin de l'hypercare, fin juin.\nToi, tu n'es pas le PO : tu protèges son créneau et l'enveloppe.",
       points: [
         "Un PO disponible : un créneau fixe, par exemple 1 h pour classer, plus la démo. Pas d'itération sans lui : sinon, l'intégrateur choisit à la place du métier.",
         "PO absent ? Il classe avant de partir et désigne un suppléant par écrit. Ni toi, ni l'intégrateur : l'intégrateur conseille sur le faisable, le PO classe.",

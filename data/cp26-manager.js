@@ -220,7 +220,7 @@ LEARNSQL.questions.cp26 = [
     q: "Tu es DSI adjoint. Depuis un mois, la réunion du lundi 9 h dure une heure : Karim et Lucas y règlent chaque fois un écart de chiffres entre Divalto et Power BI. Les autres décrochent. Que fais-tu ?",
     choix: [
       "Tu tiens les 30 minutes : leur sujet se traite après, à deux",
-      "Tu passes la réunion à une heure : ces écarts parlent à tous",
+      "Tu passes la réunion à une heure : on traite ces écarts ensemble",
       "Tu supprimes la réunion, et chacun t'écrit ses blocages",
       "Tu vois Karim et Lucas seuls, pour leur reprocher de bavarder"
     ],
@@ -295,7 +295,7 @@ LEARNSQL.questions.cp26 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. La procédure des rejets EDI du support est à refaire : 2 jours de travail. Hugo la connaît par cœur, mais il est plein jusqu'en mars. Théo l'applique chaque jour, au N2. Que fais-tu ?",
     choix: [
-      "Théo la réécrit, et Hugo la relit en une heure",
+      "Tu la confies à Théo, et Hugo la relit en une heure",
       "Hugo la refait en mars ; d'ici là, on garde l'ancienne",
       "Tu la réécris toi-même ce week-end : tu connais l'EDI",
       "Théo la réécrit seul, sans relecture : il l'applique déjà"
@@ -466,9 +466,9 @@ LEARNSQL.questions.cp26 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Septembre 2028. 2 fois, Lucas a publié un état Power BI sans le faire tester par le métier : des chiffres faux sont arrivés au comité de direction. Tu prévois d'en parler à son entretien de janvier. Que fais-tu ?",
     choix: [
-      "Tu lui en parles à votre point de jeudi : faits, impact, demande",
+      "Tu lui en parles toi-même jeudi : faits, impact, demande",
       "Tu notes les faits pour janvier : l'entretien sert à ça",
-      "Tu demandes à Léa, sa cheffe de projet, de lui parler le jour même",
+      "Léa, sa cheffe de projet, lui parle le jour même, à ta demande",
       "Rien : 2 erreurs, ça peut arriver à tout le monde"
     ],
     bonne: 0,
@@ -773,7 +773,7 @@ LEARNSQL.questions.cp26 = [
       "Le secret, comme il le veut, jusqu'à son pot de départ",
       "Tu l'annonces le jour même à l'équipe, sans son accord",
       "Tu laisses la RH l'annoncer quand elle le jugera bon",
-      "Vous fixez ensemble le jour de l'annonce, cette semaine"
+      "Tu fixes avec lui le jour de l'annonce, cette semaine"
     ],
     bonne: 3,
     pourquoi: [

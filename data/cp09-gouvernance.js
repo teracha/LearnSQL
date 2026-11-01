@@ -172,7 +172,7 @@ LEARNSQL.questions.cp09 = [
     q: "COPIL mardi. Une décision touche le temps de l'ADV pendant la recette. Le responsable ADV ne pourra pas venir : « J'envoie Marc. Il écoutera, et il me dira. » Que fais-tu ?",
     choix: [
       "D'accord : Marc écoute, et son chef décidera après la séance",
-      "Un suppléant qui décide, ou sa position avant la séance",
+      "Tu demandes un suppléant qui décide, ou sa position avant",
       "Tu reportes tout le COPIL à une date où il pourra être là",
       "Le DAF décidera pour l'ADV en séance, sans lui"
     ],
@@ -667,7 +667,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tu le pousses à choisir quand même : le temps presse",
       "Tu donnes un chiffre au jugé : 2 h par jour, environ",
-      "Tu retires le point, et il reviendra au COPIL suivant",
+      "Tu retires le point : options chiffrées au COPIL suivant",
       "Point ouvert : un chiffre jeudi, décision vendredi"
     ],
     bonne: 3,
@@ -687,7 +687,7 @@ LEARNSQL.questions.cp09 = [
       "« Non : 1 h 30 sont prévues, on les tient »",
       "« Oui : je relis les actions, et rien de plus »",
       "« Non : je vous présente l'avancement en détail »",
-      "« Oui, et les COPIL dureront 50 minutes désormais »"
+      "« Oui. Et les COPIL dureront 50 minutes désormais ? »"
     ],
     bonne: 1,
     pourquoi: [
@@ -760,7 +760,7 @@ LEARNSQL.questions.cp09 = [
     dialecte: "Gestion de projet",
     q: "Sur ta migration Divalto, une décision (« pas de reprise de l'historique ») a été contestée 3 mois après : personne ne savait qui l'avait prise. Pour DEMAT, que mets-tu en place ?",
     choix: [
-      "Les mails de décision, tous rangés dans un même dossier",
+      "Les mails de décision, avec leurs dates, dans un même dossier",
       "Un registre des décisions : date, décision, qui, impact",
       "Un COPIL par trimestre pour revalider les décisions",
       "Des comptes rendus plus longs, avec tous les échanges"
@@ -800,7 +800,7 @@ LEARNSQL.questions.cp09 = [
     choix: [
       "Tu supprimes 2 COPIL ; leurs décisions iront par mail",
       "Ses 3 projets passent au comité de direction, devant le DG",
-      "Un COPIL commun : un créneau et des décisions par projet",
+      "Tu crées un COPIL commun : créneau et décisions par projet",
       "Tes chefs de projet décident à sa place des petits sujets"
     ],
     bonne: 2,

@@ -122,7 +122,7 @@ LEARNSQL.cours.cp22 = {
         "Ce qui a marché s'écrit aussi, avec sa raison (le pilote, la répétition, le retour arrière testé). Sinon, le prochain projet le supprime « pour gagner du temps ».",
         "Un REX que personne ne relit n'a servi à rien : 3 à 5 actions nommées, dans le modèle de projet de la DSI, lues au prochain cadrage. Le bilan de chaque fournisseur aussi : faits datés, sa réponse à côté (module cp15).",
         "Les méthodes divergent : le PMBOK (le guide américain) et PRINCE2 notent les leçons tout au long, puis les rassemblent ; l'agile fait une rétrospective à chaque itération, souvent sans REX final.",
-        "Après la clôture, en septembre 2027 (3e mois), la cheffe comptable mesure gains et adoption : son service gagne (module cp11) ; tu l'aides. Un écart ? Ses causes, puis des actions au run, décidées par le DAF."
+        "Après la clôture, en septembre 2027 (3e mois), la cheffe comptable mesure gains et adoption : son service gagne (module cp11) ; tu l'aides. Un écart ? Ses causes, puis des actions : le DAF décide pour la compta, ton DSI classe celles du run (module cp25)."
       ],
       retenir: "Un REX sans coupable, en quelques actions relues au prochain cadrage. Après la clôture, le métier mesure les gains, à une date fixée."
     }

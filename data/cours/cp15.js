@@ -100,7 +100,7 @@ LEARNSQL.cours.cp15 = {
         "Un spécifique se paie à sa création, puis à chaque montée de version : vérifier, adapter, retester. Celui qui ne sert plus se supprime.",
         "Parfois il se justifie : une obligation, un gain chiffré plus grand que son coût, versions comprises. Alors : en surcharge (à part, sans modifier le standard, comme Divalto le recommande), documenté, retiré quand le standard le fera.",
         "Montée de version : Divalto publie ce qui change ; l'intégrateur en tire les effets sur tes spécifiques ; le métier teste sur une copie. Une version n'est maintenue qu'un temps : prépare la suivante avant.",
-        "Jamais en clôture, ni pendant le gel (du pilote à la fin de la bascule). Un SaaS (logiciel loué en ligne) change pour tous à sa date : tu testes avant, dans l'espace de test."
+        "Jamais en clôture, ni pendant le gel (du pilote à la fin de l'hypercare, module cp21). Un SaaS (logiciel loué en ligne) change pour tous à sa date : tu testes avant, dans l'espace de test."
       ],
       retenir: "Le standard d'abord. Un spécifique se justifie, se fait à part, se paie à chaque version. Une version se teste avant, hors clôture."
     },

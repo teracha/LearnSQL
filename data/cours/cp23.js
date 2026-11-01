@@ -122,7 +122,7 @@ LEARNSQL.cours.cp23 = {
     },
     {
       titre: "L'adoption : la mesurer, accompagner après",
-      exemple: "Juillet, dans Divalto :\n– 1 200 factures fournisseurs reçues par la PA : 0 ressaisie ;\n– 800 saisies à la main, papier ou PDF : des PME (pas tenues d'émettre avant le 1er septembre 2027) et de l'étranger (hors PA). Normal.\nMais Sophie tient encore un Excel des factures émises, « pour vérifier ». Pourquoi ?\nSeptembre, 3e mois : la cheffe comptable mesure le critère.",
+      exemple: "Juillet, dans Divalto :\n– 1 200 factures fournisseurs reçues par la PA : 0 ressaisie ;\n– 800 saisies à la main, papier ou PDF : des PME (petites et moyennes entreprises, pas tenues d'émettre avant le 1er septembre 2027) et de l'étranger (hors PA). Normal.\nMais Sophie tient encore un Excel des factures émises, « pour vérifier ». Pourquoi ?\nSeptembre, 3e mois : la cheffe comptable mesure le critère.",
       points: [
         "Adoption = le métier se sert vraiment de l'outil, sans double circuit. Elle se mesure par des faits : les factures ressaisies, les fichiers à côté, les tickets « comment faire ».",
         "Lire les chiffres : saisir une facture qu'aucune PA n'envoie, c'est normal ; ressaisir une facture reçue par la PA, c'est un contournement.",

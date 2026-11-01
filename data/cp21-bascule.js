@@ -75,7 +75,7 @@ LEARNSQL.questions.cp21 = [
       "Tu en proposes 6, mesurables, validés au COPIL du 11 mai",
       "D'accord : tu les écriras le 10 juin, après le dernier test",
       "Tu les fixes toi-même, et tu les annonces à l'équipe en mai",
-      "Tu demandes au DG d'imposer des critères au DAF, avant mai"
+      "Le DG impose des critères au DAF avant mai, à ta demande"
     ],
     bonne: 0,
     pourquoi: [
@@ -397,7 +397,7 @@ LEARNSQL.questions.cp21 = [
     choix: [
       "Tu l'appelles tout de suite : un retard se dit le jour même",
       "À 18 h : « Tout va bien », le retard sera rattrapé",
-      "À 18 h, comme convenu : le retard, sa cause, son effet",
+      "Tu écris à 18 h, comme convenu : retard, cause, effet",
       "Rien à 18 h : tu écriras quand le retard sera rattrapé"
     ],
     bonne: 2,

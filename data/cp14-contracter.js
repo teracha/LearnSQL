@@ -240,7 +240,7 @@ LEARNSQL.questions.cp14 = [
       "Tu lui fais confiance : il l'a dit devant témoins",
       "Tu demandes au DAF de reporter la signature d'un mois",
       "Tu le fais écrire dans l'annexe du périmètre",
-      "Tu l'écris dans le compte rendu, envoyé à la PA"
+      "Une ligne écrite au compte rendu, envoyé à la PA"
     ],
     bonne: 2,
     pourquoi: [
@@ -503,7 +503,7 @@ LEARNSQL.questions.cp14 = [
     dialecte: "Gestion de projet",
     q: "Fin avril. Recette du connecteur : aucune anomalie bloquante, 2 défauts mineurs (un libellé sur le PDF, un tri d'écran). La PA demande le PV pour facturer le solde. Que fais-tu signer ?",
     choix: [
-      "Un PV sans réserve, et un mail qui liste les 2 défauts",
+      "Un PV sans réserve, et une liste écrite des 2 défauts par mail",
       "Aucun PV avant que les 2 défauts soient corrigés",
       "Aucun PV, et une demande de pénalités au DAF",
       "Un PV avec 2 réserves, chacune avec sa date"
@@ -539,7 +539,7 @@ LEARNSQL.questions.cp14 = [
   {
     id: "cp14-q28",
     dialecte: "Gestion de projet",
-    q: "Le contrat de la PA : « PV ou réserves écrites au plus tard le 10 mai ; sans réponse, le connecteur est accepté. » On est le 7 mai. 2 cas sur 40 n'ont pas encore pu être testés. Que fais-tu ?",
+    q: "Le contrat de la PA : « PV ou réserves écrites au plus tard le 10 mai ; sans réponse, le connecteur est accepté. » On est le 7 mai. 2 cas sur 120 n'ont pas encore pu être testés. Que fais-tu ?",
     choix: [
       "Tu attends : sans PV ni réserves écrites, rien n'est accepté",
       "Tu appelles la PA : réserve orale sur les 2 cas",
@@ -551,7 +551,7 @@ LEARNSQL.questions.cp14 = [
       "Non. Le contrat dit l'inverse : sans réponse au 10 mai, c'est accepté. Attendre, c'est accepter 2 cas que personne n'a vus.",
       "Non. Presque : la PA le sait, mais une réserve orale ne compte pas. Le 11 mai, le connecteur est accepté, avec ses 2 cas jamais testés.",
       "Oui. Le silence ne décide pas à ta place : avant la date, tes réserves écrites, dont les 2 cas à tester, avec une date. Si besoin, tu demandes par écrit un délai de plus.",
-      "Non. 2 cas sur 40 ne justifient pas de suspendre un contrat : des réserves écrites, envoyées à temps, suffisent."
+      "Non. 2 cas sur 120 ne justifient pas de suspendre un contrat : des réserves écrites, envoyées à temps, suffisent."
     ],
     retenir: "Recette tacite : tes réserves partent par écrit avant la date limite. Sinon, le silence vaut acceptation."
   },

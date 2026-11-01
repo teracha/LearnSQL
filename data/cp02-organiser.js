@@ -208,8 +208,8 @@ LEARNSQL.questions.cp02 = [
     q: "Mardi 9 h 15, ton créneau DEMAT. Le N2 t'appelle : depuis 7 h, aucune facture AquaBleu n'est partie par EDI. Il a tout vérifié, sans trouver. Que fais-tu ?",
     choix: [
       "Tu y vas à 11 h, à la fin de ton créneau protégé",
-      "Tu lâches DEMAT tout de suite, et tu vas sur le flux",
-      "Tu lui dis d'ouvrir un ticket à l'intégrateur ; DEMAT continue",
+      "Tu lâches DEMAT : tu vas toi-même sur le flux, tout de suite",
+      "Un ticket à l'intégrateur, ouvert par lui ; DEMAT continue",
       "Le N2 continue de chercher ; vous faites le point à 11 h"
     ],
     bonne: 1,
@@ -265,8 +265,8 @@ LEARNSQL.questions.cp02 = [
     q: "Fin février. Trois semaines de suite, le run t'a pris 5 demi-journées sur 10. La préparation de la recette a pris 1 semaine de retard. Que fais-tu ?",
     choix: [
       "Lundi, à ton DSI : la moitié en run, ce qui a glissé, 2 options",
-      "Tu le notes, et tu en parles à ton DSI si ça dure encore",
-      "Tu préviens le DAF : le run fait glisser la recette",
+      "Tu le notes, et tu le montres à ton DSI si ça dure encore",
+      "Tu préviens le DAF, cause en main : le run fait glisser la recette",
       "Dès aujourd'hui, tu refuses tout run au N2 jusqu'à la recette"
     ],
     bonne: 0,
@@ -456,7 +456,7 @@ LEARNSQL.questions.cp02 = [
     choix: [
       "Un rapport de 2 pages à ton DSI sur ta semaine",
       "Rien de plus : lundi matin, tu verras sur place",
-      "Ta liste revue, tes 3 priorités, tes créneaux posés",
+      "Tu revois ta liste : 3 priorités, créneaux posés",
       "Tu vides ta boîte mail, pour repartir de zéro lundi"
     ],
     bonne: 2,
@@ -569,7 +569,7 @@ LEARNSQL.questions.cp02 = [
     q: "Lundi 8 mars. Ta semaine : la recette démarre le 16, il faut tout préparer. Tu comptes 12 demi-journées pour 10. Que fais-tu ?",
     choix: [
       "Ton run glisse au N2 cette semaine : tu le lui dis",
-      "Tu préviens le DAF le jour même : la recette est menacée",
+      "Tu préviens le DAF le jour même, avec 2 options : recette menacée",
       "Tu dis à ton DSI, au point : 120 %, ce qui glisse ou pas",
       "Tu tiens : 2 soirées et le samedi, la recette d'abord"
     ],
@@ -870,7 +870,7 @@ LEARNSQL.questions.cp02 = [
   {
     id: "cp02-q44",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. En mars, tu vois deux pics en juin : la bascule de DEMAT, et le renouvellement des postes de la compta par ton N2. Que fais-tu ?",
+    q: "Tu es DSI adjoint. En mars, tu vois deux pics en juin : la bascule de la migration de Divalto, et le renouvellement des postes de la compta par ton N2. Que fais-tu ?",
     choix: [
       "Tu laisses les deux en juin : ton équipe s'organisera",
       "Tu demandes au DAF de choisir : la bascule ou les postes",
@@ -880,10 +880,10 @@ LEARNSQL.questions.cp02 = [
     bonne: 2,
     pourquoi: [
       "Non. Deux pics le même mois, sur la même compta et le même N2 : l'un des deux dérapera. S'organiser, ici, c'est choisir.",
-      "Non. Le calendrier des projets de la DSI est à toi, DSI adjoint. Et la date légale tranche déjà : la bascule garde juin.",
-      "Oui. Un pic prévisible se prépare tôt : la date légale garde juin, le renouvellement des postes attend l'automne. La compta n'a qu'un changement à la fois.",
+      "Non. Le calendrier des projets de la DSI est à toi, DSI adjoint. Et la migration est calée depuis le comité de janvier : sa bascule garde juin.",
+      "Oui. Un pic prévisible se prépare tôt : la migration garde juin, le renouvellement des postes attend l'automne. La compta n'a qu'un changement à la fois.",
       "Non. Des heures en plus ne règlent pas le fond : la compta subirait deux changements en même temps, et l'équipe arriverait épuisée à la bascule."
     ],
-    retenir: "DSI adjoint : deux pics le même mois, tu en déplaces un, des mois avant. La date légale garde sa place."
+    retenir: "DSI adjoint : deux pics le même mois, tu en déplaces un, des mois avant. Le projet déjà calé garde sa place."
   }
 ];
