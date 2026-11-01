@@ -306,6 +306,23 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   35 k€ encore nécessaires, le double du devis ; 3 fournisseurs sur 600 intéressés). Mars 2029 : WMS à 210 k€ au lieu
   de 150, 20 k€ pour le finir, gain maintenu. Les tableaux Power BI des ventes et l'intranet, déjà demandés pendant
   DEMAT (cp01-q28), avaient attendu.
+- Manager l'équipe (module cp26) : rituels : réunion d'équipe le lundi à 9 h (30 minutes : priorités, blocages,
+  entraide) ; un point individuel de 30 minutes toutes les 2 semaines avec chacun ; entretiens annuels en janvier
+  (bilan, objectifs de l'année, besoins de formation ; critères connus d'avance). L'entretien annuel d'évaluation est
+  une règle de l'entreprise, pas de la loi. La loi impose l'entretien de parcours professionnel (loi du 24 octobre 2025,
+  vérifié le 1er novembre 2026 ; avant, « entretien professionnel » tous les 2 ans) : la 1re année après l'embauche,
+  puis tous les 4 ans, avec un état des lieux récapitulatif tous les 8 ans ; il porte sur le parcours, les compétences
+  et la formation, pas sur l'évaluation du travail ; un document écrit, copie remise au salarié. Ne citer ni sanction,
+  ni montant. En cas de doute sur une règle du travail : la RH. Les consultants des prestataires ne se managent pas
+  comme des salariés (cp15).
+- Budget SI annuel (module cp27) : le budget de l'année N se prépare en septembre-octobre N-1 (le DSI et toi, DSI
+  adjoint, avec le contrôleur de gestion), se présente au comité de direction en novembre, et le DG le décide en
+  décembre (le DAF consulté). Il comprend le run (contrats, licences, abonnements, matériel, télécoms), les projets
+  (une enveloppe, répartie au comité de portefeuille de janvier, cp25) et la masse salariale de la DSI (10 personnes :
+  le DSI, toi et l'équipe de 8 ; suivie avec la RH). CAPEX ou OPEX : le contrôleur de gestion le dit. Un budget annuel
+  ne compte que les mois de son année (cp22-q17 : l'abonnement de la PA, 10 200 € en 2028). Suivi mensuel avec le
+  contrôleur de gestion ; révision en juin. Chaque projet clos ajoute du run, chiffré à la clôture (cp22). Les montants
+  du budget 2028 : fixés par cp27 (l'enveloppe projets couvre les 256 k€ retenus en janvier 2028, cp25).
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
@@ -325,6 +342,10 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   l'équipe de la DSI, 8 personnes : 2 chefs de projet (dont une junior), un analyste Divalto, un développeur Power BI et
   SQL, un analyste EDI, 2 techniciens du support N1-N2, un administrateur réseau. Le comité de direction (mensuel) :
   le DG (il arbitre), le DAF, le directeur commercial, le directeur logistique, le DSI.
+  Prénoms de l'équipe (cp26, cp27) : Nicolas, chef de projet senior, ancien développeur (la migration de Divalto, puis
+  le WMS), candidat au poste de DSI adjoint que tu as obtenu ; Léa, cheffe de projet junior ; Karim, analyste Divalto ;
+  Lucas, développeur Power BI et SQL ; Hugo, analyste EDI ; Samia (N1) et Théo (N2), au support ; Yann, administrateur
+  réseau. La responsable RH (ressources humaines) conseille les managers.
 - **DAF (directeur administratif et financier)** : sponsor, manager de la cheffe comptable, signe les contrats, pressé.
 - **DG (directeur général)** : au-dessus du DAF ; niveau 4 de l'échelle d'escalade. **DSI** : ton responsable.
 - **Cheffe comptable** : inquiète ; manager de Julie et Sophie ; seule à savoir traiter les avoirs fournisseurs ;
