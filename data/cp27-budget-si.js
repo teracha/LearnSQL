@@ -13,8 +13,8 @@
 //   migration de Divalto 86 k€ (75 k€ et l'adaptation des spécifiques), WMS 150 k€, tableaux Power BI des ventes 0 €.
 // - Page du DG : ce que la loi impose (PA et archivage, 10,8 k€), faire tourner l'existant (189,2 k€), l'équipe
 //   (663 k€), les projets (256 k€, chacun avec son gain ou le risque évité). CAPEX / OPEX : le contrôleur de gestion
-//   classe (run et masse salariale en charges ; une part de la migration et du WMS peut-être en investissement, sans
-//   montant).
+//   classe (run surtout en charges, masse salariale en charges ; le matériel acheté, une part de la migration et du WMS
+//   peut-être en investissement, sans montant).
 // - Suivi : une revue par mois avec le contrôleur de gestion (réel, écart et cause, prévision de fin d'année). Dans le
 //   total voté, le DSI compense entre ses lignes ; sortir du total voté : le DG décide, le DAF consulté.
 // - Révision de juin 2028 : la migration glisse de 3 mois (en service fin septembre) ; le WMS, prévu de juillet à
@@ -22,7 +22,7 @@
 //   2028, le DG en décide. Le projet sécurité, clos fin mai 2028, laisse au run 400 € par mois dès juin (licences,
 //   sauvegarde) : 2 800 € en 2028, 4 800 € en 2029.
 // - Budget 2029 : la PA, 11 mois au prix du contrat (9 350 €), décembre selon une hypothèse écrite (une hausse possible,
-//   cp07), le coût d'un changement de PA (environ 15 000 €, comme cp13-q44) sur une ligne visible ; le DAF choisit avant
+//   cp07), le coût d'un changement de PA (environ 15 000 €, comme cp13-q43) sur une ligne visible ; le DAF choisit avant
 //   fin mai 2029 ; l'archivage, 11 mois (550 €), puis décembre à prévoir : les factures se gardent la durée légale.
 // Fond (contrôle de gestion et gestion financière d'une DSI ; ITIL, gestion financière des services ; le partage run /
 // build ; FinOps pour le cloud ; pratiques de terrain en PME / ETI) : le budget de la DSI (run, enveloppe des projets,
@@ -52,20 +52,20 @@
 // (q05) ; chef de projet DEMAT, septembre-octobre 2027 : l'archivage, la mise en service, le temps du N2 (q06 à q08) ;
 // serveur remplacé en mars 2028, 12 k€ (q11) ; « + 3 % partout » du contrôleur (q12) ; ligne « divers » de 4 800 €
 // (q13) ; copie de Divalto louée pour la recette de la migration, 300 € par mois, encore allumée en novembre 2028 (q14) ;
-// 20 licences Power BI sans connexion depuis 3 mois, 2 400 € par an (q15) ; l'enveloppe d'investissement de l'entreprise
+// 20 licences Power BI sans connexion depuis 3 mois, 3 360 € par an (q15) ; l'enveloppe d'investissement de l'entreprise
 // pleine (q19) ; jargon « MCO, build, tenant » (q23) ; 4 k€ d'écart avec le contrôleur, la veille du comité (q24) ;
 // « coupe 10 % partout » (q26) ; lien internet de secours du dépôt 2, 3 600 € par an, refusé par le DG (q28) ; « 5 % de
 // plus partout » (q29) ; ligne matériel de 40 k€, postes renouvelés en octobre 2028 (q31) ; 6 lignes mobiles à 50 € par
 // mois depuis mars 2028 (q32) ; 5 k€ au-dessus du total voté en juin (q33) ; maintenance annuelle de Divalto, 40 k€,
 // payée en janvier (q34, année non dite) ; hypothèse de + 10 % en décembre 2029 (q35) ; liens télécoms des 3 dépôts
-// reconduits seuls pour 3 ans le 1er avril 2029, préavis de 3 mois (q38).
+// reconduits seuls pour 3 ans le 1er avril 2029, préavis de 3 mois : l'échéancier de tous les contrats (q38).
 // Calculs vérifiés : 12 × 850 = 10 200 ; 12 × 50 = 600 ; 5 × 850 = 4 250 ; 5 × 50 = 250 ; 10 800 − 4 500 = 6 300 ;
 // 189,2 + 10,8 = 200 ; 189,2 + 4,5 = 193,7 ; 200 + 256 + 663 = 1 119 ; 650 × 1,02 = 663 ; 20 + 86 + 150 + 0 = 256 ;
 // 28 × 50 = 1 400 (q06) ; 3 700 + 3 700 = 7 400 (q07) ; 24 × 300 = 7 200 (q08) ; 3 % de 193,7 = 5,8 (q09) ; 7 × 400 =
 // 2 800, 12 × 400 = 4 800 (q10) ; 3 % de 200 = 6 (q12) ; 150 × 300 = 45 000 (q04) ; 3 × 25 = 75, 4 × 25 = 100 (q16) ;
 // 40 × 300 = 12 000 (q18) ; 10 % de 1 119 = 111,9 (q26) ; 6 × 50 = 300, 10 × 300 = 3 000 de mars à décembre (q32) ;
 // 100 × 12/5 = 240, 40 + 12 × 12 = 184, 100 + 5 × 12 = 160 (q34) ; 11 × 850 = 9 350, 850 × 1,10 = 935, 9 350 + 935 =
-// 10 285, 12 × 935 = 11 220 (q35) ; 11 × 50 = 550, 32 × 50 = 1 600 (q37) ; 20 × 10 € × 12 = 2 400 (q15) ; 2 mois × 300 €
+// 10 285, 12 × 935 = 11 220 (q35) ; 11 × 50 = 550, 32 × 50 = 1 600 (q37) ; 20 × 14 € × 12 = 3 360 (q15) ; 2 mois × 300 €
 // = 600 € (q14) ; préavis de 3 mois avant le 1er avril 2029 = fin décembre 2028 (q38). Aucun jour de semaine cité.
 // Affirmations juridiques ou comptables hors fiche (générales, vérifiées sur legifrance.gouv.fr le 1er novembre 2026) :
 // un contrat à durée déterminée s'exécute jusqu'à son terme, sauf ce que le contrat prévoit (Code civil, art. 1212 ;
@@ -77,7 +77,7 @@
 // options), cp11-q32 à q37 et q42 (qui classe CAPEX / OPEX, l'abonnement, la charge et l'argent, les crédits payés
 // d'avance), cp12-q34 (warehouse Snowflake allumé), cp12-q38 (le reste du budget en décembre), cp22-q17 (12 mensualités
 // de la PA en 2028), cp22-q18 et cp07-q29 (marge pour la hausse de la PA), cp22-q38 (chaque projet clos ajoute du run),
-// cp24-q37 (licences par utilisateur nommé), cp13-q44 (coût d'un changement de PA), cp14-q34 et q35 (préavis de la PA).
+// cp24-q37 (licences par utilisateur nommé), cp13-q43 (coût d'un changement de PA), cp14-q34 et q35 (préavis de la PA).
 // Voisines, avec un autre angle : q06 et cp22-q17 (ici : l'archivage, et la réserve qui l'aurait payé) ; q09, q25, q26 et
 // cp01-q30 (ici : l'année pleine expliquée, la valeur projet par projet, la coupe demandée) ; q14 et cp12-q34 (ici : une
 // copie de recette, arrêtée avec son propriétaire, une date de fin dès la création) ; q15 et cp24-q37 (ici : peu de
@@ -92,7 +92,7 @@
 // cp26 (q03 : le taux de la RH ; garder l'équipe reste un sujet de cp26). Cités en une ligne, pas refaits.
 // Types : contenu et base q01 à q05 ; run ligne par ligne q06 à q15 ; projets et enveloppe q16 à q18 ; CAPEX / OPEX q19
 // à q21 ; présenter et couper q22 à q29 ; suivre, réviser, renouveler q30 à q38. Cadres : « Tu es DSI adjoint »
-// 35 questions (décembre 2027 : q02, q05, q09, q18, q25, q26 ; 2028 : q14, q16, q17, q30 à q32 ; budget 2029 : q01, q03,
+// 35 questions (décembre 2027 : q02, q05, q09, q18, q22, q23, q25, q26 ; 2028 : q14, q16, q17, q30 à q32 ; budget 2029 : q01, q03,
 // q04, q10 à q13, q29, q35 à q38 ; sans date : les autres) ; chef de projet DEMAT, septembre-octobre 2027 : q06 à q08.
 // Anti-devinette (scores.js, sans connaître le sujet) : la bonne réponse est un extrême dans 6 questions sur 21
 // avec un axe d'action (la plus forte qui se justifie : q02, q11, q33 ; la plus douce : q27, q28, q31). Règles du
@@ -139,7 +139,7 @@ LEARNSQL.questions.cp27 = [
     choix: [
       "Baisser tout de suite : le DAF tient les finances",
       "Refuser : l'avis du DAF ne change rien au budget",
-      "En parler au comité de janvier, à la répartition",
+      "Des options au comité de janvier, à la répartition",
       "Son avis au DG, avec ce que la baisse décalerait"
     ],
     bonne: 3,
@@ -202,7 +202,7 @@ LEARNSQL.questions.cp27 = [
     bonne: 0,
     pourquoi: [
       "Oui. L'enveloppe est votée en décembre ; elle se répartit en janvier, sur le classement (module cp25). Le CRM (gestion des clients) y sera comparé aux autres, sur les mêmes critères.",
-      "Non. Une enveloppe n'est pas un partage : elle paie les projets retenus. Les 8 demandes, 390 k€, ne tiennent pas dans 256 k€.",
+      "Non. Une enveloppe n'est pas un partage : elle paie les projets retenus. Les 8 demandes, 401 k€ avec les spécifiques, ne tiennent pas dans 256 k€.",
       "Non. Trop tôt, et faux : rien n'est réparti avant janvier. Tu annonces une décision que le comité n'a pas prise.",
       "Non. Tu l'envoies contourner le classement : le DG arbitre en janvier, sur une seule liste, devant tous les directeurs."
     ],
@@ -215,14 +215,14 @@ LEARNSQL.questions.cp27 = [
     choix: [
       "« Non : la réserve de DEMAT l'a payé »",
       "« Non : les 6 400 € de réserve rendus le couvrent »",
-      "« Oui : 1 400 €, ses 28 mois restants »",
+      "« Oui : 1 400 €, les 28 mois repris à la clôture »",
       "« Oui : 12 × 50 €, soit 600 € »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. La réserve l'a couvert pendant le projet. À la clôture, ses mois restants sont passés au run, comme les mensualités de la PA (module cp22).",
       "Non. La réserve couvrait les risques de DEMAT ; elle est rendue, et le DAF dit où va cet argent. Le run se chiffre ligne par ligne, pas avec un reste.",
-      "Non. 28 × 50 = 1 400 €, c'est tout ce qui reste jusqu'en novembre 2029. Un budget annuel ne compte que son année : 12 mois en 2028.",
+      "Non. 28 × 50 = 1 400 €, c'est tout ce que le run a repris à la clôture, jusqu'en novembre 2029. Un budget annuel ne compte que son année : 12 mois en 2028.",
       "Oui. À la clôture, l'archivage est passé au run, comme l'abonnement : 50 € par mois, jusqu'en novembre 2029. 12 mois en 2028 : 600 €. Tu donnes aussi sa date de fin."
     ],
     retenir: "Ce qu'un projet clos laisse au run se budgète chaque année, sur les mois de l'année."
@@ -242,7 +242,7 @@ LEARNSQL.questions.cp27 = [
       "Non. La base est le réel, mais sans ce qui ne revient pas. La mise en service s'est payée une fois : 3 700 € à la signature, 3 700 € au PV (procès-verbal) de recette.",
       "Oui. Un coût ponctuel sort de la base. Ce qui revient chaque mois reste : l'abonnement (10 200 €) et l'archivage (600 €).",
       "Non. Le solde de 3 700 € a été payé au PV du 30 avril 2027. Plus rien n'est dû pour la mise en service.",
-      "Non. La version 2 arrive mi-novembre 2027 : rien à voir avec ce forfait. Si elle coûte, elle se chiffre à part, à sa date."
+      "Non. Le passage en version 2, mi-novembre 2027, n'a rien à voir avec ce forfait. S'il coûte, il se chiffre à part, à sa date."
     ],
     retenir: "Ce qui ne revient pas (une mise en service) sort de la base ; ce qui revient chaque mois reste."
   },
@@ -335,7 +335,7 @@ LEARNSQL.questions.cp27 = [
     bonne: 2,
     pourquoi: [
       "Non. Le calcul est juste, pas la méthode. Le prix de la PA est fixé jusqu'en novembre 2029 ; d'autres contrats ont une clause de révision. Un taux unique se trompe ligne par ligne.",
-      "Non. Certains contrats prévoient une révision, d'autres finissent (la PA, fin novembre 2029). Chaque ligne se lit dans son contrat.",
+      "Non. Certains contrats prévoient une révision, d'autres arrivent à échéance (la PA, fin novembre 2029). Chaque ligne se lit dans son contrat.",
       "Oui. Chaque ligne suit son contrat : un prix fixe ne bouge pas, une clause de révision donne sa hausse, une hausse annoncée s'écrit avec sa source. Le total en découle.",
       "Non. Une hausse sans source, plus forte encore : une marge cachée. Le DG ne sait plus ce qui est subi et ce qui est gonflé."
     ],
@@ -355,7 +355,7 @@ LEARNSQL.questions.cp27 = [
     pourquoi: [
       "Oui. Une ligne « divers » cache des coûts. Abonnement par abonnement : à quoi il sert, qui en répond. Ce qui ne sert plus se résilie, selon son contrat.",
       "Non. Peu, mais sans détail : personne ne sait ce qu'on paie. C'est là que se cachent les abonnements oubliés.",
-      "Non. Trop fort : une partie sert peut-être (un outil du support). Supprimée sans savoir, elle reviendra en dépassement.",
+      "Non. Trop fort : supprimer la ligne n'arrête pas ce qu'elle paie. Les factures arriveront quand même, sans budget, et une partie sert peut-être (un outil du support).",
       "Non. Tu reconduis ce que tu ne connais pas, et tu y caches une marge : deux défauts au lieu d'un."
     ],
     retenir: "Une ligne « divers » cache des coûts : on la détaille, abonnement par abonnement, chacun avec un propriétaire."
@@ -382,7 +382,7 @@ LEARNSQL.questions.cp27 = [
   {
     id: "cp27-q15",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Le contrôleur de gestion : « 20 licences Power BI ne se sont pas connectées depuis 3 mois. Coupe-les : 2 400 € par an. » Que fais-tu ?",
+    q: "Tu es DSI adjoint. Le contrôleur de gestion : « 20 licences Power BI ne se sont pas connectées depuis 3 mois. Coupe-les : 3 360 € par an. » Que fais-tu ?",
     choix: [
       "Tu les coupes toutes demain ; tu notes l'économie",
       "« D'accord, après l'avis de chaque manager »",
@@ -482,7 +482,7 @@ LEARNSQL.questions.cp27 = [
       "Un seul total : le classement ne le regarde pas",
       "Les charges seulement : l'investissement, c'est le DAF",
       "Les charges de l'année, et l'investissement à voter",
-      "Ton classement à toi, plus favorable à la DSI"
+      "Ton classement, et celui du contrôleur, pour comparer"
     ],
     bonne: 2,
     pourquoi: [
@@ -501,7 +501,7 @@ LEARNSQL.questions.cp27 = [
       "« Oui : le run monte, c'en est la preuve »",
       "« Non : le cloud coûte toujours moins cher »",
       "« Le contrôleur de gestion vous répondra : c'est comptable »",
-      "« Autrement. Plus cher ? Ça se compare sur la durée »"
+      "« Autrement : le coût se compare sur la durée »"
     ],
     bonne: 3,
     pourquoi: [
@@ -515,7 +515,7 @@ LEARNSQL.questions.cp27 = [
   {
     id: "cp27-q22",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Page du budget pour le DG. Ton DSI veut ranger la sécurité dans « ce que la loi impose », « à cause de NIS2 ». La vérification est en cours. Que proposes-tu ?",
+    q: "Tu es DSI adjoint. Décembre 2027, avant la décision du DG. Sur la page du budget, ton DSI veut ranger la sécurité dans « ce que la loi impose », « à cause de NIS2 ». La vérification est en cours. Que proposes-tu ?",
     choix: [
       "Dans la loi : elle passera, le DG ne discutera pas une loi",
       "Dans les projets, défendue par le risque qu'elle évite",
@@ -534,7 +534,7 @@ LEARNSQL.questions.cp27 = [
   {
     id: "cp27-q23",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Ta page pour le comité de direction dit : « MCO : 200 k€. Build : 256 k€. Tenant cloud en hausse. » Ton DSI la relit. Que changes-tu ?",
+    q: "Tu es DSI adjoint. Décembre 2027, avant la décision du DG. La page du budget dit : « MCO : 200 k€. Build : 256 k€. Tenant cloud en hausse. » Ton DSI te la fait relire. Que changes-tu ?",
     choix: [
       "Les mots du métier : « faire tourner l'existant »",
       "Rien : le DG apprendra nos mots, ils sont plus précis",
@@ -614,14 +614,14 @@ LEARNSQL.questions.cp27 = [
     choix: [
       "« Non : rien à couper, c'est la loi et un contrat »",
       "« Oui : on revient au papier, 10,8 k€ de gagnés »",
-      "« L'abonnement oui, l'archivage non : 600 € de moins »",
+      "« L'abonnement reste, l'archivage part : 600 € de moins »",
       "« À voir avec le DAF : c'est lui qui a signé »"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Recevoir et émettre passe par une PA, et les factures se gardent la durée légale. Le contrat engage jusqu'en novembre 2029. Ces 10,8 k€ ne sont pas une option.",
-      "Non. Le papier n'est plus possible : entre entreprises, les factures passent par une PA. Et le contrat engage les mensualités jusqu'en novembre 2029.",
-      "Non. Presque : l'abonnement reste. Mais les factures se gardent la durée légale : sans l'archivage, il faut une autre solution, qui coûtera aussi.",
+      "Non. Le papier n'est plus possible : entre entreprises en France, les factures passent par une PA. Et le contrat engage les mensualités jusqu'en novembre 2029.",
+      "Non. Presque : l'abonnement reste. Mais l'avenant engage aussi jusqu'en novembre 2029, et les factures se gardent la durée légale : sans l'archivage, il faut une autre solution, qui coûtera aussi.",
       "Non. Le DAF a signé, mais la réponse est déjà là : la loi et le contrat. Inutile de renvoyer le DG ailleurs."
     ],
     retenir: "Ce que la loi impose et ce qu'un contrat engage ne se coupent pas : on le dit, avec la raison."
@@ -634,7 +634,7 @@ LEARNSQL.questions.cp27 = [
       "Le remettre au comité suivant, risque à l'appui",
       "Le payer sur une autre ligne du run, sans le dire",
       "Demander au DAF de faire changer d'avis le DG",
-      "On applique, décision et risque écrits"
+      "Appliquer, décision et risque écrits"
     ],
     bonne: 3,
     pourquoi: [
@@ -708,14 +708,14 @@ LEARNSQL.questions.cp27 = [
     q: "Tu es DSI adjoint. Avril 2028, revue du mois. Télécoms : 6 lignes mobiles de plus, pour de nouveaux commerciaux, depuis mars, à 50 € par mois chacune. Le budget n'en prévoyait pas. Que fais-tu ?",
     choix: [
       "Rien : 3 000 € sur 200 k€, personne ne le verra",
-      "Une rallonge de 3 000 € demandée au DG",
+      "Le DG saisi, avec la cause et des options",
       "Les 6 lignes résiliées ; leur directeur prévenu par écrit",
       "La prévision refaite dès aujourd'hui, et ton DSI compense"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Un écart passé sous silence finit par se voir, sans sa cause. Chaque mois, l'écart et sa raison s'écrivent, avec le contrôleur de gestion.",
-      "Non. Trop haut : un écart qui se compense dans le budget de la DSI se règle à la DSI. Le DG décide quand le total voté ne tient plus.",
+      "Non. Presque : la cause et des options, oui. Mais trop haut : un écart qui se compense dans le budget de la DSI se règle à la DSI. Le DG décide quand le total voté ne tient plus.",
       "Non. Trop fort : les commerciaux en ont besoin, et la demande vient de leur directeur. Le coût se prévoit ; il ne s'annule pas.",
       "Oui. 6 × 50 = 300 € par mois, de mars à décembre : 10 × 300 = 3 000 €. La cause est écrite ; ton DSI compense sur une autre ligne. Le total voté tient : le DG n'a rien à décider."
     ],
@@ -729,13 +729,13 @@ LEARNSQL.questions.cp27 = [
       "Tu laisses ton DSI décider seul : c'est son budget, après tout",
       "Tu le portes au DG, tôt, avec la cause et des options",
       "Tu prends 5 k€ sur l'enveloppe des projets",
-      "Tu attends décembre : le réel dira"
+      "Tu attends décembre : la prévision peut encore bouger"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Dans le total voté, ton DSI compense. Mais le dépasser, c'est changer la décision du DG : c'est lui qui décide, le DAF consulté.",
       "Oui. Le total voté ne tient plus : le DG décide, comme en décembre, le DAF consulté. Tu lui donnes tôt la cause, la prévision et les options (accepter, reporter une dépense).",
-      "Non. Presque : il y a peut-être de la place. Mais l'enveloppe se répartit au comité : la déplacer vers le run, c'est une décision du DG.",
+      "Non. Presque : c'est un budget de la DSI. Mais l'enveloppe paie les projets retenus, répartis au comité : y prendre pour le run, c'est une décision du DG.",
       "Non. En décembre, il n'y aura plus d'options. Un dépassement prévu en juin se dit en juin."
     ],
     retenir: "Sortir du total voté se décide comme le vote : par le DG, le DAF consulté, prévenu tôt, avec la cause et des options."
@@ -762,7 +762,7 @@ LEARNSQL.questions.cp27 = [
   {
     id: "cp27-q35",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Budget 2029. Le contrat de la PA, 850 € par mois, finit fin novembre 2029. Hypothèse écrite : il est reconduit, avec une hausse de 10 % dès décembre. Combien prévois-tu ?",
+    q: "Tu es DSI adjoint. Budget 2029. Le contrat de la PA, 850 € par mois, arrive à échéance fin novembre 2029. Hypothèse écrite : il est reconduit, avec une hausse de 10 % dès décembre. Combien prévois-tu ?",
     choix: [
       "10 285 € : 11 mois à 850 €, puis 935 € pour le 12e",
       "10 200 € : 12 mois à 850 €, comme en 2028",
@@ -790,7 +790,7 @@ LEARNSQL.questions.cp27 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. S'il choisit de changer, 15 000 € arrivent sans budget, et la nouvelle PA doit être prête avant fin novembre. Le coût est connu : il se montre au budget.",
+      "Non. S'il choisit de changer, les 15 000 € se dépensent dès juin, pour une nouvelle PA prête avant fin novembre : la révision ne ferait que constater un dépassement. Connu en octobre, le coût se montre au budget.",
       "Non. Presque : tu prévois le coût. Mais glissés dans la ligne, ils deviennent une marge cachée : le DG ne sait pas ce qu'il vote.",
       "Non. Tu décides à la place du DAF, avant même la consultation des PA : le budget suit le choix, il ne le fait pas.",
       "Oui. Le contrat en cours, avec son hypothèse ; et le coût d'un changement sur une ligne à part, que le DG vote ou non. En mai, le choix du DAF dira si elle sert."
@@ -800,7 +800,7 @@ LEARNSQL.questions.cp27 = [
   {
     id: "cp27-q37",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Budget 2029. L'option d'archivage de la PA, 50 € par mois, finit avec le contrat, fin novembre 2029. Que prévois-tu ?",
+    q: "Tu es DSI adjoint. Budget 2029. L'option d'archivage de la PA, 50 € par mois, arrive à échéance avec le contrat, fin novembre 2029. Que prévois-tu ?",
     choix: [
       "550 € : 11 mois, puis plus rien à payer",
       "1 600 € : tout l'avenant d'archivage",
@@ -809,30 +809,30 @@ LEARNSQL.questions.cp27 = [
     ],
     bonne: 2,
     pourquoi: [
-      "Non. Le contrat finit, pas l'obligation : les factures se gardent la durée légale. Décembre se prévoit, chez la PA ou ailleurs.",
+      "Non. L'option arrive à échéance, pas l'obligation : les factures se gardent la durée légale. Décembre se prévoit, chez la PA ou ailleurs.",
       "Non. 1 600 €, c'est l'avenant sur toute sa durée, d'avril 2027 à novembre 2029. 2029 n'en paie que 11 mois : 550 €. Et décembre reste à prévoir.",
       "Oui. 11 × 50 = 550 € jusqu'en novembre. Puis les factures restent à garder : chez la PA reconduite, ou ailleurs après un export. Décembre se prévoit, selon l'hypothèse écrite.",
       "Non. C'est l'entreprise qui doit garder ses factures la durée légale ; elle choisit où. Sans l'option, payée chaque mois, la PA ne s'y engage pas."
     ],
-    retenir: "Un contrat finit, une obligation dure : les factures se gardent la durée légale, et le budget le prévoit."
+    retenir: "Un contrat arrive à échéance, l'obligation dure : les factures se gardent la durée légale, et le budget le prévoit."
   },
   {
     id: "cp27-q38",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Octobre 2028, budget 2029. Le contrat des liens télécoms des 3 dépôts se reconduit seul pour 3 ans le 1er avril 2029, sauf préavis de 3 mois. Personne ne l'avait noté. Que fais-tu ?",
+    q: "Tu es DSI adjoint. Octobre 2028, budget 2029. Tu découvres que le contrat des liens télécoms des 3 dépôts se reconduit seul pour 3 ans le 1er avril, sauf préavis de 3 mois. Le DAF choisira d'ici décembre. Que mets-tu en place ?",
     choix: [
-      "Tu prépares le choix du DAF d'ici décembre, et un échéancier",
-      "Tu attends mars : tu verras l'offre de reconduction",
-      "Tu résilies dès aujourd'hui, pour garder la main",
-      "Tu renégocies seul le prix, et tu signes en décembre"
+      "Un échéancier des contrats : fin, préavis, propriétaire",
+      "Rien de plus : ce contrat est réglé, c'était un oubli",
+      "La résiliation, par principe, de tout contrat à reconduction",
+      "Une alerte sur ce contrat-là, avant son prochain préavis"
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le préavis tombe fin décembre : le DAF choisit avant (garder, renégocier, changer), coût compris. Un échéancier de tous les contrats (fin, préavis, propriétaire) évite la prochaine surprise.",
-      "Non. En mars, le préavis est passé (fin décembre) : le contrat repart pour 3 ans, au prix qu'il fixe.",
-      "Non. Trop fort : sans nouvelle offre signée, les 3 dépôts risquent de rester sans liens au 1er avril. On résilie après avoir choisi.",
-      "Non. Presque : la date est la bonne. Mais négocier et signer, c'est au DAF : tu prépares ses options."
+      "Oui. Un contrat oublié en cache souvent d'autres : l'échéancier les liste tous (fin, préavis, propriétaire), relu à chaque budget. Chaque préavis arrive alors avec le temps de choisir.",
+      "Non. Celui-ci est réglé, mais d'autres contrats ont peut-être la même clause. Sans liste, le prochain préavis passera sans que personne ne choisisse.",
+      "Non. Trop fort : une reconduction n'est pas un piège en soi (module cp14), et résilier, c'est au DAF. Le risque, c'est d'oublier la date.",
+      "Non. Presque : une alerte, oui, mais pour ce seul contrat. Les autres restent sans date connue : c'est la liste de tous qui protège."
     ],
-    retenir: "Préparer le budget, c'est aussi relire les fins de contrats : chacune a sa date de préavis, et une décision avant."
+    retenir: "Préparer le budget, c'est aussi relire les fins de contrats : un échéancier (fin, préavis, propriétaire), relu à chaque budget."
   }
 ];

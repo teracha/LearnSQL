@@ -330,12 +330,27 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   sanction ; la suite, la RH la conseille.
 - Budget SI annuel (module cp27) : le budget de l'année N se prépare en septembre-octobre N-1 (le DSI et toi, DSI
   adjoint, avec le contrôleur de gestion), se présente au comité de direction en novembre, et le DG le décide en
-  décembre (le DAF consulté). Il comprend le run (contrats, licences, abonnements, matériel, télécoms), les projets
-  (une enveloppe, répartie au comité de portefeuille de janvier, cp25) et la masse salariale de la DSI (10 personnes :
-  le DSI, toi et l'équipe de 8 ; suivie avec la RH). CAPEX ou OPEX : le contrôleur de gestion le dit. Un budget annuel
-  ne compte que les mois de son année (cp22-q17 : l'abonnement de la PA, 10 200 € en 2028). Suivi mensuel avec le
-  contrôleur de gestion ; révision en juin. Chaque projet clos ajoute du run, chiffré à la clôture (cp22). Les montants
-  du budget 2028 : fixés par cp27 (l'enveloppe projets couvre les 256 k€ retenus en janvier 2028, cp25).
+  décembre (le DAF consulté). Exception, le budget 2028 : préparé à l'automne 2027 par ton DSI (toi, chef de projet
+  DEMAT, tu lui donnes le run de DEMAT) ; DSI adjoint dès décembre 2027, tu le défends devant le DG avant sa décision,
+  puis tu le suis. Il comprend le run (contrats, licences, abonnements, matériel, télécoms), les projets (une
+  enveloppe votée en décembre, répartie au comité de portefeuille de janvier, cp25) et la masse salariale de la DSI
+  (10 personnes : le DSI, toi et l'équipe de 8 ; suivie avec la RH, qui donne le taux d'augmentation). CAPEX ou OPEX :
+  le contrôleur de gestion le dit. Un budget annuel ne compte que les mois de son année (cp22-q17). Suivi mensuel avec
+  le contrôleur de gestion (le réel, l'écart et sa cause, la prévision) : dans le total voté, le DSI compense entre
+  ses lignes ; au-delà, le DG décide, le DAF consulté ; ce qui se libère dans l'enveloppe, le DG en décide. Révision
+  en juin, ligne par ligne. Chaque projet clos ajoute du run, chiffré à la clôture (cp22). Un échéancier des contrats
+  (fin, préavis, propriétaire), relu à chaque budget.
+  Faits fixés par cp27 : budget 2028 = 1 119 k€ (run 200 k€ + enveloppe 256 k€ + masse salariale 663 k€ : 650 k€ en
+  2027, + 2 %). Base : le réel de 2027 (run 193,7 k€). Run 2028 : abonnement de la PA 10 200 €, archivage 600 €, le
+  reste 189,2 k€, stable ; + 6,3 k€ = DEMAT en année pleine (le run de 2027 n'en a payé que 5 mois : 4 250 € et 250
+  €). Enveloppe 2028 : sécurité 20 k€, migration 86 k€ (spécifiques compris), WMS 150 k€, tableaux Power BI des ventes
+  0 €. Page du DG : la loi (PA et archivage, 10,8 k€), l'existant (189,2 k€), l'équipe (663 k€), les projets (256 k€).
+  Juin 2028 : la migration sera en service fin septembre ; le WMS (prévu de juillet à décembre, 25 k€ par mois)
+  commence en octobre : 75 k€ en 2028, 75 k€ au budget 2029. Le projet sécurité, clos fin mai 2028, laisse au run 400
+  € par mois (2 800 € en 2028, 4 800 € en 2029). Budget 2029 (septembre-octobre 2028, le DSI et toi) : la PA, 11 mois
+  au prix du contrat (9 350 €), puis décembre selon une hypothèse écrite (le contrat arrive à échéance fin novembre
+  2029 et se reconduit, sauf préavis de 6 mois : le DAF choisit avant fin mai 2029) ; le coût d'un changement de PA
+  (environ 15 000 €, cp13-q43) sur une ligne visible ; l'archivage, 550 €, puis décembre à prévoir.
 
 **Le calendrier**
 - Octobre 2026 : cadrage.
@@ -351,7 +366,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - **Toi** : chef de projet SI, rattaché au DSI. Tu n'es le manager de personne (sauf questions qui commencent par « Tu es DSI adjoint »).
 - **« Tu es DSI adjoint »** (cadre des questions qui commencent ainsi ; bloc E, modules cp24 à cp27) : même entreprise,
   plus tard (2028 et après, sauf date donnée ; tu l'es dès décembre 2027, pour préparer le classement de 2028,
-  cp25-q17, q18). Tu es l'adjoint du DSI et tu le remplaces en son absence. Tu manages
+  cp25-q17, q18, et défendre le budget 2028 devant le DG, cp27). Tu es l'adjoint du DSI et tu le remplaces en son absence. Tu manages
   l'équipe de la DSI, 8 personnes : 2 chefs de projet (dont une junior), un analyste Divalto, un développeur Power BI et
   SQL, un analyste EDI, 2 techniciens du support N1-N2, un administrateur réseau. Le comité de direction (mensuel) :
   le DG (il arbitre), le DAF, le directeur commercial, le directeur logistique, le DSI.

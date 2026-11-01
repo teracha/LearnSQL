@@ -49,7 +49,8 @@
 // en 2029. Exemple de la section 6 : 8 licences de bureautique à 20 € par mois, de personnes parties, fermées fin février
 // 2028 : 1 600 € de moins sur l'année.
 // Affirmations juridiques ou comptables hors fiche (générales, à faire vérifier) : un contrat à durée déterminée
-// s'exécute jusqu'à son terme, sauf ce que le contrat prévoit (Code civil, art. 1212 ; force obligatoire : art. 1103) ;
+// s'exécute jusqu'à son terme, sauf ce que le contrat prévoit (Code civil, art. 1212 ; force obligatoire : art. 1103 ; à durée
+// indéterminée, on peut y mettre fin avec son préavis : art. 1211) ;
 // un investissement (CAPEX) pèse sur plusieurs années, une charge (OPEX) sur l'année, l'argent sort à la date des factures
 // (comme cp11). Aucune règle comptable précise d'immobilisation : le contrôleur de gestion tranche. Aucune règle fiscale.
 // Frontières : le business case d'UN projet = cp11 ; le budget d'UN projet (engagé, consommé, atterrissage) = cp12 ; les
@@ -60,7 +61,7 @@ LEARNSQL.cours.cp27 = {
   sections: [
     {
       titre: "Ce que contient le budget de la DSI",
-      exemple: "Budget 2028 de la DSI, décidé par le DG en décembre 2027 :\n– le run (le fonctionnement courant : contrats, licences, abonnements, matériel, télécoms) : 200 k€ ;\n– l'enveloppe des projets : 256 k€ ;\n– la masse salariale : 663 k€, pour 10 personnes.\nTotal : 1 119 k€. La base : le réel de 2027.",
+      exemple: "Budget 2028 de la DSI, préparé par ton DSI à l'automne 2027, décidé par le DG en décembre :\n– le run (le fonctionnement courant : contrats, licences, abonnements, matériel, télécoms) : 200 k€ ;\n– l'enveloppe des projets : 256 k€ ;\n– la masse salariale : 663 k€, pour 10 personnes.\nTotal : 1 119 k€. La base : le réel de 2027.",
       points: [
         "Le cycle : préparé en septembre-octobre par le DSI et son adjoint, avec le contrôleur de gestion. Présenté au comité de direction en novembre. Décidé par le DG en décembre, le DAF (directeur administratif et financier) consulté.",
         "La base : le réel de l'année en cours, à fin août, plus la prévision jusqu'en décembre. Pas le budget de l'an dernier plus 3 %, ni la somme des demandes.",
@@ -96,7 +97,7 @@ LEARNSQL.cours.cp27 = {
     },
     {
       titre: "CAPEX ou OPEX : ce que ça change pour le DG",
-      exemple: "Le contrôleur de gestion range chaque ligne du budget 2028.\nRun, masse salariale : des charges de l'année (OPEX, les dépenses de fonctionnement).\nUne part de la migration et du WMS : peut-être un investissement (CAPEX), selon les règles comptables. C'est lui qui le dit.\nAu DG, deux chiffres : ce qui pèse sur le résultat de 2028, et l'investissement à voter.",
+      exemple: "Le contrôleur de gestion range chaque ligne du budget 2028.\nRun, masse salariale : surtout des charges de l'année (OPEX, les dépenses de fonctionnement).\nLe matériel acheté, une part de la migration et du WMS : peut-être un investissement (CAPEX), selon les règles comptables. C'est lui qui le dit.\nAu DG, deux chiffres : ce qui pèse sur le résultat de 2028, et l'investissement à voter.",
       points: [
         "Un CAPEX est un bien qui sert plusieurs années : sa charge s'étale sur sa durée d'utilisation. Un OPEX pèse tout entier sur l'année (module cp11).",
         "Pour le DG : l'investissement se vote souvent à part, et il pèsera aussi sur les années suivantes. L'argent, lui, sort à la date des factures.",
@@ -109,9 +110,9 @@ LEARNSQL.cours.cp27 = {
       titre: "Présenter au DG, et couper s'il le demande",
       exemple: "Comité de direction de novembre. Une page :\n1. Ce que la loi impose : la PA et l'archivage, 10,8 k€ (+ 6,3 k€ : DEMAT en année pleine).\n2. Faire tourner l'existant : 189,2 k€, stable.\n3. L'équipe : 663 k€ (+ 2 %, taux de la RH).\n4. Les projets : 256 k€, chacun avec son gain ou le risque qu'il évite.\nLe détail ligne par ligne : en annexe.",
       points: [
-        "Par nature : la loi, l'existant, l'équipe, les choix. Une obligation se vérifie. NIS2 (la directive européenne sur la cybersécurité) n'est pas vérifiée (module cp24) : la sécurité se défend sur le risque qu'elle évite.",
+        "Par nature : la loi, l'existant, l'équipe, les choix. Une obligation se vérifie. NIS2 (la directive européenne sur la cybersécurité) vous concerne-t-elle ? Ce n'est pas vérifié (module cp24) : la sécurité se défend sur le risque qu'elle évite.",
         "En valeur et sans jargon : « faire tourner l'existant », pas « MCO » (maintien en conditions opérationnelles), ni « build » (les projets). Des chiffres rapprochés avant avec le contrôleur de gestion : un seul total.",
-        "Le DG demande de couper ? Pas de rabot sur chaque ligne : ni la loi, ni un contrat en cours (sauf clause de sortie) ne se coupent. Des options chiffrées : ce qu'on gagne, ce qu'on ne fera pas, le risque.",
+        "Le DG demande de couper ? Pas de rabot sur chaque ligne. La loi ne se coupe pas, ni un contrat signé jusqu'à une date (sauf clause de sortie). Des options chiffrées : ce qu'on gagne, ce qu'on ne fera pas, le risque.",
         "Le DG décide en connaissant le prix : c'est écrit, on applique, le sponsor touché est prévenu. On y revient sur un fait nouveau, pas avec plus d'arguments.",
         "Pas de marge cachée (5 % de plus partout, « parce qu'il coupe toujours ») : le DG ne saurait plus ce qu'il vote. Un risque nommé a sa ligne, visible : il la vote ou non."
       ],
@@ -124,7 +125,7 @@ LEARNSQL.cours.cp27 = {
         "Chaque mois, ligne par ligne : le réel, l'écart et sa cause, la prévision de fin d'année. Un écart de calendrier (une facture annuelle en janvier, des postes achetés en octobre) n'est ni une dérive, ni une économie.",
         "Dans le total voté, ton DSI compense entre ses lignes. Le dépasser : le DG décide, le DAF consulté, prévenus tôt, avec la cause et des options.",
         "En juin, la révision : la prévision refaite ligne par ligne, pas le réel de 5 mois × 12/5. Elle ajoute le run des projets livrés, et passe à l'an prochain ce qui glisse.",
-        "Un échéancier des contrats (fin, préavis, propriétaire), relu à chaque budget. Le contrat de la PA finit fin novembre 2029, préavis de 6 mois. Le DAF choisit avant fin mai 2029, après le vote du budget.",
+        "Un échéancier des contrats (fin, préavis, propriétaire), relu à chaque budget. Le contrat de la PA arrive à échéance fin novembre 2029 : il se reconduit seul, sauf préavis de 6 mois. Le DAF choisit avant fin mai 2029, après le vote du budget.",
         "Le budget 2029 compte donc 11 mois au prix connu, et décembre selon une hypothèse écrite (une hausse est possible : module cp07). Le coût d'un changement va sur une ligne visible. L'archivage continue : les factures se gardent la durée légale."
       ],
       retenir: "Chaque mois : l'écart, sa cause, la prévision. En juin : la révision, ligne par ligne. Chaque contrat : sa fin et son préavis, prévus au budget."
