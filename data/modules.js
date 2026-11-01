@@ -44,6 +44,6 @@ window.LEARNSQL = { modules: [
   { id: "cp23", titre: "Conduite du changement", resume: "Carte des impacts, sponsor et managers qui portent, utilisateurs clés relais, communiquer, former juste avant, résistances, adoption.", niveau: "Intermédiaire" },
   { id: "cp24", titre: "Conformité dans un projet SI", resume: "Règles vérifiées à la source, rôles du RGPD et registre, durées et effacement, violation de données et 72 h, accès, charte et licences.", niveau: "Avancé" },
   { id: "cp25", titre: "Portefeuille et priorisation", resume: "Une seule porte, des critères écrits, la capacité d'abord : classer, dire « pas maintenant », arrêter.", niveau: "Avancé" },
-  { id: "cp26", titre: "Manager une équipe", resume: "Recruter, déléguer, entretiens annuels, feedback.", niveau: "Avancé" },
-  { id: "cp27", titre: "Budget SI annuel et direction générale", resume: "Construire et défendre le budget, parler valeur.", niveau: "Expert" }
+  { id: "cp26", titre: "Manager une équipe", resume: "Prendre son poste, déléguer sans reprendre la main, objectifs et entretiens, feedback et recadrage, situations difficiles, recruter et transmettre.", niveau: "Avancé" },
+  { id: "cp27", titre: "Budget SI annuel et direction générale", resume: "Construire le budget de la DSI (run, projets, masse salariale), CAPEX ou OPEX, le défendre devant le DG, couper avec des options, suivre, réviser.", niveau: "Expert" }
 ], questions: {}, cours: {} };
