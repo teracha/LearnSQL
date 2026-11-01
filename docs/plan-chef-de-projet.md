@@ -315,6 +315,19 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   et la formation, pas sur l'évaluation du travail ; un document écrit, copie remise au salarié. Ne citer ni sanction,
   ni montant. En cas de doute sur une règle du travail : la RH. Les consultants des prestataires ne se managent pas
   comme des salariés (cp15).
+  Faits fixés par cp26 : nomination annoncée par le DSI le vendredi 26 novembre 2027 (DSI adjoint au 1er décembre ;
+  l'équipe l'apprend le lundi 29) ; ta 1re semaine, 30 minutes avec chacun des 8 ; 1re réunion d'équipe le lundi 6
+  décembre 2027 ; Théo (N2) tient le comité fournisseur avec la PA dès janvier 2028 (ton DSI en reste responsable) ;
+  Léa pilote les tableaux Power BI des ventes en 2028, avec Lucas, puis le CRM quand il est retenu (cp23-q42) ; Karim,
+  à plein temps sur la migration pilotée par Nicolas, décide des mises à jour de Divalto, avec un plan de tests ;
+  depuis ta nomination, Hugo suit seul les flux de la grande distribution (le référent EDI de cp03-q39) ; novembre
+  2028 : depuis la migration (en service fin septembre, cp27), le run prend 80 % du temps de l'équipe ; Hugo quitte
+  l'entreprise fin avril 2029 (annonce en février), Théo reprend son savoir en binôme ; sa remplaçante, analyste EDI,
+  arrive le mercredi 2 mai 2029. En plus des rituels, les questions du jour se regroupent : un point court le matin,
+  une porte ouverte à heure fixe (cp02-q41). Loi : article L6315-1, dans la rédaction de la loi du 24 octobre 2025
+  (complétée par la loi du 30 décembre 2025 pour le congé de naissance) ; un accord collectif peut fixer un rythme
+  plus court, jamais plus de 4 ans. Une performance insuffisante n'est pas en soi une faute : ne pas parler de
+  sanction ; la suite, la RH la conseille.
 - Budget SI annuel (module cp27) : le budget de l'année N se prépare en septembre-octobre N-1 (le DSI et toi, DSI
   adjoint, avec le contrôleur de gestion), se présente au comité de direction en novembre, et le DG le décide en
   décembre (le DAF consulté). Il comprend le run (contrats, licences, abonnements, matériel, télécoms), les projets
@@ -344,7 +357,7 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
   le DG (il arbitre), le DAF, le directeur commercial, le directeur logistique, le DSI.
   Prénoms de l'équipe (cp26, cp27) : Nicolas, chef de projet senior, ancien développeur (la migration de Divalto, puis
   le WMS), candidat au poste de DSI adjoint que tu as obtenu ; Léa, cheffe de projet junior ; Karim, analyste Divalto ;
-  Lucas, développeur Power BI et SQL ; Hugo, analyste EDI ; Samia (N1) et Théo (N2), au support ; Yann, administrateur
+  Lucas, développeur Power BI et SQL ; Hugo, analyste EDI (jusqu'à fin avril 2029 ; sa remplaçante arrive le 2 mai 2029) ; Samia (N1) et Théo (N2), au support ; Yann, administrateur
   réseau. La responsable RH (ressources humaines) conseille les managers.
 - **DAF (directeur administratif et financier)** : sponsor, manager de la cheffe comptable, signe les contrats, pressé.
 - **DG (directeur général)** : au-dessus du DAF ; niveau 4 de l'échelle d'escalade. **DSI** : ton responsable.

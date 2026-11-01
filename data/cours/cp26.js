@@ -14,7 +14,7 @@
 //   30 minutes toutes les 2 semaines avec chacun, son ordre du jour d'abord ; on le décale, on ne le supprime pas.
 // - Déléguer : quoi, à qui (compétence et charge, pas l'amitié), 3 niveaux d'autonomie ; au 1er souci on aide, on ne
 //   reprend pas ; une erreur répétée sur un risque fort : un niveau de moins, en disant pourquoi ; ce qui ne se délègue
-//   pas : entretiens, feedback, recadrage, arbitrage ; tes 2 chefs de projet : ce que ton DSI te demandait (piloter,
+//   pas : entretiens, feedback, recadrage, priorités de l'équipe ; tes 2 chefs de projet : ce que ton DSI te demandait (piloter,
 //   faire faire, t'alerter d'abord, pas de surprise).
 // - Objectifs et entretiens : un résultat, un chiffre, une date, une source, dans la main de la personne ; un chiffre
 //   pousse à faire ce qu'il mesure ; l'entretien annuel en janvier, règle de l'entreprise, critères connus d'avance, sans
@@ -44,8 +44,8 @@
 // 1re année après l'embauche, puis tous les 4 ans, état des lieux tous les 8 ans ; avant, « entretien professionnel »
 // tous les 2 ans ; parcours, compétences, formation, pas l'évaluation du travail ; un écrit, copie remise ; l'entretien
 // annuel est une règle de l'entreprise). Vérifié sur legifrance.gouv.fr le 1er novembre 2026 (loi n° 2025-989,
-// article L6315-1 du Code du travail). Générale, non testée comme un fait : une sanction ne se décide ni seul ni à chaud,
-// la RH conseille. Aucun montant, aucune sanction, aucune durée légale hors de la fiche.
+// article L6315-1 du Code du travail). Générale, non testée comme un fait : la suite d'une performance
+// insuffisante a ses règles, que la RH connaît ; la RH conseille. Aucun montant, aucune sanction, aucune durée légale hors de la fiche.
 // Frontières : ton temps et l'équipe qui t'interrompt = cp02 ; le rôle attendu (faire faire, rendre compte) = cp03 ; un
 // consultant en régie ne se manage pas comme un salarié = cp15 ; diriger sans autorité = cp16 ; les mots = cp17 ; les
 // conflits comme chef de projet, dire non = cp18 ; les relais et la résistance au changement = cp23 ; choisir entre les
@@ -59,7 +59,7 @@ LEARNSQL.cours.cp26 = {
       points: [
         "Les 1res semaines, tu écoutes avant de changer : ni réorganisation le 1er lundi, ni bilan de chacun devant tous.",
         "Le candidat qui n'a pas eu le poste l'apprend en privé, avant les autres, par celui qui a décidé. Puis tu lui parles franchement. Ni l'éviter, ni tout lui céder.",
-        "D'anciens collègues : la même relation, les mêmes règles pour tous. Pas de passe-droit : une demande (augmentation, formation) suit le circuit de tous ; c'est toi qui la portes. Ce qu'un autre t'a confié reste entre vous.",
+        "D'anciens collègues : la même relation, les mêmes règles pour tous. Pas de passe-droit : une demande (augmentation, formation) suit le circuit de tous ; c'est toi qui la portes. Ce qui se dit avec chacun reste entre vous.",
         "La réunion d'équipe : le lundi à 9 h, 30 minutes. Les priorités, les blocages, l'entraide. Un sujet de deux personnes se règle après, entre elles.",
         "Le point individuel : 30 minutes toutes les 2 semaines avec chacun. Son ordre du jour d'abord (priorités, blocages, besoins), puis le tien ; l'état des tâches va dans l'outil. Tu le décales, tu ne le supprimes pas."
       ],
@@ -69,7 +69,7 @@ LEARNSQL.cours.cp26 = {
       titre: "Déléguer : quoi, à qui, avec quelle autonomie",
       exemple: "Janvier 2028. Théo, au support N2 (2e niveau), tient désormais le comité fournisseur avec la PA (plateforme agréée).\nLe but : le SLA (niveau de service du contrat) tenu, un plan d'actions daté.\nSa limite : les crédits du SLA, le DAF (directeur administratif et financier) les décide.\nSon autonomie : « Tu décides, tu m'informes ; un écart qui dure, tu me préviens. » Un point après chaque comité.",
       points: [
-        "Quoi : ce qu'un autre peut faire, et ce qui le fait grandir. Pas ce qui est à toi : entretiens, feedback, recadrage, arbitrage entre les projets (module cp25).",
+        "Quoi : ce qu'un autre peut faire, et ce qui le fait grandir. Pas ce qui est à toi : entretiens, feedback, recadrage, priorités de l'équipe (module cp25).",
         "À qui : selon la compétence et la charge, pas l'amitié. Celui qui dit toujours oui est souvent déjà plein. Une procédure, celui qui l'applique l'écrit ; l'expert la relit.",
         "L'autonomie, en 3 niveaux : « tu proposes, je décide » ; « tu décides, tu m'informes » ; « tu décides seul ». Selon la compétence et le risque. Tu donnes le résultat, la date, les limites, un point ; pas le « comment ».",
         "Au 1er souci, tu ne reprends pas : « Que proposes-tu ? » (module cp03). Une erreur qui se répète, un risque qui grandit : tu baisses d'un niveau, en disant pourquoi, sans tout reprendre.",
@@ -105,7 +105,7 @@ LEARNSQL.cours.cp26 = {
       titre: "Les situations difficiles : performance, conflit, usure",
       exemple: "Juin 2028, la migration de Divalto glisse. Lucas fait des soirées, 2 tableaux sont partis avec des erreurs, il s'agace en réunion.\nAvant de parler performance, seul à seul : « Je te vois tendu, et 2 tableaux sont revenus. Comment ça va ? »\nSa charge d'abord : ce qui peut attendre, tu le décales.",
       points: [
-        "Une performance insuffisante, après 2 discussions : un plan écrit, avec la personne (faits, attentes, aide, délai, un point régulier). La RH te conseille avant ; une sanction ne se décide ni seul, ni à chaud.",
+        "Une performance insuffisante, après 2 discussions : un plan écrit, avec la personne (faits, attentes, aide, délai, un point régulier). La RH te conseille avant, et sur la suite : elle en connaît les règles.",
         "Un conflit dans l'équipe : tu ne prends pas parti sans les faits. Tu entends chacun, puis les deux ensemble ; une règle écrite en sort. Un collègue en critique un autre devant toi ? Ses faits d'abord.",
         "Un désaccord franc sur une solution n'est pas un conflit : laisse débattre, sur les faits, et fixe quand trancher.",
         "L'usure a des signaux : mails tard le soir, oublis, irritation, repli. Tu en parles seul à seul, sans diagnostic, puis tu allèges vraiment : ce qui attend est décidé, écrit. La RH ou le médecin du travail peuvent aider.",
@@ -115,7 +115,7 @@ LEARNSQL.cours.cp26 = {
     },
     {
       titre: "Recruter, intégrer, un départ, faire grandir",
-      exemple: "Yann, l'administrateur réseau, est le seul à connaître le pare-feu. Il part 3 semaines en août. Tu connais ce risque : référent EDI (échange de données informatisé), tu étais le seul à savoir.\nEn mai, Théo apprend avec lui, sur de vrais changements. En juillet, test : Théo fait seul un changement, avec la doc seule.",
+      exemple: "Yann, l'administrateur réseau, est le seul à connaître le pare-feu. Il part 3 semaines en août. Tu connais ce risque : référent EDI (échange de données informatisé), tu étais le seul à savoir.\nEn juin, Théo apprend avec lui, sur de vrais changements. En juillet, test : Théo fait seul un changement, avec la doc seule.",
       points: [
         "Recruter : le besoin d'abord (ce que le poste devra faire demain ; quelqu'un de l'équipe le peut-il ?), puis la fiche de poste, avec la RH.",
         "Des entretiens structurés : les mêmes questions et un même cas réel pour tous, notés sur des critères fixés avant. Le « feeling » trompe.",

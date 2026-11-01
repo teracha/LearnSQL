@@ -39,7 +39,7 @@
 //   plan de tests (q15). Lucas est l'ancien voisin de bureau de l'élève (q03).
 // - Hugo, analyste EDI, quitte l'entreprise fin avril 2029 (annonce en février 2029) ; Théo, en binôme, reprend son savoir
 //   (q35, q36) ; sa remplaçante arrive le mercredi 2 mai 2029 (q23, q37 à q39).
-// - Octobre 2028 : depuis la migration, le run prend 80 % du temps de l'équipe (q34).
+// - Novembre 2028 : depuis la migration (en service fin septembre, cp27), le run prend 80 % du temps de l'équipe (q34).
 // - Scénarios : Lucas et l'augmentation « pour rire » (q03) ; le déjeuner et les confidences (q04) ; Yann, 4 heures un
 //   samedi pour une coupure prévue (q05) ; Karim et Lucas, un écart de chiffres Divalto / Power BI qui allonge la réunion
 //   du lundi (q07) ; Yann, l'état de ses 15 tâches au point individuel (q08) ; Léa soumet chaque mail à son sponsor (q10) ;
@@ -96,7 +96,9 @@
 // le point d'interrogation aussi dans des choix faux. « Aujourd'hui », « le jour même », « dès », « Oui », « D'accord »,
 // « Non : », « Merci », « puis », la RH, « seul », « tout », « aucun » : aussi dans des bonnes réponses ; chiffres, dates
 // et points-virgules aussi dans des choix faux ; un « presque juste » dans 23 questions. Bonne réponse en A/B/C/D :
-// 11/10/10/10.
+// 11/10/10/10. Testeur (1er novembre 2026) : « faits » et « ensemble » n'étaient que dans des bonnes réponses (5,5 fois
+// sur 6 ; 4 sur 4) : ajoutés dans des choix faux (q09, q12, q13, q15, q16, q20, q27, q29, q41), 1 fois sur 2 au plus ;
+// contexte ajouté aux énoncés de q05, q16, q30 ; q34 en novembre 2028 (cp27) ; q29 : rien sur une sanction.
 LEARNSQL.questions.cp26 = [
   {
     id: "cp26-q01",
@@ -113,7 +115,7 @@ LEARNSQL.questions.cp26 = [
       "Oui. C'est sa décision : à ton DSI de l'annoncer à Nicolas, en privé, avant les autres, avec ses raisons. Apprendre en réunion qu'on n'a pas eu le poste blesse. Toi, tu le vois dans ta 1re semaine.",
       "Non. Presque : en privé, avant les autres. Mais ce n'est pas ta décision à annoncer : venant de toi, ce soir, elle sonne comme une victoire, et Nicolas ne peut pas en parler à celui qui a choisi.",
       "Non. Il découvrirait devant tous qu'il n'a pas le poste : il se sentirait humilié, et tu commencerais avec un adversaire.",
-      "Non. Trop fort, et hors des règles de l'entreprise : une prime pour acheter son calme ne règle rien. Il lui faut une explication franche, puis de vrais enjeux sur ses projets."
+      "Non. Trop fort : une prime pour acheter son calme ne règle rien, et les autres le sauront. Il lui faut une explication franche, puis de vrais enjeux sur ses projets."
     ],
     retenir: "Le candidat qui n'a pas eu le poste l'apprend en privé, avant les autres, par celui qui a décidé."
   },
@@ -177,7 +179,7 @@ LEARNSQL.questions.cp26 = [
   {
     id: "cp26-q05",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Yann a travaillé 4 heures samedi, pour une coupure prévue du réseau. Il te demande s'il peut les récupérer, et comment. Tu ne connais pas la règle. Que fais-tu ?",
+    q: "Tu es DSI adjoint. À ta demande, Yann a travaillé 4 heures samedi, pour une coupure prévue du réseau. Il te demande s'il peut les récupérer, et comment. Tu ne connais pas la règle. Que fais-tu ?",
     choix: [
       "« Oui, prends ton vendredi après-midi, entre nous »",
       "« Je vérifie la règle avec la RH, et je te réponds cette semaine »",
@@ -189,7 +191,7 @@ LEARNSQL.questions.cp26 = [
       "Non. Un arrangement entre vous, hors des règles : un passe-droit que les autres apprendront, et qui peut être faux.",
       "Oui. Le temps de travail a ses règles (la loi, les accords de l'entreprise) : tu ne les inventes pas. La RH te les donne ; toi, tu réponds à Yann, vite, et pareil pour tous.",
       "Non. Tu inventes une règle : le temps de travail a les siennes, que la RH connaît. Si Yann l'apprend, ta parole perd sa valeur.",
-      "Non. Presque : la RH a la règle. Mais la récupération s'organise avec toi, son manager : à toi d'avoir la réponse, et de la donner, pareil pour tous."
+      "Non. Presque : la RH a la règle. Mais ces heures, tu les as demandées, et leur récupération s'organise avec toi : à toi d'avoir la réponse, et de la donner, pareil pour tous."
     ],
     retenir: "Un doute sur une règle du travail : tu vérifies avec la RH, puis tu réponds toi-même, pareil pour tous."
   },
@@ -256,7 +258,7 @@ LEARNSQL.questions.cp26 = [
     q: "Tu es DSI adjoint. Février 2028. Théo (N2) tient depuis janvier le comité fournisseur avec la PA. Elle rate encore son SLA, et ne donne aucun plan daté. Théo : « Reprends le comité, ils t'écoutent, toi. » Que fais-tu ?",
     choix: [
       "Tu le reprends ; Théo y viendra pour prendre les notes",
-      "Tu viens au prochain, assis à côté de lui, pour peser",
+      "Vous y allez ensemble, toi assis à côté de lui, pour peser",
       "Tu fais venir le DAF au prochain comité, pour faire peur",
       "Il le garde ; vous préparez ensemble le prochain comité"
     ],
@@ -314,7 +316,7 @@ LEARNSQL.questions.cp26 = [
     choix: [
       "« Je le fais, et je te demande ton avis sur son travail »",
       "« D'accord : tu le connais mieux que moi au quotidien »",
-      "« Mène-le, et j'y assisterai sans rien dire »",
+      "« Menons-le ensemble : tu conduis, j'écoute »",
       "« Je le fais seul, sur ses objectifs : ton projet ne compte pas »"
     ],
     bonne: 0,
@@ -334,7 +336,7 @@ LEARNSQL.questions.cp26 = [
       "Tu dis à ton DSI de te le renvoyer, sans voir Nicolas",
       "Tu le recadres lundi en réunion, puis tu préviens ton DSI",
       "Tu vois Nicolas aujourd'hui : les faits, puis « à moi d'abord »",
-      "Tu vois Nicolas seul : nouvelle règle, plus jamais le DSI en direct"
+      "Tu vois Nicolas seul : les faits, et plus jamais le DSI en direct"
     ],
     bonne: 2,
     pourquoi: [
@@ -369,16 +371,16 @@ LEARNSQL.questions.cp26 = [
     dialecte: "Gestion de projet",
     q: "Tu es DSI adjoint. Karim décide seul des mises à jour de Divalto, avec un plan de tests. 2e fois ce mois-ci : une mise à jour part sans tests. Hier, la facturation s'est arrêtée 2 heures. Que fais-tu ?",
     choix: [
-      "Tu lui rappelles par mail la règle des tests, comme la 1re fois",
+      "Tu lui redis les faits et la règle des tests, comme la 1re fois",
       "Tu confies toutes les mises à jour à l'intégrateur, dès demain",
-      "Tu décides, pour un temps : il te les propose, tests en main",
+      "Tu valides, pour un temps : il te les propose, tests en main",
       "Tu le notes, puis tu en parleras à son entretien annuel"
     ],
     bonne: 2,
     pourquoi: [
-      "Non. La 1re fois, un rappel suffisait. La 2e, avec la facturation arrêtée, il ne change rien : c'est sa marge de décision qui doit changer.",
+      "Non. La 1re fois, le redire suffisait. La 2e, avec la facturation arrêtée, le redire ne change rien : c'est sa marge de décision qui doit changer.",
       "Non. Trop fort : tu retires tout, d'un coup, à ton analyste Divalto, et tu paies l'intégrateur pour ce que Karim sait faire. Baisser d'un niveau suffit.",
-      "Oui. Erreur répétée, risque fort : tu baisses son autonomie d'un niveau, pour un temps. Il te propose chaque mise à jour, avec ses tests ; tu décides. Tu lui dis pourquoi, et comment la regagner.",
+      "Oui. Erreur répétée, risque fort : tu baisses son autonomie d'un niveau, pour un temps. Il te propose chaque mise à jour, avec ses tests ; tu valides. Tu lui dis pourquoi et comment la regagner ; tu l'écris.",
       "Non. Janvier, c'est trop tard : il peut recommencer d'ici là, et la facturation s'arrêter encore. Une erreur répétée se traite la semaine même."
     ],
     retenir: "Une erreur qui se répète, sur un risque fort : tu baisses l'autonomie d'un niveau, en disant pourquoi, sans tout reprendre."
@@ -386,17 +388,17 @@ LEARNSQL.questions.cp26 = [
   {
     id: "cp26-q16",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Ton DSI te demande de présenter au comité de direction l'avancement des tableaux Power BI des ventes. Léa, qui pilote ce projet, propose de le faire elle-même. C'est une 1re. Que réponds-tu ?",
+    q: "Tu es DSI adjoint. Ton DSI te confie le point sur les tableaux Power BI des ventes au prochain comité de direction : à toi de l'organiser. Léa, qui pilote ce projet, propose de le présenter elle-même. C'est une 1re. Que réponds-tu ?",
     choix: [
       "« Non : le comité de direction, c'est mon rôle, pas le tien »",
-      "« D'accord, et je répondrai aux questions à ta place »",
+      "« D'accord, on y va ensemble, et je réponds aux questions »",
       "« Vas-y seule, sans préparer : tu connais ton projet »",
       "« D'accord : on prépare ensemble, et c'est toi qui parles »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Tu gardes ce qu'elle peut faire, et qui la ferait grandir. Le comité y gagne aussi : il entend celle qui pilote.",
-      "Non. Presque : elle présente. Mais si tu réponds à sa place, le comité comprend que ce n'est pas elle qui tient le projet.",
+      "Non. Presque : elle présente, et tu es là. Mais si tu réponds aux questions à sa place, le comité comprend que ce n'est pas elle qui tient le projet.",
       "Non. Une 1re au comité sans préparation peut mal tourner : une question sur les dates, et elle se trouble. Déléguer, c'est aussi préparer.",
       "Oui. C'est son projet, et une occasion de grandir. Tu l'aides à préparer : la ligne du projet, la décision attendue, les questions probables. Tu en parles à ton DSI. Au comité, c'est elle qui parle."
     ],
@@ -465,7 +467,7 @@ LEARNSQL.questions.cp26 = [
     q: "Tu es DSI adjoint. Septembre 2028. 2 fois, Lucas a publié un état Power BI sans le faire tester par le métier : des chiffres faux sont arrivés au comité de direction. Tu prévois d'en parler à son entretien de janvier. Que fais-tu ?",
     choix: [
       "Tu lui en parles à votre point de jeudi : faits, impact, demande",
-      "Tu gardes tes notes pour janvier : l'entretien sert à ça",
+      "Tu notes les faits pour janvier : l'entretien sert à ça",
       "Tu demandes à Léa, sa cheffe de projet, de lui parler le jour même",
       "Rien : 2 erreurs, ça peut arriver à tout le monde"
     ],
@@ -581,14 +583,14 @@ LEARNSQL.questions.cp26 = [
       "« Tu manques de respect à toute l'équipe, Lucas »",
       "« 3 lundis en retard, l'équipe attend : que se passe-t-il ? »",
       "« 3 retards, ce n'est rien, tant que ton travail est fait »",
-      "« Encore un retard ? La prochaine fois, j'en parle à la RH »"
+      "« Encore un lundi en retard ? La prochaine fois, j'en parle à la RH »"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Un jugement sur la personne, pas sur les faits : il se défend, et tu n'apprends pas pourquoi il est en retard.",
       "Oui. Les faits, l'impact, puis une question : il a peut-être une raison (un enfant à déposer, un trajet). Ensuite, ta demande, ou un arrangement. Le reproche d'abord fermerait la discussion.",
       "Non. L'équipe l'attend chaque fois : laisser passer, c'est dire que l'heure ne compte pas, pour personne.",
-      "Non. Une menace dès la 1re discussion : il viendra peut-être à l'heure, mais tu ne sauras jamais pourquoi il était en retard. La RH n'a rien à faire là."
+      "Non. Une menace dès la 1re discussion : il viendra peut-être à l'heure, mais tu ne sauras jamais pourquoi il était en retard. La RH conseille ; elle ne sert pas de menace."
     ],
     retenir: "Recadrer : d'abord les faits et l'impact, puis une question. Il a peut-être une raison."
   },
@@ -598,7 +600,7 @@ LEARNSQL.questions.cp26 = [
     q: "Tu es DSI adjoint. Au support, devant 2 utilisateurs, Yann lance à Samia : « Tu ne comprends jamais rien ! » Tu es là. Que fais-tu ?",
     choix: [
       "Tu l'arrêtes sur-le-champ, puis tu le vois seul le jour même",
-      "Rien sur le moment ; tu lui en parles à votre prochain point",
+      "Rien sur le moment ; tu lui dis les faits au prochain point",
       "Tu consoles Samia après, sans rien dire à Yann",
       "Tu laisses passer : la journée a été dure pour tout le monde"
     ],
@@ -636,7 +638,7 @@ LEARNSQL.questions.cp26 = [
     q: "Tu es DSI adjoint. Depuis 4 mois, 3 spécifications de Karim sur 4 reviennent de l'intégrateur, incomplètes. Tu lui en as parlé 2 fois. Rien ne change. Que fais-tu ?",
     choix: [
       "Tu écris toi-même ses spécifications : elles partiront complètes",
-      "Une 3e discussion, seul à seul, plus ferme que les 2 premières",
+      "Une 3e discussion seul à seul, sur les faits, plus ferme",
       "Un plan écrit : faits, attentes, aide, délai, la RH en conseil",
       "Tu demandes à la RH une sanction, dès cette semaine"
     ],
@@ -645,14 +647,14 @@ LEARNSQL.questions.cp26 = [
       "Non. Tu fais son travail, et tu caches le problème : Karim ne progresse pas, et ton temps part dans ses dossiers.",
       "Non. Presque : il faut lui parler. Mais une 3e discussion comme les 2 premières donnera le même résultat : il faut un plan écrit, avec de l'aide et un délai.",
       "Oui. Après 2 discussions, un plan écrit, avec lui : les faits (3 sur 4), ce que tu attends (une spécification complète, avec ses cas de test), l'aide (Nicolas en relit 2), un délai, un point toutes les 2 semaines. La responsable RH te conseille avant.",
-      "Non. Trop fort, trop tôt : il n'a eu ni attentes écrites, ni aide, ni délai. Et la RH conseille, elle ne décide pas à ta place."
+      "Non. Trop fort : rien n'a encore été fait pour l'aider (attentes écrites, aide, délai). Une performance se travaille d'abord ; la suite a ses règles, que la RH connaît. Elle conseille, elle ne décide pas à ta place."
     ],
     retenir: "Une performance insuffisante, après des discussions : un plan écrit (faits, attentes, aide, délai), avec la RH en conseil."
   },
   {
     id: "cp26-q30",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. En atelier, Karim et Hugo s'opposent vivement : contrôler les commandes EDI dans Divalto, ou dans l'outil EDI ? Le ton monte un peu ; les arguments sont solides. Que fais-tu ?",
+    q: "Tu es DSI adjoint. En atelier, Karim et Hugo s'opposent vivement : contrôler les commandes EDI dans Divalto, ou dans l'outil EDI ? Le ton monte un peu ; les arguments sont solides. La décision peut attendre 2 semaines. Que fais-tu ?",
     choix: [
       "Tu tranches tout de suite sur les faits, pour calmer le jeu",
       "Tu arrêtes l'atelier : on reprendra à froid, un autre jour",
@@ -661,7 +663,7 @@ LEARNSQL.questions.cp26 = [
     ],
     bonne: 3,
     pourquoi: [
-      "Non. Trop tôt : tu coupes un débat utile, et tu décides sans les meilleurs arguments. Ils apprennent à ne plus te contredire.",
+      "Non. Trop tôt : rien ne presse, et tu coupes un débat utile. Tu décides sans les meilleurs arguments, et ils apprennent à ne plus te contredire.",
       "Non. Tu fuis un débat qui avançait : le sujet revient, sans date, et la décision attend.",
       "Non. Il n'y a pas de conflit à apaiser : deux avis s'opposent, sur le fond. Des tête-à-tête feraient d'un débat une affaire de personnes.",
       "Oui. Un désaccord franc sur une solution n'est pas un conflit : c'est souvent là que naît la meilleure. Tu veilles aux faits (les cas, les coûts), et tu fixes la date de la décision. S'ils restent bloqués, tu tranches."
@@ -675,7 +677,7 @@ LEARNSQL.questions.cp26 = [
     choix: [
       "Un plan de progrès écrit, et la RH prévenue, le jour même",
       "Tu la vois seule : tu dis ce que tu as vu, et tu écoutes",
-      "Tu passes ses tickets à Théo, puis tu verras avec elle",
+      "D'abord ses tickets à Théo, puis tu verras avec elle",
       "Tu attends : chacun a ses passages à vide"
     ],
     bonne: 1,
@@ -728,7 +730,7 @@ LEARNSQL.questions.cp26 = [
   {
     id: "cp26-q34",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Octobre 2028. Depuis la migration de Divalto, le run prend 80 % du temps de l'équipe, au lieu d'environ 60 %. Le WMS prend du retard, et l'équipe fait des soirées. Que fais-tu ?",
+    q: "Tu es DSI adjoint. Novembre 2028. Depuis la migration de Divalto, en service fin septembre, le run prend 80 % du temps de l'équipe, au lieu d'environ 60 %. Le WMS prend du retard, et l'équipe fait des soirées. Que fais-tu ?",
     choix: [
       "Tu le montres à ton DSI : renfort ou WMS plus tard, chiffrés",
       "Tu demandes à chacun de rattraper le WMS le soir, quelques semaines",
@@ -740,7 +742,7 @@ LEARNSQL.questions.cp26 = [
       "Oui. Le run passe d'abord, mais pas par des soirées. Les chiffres (80 % au lieu d'environ 60 %, ce que ça décale) et 2 options : un renfort pour le run, ou le WMS plus tard. Ton DSI arbitre, ou fait arbitrer au comité de direction (module cp25).",
       "Non. Des soirées, des semaines durant : l'usure, puis les erreurs, puis les départs. Et personne n'a choisi de payer ce retard ainsi.",
       "Non. Tu absorbes en silence : la surcharge ne se voit pas, et personne ne peut choisir. Ton rôle : la montrer, chiffres en main.",
-      "Non. 3 mois de plus à 80 %, l'équipe n'y arrivera pas. Un écart qui dure se dit tôt, chiffres en main."
+      "Non. 2 mois de plus à 80 %, l'équipe n'y arrivera pas. Un écart qui dure se dit tôt, chiffres en main."
     ],
     retenir: "Le run déborde, des semaines durant ? Les chiffres et des options à ton DSI : un renfort, ou un projet plus tard. Pas des soirées."
   },
@@ -759,7 +761,7 @@ LEARNSQL.questions.cp26 = [
       "Non. Tu redeviens le seul à savoir, avec moins de temps qu'avant : le problème change de nom, pas de nature. Et ton rôle de DSI adjoint attend.",
       "Non. Presque : une doc, oui. Mais lue après son départ, jamais testée avec lui, elle aura des trous, et Hugo ne sera plus là pour les combler.",
       "Non. Trop fort, et à côté : sa décision est prise, et une augmentation hors du circuit de tous est un passe-droit. Le risque, c'est le savoir : il se transmet.",
-      "Oui. Le savoir d'une seule personne passe à un binôme, sur de vrais cas, dès l'annonce. Et la doc se teste : Théo traite seul un rejet, avec elle seule. Fin avril, quelqu'un sait déjà."
+      "Oui. Le savoir d'une seule personne passe à un binôme, sur de vrais cas, dès l'annonce ; tu allèges Théo d'autant. Et la doc se teste : Théo traite seul un rejet, avec elle seule. Fin avril, quelqu'un sait déjà."
     ],
     retenir: "Un départ annoncé : le savoir passe à un binôme, sur les vrais cas, dès l'annonce. Une doc se teste."
   },
@@ -865,14 +867,14 @@ LEARNSQL.questions.cp26 = [
     choix: [
       "« Non : trop gros pour une junior, Nicolas le prendra »",
       "« Oui, seule, sans point : c'est en pilotant qu'on apprend »",
-      "« Je le pilote, et tu m'assistes pour apprendre »",
+      "« On le pilote ensemble : je décide, et tu apprends »",
       "« Oui, avec Nicolas en appui, et des points serrés »"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Elle ne grandira pas si elle ne prend que les petits projets. Et Nicolas est déjà pris : la migration, puis le WMS.",
       "Non. Presque : le lui confier, oui. Mais seule, sans point, sur un projet plus gros que tout ce qu'elle a fait : le 1er écueil la met en échec, faute d'appui.",
-      "Non. Tu fais le projet, elle regarde : elle n'apprend pas à décider, et ton temps de DSI adjoint part dans un projet.",
+      "Non. Ensemble, mais c'est toi qui décides : elle regarde, et n'apprend pas à décider. Et ton temps de DSI adjoint part dans un projet.",
       "Oui. Un projet plus gros fait grandir, avec un filet : quelques heures d'appui de Nicolas, des points chaque semaine au début, puis espacés. Tu ne pilotes pas à sa place."
     ],
     retenir: "Faire grandir : un projet plus gros, avec un appui et des points serrés au début, sans piloter à sa place."
