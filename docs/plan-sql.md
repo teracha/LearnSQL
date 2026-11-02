@@ -58,7 +58,9 @@ Règles :
    point, un exemple ou une ligne du tableau `differences`. La liste des « retenir » des questions sert de liste de
    contrôle. Les détails rares vont dans le tableau `differences` ou dans un point, pas dans une section à part.
 7. **Les écarts SQL Server / Snowflake** sont dits là où ils comptent (dans la section) et repris dans le tableau
-   `differences`. Quand une règle n'est pas sûre, le cours le dit (« à vérifier sur ta version »).
+   `differences` : **une différence par ligne, des cellules courtes** (un mot-clé, une expression, trois ou quatre mots),
+   jamais une phrase ni une liste dans une cellule ; autant de lignes qu'il faut (10 à 25). Quand une règle n'est pas
+   sûre, le cours le dit (« à vérifier sur ta version »).
 8. Phrases courtes, mots simples, un seul sujet par section ; jamais de référence au handicap de l'élève dans le texte.
 9. Le cours ne contredit aucune question du module ; une question fausse se signale au superviseur, elle ne se corrige
    pas en changeant le cours.
