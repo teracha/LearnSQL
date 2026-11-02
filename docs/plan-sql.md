@@ -40,17 +40,20 @@ LEARNSQL.cours.m01 = {
 Règles :
 1. **L'intro ouvre sur le vécu** de l'élève (une question : ses requêtes sur Divalto, ses flux EDI, son entrepôt
    Snowflake et ses rapports Power BI, sa démat fiscale), puis dit ce que le thème évite : une erreur vue en entreprise.
-2. **5 à 7 sections**, une idée par section, titre court. Dans chaque section : **l'exemple d'abord** (du SQL sur la base
+2. **6 à 8 sections**, une idée par section, titre court. Dans chaque section : **l'exemple d'abord** (du SQL sur la base
    d'exemple, qui se lit seul), **puis le résultat** (un tableau de 2 à 5 lignes, ou une phrase quand le résultat est un
    message d'erreur ou un nombre), **puis 3 à 5 points**, **puis le retenir**.
-3. **Chaque point est une phrase complète** (un sujet, un verbe), de 25 mots au plus. Un point dit : ce qui se passe,
-   ou pourquoi, ou l'erreur classique (avec son effet : un montant faux dans Power BI, une commande EDI perdue), ou
-   l'écart SQL Server / Snowflake. Les accents graves servent aux mots-clés et aux noms (`ORDER BY`, `dbo.client`), pas
-   à des phrases entières.
+3. **Chaque point porte UNE idée**, en une ou deux phrases complètes (un sujet, un verbe), 25 mots au plus en tout.
+   Un point dit : ce qui se passe, ou pourquoi, ou l'erreur classique (avec son effet : un montant faux dans Power BI,
+   une commande EDI perdue), ou l'écart SQL Server / Snowflake. Jamais trois idées dans un point : on coupe, ou on
+   déplace dans « Détails utiles ». Les accents graves servent aux mots-clés et aux noms (`ORDER BY`, `dbo.client`),
+   pas à des phrases entières, et pas plus de 3 par point.
 4. **Le résultat est juste** : il est calculé sur la base d'exemple et vérifié (SQLite). Les `NULL` s'écrivent `null`
    dans le tableau (JavaScript), le site les affiche en italique. Les montants gardent 2 décimales (`"4780.00"` en texte,
    pour l'affichage).
-5. **1 300 à 1 450 mots** au total (intro, titres, exemples, résultats, points, retenir), 3 à 5 points par section.
+5. **1 400 à 1 700 mots** au total (intro, titres, exemples, résultats, points, retenir), 6 à 8 sections, 3 à 5 points
+   par section. La dernière section peut être « Détails utiles » : jusqu'à 8 points courts, un par notion rare, sans
+   exemple ni résultat ; c'est là que vont les notions qu'on ne veut pas enseigner en profondeur.
 6. **Chaque notion testée par les 100 questions du module est dans le cours** (règle 10 du parcours Chef de projet) : un
    point, un exemple ou une ligne du tableau `differences`. La liste des « retenir » des questions sert de liste de
    contrôle. Les détails rares vont dans le tableau `differences` ou dans un point, pas dans une section à part.
