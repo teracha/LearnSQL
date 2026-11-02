@@ -1,24 +1,29 @@
-// Parcours SQL — Fiche de cours du module m01 « Les bases du SELECT », nouveau format (docs/plan-sql.md).
-// Fond : SELECT et FROM (colonnes, *, alias de table, schéma, noms en 2, 3 ou 4 parties), l'ordre d'exécution logique
-// (FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT, portée des alias, plan d'exécution),
-// ORDER BY (ASC par défaut, plusieurs critères, NULL selon le moteur, CASE, expression, position à éviter, vue), TOP /
-// LIMIT / OFFSET-FETCH (WITH TIES, PERCENT, variable, pagination par clé), DISTINCT (ligne entière, un seul NULL, tri
-// limité aux colonnes affichées, COUNT), l'écriture des valeurs et des noms (apostrophes, crochets et guillemets, casse
-// Snowflake, collation, types, commentaires, point-virgule), les calculs (priorités, %, NULL, concaténation), SELECT sans
-// FROM, VALUES, la structure d'une table. Les détails rares (SELECT INTO / CTAS, sp_help / DESCRIBE, GO, USE, @@VERSION,
-// NEWID / RANDOM / SAMPLE, ::, EXCLUDE) sont dans un point ou dans le tableau « differences ».
-// Base d'exemple : docs/base-exemple.sql (client, article, commande, ligne_cde, facture, flux_edi, depot, stock_depot).
-// Chaque résultat a été recalculé avec SQLite (TOP vérifié avec LIMIT ; les ex aequo de TOP (4) WITH TIES à la main) :
-// facture (4 lignes) ; totaux par client hors annulées > 1 300 (15 115,00 et 2 580,00) ; tri des PRO français par ville,
-// NULL en tête (SQL Server) ; TOP (4) WITH TIES = 5 lignes (deux commandes à 1 290,00) ; DISTINCT type + statut des flux
-// (4 couples) ; clients sans SIREN (2) ; SELECT sans FROM (20, 1, NULL, CDE-1001).
+// Parcours SQL — Fiche de cours du module m01 « Les bases du SELECT », nouveau format (docs/plan-sql.md, règles 2, 3, 5 :
+// une idée par point, 1 ou 2 phrases, 25 mots et 3 accents graves au plus ; 7 sections + « Détails utiles »).
+// Fond : SELECT et FROM (colonnes, *, alias de table, schéma), l'ordre d'exécution logique (FROM → WHERE → GROUP BY →
+// HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT, portée des alias, plan d'exécution), ORDER BY (ASC par défaut,
+// plusieurs critères, NULL selon le moteur, CASE, expression, codes en texte, vue), TOP / LIMIT / OFFSET-FETCH (WITH
+// TIES, pagination par clé), DISTINCT (ligne entière, un seul NULL, tri limité aux colonnes affichées, clé unique,
+// COUNT), l'écriture des valeurs et des noms (apostrophes, constante, type de la colonne, crochets et guillemets, casse
+// Snowflake), les calculs (priorités, %, NULL, concaténation), SELECT sans FROM. « Détails utiles » : noms en 3 ou 4
+// parties, virgules, vues, variantes de *, ORDER BY par position, variantes de TOP, forme du script, VALUES. Le tableau
+// « differences » porte le reste (OFFSET seul, NULLS FIRST / LAST, collation, ::, espaces de fin, SELECT INTO / CTAS,
+// sp_help / DESCRIBE / TOP (0), USE / GO / DB_NAME / @@VERSION, NEWID / RANDOM / SAMPLE / GETDATE).
+// Base d'exemple : docs/base-exemple.sql. Chaque résultat a été recalculé avec SQLite (TOP vérifié avec LIMIT ; les ex
+// aequo de TOP (4) WITH TIES à la main) : facture (4 lignes) ; totaux par client hors annulées > 1 300 (15 115,00 et
+// 2 580,00) ; tri des PRO français par ville, NULL en tête (SQL Server) ; TOP (4) WITH TIES = 5 lignes (deux commandes à
+// 1 290,00) ; DISTINCT type + statut des flux (4 couples) ; clients sans SIREN (2) ; SELECT sans FROM (20, 1, NULL,
+// CDE-1001). Relu par le testeur (02/11/2026) : 8 corrections intégrées (GROUP BY / SUM / HAVING nommés avec renvoi au
+// module m04, JOIN → module m05, « par défaut » pour les NULL Snowflake et le paramètre DEFAULT_NULL_ORDERING, règle
+// DISTINCT + ORDER BY attribuée à SQL Server, RAND / GETDATE évalués une fois par instruction, retenir courts).
 // Couverture : les 100 « retenir » des questions m01 (data/m01-bases.js) sont chacun dans un point, un exemple, un
 // retenir ou une ligne du tableau « differences » (carte de couverture dans le rapport de rédaction).
-// Sources vérifiées (02/11/2026) : learn.microsoft.com (SELECT - ORDER BY clause : NULL = plus petite valeur, OFFSET /
-// FETCH, DISTINCT et ORDER BY, vue et ORDER BY ; TOP : PERCENT arrondi au-dessus, WITH TIES exige ORDER BY, parenthèses ;
-// = (String comparison) : 'abc' = 'abc ' ; SELECT clause : DISTINCT et NULL, alias.*). docs.snowflake.com (ORDER BY :
-// NULL plus grand par défaut, NULLS FIRST / LAST ; TOP <n> = LIMIT ; LIMIT / FETCH ; SAMPLE ; Identifier requirements :
-// sans guillemets → MAJUSCULES ; comparaison de chaînes : les espaces de fin comptent).
+// Sources vérifiées : learn.microsoft.com (SELECT - ORDER BY clause : NULL = plus petite valeur, OFFSET / FETCH,
+// DISTINCT et ORDER BY, vue et ORDER BY, positions à éviter ; TOP : PERCENT arrondi au-dessus, WITH TIES exige ORDER BY,
+// parenthèses ; = (String comparison) : 'abc' = 'abc ' ; SELECT clause : DISTINCT et NULL, alias.*, alias de colonne
+// seulement dans ORDER BY). docs.snowflake.com (ORDER BY : NULL plus grand par défaut, DEFAULT_NULL_ORDERING, NULLS
+// FIRST / LAST ; TOP <n> = LIMIT ; LIMIT / FETCH ; SAMPLE ; Identifier requirements : sans guillemets → MAJUSCULES ;
+// comparaison de chaînes : les espaces de fin comptent).
 LEARNSQL.cours.m01 = {
   intro: "Une commande EDI d'AquaBleu n'est pas facturée dans Divalto : par quelle requête commences-tu ? Un `SELECT` sur la table des commandes, trié par date, limité aux dernières lignes. Ce module pose cette base : lire, trier, limiter, et surtout l'ordre dans lequel le moteur exécute ta requête. C'est ce qui évite un rapport Power BI faux parce que l'ordre n'était pas garanti, ou un `SELECT *` qui casse une intégration le jour où une colonne s'ajoute.",
   sections: [
@@ -27,26 +32,26 @@ LEARNSQL.cours.m01 = {
       exemple: "SELECT f.num_fact, f.montant_ht, f.statut\nFROM dbo.facture AS f;",
       resultat: [["num_fact", "montant_ht", "statut"], ["FA-2026-0301", "4780.00", "PAYEE"], ["FA-2026-0302", "1290.00", "PAYEE"], ["FA-2026-0303", "2385.00", "RETARD"], ["FA-2026-0401", "79.80", "EMISE"]],
       points: [
-        "Le moteur lit `FROM` d'abord. Écris le schéma, `dbo.facture`, car `stg.facture` peut exister aussi. Nom complet `Ventes.dbo.facture`. Une 4e partie devant lit un serveur lié.",
-        "`SELECT nom ville` (virgule oubliée) renomme `nom` en `ville` sans erreur : écris toujours `AS`. Une virgule avant `FROM` plante : mets-les en début de ligne.",
-        "Les colonnes sortent dans l'ordre du `SELECT`. Donne un alias à chaque calcul : une vue l'exige, comme elle exige des noms uniques (deux `id` : erreur).",
-        "`SELECT *` sert à explorer (Snowflake : `* EXCLUDE (siren)` retire une colonne). En production, une colonne ajoutée casse la vue, le rapport Power BI, le flux EDI.",
-        "`AS f` pose un alias de table (`AS` facultatif). Ensuite `facture.statut` n'est plus reconnu : `f.statut` partout. `f.*` (une seule table) ou `*, calcul` sont permis."
+        "Le moteur lit `FROM` d'abord : il doit savoir quelle table ouvrir avant de choisir les colonnes à afficher, puis les lignes à garder.",
+        "Écris le schéma, `dbo.facture` : une autre table `facture` existe peut-être dans un schéma `stg`, et SQL Server réutilise mieux ses plans.",
+        "Les colonnes sortent dans l'ordre du `SELECT`, pas dans celui de la table. Les lignes, elles, n'ont aucun ordre garanti sans `ORDER BY`.",
+        "`SELECT *` sert à explorer. En production, une colonne ajoutée casse la vue, le rapport Power BI ou le flux EDI qui le lisent.",
+        "`AS f` pose un alias de table (le mot AS est facultatif). Ensuite `facture.statut` n'est plus reconnu : écris `f.statut` partout."
       ],
-      retenir: "Liste tes colonnes, préfixe le schéma, écris AS, pose un alias de table court et utilise-le partout."
+      retenir: "Liste tes colonnes, préfixe le schéma, pose un alias de table court et utilise-le partout."
     },
     {
       titre: "L'ordre d'exécution : le moteur ne lit pas comme toi",
       exemple: "/* 5 */ SELECT client_id, SUM(montant_ht) AS total\n/* 1 */ FROM dbo.commande\n/* 2 */ WHERE statut <> 'ANNULEE'\n/* 3 */ GROUP BY client_id\n/* 4 */ HAVING SUM(montant_ht) > 1300\n/* 6 */ ORDER BY total DESC;",
       resultat: [["client_id", "total"], [1, "15115.00"], [2, "2580.00"]],
       points: [
-        "Tu écris `SELECT` d'abord ; le moteur le traite presque en dernier. Ici `GROUP BY` fait une ligne par client, `SUM` additionne, `HAVING` filtre (module m04).",
-        "L'alias `total` naît au `SELECT`. `WHERE`, `GROUP BY` et `HAVING` passent avant : sur SQL Server, `HAVING total > 1300` donne « nom de colonne non valide ».",
+        "Tu écris `SELECT` d'abord ; le moteur le traite presque en dernier. C'est l'ordre logique, le sens ; le plan d'exécution montre le travail réel.",
+        "Ici `GROUP BY` fait une ligne par client, `SUM` additionne et `HAVING` filtre les groupes : c'est le module m04, pas celui-ci.",
+        "L'alias `total` naît au `SELECT`, donc n'existe pas encore pour WHERE, GROUP BY ni HAVING : `HAVING total > 1300` plante sur SQL Server.",
         "Seul `ORDER BY` passe après `SELECT` et voit l'alias. Mais `ORDER BY total * 2` échoue sur SQL Server : l'alias seul, jamais dans un calcul.",
-        "Snowflake est plus souple : l'alias marche dans `WHERE`, `GROUP BY`, `HAVING`, et plus loin dans le même `SELECT` (`qte * prix_unit AS montant, montant * 0.2`).",
-        "`JOIN … ON` (module m05) appartient au `FROM`, avant `WHERE`. Après `SELECT` : `DISTINCT`, `ORDER BY`, puis `TOP` ou `LIMIT`. Le plan d'exécution montre le travail réel."
+        "Snowflake est plus souple : l'alias marche dans WHERE, GROUP BY, HAVING, et plus loin dans le même `SELECT` (`qte * prix_unit AS montant, montant * 0.2`)."
       ],
-      retenir: "Ordre logique FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT : l'alias du SELECT n'existe donc, sur SQL Server, que dans ORDER BY."
+      retenir: "Ordre logique FROM (avec ses JOIN, module m05) → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT : l'alias du SELECT n'existe donc, sur SQL Server, que dans ORDER BY."
     },
     {
       titre: "Trier avec ORDER BY",
@@ -54,10 +59,10 @@ LEARNSQL.cours.m01 = {
       resultat: [["nom", "ville"], ["Camping Les Flots", null], ["Piscines Dumont", "Grenoble"], ["Piscines Dumont", "Lyon"], ["Hydro Sud", "Montpellier"], ["Bleu Lagon", "Nice"]],
       points: [
         "Sans `ORDER BY`, aucun ordre n'est garanti, même s'il « a l'air » bon : un rapport Power BI change le jour où le plan change.",
-        "`ORDER BY ville` = `ORDER BY ville ASC`. Avec `ORDER BY pays, montant_ht DESC`, le 2e critère départage seulement les lignes du même pays.",
-        "SQL Server met `NULL` en tête en `ASC`, en fin en `DESC` (plus petite valeur). Snowflake fait l'inverse par défaut ; `NULLS FIRST` / `NULLS LAST` forcent.",
+        "`ORDER BY pays, montant_ht DESC` trie par pays (croissant, `ASC` par défaut), puis le 2e critère départage seulement les lignes du même pays.",
+        "SQL Server met `NULL` en tête en `ASC` et en fin en `DESC` : c'est la plus petite valeur. Snowflake fait l'inverse par défaut.",
         "`ORDER BY` accepte une expression : `CASE WHEN ville IS NULL THEN 1 ELSE 0 END, ville` met les `NULL` en fin, ou « urgentes d'abord ».",
-        "`ORDER BY 2` (2e colonne) : erreur si elle manque, piège si le `SELECT` change. Des codes texte sortent `'1', '10', '2'` : `CAST(code AS int)`."
+        "Des codes stockés en texte se trient `'1', '10', '2'` : trie sur `CAST(code AS int)`, ou stocke un vrai nombre."
       ],
       retenir: "Un seul ORDER BY, sur des noms de colonnes, dans la requête finale (jamais dans une vue ni dans un chargement) : sans lui, aucun ordre."
     },
@@ -66,24 +71,24 @@ LEARNSQL.cours.m01 = {
       exemple: "SELECT TOP (4) WITH TIES num_cde, montant_ht\nFROM dbo.commande\nORDER BY montant_ht DESC;",
       resultat: [["num_cde", "montant_ht"], ["CDE-1007", "7950.00"], ["CDE-1001", "4780.00"], ["CDE-1003", "2385.00"], ["CDE-1002", "1290.00"], ["CDE-1006", "1290.00"]],
       points: [
-        "`TOP (4)` s'applique après le tri : les 4 plus grosses commandes. Avec une variable, `TOP (@n)`, les parenthèses sont obligatoires. `TOP (10) PERCENT` arrondit au-dessus.",
-        "Snowflake écrit `LIMIT 4` tout à la fin, après `ORDER BY`, et accepte `TOP 4`. Sans tri, lignes quelconques. `LIMIT` n'existe pas sur SQL Server.",
-        "`WITH TIES` garde les ex aequo de la dernière place : ici 5 lignes, deux commandes à 1 290. Sans `ORDER BY`, il échoue.",
-        "Pagination : `ORDER BY id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY` donne les lignes 21 à 30 (`FETCH` facultatif). Snowflake : `LIMIT 10 OFFSET 20`.",
+        "`TOP (4)` s'applique en dernier, après le tri : les 4 plus grosses commandes. Sans `ORDER BY`, 4 lignes quelconques, qui changent d'un jour à l'autre.",
+        "Snowflake écrit `LIMIT 4` tout à la fin, après `ORDER BY`, et accepte aussi `TOP 4` ; SQL Server, lui, n'a que TOP.",
+        "`WITH TIES` garde les ex aequo de la dernière place : ici 5 lignes, deux à 1 290. `TOP (1)` par date : tout le dernier jour.",
+        "Pagination : `ORDER BY id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY` donne les lignes 21 à 30 ; Snowflake écrit `LIMIT 10 OFFSET 20`.",
         "À la page 5 000, `OFFSET` relit tout ce qui précède : lent. Pagine par clé, `WHERE id > @dernier_id ORDER BY id`, avec `TOP (10)`."
       ],
-      retenir: "TOP ou LIMIT, toujours avec ORDER BY. Les plus récentes : ORDER BY date_cde DESC puis TOP (1), la ligne entière, pas seulement MAX. Avec WITH TIES : tout le dernier jour."
+      retenir: "TOP ou LIMIT, toujours avec ORDER BY. Les plus récentes : ORDER BY date_cde DESC puis TOP (1), la ligne entière, pas seulement MAX."
     },
     {
       titre: "DISTINCT : des lignes entières uniques",
       exemple: "SELECT DISTINCT type, statut\nFROM dbo.flux_edi\nORDER BY type, statut;",
       resultat: [["type", "statut"], ["DESADV", "REJET"], ["INVOIC", "OK"], ["ORDERS", "OK"], ["ORDERS", "REJET"]],
       points: [
-        "`DISTINCT` compare la ligne entière du `SELECT`, pas la première colonne : `ORDERS` sort deux fois, car son statut diffère (`OK`, `REJET`).",
-        "Les `NULL` sont égaux entre eux pour `DISTINCT` : une seule ligne. Sur SQL Server, `'ABC'` et `'ABC '` aussi (espaces de fin ignorés). Snowflake les distingue.",
-        "Avec `DISTINCT`, `ORDER BY` n'accepte que des colonnes du `SELECT` : par `motif`, SQL Server refuse (quel motif pour un couple ?). Sans `DISTINCT`, c'est permis.",
-        "`DISTINCT` sur une clé unique (`id`) ne retire rien et coûte du temps. `SELECT DISTINCT COUNT(*)` compte tout ; pour compter des valeurs : `COUNT(DISTINCT statut)`.",
-        "Avec `TOP`, l'ordre est imposé : `SELECT DISTINCT TOP (3) …`. Des doublons après une jointure ? Cherche la cause (plusieurs lignes par commande) avant d'ajouter `DISTINCT`."
+        "`DISTINCT` compare la ligne entière du `SELECT`, pas la première colonne : `ORDERS` sort deux fois, car son statut diffère.",
+        "Pour `DISTINCT`, les `NULL` sont égaux entre eux : une ville `NULL` ne sort qu'une seule fois, même si dix clients n'ont pas de ville.",
+        "Avec `DISTINCT`, `ORDER BY` n'accepte que des colonnes du `SELECT` : SQL Server refuse un tri par motif. Sans lui, une colonne non affichée convient.",
+        "`DISTINCT` sur une clé unique (`id`) ne retire rien : chaque ligne est déjà unique, il coûte juste du temps de tri.",
+        "`SELECT DISTINCT COUNT(*)` compte toutes les lignes, pas les valeurs distinctes : le compte sort avant le dédoublonnage. Pour ça, écris `COUNT(DISTINCT statut)`."
       ],
       retenir: "DISTINCT compare des lignes entières, garde un seul NULL, et le tri ne porte que sur les colonnes affichées."
     },
@@ -92,35 +97,48 @@ LEARNSQL.cours.m01 = {
       exemple: "-- Fiches à nettoyer : les clients sans SIREN\nSELECT code, nom AS [Nom client], 'À saisir par l''ADV' AS action\nFROM dbo.client\nWHERE siren IS NULL;",
       resultat: [["code", "Nom client", "action"], ["C003", "Bleu Lagon", "À saisir par l'ADV"], ["C005", "Pool & Garden", "À saisir par l'ADV"]],
       points: [
-        "Un texte va entre apostrophes simples. L'apostrophe dedans se double : `'l''ADV'`. Une constante du `SELECT` se répète sur chaque ligne, comme `action` ci-dessus.",
-        "Compare avec le type de la colonne : `code_postal = 69110` convertit la colonne en entier et plante sur `'2A004'`. `'2026-03-02'` reste un texte : `CAST(… AS date)`.",
-        "Nom spécial (espace, mot réservé comme `order`) : `[Nom client]` sur SQL Server, `\"Nom client\"` sur Snowflake. `[dbo].[client]` = `dbo.client`. Mieux : `nom_client`, sans espace.",
-        "Snowflake met un nom sans guillemets en MAJUSCULES (`NOM`), sauf `AS \"nom\"`. Avec guillemets, la casse devient obligatoire : `\"client\"` ≠ `client`. Ne mélange pas les deux.",
-        "Mots-clés en MAJUSCULES ou non, mise en forme libre : profite-en. `--` commente jusqu'à la fin de la ligne, `/* … */` plusieurs. Un `;` finit chaque instruction, obligatoire avant `WITH`."
+        "Un texte va entre apostrophes simples ; une apostrophe dedans se double, sinon elle ferme le texte trop tôt : `'l''ADV'` affiche l'ADV.",
+        "Une constante du `SELECT` se répète sur chaque ligne, comme `action` ci-dessus : pratique pour marquer la source d'une donnée dans un flux.",
+        "Compare avec le type de la colonne : `code_postal = 69110` convertit toute la colonne en entier et plante sur `'2A004'`. Écris `'69110'`.",
+        "Nom spécial (espace, mot réservé) : `[Nom client]` sur SQL Server, `\"Nom client\"` sur Snowflake. Mieux : `nom_client`, sans espace ni mot réservé.",
+        "Snowflake met un nom sans guillemets en MAJUSCULES : Power BI voit `NOM`, sauf `AS \"nom\"`. Avec guillemets, la casse devient obligatoire : ne mélange pas."
       ],
-      retenir: "Texte entre apostrophes (doublée dedans), nom spécial entre [ ] ou \" \", et toujours une valeur du type de la colonne."
+      retenir: "Texte entre apostrophes (doublée dedans ; `'2026-03-02'` reste un texte), nom spécial entre [ ] ou \" \", et une valeur du type de la colonne."
     },
     {
-      titre: "Calculer, tester, explorer",
+      titre: "Calculer et tester sans table",
       exemple: "SELECT 10 + 5 * 2      AS calcul,\n       10 % 3          AS reste,\n       39.90 * NULL    AS vide,\n       'CDE-' + '1001' AS num_cde;   -- Snowflake : 'CDE-' || '1001'",
       resultat: [["calcul", "reste", "vide", "num_cde"], [20, 1, null, "CDE-1001"]],
       points: [
-        "`SELECT` sans `FROM` renvoie une ligne : idéal pour tester une expression avant de l'écrire dans une vraie requête (`SELECT GETDATE();`).",
-        "`*` et `/` passent avant `+` et `-` : `10 + 5 * 2` = 20. Mets des parenthèses. `%` donne le reste de la division : une ligne sur deux, un lot sur n.",
-        "Tout calcul avec `NULL` donne `NULL` : un montant vide dans Power BI vient souvent d'une quantité manquante. `COALESCE(qte, 0)` si c'est voulu.",
-        "Concaténer : `+` sur SQL Server, `||` sur Snowflake, où `+` tente une addition et plante sur `'CDE-'`. `CONCAT()` marche sur les deux.",
-        "La structure d'une table : `INFORMATION_SCHEMA.COLUMNS` partout, `sp_help` (SQL Server), `DESCRIBE TABLE` (Snowflake). Une table en dur : `FROM (VALUES (1, 'FR'), (2, 'BE')) AS t(id, pays)`."
+        "`SELECT` sans `FROM` renvoie une ligne : idéal pour tester une expression ou une fonction avant de l'écrire dans une vraie requête.",
+        "La multiplication et la division passent avant l'addition et la soustraction : `10 + 5 * 2` donne 20, pas 30. Mets des parenthèses pour lever le doute.",
+        "`%` donne le reste de la division : `10 % 3` vaut 1. Utile pour une ligne sur deux, ou des lots de n.",
+        "Tout calcul avec `NULL` donne `NULL` : un montant vide dans Power BI vient souvent d'une quantité manquante (`COALESCE(qte, 0)` si c'est voulu).",
+        "Concaténer : `+` sur SQL Server, `||` sur Snowflake (où + tente une addition et plante sur un texte). `CONCAT()` marche sur les deux moteurs."
       ],
-      retenir: "Teste sans FROM. NULL contamine tout calcul. Pour garder un résultat : SELECT INTO (SQL Server) ou CREATE TABLE AS SELECT (Snowflake) crée, INSERT INTO … SELECT ajoute."
+      retenir: "Teste sans FROM ; NULL contamine tout calcul. Pour garder un résultat : SELECT INTO (SQL Server) ou CREATE TABLE AS SELECT (Snowflake)."
+    },
+    {
+      titre: "Détails utiles",
+      points: [
+        "Nom complet `Ventes.dbo.facture` : base, schéma, table. Une 4e partie devant, `SRV_ERP.Divalto.dbo.article`, lit un serveur lié : pratique, mais souvent lent sur de gros volumes.",
+        "Une virgule oubliée (`SELECT nom ville`) fait de ville un alias de nom, sans erreur : écris `AS`. Une virgule en trop avant `FROM` plante.",
+        "Une vue exige un nom unique par colonne : un alias sur chaque calcul, jamais deux `id`. Encore une raison d'éviter `SELECT *`.",
+        "`f.*` donne toutes les colonnes d'une seule table ; `*, montant_ht * 1.2 AS ttc` ajoute un calcul. Snowflake : `* EXCLUDE (siren)` retire une colonne.",
+        "`ORDER BY 2` trie sur la 2e colonne du `SELECT` : piège si le SELECT change, erreur si elle manque. Écris le nom.",
+        "Variantes : `TOP (@n)` exige les parenthèses ; `TOP (10) PERCENT` arrondit au-dessus (10 % de 15 = 2) ; avec DISTINCT, écris `SELECT DISTINCT TOP (3)`.",
+        "Casse des mots-clés et mise en forme : libres. `--` commente jusqu'à la fin de la ligne, `/* … */` plusieurs ; un `;` finit chaque instruction, obligatoire avant WITH.",
+        "Une table en dur dans la requête : `FROM (VALUES (1, 'FR'), (2, 'BE')) AS t(id, pays)`, pratique pour une correspondance codes → libellés."
+      ]
     }
   ],
   differences: [
     ["Nom d'une table", "`dbo.client` : schéma.table ; `Ventes.dbo.client` : base.schéma.table ; une 4e partie devant = serveur lié", "`VENTES.CLIENT` : schéma.table dans la base courante ; `PROD.VENTES.CLIENT` en entier"],
-    ["Limiter, paginer", "`TOP (n)` juste après `SELECT` ; `OFFSET m ROWS FETCH NEXT n ROWS ONLY` (`FETCH` facultatif)", "`LIMIT n` tout à la fin (`TOP n` accepté) ; `LIMIT n OFFSET m` (ou `OFFSET … FETCH`)"],
-    ["Alias du `SELECT` ailleurs que dans `ORDER BY`", "Erreur dans `WHERE`, `GROUP BY`, `HAVING` et dans le même `SELECT` : répète le calcul, ou passe par une CTE", "Accepté partout (et même dans la suite du `SELECT`)"],
+    ["Limiter, paginer", "`TOP (n)` juste après `SELECT`, pas de `LIMIT` ; `WITH TIES` exige `ORDER BY` ; `OFFSET m ROWS FETCH NEXT n ROWS ONLY` (`FETCH` facultatif)", "`LIMIT n` tout à la fin (`TOP n` accepté) ; `LIMIT n OFFSET m` (ou `OFFSET … FETCH`)"],
+    ["Alias du `SELECT` ailleurs que dans `ORDER BY`", "Erreur dans `WHERE`, `GROUP BY`, `HAVING` et dans le même `SELECT` : répète le calcul, ou passe par une CTE (module m06)", "Accepté partout (et même dans la suite du `SELECT`)"],
     ["`NULL` dans `ORDER BY`", "Plus petite valeur : en tête en `ASC`, en fin en `DESC` ; `CASE WHEN col IS NULL THEN 1 ELSE 0 END, col` pour les mettre à la fin", "Plus grande valeur par défaut (paramètre `DEFAULT_NULL_ORDERING`) : en fin en `ASC` ; `NULLS FIRST` / `NULLS LAST` après le sens du tri"],
-    ["Nom spécial, casse des noms", "`[Code Client]` ; casse selon la collation de la base (`CS` : casse exacte)", "`\"Code Client\"` ; MAJUSCULES sans guillemets, casse exacte avec guillemets"],
-    ["Concaténer, convertir", "`'CDE-' + num_cde` ; `CAST(x AS date)`", "`'CDE-' || num_cde` (`+` additionne) ; `x::DATE` ou `CAST` ; `CONCAT()` sur les deux"],
+    ["Nom spécial, casse des noms", "`[Code Client]` (`[dbo].[client]` = `dbo.client`) ; casse selon la collation de la base (`CS` : casse exacte)", "`\"Code Client\"` ; MAJUSCULES sans guillemets, casse exacte avec guillemets"],
+    ["Textes : concaténer, convertir, espaces de fin", "`'CDE-' + num_cde` ; `CAST('2026-03-02' AS date)` (entre apostrophes, c'est un texte) ; `'ABC'` = `'ABC '` (espaces de fin ignorés)", "`'CDE-' || num_cde` (`+` additionne) ; `'2026-03-02'::DATE` ou `CAST` ; `'ABC'` ≠ `'ABC '` ; `CONCAT()` sur les deux"],
     ["Créer une table depuis une requête", "`SELECT … INTO t FROM …` (erreur si `t` existe ; `INSERT INTO t SELECT …` ajoute)", "`CREATE TABLE t AS SELECT …` (CTAS)"],
     ["Structure d'une table", "`sp_help`, `TOP (0)`, `INFORMATION_SCHEMA.COLUMNS`", "`DESCRIBE TABLE`, `LIMIT 0`, `INFORMATION_SCHEMA.COLUMNS` (noms en MAJUSCULES)"],
     ["Base courante, version, lots", "`USE Ventes` ; `DB_NAME()` ; `@@VERSION` ; `GO` sépare les lots de SSMS (une variable ne le traverse pas)", "`USE DATABASE`, `USE SCHEMA` ; `CURRENT_DATABASE()` ; `CURRENT_VERSION()` ; pas de `GO`"],
