@@ -452,6 +452,16 @@
     app.innerHTML = html;
   }
 
+  // Résultat d'un exemple de cours : une phrase, ou un petit tableau (1re ligne = en-têtes).
+  function resultatCours(r) {
+    if (!Array.isArray(r)) return '<p class="muted">→ ' + fmt(r) + '</p>';
+    var cell = function (v) { return v === null ? '<em class="muted">NULL</em>' : esc(String(v)); };
+    return '<p class="label">Résultat</p><div class="table-wrap resultat"><table><thead><tr>' +
+      r[0].map(function (h) { return '<th>' + esc(String(h)) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      r.slice(1).map(function (row) { return '<tr>' + row.map(function (v) { return '<td>' + cell(v) + '</td>'; }).join('') + '</tr>'; }).join('') +
+      '</tbody></table></div>';
+  }
+
   function pageCours(id) {
     var m = module(id);
     var c = DATA.cours[id];
@@ -465,7 +475,7 @@
     c.sections.forEach(function (sec, i) {
       html += '<h2>' + (i + 1) + '. ' + esc(sec.titre) + '</h2><div class="card">' +
         (sec.exemple ? '<p class="label">Exemple</p>' + balise + (sql ? esc(sec.exemple) : fmt(sec.exemple)) + '</pre>' : '') +
-        (sec.resultat ? '<p class="muted">→ ' + fmt(sec.resultat) + '</p>' : '') +
+        (sec.resultat ? resultatCours(sec.resultat) : '') +
         '<ul class="points">' + sec.points.map(function (p) { return '<li>' + fmt(p) + '</li>'; }).join('') + '</ul>' +
         (sec.retenir ? '<div class="feedback ok"><p><strong>À retenir :</strong> ' + fmt(sec.retenir) + '</p></div>' : '') +
         (sec.source ? '<p class="muted">Source : <a href="' + esc(sec.source.url) + '" target="_blank" rel="noopener">' +

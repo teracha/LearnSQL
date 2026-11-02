@@ -218,3 +218,8 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
 .btn.danger { background: var(--ko); border-color: var(--ko); color: #fff; }
 .lien.danger { color: var(--ko); font-size: 14px; }
 .tag.inactif { background: var(--ko-soft); color: var(--ko); }
+
+/* Résultat d'un exemple de cours (petit tableau) */
+.resultat table { font-size: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.resultat th, .resultat td { padding: 5px 8px; white-space: nowrap; }
+.resultat em.muted { font-style: italic; }
