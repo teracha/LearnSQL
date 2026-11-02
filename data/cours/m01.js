@@ -40,13 +40,13 @@ LEARNSQL.cours.m01 = {
       exemple: "/* 5 */ SELECT client_id, SUM(montant_ht) AS total\n/* 1 */ FROM dbo.commande\n/* 2 */ WHERE statut <> 'ANNULEE'\n/* 3 */ GROUP BY client_id\n/* 4 */ HAVING SUM(montant_ht) > 1300\n/* 6 */ ORDER BY total DESC;",
       resultat: [["client_id", "total"], [1, "15115.00"], [2, "2580.00"]],
       points: [
-        "Tu écris `SELECT` en premier ; le moteur le traite presque en dernier. Il lit la table, filtre, regroupe, puis seulement choisit les colonnes.",
+        "Tu écris `SELECT` d'abord ; le moteur le traite presque en dernier. Ici `GROUP BY` fait une ligne par client, `SUM` additionne, `HAVING` filtre (module m04).",
         "L'alias `total` naît au `SELECT`. `WHERE`, `GROUP BY` et `HAVING` passent avant : sur SQL Server, `HAVING total > 1300` donne « nom de colonne non valide ».",
         "Seul `ORDER BY` passe après `SELECT` et voit l'alias. Mais `ORDER BY total * 2` échoue sur SQL Server : l'alias seul, jamais dans un calcul.",
         "Snowflake est plus souple : l'alias marche dans `WHERE`, `GROUP BY`, `HAVING`, et plus loin dans le même `SELECT` (`qte * prix_unit AS montant, montant * 0.2`).",
-        "`JOIN … ON` appartient au `FROM`, avant `WHERE`. Après `SELECT` viennent `DISTINCT`, `ORDER BY`, puis `TOP` ou `LIMIT`. Le plan d'exécution montre le travail réel."
+        "`JOIN … ON` (module m05) appartient au `FROM`, avant `WHERE`. Après `SELECT` : `DISTINCT`, `ORDER BY`, puis `TOP` ou `LIMIT`. Le plan d'exécution montre le travail réel."
       ],
-      retenir: "FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT : le sens de la requête. Sur SQL Server, l'alias du SELECT ne vit que dans ORDER BY."
+      retenir: "Ordre logique FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT : l'alias du SELECT n'existe donc, sur SQL Server, que dans ORDER BY."
     },
     {
       titre: "Trier avec ORDER BY",
@@ -55,11 +55,11 @@ LEARNSQL.cours.m01 = {
       points: [
         "Sans `ORDER BY`, aucun ordre n'est garanti, même s'il « a l'air » bon : un rapport Power BI change le jour où le plan change.",
         "`ORDER BY ville` = `ORDER BY ville ASC`. Avec `ORDER BY pays, montant_ht DESC`, le 2e critère départage seulement les lignes du même pays.",
-        "SQL Server voit `NULL` comme la plus petite valeur : en tête en `ASC`, en fin en `DESC`. Snowflake fait l'inverse ; `NULLS FIRST` / `NULLS LAST` forcent.",
+        "SQL Server met `NULL` en tête en `ASC`, en fin en `DESC` (plus petite valeur). Snowflake fait l'inverse par défaut ; `NULLS FIRST` / `NULLS LAST` forcent.",
         "`ORDER BY` accepte une expression : `CASE WHEN ville IS NULL THEN 1 ELSE 0 END, ville` met les `NULL` en fin, ou « urgentes d'abord ».",
         "`ORDER BY 2` (2e colonne) : erreur si elle manque, piège si le `SELECT` change. Des codes texte sortent `'1', '10', '2'` : `CAST(code AS int)`."
       ],
-      retenir: "Pas d'ORDER BY, pas d'ordre. Un seul ORDER BY, sur des noms de colonnes, dans la requête finale : jamais dans une vue ni dans une étape de chargement."
+      retenir: "Un seul ORDER BY, sur des noms de colonnes, dans la requête finale (jamais dans une vue ni dans un chargement) : sans lui, aucun ordre."
     },
     {
       titre: "Limiter : TOP, LIMIT et la pagination",
@@ -81,7 +81,7 @@ LEARNSQL.cours.m01 = {
       points: [
         "`DISTINCT` compare la ligne entière du `SELECT`, pas la première colonne : `ORDERS` sort deux fois, car son statut diffère (`OK`, `REJET`).",
         "Les `NULL` sont égaux entre eux pour `DISTINCT` : une seule ligne. Sur SQL Server, `'ABC'` et `'ABC '` aussi (espaces de fin ignorés). Snowflake les distingue.",
-        "Avec `DISTINCT`, `ORDER BY` ne trie que sur des colonnes du `SELECT` : par `motif`, erreur (quel motif pour un couple ?). Sans `DISTINCT`, c'est permis.",
+        "Avec `DISTINCT`, `ORDER BY` n'accepte que des colonnes du `SELECT` : par `motif`, SQL Server refuse (quel motif pour un couple ?). Sans `DISTINCT`, c'est permis.",
         "`DISTINCT` sur une clé unique (`id`) ne retire rien et coûte du temps. `SELECT DISTINCT COUNT(*)` compte tout ; pour compter des valeurs : `COUNT(DISTINCT statut)`.",
         "Avec `TOP`, l'ordre est imposé : `SELECT DISTINCT TOP (3) …`. Des doublons après une jointure ? Cherche la cause (plusieurs lignes par commande) avant d'ajouter `DISTINCT`."
       ],
@@ -118,12 +118,12 @@ LEARNSQL.cours.m01 = {
     ["Nom d'une table", "`dbo.client` : schéma.table ; `Ventes.dbo.client` : base.schéma.table ; une 4e partie devant = serveur lié", "`VENTES.CLIENT` : schéma.table dans la base courante ; `PROD.VENTES.CLIENT` en entier"],
     ["Limiter, paginer", "`TOP (n)` juste après `SELECT` ; `OFFSET m ROWS FETCH NEXT n ROWS ONLY` (`FETCH` facultatif)", "`LIMIT n` tout à la fin (`TOP n` accepté) ; `LIMIT n OFFSET m` (ou `OFFSET … FETCH`)"],
     ["Alias du `SELECT` ailleurs que dans `ORDER BY`", "Erreur dans `WHERE`, `GROUP BY`, `HAVING` et dans le même `SELECT` : répète le calcul, ou passe par une CTE", "Accepté partout (et même dans la suite du `SELECT`)"],
-    ["`NULL` dans `ORDER BY`", "Plus petite valeur : en tête en `ASC`, en fin en `DESC` ; `CASE WHEN col IS NULL THEN 1 ELSE 0 END, col` pour les mettre à la fin", "Plus grande valeur par défaut : en fin en `ASC` ; `NULLS FIRST` / `NULLS LAST` après le sens du tri"],
+    ["`NULL` dans `ORDER BY`", "Plus petite valeur : en tête en `ASC`, en fin en `DESC` ; `CASE WHEN col IS NULL THEN 1 ELSE 0 END, col` pour les mettre à la fin", "Plus grande valeur par défaut (paramètre `DEFAULT_NULL_ORDERING`) : en fin en `ASC` ; `NULLS FIRST` / `NULLS LAST` après le sens du tri"],
     ["Nom spécial, casse des noms", "`[Code Client]` ; casse selon la collation de la base (`CS` : casse exacte)", "`\"Code Client\"` ; MAJUSCULES sans guillemets, casse exacte avec guillemets"],
     ["Concaténer, convertir", "`'CDE-' + num_cde` ; `CAST(x AS date)`", "`'CDE-' || num_cde` (`+` additionne) ; `x::DATE` ou `CAST` ; `CONCAT()` sur les deux"],
     ["Créer une table depuis une requête", "`SELECT … INTO t FROM …` (erreur si `t` existe ; `INSERT INTO t SELECT …` ajoute)", "`CREATE TABLE t AS SELECT …` (CTAS)"],
     ["Structure d'une table", "`sp_help`, `TOP (0)`, `INFORMATION_SCHEMA.COLUMNS`", "`DESCRIBE TABLE`, `LIMIT 0`, `INFORMATION_SCHEMA.COLUMNS` (noms en MAJUSCULES)"],
     ["Base courante, version, lots", "`USE Ventes` ; `DB_NAME()` ; `@@VERSION` ; `GO` sépare les lots de SSMS (une variable ne le traverse pas)", "`USE DATABASE`, `USE SCHEMA` ; `CURRENT_DATABASE()` ; `CURRENT_VERSION()` ; pas de `GO`"],
-    ["Hasard, échantillon", "`TOP (5) … ORDER BY NEWID()` (`NEWID()` change à chaque ligne ; `RAND()` et `GETDATE()` valent pareil sur toutes)", "`ORDER BY RANDOM() LIMIT 5` ; `SAMPLE (5 ROWS)` ; `SAMPLE (10)` = 10 %"]
+    ["Hasard, échantillon", "`TOP (5) … ORDER BY NEWID()` (`NEWID()` change à chaque ligne ; `RAND()` et `GETDATE()`, évalués une fois par instruction, valent pareil sur toutes)", "`ORDER BY RANDOM() LIMIT 5` ; `SAMPLE (5 ROWS)` ; `SAMPLE (10)` = 10 %"]
   ]
 };
