@@ -30,12 +30,21 @@
 // à la casse et espaces de fin comptés par défaut ; LIKE / ILIKE / LIKE ANY / ILIKE ANY : jokers % et _, ESCAPE sans
 // caractère par défaut ; EQUAL_NULL et IS [NOT] DISTINCT FROM ; NVL / IFNULL / COALESCE ; CURRENT_DATE, DATE_TRUNC ;
 // pruning des micro-partitions).
+// Relu par le testeur (04/11/2026) : 5 corrections intégrées. La forme '20260301' est propre à SQL Server (ISO 8601 sans
+// séparateur, indépendante de SET DATEFORMAT / LANGUAGE) et Snowflake attend '2026-03-01' (TO_DATE lit une chaîne de
+// chiffres comme des secondes depuis 1970) : dit dans l'exemple S5 et dans la ligne « Date en texte » du tableau, qui
+// remplace les deux lignes « casse » fusionnées en une ; « Snowflake peut sauter moins de micro-partitions » (la doc ne
+// liste pas les fonctions qui gênent le pruning) ; CAST AS date SARGable « à vérifier sur ta version » (comportement de
+// l'optimiseur non documenté sur learn.microsoft.com) ; « Égal, NULL compris » = IS NOT DISTINCT FROM / EQUAL_NULL ;
+// requête juste en commentaire de l'exemple S1. Sources ajoutées : learn.microsoft.com (date / datetime : formats
+// yyyyMMdd ; Write International Transact-SQL Statements ; ALL ; Operator precedence) ; docs.snowflake.com (TO_DATE ;
+// Date and time input and output formats ; LENGTH, LEN ; String & binary data types : séquences d'échappement).
 LEARNSQL.cours.m02 = {
   intro: "Ton rapport « commandes sans flux EDI » revient vide ce matin : données enfin propres, ou filtre piégé ? Un `NOT IN` qui croise un seul NULL, un `AND` qui passe avant le `OR`, une casse que SQL Server ignorait et que Snowflake compte : le filtre ne plante pas, il se tait. Ce module t'apprend à écrire un `WHERE` qui garde exactement les lignes voulues, à raisonner avec NULL (vrai, faux, inconnu), et à filtrer dates et textes sans perdre l'index.",
   sections: [
     {
       titre: "WHERE, AND et OR : garder les lignes vraies",
-      exemple: "-- Voulu : les piscinistes (PRO) de Lyon ou de Grenoble\nSELECT code, nom, ville, type\nFROM dbo.client\nWHERE ville = 'Lyon' OR ville = 'Grenoble' AND type = 'PRO';",
+      exemple: "-- Voulu : les piscinistes (PRO) de Lyon ou de Grenoble\nSELECT code, nom, ville, type\nFROM dbo.client\nWHERE ville = 'Lyon' OR ville = 'Grenoble' AND type = 'PRO';\n-- Juste (2 lignes) : WHERE (ville = 'Lyon' OR ville = 'Grenoble') AND type = 'PRO'",
       resultat: [["code", "nom", "ville", "type"], ["C001", "AquaBleu", "Lyon", "GD"], ["C002", "Piscines Dumont", "Grenoble", "PRO"], ["C006", "Piscines Dumont", "Lyon", "PRO"]],
       points: [
         "Le moteur lit `FROM`, puis teste chaque ligne avec `WHERE` : il garde celles où la condition est VRAIE. Fausse ou inconnue (NULL) : la ligne sort.",
@@ -87,12 +96,12 @@ LEARNSQL.cours.m02 = {
     },
     {
       titre: "Les dates : une plage, la colonne nue",
-      exemple: "-- Commandes livrées en mars 2026 : du 1er mars inclus au 1er avril exclu\nSELECT num_cde, date_cde, montant_ht\nFROM dbo.commande\nWHERE statut = 'LIVREE'\n  AND date_cde >= '20260301'\n  AND date_cde <  '20260401';",
+      exemple: "-- Commandes livrées en mars 2026 : du 1er mars inclus au 1er avril exclu\n-- '20260301' (AAAAMMJJ) : forme sûre de SQL Server ; Snowflake attend '2026-03-01'\nSELECT num_cde, date_cde, montant_ht\nFROM dbo.commande\nWHERE statut = 'LIVREE'\n  AND date_cde >= '20260301'\n  AND date_cde <  '20260401';",
       resultat: [["num_cde", "date_cde", "montant_ht"], ["CDE-1001", "2026-03-02", "4780.00"], ["CDE-1002", "2026-03-05", "1290.00"], ["CDE-1003", "2026-03-09", "2385.00"]],
       points: [
         "`BETWEEN '20260301' AND '20260331'` suffit sur une DATE. Sur un DATETIME, '20260331' signifie le 31 à minuit : la commande du 31 à 14 h disparaît.",
         "La plage `>= début AND < lendemain de la fin` marche avec ou sans heure. « Hier » s'écrit de hier 00:00 inclus à aujourd'hui 00:00 exclu.",
-        "`YEAR(date_cde) = 2026` enveloppe la colonne : SQL Server lit toute la table au lieu de chercher dans l'index, Snowflake saute moins de micro-partitions (module m12).",
+        "`YEAR(date_cde) = 2026` enveloppe la colonne : SQL Server lit toute la table au lieu de chercher dans l'index, Snowflake peut sauter moins de micro-partitions (module m12).",
         "Mets le calcul côté valeur : `date_cde >= DATEADD(day, -30, GETDATE())` pour les 30 derniers jours, `montant_ht > 1200 / 1.2` plutôt que `montant_ht * 1.2 > 1200`.",
         "La date du jour s'écrit `CAST(GETDATE() AS date)` (SQL Server) ou `CURRENT_DATE` (Snowflake). Un TIMESTAMP comparé à une DATE l'est à minuit."
       ],
@@ -134,17 +143,17 @@ LEARNSQL.cours.m02 = {
         "Contrôle d'import : `TRY_CAST(qte_txt AS int) IS NULL AND qte_txt IS NOT NULL` trouve les valeurs non numériques. ISNUMERIC accepte '$' : préfère TRY_CAST.",
         "Des nombres rangés en texte se comparent caractère par caractère : '99' > '100' est vrai. Convertis avant de comparer, et jamais d'égalité stricte sur un FLOAT.",
         "Égalité NULL compris avant SQL Server 2022 : `a = b OR (a IS NULL AND b IS NULL)`. `COALESCE(a, '') = COALESCE(b, '')` confond NULL et vide.",
-        "Fin de mois : `date_cde = EOMONTH(date_cde)` ; heure seule : `CAST(date_cde AS time)`. Exception : `CAST(date_cde AS date) = …` reste SARGable sur SQL Server, vérifie le plan."
+        "Fin de mois : `date_cde = EOMONTH(date_cde)` ; heure seule : `CAST(date_cde AS time)`. Exception : `CAST(date_cde AS date) = …` reste SARGable sur SQL Server (à vérifier sur ta version)."
       ]
     }
   ],
   differences: [
-    ["Casse dans `=` et LIKE", "Selon la collation", "Exacte"],
-    ["LIKE sans casse", "Selon la collation (CI)", "`ILIKE`, `ILIKE ANY`"],
-    ["Espaces de fin dans `=`", "Ignorés", "Comptés (`TRIM`)"],
+    ["Casse (`=`, LIKE)", "Selon la collation (CI)", "Exacte (sauf `ILIKE`)"],
+    ["Espaces de fin (`=`)", "Ignorés", "Comptés (`TRIM`)"],
     ["Classes `[AB]` dans LIKE", "Oui", "Non : `REGEXP_LIKE`"],
     ["Remplacer NULL", "`ISNULL`, `COALESCE`", "`NVL`, `IFNULL`, `COALESCE`"],
-    ["Égal, NULL compris", "`IS DISTINCT FROM` (2022+)", "`EQUAL_NULL`, `IS DISTINCT FROM`"],
+    ["Égal, NULL compris", "`IS NOT DISTINCT FROM` (2022+)", "`EQUAL_NULL`, `IS NOT DISTINCT FROM`"],
+    ["Date en texte", "`'20260301'` (AAAAMMJJ)", "`'2026-03-01'`"],
     ["Date du jour", "`CAST(GETDATE() AS date)`", "`CURRENT_DATE`"],
     ["1er janvier de l'année", "`DATEFROMPARTS(YEAR(GETDATE()), 1, 1)`", "`DATE_TRUNC('year', CURRENT_DATE)`"],
     ["Booléen", "`BIT` : `actif = 1`", "`BOOLEAN` : `WHERE actif`"],

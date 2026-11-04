@@ -1584,7 +1584,7 @@ LEARNSQL.questions.m02 = [
       "Non. L'apostrophe ferme le texte : erreur.",
       "Oui. Deux apostrophes = une vraie apostrophe, même dans un motif LIKE.",
       "Non. Les guillemets doubles désignent un nom de colonne.",
-      "Non sur SQL Server : l'antislash n'échappe rien."
+      "Non sur SQL Server, où l'antislash n'échappe rien. Snowflake l'accepte dans un littéral, mais la double apostrophe marche partout : préfère-la."
     ],
     retenir: "Apostrophe dans un motif : on la double aussi."
   },
@@ -1679,7 +1679,7 @@ LEARNSQL.questions.m02 = [
       "Non. Ça cherche les codes sans le chiffre 6, pas la longueur.",
       "Non. SIZE n'existe pas."
     ],
-    retenir: "Contrôle de longueur : LEN (SQL Server), LENGTH (Snowflake)."
+    retenir: "Contrôle de longueur : LEN ou LENGTH (les deux moteurs). Sur SQL Server, LEN ignore les espaces de fin ; sur Snowflake, LENGTH les compte."
   },
   {
     id: "m02-q92", dialecte: "SQL Server",
