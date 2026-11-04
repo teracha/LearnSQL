@@ -2,7 +2,7 @@
 
 Les 16 modules SQL (m01 à m16) ont chacun 100 questions, validées. Leurs cours (`data/cours/mXX.js`), eux, étaient
 des fiches mémo : 400 à 750 mots, des points télégraphiques, souvent sans le résultat de la requête, sans lien avec le
-métier de l'élève. Ils sont réécrits un par un, dans le format ci-dessous. Le premier : m01 (test, validé par l'élève).
+métier de l'élève. Ils sont réécrits un par un, dans le format ci-dessous. Modèle : m02 (version 2, squelette « Ce qui se passe / Pourquoi / Le piège / Le bon réflexe »).
 
 ## La base d'exemple (`docs/base-exemple.sql`)
 
@@ -43,16 +43,20 @@ Règles :
 2. **6 à 8 sections**, une idée par section, titre court. Dans chaque section : **l'exemple d'abord** (du SQL sur la base
    d'exemple, qui se lit seul), **puis le résultat** (un tableau de 2 à 5 lignes, ou une phrase quand le résultat est un
    message d'erreur ou un nombre), **puis 3 à 5 points**, **puis le retenir**.
-3. **Chaque point porte UNE idée**, en une ou deux phrases complètes (un sujet, un verbe), 25 mots au plus en tout.
-   Un point dit : ce qui se passe, ou pourquoi, ou l'erreur classique (avec son effet : un montant faux dans Power BI,
-   une commande EDI perdue), ou l'écart SQL Server / Snowflake. Jamais trois idées dans un point : on coupe, ou on
-   déplace dans « Détails utiles ». Les accents graves servent aux mots-clés et aux noms (`ORDER BY`, `dbo.client`),
-   pas à des phrases entières, et pas plus de 3 par point.
+3. **Chaque section suit le même squelette**, et chaque point commence par son étiquette :
+   « Ce qui se passe : » (lire le résultat), « Pourquoi : » (le mécanisme, avec des mots simples), « Le piège : »
+   (l'erreur vue en entreprise et son effet : un rapport Power BI faux, une commande EDI perdue), « Le bon réflexe : »
+   (ce qu'on écrit à la place), puis, s'il y a lieu, « SQL Server / Snowflake : » ou « Et aussi : ». Un point = une
+   étiquette, 2 ou 3 phrases courtes, 45 mots au plus. **L'exemple montre le piège** quand la section en a un (la
+   requête fausse et ce qu'elle renvoie), pas seulement le cas qui marche. **Chaque mot technique est expliqué à sa
+   première apparition**, entre parenthèses, en mots simples (collation = la règle de comparaison des textes ;
+   sous-requête = une requête dans la requête ; index = la table des matières de la table). Les accents graves servent
+   aux mots-clés et aux noms, pas à des phrases entières.
 4. **Le résultat est juste** : il est calculé sur la base d'exemple et vérifié (SQLite). Les `NULL` s'écrivent `null`
    dans le tableau (JavaScript), le site les affiche en italique. Les montants gardent 2 décimales (`"4780.00"` en texte,
    pour l'affichage).
-5. **1 400 à 1 700 mots** au total (intro, titres, exemples, résultats, points, retenir), 6 à 8 sections, 3 à 5 points
-   par section. La dernière section peut être « Détails utiles » : jusqu'à 8 points courts, un par notion rare, sans
+5. **1 600 à 2 100 mots** au total (intro, titres, exemples, résultats, points, retenir), 6 à 8 sections, 4 ou 5
+   points par section. La dernière section peut être « Détails utiles » : jusqu'à 8 points courts, un par notion rare, sans
    exemple ni résultat ; c'est là que vont les notions qu'on ne veut pas enseigner en profondeur.
 6. **Le cours enseigne les notions principales** du module : celles que plusieurs questions testent, et celles qu'on
    utilise toutes les semaines. La liste des « retenir » des questions sert de liste de contrôle pour ne rien oublier
