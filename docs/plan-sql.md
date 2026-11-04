@@ -54,13 +54,16 @@ Règles :
 5. **1 400 à 1 700 mots** au total (intro, titres, exemples, résultats, points, retenir), 6 à 8 sections, 3 à 5 points
    par section. La dernière section peut être « Détails utiles » : jusqu'à 8 points courts, un par notion rare, sans
    exemple ni résultat ; c'est là que vont les notions qu'on ne veut pas enseigner en profondeur.
-6. **Chaque notion testée par les 100 questions du module est dans le cours** (règle 10 du parcours Chef de projet) : un
-   point, un exemple ou une ligne du tableau `differences`. La liste des « retenir » des questions sert de liste de
-   contrôle. Les détails rares vont dans le tableau `differences` ou dans un point, pas dans une section à part.
+6. **Le cours enseigne les notions principales** du module : celles que plusieurs questions testent, et celles qu'on
+   utilise toutes les semaines. La liste des « retenir » des questions sert de liste de contrôle pour ne rien oublier
+   d'important. Une notion rare, testée par une seule question (un mot-clé d'outil, une variante exotique), n'a pas à
+   être dans le cours : l'explication de la question suffit. Les détails utiles mais secondaires vont dans la section
+   « Détails utiles » (8 points au plus), jamais dans une section à part ni dans le tableau de fin.
 7. **Les écarts SQL Server / Snowflake** sont dits là où ils comptent (dans la section) et repris dans le tableau
-   `differences` : **une différence par ligne, des cellules courtes** (un mot-clé, une expression, trois ou quatre mots),
-   jamais une phrase ni une liste dans une cellule ; autant de lignes qu'il faut (10 à 25). Quand une règle n'est pas
-   sûre, le cours le dit (« à vérifier sur ta version »).
+   `differences`, qui est la **carte mentale de fin** du cours : **6 à 10 lignes**, les écarts qui comptent vraiment,
+   **une différence par ligne, des cellules de 1 à 4 mots** (un mot-clé, une expression), jamais une phrase ni une
+   liste. Ce qui ne tient pas dans la carte mentale n'y va pas. Quand une règle n'est pas sûre, le cours le dit
+   (« à vérifier sur ta version »).
 8. Phrases courtes, mots simples, un seul sujet par section ; jamais de référence au handicap de l'élève dans le texte.
 9. Le cours ne contredit aucune question du module ; une question fausse se signale au superviseur, elle ne se corrige
    pas en changeant le cours.
