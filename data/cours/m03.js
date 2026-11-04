@@ -13,7 +13,7 @@
 // BACHE8 → NULL ; CAST plante), LEFT(code, -1) → erreur, CEILING → decimal(p, 0) donc « 1 », DATEDIFF(year, 31/12, 01/01)
 // = 1, DATEADD(month, 1, 31/01) = 28/02, ROUND(1234.567, -2) = 1200, CAST('2026-03-12' AS datetime) en français = 3/12.
 // Couverture des 100 « retenir » : carte dans scratchpad cours-sql/m03/couverture.txt. Les notions testées par une seule
-// question (INITCAP, REVERSE + CHARINDEX, SPLIT_PART, STRING_SPLIT, REPLICATE, STUFF, TRANSLATE, CHAR(13), ASCII, DATALENGTH, REPLACE et
+// question (INITCAP, REVERSE + CHARINDEX, REPLICATE, TRANSLATE, CHAR(13), ASCII, DATALENGTH, REPLACE et
 // collation, REGEXP_REPLACE, DATEDIFF_BIG, TRY_PARSE, NVL2, ZEROIFNULL, GREATEST, CHOOSE, ADD_MONTHS, LTRIM(x, '0'))
 // restent à l'explication de la question (règle 6 du plan).
 // Sources (vérifiées le 04/11/2026) : learn.microsoft.com/sql/t-sql : language-elements/divide-transact-sql (entier /
@@ -36,6 +36,11 @@
 // functions/iff, functions/datediff (frontières, pas d'arrondi), functions/charindex, functions/substr, functions/left,
 // functions/last_day, functions/to_char (DD, MM, YYYY, MI), functions/current_timestamp (GETDATE est un alias),
 // data-types-numeric (FLOAT approché, NUMBER exact).
+// Relecture testeur (04/11/2026) : la constante '20260312' est propre à SQL Server (Snowflake : TO_DATE lit une chaîne de
+// chiffres comme des secondes depuis 1970, docs.snowflake.com functions/to_date) ; LEN existe aussi sur Snowflake (alias de
+// LENGTH, espaces de fin comptés : functions/length) ; GETDATE est un alias de CURRENT_TIMESTAMP sur Snowflake
+// (functions/current_timestamp) ; âge aligné sur q59 ; STUFF (q38, q63) et STRING_SPLIT / SPLIT_PART (q35, q36) ajoutés dans
+// « Détails utiles » (règle 6 : notion testée par plusieurs questions).
 LEARNSQL.cours.m03 = {
   intro: "Ton rapport Power BI compte 0 palette pour 8 cartons, et une commande annulée tombe dans « (vide) » : bug, ou type piégé ? Une fonction transforme une valeur sur chaque ligne : couper un texte, calculer une échéance, convertir un montant. Mais chaque valeur a un type (entier, décimal, texte, date) qui décide du résultat, sans message d'erreur. Ce module montre ces pièges et le réflexe qui les évite.",
   sections: [
@@ -48,7 +53,7 @@ LEARNSQL.cours.m03 = {
         "Pourquoi : CASE lit les WHEN dans l'ordre et s'arrête au premier vrai ; rien de vrai et pas de ELSE donne NULL. `CASE statut WHEN 'LIVREE'` compare avec un égal ; `CASE WHEN montant_ht >= 2000` accepte toute condition.",
         "Le piège : dans Power BI, la commande annulée tombe dans « (vide) » et sort des totaux par état. L'ordre aussi : `WHEN montant_ht >= 500 THEN 'Moyenne' WHEN montant_ht >= 2000 THEN 'Grosse'` ne donne jamais « Grosse ».",
         "Le bon réflexe : toujours un ELSE (`ELSE 'Autre'`), et les WHEN du plus strict au plus large. Case vide : `CASE WHEN statut IS NULL`, jamais `CASE statut WHEN NULL` : un égal avec NULL n'est jamais vrai (m02).",
-        "SQL Server / Snowflake : raccourci à une condition : `IIF(qte > 0, 'OK', 'KO')` sur SQL Server, `IFF` sur Snowflake ; CASE marche partout. Les branches doivent avoir un type compatible : `THEN 'N/A' ELSE stock` (un entier) plante. CASE dans SUM : m04."
+        "SQL Server / Snowflake : raccourci à une condition : `IIF(qte > 0, 'OK', 'KO')` sur SQL Server, `IFF` sur Snowflake ; CASE marche partout. Les branches doivent avoir un type compatible : `THEN 'N/A' ELSE stock` (un entier) plante."
       ],
       retenir: "Premier WHEN vrai gagnant : du plus strict au plus large, et toujours un ELSE, sinon NULL."
     },
@@ -59,35 +64,35 @@ LEARNSQL.cours.m03 = {
       points: [
         "Ce qui se passe : 8 cartons donnent 0 palette, 5 cartons aussi ; seule la ligne de 150 tombe juste. `palettes_ok` dit 1 : il faut bien une palette pour 8 cartons.",
         "Pourquoi : `qte` est un INT (nombre entier) et 10 aussi. Entier divisé par entier donne un entier : le moteur coupe les décimales, sans arrondir. 7 / 2 = 3, 8 / 10 = 0, 15 / 100 = 0.",
-        "Le piège : une remise `montant_ht * (taux / 100)` avec un taux entier vaut 0 : elle disparaît du devis. Un taux de livraison `livre / commande * 100` ne vaut que 0 ou 100 : Power BI affiche faux.",
+        "Le piège : une remise `montant_ht * (taux / 100)` avec un taux entier vaut 0 : elle disparaît du devis. Un taux `livre / commande * 100` ne vaut que 0 ou 100.",
         "Le bon réflexe : glisse un décimal dans le calcul : `qte / 10.0`, `montant_ht * 15.0 / 100`, ou `CAST(qte AS decimal(10,2))` (CAST convertit vers un type). Puis arrondis : CEILING vers le haut, FLOOR vers le bas, `ROUND(x, 2)`.",
-        "SQL Server / Snowflake : Snowflake renvoie 3.5 pour 7 / 2 : sa division garde des décimales. Une requête migrée de SQL Server vers Snowflake change donc ses chiffres sans prévenir. Pour couper sur Snowflake : `TRUNC(7 / 2)`."
+        "SQL Server / Snowflake : Snowflake renvoie 3.5 pour 7 / 2 : sa division garde des décimales. Une requête migrée change donc ses chiffres sans prévenir. Pour couper sur Snowflake : `TRUNC(7 / 2)`."
       ],
       retenir: "INT / INT = INT sur SQL Server : écris 10.0 ou CAST pour garder les décimales ; Snowflake les garde."
     },
     {
       titre: "DECIMAL ou FLOAT : l'argent veut un type exact",
-      exemple: "-- Piège : en FLOAT, 0,1 + 0,2 ≠ 0,3\nSELECT CASE WHEN CAST(0.1 AS float) + CAST(0.2 AS float) = 0.3\n            THEN 'égal' ELSE 'différent' END AS test;   -- différent\n\n-- Juste : le TTC des commandes EDI, en DECIMAL\nSELECT num_cde, montant_ht,\n       CAST(montant_ht * 1.2 AS decimal(10,2)) AS montant_ttc\nFROM dbo.commande\nWHERE canal = 'EDI';",
+      exemple: "-- Piège : en FLOAT, 0,1 + 0,2 ≠ 0,3\nSELECT CASE WHEN CAST(0.1 AS float) + CAST(0.2 AS float) = 0.3\n            THEN 'égal' ELSE 'différent' END AS test;   -- différent\n\n-- Juste : TTC des commandes EDI, en DECIMAL\nSELECT num_cde, montant_ht,\n       CAST(montant_ht * 1.2 AS decimal(10,2)) AS montant_ttc\nFROM dbo.commande\nWHERE canal = 'EDI';",
       resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
       points: [
         "Ce qui se passe : le test répond « différent » : en FLOAT, 0,1 + 0,2 vaut 0,30000000000000004. Le TTC, lui, tombe juste : 4 780,00 × 1,2 = 5 736,00.",
         "Pourquoi : FLOAT (nombre à virgule flottante) stocke les nombres en binaire, de façon approchée, comme 1/3 s'écrit 0,333… sans fin. `DECIMAL(10,2)` (10 chiffres, 2 après la virgule) stocke exactement ce que tu écris ; CAST fixe 2 décimales.",
-        "Le piège : un total de factures en FLOAT qui s'écarte du grand livre de quelques centimes, un rapprochement qui ne tombe jamais juste, un filtre `= 0.3` qui ne trouve rien.",
-        "Le bon réflexe : l'argent en `DECIMAL(18,2)` (Snowflake : NUMBER), jamais FLOAT, ni MONEY (type monétaire de SQL Server), qui arrondit ses calculs intermédiaires à 4 décimales. Fixe le type des calculs avec CAST, comme le TTC.",
+        "Le piège : un total de factures en FLOAT qui s'écarte du grand livre de quelques centimes, un filtre `= 0.3` qui ne trouve rien.",
+        "Le bon réflexe : l'argent en `DECIMAL(18,2)` (Snowflake : NUMBER), jamais FLOAT, ni MONEY (type monétaire de SQL Server), limité à 4 décimales dans ses calculs. Fixe le type des calculs avec CAST, comme le TTC.",
         "Et aussi : `CAST(12.7 AS int)` coupe : 12 sur SQL Server ; Snowflake arrondit : 13. `CAST(1234.5678 AS decimal(6,2))` arrondit à 1234.57 ; trop de chiffres avant la virgule : erreur de dépassement. INT s'arrête à 2,1 milliards ; au-delà, BIGINT."
       ],
       retenir: "Argent = DECIMAL(18,2), jamais FLOAT. CAST vers INT coupe sur SQL Server, arrondit sur Snowflake."
     },
     {
       titre: "Découper un texte : LEFT, SUBSTRING, CHARINDEX et TRY_CAST",
-      exemple: "-- Voulu : le préfixe avant le tiret (CHL-25 → CHL) et le numéro, en nombre\n-- Piège : LEFT(code, CHARINDEX('-', code) - 1) plante sur BACHE8 (CHARINDEX = 0 → LEFT -1)\nSELECT code,\n       CHARINDEX('-', code) AS tiret,\n       LEFT(code, NULLIF(CHARINDEX('-', code), 0) - 1) AS prefixe,\n       TRY_CAST(SUBSTRING(code, CHARINDEX('-', code) + 1, 10) AS int) AS numero\nFROM dbo.article\nWHERE famille IN ('CHIMIE', 'ACCESSOIRE');",
+      exemple: "-- Voulu : le préfixe avant le tiret (CHL-25 → CHL) et le numéro, en nombre\n-- Piège : LEFT(code, CHARINDEX('-', code) - 1) plante sur BACHE8\nSELECT code,\n       CHARINDEX('-', code) AS tiret,\n       LEFT(code, NULLIF(CHARINDEX('-', code), 0) - 1) AS prefixe,\n       TRY_CAST(SUBSTRING(code, CHARINDEX('-', code) + 1, 10) AS int) AS numero\nFROM dbo.article\nWHERE famille IN ('CHIMIE', 'ACCESSOIRE');",
       resultat: [["code", "tiret", "prefixe", "numero"], ["CHL-5", 4, "CHL", 5], ["CHL-25", 4, "CHL", 25], ["PH-5", 3, "PH", 5], ["EPU-F", 4, "EPU", null], ["BACHE8", 0, null, null]],
       points: [
         "Ce qui se passe : CHARINDEX donne la position du tiret : 4 pour CHL-25, 0 pour BACHE8 (aucun tiret). LEFT garde le début, SUBSTRING coupe depuis une position, TRY_CAST rend un nombre, ou NULL (F, BACHE8).",
         "Pourquoi : les positions commencent à 1 : `SUBSTRING(texte, début, longueur)` ; une longueur trop grande va jusqu'à la fin. Les positions fixes trahissent quand la longueur varie : `LEFT(code, 3)` donne 'PH-' pour PH-5 ; CHARINDEX trouve le tiret partout.",
-        "Le piège : `LEFT(code, CHARINDEX('-', code) - 1)` plante sur BACHE8 : CHARINDEX vaut 0, LEFT reçoit -1, la requête s'arrête. Même chose avec `CAST(... AS int)` sur 'F' : un import EDI de 10 000 lignes bloqué par une valeur.",
+        "Le piège : sans NULLIF, LEFT reçoit -1 pour BACHE8 et la requête s'arrête. Même chose avec `CAST(... AS int)` sur 'F' : un import EDI de 10 000 lignes bloqué par une valeur.",
         "Le bon réflexe : `NULLIF(CHARINDEX('-', code), 0)` transforme le 0 en NULL (m02), et LEFT(code, NULL) renvoie NULL sans erreur. Données douteuses : TRY_CAST, puis `WHERE … IS NULL` pour lister les rejets, sans bloquer l'import.",
-        "SQL Server / Snowflake : `LEN('abc  ')` donne 3, les espaces de fin ne comptent pas ; `LENGTH` (Snowflake) en compte 5. LEFT, RIGHT, SUBSTRING, CHARINDEX et TRY_CAST existent sur les deux ; Snowflake ajoute SUBSTR et `'25'::INT` pour convertir."
+        "SQL Server / Snowflake : `LEN('abc  ')` donne 3 sur SQL Server, qui ignore les espaces de fin, mais 5 sur Snowflake, où LEN et LENGTH les comptent. Les autres fonctions de cette section existent sur les deux ; Snowflake ajoute `'25'::INT` pour convertir."
       ],
       retenir: "Positions à partir de 1 ; CHARINDEX peut rendre 0, protège-le avec NULLIF ; TRY_CAST rend NULL au lieu de planter."
     },
@@ -98,7 +103,7 @@ LEARNSQL.cours.m03 = {
       points: [
         "Ce qui se passe : quatre étiquettes correctes. Pour Camping Les Flots, ville NULL, `+` rend toute l'étiquette NULL ; CONCAT garde le nom et laisse la parenthèse vide.",
         "Pourquoi : `+` colle deux textes, mais NULL (inconnu) contamine tout : inconnu suivi de « Lyon » reste inconnu. CONCAT remplace chaque NULL par un texte vide et convertit les nombres : `CONCAT('Cde ', 42)` donne 'Cde 42'.",
-        "Le piège : `'Cde ' + 42` plante : avec `+`, le nombre est prioritaire, et SQL Server essaie de lire 'Cde ' comme un nombre. `'10' + 5` donne 15, pas '105'. Une ligne EDI à moitié NULL ne se voit qu'à l'expédition.",
+        "Le piège : `'Cde ' + 42` plante. Avec `+`, le nombre est prioritaire : SQL Server essaie de lire 'Cde ' comme un nombre. De même, `'10' + 5` donne 15, pas '105'. Et une étiquette EDI à moitié NULL ne se voit qu'à l'expédition.",
         "Le bon réflexe : CONCAT pour coller, ou `COALESCE(ville, '')` pour choisir le remplaçant. Nettoie avant de comparer : TRIM enlève les espaces aux deux bouts (SQL Server 2017+), `REPLACE(montant_txt, ',', '.')` avant TRY_CAST, UPPER ou LOWER pour la casse.",
         "SQL Server / Snowflake : sur Snowflake, CONCAT et `||` (coller) renvoient NULL dès qu'un morceau est NULL : COALESCE obligatoire. `FORMAT(montant_ht, 'N2', 'fr-FR')` met en forme pour l'affichage, mais passe par .NET (hors du moteur) : lent sur des millions de lignes."
       ],
@@ -111,9 +116,9 @@ LEARNSQL.cours.m03 = {
       points: [
         "Ce qui se passe : `DATEADD(day, 30, date_fact)` donne l'échéance ; un nombre négatif retire. `DATEDIFF(day, …)` compte les jours jusqu'à l'arrêté : la facture en retard a 51 jours. MONTH extrait le mois.",
         "Pourquoi : `DATEDIFF(unité, début, fin)` compte les frontières de l'unité franchies. Du 31/12 au 01/01, l'année change une fois : 1, pour un jour d'écart. En mois, du 31/01 au 01/02 : 1 aussi.",
-        "Le piège : `DATEDIFF(year, naissance, GETDATE())` donne un an de trop avant l'anniversaire ; un retard « en mois » paraît plus long qu'il n'est. Et `DATEADD(month, 1, '20260131')` donne le 28 février : une échéance au 31 glisse.",
-        "Le bon réflexe : compte en jours, puis convertis toi-même. Fin de mois : `EOMONTH(d)` ; premier jour : `DATEADD(day, 1, EOMONTH(d, -1))`, ou `DATETRUNC(month, d)` (SQL Server 2022). `DATEFROMPARTS(2026, 4, 30)` fabrique une date sûre, refuse le 30 février.",
-        "SQL Server / Snowflake : l'instant présent : `GETDATE()` sur SQL Server, `CURRENT_TIMESTAMP` sur Snowflake (CURRENT_DATE pour la date seule). DATEADD, DATEDIFF, MONTH et YEAR s'écrivent pareil sur Snowflake ; fin de mois `LAST_DAY(d)`, début `DATE_TRUNC('month', d)`."
+        "Le piège : `DATEDIFF(year, naissance, GETDATE())` donne un an de trop avant l'anniversaire. Et `DATEADD(month, 1, '20260131')` donne le 28 février : une échéance au 31 glisse.",
+        "Le bon réflexe : un retard se compte en jours ; un âge : DATEDIFF(year) moins 1 si l'anniversaire n'est pas passé. Fin de mois : `EOMONTH(d)` ; premier jour : `DATEADD(day, 1, EOMONTH(d, -1))`, ou `DATETRUNC(month, d)` (SQL Server 2022). `DATEFROMPARTS(2026, 4, 30)` refuse le 30 février.",
+        "SQL Server / Snowflake : l'instant présent : `GETDATE()` sur SQL Server, `CURRENT_TIMESTAMP` sur Snowflake, qui accepte aussi GETDATE() ; CURRENT_DATE pour la date seule. DATEADD, DATEDIFF, MONTH et YEAR s'écrivent pareil ; fin de mois `LAST_DAY(d)`, début `DATE_TRUNC('month', d)`."
       ],
       retenir: "DATEDIFF compte des frontières, pas des durées : compte en jours. DATEADD ajoute ou retire ; EOMONTH / LAST_DAY : fin de mois."
     },
@@ -125,21 +130,22 @@ LEARNSQL.cours.m03 = {
         "Ce qui se passe : la commande du 12 mars arrive en dernier, après celles d'avril. Le tri compare les caractères un par un : « 0 » vient avant « 1 », donc 01/04 passe avant 12/03.",
         "Pourquoi : un texte n'est pas une date : le moteur n'y voit que des caractères. `CONVERT(varchar(10), date_cde, 103)` fabrique le texte jj/mm/aaaa (style 103, français) ; 112 donne AAAAMMJJ (fichiers EDI), 120 AAAA-MM-JJ hh:mi:ss, lisible et triable.",
         "Le piège : la lecture à l'envers. Sur un serveur en français, `CAST('2026-03-12' AS datetime)` donne le 3 décembre : pour l'ancien type DATETIME, ce format suit la langue. Et '22/10/2026' plante sur un serveur anglais (mois 22).",
-        "Le bon réflexe : garde le type DATE jusqu'au bout ; Power BI formate. Écris les constantes en 'AAAAMMJJ' : '20260312' se lit pareil partout. Pour lire un texte, dis son format : `CONVERT(date, '22/10/2026', 103)`, ou TRY_CONVERT si douteux.",
-        "SQL Server / Snowflake : Snowflake lit '2026-03-12' et attend ce format ; sinon `TO_DATE('22/10/2026', 'DD/MM/YYYY')`, et `TO_CHAR(d, 'YYYYMMDD')` dans l'autre sens. Les lettres piègent : minutes = MI sur Snowflake, mm dans FORMAT (SQL Server) ; MM = le mois partout."
+        "Le bon réflexe : garde le type DATE jusqu'au bout ; Power BI formate. Sur SQL Server, écris les constantes en 'AAAAMMJJ' : lu pareil dans toutes les langues. Pour lire un texte, dis son format : `CONVERT(date, '22/10/2026', 103)`, ou TRY_CONVERT si douteux.",
+        "SQL Server / Snowflake : Snowflake attend '2026-03-12' ; '20260312' y devient des secondes depuis 1970, sans erreur. Sinon `TO_DATE('22/10/2026', 'DD/MM/YYYY')` ; `TO_CHAR(d, 'YYYYMMDD')` dans l'autre sens. Les lettres piègent : minutes = MI sur Snowflake, mm dans FORMAT (SQL Server) ; MM = le mois partout."
       ],
-      retenir: "Une date reste une DATE : en texte, tri et lecture mentent. 'AAAAMMJJ' pour les constantes ; CONVERT avec style, TO_DATE avec format."
+      retenir: "Une date reste une DATE : en texte, tri et lecture mentent. 'AAAAMMJJ' pour les constantes SQL Server ; CONVERT avec style, TO_DATE avec format."
     },
     {
       titre: "Détails utiles",
       points: [
         "Compléter 42 en '000042' : `RIGHT('000000' + CAST(42 AS varchar(6)), 6)` sur SQL Server, `LPAD('42', 6, '0')` sur Snowflake. Un code (SIRET, EAN) reste en texte : en nombre, il perd ses zéros.",
-        "`varchar` sans longueur vaut 1 caractère dans un DECLARE et 30 dans un CAST : écris toujours la longueur. Caractères étrangers (Łódź) : `NVARCHAR` et `N'texte'` sur SQL Server ; Snowflake est déjà en Unicode (tous les alphabets).",
+        "`varchar` sans longueur vaut 1 caractère dans une variable (DECLARE) et 30 dans un CAST : écris toujours la longueur. Caractères étrangers (Łódź) : `NVARCHAR` et `N'texte'` sur SQL Server ; Snowflake est déjà en Unicode (tous les alphabets).",
+        "Découper : `STRING_SPLIT(txt, ';')` donne une ligne par morceau (SQL Server), `SPLIT_PART(txt, ';', 2)` le 2e morceau (Snowflake). Insérer : `STUFF('1430', 3, 0, ':')` donne '14:30', prêt pour CAST en TIME.",
         "Trimestre : `DATEPART(quarter, d)` ; semaine française = ISO (norme internationale) : `DATEPART(iso_week, d)`, `WEEKISO` sur Snowflake. `DATEPART(weekday, d)` dépend du réglage DATEFIRST : ne code pas « lundi = 1 » en dur. Jours ouvrés : une table calendrier.",
-        "Horodate tes flux en UTC (temps universel, `SYSUTCDATETIME()`), convertis à l'affichage : `d AT TIME ZONE 'UTC' AT TIME ZONE 'Romance Standard Time'` ; Snowflake : `CONVERT_TIMEZONE('UTC', 'Europe/Paris', ts)`, et ses types TIMESTAMP_NTZ (sans fuseau), LTZ (session), TZ (fuseau stocké).",
-        "Arrondis : `ROUND(x, -2)` arrondit à la centaine ; `ROUND(x, 2, 1)` tronque sur SQL Server, `TRUNC(x, 2)` sur Snowflake ; `FLOOR(-2.5)` donne -3, gare aux avoirs.",
-        "Remplacer NULL : ISNULL prend le type du premier argument et peut couper le second ; COALESCE est plus sûr, sauf devant une sous-requête (m02), évaluée deux fois. `x / NULLIF(y, 0)` évite la division par zéro (m02).",
-        "Une fonction déterministe rend toujours le même résultat pour la même entrée (UPPER, DATEADD) et peut servir dans un index (m02) ; GETDATE, NEWID (identifiant unique), RAND et FORMAT ne le sont pas. Ligne changée ? Compare des empreintes (`HASHBYTES`, SHA2)."
+        "Horodate tes flux en UTC (le temps universel, `SYSUTCDATETIME()`) et convertis seulement à l'affichage : `AT TIME ZONE` sur SQL Server, `CONVERT_TIMEZONE` sur Snowflake. Snowflake a trois types d'horodatage : NTZ (sans fuseau), LTZ (fuseau de la session), TZ (fuseau stocké).",
+        "Arrondis : `ROUND(x, -2)` arrondit à la centaine ; `ROUND(x, 2, 1)` coupe sans arrondir sur SQL Server, `TRUNC(x, 2)` sur Snowflake ; `FLOOR(-2.5)` donne -3, gare aux avoirs.",
+        "ISNULL prend le type du premier argument et peut couper le second ; COALESCE est plus sûr, sauf devant une sous-requête (requête dans la requête, m02), évaluée deux fois.",
+        "Une fonction déterministe rend toujours le même résultat pour la même entrée (UPPER, DATEADD) et peut servir dans un index ; GETDATE, NEWID (identifiant unique), RAND et FORMAT ne le sont pas. Ligne changée ? Compare des empreintes (`HASHBYTES`, SHA2)."
       ],
       retenir: "Un code reste en texte, une longueur s'écrit toujours, un flux s'horodate en UTC."
     }
@@ -148,8 +154,8 @@ LEARNSQL.cours.m03 = {
     ["7 / 2", "3 : entier", "3.5"],
     ["Si… alors court", "`IIF`", "`IFF`"],
     ["CONCAT avec NULL", "NULL ignoré", "Résultat NULL"],
-    ["Longueur d'un texte", "`LEN`, sans espaces fin", "`LENGTH`"],
-    ["Convertir, forme courte", "`CAST(x AS int)`", "`x::INT`"],
+    ["Longueur d'un texte", "`LEN` : espaces fin ignorés", "`LEN`, `LENGTH` : comptés"],
+    ["Constante date", "`'20260312'` (AAAAMMJJ)", "`'2026-03-12'`"],
     ["`CAST(12.7 AS int)`", "12 : coupe", "13 : arrondit"],
     ["Texte → date", "`CONVERT(date, x, 103)`", "`TO_DATE(x, 'DD/MM/YYYY')`"],
     ["Date → texte", "`CONVERT(varchar(8), d, 112)`", "`TO_CHAR(d, 'YYYYMMDD')`"],

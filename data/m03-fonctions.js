@@ -71,7 +71,7 @@ LEARNSQL.questions.m03 = [
       "Non sur SQL Server. (Mais oui sur Snowflake : là-bas, CONCAT renvoie aussi NULL.)",
       "Non. C'est l'inverse."
     ],
-    retenir: "SQL Server : CONCAT ignore les NULL, + non. Snowflake : les deux donnent NULL → utilise COALESCE."
+    retenir: "SQL Server : CONCAT ignore les NULL, + non. Snowflake : CONCAT et || donnent NULL → utilise COALESCE."
   },
   {
     id: "m03-q05", dialecte: "SQL Server",
