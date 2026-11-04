@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
     if (u.pathname === '/rest/v1/profil') return j([{ role: 'admin' }]); if (r.request().method() === 'GET') return j([]); r.fulfill({ status: 201, body: '' }); });
   const U = 'file://' + require('path').join(__dirname, '..', '..', 'index.html');
   await p.goto(U + '#/compte'); await p.fill('#email', 'a@x.fr'); await p.fill('#mdp', 'motdepasse1'); await p.click('button[type=submit]'); await p.waitForTimeout(700);
-  for (const id of ['cp04', 'cp01', 'dv01', 'm05', 'm01']) { await p.goto(U + '#/cours/' + id); await p.waitForTimeout(150);
+  for (const id of ['cp04', 'cp01', 'dv01', 'm05', 'm01', 'm02']) { await p.goto(U + '#/cours/' + id); await p.waitForTimeout(150);
     const r = await p.evaluate(() => ({ h1: document.querySelector('h1') && document.querySelector('h1').textContent, sc: document.documentElement.scrollWidth, pre: [...document.querySelectorAll('pre.code')].map(x => getComputedStyle(x).whiteSpace)[0] }));
     console.log(id, JSON.stringify(r)); if (r.sc > 390) errs.push(id + ' déborde sur mobile'); if (!r.h1) errs.push(id + ' sans titre'); }
   console.log('errors', errs); await b.close(); })();
