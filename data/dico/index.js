@@ -35,7 +35,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       snowflake: "Pas d'index sur les tables standard : micro-partitions et pruning ; très grosse table : `CLUSTER BY` (`CREATE INDEX` : tables hybrides seulement)",
       mysql: "`CREATE INDEX ix ON t (col1, col2)` ; pas de mot CLUSTERED : la table est rangée selon sa clé primaire"
     },
-    noms: ["CLUSTERED INDEX", "NONCLUSTERED INDEX", "index cluster", "index non cluster", "CREATE UNIQUE INDEX"],
+    noms: ["CLUSTERED INDEX", "NONCLUSTERED INDEX", "index cluster", "CREATE UNIQUE INDEX"],
     exemple: "CREATE NONCLUSTERED INDEX ix_commande_client_date\n  ON commande (client_id, date_cde);\nSELECT num_cde, date_cde\nFROM commande\nWHERE client_id = 1 AND date_cde >= '2026-03-05';",
     exemples: {
       snowflake: "-- Pas d'index à créer : le pruning des micro-partitions fait le travail\nSELECT num_cde, date_cde\nFROM commande\nWHERE client_id = 1 AND date_cde >= '2026-03-05';",

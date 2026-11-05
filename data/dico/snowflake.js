@@ -78,7 +78,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       snowflake: "`UNDROP TABLE t;` (aussi `SCHEMA`, `DATABASE`), tant que la rétention Time Travel n'est pas finie (1 jour par défaut)",
       mysql: "Pas de UNDROP : restaurer une sauvegarde"
     },
-    noms: ["UNDROP TABLE", "UNDROP SCHEMA", "UNDROP DATABASE"],
+    noms: ["UNDROP SCHEMA", "UNDROP DATABASE"],
     exemple: "DROP TABLE flux_edi;      -- supprimée par erreur\nUNDROP TABLE flux_edi;    -- elle revient, avec ses lignes\nSELECT COUNT(*) AS nb_flux FROM flux_edi;",
     resultat: [["nb_flux"], [6]],
     piege: "Exemple écrit pour Snowflake. Après un `CREATE OR REPLACE TABLE flux_edi`, UNDROP échoue car le nom est pris : renomme d'abord la nouvelle table (`ALTER TABLE flux_edi RENAME TO flux_edi_vide`), puis lance UNDROP.",
@@ -97,7 +97,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       snowflake: "`CREATE TABLE copie CLONE t;` instantané, sans doubler le stockage ; aussi dans le passé : `CLONE t AT (OFFSET => -3600)`",
       mysql: "Pas de CLONE : `CREATE TABLE copie LIKE t;` puis `INSERT INTO copie SELECT * FROM t;` (vraie copie, clé primaire gardée)"
     },
-    noms: ["CREATE TABLE CLONE", "ZERO-COPY CLONE"],
+    noms: ["ZERO-COPY CLONE", "CLONE AT"],
     exemple: "SELECT * INTO commande_test FROM commande;   -- vraie copie\nUPDATE commande_test SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nSELECT (SELECT COUNT(*) FROM commande WHERE statut = 'EN_COURS') AS en_cours_origine,\n       (SELECT COUNT(*) FROM commande_test WHERE statut = 'EN_COURS') AS en_cours_copie;",
     exemples: {
       snowflake: "CREATE TABLE commande_test CLONE commande;   -- copie instantanée\nUPDATE commande_test SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nSELECT (SELECT COUNT(*) FROM commande WHERE statut = 'EN_COURS') AS en_cours_origine,\n       (SELECT COUNT(*) FROM commande_test WHERE statut = 'EN_COURS') AS en_cours_copie;",
@@ -151,7 +151,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["cde", "article", "qte"], ["CDE-1007", "CHL-5", 150], ["CDE-1007", "FIL-14", 5]],
     piege: "Une commande dont le tableau `lignes` est vide disparaît du résultat, sans erreur, comme avec un INNER JOIN. Pour la garder : `FLATTEN(input => …, OUTER => TRUE)` (SQL Server : `OUTER APPLY` ; MySQL : `LEFT JOIN JSON_TABLE(…) ON TRUE`).",
-    motsCles: ["json", "tableau", "array", "lignes", "déplier", "éclater", "exploser", "dérouler", "éléments", "liste", "openjson", "json_table", "lateral", "détail", "unnest"],
+    motsCles: ["json", "tableau", "array", "lignes", "déplier", "éclater", "exploser", "dérouler", "éléments", "openjson", "lateral", "détail", "unnest"],
     voirAussi: ["variant", "cross-apply", "string-split", "left-join"],
     module: "m14"
   },
@@ -193,7 +193,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE STAGE stage_edi\n  FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1);\nPUT file://C:\\edi\\commandes.csv @stage_edi/commandes/;  -- Snowflake CLI, pas une feuille Snowsight\nLIST @stage_edi/commandes/;\nSELECT $1, $2, $3 FROM @stage_edi/commandes/ LIMIT 5;",
     resultat: "LIST montre le fichier déposé (nom, taille, date) ; le SELECT lit ses 3 premières colonnes sans rien charger.",
     piege: "Exemple écrit pour Snowflake. Les fichiers restent dans le stage après le COPY INTO et sont facturés comme du stockage : ajoute `PURGE = TRUE` au COPY, ou nettoie avec `REMOVE @stage_edi/commandes/`.",
-    motsCles: ["dépôt", "déposer", "fichier", "fichiers", "zone", "s3", "azure", "blob", "put", "upload", "envoyer", "list", "remove", "dossier", "stockage", "externe", "interne"],
+    motsCles: ["dépôt", "déposer", "fichier", "fichiers", "zone", "s3", "azure", "blob", "put", "upload", "envoyer", "remove", "dossier", "stockage", "externe", "interne"],
     voirAussi: ["copy-into", "variant", "warehouse"],
     module: "m14"
   }

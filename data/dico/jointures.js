@@ -50,7 +50,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Clients sans aucune commande\nSELECT cl.code, cl.nom, co.num_cde\nFROM client AS cl\nLEFT JOIN commande AS co ON co.client_id = cl.id\nWHERE co.id IS NULL;",
     resultat: [["code", "nom", "num_cde"], ["C005", "Pool & Garden", null], ["C007", "Camping Les Flots", null]],
     piege: "Un filtre sur la table de droite mis dans le `WHERE` (`WHERE co.statut = 'EN_COURS'`) retire les clients sans commande : le LEFT JOIN devient un INNER JOIN, sans erreur. Mets-le dans le `ON` : `ON co.client_id = cl.id AND co.statut = 'EN_COURS'`.",
-    motsCles: ["garder", "tous", "manquant", "absent", "aucun", "orphelin", "facultatif", "optionnel", "left", "outer", "externe", "gauche", "droite", "right", "anti-jointure", "correspondance"],
+    motsCles: ["garder", "tous", "manquant", "absent", "aucun", "orphelin", "facultatif", "optionnel", "left", "outer", "externe", "gauche", "droite", "right", "anti-jointure", "correspondance", "clients sans commande", "garder toutes les lignes"],
     voirAussi: ["inner-join", "full-outer-join", "is-null", "coalesce", "exists"],
     module: "m05"
   },
@@ -110,7 +110,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Fiches client en double : même SIREN\nSELECT a.code, b.code AS doublon, a.nom, a.siren\nFROM client AS a\nJOIN client AS b ON b.siren = a.siren AND a.id < b.id;",
     resultat: [["code", "doublon", "nom", "siren"], ["C002", "C006", "Piscines Dumont", "423456789"]],
     piege: "Avec `a.id <> b.id`, chaque paire sort deux fois (C002-C006, puis C006-C002) : le rapport compte deux fois trop de doublons. Écris `a.id < b.id` ; et les SIREN vides (NULL) ne se joignent jamais, ils ne sortent pas.",
-    motsCles: ["même table", "elle-même", "deux alias", "self", "doublons", "paires", "comparer", "hiérarchie", "responsable", "manager", "parent", "autojointure", "auto jointure", "auto"],
+    motsCles: ["même table", "elle-même", "deux alias", "self", "paires", "même siren", "comparer", "hiérarchie", "responsable", "manager", "parent", "autojointure", "auto jointure", "auto"],
     voirAussi: ["inner-join", "left-join", "lag-lead", "cte-recursive"],
     module: "m05"
   },
@@ -133,7 +133,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "num_cde", "date_cde"], ["C001", "CDE-1007", "2026-04-07"], ["C002", "CDE-1006", "2026-04-03"], ["C003", "CDE-1004", "2026-03-12"], ["C004", "CDE-1005", "2026-04-01"], ["C006", "CDE-1008", "2026-04-10"]],
     piege: "CROSS APPLY fait disparaître les clients sans commande (C005, C007), sans erreur, comme un INNER JOIN. Pour les garder avec des NULL, écris `OUTER APPLY` (MySQL : `LEFT JOIN LATERAL (…) ON TRUE`).",
-    motsCles: ["apply", "lateral", "pour chaque ligne", "sous-requête", "dernière", "dernier", "top par groupe", "corrélée", "fonction table", "outer apply", "chaque client", "récent", "ligne par ligne"],
+    motsCles: ["apply", "lateral", "pour chaque ligne", "sous-requête", "dernière", "dernier", "top par groupe", "corrélée", "fonction table", "outer apply", "chaque client", "récent"],
     voirAussi: ["inner-join", "left-join", "row-number", "qualify", "flatten", "top"],
     module: "m05"
   },

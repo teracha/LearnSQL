@@ -61,7 +61,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Modifie une table qui existe déjà : ajouter une colonne, changer un type, ajouter une contrainte.",
     moteurs: {
       sqlserver: "`ALTER TABLE t ADD col type NULL` ; changer un type : `ALTER TABLE t ALTER COLUMN col VARCHAR(80) NOT NULL`",
-      snowflake: "`ALTER TABLE t ADD COLUMN col type` ; `ALTER COLUMN col SET DATA TYPE VARCHAR(80)` : agrandir seulement, pas changer de type",
+      snowflake: "`ALTER TABLE t ADD COLUMN col type` ; `ALTER COLUMN col SET DATA TYPE VARCHAR(80)` : surtout agrandir, pas changer de type",
       mysql: "`ALTER TABLE t ADD col type NULL` ; changer un type : `ALTER TABLE t MODIFY col VARCHAR(80) NOT NULL`"
     },
     noms: ["ADD COLUMN", "ALTER COLUMN", "MODIFY", "SET DATA TYPE", "DROP COLUMN", "RENAME COLUMN"],
@@ -91,7 +91,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Script de chargement relançable\nDROP TABLE IF EXISTS import_tarif;\nCREATE TABLE import_tarif (code VARCHAR(10), prix_txt VARCHAR(20));",
     resultat: "Relancé 10 fois, le script ne plante jamais : la 1re fois, `IF EXISTS` saute la suppression ; ensuite, il efface l'ancienne table et ses lignes avant de la recréer.",
     piege: "Sur SQL Server et MySQL, un `DROP TABLE` validé n'a ni corbeille ni retour arrière : seule une sauvegarde rend les lignes (Snowflake, lui, a `UNDROP TABLE`). Avant un script de nettoyage, vérifie sur quelle base tu es connecté.",
-    motsCles: ["supprimer", "effacer", "détruire", "drop", "if exists", "nettoyer", "relançable", "script", "jeter", "disparaître", "corbeille", "ménage"],
+    motsCles: ["supprimer", "supprimer une table", "effacer", "détruire", "drop", "if exists", "nettoyer", "relançable", "script", "jeter", "disparaître", "corbeille", "ménage"],
     voirAussi: ["create-table", "truncate", "undrop", "alter-table"],
     module: "m10"
   },
@@ -337,7 +337,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     noms: ["DATE", "DATETIME", "DATETIME2", "DATETIMEOFFSET", "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ", "SMALLDATETIME", "type de données"],
     exemple: "CREATE TABLE livraison (\n  cde_id      INT          NOT NULL,\n  date_prevue DATE         NOT NULL,\n  expedie_le  DATETIME2(0) NULL\n);\nINSERT INTO livraison VALUES (7, '2026-04-08', '2026-04-08 17:30:00');",
     exemples: {
-      snowflake: "CREATE TABLE livraison (\n  cde_id      INT              NOT NULL,\n  date_prevue DATE             NOT NULL,\n  expedie_le  TIMESTAMP_NTZ(0) NULL\n);\nINSERT INTO livraison VALUES (7, '2026-04-08', '2026-04-08 17:30:00');",
+      snowflake: "CREATE TABLE livraison (\n  cde_id      INT              NOT NULL,\n  date_prevue DATE             NOT NULL,\n  expedie_le  TIMESTAMP_NTZ(0)\n);\nINSERT INTO livraison VALUES (7, '2026-04-08', '2026-04-08 17:30:00');",
       mysql: "CREATE TABLE livraison (\n  cde_id      INT      NOT NULL,\n  date_prevue DATE     NOT NULL,\n  expedie_le  DATETIME NULL\n);\nINSERT INTO livraison VALUES (7, '2026-04-08', '2026-04-08 17:30:00');"
     },
     resultat: [["cde_id", "date_prevue", "expedie_le"], [7, "2026-04-08", "2026-04-08 17:30:00"]],

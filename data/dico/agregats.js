@@ -37,7 +37,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT COUNT(*) AS nb_clients,\n       COUNT(siren) AS avec_siren,\n       COUNT(DISTINCT siren) AS siren_differents\nFROM client;",
     resultat: [["nb_clients", "avec_siren", "siren_differents"], [7, 5, 4]],
     piege: "Après un `LEFT JOIN`, `COUNT(*)` compte 1 pour un client sans commande : Pool & Garden sort avec 1 commande au lieu de 0. Compte la clé de droite, `COUNT(co.id)`, qui ignore les NULL.",
-    motsCles: ["compter", "nombre", "combien", "lignes", "comptage", "count", "distinct", "différents", "valeurs", "dénombrer", "nb", "vides", "remplies", "total", "enregistrements"],
+    motsCles: ["compter", "nombre", "combien", "lignes", "comptage", "count", "distinct", "différents", "valeurs", "dénombrer", "nb", "vides", "remplies", "total", "enregistrements", "compter les lignes"],
     voirAussi: ["sum", "group-by", "distinct", "left-join", "is-null"],
     module: "m04"
   },
@@ -132,7 +132,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT client_id, COUNT(*) AS nb_cdes, SUM(montant_ht) AS ca\nFROM commande\nWHERE statut <> 'ANNULEE'\nGROUP BY client_id\nHAVING SUM(montant_ht) > 2000\nORDER BY client_id;",
     resultat: [["client_id", "nb_cdes", "ca"], [1, 3, "15115.00"], [2, 2, "2580.00"]],
     piege: "`WHERE montant_ht > 2000` garde les grosses commandes, pas les gros clients : Piscines Dumont (2 commandes de 1290.00, soit 2580.00) disparaît. Une condition sur un total va dans le `HAVING` ; un agrégat dans le `WHERE` plante.",
-    motsCles: ["filtrer", "groupe", "total", "condition", "après", "agrégat", "doublons", "having", "seuil", "supérieur", "plus de", "au moins", "filtre", "regroupement"],
+    motsCles: ["filtrer", "groupe", "total", "condition", "après", "agrégat", "doublons", "having", "seuil", "supérieur", "plus de", "au moins", "filtre", "regroupement", "trouver les doublons"],
     voirAussi: ["group-by", "where", "count", "sum"],
     module: "m04"
   },

@@ -153,7 +153,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT DISTINCT type, statut\nFROM flux_edi\nORDER BY type, statut;",
     resultat: [["type", "statut"], ["DESADV", "REJET"], ["INVOIC", "OK"], ["ORDERS", "OK"], ["ORDERS", "REJET"]],
     piege: "`DISTINCT` compare la ligne entière : ORDERS sort deux fois (OK et REJET). L'ajouter pour cacher les doublons d'une jointure rend les lignes propres, mais les totaux restent faux : cherche d'abord d'où viennent les doublons.",
-    motsCles: ["doublon", "doublons", "unique", "dédoublonner", "différentes", "valeurs", "répétition", "éliminer", "supprimer", "distinctes", "fois", "liste", "dedup"],
+    motsCles: ["doublon", "doublons", "enlever les doublons", "unique", "dédoublonner", "différentes", "valeurs", "répétition", "éliminer", "supprimer", "distinctes", "fois", "liste", "dedup"],
     voirAussi: ["select", "order-by", "top"],
     module: "m01"
   }

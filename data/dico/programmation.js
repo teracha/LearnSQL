@@ -72,10 +72,10 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "DECLARE @ville VARCHAR(40) = '?';\n-- 2 clients s'appellent Piscines Dumont (2 agences)\nSELECT @ville = ville FROM client WHERE nom = 'Piscines Dumont';   -- aucune erreur !\n-- (SET @ville = (SELECT ville … même WHERE) donnerait l'erreur 512 : tant mieux)\nSELECT @ville AS ville;",
     exemples: {
       snowflake: "-- 2 clients s'appellent Piscines Dumont (2 agences)\nSET ville = (SELECT ville FROM client WHERE nom = 'Piscines Dumont');   -- erreur : plusieurs lignes\nSET ville = (SELECT ville FROM client WHERE code = 'C004');              -- une ligne : OK\nSELECT $ville AS ville;",
-      mysql: "SET @ville = '?';\n-- 2 clients s'appellent Piscines Dumont (2 agences)\nSELECT ville INTO @ville FROM client WHERE nom = 'Piscines Dumont';   -- erreur 1172 : tant mieux"
+      mysql: "SET @ville = '?';\n-- 2 clients s'appellent Piscines Dumont (2 agences)\nSELECT ville INTO @ville FROM client WHERE nom = 'Piscines Dumont';   -- erreur 1172 : tant mieux…\nSELECT @ville AS ville;   -- … mais @ville vaut déjà Grenoble (la 1re ligne lue)"
     },
     resultat: "`@ville` reçoit la ville d'une seule des 2 lignes, souvent la dernière lue (Lyon), sans erreur ni avertissement.",
-    piege: "`SELECT @v = col` sur plusieurs lignes garde une seule valeur sans prévenir ; sur zéro ligne, la variable garde son ancienne valeur (piège dans une boucle). Pour une seule valeur, écris `SET @v = (SELECT …)` : il plante s'il y a plusieurs lignes, comme MySQL (erreur 1172) et Snowflake, et donne NULL s'il n'y en a aucune.",
+    piege: "`SELECT @v = col` sur plusieurs lignes garde une seule valeur sans prévenir ; sur zéro ligne, la variable garde son ancienne valeur (piège dans une boucle). Pour une seule valeur, écris `SET @v = (SELECT …)` : il plante s'il y a plusieurs lignes (MySQL et Snowflake refusent aussi), et donne NULL s'il n'y en a aucune.",
     motsCles: ["affecter", "assigner", "valeur", "variable", "remplir", "mettre", "stocker", "set", "plusieurs lignes", "into", "résultat", "écraser", "récupérer", "assignation"],
     voirAussi: ["declare", "sous-requete", "top", "while"],
     module: "m13"
@@ -122,7 +122,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "3 tours de boucle, 3 UPDATE d'une ligne : CDE-1005, CDE-1006 puis CDE-1007 passent à LIVREE. La version ensembliste fait la même chose en une seule instruction.",
     piege: "Une boucle traite une ligne par tour : sur 100 000 commandes, des minutes au lieu d'une seconde (et sur Snowflake, chaque petite requête coûte). Si la condition n'avance jamais (un UPDATE qui ne change rien), la boucle ne s'arrête plus : il faut l'annuler à la main.",
-    motsCles: ["boucle", "répéter", "tant que", "itération", "tour", "ligne par ligne", "break", "continue", "loop", "recommencer", "ensembliste", "infinie", "lot", "while"],
+    motsCles: ["boucle", "répéter", "tant que", "itération", "tour", "une ligne à la fois", "break", "continue", "loop", "recommencer", "ensembliste", "infinie", "lot", "while"],
     voirAussi: ["if-else", "begin-end", "curseur", "update", "rowcount"],
     module: "m13"
   },
@@ -166,7 +166,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       snowflake: "BEGIN\n  BEGIN TRANSACTION;\n  UPDATE commande SET statut = 'LIVREE' WHERE num_cde = 'CDE-1005';\n  INSERT INTO facture VALUES (5, 'FA-2026-0402', 5, '2026-04-15', 318.00, 'EMISE');\n  COMMIT;\nEXCEPTION\n  WHEN OTHER THEN ROLLBACK; RAISE;   -- tout annuler, puis renvoyer l'erreur\nEND;",
       mysql: "-- Dans une procédure : le handler joue le rôle du CATCH\nDECLARE EXIT HANDLER FOR SQLEXCEPTION\n  BEGIN ROLLBACK; RESIGNAL; END;   -- tout annuler, puis renvoyer l'erreur\nSTART TRANSACTION;\nUPDATE commande SET statut = 'LIVREE' WHERE num_cde = 'CDE-1005';\nINSERT INTO facture VALUES (5, 'FA-2026-0402', 5, '2026-04-15', 318.00, 'EMISE');\nCOMMIT;"
     },
-    resultat: "Tout va bien : CDE-1005 passe à LIVREE et FA-2026-0402 est créée. Si l'INSERT plante (id 5 déjà pris…), le CATCH annule aussi la livraison, puis renvoie l'erreur à l'appelant.",
+    resultat: "Tout va bien : CDE-1005 passe à LIVREE et FA-2026-0402 est créée. Si l'INSERT plante (une colonne obligatoire vide, par exemple), le CATCH annule aussi la livraison, puis renvoie l'erreur à l'appelant.",
     piege: "Un CATCH qui ne fait qu'un PRINT « avale » l'erreur : le job de nuit est vu comme réussi, et personne n'est prévenu. Finis toujours par `THROW;` (Snowflake : `RAISE;`, MySQL : `RESIGNAL;`), et sache que CATCH n'attrape pas une faute de nom de table dans le même bloc.",
     motsCles: ["erreur", "gérer", "gestion d'erreur", "attraper", "capturer", "exception", "try", "catch", "planter", "échec", "handler", "intercepter", "journaliser", "rattraper"],
     voirAussi: ["throw", "xact-abort", "rollback", "trancount", "begin-end"],
@@ -236,7 +236,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "CALL p_facturer(5, 5, 'FA-2026-0402');   -- par position : relis l'ordre\nSELECT num_fact, cde_id, montant_ht, statut FROM facture WHERE id = 5;"
     },
     resultat: [["num_fact", "cde_id", "montant_ht", "statut"], ["FA-2026-0402", 5, "318.00", "EMISE"]],
-    piege: "Un appel par position (`EXEC p_facturer 5, 6, 'FA-2026-0402'`) se trompe en silence si quelqu'un inverse ou ajoute un paramètre : la facture part sur la mauvaise commande. Nomme les paramètres (`@cde_id = 5`) : l'ordre ne compte plus, et une faute de nom donne une erreur.",
+    piege: "Un appel par position (`EXEC p_facturer 5, 6, 'FA-2026-0402'`) se trompe en silence si quelqu'un inverse deux paramètres dans la procédure : la facture part sur la commande 6 au lieu de la 5. Nomme les paramètres (`@cde_id = 5`) : l'ordre ne compte plus, et une faute de nom donne une erreur.",
     motsCles: ["lancer", "exécuter", "appeler", "appel", "procédure", "call", "execute", "paramètre", "nommé", "run", "procédure stockée"],
     voirAussi: ["create-procedure", "sql-dynamique", "declare"],
     module: "m13"
@@ -260,7 +260,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
     piege: "Une fonction scalaire est appelée pour chaque ligne : dans un SELECT sur un million de lignes, c'est un million d'appels, sans parallélisme (SQL Server 2019+ l'intègre parfois à la requête, pas toujours). Pour renvoyer des lignes, préfère une fonction table « inline » (`RETURNS TABLE AS RETURN (SELECT …)`), traitée comme une vue avec paramètres.",
-    motsCles: ["udf", "créer", "calcul", "réutiliser", "scalaire", "fonction table", "fonction utilisateur", "perso", "renvoyer", "returns", "lent", "performance", "formule", "inline"],
+    motsCles: ["udf", "créer", "calcul", "réutiliser", "scalaire", "tvf", "fonction utilisateur", "perso", "renvoyer", "returns", "lent", "performance", "formule", "inline"],
     voirAussi: ["create-procedure", "cross-apply", "create-view", "round"],
     module: "m13"
   },
@@ -329,7 +329,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["total_client_1"], ["15115.00"]],
     piege: "Un curseur traite une ligne à la fois : sur 100 000 lignes, des minutes au lieu d'une seconde. Ici, `SELECT SUM(montant_ht) FROM commande WHERE client_id = 1` donne 15115.00 d'un coup : garde le curseur pour une action vraiment unitaire (un fichier par client…).",
-    motsCles: ["curseur", "ligne par ligne", "parcourir", "boucle", "fetch", "une par une", "itérer", "chaque ligne", "lent", "ensembliste", "traiter", "row by row"],
+    motsCles: ["curseur", "une ligne à la fois", "parcourir", "boucle", "fetch", "unitaire", "itérer", "chaque ligne", "lent", "ensembliste", "traiter", "row by row"],
     voirAussi: ["while", "sum", "update", "declare"],
     module: "m13"
   },

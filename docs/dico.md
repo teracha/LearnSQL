@@ -27,8 +27,10 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
 
 Catégories (le nom du fichier en minuscules, sans accent) : Requête (`requete.js`), Filtres (`filtres.js`),
 NULL (`null.js`), Texte (`texte.js`), Dates (`dates.js`), Conversion (`conversion.js`), Nombres (`nombres.js`),
-Logique (`logique.js`) ; plus tard : Agrégats, Jointures, Sous-requêtes, Fenêtrage, Modifier, Tables, Transactions,
-Index, Programmation, Erreurs.
+Logique (`logique.js`) ; étape 2 : Agrégats (`agregats.js`), Jointures (`jointures.js`), Sous-requêtes
+(`sous-requetes.js`), Ensembles (`ensembles.js`), Fenêtrage (`fenetrage.js`), Modifier (`modifier.js`), Tables et
+types (`tables.js`), Transactions (`transactions.js`), Index (`index.js`), Programmation (`programmation.js`),
+Snowflake (`snowflake.js`) ; plus tard : Erreurs.
 
 ## Le format d'une fiche
 

@@ -1297,9 +1297,9 @@
    "quel quelle quels quelles est c ce cet cette ces que qu qui quoi un une des du de d la le les l au aux a et ou " +
    "sur dans pour par avec sans mon ma mes ton ta tes son sa ses en y ne pas sql requete requetes fonction fonctions " +
    "comme moi me te se ca cela ceci svp stp").split(" ").forEach(function (m) { DICO_MOTS_VIDES[m] = true; });
-  var DICO_SUFFIXES = ["ements", "ement", "ations", "ation", "ables", "able", "euses", "euse", "eurs", "eur",
-    "ions", "ons", "ent", "ez", "er", "ir", "es", "e", "s", "x"];
+  var DICO_SUFFIXES = ["ement", "ation", "able", "euse", "eur", "ent", "ez", "er", "ir", "e"];
   var dicoIndex = null;
+  var dicoMotsConnus = {};  // les racines de tous les mots-clés : un mot connu (« valeurs ») n'est pas un nom mal tapé (« values »)
   var dicoQuestion = "";   // la dernière recherche, gardée quand on ouvre une fiche
 
   function sansAccents(t) {
@@ -1309,6 +1309,7 @@
   function motsDe(t) { return sansAccents(t).split(/[^a-z0-9]+/).filter(Boolean); }
   function racine(m) {
     if (m.length <= 4) return m;
+    if (/[sx]$/.test(m)) m = m.slice(0, -1);                  // le pluriel d'abord : doublons → doublon
     for (var i = 0; i < DICO_SUFFIXES.length; i++) {
       var x = DICO_SUFFIXES[i];
       if (m.length - x.length >= 4 && m.slice(-x.length) === x) return m.slice(0, -x.length);
@@ -1340,12 +1341,14 @@
       var noms = [f.nom].concat(f.noms || []);
       var cles = {}, def = {}, motsNoms = {};
       var expressions = [];
-      (f.motsCles || []).concat([f.categorie || ""]).forEach(function (k) {
+      (f.motsCles || []).forEach(function (k) {
         var r = motsDe(k).filter(function (m) { return !DICO_MOTS_VIDES[m]; }).map(racine);
         r.forEach(function (m) { cles[m] = true; });
         if (r.length >= 2) expressions.push(r);
       });
-      motsDe(f.definition || "").forEach(function (m) { if (m.length > 3 && !DICO_MOTS_VIDES[m]) def[racine(m)] = true; });
+      motsDe((f.definition || "") + " " + (f.categorie || "")).forEach(function (m) {
+        if (m.length > 3 && !DICO_MOTS_VIDES[m]) def[racine(m)] = true;
+      });
       noms.forEach(function (n) { motsDe(n).forEach(function (m) { motsNoms[m] = true; }); });
       var listeCles = Object.keys(cles);
       return {
@@ -1361,7 +1364,7 @@
     });
     // Un mot-clé rare (« aujourd ») compte plus qu'un mot-clé que beaucoup de fiches partagent (« date »).
     var freq = {};
-    dicoIndex.forEach(function (x) { x.cles.forEach(function (k) { freq[k] = (freq[k] || 0) + 1; }); });
+    dicoIndex.forEach(function (x) { x.cles.forEach(function (k) { freq[k] = (freq[k] || 0) + 1; dicoMotsConnus[k] = true; }); });
     dicoIndex.forEach(function (x) {
       x.poids = x.cles.map(function (k) { var n = freq[k]; return n <= 2 ? 45 : n <= 5 ? 40 : n <= 10 ? 32 : 25; });
     });
@@ -1369,11 +1372,11 @@
   }
 
   // Le mot m désigne-t-il le nom de la fiche ? Le nom exact, son début (« coal »), ou une faute (« coalese »).
-  function bonusNom(m, x) {
+  function bonusNom(m, x, seul) {
     var b = 0;
     x.motsNoms.forEach(function (n) {
-      if (n === m || (m.length >= 3 && n.indexOf(m) === 0)) b = Math.max(b, 120);
-      else if (m.length >= 5 && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) b = Math.max(b, 100);
+      if (n === m || ((m.length >= 4 || (seul && m.length === 3)) && n.indexOf(m) === 0)) b = Math.max(b, 120);
+      else if (m.length >= 5 && !dicoMotsConnus[racine(m)] && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) b = Math.max(b, 100);
     });
     return b;
   }
@@ -1385,12 +1388,14 @@
     var mots = motsDe(brut);
     var phrase = " " + mots.join(" ") + " ";
     var utiles = mots.filter(function (m) { return !DICO_MOTS_VIDES[m]; });
+    if (!utiles.length) utiles = mots;
     var racines = {};
     utiles.forEach(function (m) { racines[racine(m)] = true; });
     var index = indexDico();
     // Un mot qui touche le nom de beaucoup de fiches (« date ») ne départage rien : petit bonus.
     var combien = {};
-    utiles.forEach(function (m) { combien[m] = index.filter(function (x) { return bonusNom(m, x) > 0; }).length; });
+    var seul = utiles.length === 1;   // un seul mot : « coa » peut être le début d'un nom
+    utiles.forEach(function (m) { combien[m] = index.filter(function (x) { return bonusNom(m, x, seul) > 0; }).length; });
     return index.map(function (x) {
       var score = 0;
       if (x.brut.indexOf(brut) >= 0) score += 1000;                       // le nom tapé tel quel (%, ||, ::…)
@@ -1398,7 +1403,7 @@
         if (phrase.indexOf(" " + p + " ") >= 0) score += 400 + p.length;
       });
       utiles.forEach(function (m) {
-        var b = bonusNom(m, x);
+        var b = bonusNom(m, x, seul);
         if (b) score += combien[m] <= 2 ? b : 15;
         var r = racine(m), meilleur = 0;
         var tol = r.length >= 7 ? 2 : (r.length >= 4 ? 1 : 0), sq = squelette(r);
@@ -1417,7 +1422,13 @@
       });
       return { fiche: x.fiche, score: score + expr };
     }).filter(function (r) { return r.score > 0; })
-      .sort(function (a, b) { return b.score - a.score || a.fiche.nom.localeCompare(b.fiche.nom); });
+      .sort(function (a, b) {
+        return b.score - a.score || rangModule(a.fiche) - rangModule(b.fiche) || a.fiche.nom.localeCompare(b.fiche.nom);
+      });
+  }
+  function rangModule(f) {
+    var n = f.module && /^m(\d\d)$/.exec(f.module);
+    return n ? parseInt(n[1], 10) : 99;
   }
 
   function dicoMoteur() {

@@ -69,7 +69,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "2 lignes modifiées : CDE-1005 et CDE-1006 passent à LIVREE, pour de bon.",
     piege: "Avant le COMMIT, les autres ne voient pas tes changements, ou attendent tes verrous : un COMMIT oublié dans SSMS bloque l'ERP. Après le COMMIT, plus de retour arrière : seule une sauvegarde (ou le Time Travel de Snowflake) rattrape une erreur.",
-    motsCles: ["valider", "validation", "confirmer", "enregistrer", "définitif", "terminer", "fin", "transaction", "commit", "visible", "appliquer", "graver"],
+    motsCles: ["valider", "validation", "confirmer", "enregistrer", "définitif", "terminer", "fin", "transaction", "commit", "visible", "appliquer"],
     voirAussi: ["begin-transaction", "rollback", "trancount", "time-travel"],
     module: "m11"
   },
