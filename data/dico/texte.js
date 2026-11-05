@@ -190,7 +190,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`CONCAT(a, b, …)` : un NULL devient vide ; `a + b` : un NULL rend tout NULL ; `||` en 2025+",
       snowflake: "`CONCAT(a, b, …)` ou `a || b` : un seul NULL rend tout NULL",
-      mysql: "`CONCAT(a, b, …)` : un seul NULL rend tout NULL ; `||` y veut dire OU, pas « coller »"
+      mysql: "`CONCAT(a, b, …)` : un seul NULL rend tout NULL ; `||` y veut dire OU, pas « coller » (sauf mode `PIPES_AS_CONCAT`)"
     },
     noms: ["||", "+"],
     exemple: "SELECT ville,\n       CONCAT(nom, ' (', ville, ')') AS etiquette\nFROM client\nWHERE pays = 'FR' AND type = 'PRO';",
@@ -234,7 +234,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT f.num_fact, s.value AS morceau\nFROM facture AS f\nCROSS APPLY STRING_SPLIT(f.num_fact, '-') AS s\nWHERE f.statut = 'RETARD';",
     exemples: {
       snowflake: "SELECT f.num_fact, s.value AS morceau\nFROM facture AS f,\n     LATERAL SPLIT_TO_TABLE(f.num_fact, '-') AS s\nWHERE f.statut = 'RETARD';",
-      mysql: "-- Pas de découpage en lignes : un morceau par colonne\nSELECT num_fact,\n       SUBSTRING_INDEX(num_fact, '-', 1) AS morceau_1,\n       SUBSTRING_INDEX(SUBSTRING_INDEX(num_fact, '-', 2), '-', -1) AS morceau_2\nFROM facture\nWHERE statut = 'RETARD';"
+      mysql: "-- Pas de fonction qui découpe en lignes : un morceau par colonne\nSELECT num_fact,\n       SUBSTRING_INDEX(num_fact, '-', 1) AS morceau_1,\n       SUBSTRING_INDEX(SUBSTRING_INDEX(num_fact, '-', 2), '-', -1) AS morceau_2\nFROM facture\nWHERE statut = 'RETARD';"
     },
     resultat: [["num_fact", "morceau"], ["FA-2026-0303", "FA"], ["FA-2026-0303", "2026"], ["FA-2026-0303", "0303"]],
     piege: "STRING_SPLIT ne garantit pas l'ordre des morceaux : pour prendre « le 2e », ajoute le 3e argument `1` et filtre sur la colonne `ordinal` (2022+). Sur Snowflake, `SPLIT_PART(num_fact, '-', 2)` donne directement '2026'.",

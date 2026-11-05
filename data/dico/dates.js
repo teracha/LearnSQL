@@ -57,7 +57,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "canal", "montant_ht"], ["CDE-1007", "EDI", "7950.00"]],
     piege: "Sur une colonne date + heure (DATETIME), `= CAST(GETDATE() AS date)` ne garde que les lignes de minuit pile. Prends la journée entière : `>= CAST(GETDATE() AS date)` et `< DATEADD(day, 1, CAST(GETDATE() AS date))`.",
-    motsCles: ["aujourd'hui", "aujourdhui", "date", "jour", "courante", "actuelle", "curdate", "today", "maintenant", "quotidien", "journée", "calendrier"],
+    motsCles: ["aujourd'hui", "aujourdhui", "date du jour", "date", "jour", "courante", "actuelle", "curdate", "today", "maintenant", "quotidien", "journée", "calendrier"],
     voirAussi: ["getdate", "cast", "dateadd", "datediff"],
     module: "m02"
   },

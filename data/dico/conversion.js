@@ -25,12 +25,12 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`CAST(x AS decimal(10,2))`, `CAST(x AS varchar(20))` ; vers `int`, il coupe les décimales",
       snowflake: "`CAST(x AS NUMBER(10,2))` ou `x::NUMBER(10,2)` ; vers un entier, il arrondit",
-      mysql: "`CAST(x AS DECIMAL(10,2))`, `CAST(x AS CHAR)`, `CAST(x AS SIGNED)` : pas de `AS INT` ni de `AS VARCHAR`"
+      mysql: "`CAST(x AS DECIMAL(10,2))`, `CAST(x AS CHAR)`, `CAST(x AS SIGNED)` (il arrondit) : pas de `AS INT` ni de `AS VARCHAR`"
     },
     noms: ["::"],
     exemple: "-- TTC des commandes EDI, en décimal exact\nSELECT num_cde, montant_ht,\n       CAST(montant_ht * 1.2 AS decimal(10,2)) AS montant_ttc\nFROM commande\nWHERE canal = 'EDI';",
     resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
-    piege: "`CAST(12.7 AS int)` donne 12 sur SQL Server (il coupe) mais 13 sur Snowflake (il arrondit) : un montant migré change sans erreur. Arrondis toi-même avant : `CAST(ROUND(x, 0) AS int)` donne 13 partout.",
+    piege: "`CAST(12.7 AS int)` donne 12 sur SQL Server (il coupe), mais 13 sur Snowflake (il arrondit, comme `AS SIGNED` sur MySQL) : un montant migré change sans erreur. Arrondis toi-même avant : `CAST(ROUND(x, 0) AS int)` donne 13 partout (MySQL : `AS SIGNED`).",
     motsCles: ["convertir", "conversion", "type", "transformer", "changer", "entier", "décimal", "texte", "nombre", "varchar", "int", "typer", "caster", "numérique"],
     voirAussi: ["convert", "try-cast", "round", "format"],
     module: "m03"
@@ -67,7 +67,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`TRY_CAST(x AS int)` ; avec un style : `TRY_CONVERT(date, x, 103)`",
       snowflake: "`TRY_CAST(x AS NUMBER)`, sur un texte seulement ; aussi `TRY_TO_NUMBER`, `TRY_TO_DATE`",
-      mysql: "Pas de TRY_CAST : dans un SELECT, `CAST('F' AS SIGNED)` rend 0 avec un avertissement, sans planter (à vérifier sur ta version) ; teste avant avec `REGEXP`"
+      mysql: "Pas de TRY_CAST : dans un SELECT, `CAST('F' AS SIGNED)` rend 0 avec un avertissement, sans planter (dans un INSERT : erreur, par défaut) ; teste avant avec `REGEXP`"
     },
     noms: ["TRY_CONVERT", "TRY_TO_NUMBER", "TRY_TO_DATE"],
     exemple: "-- Le numéro après le tiret ; NULL si ce n'est pas un nombre\nSELECT code,\n       TRY_CAST(SUBSTRING(code, CHARINDEX('-', code) + 1, 10) AS int)\n         AS numero\nFROM article\nWHERE famille IN ('CHIMIE', 'ACCESSOIRE');",

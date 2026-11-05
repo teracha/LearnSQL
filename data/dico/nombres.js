@@ -25,7 +25,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`ROUND(x, 2)` ; `ROUND(x, 2, 1)` coupe au lieu d'arrondir",
       snowflake: "`ROUND(x, 2)` ; pour couper : `TRUNC(x, 2)`",
-      mysql: "`ROUND(x, 2)` ; pour couper : `TRUNCATE(x, 2)`"
+      mysql: "`ROUND(x, 2)` ; pour couper : `TRUNCATE(x, 2)` ; sur un FLOAT, 2.5 peut donner 2 (arrondi au pair)"
     },
     noms: ["TRUNC", "TRUNCATE"],
     exemple: "SELECT num_cde, montant_ht,\n       ROUND(montant_ht, -2) AS a_la_centaine\nFROM commande\nWHERE canal = 'EDI';",
@@ -85,7 +85,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`a % b`",
       snowflake: "`a % b` ou `MOD(a, b)`",
-      mysql: "`a % b`, `MOD(a, b)` ou `a MOD b` ; un reste par zéro donne NULL"
+      mysql: "`a % b`, `MOD(a, b)` ou `a MOD b` ; un reste par zéro donne NULL dans un SELECT (erreur dans un INSERT ou un UPDATE)"
     },
     noms: ["%", "MOD", "modulo"],
     exemple: "-- Palettes de 10 : combien de pleines, combien de cartons en plus\nSELECT id, qte,\n       qte / 10 AS palettes_pleines,\n       qte % 10 AS cartons_en_plus\nFROM ligne_cde\nWHERE cde_id IN (5, 7, 8);",
@@ -108,7 +108,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`a / b` : entier / entier = entier (7 / 2 = 3) ; écris `7 / 2.0` ; par zéro : erreur",
       snowflake: "`a / b` garde les décimales (7 / 2 = 3.5) ; par zéro : erreur, sauf avec `DIV0(a, b)`, qui rend 0",
-      mysql: "`a / b` garde les décimales (3.5000) ; division entière : `7 DIV 2` ; par zéro : NULL"
+      mysql: "`a / b` garde les décimales (3.5000) ; division entière : `7 DIV 2` ; par zéro : NULL dans un SELECT, erreur dans un INSERT ou un UPDATE"
     },
     noms: ["/", "DIV", "DIV0"],
     exemple: "-- Palettes de 10 cartons\nSELECT id, qte,\n       qte / 10 AS palettes,\n       qte / 10.0 AS palettes_exact\nFROM ligne_cde\nWHERE cde_id IN (5, 7, 8);",

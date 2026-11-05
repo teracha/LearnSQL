@@ -28,7 +28,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     noms: [],
     exemple: "SELECT id, COALESCE(motif, 'Aucun') AS motif\nFROM flux_edi\nWHERE type = 'ORDERS';",
     resultat: [["id", "motif"], [1, "Aucun"], [2, "Aucun"], [3, "EAN inconnu"], [5, "Aucun"]],
-    piege: "Des types différents plantent : avec `COALESCE(ville, 0)`, SQL Server essaie de convertir 'Lyon' en nombre. Donne un remplaçant du même type : `COALESCE(ville, '')`.",
+    piege: "Sur SQL Server et Snowflake, des types différents plantent : avec `COALESCE(ville, 0)`, le moteur essaie de convertir 'Lyon' en nombre (MySQL, lui, rend du texte). Donne un remplaçant du même type : `COALESCE(ville, '')`.",
     motsCles: ["remplacer", "vide", "défaut", "secours", "valeur", "premier", "rempli", "manquant", "remplacement", "zéro", "nvl", "ifnull", "absent", "rien"],
     voirAussi: ["isnull", "nullif", "is-null", "concat"],
     module: "m02"
@@ -65,7 +65,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`NULLIF(a, b)` ; une division par zéro, elle, plante",
       snowflake: "`NULLIF(a, b)` ; raccourci : `NULLIFZERO(x)` ; une division par zéro plante",
-      mysql: "`NULLIF(a, b)` ; une division par zéro y donne déjà NULL, sans erreur"
+      mysql: "`NULLIF(a, b)` ; une division par zéro donne NULL dans un SELECT, mais plante dans un INSERT ou un UPDATE (mode strict par défaut)"
     },
     noms: ["NULLIFZERO"],
     exemple: "-- Une alerte seulement sur les flux rejetés\nSELECT id, statut, NULLIF(statut, 'OK') AS alerte\nFROM flux_edi\nWHERE type = 'ORDERS';",
