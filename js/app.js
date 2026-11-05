@@ -1282,6 +1282,238 @@
     try { localStorage.setItem("learnsql-theme", t); } catch (e) { /* ignoré */ }
   });
 
+  // ---------- Super dico SQL (docs/dico.md) ----------
+  // Recherche sans IA, dans le navigateur : mots vides retirés, racines, fautes tolérées (distance d'édition,
+  // squelette de consonnes). Ouvert à tous, sans compte.
+  var DICO_MOTEUR_KEY = "learnsql-dico-moteur";
+  var DICO_MOTEURS = [
+    { id: "tous", nom: "Tous" },
+    { id: "sqlserver", nom: "SQL Server" },
+    { id: "snowflake", nom: "Snowflake" },
+    { id: "mysql", nom: "MySQL" }
+  ];
+  var DICO_MOTS_VIDES = {};
+  ("je j tu il elle on nous vous veux voudrais voudrai aimerais aimerai faire fait faut peux peut dois doit comment " +
+   "quel quelle quels quelles est c ce cet cette ces que qu qui quoi un une des du de d la le les l au aux a et ou " +
+   "sur dans pour par avec sans mon ma mes ton ta tes son sa ses en y ne pas sql requete requetes fonction fonctions " +
+   "comme moi me te se ca cela ceci svp stp").split(" ").forEach(function (m) { DICO_MOTS_VIDES[m] = true; });
+  var DICO_SUFFIXES = ["ements", "ement", "ations", "ation", "ables", "able", "euses", "euse", "eurs", "eur",
+    "ions", "ons", "ent", "ez", "er", "ir", "es", "e", "s", "x"];
+  var dicoIndex = null;
+  var dicoQuestion = "";   // la dernière recherche, gardée quand on ouvre une fiche
+
+  function sansAccents(t) {
+    t = String(t).toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae");
+    return t.normalize ? t.normalize("NFD").replace(/[̀-ͯ]/g, "") : t;
+  }
+  function motsDe(t) { return sansAccents(t).split(/[^a-z0-9_]+/).filter(Boolean); }
+  function racine(m) {
+    if (m.length <= 4) return m;
+    for (var i = 0; i < DICO_SUFFIXES.length; i++) {
+      var x = DICO_SUFFIXES[i];
+      if (m.length - x.length >= 4 && m.slice(-x.length) === x) return m.slice(0, -x.length);
+    }
+    return m;
+  }
+  function squelette(m) { return m.replace(/[aeiouy]/g, "").replace(/(.)\1+/g, "$1"); }
+  // Distance d'édition (Levenshtein), arrêtée dès qu'elle dépasse max.
+  function distance(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    var prec = [], cour, i, j;
+    for (j = 0; j <= b.length; j++) prec[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cour = [i];
+      var mini = i;
+      for (j = 1; j <= b.length; j++) {
+        cour[j] = Math.min(prec[j] + 1, cour[j - 1] + 1, prec[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+        if (cour[j] < mini) mini = cour[j];
+      }
+      if (mini > max) return max + 1;
+      prec = cour;
+    }
+    return prec[b.length];
+  }
+
+  function indexDico() {
+    if (dicoIndex) return dicoIndex;
+    dicoIndex = (DATA.dico || []).map(function (f) {
+      var noms = [f.nom].concat(f.noms || []);
+      var cles = {}, def = {}, motsNoms = {};
+      (f.motsCles || []).concat([f.categorie || ""]).forEach(function (k) {
+        motsDe(k).forEach(function (m) { if (!DICO_MOTS_VIDES[m]) cles[racine(m)] = true; });
+      });
+      motsDe(f.definition || "").forEach(function (m) { if (m.length > 3 && !DICO_MOTS_VIDES[m]) def[racine(m)] = true; });
+      noms.forEach(function (n) { motsDe(n).forEach(function (m) { motsNoms[m] = true; }); });
+      var listeCles = Object.keys(cles);
+      return {
+        fiche: f,
+        brut: noms.map(function (n) { return sansAccents(n).replace(/\s+/g, " ").trim(); }),
+        phrases: noms.map(function (n) { return motsDe(n).join(" "); }).filter(Boolean),
+        motsNoms: Object.keys(motsNoms),
+        cles: listeCles,
+        squelettes: listeCles.map(squelette),
+        def: def
+      };
+    });
+    return dicoIndex;
+  }
+
+  // Note chaque fiche pour la question ; renvoie [{ fiche, score }], du plus proche au moins proche.
+  function chercherDico(question) {
+    var brut = sansAccents(question).replace(/\s+/g, " ").trim();
+    if (!brut) return [];
+    var mots = motsDe(brut);
+    var phrase = " " + mots.join(" ") + " ";
+    var utiles = mots.filter(function (m) { return !DICO_MOTS_VIDES[m]; });
+    return indexDico().map(function (x) {
+      var score = 0;
+      if (x.brut.indexOf(brut) >= 0) score += 1000;                       // le nom tapé tel quel (%, ||, ::…)
+      x.phrases.forEach(function (p) {                                     // un nom présent dans la question
+        if (phrase.indexOf(" " + p + " ") >= 0) score += 400 + p.length;
+      });
+      utiles.forEach(function (m) {
+        var surNom = 0;
+        x.motsNoms.forEach(function (n) {
+          if (n === m) return;
+          if (m.length >= 3 && n.indexOf(m) === 0) surNom = Math.max(surNom, 120);             // début du nom
+          else if (m.length >= 5 && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) surNom = Math.max(surNom, 100);
+        });
+        score += surNom;
+        var r = racine(m), meilleur = 0;
+        var tol = r.length >= 7 ? 2 : (r.length >= 4 ? 1 : 0), sq = squelette(r);
+        for (var i = 0; i < x.cles.length && meilleur < 40; i++) {
+          var k = x.cles[i];
+          if (k === r) meilleur = 40;                                                       // mot-clé exact
+          else if (tol && distance(r, k, tol) <= tol) meilleur = Math.max(meilleur, 25);    // une faute ou deux
+          else if (sq.length >= 4 && distance(sq, x.squelettes[i], 1) <= 1) meilleur = Math.max(meilleur, 15);
+        }
+        if (!meilleur && x.def[r]) meilleur = 8;                                            // mot de la définition
+        score += meilleur;
+      });
+      return { fiche: x.fiche, score: score };
+    }).filter(function (r) { return r.score > 0; })
+      .sort(function (a, b) { return b.score - a.score || a.fiche.nom.localeCompare(b.fiche.nom); });
+  }
+
+  function dicoMoteur() {
+    try {
+      var m = localStorage.getItem(DICO_MOTEUR_KEY);
+      if (m && DICO_MOTEURS.some(function (x) { return x.id === m; })) return m;
+    } catch (e) { /* stockage indisponible */ }
+    return "tous";
+  }
+  function nomMoteur(id) {
+    for (var i = 0; i < DICO_MOTEURS.length; i++) if (DICO_MOTEURS[i].id === id) return DICO_MOTEURS[i].nom;
+    return id;
+  }
+  function selecteurMoteurs(actif) {
+    return '<div class="moteurs" role="radiogroup" aria-label="Moteur">' + DICO_MOTEURS.map(function (m) {
+      return '<button type="button" class="moteur' + (m.id === actif ? ' actif' : '') + '" data-moteur="' + m.id +
+        '" role="radio" aria-checked="' + (m.id === actif ? 'true' : 'false') + '">' + esc(m.nom) + '</button>';
+    }).join('') + '</div>';
+  }
+  function brancherMoteurs(apres) {
+    Array.prototype.forEach.call(document.querySelectorAll(".moteur"), function (b) {
+      b.addEventListener("click", function () {
+        try { localStorage.setItem(DICO_MOTEUR_KEY, b.getAttribute("data-moteur")); } catch (e) { /* ignoré */ }
+        Array.prototype.forEach.call(document.querySelectorAll(".moteur"), function (x) {
+          var oui = x === b;
+          x.classList.toggle("actif", oui);
+          x.setAttribute("aria-checked", oui ? "true" : "false");
+        });
+        apres();
+      });
+    });
+  }
+  function syntaxeFiche(f, moteur) {
+    var liste = moteur === "tous" ? ["sqlserver", "snowflake", "mysql"] : [moteur];
+    return '<dl class="syntaxe">' + liste.map(function (m) {
+      return '<dt>' + esc(nomMoteur(m)) + '</dt><dd>' + fmt((f.moteurs || {})[m] || "—") + '</dd>';
+    }).join('') + '</dl>';
+  }
+  function carteFiche(f, moteur) {
+    return '<a class="card fiche-res" href="#/dico/' + encodeURIComponent(f.id) + '"><div class="fiche-tete"><strong>' +
+      esc(f.nom) + '</strong><span class="tag">' + esc(f.type) + '</span><span class="tag">' + esc(f.categorie) +
+      '</span></div><p>' + fmt(f.definition) + '</p>' + syntaxeFiche(f, moteur) + '</a>';
+  }
+  function parNom(a, b) { return a.nom.localeCompare(b.nom); }
+
+  function resultatsDico(q, moteur) {
+    var fiches = DATA.dico || [];
+    q = String(q).trim();
+    if (!q) {
+      var cats = {};
+      fiches.forEach(function (f) { (cats[f.categorie] = cats[f.categorie] || []).push(f); });
+      return '<p class="muted">' + fiches.length + ' fiches. Tape une question ou un nom, ou parcours par thème :</p>' +
+        Object.keys(cats).sort().map(function (c) {
+          return '<h2>' + esc(c) + '</h2><div class="puces">' + cats[c].sort(parNom).map(function (f) {
+            return '<a class="puce" href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a>';
+          }).join('') + '</div>';
+        }).join('');
+    }
+    var r = chercherDico(q);
+    var bons = r.filter(function (x) { return x.score >= 25; }).slice(0, 8);
+    if (bons.length) return bons.map(function (x) { return carteFiche(x.fiche, moteur); }).join('');
+    if (r.length) return '<p>Pas de fiche sûre pour « ' + esc(q) + ' ». Les plus proches :</p>' +
+      r.slice(0, 5).map(function (x) { return carteFiche(x.fiche, moteur); }).join('');
+    return '<p>Aucune fiche ne correspond à « ' + esc(q) + ' ». Essaie un autre mot : un verbe (chercher, enlever, ' +
+      'arrondir…) ou un nom de fonction.</p>';
+  }
+
+  function pageDico(id) {
+    if (id) { pageFiche(decodeURIComponent(id)); return; }
+    app.innerHTML = '<h1>Super dico SQL</h1>' +
+      '<p class="muted">Pose ta question en mots simples (« enlever les espaces »), ou tape un nom (« COALESCE »). ' +
+      'Les fautes de frappe sont tolérées.</p>' +
+      '<div class="dico-recherche"><input type="search" id="dico-q" autocomplete="off" spellcheck="false" ' +
+      'placeholder="Ex. : chercher un caractère, COALESCE…" aria-label="Rechercher dans le dico"></div>' +
+      selecteurMoteurs(dicoMoteur()) + '<div id="dico-res"></div>';
+    var champ = document.getElementById("dico-q"), zone = document.getElementById("dico-res");
+    champ.value = dicoQuestion;
+    var maj = function () { dicoQuestion = champ.value; zone.innerHTML = resultatsDico(champ.value, dicoMoteur()); };
+    champ.addEventListener("input", maj);
+    brancherMoteurs(maj);
+    maj();
+    champ.focus();
+  }
+
+  function pageFiche(id) {
+    var f = (DATA.dico || []).filter(function (x) { return x.id === id; })[0];
+    if (!f) { location.hash = "#/dico"; return; }
+    var parId = {};
+    (DATA.dico || []).forEach(function (x) { parId[x.id] = x; });
+    var voir = (f.voirAussi || []).filter(function (v) { return parId[v]; });
+    var mod = f.module && module(f.module) && moduleVisible(f.module) ? module(f.module) : null;
+    app.innerHTML = '<p class="muted"><a href="#/dico">Super dico</a> › ' + esc(f.categorie) + '</p>' +
+      '<h1 class="fiche-nom">' + esc(f.nom) + '</h1>' +
+      '<div class="tags"><span class="tag">' + esc(f.type) + '</span><span class="tag">' + esc(f.categorie) + '</span></div>' +
+      '<p class="definition">' + fmt(f.definition) + '</p>' +
+      selecteurMoteurs(dicoMoteur()) + '<div class="card" id="fiche-corps"></div>' +
+      (voir.length ? '<h2>Voir aussi</h2><div class="puces">' + voir.map(function (v) {
+        return '<a class="puce" href="#/dico/' + encodeURIComponent(v) + '">' + esc(parId[v].nom) + '</a>';
+      }).join('') + '</div>' : '') +
+      (mod && DATA.cours[f.module] ? '<p>Dans le cours : <a href="#/cours/' + esc(f.module) + '">' + esc(mod.titre) + '</a></p>' : '') +
+      '<div class="actions"><a class="btn ghost" href="#/dico">Nouvelle recherche</a></div>';
+    var rendre = function () {
+      var m = dicoMoteur(), ex = f.exemples || {}, html = '<p class="label">Syntaxe</p>' + syntaxeFiche(f, m);
+      if (m === "snowflake" || m === "mysql") {
+        html += '<p class="label">Exemple · ' + esc(nomMoteur(m)) + '</p><pre class="code">' + esc(ex[m] || f.exemple || "") + '</pre>';
+      } else if (f.exemple) {
+        var variantes = ["snowflake", "mysql"].filter(function (x) { return ex[x]; });
+        html += '<p class="label">Exemple' + (variantes.length ? ' · SQL Server' : '') + '</p><pre class="code">' + esc(f.exemple) + '</pre>';
+        if (m === "tous") variantes.forEach(function (x) {
+          html += '<p class="label">Exemple · ' + esc(nomMoteur(x)) + '</p><pre class="code">' + esc(ex[x]) + '</pre>';
+        });
+      }
+      if (f.resultat) html += resultatCours(f.resultat);
+      if (f.piege) html += '<div class="feedback ko"><p><strong>Le piège :</strong> ' + fmt(f.piege) + '</p></div>';
+      if (f.correction) html += '<div class="feedback ok"><p><strong>La correction :</strong> ' + fmt(f.correction) + '</p></div>';
+      document.getElementById("fiche-corps").innerHTML = html;
+    };
+    brancherMoteurs(rendre);
+    rendre();
+  }
+
   // ---------- Routeur ----------
   function route() {
     var h = location.hash.replace(/^#\/?/, "");
@@ -1300,6 +1532,7 @@
     else if (parts[0] === "mentions") pageLegale("Mentions légales", "mentions");
     else if (parts[0] === "confidentialite") pageLegale("Confidentialité", "confidentialite");
     else if (parts[0] === "equipe") pageEquipe(parts[1]);
+    else if (parts[0] === "dico") pageDico(parts[1]);
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);

@@ -223,3 +223,32 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
 .resultat table { font-size: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .resultat th, .resultat td { padding: 5px 8px; white-space: nowrap; }
 .resultat em.muted { font-style: italic; }
+
+/* Super dico SQL */
+.dico-recherche input {
+  width: 100%; font: inherit; font-size: 20px; padding: 12px 14px;
+  background: var(--card); color: var(--text);
+  border: 2px solid var(--accent); border-radius: 12px;
+}
+.moteurs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 18px; }
+.moteur {
+  border: 2px solid var(--line); background: var(--card); color: var(--text);
+  border-radius: 99px; padding: 4px 14px; font-weight: 700; font-size: 15px;
+}
+.moteur.actif { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.fiche-res { display: block; text-decoration: none; color: inherit; }
+.fiche-res:hover { border-color: var(--accent); }
+.fiche-tete { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fiche-tete strong, .fiche-nom { color: var(--accent); font-family: "JetBrains Mono", ui-monospace, monospace; }
+.fiche-tete strong { font-size: 20px; }
+.fiche-res p { margin: 6px 0; }
+.definition { font-size: 20px; margin: 10px 0 4px; }
+.syntaxe { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 6px 0 14px; font-size: 16px; }
+.syntaxe dt { font-weight: 700; color: var(--muted); }
+.syntaxe dd { margin: 0; overflow-wrap: anywhere; }
+.puces { display: flex; flex-wrap: wrap; gap: 6px; }
+.puce {
+  padding: 3px 12px; border-radius: 99px; background: var(--accent-soft); color: var(--accent);
+  text-decoration: none; font-weight: 700; font-size: 15px; font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (max-width: 520px) { .syntaxe { grid-template-columns: 1fr; gap: 0 12px; } .syntaxe dd { margin-bottom: 6px; } }

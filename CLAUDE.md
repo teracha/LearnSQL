@@ -124,6 +124,17 @@ puis ajouter la ligne `<script src="data/mXX-nom.js"></script>` dans `index.html
 Plan, fil rouge « DEMAT 2027 » et règles propres (modules courts, mises en situation, 30 à 50 cas par module) :
 `docs/plan-chef-de-projet.md`. Modules `cp01` à `cp27`.
 
+## Le super dico SQL
+
+Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. Spécification et format : `docs/dico.md`.
+- Fiches dans `data/dico/<catégorie>.js` (`LEARNSQL.dico = (LEARNSQL.dico || []).concat([...])`), chargées dans `index.html`.
+- Une fiche = une fonction, un mot-clé ou une erreur, pour 3 moteurs : SQL Server, Snowflake, MySQL 8.
+  Exemple sur la base d'exemple (`docs/base-exemple.sql`, tables sans schéma), résultat vérifié avec SQLite.
+- Recherche sans IA dans `js/app.js` (bloc « Super dico ») : mots vides, racines, fautes tolérées.
+  Sélecteur de moteur gardé dans le navigateur (`learnsql-dico-moteur`).
+- `node outils/verifier.js` contrôle aussi le dico ; test navigateur : `outils/tests/dico.js`.
+- Étape 3 (à venir) : fiches perso de l'élève, privées, dans son compte.
+
 ## Questions Divalto
 
 - Source : la base documentaire du dépôt `teracha/Divalto_10`, en **lecture seule** (ne jamais la modifier ni y pousser).
