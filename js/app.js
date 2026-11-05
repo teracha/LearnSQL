@@ -1340,8 +1340,10 @@
     dicoIndex = (DATA.dico || []).map(function (f) {
       var noms = [f.nom].concat(f.noms || []);
       var cles = {}, def = {}, motsNoms = {};
-      var expressions = [];
+      var expressions = [], phrasesCles = [];
       (f.motsCles || []).forEach(function (k) {
+        var tous = motsDe(k);
+        if (tous.length >= 2) phrasesCles.push(" " + tous.join(" ") + " ");
         var r = motsDe(k).filter(function (m) { return !DICO_MOTS_VIDES[m]; }).map(racine);
         r.forEach(function (m) { cles[m] = true; });
         if (r.length >= 2) expressions.push(r);
@@ -1349,7 +1351,9 @@
       motsDe((f.definition || "") + " " + (f.categorie || "")).forEach(function (m) {
         if (m.length > 3 && !DICO_MOTS_VIDES[m]) def[racine(m)] = true;
       });
-      noms.forEach(function (n) { motsDe(n).forEach(function (m) { motsNoms[m] = true; }); });
+      noms.forEach(function (n, i) {
+        if (i === 0 || n === n.toUpperCase()) motsDe(n).forEach(function (m) { motsNoms[m] = true; });
+      });
       var listeCles = Object.keys(cles);
       return {
         fiche: f,
@@ -1359,6 +1363,7 @@
         cles: listeCles,
         squelettes: listeCles.map(squelette),
         expressions: expressions,
+        phrasesCles: phrasesCles,
         def: def
       };
     });
@@ -1400,16 +1405,20 @@
       var score = 0;
       if (x.brut.indexOf(brut) >= 0) score += 1000;                       // le nom tapé tel quel (%, ||, ::…)
       x.phrases.forEach(function (p) {                                     // un nom présent dans la question
-        if (phrase.indexOf(" " + p + " ") >= 0) score += 400 + p.length;
+        if (phrase.indexOf(" " + p + " ") < 0) return;
+        // Un nom d'un seul mot qui est aussi un mot courant (« date », « case ») ne compte fort que tapé seul.
+        if (p.indexOf(" ") < 0 && utiles.length > 1 && dicoMotsConnus[racine(p)]) score += 40;
+        else score += 400 + p.length;
       });
       utiles.forEach(function (m) {
         var b = bonusNom(m, x, seul);
-        if (b) score += combien[m] <= 2 ? b : 15;
+        // Fort si le mot désigne peu de fiches et n'est pas un mot courant noyé dans une phrase (« case vide »).
+        if (b) score += combien[m] <= 2 && (seul || !dicoMotsConnus[racine(m)]) ? b : 15;
         var r = racine(m), meilleur = 0;
         var tol = r.length >= 7 ? 2 : (r.length >= 4 ? 1 : 0), sq = squelette(r);
         for (var i = 0; i < x.cles.length; i++) {
           var k = x.cles[i];
-          if (k === r) meilleur = Math.max(meilleur, x.poids[i]);                           // mot-clé exact
+          if (k === r) meilleur = Math.max(meilleur, x.poids[i] + (i === 0 ? 3 : i <= 2 ? 2 : i <= 5 ? 1 : 0)); // exact (les premiers mots-clés d'une fiche comptent un peu plus)
           else if (tol && distance(r, k, tol) <= tol) meilleur = Math.max(meilleur, 25);    // une faute ou deux
           else if (sq.length >= 4 && distance(sq, x.squelettes[i], 1) <= 1) meilleur = Math.max(meilleur, 15);
         }
@@ -1419,6 +1428,9 @@
       var expr = 0;                                                        // une expression entière (« date du jour »)
       x.expressions.forEach(function (e) {
         if (e.every(function (m) { return racines[m]; })) expr = Math.min(70, expr + 35);
+      });
+      x.phrasesCles.forEach(function (k) {                                 // … mot pour mot (« ligne par ligne »)
+        if (phrase.indexOf(k) >= 0) expr = Math.min(130, expr + 60);
       });
       return { fiche: x.fiche, score: score + expr };
     }).filter(function (r) { return r.score > 0; })

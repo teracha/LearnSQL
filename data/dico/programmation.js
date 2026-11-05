@@ -114,7 +114,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       snowflake: "Dans un bloc : `WHILE (condition) DO … END WHILE;` ; aussi `FOR`, `REPEAT`, `LOOP` ; `BREAK` et `CONTINUE`",
       mysql: "Dans une procédure : `WHILE condition DO … END WHILE;` ; sortir : `LEAVE etiquette` ; tour suivant : `ITERATE etiquette`"
     },
-    noms: ["BREAK", "CONTINUE", "LOOP", "REPEAT", "LEAVE", "ITERATE", "END WHILE"],
+    noms: ["boucle", "BREAK", "CONTINUE", "LOOP", "REPEAT", "LEAVE", "ITERATE", "END WHILE"],
     exemple: "DECLARE @id INT = (SELECT MIN(id) FROM commande WHERE statut = 'EN_COURS');\nWHILE @id IS NOT NULL\nBEGIN\n  UPDATE commande SET statut = 'LIVREE' WHERE id = @id;   -- une ligne par tour\n  SET @id = (SELECT MIN(id) FROM commande WHERE statut = 'EN_COURS');\nEND;\n-- Version ensembliste, en une fois :\n-- UPDATE commande SET statut = 'LIVREE' WHERE statut = 'EN_COURS';",
     exemples: {
       snowflake: "DECLARE id_cde INTEGER;\nBEGIN\n  SELECT MIN(id) INTO :id_cde FROM commande WHERE statut = 'EN_COURS';\n  WHILE (id_cde IS NOT NULL) DO\n    UPDATE commande SET statut = 'LIVREE' WHERE id = :id_cde;   -- une ligne par tour\n    SELECT MIN(id) INTO :id_cde FROM commande WHERE statut = 'EN_COURS';\n  END WHILE;\nEND;",
@@ -260,7 +260,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
     piege: "Une fonction scalaire est appelée pour chaque ligne : dans un SELECT sur un million de lignes, c'est un million d'appels, sans parallélisme (SQL Server 2019+ l'intègre parfois à la requête, pas toujours). Pour renvoyer des lignes, préfère une fonction table « inline » (`RETURNS TABLE AS RETURN (SELECT …)`), traitée comme une vue avec paramètres.",
-    motsCles: ["udf", "créer", "calcul", "réutiliser", "scalaire", "tvf", "fonction utilisateur", "perso", "renvoyer", "returns", "lent", "performance", "formule", "inline"],
+    motsCles: ["udf", "créer", "créer une fonction", "calcul", "réutiliser", "scalaire", "tvf", "fonction utilisateur", "perso", "renvoyer", "returns", "lent", "performance", "formule", "inline"],
     voirAussi: ["create-procedure", "cross-apply", "create-view", "round"],
     module: "m13"
   },
@@ -329,7 +329,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["total_client_1"], ["15115.00"]],
     piege: "Un curseur traite une ligne à la fois : sur 100 000 lignes, des minutes au lieu d'une seconde. Ici, `SELECT SUM(montant_ht) FROM commande WHERE client_id = 1` donne 15115.00 d'un coup : garde le curseur pour une action vraiment unitaire (un fichier par client…).",
-    motsCles: ["curseur", "une ligne à la fois", "parcourir", "boucle", "fetch", "unitaire", "itérer", "chaque ligne", "lent", "ensembliste", "traiter", "row by row"],
+    motsCles: ["curseur", "une ligne à la fois", "ligne par ligne", "parcourir", "boucle", "fetch", "unitaire", "itérer", "chaque ligne", "lent", "ensembliste", "traiter", "row by row"],
     voirAussi: ["while", "sum", "update", "declare"],
     module: "m13"
   },
