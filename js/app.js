@@ -1306,7 +1306,7 @@
     t = String(t).toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae");
     return t.normalize ? t.normalize("NFD").replace(/[̀-ͯ]/g, "") : t;
   }
-  function motsDe(t) { return sansAccents(t).split(/[^a-z0-9_]+/).filter(Boolean); }
+  function motsDe(t) { return sansAccents(t).split(/[^a-z0-9]+/).filter(Boolean); }
   function racine(m) {
     if (m.length <= 4) return m;
     for (var i = 0; i < DICO_SUFFIXES.length; i++) {
@@ -1339,8 +1339,11 @@
     dicoIndex = (DATA.dico || []).map(function (f) {
       var noms = [f.nom].concat(f.noms || []);
       var cles = {}, def = {}, motsNoms = {};
+      var expressions = [];
       (f.motsCles || []).concat([f.categorie || ""]).forEach(function (k) {
-        motsDe(k).forEach(function (m) { if (!DICO_MOTS_VIDES[m]) cles[racine(m)] = true; });
+        var r = motsDe(k).filter(function (m) { return !DICO_MOTS_VIDES[m]; }).map(racine);
+        r.forEach(function (m) { cles[m] = true; });
+        if (r.length >= 2) expressions.push(r);
       });
       motsDe(f.definition || "").forEach(function (m) { if (m.length > 3 && !DICO_MOTS_VIDES[m]) def[racine(m)] = true; });
       noms.forEach(function (n) { motsDe(n).forEach(function (m) { motsNoms[m] = true; }); });
@@ -1352,10 +1355,27 @@
         motsNoms: Object.keys(motsNoms),
         cles: listeCles,
         squelettes: listeCles.map(squelette),
+        expressions: expressions,
         def: def
       };
     });
+    // Un mot-clé rare (« aujourd ») compte plus qu'un mot-clé que beaucoup de fiches partagent (« date »).
+    var freq = {};
+    dicoIndex.forEach(function (x) { x.cles.forEach(function (k) { freq[k] = (freq[k] || 0) + 1; }); });
+    dicoIndex.forEach(function (x) {
+      x.poids = x.cles.map(function (k) { var n = freq[k]; return n <= 2 ? 45 : n <= 5 ? 40 : n <= 10 ? 32 : 25; });
+    });
     return dicoIndex;
+  }
+
+  // Le mot m désigne-t-il le nom de la fiche ? Le nom exact, son début (« coal »), ou une faute (« coalese »).
+  function bonusNom(m, x) {
+    var b = 0;
+    x.motsNoms.forEach(function (n) {
+      if (n === m || (m.length >= 3 && n.indexOf(m) === 0)) b = Math.max(b, 120);
+      else if (m.length >= 5 && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) b = Math.max(b, 100);
+    });
+    return b;
   }
 
   // Note chaque fiche pour la question ; renvoie [{ fiche, score }], du plus proche au moins proche.
@@ -1365,32 +1385,37 @@
     var mots = motsDe(brut);
     var phrase = " " + mots.join(" ") + " ";
     var utiles = mots.filter(function (m) { return !DICO_MOTS_VIDES[m]; });
-    return indexDico().map(function (x) {
+    var racines = {};
+    utiles.forEach(function (m) { racines[racine(m)] = true; });
+    var index = indexDico();
+    // Un mot qui touche le nom de beaucoup de fiches (« date ») ne départage rien : petit bonus.
+    var combien = {};
+    utiles.forEach(function (m) { combien[m] = index.filter(function (x) { return bonusNom(m, x) > 0; }).length; });
+    return index.map(function (x) {
       var score = 0;
       if (x.brut.indexOf(brut) >= 0) score += 1000;                       // le nom tapé tel quel (%, ||, ::…)
       x.phrases.forEach(function (p) {                                     // un nom présent dans la question
         if (phrase.indexOf(" " + p + " ") >= 0) score += 400 + p.length;
       });
       utiles.forEach(function (m) {
-        var surNom = 0;
-        x.motsNoms.forEach(function (n) {
-          if (n === m) return;
-          if (m.length >= 3 && n.indexOf(m) === 0) surNom = Math.max(surNom, 120);             // début du nom
-          else if (m.length >= 5 && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) surNom = Math.max(surNom, 100);
-        });
-        score += surNom;
+        var b = bonusNom(m, x);
+        if (b) score += combien[m] <= 2 ? b : 15;
         var r = racine(m), meilleur = 0;
         var tol = r.length >= 7 ? 2 : (r.length >= 4 ? 1 : 0), sq = squelette(r);
-        for (var i = 0; i < x.cles.length && meilleur < 40; i++) {
+        for (var i = 0; i < x.cles.length; i++) {
           var k = x.cles[i];
-          if (k === r) meilleur = 40;                                                       // mot-clé exact
+          if (k === r) meilleur = Math.max(meilleur, x.poids[i]);                           // mot-clé exact
           else if (tol && distance(r, k, tol) <= tol) meilleur = Math.max(meilleur, 25);    // une faute ou deux
           else if (sq.length >= 4 && distance(sq, x.squelettes[i], 1) <= 1) meilleur = Math.max(meilleur, 15);
         }
         if (!meilleur && x.def[r]) meilleur = 8;                                            // mot de la définition
         score += meilleur;
       });
-      return { fiche: x.fiche, score: score };
+      var expr = 0;                                                        // une expression entière (« date du jour »)
+      x.expressions.forEach(function (e) {
+        if (e.every(function (m) { return racines[m]; })) expr = Math.min(70, expr + 35);
+      });
+      return { fiche: x.fiche, score: score + expr };
     }).filter(function (r) { return r.score > 0; })
       .sort(function (a, b) { return b.score - a.score || a.fiche.nom.localeCompare(b.fiche.nom); });
   }
