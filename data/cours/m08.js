@@ -55,7 +55,7 @@ LEARNSQL.cours.m08 = {
         "Le cadre dit quelles lignes prendre : `ROWS BETWEEN … AND …`.",
         "Sans cadre précisé, SQL Server utilise `RANGE` : les ex aequo sont additionnés ensemble. Précise `ROWS`.",
         "Moyenne mobile 7 jours : 6 lignes avant + la ligne courante.",
-        "`LAST_VALUE` avec ORDER BY renvoie souvent la ligne courante (cadre par défaut). Précise `… AND UNBOUNDED FOLLOWING`."
+        "SQL Server : `LAST_VALUE` avec ORDER BY renvoie souvent la ligne courante (cadre par défaut). Précise `… AND UNBOUNDED FOLLOWING`. Snowflake prend toute la fenêtre par défaut : écris quand même le cadre."
       ],
       retenir: "Cumul : précise toujours ROWS BETWEEN … pour éviter les surprises."
     }
@@ -63,6 +63,7 @@ LEARNSQL.cours.m08 = {
   differences: [
     ["Filtrer sur une fenêtre", "CTE / sous-requête", "`QUALIFY`"],
     ["Médiane en fenêtre", "`PERCENTILE_CONT(0.5) … OVER`", "`MEDIAN(x) OVER (…)`"],
-    ["Concaténer en fenêtre", "Non", "`LISTAGG … OVER`"]
+    ["Concaténer en fenêtre", "Non", "`LISTAGG … OVER`"],
+    ["`LAST_VALUE` sans cadre écrit", "S'arrête à la ligne courante", "Toute la fenêtre"]
   ]
 };

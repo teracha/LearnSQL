@@ -1600,8 +1600,8 @@ LEARNSQL.questions.m08 = [
     retenir: "Surveiller un flux : écart avec LAG."
   },
   {
-    id: "m08-q88", dialecte: "Standard",
-    q: "Comment calculer, pour chaque article, l'évolution de prix entre le premier et le dernier relevé de l'année ?",
+    id: "m08-q88", dialecte: "SQL Server",
+    q: "Sur SQL Server, comment calculer, pour chaque article, l'évolution de prix entre le premier et le dernier relevé de l'année ?",
     choixCode: true,
     choix: [
       "LAST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) - FIRST_VALUE(prix) OVER (PARTITION BY article ORDER BY jour)",
@@ -1612,7 +1612,7 @@ LEARNSQL.questions.m08 = [
     bonne: 0,
     pourquoi: [
       "Oui. Dernier relevé (cadre complet !) moins premier relevé.",
-      "Non. Sans cadre complet, LAST_VALUE renvoie le prix de la ligne elle-même.",
+      "Non. Sur SQL Server, sans cadre complet, LAST_VALUE renvoie le prix de la ligne elle-même (Snowflake, lui, prend toute la fenêtre).",
       "Non. Ordre inversé (premier moins dernier), et LAST_VALUE sans cadre complet.",
       "Non. Plus haut moins plus bas : pas forcément le début et la fin."
     ],

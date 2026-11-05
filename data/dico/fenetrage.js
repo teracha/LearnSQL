@@ -35,7 +35,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     noms: ["PARTITION BY", "OVER ()", "fonction de fenêtrage", "window function"],
     exemple: "SELECT num_cde, client_id, montant_ht,\n       SUM(montant_ht) OVER (PARTITION BY client_id) AS total_client\nFROM commande\nWHERE client_id IN (1, 2)\nORDER BY client_id, num_cde;",
     resultat: [["num_cde", "client_id", "montant_ht", "total_client"], ["CDE-1001", 1, "4780.00", "15115.00"], ["CDE-1003", 1, "2385.00", "15115.00"], ["CDE-1007", 1, "7950.00", "15115.00"], ["CDE-1002", 2, "1290.00", "2580.00"], ["CDE-1006", 2, "1290.00", "2580.00"]],
-    piege: "Un `ORDER BY` dans le `OVER` change le calcul : `SUM(montant_ht) OVER (PARTITION BY client_id ORDER BY date_cde)` donne un cumul (4780, 7165, 15115), plus le total du client. Pour un total, laisse le `OVER` sans `ORDER BY`.",
+    piege: "Un `ORDER BY` dans le `OVER` change le calcul : `SUM(montant_ht) OVER (PARTITION BY client_id ORDER BY date_cde)` donne un cumul (4780, 7165, 15115), et non plus le total du client. Pour un total, laisse le `OVER` sans `ORDER BY`.",
     motsCles: ["fenêtre", "fenêtrage", "partition", "total", "groupe", "détail", "garder", "lignes", "regrouper", "window", "analytique", "pourcentage", "part", "sous-total"],
     voirAussi: ["row-number", "cumul", "cadre-rows", "group-by", "sum"],
     module: "m08"

@@ -11,8 +11,9 @@
 //   subqueries » : pas de TOP 1 dans un LATERAL lié à la ligne, d'où QUALIFY), constructs/qualify.
 // - MySQL 8, dev.mysql.com/doc/refman/8.0/en : join.html (JOIN, CROSS JOIN et INNER JOIN équivalents ; NATURAL ; USING ;
 //   pas de FULL OUTER JOIN), lateral-derived-tables.html (LATERAL en 8.0.14). Testé sur le serveur : JOIN sans ON = produit
-//   cartésien (24 lignes), FULL OUTER JOIN refusé (erreur 1064), « flux_edi FULL JOIN commande » sans alias accepté comme
-//   un JOIN simple (5 lignes, FULL pris pour un alias), LATERAL avec LIMIT 1, LEFT JOIN LATERAL … ON TRUE, USING, NATURAL
+//   cartésien (24 lignes), FULL OUTER JOIN refusé (erreur 1064), « flux_edi FULL JOIN commande » sans alias : FULL pris
+//   pour un alias de flux_edi (avertissement 4119) ; JOIN simple (5 lignes) si le ON n'écrit pas flux_edi.col, sinon
+//   erreur 1054 (retesté par le testeur t1), LATERAL avec LIMIT 1, LEFT JOIN LATERAL … ON TRUE, USING, NATURAL
 //   JOIN facture / flux_edi = 0 ligne.
 // docs.snowflake.com n'était pas joignable depuis la session : vérifié par extraits de recherche.
 LEARNSQL.dico = (LEARNSQL.dico || []).concat([
@@ -63,7 +64,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`FROM a FULL OUTER JOIN b ON …` : toutes les lignes des deux côtés ; `FULL JOIN` = `FULL OUTER JOIN`",
       snowflake: "Même écriture",
-      mysql: "Pas de FULL OUTER JOIN : `LEFT JOIN`, puis `UNION ALL` des lignes de droite sans correspondance ; piège : `a FULL JOIN b` sans alias ne plante pas, MySQL lit `FULL` comme un alias de a"
+      mysql: "Pas de FULL OUTER JOIN : `LEFT JOIN`, puis `UNION ALL` des lignes de droite sans correspondance ; piège : dans `a FULL JOIN b`, MySQL prend `FULL` pour un alias de a : erreur 1054 si le `ON` écrit `a.col`, sinon un simple JOIN, sans erreur"
     },
     noms: ["FULL JOIN", "FULL OUTER"],
     exemple: "WITH f AS (SELECT id, cde_id FROM flux_edi WHERE type = 'ORDERS'),\n     co AS (SELECT id, num_cde FROM commande WHERE canal = 'EDI')\nSELECT f.id AS flux, co.num_cde\nFROM f\nFULL OUTER JOIN co ON co.id = f.cde_id\nORDER BY flux;",

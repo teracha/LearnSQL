@@ -176,7 +176,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "SELECT client_id,\n       GROUP_CONCAT(num_cde ORDER BY num_cde SEPARATOR ', ') AS commandes\nFROM commande\nGROUP BY client_id\nORDER BY client_id;"
     },
     resultat: [["client_id", "commandes"], [1, "CDE-1001, CDE-1003, CDE-1007"], [2, "CDE-1002, CDE-1006"], [3, "CDE-1004"], [4, "CDE-1005"], [6, "CDE-1008"]],
-    piege: "Sans `WITHIN GROUP (ORDER BY …)`, l'ordre de la liste peut changer d'une exécution à l'autre : un fichier ou un contrôle qui compare ces textes se met à varier. Et MySQL coupe `GROUP_CONCAT` à 1024 caractères par défaut, avec un simple avertissement : monte `group_concat_max_len`.",
+    piege: "Sans `WITHIN GROUP (ORDER BY …)`, l'ordre de la liste peut changer d'une exécution à l'autre : un fichier ou un contrôle qui compare ces textes se met à varier. Et MySQL coupe `GROUP_CONCAT` à 1024 octets par défaut (un é compte pour 2), avec un simple avertissement : monte `group_concat_max_len`.",
     motsCles: ["concaténer", "liste", "virgule", "séparateur", "coller", "assembler", "regrouper", "texte", "listagg", "group_concat", "plusieurs lignes", "une seule ligne", "csv", "agréger", "chaîne"],
     voirAussi: ["group-by", "string-split", "concat", "concat-ws"],
     module: "m04"

@@ -133,7 +133,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`MERGE INTO cible USING source ON … WHEN MATCHED THEN UPDATE … WHEN NOT MATCHED THEN INSERT … ;` (le `;` final est obligatoire) ; en plus : `WHEN NOT MATCHED BY SOURCE`",
       snowflake: "`MERGE INTO … USING … ON …`, avec les mêmes `WHEN` ; pas de `BY SOURCE`",
-      mysql: "Pas de MERGE : `INSERT … ON DUPLICATE KEY UPDATE`, sur une clé primaire ou unique"
+      mysql: "Pas de MERGE : `INSERT … ON DUPLICATE KEY UPDATE`, sur une clé primaire ou unique ; une ligne modifiée y compte pour 2 dans le nombre de lignes"
     },
     noms: ["upsert", "ON DUPLICATE KEY UPDATE"],
     exemple: "MERGE INTO stock_depot\nUSING (SELECT 1 AS article_id, 1 AS depot_id, 55 AS qte\n       UNION ALL SELECT 5, 1, 10) AS src\n   ON stock_depot.article_id = src.article_id\n  AND stock_depot.depot_id = src.depot_id\nWHEN MATCHED THEN UPDATE SET qte = src.qte\nWHEN NOT MATCHED THEN INSERT (article_id, depot_id, qte)\n                      VALUES (src.article_id, src.depot_id, src.qte);",

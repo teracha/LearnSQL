@@ -1507,7 +1507,7 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. Index, contraintes, coûts changent.",
-      "Oui. Les index (n'existent plus), la casse et les espaces, les contraintes (non appliquées), les procédures, les fuseaux horaires, la stratégie de coûts. Une migration « copier-coller » donne souvent un système lent ou cher.",
+      "Oui. Les index (n'existent plus), la casse et les espaces, les contraintes (PK, UNIQUE et FK non appliquées), les procédures, les fuseaux horaires, la stratégie de coûts. Une migration « copier-coller » donne souvent un système lent ou cher.",
       "Non. Bien plus que les noms.",
       "Non. Il n'y a pas de serveur à gérer."
     ],

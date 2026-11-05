@@ -82,6 +82,6 @@ LEARNSQL.cours.m15 = {
   ],
   differences: [
     ["Usage typique", "ERP, OLTP (normalisé)", "Entrepôt, analyse (étoile)"],
-    ["Contraintes pour garantir le modèle", "Appliquées", "Non appliquées : contrôles à écrire"]
+    ["Contraintes pour garantir le modèle", "Appliquées", "PK / FK non appliquées : contrôles à écrire"]
   ]
 };

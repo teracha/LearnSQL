@@ -78,7 +78,7 @@ LEARNSQL.cours.m16 = {
         "Chaque seconde de warehouse se paie : AUTO_SUSPEND court.",
         "Un warehouse par usage (ETL, BI, exploration) pour suivre les coûts.",
         "Liste les colonnes : Snowflake ne lit que les colonnes demandées.",
-        "Les contraintes ne sont pas appliquées : écris des contrôles de qualité (doublons, orphelins).",
+        "PK, UNIQUE et FK ne sont pas appliquées : écris des contrôles de qualité (doublons, orphelins).",
         "Consulte le Query Profile avant d'agrandir un warehouse."
       ],
       retenir: "Sur Snowflake, une mauvaise requête coûte de l'argent, pas seulement du temps."
@@ -87,6 +87,6 @@ LEARNSQL.cours.m16 = {
   differences: [
     ["Script relançable", "`CREATE OR ALTER`, `DROP … IF EXISTS`", "`CREATE OR REPLACE`, `IF NOT EXISTS`"],
     ["Coût d'une requête lente", "Temps, blocages", "Crédits facturés"],
-    ["Contrôle qualité", "Contraintes + requêtes", "Requêtes de contrôle (contraintes non appliquées)"]
+    ["Contrôle qualité", "Contraintes + requêtes", "Requêtes de contrôle (PK, UNIQUE, FK non appliquées)"]
   ]
 };

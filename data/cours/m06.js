@@ -66,13 +66,13 @@ LEARNSQL.cours.m06 = {
         "Elle s'arrête quand la partie récursive ne trouve plus rien.",
         "SQL Server : 100 niveaux max par défaut → `OPTION (MAXRECURSION 0)` pour lever la limite.",
         "Une boucle dans les données (A → B → A) = récursion infinie. Garde un compteur de niveau.",
-        "Snowflake : `WITH RECURSIVE` (conseillé), ou `CONNECT BY`."
+        "Snowflake : `WITH RECURSIVE nomenclature (composant_id, quantite, niveau) AS (…)` : RECURSIVE conseillé, liste des colonnes obligatoire. Ou `CONNECT BY`."
       ],
       retenir: "Hiérarchie, nomenclature, organigramme : CTE récursive."
     }
   ],
   differences: [
-    ["Mot-clé récursif", "`WITH` seul", "`WITH RECURSIVE` (conseillé)"],
+    ["Mot-clé récursif", "`WITH` seul", "`WITH RECURSIVE` (conseillé), liste des colonnes obligatoire"],
     ["Avant WITH", "`;` obligatoire si instruction avant", "Pas de contrainte"],
     ["Hiérarchie alternative", "—", "`CONNECT BY`"]
   ]

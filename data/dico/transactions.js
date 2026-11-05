@@ -18,8 +18,10 @@
 //   et la transaction reste ouverte), sql-reference/sql/begin, sql-reference/snowflake-scripting/begin (BEGIN … END est
 //   un bloc : BEGIN TRANSACTION pour une transaction), sql-reference/functions/current_transaction (et la référence
 //   Snowpark : NULL sans transaction), user-guide/tables-iceberg-transactions (READ COMMITTED seulement),
-//   sql-reference/constraints-overview (NOT NULL appliqué). Pas de point de sauvegarde : référence SnowConvert pour
-//   Oracle (MSCEWI3111 : « Snowflake supports neither SAVEPOINTS… ») et table des dialectes jOOQ.
+//   sql-reference/constraints-overview (NOT NULL appliqué). Pas de point de sauvegarde : sql-reference/
+//   commands-transaction (liste officielle : BEGIN, COMMIT, DESCRIBE TRANSACTION, ROLLBACK, SHOW LOCKS, SHOW TRANSACTIONS),
+//   sql/rollback (ROLLBACK [ WORK ], sans TO SAVEPOINT), et SnowConvert pour Oracle (MSCEWI3111 : « Snowflake supports
+//   neither SAVEPOINTS… »).
 // - MySQL 8.0, dev.mysql.com/doc/refman/8.0/en : commit.html (START TRANSACTION, BEGIN), begin-end.html (dans une
 //   procédure, BEGIN ouvre un bloc), implicit-commit.html (DDL, TRUNCATE, BEGIN et START TRANSACTION valident ; pas
 //   CREATE TEMPORARY TABLE), savepoint.html, set-transaction.html (sans SESSION : la prochaine transaction seulement),

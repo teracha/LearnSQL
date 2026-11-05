@@ -30,7 +30,8 @@
 //   if.html, while.html, leave.html, iterate.html, begin-end.html, declare-handler.html, get-diagnostics.html,
 //   signal.html, resignal.html, create-procedure.html (pas de OR REPLACE ; IF NOT EXISTS depuis 8.0.29), call.html,
 //   stored-programs-logging.html (erreur 1418 sans DETERMINISTIC quand le binlog est actif),
-//   sql-prepared-statements.html, information-functions.html (ROW_COUNT : lignes vraiment changées), cursors.html.
+//   sql-prepared-statements.html, information-functions.html (ROW_COUNT : lignes vraiment changées, sauf connexion
+//   CLIENT_FOUND_ROWS), cursors.html.
 // docs.snowflake.com et dev.mysql.com n'étaient pas joignables depuis la session : vérifiés par extraits de recherche
 // (et, pour MySQL, sur le serveur réel).
 LEARNSQL.dico = (LEARNSQL.dico || []).concat([
@@ -296,7 +297,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`@@ROWCOUNT`, à lire juste après l'instruction ; `ROWCOUNT_BIG()` au-delà de 2 milliards de lignes",
       snowflake: "Dans un bloc : `SQLROWCOUNT` (lignes de la dernière modification) ; aussi `SQLFOUND` et `SQLNOTFOUND`",
-      mysql: "`ROW_COUNT()` ; pour un UPDATE, il compte les lignes vraiment changées : une ligne déjà à la bonne valeur compte 0"
+      mysql: "`ROW_COUNT()` ; pour un UPDATE, il compte (par défaut) les lignes vraiment changées : une ligne déjà à la bonne valeur compte 0"
     },
     noms: ["ROW_COUNT", "SQLROWCOUNT", "ROWCOUNT_BIG", "SQLFOUND", "SQLNOTFOUND"],
     exemple: "UPDATE commande SET statut = 'LIVREE' WHERE num_cde = 'CDE-1009';   -- numéro reçu en EDI\nIF @@ROWCOUNT = 0\n  THROW 50002, 'Commande inconnue : CDE-1009', 1;",

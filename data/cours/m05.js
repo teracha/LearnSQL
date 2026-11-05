@@ -63,7 +63,7 @@ LEARNSQL.cours.m05 = {
         "Auto-jointure : même table, deux alias. Doublons : `a.id < b.id`.",
         "Le ON accepte toute condition : BETWEEN, <, >…",
         "Les clés NULL ne se joignent jamais.",
-        "SQL Server : `CROSS APPLY` / `OUTER APPLY` (ex. 3 dernières commandes par client). Snowflake : `LATERAL`.",
+        "SQL Server : `CROSS APPLY` / `OUTER APPLY` (ex. 3 dernières commandes par client, avec `TOP (3)`). Snowflake : `LATERAL`, mais sans `LIMIT` dans une sous-requête liée : les 3 dernières par client se font avec `QUALIFY ROW_NUMBER() … <= 3`.",
         "Partir d'une table calendrier + LEFT JOIN pour afficher les jours sans vente."
       ],
       retenir: "Le ON accepte n'importe quelle condition. NULL ne se joint jamais."
@@ -81,7 +81,7 @@ LEARNSQL.cours.m05 = {
   ],
   differences: [
     ["`USING (col)`", "Non", "Oui"],
-    ["Sous-requête liée par ligne", "`CROSS APPLY` / `OUTER APPLY`", "`LATERAL`"],
+    ["Sous-requête liée par ligne", "`CROSS APPLY` / `OUTER APPLY`", "`LATERAL` (sans `LIMIT` : top N avec `QUALIFY`)"],
     ["Comparaison NULL-safe", "`IS NOT DISTINCT FROM` (2022+)", "`IS NOT DISTINCT FROM`, `EQUAL_NULL`"],
     ["Diagnostic des doublons", "Plan d'exécution", "Query Profile (« exploding join »)"]
   ]

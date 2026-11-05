@@ -1044,7 +1044,7 @@ LEARNSQL.questions.m06 = [
       "Non. Une réécriture en jointure ou en fenêtre suffit.",
       "Oui. Une jointure sur une sous-requête agrégée, ou une fonction de fenêtrage. Snowflake gère moins de formes de sous-requêtes corrélées. Les jointures et les fenêtres marchent toujours.",
       "Non. DISTINCT ne change pas le type de sous-requête.",
-      "Non. Pas suffisant."
+      "Non. Snowflake refuse LIMIT dans une sous-requête corrélée."
     ],
     retenir: "Snowflake : préfère jointures et fenêtres aux sous-requêtes corrélées."
   },

@@ -20,9 +20,9 @@ LEARNSQL.cours.m10 = {
         "`FOREIGN KEY` : la valeur doit exister dans la table référencée.",
         "`CHECK` : une règle (montant >= 0, statut dans une liste).",
         "`DEFAULT` : valeur si rien n'est fourni.",
-        "Snowflake : seul NOT NULL est appliqué. PK, UNIQUE et FK sont documentaires : ils ne bloquent rien !"
+        "Snowflake : NOT NULL et CHECK sont appliqués (CHECK depuis avril 2026). PK, UNIQUE et FK sont documentaires : ils ne bloquent rien !"
       ],
-      retenir: "SQL Server applique les contraintes. Snowflake applique seulement NOT NULL."
+      retenir: "SQL Server applique toutes les contraintes. Snowflake applique seulement NOT NULL et CHECK."
     },
     {
       titre: "Choisir les bons types",

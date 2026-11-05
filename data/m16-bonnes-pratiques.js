@@ -1681,7 +1681,7 @@ LEARNSQL.questions.m16 = [
     bonne: 1,
     pourquoi: [
       "Non. Snowflake ne les supprime pas.",
-      "Oui. Ex. `SELECT code, COUNT(*) FROM client GROUP BY code HAVING COUNT(*) > 1`, et les orphelins avec un LEFT JOIN. Sur les tables standard, Snowflake n'applique pas PRIMARY KEY, UNIQUE ni FOREIGN KEY (seul NOT NULL est appliqué).",
+      "Oui. Ex. `SELECT code, COUNT(*) FROM client GROUP BY code HAVING COUNT(*) > 1`, et les orphelins avec un LEFT JOIN. Sur les tables standard, Snowflake n'applique pas PRIMARY KEY, UNIQUE ni FOREIGN KEY (seuls NOT NULL et CHECK sont appliqués).",
       "Non. Elle ne serait toujours pas appliquée.",
       "Non. Des contrôles suffisent."
     ],

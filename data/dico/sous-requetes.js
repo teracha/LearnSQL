@@ -30,7 +30,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Une requête entre parenthèses, écrite dans une autre requête : dans le WHERE, le FROM ou le SELECT.",
     moteurs: {
       sqlserver: "`WHERE col > (SELECT AVG(col) FROM t)` ; dans `FROM`, un alias est obligatoire : `(SELECT …) AS t`",
-      snowflake: "Même écriture ; une sous-requête corrélée n'est prévue que dans le `WHERE` : ailleurs, passe par une jointure",
+      snowflake: "Même écriture ; une sous-requête corrélée n'est prévue que dans le `WHERE` (ou après `LATERAL`) : ailleurs, passe par une jointure",
       mysql: "Même écriture ; dans `FROM`, alias obligatoire aussi"
     },
     noms: ["subquery", "sous-requête corrélée", "table dérivée", "requête imbriquée"],

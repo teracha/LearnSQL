@@ -395,11 +395,11 @@ LEARNSQL.questions.m05 = [
     bonne: 1,
     pourquoi: [
       "Non. CROSS JOIN fait toutes les combinaisons, sans lien entre les tables.",
-      "Oui. CROSS APPLY (SELECT TOP (3) … WHERE co.client_id = cl.id ORDER BY date DESC). Sur Snowflake : LATERAL.",
+      "Oui. CROSS APPLY (SELECT TOP (3) … WHERE co.client_id = cl.id ORDER BY date DESC). Sur Snowflake, LATERAL refuse ce LIMIT : QUALIFY ROW_NUMBER() … <= 3.",
       "Non. Ça garde tout des deux côtés.",
       "Non. UNION empile des résultats."
     ],
-    retenir: "CROSS APPLY = « pour chaque ligne, exécute cette sous-requête ». Snowflake : LATERAL."
+    retenir: "CROSS APPLY = « pour chaque ligne, exécute cette sous-requête ». Top N par client sur Snowflake : QUALIFY."
   },
   {
     id: "m05-q23", dialecte: "SQL Server",

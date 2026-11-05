@@ -8,26 +8,30 @@
 //   de DEFAULT et des contraintes ; tables temporaires # et ## ; nullabilité par défaut), alter-table-transact-sql
 //   (« ANSI_NULL defaults are always on for ALTER COLUMN; if not specified, the column is nullable » ; NOT NULL ajouté =
 //   DEFAULT obligatoire ; WITH VALUES), alter-table-column-definition-transact-sql, drop-table-transact-sql (IF EXISTS
-//   2016+, refusé si une FK pointe vers la table), create-view-transact-sql (premier ordre du lot, OR ALTER 2016 SP1,
+//   2016+, refusé si une FK pointe vers la table ; DROP et CREATE de la même table : pas dans le même lot),
+//   create-view-transact-sql (premier ordre du lot, OR ALTER 2016 SP1,
 //   ORDER BY seulement avec TOP / OFFSET, sans ordre garanti), create-table-transact-sql-identity-property (trous),
 //   functions/scope-identity-transact-sql, relational-databases/tables/unique-constraints-and-check-constraints (un seul
 //   NULL dans un UNIQUE ; NULL passe le CHECK), data-types/char-and-varchar-transact-sql (sans n : 1, ou 30 dans CAST),
 //   decimal-and-numeric-transact-sql (précision 18, échelle 0 par défaut ; arrondi), datetime-transact-sql (arrondi
 //   .000/.003/.007), rowversion-transact-sql (timestamp = rowversion, pas une date), bit-transact-sql,
-//   alter-database-scoped-configuration (message 2628), errors-events 0-999 et 1000-1999 (515, 547, 273, 1033),
+//   alter-database-scoped-configuration (message 2628 en compatibilité 150+, sinon 8152), errors-events 0-999 et
+//   1000-1999 (515, 547, 273, 1033),
 //   3000-3999 (3726), replication/mssql-eng002627 (2627).
 // - Snowflake, docs.snowflake.com/en : sql-reference/constraints (seuls NOT NULL et CHECK appliqués sur une table
 //   standard ; PK, UNIQUE, FK appliquées sur une table hybride), sql/create-table-constraint (CHECK : ENABLE VALIDATE
 //   seulement pour une table neuve, NOVALIDATE ne vérifie pas l'existant), release-notes/2026/10_12 (CHECK sur tables
 //   standard : disponible depuis avril 2026), sql/create-table (IF NOT EXISTS et OR REPLACE exclusifs ; AUTOINCREMENT /
 //   IDENTITY, ORDER / NOORDER), release-notes/bcr-bundles/2024_01/bcr-1483 (NOORDER par défaut), sql/alter-table-column
-//   (SET DATA TYPE : seulement agrandir ; SET NOT NULL refusé s'il reste des NULL), sql/drop-table (CASCADE / RESTRICT),
+//   (SET DATA TYPE : seulement agrandir ; SET NOT NULL refusé s'il reste des NULL), sql/alter-table (ADD COLUMN … DEFAULT
+//   remplit les lignes existantes), sql/drop-table (CASCADE / RESTRICT),
 //   sql/undrop, sql-reference/transactions (un DDL valide la transaction), sql/create-view (ORDER BY déconseillé),
 //   user-guide/tables-temp-transient (session ; masque la table permanente du même nom), data-types-text (VARCHAR
 //   Unicode, sans longueur = maximum, CHAR sans espaces), data-types-numeric (NUMBER(38,0)), data-types-datetime
 //   (DATETIME = TIMESTAMP_NTZ ; TIMESTAMP = NTZ par défaut), data-types-logical.
 // - MySQL 8, dev.mysql.com/doc/refman/8.0/en : create-table-foreign-keys.html et ansi-diff-foreign-keys.html (REFERENCES
-//   collé à la colonne : ignoré), create-table-check-constraints.html (CHECK appliqué depuis 8.0.16), create-view.html
+//   collé à la colonne : ignoré en 8.0 ; appliqué depuis 9.0.0, notes de version news-9-0-0),
+//   create-table-check-constraints.html (CHECK appliqué depuis 8.0.16), create-view.html
 //   (ORDER BY ignoré si la requête qui lit la vue a le sien), temporary-table-problems.html (« Can't reopen table »),
 //   numeric-type-syntax.html (BOOLEAN = TINYINT(1) ; DECIMAL = DECIMAL(10,0)), floating-point-types.html,
 //   datetime.html (TIMESTAMP : UTC et 2038), implicit-commit.html.
@@ -88,7 +92,11 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "`DROP TABLE IF EXISTS t` ; valide aussi la transaction en cours : pas de retour arrière"
     },
     noms: ["DROP TABLE IF EXISTS"],
-    exemple: "-- Script de chargement relançable\nDROP TABLE IF EXISTS import_tarif;\nCREATE TABLE import_tarif (code VARCHAR(10), prix_txt VARCHAR(20));",
+    exemple: "-- Script de chargement relançable\nDROP TABLE IF EXISTS import_tarif;\nGO   -- DROP et CREATE de la même table : deux lots\nCREATE TABLE import_tarif (code VARCHAR(10), prix_txt VARCHAR(20));",
+    exemples: {
+      snowflake: "-- Script de chargement relançable\nDROP TABLE IF EXISTS import_tarif;\nCREATE TABLE import_tarif (code VARCHAR(10), prix_txt VARCHAR(20));",
+      mysql: "-- Script de chargement relançable\nDROP TABLE IF EXISTS import_tarif;\nCREATE TABLE import_tarif (code VARCHAR(10), prix_txt VARCHAR(20));"
+    },
     resultat: "Relancé 10 fois, le script ne plante jamais : la 1re fois, `IF EXISTS` saute la suppression ; ensuite, il efface l'ancienne table et ses lignes avant de la recréer.",
     piege: "Sur SQL Server et MySQL, un `DROP TABLE` validé n'a ni corbeille ni retour arrière : seule une sauvegarde rend les lignes (Snowflake, lui, a `UNDROP TABLE`). Avant un script de nettoyage, vérifie sur quelle base tu es connecté.",
     motsCles: ["supprimer", "supprimer une table", "effacer", "détruire", "drop", "if exists", "nettoyer", "relançable", "script", "jeter", "disparaître", "corbeille", "ménage"],
@@ -188,7 +196,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     noms: ["valeur par défaut"],
     exemple: "CREATE TABLE relance (\n  fact_id INT         NOT NULL,\n  niveau  INT         NOT NULL DEFAULT 1,\n  statut  VARCHAR(10) NOT NULL DEFAULT 'A_ENVOYER'\n);\nINSERT INTO relance (fact_id) VALUES (3);\nINSERT INTO relance (fact_id, niveau, statut) VALUES (3, 2, NULL);",
     resultat: "1re relance de la facture 3 : niveau 1 et statut A_ENVOYER (les DEFAULT). La 2e est refusée (Msg 515) : un NULL écrit en toutes lettres n'est pas remplacé par le DEFAULT.",
-    piege: "Le DEFAULT ne joue qu'à l'INSERT : un UPDATE ne le recalcule jamais (une colonne `modifie_le` reste figée). Et sur SQL Server, une colonne qui accepte NULL, ajoutée avec un DEFAULT, reste vide sur les lignes existantes : ajoute `WITH VALUES` (MySQL, lui, les remplit).",
+    piege: "Le DEFAULT ne joue qu'à l'INSERT : un UPDATE ne le recalcule jamais (une colonne `modifie_le` reste figée). Et sur SQL Server, une colonne qui accepte NULL, ajoutée avec un DEFAULT, reste vide sur les lignes existantes : ajoute `WITH VALUES` (MySQL et Snowflake, eux, les remplissent).",
     motsCles: ["valeur par défaut", "automatique", "remplir", "préremplir", "initialiser", "omis", "oublié", "date du jour", "valeur initiale", "colonne", "insert", "auto"],
     voirAussi: ["not-null", "create-table", "alter-table", "insert", "coalesce"],
     module: "m10"
@@ -298,7 +306,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     noms: ["VARCHAR", "NVARCHAR", "CHAR", "NCHAR", "STRING", "TEXT", "VARCHAR(MAX)", "utf8mb4", "type de données"],
     exemple: "-- code est un VARCHAR(10)\nINSERT INTO client (id, code, nom, pays, type)\nVALUES (8, 'C008-LYON-NORD', 'Aqua Nord', 'FR', 'PRO');",
-    resultat: "Refusé (Msg 2628) : 'C008-LYON-NORD' fait 14 caractères pour un code de 10 ; SQL Server montre la valeur coupée, 'C008-LYON-'.",
+    resultat: "Refusé (Msg 2628) : 'C008-LYON-NORD' fait 14 caractères pour un code de 10 ; SQL Server montre la valeur coupée, 'C008-LYON-' (base en compatibilité 140 ou moins : Msg 8152, sans ce détail).",
     piege: "`VARCHAR` sans longueur garde 1 seul caractère sur SQL Server : `DECLARE @code VARCHAR = 'CHL-25'` donne 'C', sans erreur (et `CAST(x AS VARCHAR)` coupe à 30). Écris toujours la longueur : `VARCHAR(20)`.",
     motsCles: ["texte", "chaîne", "caractères", "longueur", "unicode", "accents", "taille", "alphabet", "tronqué", "trop long", "string", "libellé", "utf8", "type"],
     voirAussi: ["len", "cast", "trim", "types-nombre", "alter-table"],

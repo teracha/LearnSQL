@@ -65,7 +65,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "CREATE INDEX ix_commande_client\n  ON commande (client_id, date_cde, montant_ht);\nSELECT date_cde, montant_ht FROM commande WHERE client_id = 2;"
     },
     resultat: "Index créé : les 2 commandes du client 2 (05/03 et 03/04, 1290.00 chacune) se lisent dans l'index seul, sans retour à la table (MySQL : « Using index »).",
-    piege: "Ajoute une colonne au SELECT (ici `num_cde`) et l'index ne couvre plus : chaque ligne trouvée repart chercher le reste dans la table (Key Lookup), et MySQL perd son « Using index ». Liste seulement les colonnes utiles : un `SELECT *` n'est jamais couvert.",
+    piege: "Ajoute une colonne au SELECT (ici `num_cde`) et l'index ne couvre plus : chaque ligne trouvée repart chercher le reste dans la table (Key Lookup), et MySQL perd son « Using index ». Liste seulement les colonnes utiles : un `SELECT *` n'est presque jamais couvert.",
     motsCles: ["index couvrant", "couvrir", "key lookup", "lookup", "colonnes", "inclure", "ajouter", "performance", "lectures", "accélérer", "covering", "aller-retour"],
     voirAussi: ["create-index", "plan-execution", "select"],
     module: "m12"

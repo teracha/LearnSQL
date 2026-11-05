@@ -80,7 +80,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`SELECT … EXCEPT SELECT …` : les lignes du 1er résultat absentes du 2e, sans doublon",
       snowflake: "`EXCEPT`, ou `MINUS` (même chose)",
-      mysql: "`EXCEPT` depuis MySQL 8.0.31 ; pas de `MINUS`"
+      mysql: "`EXCEPT` depuis MySQL 8.0.31 ; `EXCEPT ALL` garde les doublons ; pas de `MINUS`"
     },
     noms: ["MINUS", "EXCEPT ALL"],
     exemple: "-- Commandes sans aucun flux EDI\nSELECT id FROM commande\nEXCEPT\nSELECT cde_id FROM flux_edi\nORDER BY id;",

@@ -594,11 +594,11 @@ LEARNSQL.questions.m10 = [
     bonne: 1,
     pourquoi: [
       "Non. Grosse différence avec SQL Server.",
-      "Oui. Snowflake n'applique pas les clés primaires, uniques et étrangères (seulement NOT NULL). Les contrôles de doublons et d'orphelins sont à écrire soi-même.",
+      "Oui. Snowflake n'applique pas les clés primaires, uniques et étrangères (seulement NOT NULL et CHECK). Les contrôles de doublons et d'orphelins sont à écrire soi-même.",
       "Non. Avec n'importe quelle instruction.",
       "Non. Avec n'importe quelle instruction."
     ],
-    retenir: "Snowflake : seul NOT NULL est appliqué."
+    retenir: "Snowflake : seuls NOT NULL et CHECK sont appliqués."
   },
   {
     id: "m10-q34", dialecte: "Snowflake",
@@ -1580,7 +1580,7 @@ LEARNSQL.questions.m10 = [
       "Non. Le CHECK ne voit que la ligne.",
       "Oui. Pour une autre table : clé étrangère, trigger ou contrôle applicatif. (Une fonction dans un CHECK le permet techniquement, mais c'est fragile et lent.)",
       "Non. Un JOIN est interdit dans un CHECK.",
-      "Non. Snowflake n'applique même pas les CHECK."
+      "Non. Sur Snowflake aussi, le CHECK ne voit que la ligne (pas de sous-requête)."
     ],
     retenir: "CHECK = règles sur la ligne elle-même."
   },
