@@ -54,6 +54,8 @@ Snowflake (`snowflake.js`) ; plus tard : Erreurs.
   },
   resultat: [["code", "tiret"], ["CHL-5", 4], ["CHL-25", 4], ["PH-5", 3]],
   piege: "Renvoie 0 quand le caractère est absent : `LEFT(code, CHARINDEX('-', code) - 1)` plante alors. Protège avec `NULLIF(…, 0)`.",
+  pratique: "Pour tester si un libellé contient un mot, `CHARINDEX('EDI', libelle) > 0` fait comme `LIKE '%EDI%'`.",
+                                   // le conseil pratique : affiché sous le piège, titre « En pratique »
   motsCles: ["chercher", "rechercher", "trouver", "position", "caractère", "lettre", "où", "place", "contient", "tiret"],
   voirAussi: ["like", "substring", "left"],   // des id d'autres fiches
   module: "m03"                    // le module du cours qui en parle, s'il y en a un
@@ -84,6 +86,10 @@ message ; `exemple` montre la requête qui provoque l'erreur, `resultat` le mess
 7. **Vérité** : chaque syntaxe et chaque comportement vérifiés dans la documentation officielle (learn.microsoft.com,
    docs.snowflake.com, dev.mysql.com). Si c'est incertain : « à vérifier sur ta version », ou rien.
 8. Les fiches ne contredisent ni les cours ni les questions du parcours SQL ; si un désaccord apparaît, le signaler.
+9. **Le conseil pratique** (`pratique`, demandé par l'élève) : une ou deux phrases, 40 mots au plus. Soit un usage
+   concret au travail (ERP, EDI, compta, stock, import de fichiers, contrôle de données), soit une donnée utile (une
+   limite, une valeur par défaut, une astuce de performance). Il ne répète ni le piège, ni l'exemple. Il est vrai sur
+   les 3 moteurs, ou il dit lequel (« Sur Snowflake, … »). Vérifié comme le reste (règle 7).
 
 ## La recherche (dans `js/app.js`)
 
