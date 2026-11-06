@@ -129,6 +129,9 @@ h2 { font-size: 21px; margin: 32px 0 12px; }
 .btn.small { padding: 4px 14px; font-size: 15px; border-radius: 8px; }
 .mini-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+/* Thème sombre : la règle .btn (texte foncé sur fond clair) ne doit pas s'appliquer aux boutons « ghost » (fond transparent). */
+:root[data-theme="dark"] .btn.ghost { color: var(--accent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.ghost { color: var(--accent); } }
 .btn:disabled { opacity: 0.4; cursor: default; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
 
@@ -265,16 +268,27 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
   border-radius: 99px; padding: 4px 14px; font-weight: 700; font-size: 15px; text-align: left;
 }
 .tr-ex:hover { border-color: var(--accent); }
-.tr-code { margin-top: 18px; line-height: 1.55; overflow-wrap: anywhere; }
-.tr-l { padding-left: calc(var(--n, 0) * 1.6em + 1.2em); text-indent: -1.2em; margin: 2px 0; }
+.tr-code { margin-top: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+#tr-titre { margin-top: 24px; }
+#tr-titre:focus { outline: none; }
+#tr-titre:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+/* Une ligne : --pas = le retrait d'une sous-étape, --suite = le retrait suspendu de la suite d'une ligne coupée (plus petit).
+   Une sous-étape porte en plus une barre verticale, sous le début de la ligne du dessus. */
+.tr-l { --pas: 1.6em; --suite: 0.8em; padding: 1px 0 1px calc(var(--n, 0) * var(--pas) + var(--suite)); text-indent: calc(-1 * var(--suite)); }
+.tr-sous { background: linear-gradient(var(--muted), var(--muted)) no-repeat; background-size: 2px 100%;
+  background-position: calc((var(--n, 1) - 1) * var(--pas) + 0.35em) 0; }
 .tr-verbe { color: var(--accent); letter-spacing: 0.02em; }
 .tr-erreur { color: var(--ko); font-weight: 700; }
 .tr-inconnu { color: var(--muted); font-style: italic; }
 .tr-attention { color: var(--ko); }
 .tr-vide { margin-top: 18px; font-weight: 700; }
-.tr-notes { padding-left: 22px; }
+.tr-notes { padding-left: 22px; overflow-wrap: anywhere; }
 .tr-notes li { margin-bottom: 8px; }
+.tr-notes code, .tr-vide { overflow-wrap: anywhere; }
+.tr-retour { margin: 10px 0 0; }
 @media (max-width: 520px) {
+  .tr-sql { font-size: 16px; }
   .tr-code { padding: 12px; }
-  .tr-l { padding-left: calc(min(var(--n, 0), 7) * 0.9em + 1em); text-indent: -1em; }
+  .tr-l { --pas: 1.2em; --suite: 0.8em; padding-left: calc(min(var(--n, 0), 7) * var(--pas) + var(--suite)); }
+  .tr-sous { background-position: calc((min(var(--n, 1), 7) - 1) * var(--pas) + 0.25em) 0; }
 }

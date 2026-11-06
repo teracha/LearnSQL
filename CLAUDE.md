@@ -146,7 +146,10 @@ Page `#/traduire`, ouverte à tous, sans compte. Spécification : `docs/traducte
 - Moteur : `js/traducteur.js`, fonction pure `LEARNSQL.traduire(texte)` (lignes, notes, fiches, erreurs, texte).
   Affichage : `pageTraduire` dans `js/app.js` (bloc « Traduire une requête »).
 - Tests : `node outils/tests/traducteur-cas.js` (cas sans navigateur), `node outils/tests/traducteur-corpus.js`
-  (le corpus de l'expert : 87 vraies requêtes et leurs notes), `outils/tests/traduire.js` (navigateur, dans `lancer.sh`).
+  (le corpus de l'expert : 87 vraies requêtes et leurs notes, plus ses 8 cas pièges), `outils/tests/traduire.js`
+  (navigateur, dans `lancer.sh`).
+- Forme des lignes (élève dyslexique et TDAH) : une idée par ligne ; une ligne de plus de 120 caractères est coupée en
+  sous-lignes ; une condition par ligne dès 3 conditions (règles dans `docs/traducteur.md`, « Lisibilité »).
 
 ## Questions Divalto
 

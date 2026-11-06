@@ -32,6 +32,18 @@ const { chromium } = require('playwright');
   verifier(/À savoir/.test(await p.textContent('#tr-res')), 'exemple 1 sans « À savoir »');
   const dec = await p.$$eval('#tr-res .tr-l', xs => xs.map(x => getComputedStyle(x).paddingLeft));
   verifier(new Set(dec).size >= 2, 'pas de sous-étape en retrait');
+  // Une sous-étape porte une barre ; la suite d'une ligne coupée a un retrait suspendu (text-indent négatif).
+  const forme = await p.evaluate(() => {
+    const sous = document.querySelector('#tr-res .tr-sous'), l0 = document.querySelector('#tr-res .tr-l');
+    return { barre: sous ? getComputedStyle(sous).backgroundImage : '', retrait: parseFloat(getComputedStyle(l0).textIndent) };
+  });
+  verifier(/linear-gradient/.test(forme.barre), 'pas de barre pour les sous-étapes');
+  verifier(forme.retrait < 0, 'pas de retrait suspendu pour la suite d\'une ligne');
+  // Sur téléphone, après un clic, le résultat est montré : focus sur son titre, et le titre est à l'écran.
+  const vu = await p.evaluate(() => { const t = document.getElementById('tr-titre'), b = t.getBoundingClientRect(); return { focus: document.activeElement === t, haut: b.top, h: innerHeight }; });
+  verifier(vu.focus, 'le titre du résultat n\'a pas le focus');
+  verifier(vu.haut >= -2 && vu.haut < vu.h, 'le résultat n\'est pas à l\'écran (haut du titre : ' + vu.haut + ')');
+  verifier(await p.evaluate(() => getComputedStyle(document.getElementById('tr-sql')).fontSize) === '16px', 'zone de texte : pas 16 px sur téléphone (zoom de l\'iPhone)');
 
   // 3. Le bouton Traduire, avec une requête tapée
   await p.fill('#tr-sql', "SELECT nom FROM client WHERE ville = NULL"); await p.click('#tr-go'); await p.waitForTimeout(80);
@@ -72,11 +84,31 @@ const { chromium } = require('playwright');
   verifier(xss.v === undefined && xss.balises === 0, 'HTML exécuté : ' + JSON.stringify(xss));
   verifier(xss.texte.indexOf('<script>') >= 0, 'le texte <script> devrait rester affiché comme du texte');
 
-  // 7. Texte faux, puis texte vide : un message, jamais une page blanche
+  // 7. Texte faux, puis texte vide : un seul message, jamais une page blanche ; rien à copier
   await p.fill('#tr-sql', 'Bonjour, peux-tu m\'aider ?'); await p.click('#tr-go'); await p.waitForTimeout(80);
-  verifier(/Je n'arrive pas à lire la requête/.test(await p.textContent('#tr-res')), 'pas de message pour un texte faux');
+  verifier(/ne ressemble pas à du SQL/.test(await p.textContent('#tr-res')), 'pas de message pour un texte qui n\'est pas du SQL');
+  verifier((await lignes()).length === 1, 'texte qui n\'est pas du SQL : plusieurs messages');
+  verifier(await p.isDisabled('#tr-copier'), 'Copier devrait être grisé quand le résultat est une erreur');
+  await p.fill('#tr-sql', 'SELECT nom FROM'); await p.click('#tr-go'); await p.waitForTimeout(80);
+  verifier(await p.isDisabled('#tr-copier'), 'Copier devrait être grisé pour une requête illisible');
   await p.fill('#tr-sql', '   '); await p.click('#tr-go'); await p.waitForTimeout(80);
   verifier(/Rien à traduire/.test(await p.textContent('#tr-res')), 'pas de message pour un texte vide');
+  verifier(await p.isDisabled('#tr-copier'), 'Copier devrait être grisé pour un texte vide');
+
+  // 7 bis. Un exemple ne fait pas perdre la requête de l'élève : un lien « Revenir à ma requête », sans boîte de dialogue
+  p.on('dialog', d => { errs.push('boîte de dialogue : ' + d.message()); d.dismiss(); });
+  const mienne = "SELECT num_cde FROM commande WHERE canal = 'EDI'";
+  await p.fill('#tr-sql', mienne); await p.click('#tr-go'); await p.waitForTimeout(80);
+  verifier(await p.isHidden('#tr-retour'), 'le lien de retour ne devrait pas être là avant un exemple');
+  await p.click('.tr-ex[data-ex="1"]'); await p.waitForTimeout(80);
+  verifier(await p.isVisible('#tr-mienne'), 'pas de lien « Revenir à ma requête » après un exemple');
+  verifier(await p.textContent('#tr-mienne') === 'Revenir à ma requête', 'texte du lien de retour');
+  await p.click('#tr-mienne'); await p.waitForTimeout(80);
+  verifier(await p.inputValue('#tr-sql') === mienne, 'la requête de l\'élève n\'est pas revenue');
+  verifier((await lignes()).some(x => /canal est égal à 'EDI'/.test(x)), 'la requête de l\'élève n\'est pas traduite au retour');
+  verifier(await p.isHidden('#tr-retour'), 'le lien de retour devrait disparaître une fois revenu');
+  const traces2 = await p.evaluate(() => { let t = location.href; for (let k = 0; k < localStorage.length; k++) t += localStorage.getItem(localStorage.key(k)); return t; });
+  verifier(traces2.indexOf('canal') < 0, 'la requête de l\'élève est enregistrée (localStorage ou URL)');
 
   // 8. Téléphone : une longue requête ne fait pas défiler la page de côté
   const longue = 'SELECT ' + Array.from({ length: 40 }, (_, k) => 'tres_long_nom_de_colonne_numero_' + k).join(', ') +
@@ -85,6 +117,44 @@ const { chromium } = require('playwright');
   const sc = await p.evaluate(() => document.documentElement.scrollWidth);
   console.log('largeur de la page sur téléphone :', sc);
   verifier(sc <= 390, 'la page déborde sur téléphone : ' + sc);
+  // Toute la page (pas seulement le pseudo-code) : une note « À savoir » avec un très long morceau de code.
+  const nom = 'colonne_au_nom_vraiment_tres_tres_long_pour_tester_le_debordement_des_notes_sur_un_telephone';
+  await p.fill('#tr-sql', 'SELECT * FROM t WHERE ' + nom + " <> 'VALEUR_ELLE_AUSSI_TRES_LONGUE_SANS_AUCUN_ESPACE_POUR_LE_TEST' AND autre_" + nom + ' = NULL');
+  await p.click('#tr-go'); await p.waitForTimeout(150);
+  const deb = await p.evaluate(() => {
+    const l = innerWidth, trop = [];
+    document.querySelectorAll('body *').forEach(e => { const b = e.getBoundingClientRect(); if (b.width && b.right > l + 1) trop.push(e.tagName + '.' + e.className + ' ' + Math.round(b.right)); });
+    return { sw: document.documentElement.scrollWidth, trop: trop.slice(0, 5), notes: document.querySelectorAll('.tr-notes li').length };
+  });
+  verifier(deb.notes >= 2, 'les notes du test de largeur manquent');
+  verifier(deb.sw <= 390 && !deb.trop.length, 'une partie de la page déborde sur téléphone : ' + JSON.stringify(deb));
+
+  // 8 bis. Les boutons « ghost » (Copier, Nouvelle recherche…) : contraste d'au moins 4,5 dans les deux thèmes,
+  // et pour les deux réglages du thème sombre (choisi sur le site, ou venu du système).
+  const contraste = () => p.evaluate(() => {
+    function rgb(c) { const m = c.match(/[\d.]+/g).map(Number); return { r: m[0], g: m[1], b: m[2], a: m.length > 3 ? m[3] : 1 }; }
+    function lum(c) { return [c.r, c.g, c.b].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce((s, v, k) => s + v * [0.2126, 0.7152, 0.0722][k], 0); }
+    function fond(e) { for (let x = e; x; x = x.parentElement) { const c = rgb(getComputedStyle(x).backgroundColor); if (c.a > 0.5) return c; } return rgb(getComputedStyle(document.body).backgroundColor); }
+    return Array.from(document.querySelectorAll('.btn.ghost')).filter(b => !b.disabled && b.offsetParent).map(b => {
+      const a = lum(rgb(getComputedStyle(b).color)), f = lum(fond(b));
+      return { texte: b.textContent.trim(), ratio: Math.round((Math.max(a, f) + 0.05) / (Math.min(a, f) + 0.05) * 100) / 100 };
+    });
+  });
+  const pagesGhost = [['#/traduire', true], ['#/dico/sum', false]];
+  for (const [mode, theme] of [['clair', null], ['sombre (site)', 'dark'], ['sombre (système)', 'systeme'], ['clair forcé, système sombre', 'light']]) {
+    await p.emulateMedia({ colorScheme: theme === 'systeme' || theme === 'light' ? 'dark' : 'light' });
+    let vus = 0;
+    for (const [h, traduire] of pagesGhost) {
+      await p.goto(U + h); await p.waitForTimeout(150);
+      await p.evaluate(t => { if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme'); }, theme);
+      if (traduire) { await p.click('.tr-ex[data-ex="0"]'); await p.waitForTimeout(100); }
+      const r = await contraste();
+      vus += r.length;
+      r.forEach(x => verifier(x.ratio >= 4.5, 'thème ' + mode + ', ' + h + ' : bouton « ' + x.texte + ' », contraste ' + x.ratio));
+    }
+    verifier(vus >= 2, 'thème ' + mode + ' : boutons ghost non trouvés (' + vus + ')');
+  }
+  await p.emulateMedia({ colorScheme: 'light' });
 
   // 9. Le lien depuis la page du dico
   await p.goto(U + '#/dico'); await p.waitForTimeout(150);

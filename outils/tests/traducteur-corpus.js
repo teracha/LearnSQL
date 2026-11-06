@@ -2,8 +2,10 @@
 // Usage (depuis la racine) : node outils/tests/traducteur-corpus.js
 // Pour chaque cas : pas d'exception, les notes « À savoir » sorties = exactement les notes attendues, et pas de
 // « Je ne sais pas encore traduire » ; les cas faux exprès (c82 à c87) donnent le bon message.
-// Notes ajustées par rapport au corpus d'origine (décisions du superviseur) : c12 → note 10 (BETWEEN et une date sans
-// heure) ; c49 et c68 → pas de note 7 (elle ne sort que dans WHERE, HAVING et QUALIFY, pas dans un ON ni un WHEN MATCHED AND).
+// Notes ajustées par rapport au corpus d'origine (décisions du superviseur et jugement de l'expert) :
+// c12 → note 10 (BETWEEN et une date sans heure) ; c49 → pas de note 7 (pas de note 7 dans un ON) ;
+// c21 → note 11 (total gonflé après une jointure 1 → n) ; c03, c35, c44, c70 → note 13 (ROW_NUMBER et ex aequo).
+// Puis les 8 cas trompeurs ou faux du jugement de l'expert (sondes S1 à S7, sortie D13) : notes et textes attendus.
 global.window = global;
 const fs = require('fs'), path = require('path');
 const racine = path.join(__dirname, '..', '..');
@@ -15,7 +17,7 @@ require(path.join(racine, 'js/traducteur.js'));
 const corpus = [
   {"id":"c01","theme":"m04 regroupement (exemple 1 de la page)","moteur":"Tous","sql":"SELECT c.nom, SUM(co.montant_ht) AS total\nFROM commande co\nJOIN client c ON c.id = co.client_id\nWHERE co.statut <> 'ANNULEE'\nGROUP BY c.nom\nHAVING SUM(co.montant_ht) > 5000\nORDER BY total DESC;","notes":[7]},
   {"id":"c02","theme":"m05 clients sans commande, LEFT JOIN + IS NULL (exemple 2 de la page)","moteur":"Tous","sql":"SELECT c.code, c.nom\nFROM client c\nLEFT JOIN commande co ON co.client_id = c.id\nWHERE co.id IS NULL;","notes":[]},
-  {"id":"c03","theme":"m08 dernière commande par client, CTE + ROW_NUMBER (exemple 3 de la page)","moteur":"Tous","sql":"WITH derniere AS (\n  SELECT co.*,\n         ROW_NUMBER() OVER (PARTITION BY co.client_id ORDER BY co.date_cde DESC) AS rn\n  FROM commande co\n)\nSELECT client_id, num_cde, date_cde, montant_ht\nFROM derniere\nWHERE rn = 1;","notes":[]},
+  {"id":"c03","theme":"m08 dernière commande par client, CTE + ROW_NUMBER (exemple 3 de la page)","moteur":"Tous","sql":"WITH derniere AS (\n  SELECT co.*,\n         ROW_NUMBER() OVER (PARTITION BY co.client_id ORDER BY co.date_cde DESC) AS rn\n  FROM commande co\n)\nSELECT client_id, num_cde, date_cde, montant_ht\nFROM derniere\nWHERE rn = 1;","notes":[13]},
   {"id":"c04","theme":"m01 TOP … WITH TIES","moteur":"SQL Server","sql":"SELECT TOP (4) WITH TIES num_cde, montant_ht\nFROM dbo.commande\nORDER BY montant_ht DESC;","notes":[]},
   {"id":"c05","theme":"m01 pagination OFFSET … FETCH, nom en 3 parties","moteur":"SQL Server","sql":"SELECT num_cde, date_cde\nFROM ventes.dbo.commande\nORDER BY date_cde DESC, id DESC\nOFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;","notes":[]},
   {"id":"c06","theme":"m01 TOP sans ORDER BY (minuscules, une seule ligne)","moteur":"SQL Server","sql":"select top 5 * from dbo.flux_edi where statut = 'REJET'","notes":[5]},
@@ -33,7 +35,7 @@ const corpus = [
   {"id":"c18","theme":"m04 COUNT(*), COUNT(colonne), COUNT(DISTINCT)","moteur":"Tous","sql":"SELECT COUNT(*)            AS nb_clients,\n       COUNT(ville)        AS nb_avec_ville,\n       COUNT(siren)        AS nb_avec_siren,\n       COUNT(DISTINCT nom) AS nb_noms\nFROM client;","notes":[]},
   {"id":"c19","theme":"m04 GROUP BY, HAVING, ORDER BY numéro (tabulations et commentaires)","moteur":"Tous","sql":"-- familles qui ont au moins 2 articles en stock\nSELECT\ta.famille,\n\tCOUNT(*) AS nb_articles,\t/* nombre d'articles */\n\tAVG(a.prix_tarif) AS prix_moyen\nFROM\tarticle a\nWHERE\ta.stock > 0\nGROUP BY a.famille\nHAVING\tCOUNT(*) >= 2\nORDER BY 2 DESC;","notes":[]},
   {"id":"c20","theme":"m04 sous-totaux avec ROLLUP","moteur":"SQL Server","sql":"SELECT canal, statut, SUM(montant_ht) AS total\nFROM dbo.commande\nGROUP BY ROLLUP (canal, statut)\nORDER BY canal, statut;","notes":[]},
-  {"id":"c21","theme":"m05 jointure 1-n : les commandes répétées","moteur":"Tous","sql":"SELECT c.nom, SUM(co.montant_ht) AS ca, COUNT(l.id) AS nb_lignes\nFROM client c\nINNER JOIN commande co ON co.client_id = c.id\nINNER JOIN ligne_cde l ON l.cde_id = co.id\nGROUP BY c.nom;","notes":[]},
+  {"id":"c21","theme":"m05 jointure 1-n : les commandes répétées","moteur":"Tous","sql":"SELECT c.nom, SUM(co.montant_ht) AS ca, COUNT(l.id) AS nb_lignes\nFROM client c\nINNER JOIN commande co ON co.client_id = c.id\nINNER JOIN ligne_cde l ON l.cde_id = co.id\nGROUP BY c.nom;","notes":[11]},
   {"id":"c22","theme":"m05 LEFT JOIN puis WHERE sur la table de droite","moteur":"Tous","sql":"SELECT co.num_cde, f.num_fact, f.statut\nFROM commande co\nLEFT JOIN facture f ON f.cde_id = co.id\nWHERE f.statut = 'PAYEE';","notes":[3]},
   {"id":"c23","theme":"m05 LEFT JOIN, condition dans le ON (cas proche de c22, sans note)","moteur":"Tous","sql":"SELECT co.num_cde, f.num_fact\nFROM commande co\nLEFT JOIN facture f\n       ON f.cde_id = co.id\n      AND f.statut = 'PAYEE';","notes":[]},
   {"id":"c24","theme":"m05 RIGHT JOIN puis WHERE sur la table de gauche","moteur":"Tous","sql":"SELECT a.code, s.depot_id, s.qte\nFROM stock_depot s\nRIGHT JOIN article a ON a.id = s.article_id\nWHERE s.depot_id = 1;","notes":[3]},
@@ -47,7 +49,7 @@ const corpus = [
   {"id":"c32","theme":"m06 CTE récursive MySQL (calendrier) et COUNT(colonne)","moteur":"MySQL","sql":"WITH RECURSIVE jours AS (\n  SELECT DATE('2026-03-01') AS jour\n  UNION ALL\n  SELECT jour + INTERVAL 1 DAY FROM jours WHERE jour < '2026-03-31'\n)\nSELECT j.jour, COUNT(co.id) AS nb_cdes\nFROM jours j\nLEFT JOIN commande co ON co.date_cde = j.jour\nGROUP BY j.jour\nORDER BY j.jour;","notes":[]},
   {"id":"c33","theme":"m07 UNION (sans doublons) et tri de l'ensemble","moteur":"Tous","sql":"SELECT ville FROM client WHERE pays = 'FR'\nUNION\nSELECT nom FROM depot\nORDER BY ville;","notes":[]},
   {"id":"c34","theme":"m07 EXCEPT et INTERSECT : INTERSECT passe avant","moteur":"Tous","sql":"SELECT client_id FROM commande\nEXCEPT\nSELECT id FROM client WHERE type = 'PRO'\nINTERSECT\nSELECT client_id FROM commande WHERE statut = 'ANNULEE';","notes":[]},
-  {"id":"c35","theme":"m08 ROW_NUMBER, RANK, DENSE_RANK et ex aequo","moteur":"Tous","sql":"SELECT num_cde, montant_ht,\n       ROW_NUMBER() OVER (ORDER BY montant_ht DESC) AS rn,\n       RANK()       OVER (ORDER BY montant_ht DESC) AS rang,\n       DENSE_RANK() OVER (ORDER BY montant_ht DESC) AS rang_dense\nFROM commande;","notes":[]},
+  {"id":"c35","theme":"m08 ROW_NUMBER, RANK, DENSE_RANK et ex aequo","moteur":"Tous","sql":"SELECT num_cde, montant_ht,\n       ROW_NUMBER() OVER (ORDER BY montant_ht DESC) AS rn,\n       RANK()       OVER (ORDER BY montant_ht DESC) AS rang,\n       DENSE_RANK() OVER (ORDER BY montant_ht DESC) AS rang_dense\nFROM commande;","notes":[13]},
   {"id":"c36","theme":"m08 LAG : la commande précédente","moteur":"SQL Server","sql":"SELECT client_id, num_cde, date_cde,\n       LAG(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde) AS cde_precedente,\n       DATEDIFF(DAY,\n                LAG(date_cde) OVER (PARTITION BY client_id ORDER BY date_cde),\n                date_cde) AS jours_depuis\nFROM dbo.commande;","notes":[]},
   {"id":"c37","theme":"m08 cumul : cadre par défaut (RANGE) contre ROWS, moyenne mobile (mouvements de stock)","moteur":"Tous","sql":"SELECT article_id, date_mvt, qte,\n       SUM(qte) OVER (PARTITION BY article_id ORDER BY date_mvt) AS stock_cumule,\n       SUM(qte) OVER (PARTITION BY article_id ORDER BY date_mvt\n                      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS stock_ligne,\n       AVG(qte) OVER (PARTITION BY article_id ORDER BY date_mvt\n                      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moy_3\nFROM mvt_stock;","notes":[]},
   {"id":"c38","theme":"m08 LAST_VALUE sans cadre écrit","moteur":"Tous","sql":"SELECT client_id, num_cde, date_cde,\n       LAST_VALUE(num_cde) OVER (PARTITION BY client_id ORDER BY date_cde) AS derniere_cde\nFROM commande;","notes":[9]},
@@ -56,7 +58,7 @@ const corpus = [
   {"id":"c41","theme":"m04 écritures comptables non lettrées (base.schema.table)","moteur":"SQL Server","sql":"SELECT e.compte,\n       SUM(e.debit) - SUM(e.credit) AS solde\nFROM compta.dbo.ecriture AS e\nWHERE e.journal IN ('VT', 'BQ')\n  AND e.date_ecr >= '2026-01-01'\n  AND e.date_ecr <  '2026-07-01'\n  AND e.lettrage IS NULL\nGROUP BY e.compte\nHAVING SUM(e.debit) - SUM(e.credit) <> 0\nORDER BY e.compte;","notes":[]},
   {"id":"c42","theme":"m03 table d'import EDI : TRY_CAST et article inconnu","moteur":"SQL Server","sql":"SELECT i.fichier, i.num_ligne, i.ean, i.qte_txt\nFROM edi.import_orders AS i\nWHERE TRY_CAST(i.qte_txt AS INT) IS NULL\n   OR NOT EXISTS (SELECT 1 FROM dbo.article a WHERE a.code = i.ean);","notes":[]},
   {"id":"c43","theme":"m04 contrôle en-tête / lignes de facture (écarts)","moteur":"Tous","sql":"SELECT h.num_fact, h.montant_ht, SUM(l.qte * l.pu_ht) AS total_lignes\nFROM fac_entete h\nJOIN fac_ligne l ON l.num_fact = h.num_fact\nGROUP BY h.num_fact, h.montant_ht\nHAVING h.montant_ht <> SUM(l.qte * l.pu_ht);","notes":[7]},
-  {"id":"c44","theme":"Snowflake QUALIFY (dernier flux par commande)","moteur":"Snowflake","sql":"SELECT cde_id, type, date_recu, statut\nFROM VENTES.PUBLIC.FLUX_EDI\nWHERE cde_id IS NOT NULL\nQUALIFY ROW_NUMBER() OVER (PARTITION BY cde_id ORDER BY date_recu DESC) = 1;","notes":[]},
+  {"id":"c44","theme":"Snowflake QUALIFY (dernier flux par commande)","moteur":"Snowflake","sql":"SELECT cde_id, type, date_recu, statut\nFROM VENTES.PUBLIC.FLUX_EDI\nWHERE cde_id IS NOT NULL\nQUALIFY ROW_NUMBER() OVER (PARTITION BY cde_id ORDER BY date_recu DESC) = 1;","notes":[13]},
   {"id":"c45","theme":"Snowflake :: ILIKE IFF NVL","moteur":"Snowflake","sql":"SELECT nom,\n       NVL(ville, 'inconnue')                         AS ville,\n       IFF(type = 'GD', 'Grande distribution', 'Pro') AS segment,\n       siren::VARCHAR                                 AS siren_txt\nFROM ventes.client\nWHERE nom ILIKE '%piscine%';","notes":[]},
   {"id":"c46","theme":"Snowflake JSON : col:champ et LATERAL FLATTEN","moteur":"Snowflake","sql":"SELECT r.raw:header.order_number::STRING AS num_cde,\n       l.value:ean::STRING                AS ean,\n       l.value:qty::NUMBER                AS qte\nFROM edi.raw_orders r,\n     LATERAL FLATTEN(input => r.raw:lines) l\nWHERE r.raw:header.partner::STRING = 'AquaBleu';","notes":[]},
   {"id":"c47","theme":"Snowflake Time Travel AT(OFFSET => …) et MINUS","moteur":"Snowflake","sql":"SELECT id, num_cde, statut\nFROM ventes.commande AT(OFFSET => -60*30)\nMINUS\nSELECT id, num_cde, statut\nFROM ventes.commande;","notes":[]},
@@ -80,9 +82,9 @@ const corpus = [
   {"id":"c65","theme":"m09 UPDATE sans WHERE (une seule ligne)","moteur":"SQL Server","sql":"UPDATE dbo.article SET prix_tarif = prix_tarif * 1.05;","notes":[4]},
   {"id":"c66","theme":"m09 DELETE sans WHERE","moteur":"Tous","sql":"DELETE FROM import_edi;","notes":[4]},
   {"id":"c67","theme":"m09 TRUNCATE (cas proche de c66, sans note)","moteur":"Tous","sql":"TRUNCATE TABLE staging.import_edi;","notes":[]},
-  {"id":"c68","theme":"m09 MERGE SQL Server avec WHEN NOT MATCHED BY SOURCE","moteur":"SQL Server","sql":"MERGE dbo.tarif AS cible\nUSING staging.tarif_fournisseur AS src\n   ON cible.code_article = src.code_article\nWHEN MATCHED AND cible.prix <> src.prix THEN\n    UPDATE SET cible.prix = src.prix, cible.maj_le = SYSDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n    INSERT (code_article, prix, maj_le)\n    VALUES (src.code_article, src.prix, SYSDATETIME())\nWHEN NOT MATCHED BY SOURCE THEN\n    DELETE;","notes":[]},
+  {"id":"c68","theme":"m09 MERGE SQL Server avec WHEN NOT MATCHED BY SOURCE","moteur":"SQL Server","sql":"MERGE dbo.tarif AS cible\nUSING staging.tarif_fournisseur AS src\n   ON cible.code_article = src.code_article\nWHEN MATCHED AND cible.prix <> src.prix THEN\n    UPDATE SET cible.prix = src.prix, cible.maj_le = SYSDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n    INSERT (code_article, prix, maj_le)\n    VALUES (src.code_article, src.prix, SYSDATETIME())\nWHEN NOT MATCHED BY SOURCE THEN\n    DELETE;","notes":[7]},
   {"id":"c69","theme":"m09 SELECT … INTO (table temporaire)","moteur":"SQL Server","sql":"SELECT c.id, c.nom, SUM(co.montant_ht) AS ca\nINTO #ca_client\nFROM dbo.client c\nJOIN dbo.commande co ON co.client_id = c.id\nGROUP BY c.id, c.nom;","notes":[]},
-  {"id":"c70","theme":"m09 DELETE à travers une CTE (dédoublonnage des flux EDI)","moteur":"SQL Server","sql":"WITH doublons AS (\n    SELECT id,\n           ROW_NUMBER() OVER (PARTITION BY partenaire, type, cde_id\n                              ORDER BY date_recu DESC) AS rn\n    FROM dbo.flux_edi\n)\nDELETE FROM doublons\nWHERE rn > 1;","notes":[]},
+  {"id":"c70","theme":"m09 DELETE à travers une CTE (dédoublonnage des flux EDI)","moteur":"SQL Server","sql":"WITH doublons AS (\n    SELECT id,\n           ROW_NUMBER() OVER (PARTITION BY partenaire, type, cde_id\n                              ORDER BY date_recu DESC) AS rn\n    FROM dbo.flux_edi\n)\nDELETE FROM doublons\nWHERE rn > 1;","notes":[13]},
   {"id":"c71","theme":"m09 UPDATE TOP et SET … = NULL (affectation)","moteur":"SQL Server","sql":"UPDATE TOP (100) dbo.flux_edi\nSET statut = 'OK',\n    motif  = NULL\nWHERE statut = 'REJET';","notes":[5]},
   {"id":"c72","theme":"m13 variables : DECLARE, SET, SELECT @x =, PRINT","moteur":"SQL Server","sql":"DECLARE @nb INT, @derniere DATE;\nSET @nb = (SELECT COUNT(*) FROM dbo.commande WHERE statut = 'EN_COURS');\nSELECT @derniere = date_cde FROM dbo.commande WHERE client_id = 1;\nPRINT 'Commandes en cours : ' + CAST(@nb AS VARCHAR(10));","notes":[]},
   {"id":"c73","theme":"m13 IF … ELSE avec EXISTS","moteur":"SQL Server","sql":"IF EXISTS (SELECT 1 FROM dbo.flux_edi\n           WHERE statut = 'REJET'\n             AND date_recu >= CAST(GETDATE() AS DATE))\nBEGIN\n    PRINT 'Des flux EDI ont été rejetés aujourd''hui';\n    SELECT partenaire, type, motif\n    FROM dbo.flux_edi\n    WHERE statut = 'REJET'\n      AND date_recu >= CAST(GETDATE() AS DATE);\nEND\nELSE\n    PRINT 'Aucun rejet aujourd''hui';","notes":[]},
@@ -100,6 +102,18 @@ const corpus = [
   {"id":"c85","theme":"erreur : texte vide (espaces, tabulation, retour à la ligne)","moteur":"Tous","sql":"   \n\t  ","notes":[],"message":"Rien à traduire : colle une requête SQL."},
   {"id":"c86","theme":"erreur : seulement des commentaires","moteur":"Tous","sql":"-- requête du rapport EDI\n/* à compléter */","notes":[],"message":"Rien à traduire : colle une requête SQL."},
   {"id":"c87","theme":"erreur : texte entre apostrophes non fermé","moteur":"Tous","sql":"SELECT * FROM commande WHERE statut = 'ANNULEE","notes":[],"message":"Je n'arrive pas à lire la requête à partir de : 'ANNULEE"}
+];
+
+// Les 8 cas trompeurs ou faux du jugement de l'expert : les notes, et des morceaux du texte attendu (ou le texte entier).
+const sondes = [
+  {"id":"S1","theme":"OPENJSON … WITH (SQL Server 2016+, requête valide)","sql":"SELECT j.ean, j.qte FROM edi.import_json i CROSS APPLY OPENJSON(i.contenu, '$.lignes') WITH (ean VARCHAR(13) '$.ean', qte INT '$.qte') j;","notes":[],"texte":"PRENDRE la table edi.import_json (appelée i)\nRELIER pour chaque ligne, les éléments du JSON i.contenu, au chemin '$.lignes' (OPENJSON, appelés j)\n    une ligne par élément, lue avec les colonnes :\n        ean : texte de 13 caractères au plus (VARCHAR(13)), pris dans '$.ean'\n        qte : nombre entier (INT), pris dans '$.qte'\n    une ligne pour laquelle ce bloc ne renvoie rien disparaît\nAFFICHER j.ean, j.qte"},
+  {"id":"S2","theme":"COUNT(*) après un LEFT JOIN","sql":"SELECT c.nom, COUNT(*) AS nb_cdes FROM client c LEFT JOIN commande co ON co.client_id = c.id GROUP BY c.nom;","notes":[12],"attendu":["nb_cdes = le nombre de lignes","`COUNT(*)` après `LEFT JOIN commande` : une ligne de client (c) sans ligne dans commande (co) garde une ligne","donc elle compte 1, pas 0"]},
+  {"id":"S3","theme":"UPDATE … FROM avec plusieurs correspondances","sql":"UPDATE a SET a.stock = s.qte FROM dbo.article a JOIN dbo.stock_depot s ON s.article_id = a.id;","notes":[],"attendu":["seulement les lignes qui ont une correspondance : une ligne de a sans correspondance n'est pas modifiée","une ligne de a qui a plusieurs correspondances n'est modifiée qu'une fois","avec les valeurs d'une seule d'entre elles, prise au hasard","les autres tables ne sont pas modifiées : seules des lignes de a changent","METTRE a.stock = s.qte"],"interdit":["sort une fois"]},
+  {"id":"S4","theme":"= NULL dans une branche d'un OU","sql":"SELECT nom FROM client WHERE ville = NULL OR pays = 'FR';","notes":[1],"attendu":["cette partie du OU ne garde aucune ligne ; seules sortent les lignes où pays est égal à 'FR'","Écris `ville IS NULL`."],"interdit":["ne laisse sortir aucune ligne"]},
+  {"id":"S5","theme":"DATEPART(WEEK, …) n'est pas la semaine ISO","sql":"SELECT FORMAT(date_cde, 'dd/MM/yyyy') AS d, YEAR(date_cde) AS annee, EOMONTH(date_cde) AS fin_mois, DATEPART(WEEK, date_cde) AS semaine FROM dbo.commande;","notes":[],"attendu":["semaine = le numéro de semaine de date_cde","la semaine du 1er janvier est la semaine 1","le 1er jour de la semaine dépend du réglage DATEFIRST","ce n'est pas la semaine ISO utilisée en France (pour elle : DATEPART(ISO_WEEK, …))"]},
+  {"id":"S6","theme":"NTH_VALUE sans cadre écrit","sql":"SELECT client_id, NTH_VALUE(num_cde, 2) OVER (PARTITION BY client_id ORDER BY date_cde) AS deuxieme FROM commande;","notes":[9],"attendu":["deuxieme = num_cde de la 2e ligne de la fenêtre","fenêtre : dans chaque groupe de client_id, en triant par date_cde du plus petit au plus grand","sur MySQL, la fenêtre s'arrête à la ligne courante : sur la 1re ligne de chaque groupe, le résultat est vide (NULL)","Snowflake prend toute la fenêtre"],"interdit":["SQL Server"]},
+  {"id":"S7","theme":"NOT BETWEEN","sql":"SELECT * FROM commande WHERE montant_ht NOT BETWEEN 100 AND 1000;","notes":[7],"attendu":["GARDER les lignes où montant_ht est plus petit que 100 ou plus grand que 1000 (100 et 1000 sont exclus)"],"interdit":["bornes comprises"]},
+  {"id":"D13","theme":"requête fausse (parenthèse ouverte) puis requête juste","sql":"SELECT nom FROM client WHERE (ville = 'Lyon';\nSELECT COUNT(*) AS nb FROM commande WHERE statut = 'LIVREE';","notes":[],"attendu":["INSTRUCTION 1 :\n    Je n'arrive pas à lire la requête à partir de : (ville = 'Lyon' (une parenthèse ouverte n'est jamais fermée)\nINSTRUCTION 2 :\n    PRENDRE la table commande"],"interdit":["à partir de : ;","SELECT COUNT"],"erreurs":1}
 ];
 
 let echecs = 0;
@@ -120,4 +134,20 @@ corpus.forEach(c => {
   if (pb.length) { echecs++; console.log('ÉCHEC  ' + c.id + ' (' + c.theme + ') : ' + pb.join(' ; ')); }
 });
 console.log(echecs + ' échec(s) sur ' + corpus.length);
-process.exitCode = echecs ? 1 : 0;
+let echecsS = 0;
+sondes.forEach(c => {
+  const pb = [];
+  let r;
+  try { r = LEARNSQL.traduire(c.sql); } catch (e) { pb.push('exception ' + e.message); }
+  if (r) {
+    const notes = r.notes.map(n => n.num);
+    if (JSON.stringify(notes) !== JSON.stringify(c.notes)) pb.push('notes ' + JSON.stringify(notes) + ' au lieu de ' + JSON.stringify(c.notes));
+    if (c.texte !== undefined && r.texte !== c.texte) pb.push('texte différent :\n' + r.texte);
+    (c.attendu || []).forEach(a => { if (r.texte.indexOf(a) < 0) pb.push('absent : « ' + a + ' »'); });
+    (c.interdit || []).forEach(a => { if (r.texte.indexOf(a) >= 0) pb.push('interdit présent : « ' + a + ' »'); });
+    if (r.erreurs.length !== (c.erreurs || 0)) pb.push(r.erreurs.length + ' erreur(s) au lieu de ' + (c.erreurs || 0));
+  }
+  if (pb.length) { echecsS++; console.log('ÉCHEC  ' + c.id + ' (' + c.theme + ') : ' + pb.join(' ; ')); }
+});
+console.log(echecsS + ' échec(s) sur ' + sondes.length + ' cas trompeurs ou faux (sondes de l\'expert)');
+process.exitCode = echecs || echecsS ? 1 : 0;

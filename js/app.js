@@ -1575,12 +1575,15 @@
       "         ROW_NUMBER() OVER (PARTITION BY co.client_id ORDER BY co.date_cde DESC) AS rn\n  FROM commande co\n)\n" +
       "SELECT client_id, num_cde, date_cde, montant_ht\nFROM derniere\nWHERE rn = 1;" }
   ];
-  var traduireSql = "", traduireFait = false, traduireCopie = "";
+  var traduireSql = "", traduireFait = false, traduireCopie = "", traduireMienne = "";
 
   // Tout texte venu de la requête passe par esc : aucune balise de l'utilisateur n'arrive dans la page.
+  // Une sous-étape (niveau 1 et plus) porte une barre à gauche ; la suite d'une ligne trop longue a un retrait suspendu.
   function htmlTraduction(r) {
-    var html = r.lignes.length ? '<div class="card tr-code">' + r.lignes.map(function (l) {
-      return '<div class="tr-l' + (l.genre ? ' tr-' + l.genre : '') + '" style="--n:' + Math.min(Number(l.niveau) || 0, 12) + '">' +
+    var html = '<h2 id="tr-titre" tabindex="-1">La traduction</h2>';
+    html += r.lignes.length ? '<div class="card tr-code">' + r.lignes.map(function (l) {
+      var n = Math.min(Number(l.niveau) || 0, 12);
+      return '<div class="tr-l' + (n ? ' tr-sous' : '') + (l.genre ? ' tr-' + l.genre : '') + '" style="--n:' + n + '">' +
         (l.verbe ? '<strong class="tr-verbe">' + esc(l.verbe) + '</strong> ' : '') + esc(l.texte) + '</div>';
     }).join('') + '</div>' : '<p class="tr-vide">' + esc(r.erreurs[0] || "Rien à traduire.") + '</p>';
     if (r.notes.length) html += '<h2>À savoir</h2><ul class="tr-notes">' + r.notes.map(function (n) {
@@ -1617,11 +1620,15 @@
       '<p class="label tr-titre-ex">Exemples</p><div class="tr-exemples">' + TRADUIRE_EXEMPLES.map(function (x, k) {
         return '<button type="button" class="tr-ex" data-ex="' + k + '">' + esc(x.nom) + '</button>';
       }).join('') + '</div>' +
+      '<p class="tr-retour" id="tr-retour" hidden><button type="button" class="lien" id="tr-mienne">Revenir à ma requête</button></p>' +
       '<p id="tr-msg" class="muted" role="status"></p><div id="tr-res"></div>';
     var champ = document.getElementById("tr-sql"), zone = document.getElementById("tr-res");
-    var msg = document.getElementById("tr-msg"), copier = document.getElementById("tr-copier");
+    var msg = document.getElementById("tr-msg"), copier = document.getElementById("tr-copier"), retour = document.getElementById("tr-retour");
     champ.value = traduireSql;
-    function traduire() {
+    function estExemple(t) { return TRADUIRE_EXEMPLES.some(function (x) { return x.sql === t; }); }
+    function majRetour() { retour.hidden = !traduireMienne || champ.value === traduireMienne; }
+    // montrer : après un clic, aller jusqu'au résultat (sur téléphone il est sous l'écran) et mettre le focus sur son titre.
+    function traduire(montrer) {
       traduireSql = champ.value; traduireFait = true;
       var r = null;
       try { r = DATA.traduire ? DATA.traduire(champ.value) : null; } catch (e) { r = null; }
@@ -1629,15 +1636,33 @@
       if (!r) { zone.innerHTML = '<p class="tr-vide">Le traducteur n\'est pas chargé : recharge la page.</p>'; copier.disabled = true; return; }
       zone.innerHTML = htmlTraduction(r);
       traduireCopie = r.texte;
-      copier.disabled = !r.lignes.length;
+      // Rien à copier si le résultat n'est qu'une erreur (ou un message).
+      copier.disabled = !r.lignes.some(function (l) { return !l.genre && !/^(INSTRUCTION|LOT) /.test(l.verbe); });
+      majRetour();
+      if (montrer !== true) return;
+      var titre = document.getElementById("tr-titre"), b = titre.getBoundingClientRect();
+      try { titre.focus({ preventScroll: true }); } catch (e) { titre.focus(); }
+      if (b.top < 0 || b.top > (window.innerHeight || document.documentElement.clientHeight) - 80) titre.scrollIntoView(true);
     }
-    document.getElementById("tr-go").addEventListener("click", traduire);
+    // Traduire sa propre requête : il n'y a plus de requête à retrouver.
+    function traduireLaMienne() { if (!estExemple(champ.value)) traduireMienne = ""; traduire(true); }
+    document.getElementById("tr-go").addEventListener("click", traduireLaMienne);
     champ.addEventListener("input", function () { traduireSql = champ.value; });
     champ.addEventListener("keydown", function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); traduire(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); traduireLaMienne(); }
     });
+    // Un exemple remplace le texte : celui de l'élève est gardé (en mémoire seulement), avec un lien pour y revenir.
     Array.prototype.forEach.call(app.querySelectorAll(".tr-ex"), function (b) {
-      b.addEventListener("click", function () { champ.value = TRADUIRE_EXEMPLES[Number(b.getAttribute("data-ex"))].sql; traduire(); });
+      b.addEventListener("click", function () {
+        if (/\S/.test(champ.value) && !estExemple(champ.value)) traduireMienne = champ.value;
+        champ.value = TRADUIRE_EXEMPLES[Number(b.getAttribute("data-ex"))].sql;
+        traduire(true);
+      });
+    });
+    document.getElementById("tr-mienne").addEventListener("click", function () {
+      champ.value = traduireMienne;
+      traduireMienne = "";
+      traduire(true);
     });
     copier.addEventListener("click", function () {
       copierTexte(traduireCopie, function (ok) {

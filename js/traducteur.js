@@ -805,6 +805,18 @@
         if (estMots(["FOR", "SYSTEM_TIME"])) { i += 2; if (prendreMots(["AS", "OF"])) { s.temporel = addition(); continue; } inconnu(); }
         break;
       }
+      if (s.fonction && s.fonction.t === "fn" && s.fonction.nom === "OPENJSON" && est("WITH") && h(1) === "(") {
+        i += 2;
+        s.schemaJson = [];
+        do {
+          garde();
+          var cj = { nom: ident(), type: typeDonnee() };
+          if (jt().t === "texte") cj.chemin = avance().v;
+          if (prendreMots(["AS", "JSON"])) cj.json = true;
+          s.schemaJson.push(cj);
+        } while (prendre(","));
+        exiger(")");
+      }
       if (prendre("AS")) {
         var a = jt();
         if (a.t === "mot" || a.t === "nom" || a.t === "texte") { avance(); s.alias = a.v; } else echec("nom attendu après AS");
@@ -932,18 +944,29 @@
     }
 
     // --- Instructions ---
+    // Le mot k commence-t-il vraiment une instruction ? (« WITH ( », « START WITH » sont des clauses, pas des instructions)
+    function debutPlausible(k) {
+      var x = jt(k), s1 = jt(k + 1);
+      if (x.h === "WITH") return s1.h === "RECURSIVE" || s1.t === "nom" || (s1.t === "mot" && !RESERVES[s1.h]);
+      if (x.h === "START") return s1.h === "TRANSACTION";
+      if (x.h === "SET") return s1.t === "mot" || s1.t === "nom" || s1.t === "param";
+      if (x.h === "VALUES") return s1.t === "op" && s1.v === "(";
+      if (x.h === "FETCH") return s1.t === "mot" || s1.t === "nom";
+      return true;
+    }
     function finInstructionOk() {
       var x = jt();
       if (x.t === "fin" || (x.t === "inconnu" && x.nl)) return true;
       if (x.t === "op" && (x.v === ";" || (x.v === "(" && debutRequete()))) return true;
-      if (x.t === "mot" && (DEBUTS[x.h] || /^(END|ELSE|ELSEIF|ELSIF|WHEN|EXCEPTION|UNTIL)$/.test(x.h))) return true;
+      if (x.t === "mot" && DEBUTS[x.h]) return debutPlausible(0);
+      if (x.t === "mot" && /^(END|ELSE|ELSEIF|ELSIF|WHEN|EXCEPTION|UNTIL)$/.test(x.h)) return true;
       return estGo();
     }
     function instructionSure(dansBloc) {
       var d = i;
       try {
         var s = instruction();
-        if (!finInstructionOk()) { if (jt().t === "inconnu") inconnu(); echec("fin de l'instruction attendue"); }
+        if (!finInstructionOk()) { if (jt().t === "inconnu" || (jt().t === "mot" && DEBUTS[h()])) inconnu(); echec("fin de l'instruction attendue"); }
         return s;
       } catch (e) {
         if (!e || !e.lecture) throw e;
@@ -972,19 +995,25 @@
         avance();
       }
     }
-    function extrait(k) { return court(src.slice(J[k].d, J[k].d + 200), 60); }
+    function extrait(k) {
+      var fin = J[k].d + 200;
+      for (var m = k + 1; m < J.length; m++) if (J[m].t === "op" && J[m].v === ";") { fin = Math.min(fin, J[m].d); break; }
+      return court(src.slice(J[k].d, fin), 60);
+    }
     function messageErreur(err) {
       var k = Math.min(err.i, J.length - 1);
       if (err.inconnu) return "Je ne sais pas encore traduire : " + extrait(J[k].t === "fin" ? err.d : k);
-      if (J[k].t !== "fin") return "Je n'arrive pas à lire la requête à partir de : " + extrait(k);
+      var finTexte = J[k].t === "fin" || (J[k].t === "op" && J[k].v === ";");
+      if (!finTexte) return "Je n'arrive pas à lire la requête à partir de : " + extrait(k);
       var ouvertes = [];
-      for (var x = err.d; x < J.length - 1; x++) {
+      for (var x = err.d; x < k; x++) {
         if (J[x].t === "op" && J[x].v === "(") ouvertes.push(x);
         else if (J[x].t === "op" && J[x].v === ")") ouvertes.pop();
       }
       if (ouvertes.length) return "Je n'arrive pas à lire la requête à partir de : " + extrait(ouvertes[ouvertes.length - 1]) + " (une parenthèse ouverte n'est jamais fermée)";
-      var debut = J[Math.min(err.d, J.length - 1)].d, fin = J[Math.max(J.length - 2, 0)].f, t = compact(src.slice(debut, fin));
-      return "Je n'arrive pas à lire la requête à partir de : la fin du texte (la requête s'arrête trop tôt, après « " + (t.length > 40 ? "…" + t.slice(-40) : t) + " »)";
+      var debut = J[Math.min(err.d, J.length - 1)].d, fin = J[Math.max(k - 1, 0)].f, t = compact(src.slice(debut, Math.max(fin, debut)));
+      return "Je n'arrive pas à lire la requête à partir de : la fin " + (J[k].t === "fin" ? "du texte" : "de l'instruction") +
+        " (la requête s'arrête trop tôt, après « " + (t.length > 40 ? "…" + t.slice(-40) : t) + " »)";
     }
     function bloc(arret) {
       var l = [];
@@ -1816,8 +1845,10 @@
   var DEBUTS_PARTIE = { YEAR: "au début de l'année (le 1er janvier)", QUARTER: "au début du trimestre", MONTH: "au début du mois (le 1er jour)",
     WEEK: "au début de la semaine", DAY: "au début du jour (0 h 00)", HOUR: "au début de l'heure", MINUTE: "au début de la minute",
     SECOND: "au début de la seconde" };
-  function lireUnite(nd) {
+  var AMBIGUES_PAR_MOTEUR = { tsql: { M: "MONTH", Y: "DAYOFYEAR", W: "WEEKDAY" }, snowflake: { M: "MINUTE", Y: "YEAR", W: "WEEK" } };
+  function lireUnite(nd, moteur) {
     var v = String((nd && (nd.v || nd.src)) || "").replace(/^'|'$/g, "").toUpperCase();
+    if (AMBIGUES_PAR_MOTEUR[moteur] && AMBIGUES_PAR_MOTEUR[moteur][v]) v = AMBIGUES_PAR_MOTEUR[moteur][v];
     return { cle: CANON[v] || null, u: UNITES[v] || null, ambigu: UNITES_AMBIGUES[v] || null, brut: v };
   }
   function nombreUnites(n, u) {          // « 30 jours », « 1 jour », « @n jours »
@@ -1894,8 +1925,9 @@
     else if (a.n > 2) return null;
     else sep = f.nom === "LISTAGG" ? null : null;
     var liste = vals.map(function (v) { return emb(c.tx(v)); });
+    var suite = (sep ? "séparées par " + sep : "") + c.ordre(f);
     return P("les valeurs " + (f.distinct ? "différentes " : "") + "de " + enumerer(liste) + " collées en un seul texte" +
-      (sep ? ", séparées par " + sep : "") + c.ordre(f) + " (vide s'il n'y a aucune valeur)", "fp");
+      (suite ? " ; " + suite.replace(/^, /, "") : "") + " ; vide (NULL) s'il n'y a aucune valeur", "fp");
   });
   def("GROUPING", function (f, a) { return n1(f) ? P("1 si la ligne est un sous-total où " + a.t(0) + " n'est pas détaillé (vide), sinon 0") : null; });
   def("MAX_BY MIN_BY", function (f, a) { return a.n === 2 ? P("la valeur de " + a.t(0) + " sur la ligne où " + a.t(1) + " est " + (f.nom === "MAX_BY" ? "le plus grand" : "le plus petit"), "f") : null; });
@@ -1932,7 +1964,10 @@
   def("CHOOSE", function (f, a) { return a.n >= 2 ? P("la valeur numéro " + a.t(0) + " parmi " + enumerer(f.args.slice(1).map(function (x, k) { return a.t(k + 1); })), "f") : null; });
 
   def("LEN", function (f, a) { return n1(f) ? P("le nombre de caractères de " + a.t(0) + " (sans les espaces de la fin)") : null; });
-  def("LENGTH", function (f, a) { return n1(f) ? P("la longueur de " + a.t(0) + " (en caractères ; sur MySQL, en octets)", "f") : null; });
+  def("LENGTH", function (f, a, c) {
+    if (!n1(f)) return null;
+    return P("la longueur de " + a.t(0) + (c.moteur === "mysql" ? " en octets (un caractère accentué compte pour 2)" : c.moteur ? " en caractères" : " (en caractères ; sur MySQL, en octets)"), "f");
+  });
   def("CHAR_LENGTH CHARACTER_LENGTH", function (f, a) { return n1(f) ? P("le nombre de caractères de " + a.t(0)) : null; });
   def("DATALENGTH OCTET_LENGTH", function (f, a) { return n1(f) ? P("la taille de " + a.t(0) + " en octets", "f") : null; });
   def("LEFT", function (f, a) { return a.n === 2 ? P("les " + a.t(1) + " premiers caractères de " + a.t(0), "mp") : null; });
@@ -1958,14 +1993,17 @@
     var ch = f.chars ? c.tx(f.chars).t : a.n === 2 ? a.t(1) : null;
     return P(a.t(0) + " sans les " + (ch ? "caractères " + ch : "espaces") + " " + ou);
   });
-  def("CONCAT", function (f, a) {
+  def("CONCAT", function (f, a, c) {
     if (a.n < 2) return null;
-    return P(enumerer(f.args.map(function (x, k) { return a.t(k); })) + " collés (avec un NULL : SQL Server le compte comme '' ; MySQL et Snowflake rendent NULL)", "mp");
+    var l = enumerer(f.args.map(function (x, k) { return a.t(k); }));
+    if (!c.moteur) return P(l + " collés ; avec un NULL : SQL Server le compte comme '', MySQL et Snowflake rendent NULL", "mp");
+    return P(l + " collés (" + (c.moteur === "tsql" ? "un NULL compte comme ''" : "NULL si une des valeurs est NULL") + ")", "mp");
   });
-  def("CONCAT_WS", function (f, a) {
+  def("CONCAT_WS", function (f, a, c) {
     if (a.n < 3) return null;
-    return P(enumerer(f.args.slice(1).map(function (x, k) { return a.t(k + 1); })) + " collés, séparés par " + a.t(0) +
-      " (avec un NULL : SQL Server et MySQL le sautent ; Snowflake rend NULL)", "mp");
+    var l = enumerer(f.args.slice(1).map(function (x, k) { return a.t(k + 1); })) + " collés, séparés par " + a.t(0);
+    if (!c.moteur) return P(l + " ; avec un NULL : SQL Server et MySQL le sautent, Snowflake rend NULL", "mp");
+    return P(l + " (" + (c.moteur === "snowflake" ? "NULL si une des valeurs est NULL" : "les NULL sont sautés") + ")", "mp");
   });
   def("SPLIT_PART", function (f, a) { return a.n === 3 ? P("le morceau n° " + a.t(2) + " de " + a.t(0) + ", coupé à chaque " + a.t(1)) : null; });
   def("STUFF INSERT", function (f, a) {
@@ -2010,7 +2048,7 @@
     else nt = emb(c.tx(nNode));
     return P(emb(d) + (moins ? " moins " : " plus ") + nombreUnites(nt, u), d.g);
   }
-  def("DATEADD TIMESTAMPADD", function (f, a, c) { return a.n === 3 ? plusMoins(a.r(2), f.args[1], lireUnite(f.args[0]), c, false) : null; });
+  def("DATEADD TIMESTAMPADD", function (f, a, c) { return a.n === 3 ? plusMoins(a.r(2), f.args[1], lireUnite(f.args[0], c.moteur), c, false) : null; });
   def("ADD_MONTHS", function (f, a, c) { return a.n === 2 ? plusMoins(a.r(0), f.args[1], lireUnite({ v: "MONTH" }), c, false) : null; });
   def("DATE_ADD DATE_SUB ADDDATE SUBDATE", function (f, a, c) {
     if (a.n !== 2) return null;
@@ -2021,7 +2059,7 @@
   def("DATEDIFF DATEDIFF_BIG", function (f, a, c) {
     if (a.n === 2) return P("le nombre de jours de " + a.t(1) + " à " + a.t(0));          // MySQL : DATEDIFF(fin, début)
     if (a.n !== 3) return null;
-    var u = lireUnite(f.args[0]);
+    var u = lireUnite(f.args[0], c.moteur);
     var nom = u.u ? u.u.pl : (u.ambigu || u.brut);
     var r = "le nombre de " + nom + " de " + a.t(1) + " à " + a.t(2);
     if (u.cle && u.cle !== "DAY" && u.cle !== "DAYOFYEAR" && u.cle !== "WEEKDAY") r += " (on compte les changements de " + u.u.sg + ", pas les " + u.u.pl + " entiers)";
@@ -2039,7 +2077,13 @@
     if (u.cle === "WEEKDAY") ph += " (il dépend du réglage DATEFIRST sur SQL Server)";
     return P(ph.replace(/ \(.*$/, "") + " " + prep("de", d) + (/\(/.test(ph) ? " " + ph.replace(/^[^(]*/, "") : ""), /^la /.test(ph) || /^l'(année|heure)/.test(ph) ? "f" : "m");
   }
-  def("DATEPART DATE_PART EXTRACT", function (f, a) { return a.n === 2 ? partieDe(f.args[0], a.r(1)) : null; });
+  def("DATEPART DATE_PART EXTRACT", function (f, a, c) {
+    if (a.n !== 2) return null;
+    if (f.nom === "DATEPART" && lireUnite(f.args[0], c.moteur).cle === "WEEK")
+      return P("le numéro de semaine " + prep("de", a.r(1)) + " ; la semaine du 1er janvier est la semaine 1 ; le 1er jour de la semaine dépend du réglage DATEFIRST" +
+        " ; ce n'est pas la semaine ISO utilisée en France (pour elle : DATEPART(ISO_WEEK, …))");
+    return partieDe(f.args[0], a.r(1));
+  });
   def("DATENAME", function (f, a) {
     if (a.n !== 2) return null;
     var u = lireUnite(f.args[0]);
@@ -2140,7 +2184,7 @@
   def("HASHBYTES MD5 SHA1 SHA2 HASH CHECKSUM BINARY_CHECKSUM", function (f, a) { return a.n >= 1 ? P("une empreinte (hash) de " + enumerer(f.args.map(function (x, k) { return a.t(k); })), "f") : null; });
   def("NEXT VALUE FOR", function (f, a) { return P("le prochain numéro de la séquence " + a.t(0)); });
   def("CONVERT USING", function (f, a) { return P(a.t(0) + " converti dans le jeu de caractères " + f.jeu); });
-  def("VALUES", function (f, a) { return n1(f) ? P("la valeur qu'on voulait ajouter dans " + a.t(0), "f") : null; });
+  def("VALUES", function (f) { return n1(f) ? C("la valeur qu'on voulait ajouter (" + compact(f.src) + ")") : null; });
 
   var AGREGATS = ensemble("COUNT COUNT_BIG COUNT_IF SUM AVG MIN MAX STRING_AGG LISTAGG GROUP_CONCAT ARRAY_AGG MEDIAN STDEV STDDEV " +
     "STDDEV_SAMP STDEVP STDDEV_POP VAR VARIANCE VAR_SAMP VARP VAR_POP ANY_VALUE APPROX_COUNT_DISTINCT GROUPING GROUPING_ID MAX_BY " +
@@ -2189,13 +2233,16 @@
     var pileCte = [];            // les CTE visibles
     var enRecursion = null;      // la CTE récursive en cours
     var dejaGuillemets = false;
+    var pileCond = [];           // où l'on est dans une condition : ET, OU, NOT, CASE (pour le texte de la note 1)
+    var nolockDit = false;       // NOLOCK n'est expliqué qu'une fois par instruction
+    var procedures = {};         // les procédures créées dans le texte : leurs paramètres (pour EXEC)
 
     function ligne(niv, verbe, texte, genre) {
-      lignes.push({ niveau: Math.max(0, Math.min(niv, 12)), verbe: verbe || "", texte: texte || "", genre: genre || "" });
+      lignes.push({ niveau: Math.max(0, Math.min(niv, 12)), verbe: verbe || "", texte: String(texte || "").replace(/\u0004/g, " ").replace(/\u0005/g, ", "), genre: genre || "" });
     }
     function note(num, texte) {
       var n = notes[num];
-      if (!n) n = notes[num] = { num: num, texte: texte, ou: [] };
+      if (!n) n = notes[num] = { num: num, texte: texte.replace(/\u0004/g, " ").replace(/\u0005/g, ", "), ou: [] };
       if (etiquette && n.ou.indexOf(etiquette) < 0) n.ou.push(etiquette);
     }
     // Lien vers une fiche du dico, reconnue par son nom ou un de ses noms (filtre : type ou catégorie).
@@ -2233,24 +2280,90 @@
       ctx.sous.push({ req: req, opts: opts || {} });
       return "\u0001" + k + "\u0001";
     }
+    // Une sous-requête faite d'un seul agrégat sur une table (WHERE permis, sans GROUP BY) : dite en une ligne.
+    function agregatSimple(req, ctx) {
+      var c = req && req.corps;
+      if (!c || c.t !== "select" || req.avec || req.tri || req.limite || c.top || c.groupe || c.having || c.distinct || c.qualify || c.into || c.colonnes.length !== 1) return null;
+      if (!c.from || c.from.length !== 1 || c.from[0].jointures.length) return null;
+      var p = c.from[0].premiere, e = c.colonnes[0].e;
+      if (!p.table || p.indices || p.temporel || p.voyage || cteDe(p.table.texte) || /^[@#]/.test(p.table.texte)) return null;
+      if (e.t !== "fn" || e.over || !AGREGATS[e.nom] || e.filtre || contient(e, function (x) { return x !== e && x.t === "fn" && AGREGATS[x.nom]; })) return null;
+      if (c.where && contient(c.where, function (x) { return !!x.req; })) return null;
+      var portee = (ctx.portee || []).concat([cleNom(nomAffichage(p))]);
+      var ct = ctxNouveau({ portee: portee, instr: "select" }, { filtre: "where", sous: ctx.sous, compteur: ctx.compteur });
+      var nomT = p.table.texte + (p.alias && cleNom(p.alias) !== cleNom(p.table.court) ? " (appelée " + p.alias + ")" : "");
+      lien("Sous-requête", MC);
+      var ou = c.where ? cond(c.where, ct) : null, ph;
+      if (/^COUNT(_BIG)?$/.test(e.nom) && (e.etoile || (e.args.length === 1 && e.args[0].t === "nombre"))) { lien("COUNT", FO); ph = "le nombre de lignes de " + nomT + (ou ? " où " + ou : ""); }
+      else ph = tx(e, ctxNouveau({ portee: portee, instr: "select" }, { sous: ctx.sous, compteur: ctx.compteur })).t + (ou ? "\u0004parmi les lignes de " + nomT + " où " + ou : " sur toute la table " + nomT);
+      if (ou && /^le nombre de lignes/.test(ph)) ph = ph.replace(" où ", "\u0004où ");
+      var cor = correlation(req, ctx.portee);
+      if (cor.length) ph += "\u0004(refaite pour chaque ligne de " + (cor[0].split(".").slice(0, -1).join(".") || "la requête du dessus") + ")";
+      else if (ctx.colonnes) ph += " (une seule valeur, la même sur chaque ligne)";
+      return ph;
+    }
+    // « le résultat de la sous-requête » : ce qui arrive s'il n'y a aucune ligne, ou plusieurs (seulement si c'est possible).
+    function valeurSous(req) {
+      var c = req.corps, agr = c && c.t === "select" && !c.groupe && c.colonnes.length >= 1 && c.colonnes.every(function (x) { return contientAgregat(x.e) && !contientFenetre(x.e); });
+      var une = (c && c.top && valeurNombre(c.top.n) === 1) || (req.limite && req.limite.n && valeurNombre(req.limite.n) === 1);
+      if (agr && !c.having) return "le résultat de la sous-requête ";
+      return "le résultat de la sous-requête (" + (agr || une ? "NULL si elle ne renvoie aucune ligne" : "NULL si elle ne renvoie aucune ligne ; erreur si elle en renvoie plusieurs") + ") ";
+    }
     function dansListe(r) { return r.p && /[,;:]/.test(r.t) ? "(" + r.t + ")" : r.t; }
     function sujet(r) { return r.p && /[,;]| si | ou /.test(r.t) ? "(" + r.t + ")" : r.t; }
     function objet(r) { return r.p && /[,;]| si | ou /.test(r.t) ? { t: "(" + r.t + ")", g: r.g, s: true } : r; }
     function colonneNue(e) { return e && e.t === "col" ? e.v : null; }
     function estColonne(e) { return e && (e.t === "col" || e.t === "var" || e.t === "param"); }
     function filtreLignes(ctx) { return ctx.filtre === "where" || ctx.filtre === "having" || ctx.filtre === "qualify"; }
-    function note7(ctx, col, e) {
+    function filtreNote7(ctx) { return filtreLignes(ctx) || ctx.filtre === "matched"; }
+    // Note 7 : une condition « négative » écarte aussi les lignes où la colonne est vide (NULL).
+    function note7(ctx, col, e, col2) {
+      if (ctx.filtre === "matched") {
+        var m = ctx.merge || {}, cols = [col].concat(col2 && col2 !== col ? [col2] : []);
+        var cib = cols.filter(function (c) { return m.cible && cleNom(c.split(".")[0]) === m.cible && c.indexOf(".") > 0; })[0] || cols[0];
+        var remplie = m.action === "mise à jour" && (m.colonnes || []).some(function (c) { return cleNom(c) === cleNom(cib) || cleNom(c) === cleNom(cib.split(".").pop()); });
+        note(7, CODE(m.clause + " " + compact(e.src || col)) + " : si " + cols.join(" ou ") + " est vide (NULL), le test n'est pas vrai et la ligne n'est pas " +
+          (m.action || "mise à jour") + (remplie ? " (un " + cib.split(".").pop() + " vide dans la cible n'est jamais rempli)" : "") + ". Pour " + (remplie ? "le remplir" : "la traiter quand même") +
+          ", ajoute " + CODE("OR " + cib + " IS NULL") + ".");
+        return;
+      }
       var qui = ctx.filtre === "having" ? "les groupes où " + col + " est vide (NULL) sont écartés aussi" :
         ctx.instr === "update" ? "les lignes où " + col + " est vide (NULL) ne sont pas modifiées non plus" :
         ctx.instr === "delete" ? "les lignes où " + col + " est vide (NULL) ne sont pas supprimées non plus" :
         "les lignes où " + col + " est vide (NULL) sont écartées aussi";
       note(7, CODE(e.src || col) + " : " + qui + ". NULL n'est ni égal ni différent d'une valeur.");
     }
-    function note1(e, x, op) {
-      note(1, CODE(e.src || (x + " = NULL")) + " n'est jamais vrai : NULL n'est égal à rien, même pas à NULL. Seule ou reliée par ET " +
-        "dans le WHERE, cette condition ne laisse sortir aucune ligne. Écris " + CODE(x + (op === "=" ? " IS NULL" : " IS NOT NULL")) + ".");
+    // Note 1 : « = NULL » n'est jamais vrai. Ce qui en découle dépend de sa place : seule (ou dans les ET), dans un OU, dans un CASE.
+    function sansMarques(t) { return court(String(t).replace(/\u0001\d+\u0001/g, "la sous-requête").replace(/\u0004/g, " ").replace(/\u0005/g, ", "), 140); }
+    function note1(e, x, op, ctx) {
+      var debut = CODE(e.src || (x + " = NULL")) + " n'est jamais vrai : NULL n'est égal à rien, même pas à NULL. ";
+      var fin = "Écris " + CODE(x + (op === "=" ? " IS NULL" : " IS NOT NULL")) + ".";
+      var k = pileCond.length - 1;
+      while (k >= 0 && pileCond[k].t === "et") k--;
+      var f = k >= 0 ? pileCond[k] : null, filtre = ctx.filtre, instrC = ctx.instr;
+      var groupes = filtre === "having", modif = filtre === "where" && (instrC === "update" || instrC === "delete");
+      if (!f) {
+        var ici = filtre === "where" ? (instrC === "update" ? "aucune ligne n'est modifiée" : instrC === "delete" ? "aucune ligne n'est supprimée" : "le WHERE ne laisse sortir aucune ligne") :
+          filtre === "having" ? "le HAVING ne laisse sortir aucun groupe" : filtre === "qualify" ? "le QUALIFY ne laisse sortir aucune ligne" :
+          filtre === "on" ? "la jointure ne trouve aucune correspondance" : filtre === "matched" ? "cette clause WHEN ne s'applique jamais" : "";
+        note(1, debut + (ici ? "Ici, " + ici + ". " : "") + fin);
+        return;
+      }
+      if (f.t === "cas") { note(1, debut + "Ici, cette branche du CASE n'est jamais choisie. " + fin); return; }
+      if (f.t !== "ou") { note(1, debut + fin); return; }
+      var idx = f.idx, direct = k === pileCond.length - 1, racine = f.racine && (filtreLignes(ctx) || filtre === "on");
+      f.attente.push(function () {
+        var autres = f.textes.filter(function (t, j) { return j !== idx; }).map(sansMarques).join(" ou ");
+        var partie = direct ? "cette partie du OU" : "la partie " + sansMarques(f.textes[idx]);
+        var t;
+        if (racine && filtre !== "on") t = partie + (groupes ? " ne garde aucun groupe" : modif ? " n'est jamais vraie" : " ne garde aucune ligne") + (direct ? " ; " : " : ") +
+          (groupes ? "seuls sortent les groupes où " : instrC === "update" && modif ? "seules sont modifiées les lignes où " : instrC === "delete" && modif ? "seules sont supprimées les lignes où " :
+            "seules sortent les lignes où ") + autres;
+        else t = partie + " n'est jamais vraie" + (direct ? " ; " : " : ") + "le OU revient à " + autres;
+        note(1, debut + "Ici, " + t + ". " + fin);
+      });
     }
-    function txCmp(e, ctx) {
+    function txCmp(e, ctx, neg, eNon) {
       var op = e.op, g = e.g, d = e.d;
       if (g.t === "var" && /^@@FETCH_STATUS$/i.test(g.v) && d.t === "nombre" && d.v === "0") {
         lien("@@FETCH_STATUS");
@@ -2258,15 +2371,15 @@
         if (op === "<>" || op === "!=") return P("la dernière lecture du curseur a échoué ou est arrivée au bout (@@FETCH_STATUS <> 0)");
       }
       var nulD = d.t === "null", nulG = g.t === "null";
-      if ((nulD || nulG) && /^(=|<>|!=)$/.test(op)) note1(e, compact((nulD ? g : d).src || "x"), op);
-      if (filtreLignes(ctx) && (op === "<>" || op === "!=") && !nulD && !nulG) {
+      if ((nulD || nulG) && /^(=|<>|!=)$/.test(op) && !neg) note1(e, compact((nulD ? g : d).src || "x"), op, ctx);
+      if (filtreNote7(ctx) && ((op === "<>" || op === "!=") !== !!neg) && !nulD && !nulG) {
         var col = colonneNue(g) || colonneNue(d);
-        if (col) note7(ctx, col, e);
+        if (col) note7(ctx, col, neg ? eNon : e, colonneNue(g) && colonneNue(d) ? colonneNue(d) : null);
       }
       var a = nulG ? C("NULL") : tx(g, ctx), b = nulD ? C("NULL") : objet(tx(d, ctx));
-      if (d.t === "col" && d.v.charAt(0) === "\"" && !marques.mysql && !dejaGuillemets) {
+      if (d.t === "col" && d.v.charAt(0) === "\"" && !marques.mysql && !marques.moteur && !dejaGuillemets) {
         dejaGuillemets = true;
-        b = C(b.t + " (sur MySQL, " + d.v + " est un texte ; sur SQL Server et Snowflake, c'est un nom de colonne)");
+        b = C(b.t + " (sur MySQL : un texte ; sur SQL Server et Snowflake : un nom de colonne)");
       }
       if (ctx.compact && op === "=" && estColonne(g) && estColonne(d)) {
         var q1 = g.parts && g.parts.length > 1 ? g.parts[g.parts.length - 2] : null, q2 = d.parts && d.parts.length > 1 ? d.parts[d.parts.length - 2] : null;
@@ -2274,6 +2387,13 @@
       }
       if (op === "<=>") lien("<=>");
       var gg = a.g, ph;
+      if (neg) {
+        // NOT (x = …) : dit à la forme négative
+        var nf = { "=": ["n'est pas", "ne sont pas", "égal", "à"], "<>": ["est", "sont", "égal", "à"], "!=": ["est", "sont", "égal", "à"],
+          ">": ["n'est pas", "ne sont pas", "plus grand", "que"], "<": ["n'est pas", "ne sont pas", "plus petit", "que"],
+          ">=": ["est", "sont", "plus petit", "que"], "<=": ["est", "sont", "plus grand", "que"] }[op];
+        return P(sujet(a) + " " + vb(nf[0], nf[1], gg) + " " + accord(nf[2], gg) + " " + prep(nf[3], b));
+      }
       switch (op) {
         case "=": ph = vb("est", "sont", gg) + " " + accord("égal", gg) + " " + prep("à", b); break;
         case "<>": case "!=": ph = vb("est", "sont", gg) + " " + accord("différent", gg) + " " + prep("de", b); break;
@@ -2288,15 +2408,15 @@
       return P(sujet(a) + " " + ph);
     }
     // Décrit un modèle de LIKE : morceaux de texte et jokers.
-    function decrireMotif(m, mysql) {
-      var pieces = [], lit = "", k = 0, crochet = false;
+    function decrireMotif(m, mysql, esc) {
+      var pieces = [], lit = "", k = 0, crochet = false, classes = !mysql && marques.moteur !== "snowflake";
       function pousseLit() { if (lit) { pieces.push({ lit: lit }); lit = ""; } }
       while (k < m.length) {
         var c = m.charAt(k);
-        if (c === "\\" && mysql && k + 1 < m.length) { lit += m.charAt(k + 1); k += 2; continue; }
+        if (((c === "\\" && mysql && !esc) || (esc && c === esc)) && k + 1 < m.length) { lit += m.charAt(k + 1); k += 2; continue; }
         if (c === "%") { pousseLit(); pieces.push({ j: "n'importe quel texte" }); k++; continue; }
         if (c === "_") { pousseLit(); pieces.push({ j: "un caractère quelconque" }); k++; continue; }
-        if (c === "[" && !mysql) {
+        if (c === "[" && classes) {
           var f = m.indexOf("]", k + 2);
           if (f > k) {
             var cont = m.slice(k + 1, f), neg = cont.charAt(0) === "^";
@@ -2320,21 +2440,21 @@
       if (!jokers.length) return { genre: "exact", lit: lit || m };
       var mots = pieces.map(function (p) { return p.j || "'" + p.lit + "'"; });
       return { genre: "modele", texte: (mots.length > 1 ? mots.slice(0, -1).join(", ") + ", puis " + mots[mots.length - 1] : mots[0]) +
-        (crochet ? " ([…] : sur SQL Server ; ailleurs, [ est un caractère normal)" : "") };
+        (crochet && !marques.moteur ? " ; […] : sur SQL Server seulement ; ailleurs, [ est un caractère normal" : "") };
     }
     function txLike(e, ctx) {
       var a = tx(e.e, ctx), s = sujet(a), g = a.g, neg = e.non;
       lien(e.op === "ILIKE" ? (neg ? "NOT ILIKE" : "ILIKE") : neg ? "NOT LIKE" : "LIKE", MC);
-      if (neg && filtreLignes(ctx) && colonneNue(e.e)) note7(ctx, e.e.v, e);
+      if (neg && filtreNote7(ctx) && colonneNue(e.e)) note7(ctx, e.e.v, e);
       var sans = e.op === "ILIKE" ? " (sans tenir compte des majuscules)" : "";
       if (e.op === "RLIKE" || e.op === "REGEXP") return P(s + " " + (neg ? vb("ne correspond pas", "ne correspondent pas", g) : vb("correspond", "correspondent", g)) + " à l'expression régulière " + tx(e.motif, ctx).t);
       if (e.liste) {
         var l = e.liste.map(function (x) { return tx(x, ctx).t; }).join(", ");
         return P(s + " " + (neg ? vb("ne ressemble à aucun", "ne ressemblent à aucun", g) : vb("ressemble à au moins un", "ressemblent à au moins un", g)) + " des modèles " + l + sans);
       }
-      var m = valeurTexte(e.motif);
-      if (m !== null && !e.esc) {
-        var dm = decrireMotif(m, marques.mysql), q = function (t) { return "'" + t + "'"; };
+      var m = valeurTexte(e.motif), esc = e.esc ? valeurTexte(e.esc) : null;
+      if (m !== null && (!e.esc || (esc && esc.length === 1))) {
+        var dm = decrireMotif(m, marques.mysql, esc), q = function (t) { return "'" + t + "'"; };
         if (dm.genre === "debut") return P(s + " " + (neg ? vb("ne commence pas", "ne commencent pas", g) : vb("commence", "commencent", g)) + " par " + q(dm.lit) + sans);
         if (dm.genre === "fin") return P(s + " " + (neg ? vb("ne finit pas", "ne finissent pas", g) : vb("finit", "finissent", g)) + " par " + q(dm.lit) + sans);
         if (dm.genre === "contient") return P(s + " " + (neg ? vb("ne contient pas", "ne contiennent pas", g) : vb("contient", "contiennent", g)) + " " + q(dm.lit) + sans);
@@ -2348,26 +2468,39 @@
       var a = tx(e.e, ctx), s = sujet(a), g = a.g;
       lien(e.non ? "NOT IN" : "IN", MC);
       if (e.req) {
-        if (e.non) note(2, CODE("NOT IN (sous-requête)") + " : si la sous-requête renvoie un seul NULL, aucune ligne ne sort. Préfère " + CODE("NOT EXISTS") + ".");
+        if (e.non && !sansNull(e.req)) note(2, CODE("NOT IN (sous-requête)") + " : si la sous-requête renvoie un seul NULL, aucune ligne ne sort. Préfère " + CODE("NOT EXISTS") + ".");
         return P(s + " " + (e.non ? vb("ne fait pas", "ne font pas", g) : vb("fait", "font", g)) + " partie du résultat de " + sousRequete(e.req, ctx));
       }
       var vals = e.liste.map(function (v) { return v.t === "null" ? "NULL" : tx(v, ctx).t; });
       if (e.non && e.liste.some(function (v) { return v.t === "null"; })) note(1, CODE("NOT IN (…, NULL)") + " n'est jamais vrai à cause du NULL de la liste : NULL n'est égal à rien. Aucune ligne ne passe ce test.");
-      if (e.non && filtreLignes(ctx) && colonneNue(e.e)) note7(ctx, e.e.v, e);
+      if (e.non && filtreNote7(ctx) && colonneNue(e.e) && !e.liste.some(function (v) { return v.t === "null"; })) note7(ctx, e.e.v, e);
       if (!e.non) return P(s + " " + vb("vaut", "valent", g) + " " + (vals.length > 6 ? "une de ces " + vals.length + " valeurs : " + vals.join(", ") : enumerer(vals, "ou")));
       return P(s + " " + vb("ne vaut", "ne valent", g) + " " + (vals.length === 1 ? "pas " + vals[0] : "ni " + vals.join(", ni ")));
+    }
+    // La sous-requête écarte-t-elle déjà les NULL de la colonne qu'elle renvoie (WHERE x IS NOT NULL) ?
+    function sansNull(req) {
+      var c = req && req.corps;
+      if (!c || c.t !== "select" || c.colonnes.length !== 1 || c.colonnes[0].e.t !== "col" || !c.where) return false;
+      var v = cleNom(c.colonnes[0].e.v), oui = false;
+      (function plat(x) {
+        if (x.t === "et") x.termes.forEach(plat);
+        else if (x.t === "isnull" && x.non && x.e.t === "col" && cleNom(x.e.v) === v) oui = true;
+      })(c.where);
+      return oui;
     }
     function txBetween(e, ctx) {
       var a = tx(e.e, ctx), b1 = objet(tx(e.a, ctx)), b2 = objet(tx(e.b, ctx)), g = a.g;
       lien(e.non ? "NOT BETWEEN" : "BETWEEN", MC);
-      if (e.non && filtreLignes(ctx) && colonneNue(e.e)) note7(ctx, e.e.v, e);
+      if (e.non && filtreNote7(ctx) && colonneNue(e.e)) note7(ctx, e.e.v, e);
       var hb = valeurTexte(e.b), md = hb && /^(\d{4})-?(\d{2})-?(\d{2})$/.exec(hb);
       if (md && !e.non) {
         var jour = parseInt(md[3], 10);
         note(10, CODE("BETWEEN … AND " + e.b.v) + " : si la colonne contient aussi l'heure, " + e.b.v + " veut dire le " +
           (jour === 1 ? "1er" : jour) + " à 0 h 00 : la journée du " + (jour === 1 ? "1er" : jour) + " est presque exclue.");
       }
-      return P(sujet(a) + " " + (e.non ? vb("n'est pas", "ne sont pas", g) : vb("est", "sont", g)) + " entre " + b1.t + " et " + b2.t + " (bornes comprises)");
+      if (e.non) return P(sujet(a) + " " + vb("est", "sont", g) + " " + accord("plus petit", g) + " " + prep("que", b1) + " ou " + accord("plus grand", g) + " " + prep("que", b2) +
+        (b1.s && b2.s ? " (" + b1.t + " et " + b2.t + " sont exclus)" : " (les deux bornes sont exclues)"));
+      return P(sujet(a) + " " + vb("est", "sont", g) + " entre " + b1.t + " et " + b2.t + " (bornes comprises)");
     }
     function txVar(v) {
       var h = v.toUpperCase();
@@ -2392,8 +2525,17 @@
         lien("||", FO);
         var morceaux = [];
         (function plat(x) { if (x.t === "arith" && x.op === "||" && !x.paren) { plat(x.g); plat(x.d); } else morceaux.push(emb(tx(x, ctx))); })(e);
-        if (marques.mysql) return P("un OU logique entre " + enumerer(morceaux) + " (sur MySQL, || vaut 1 ou 0, pas un texte)");
+        if (marques.mysql) return P("un OU logique entre " + enumerer(morceaux) + " ; sur MySQL, || vaut 1 ou 0, pas un texte");
         return P(enumerer(morceaux) + " collés (||) ; NULL si une des valeurs est NULL", "mp");
+      }
+      if (e.op === "+" && !marques.mysql) {
+        // SQL Server : 'texte' + x colle les textes (« suivi de »)
+        var bouts = [];
+        (function plat(x) { if (x.t === "arith" && x.op === "+" && !x.paren) { plat(x.g); plat(x.d); } else bouts.push(x); })(e);
+        if (bouts.some(function (x) { return x.t === "texte"; })) return P(bouts.map(function (x) {
+          if (x.t === "cast" && /CHAR|TEXT|STRING/.test(x.type.nom)) return emb(tx(x.e, ctx)) + " (converti en texte, " + x.type.texte + ")";
+          return emb(tx(x, ctx));
+        }).join(" suivi de "));
       }
       var a = tx(e.g, ctx), b = tx(e.d, ctx);
       if (e.op === "%" || e.op === "MOD") { lien("%", MC); return P("le reste de la division de " + emb(a) + " par " + emb(b)); }
@@ -2425,7 +2567,7 @@
           if (w.si.t === "null") note(1, CODE("CASE " + compact(e.sujet.src) + " WHEN NULL") + " compare " + compact(e.sujet.src) +
             " = NULL, ce qui n'est jamais vrai : cette branche n'est jamais choisie. Écris " + CODE("CASE WHEN " + compact(e.sujet.src) + " IS NULL THEN …") + ".");
           si = sujet(s) + " " + vb("est", "sont", s.g) + " " + accord("égal", s.g) + " " + prep("à", w.si.t === "null" ? C("NULL") : objet(tx(w.si, ctx)));
-        } else si = cond(w.si, cc);
+        } else { pileCond.push({ t: "cas" }); si = cond(w.si, cc); pileCond.pop(); }
         l.push((k ? "sinon si " : "si ") + si + " alors " + tx(w.alors, ctx).t);
       });
       l.push("sinon : " + (e.sinon ? tx(e.sinon, ctx).t : "vide (NULL)"));
@@ -2433,6 +2575,15 @@
     }
     function teteCas(e, ctx) { return (e.sujet ? "selon " + tx(e.sujet, ctx).t : "selon le cas") + (e.quand.length > 1 ? " (le premier cas vrai gagne)" : ""); }
     function txCas(e, ctx) { lien("CASE", MC); return P(teteCas(e, ctx) + " : " + partiesCas(e, ctx).join(" ; ")); }
+    // TRY_CAST(x AS T), TRY_CONVERT, TRY_TO_NUMBER… : « x converti en T, ou vide si c'est impossible » → pour IS NULL / IS NOT NULL.
+    var ESSAIS = { TRY_TO_NUMBER: "nombre", TRY_TO_DECIMAL: "nombre", TRY_TO_NUMERIC: "nombre", TRY_TO_DOUBLE: "nombre", TRY_TO_DATE: "date",
+      TRY_TO_TIME: "heure", TRY_TO_TIMESTAMP: "date et heure", TRY_TO_TIMESTAMP_NTZ: "date et heure", TRY_TO_TIMESTAMP_LTZ: "date et heure",
+      TRY_TO_TIMESTAMP_TZ: "date et heure", TRY_TO_BOOLEAN: "vrai ou faux" };
+    function conversionEssai(x, ctx) {
+      if (x.t === "cast" && x.essai) { lien(x.forme === "TRY_CONVERT" ? "TRY_CONVERT" : "TRY_CAST", FO); return { de: tx(x.e, ctx), en: typeTexte(x.type) }; }
+      if (x.t === "fn" && !x.over && ESSAIS[x.nom] && x.args.length >= 1) { lien(x.nom, FO); return { de: tx(x.args[0], ctx), en: ESSAIS[x.nom] }; }
+      return null;
+    }
     function txChemin(e, ctx) {
       var b = tx(e.e, ctx);
       lien("VARIANT");
@@ -2462,7 +2613,8 @@
         r = F(f, a, {
           tx: function (n) { return tx(n, ctx); },
           cond: function (n) { return cond(n, ctxNouveau(ctx, { filtre: null, sous: ctx.sous, compteur: ctx.compteur })); },
-          ordre: function (x) { var l = x.dansGroupe || x.triInterne; return l ? ", triées par " + triTexte(l, ctx) : ""; }
+          ordre: function (x) { var l = x.dansGroupe || x.triInterne; return l ? ", triées par " + triTexte(l, ctx) : ""; },
+          moteur: marques.moteur
         });
       }
       if (!r) return C(compact(f.src || f.nom));
@@ -2488,55 +2640,110 @@
       if (d.courant && f.courant) return "sur la ligne courante seulement";
       return prep("de", P(decrireBorne(d))) + " " + prep("à", P(decrireBorne(f))) + valeurs;
     }
-    function txFenetre(f, ctx) {
+    // Un nom de colonne n'a pas de genre : « la même date_cde », mais « la même valeur de montant_ht ».
+    function valeurDe(x) { return /(^|[._])(date|dt|heure)/i.test(x) ? x : "valeur de " + x; }
+    function valeursDe(x) { return /(^|[._])(date|dt|heure)/i.test(x) ? x : "valeurs de " + x; }
+    // Le nom d'un calcul de fenêtre écrit sans nom (dans QUALIFY), et le mot pour y renvoyer ensuite (« ce numéro »).
+    var NOMS_CALCULS = { ROW_NUMBER: ["numéro", "ce"], RANK: ["rang", "ce"], DENSE_RANK: ["rang", "ce"], NTILE: ["tranche", "cette"],
+      PERCENT_RANK: ["rang en %", "ce"], CUME_DIST: ["part", "cette"], LAG: ["valeur d'avant", "cette"], LEAD: ["valeur d'après", "cette"],
+      FIRST_VALUE: ["première valeur", "cette"], LAST_VALUE: ["dernière valeur", "cette"], NTH_VALUE: ["valeur", "cette"],
+      SUM: ["total", "ce"], AVG: ["moyenne", "cette"], COUNT: ["nombre", "ce"], MIN: ["minimum", "ce"], MAX: ["maximum", "ce"] };
+    // Note 13 : ROW_NUMBER sur un tri qui peut avoir des ex aequo.
+    function note13(f, w) {
+      if (f.nom !== "ROW_NUMBER" || w.nom) return;
+      if (!w.tri) {
+        note(13, CODE("ROW_NUMBER() OVER (" + (w.partition ? "PARTITION BY …" : "") + ")") + " sans ORDER BY : les numéros sont donnés dans un ordre non garanti " +
+          "(il peut changer d'une fois à l'autre).");
+        return;
+      }
+      var der = w.tri[w.tri.length - 1].e;
+      if (nomCol(der) === "ID") return;
+      var q = der.t === "col" && der.parts.length > 1 ? der.parts.slice(0, der.parts.length - 1).join(".") + "." : "";
+      var groupe = !w.partition ? "" : w.partition.length === 1 ? " d'un même groupe (" + compact(w.partition[0].src) + ")" : " d'un même groupe";
+      var meme = w.tri.length === 1 ? "la même " + valeurDe(compact(w.tri[0].e.src)) : "les mêmes valeurs de tri";
+      note(13, CODE("ROW_NUMBER() … ORDER BY " + w.tri.map(function (k) { return compact(k.e.src) + (k.sens === "DESC" ? " DESC" : ""); }).join(", ")) +
+        " : si deux lignes" + groupe + " ont " + meme + ", celle qui reçoit le n° 1 n'est pas garantie (le résultat peut changer d'une fois à l'autre). " +
+        "Ajoute une colonne unique au tri, par exemple " + q + "id.");
+    }
+    // Une fonction de fenêtre en morceaux : ce qui est calculé (base, prec), la fenêtre (part, ordre), le cadre, des lignes de détail.
+    function fenetreMorceaux(f, ctx) {
       lien("OVER", MC);
-      var w = f.over, nom = f.nom, base, fin = "", g = "m";
+      var w = f.over, nom = f.nom, m = { base: "", prec: "", g: "m", part: "", ordre: "", cadre: "", details: [], special: false };
       var agregat = !!AGREGATS[nom], valeur = /^(FIRST_VALUE|LAST_VALUE|NTH_VALUE)$/.test(nom);
       var A = function (k) { return f.args[k] ? emb(tx(f.args[k], ctx)) : "?"; };
       switch (nom) {
-        case "ROW_NUMBER": base = "le numéro de la ligne (1, 2, 3…)"; fin = " ; deux ex aequo ont des numéros différents, dans un ordre non garanti"; break;
-        case "RANK": base = "le rang"; fin = " ; les ex aequo ont le même rang, puis un trou (1, 2, 2, 4)"; break;
-        case "DENSE_RANK": base = "le rang sans trou"; fin = " ; les ex aequo ont le même rang (1, 2, 2, 3)"; break;
-        case "NTILE": base = "le numéro de la tranche, sur " + A(0) + " tranches de taille presque égale"; break;
-        case "PERCENT_RANK": base = "le rang en pourcentage (de 0 à 1)"; break;
-        case "CUME_DIST": base = "la part des lignes placées avant elle ou ex aequo (de 0 à 1)"; g = "f"; break;
+        case "ROW_NUMBER": m.base = "le numéro de la ligne (1, 2, 3…)"; break;
+        case "RANK": m.base = "le rang"; m.prec = " ; les ex aequo ont le même rang, puis un trou (1, 2, 2, 4)"; break;
+        case "DENSE_RANK": m.base = "le rang sans trou (1, 2, 2, 3)"; break;
+        case "NTILE": m.base = "le numéro de la tranche, sur " + A(0) + " tranches de taille presque égale"; break;
+        case "PERCENT_RANK": m.base = "le rang en pourcentage (de 0 à 1)"; break;
+        case "CUME_DIST": m.base = "la part des lignes placées avant elle ou ex aequo (de 0 à 1)"; m.g = "f"; break;
         case "LAG": case "LEAD":
           var n = f.args.length > 1 ? valeurNombre(f.args[1]) : 1, nt = f.args.length > 1 ? (n !== null ? String(n) : A(1)) : "1";
-          base = "la valeur de " + A(0) + " sur " + (nt === "1" ? "la ligne " + (nom === "LAG" ? "d'avant" : "d'après") : nt + " lignes " + (nom === "LAG" ? "avant" : "après"));
-          fin = f.args.length > 2 ? ", ou " + A(2) + " s'il n'y en a pas" : " (vide s'il n'y en a pas)";
-          g = "f"; break;
-        case "FIRST_VALUE": base = "la première valeur de " + A(0); g = "f"; break;
-        case "LAST_VALUE": base = "la dernière valeur de " + A(0); g = "f"; break;
-        case "NTH_VALUE": base = "la valeur n° " + A(1) + " de " + A(0); g = "f"; break;
-        case "RATIO_TO_REPORT": base = "la part de " + A(0) + " dans le total"; g = "f"; break;
+          m.base = "la valeur de " + A(0) + " sur " + (nt === "1" ? "la ligne " + (nom === "LAG" ? "d'avant" : "d'après") : nt + " lignes " + (nom === "LAG" ? "avant" : "après"));
+          m.prec = f.args.length > 2 ? ", ou " + A(2) + " s'il n'y en a pas" : " (vide s'il n'y en a pas)";
+          m.g = "f"; break;
+        case "FIRST_VALUE": m.base = "la première valeur de " + A(0); m.g = "f"; break;
+        case "LAST_VALUE": m.base = "la dernière valeur de " + A(0); m.g = "f"; break;
+        case "NTH_VALUE": m.base = "la valeur n° " + A(1) + " de " + A(0); m.g = "f"; break;
+        case "RATIO_TO_REPORT": m.base = "la part de " + A(0) + " dans le total"; m.g = "f"; break;
         default:
-          if (!agregat) { lien(nom, FO); return C(compact(f.src)); }
+          if (!agregat) { lien(nom, FO); return null; }
           var r0 = fonction({ t: "fn", nom: nom, args: f.args, distinct: f.distinct, etoile: f.etoile, separateur: f.separateur,
             triInterne: f.triInterne, dansGroupe: f.dansGroupe, src: f.src }, ctx);
-          base = r0.t; g = r0.g;
+          m.base = r0.t; m.g = r0.g;
           if (nom === "SUM") lien("SUM OVER", FO);
       }
       lien(nom, FO);
-      if (f.nulls === "IGNORE") fin += " (en sautant les vides : IGNORE NULLS)";
-      var part = w.partition ? " dans chaque groupe de " + enumerer(w.partition.map(function (e) { return dansListe(tx(e, ctx)); })) : "";
-      if (w.partition) lien("PARTITION BY");
-      if (w.nom) part = " (fenêtre " + w.nom + ")";
-      var ordre = w.tri ? ", en triant par " + triTexte(w.tri, ctx) : "", cadre = "";
+      if (f.nulls === "IGNORE") m.prec += " (en sautant les vides : IGNORE NULLS)";
+      if (w.partition) {
+        lien("PARTITION BY");
+        m.part = "dans chaque groupe de " + (w.partition.length === 1 ? tx(w.partition[0], ctx).t : enumerer(w.partition.map(function (e) { return dansListe(tx(e, ctx)); })));
+      }
+      if (w.nom) m.part = "(fenêtre " + w.nom + ")";
+      if (w.tri) m.ordre = "en triant par " + triTexte(w.tri, ctx);
       var cumul = nom === "SUM" && (!w.cadre ? !!w.tri : w.cadre.debut.illimite && w.cadre.debut.sens === "avant" && w.cadre.fin.courant);
-      if (cumul) { base = base.replace(/^la somme de /, "le cumul de "); g = "m"; }
+      if (cumul) { m.base = m.base.replace(/^la somme de /, "le cumul de "); m.g = "m"; }
       if (agregat || valeur) {
-        if (w.cadre) { lien("ROWS BETWEEN"); cadre = ", " + decrireCadre(w.cadre, !!w.partition); }
-        else if (w.tri && agregat) cadre = ", du début" + (w.partition ? " du groupe" : "") + " jusqu'à la ligne courante ; les lignes qui ont la même valeur de " +
-          (w.tri.length === 1 ? tx(w.tri[0].e, ctx).t : "tri") + " sont comptées ensemble (même résultat)";
+        if (w.cadre) { lien("ROWS BETWEEN"); m.cadre = ", " + decrireCadre(w.cadre, !!w.partition); }
+        else if (w.tri && agregat) m.cadre = ", du début" + (w.partition ? " du groupe" : "") + " jusqu'à la ligne courante ; les lignes qui ont la même " +
+          (w.tri.length === 1 ? valeurDe(tx(w.tri[0].e, ctx).t) : "valeur de tri") + " sont comptées ensemble (même résultat)";
         else if (w.tri && (nom === "LAST_VALUE" || nom === "NTH_VALUE")) {
-          cadre = " (avec le cadre par défaut : voir À savoir)";
-          note(9, CODE(nom + " … OVER (… ORDER BY …)") + " sans cadre écrit : sur SQL Server et MySQL, la fenêtre s'arrête à la dernière ligne qui a " +
-            "la même valeur de tri que la ligne courante (souvent la ligne elle-même). Snowflake prend toute la fenêtre. " + (nom === "LAST_VALUE" ? "Pour la vraie dernière valeur" : "Pour regarder toute la fenêtre") + ", écris " +
+          // Sans cadre écrit, la fenêtre dépend du moteur : on la décrit, sans dire « dans chaque groupe ».
+          var nn = nom === "NTH_VALUE" ? valeurNombre(f.args[1]) : null;
+          m.special = true;
+          m.base = A(0) + " de la " + (nom === "LAST_VALUE" ? "dernière" : nn !== null && nn >= 1 ? ordinal(nn) : "n° " + A(1)) + " ligne de la fenêtre";
+          m.details.push("fenêtre : " + [m.part, m.ordre].filter(Boolean).join(", "));
+          m.details.push("sans cadre écrit : du début" + (w.partition ? " du groupe" : "") + " jusqu'à la ligne courante (" + (nom === "LAST_VALUE" ? "SQL Server, MySQL" : "MySQL") +
+            ") ; " + (w.partition ? "tout le groupe" : "toutes les lignes") + " (Snowflake)");
+          if (nom === "LAST_VALUE") note(9, CODE("LAST_VALUE … OVER (… ORDER BY …)") + " sans cadre écrit : sur SQL Server et MySQL, la fenêtre s'arrête à la dernière " +
+            "ligne qui a la même valeur de tri que la ligne courante (souvent la ligne elle-même). Snowflake prend toute la fenêtre. Pour la vraie dernière valeur, écris " +
+            CODE("ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING") + ".");
+          else if (nn === null || nn > 1) note(9, CODE("NTH_VALUE(" + compact(f.args[0] ? f.args[0].src : "?") + ", " + compact(f.args[1] ? f.args[1].src : "?") + ") … ORDER BY …") +
+            " sans cadre écrit : sur MySQL, la fenêtre s'arrête à la ligne courante : sur " + (nn === 2 ? "la 1re ligne" : nn !== null ? "les " + (nn - 1) + " premières lignes" : "les premières lignes") +
+            (w.partition ? " de chaque groupe" : "") + ", le résultat est vide (NULL). Snowflake prend toute la fenêtre. Pour regarder tout le groupe, écris " +
             CODE("ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING") + ".");
         }
-        else if (!w.tri && !w.partition) cadre = " sur toutes les lignes";
-      } else if (!w.partition && !w.tri) cadre = " sur toutes les lignes";
-      return P(base + part + ordre + cadre + fin, g);
+        else if (!w.tri && !w.partition) m.cadre = " sur toutes les lignes";
+      } else if (!w.partition && !w.tri) m.cadre = " sur toutes les lignes";
+      note13(f, w);
+      return m;
+    }
+    function fenetreEnLigne(m) {
+      if (m.special) return m.base + " (" + m.details.join(" ; ") + ")";
+      return m.base + (m.part ? " " + m.part : "") + (m.ordre ? ", " + m.ordre : "") + m.cadre + m.prec;
+    }
+    function txFenetre(f, ctx) {
+      var m = fenetreMorceaux(f, ctx);
+      return m ? P(fenetreEnLigne(m), m.g) : C(compact(f.src));
+    }
+    // Une définition de fenêtre : une ligne si elle est courte ; sinon une idée par ligne (la fenêtre, le tri, le cadre).
+    function lignesFenetre(nom, m, commun) {
+      var deux = m.prec.replace(/^ ; /, " : ");
+      if (commun) return { t: nom + " = " + m.base + m.cadre.replace(/^, sur /, " sur ") + deux, sous: [] };
+      var une = nom + " = " + fenetreEnLigne(m);
+      if (!m.special && une.replace(/\u0001\d+\u0001/g, "").length <= 120) return { t: une, sous: [] };
+      return { t: nom + " = " + m.base + deux, sous: m.special ? m.details : [m.part, m.ordre, m.cadre.replace(/^,? /, "")].filter(Boolean) };
     }
     function triTexte(l, ctx) {
       return l.map(function (s, k) {
@@ -2548,6 +2755,11 @@
       if (!e) return C("?");
       switch (e.t) {
         case "col":
+          if (ctx.doublon && e.parts) {
+            var qd = e.parts.length > 1 ? cleNom(e.parts[e.parts.length - 2]) : null;
+            if (qd && qd === ctx.doublon.alias) return C("la valeur qu'on voulait ajouter pour " + e.parts[e.parts.length - 1] + " (" + e.v + ")");
+            if (!qd || qd === ctx.doublon.table) return C("la valeur actuelle de " + e.v);
+          }
           if (ctx.developper && ctx.alias && e.parts && e.parts.length === 1) {
             var it = ctx.alias[cleNom(e.v)];
             if (it && !it.enCours) {
@@ -2572,7 +2784,7 @@
         case "fn": return fonction(e, ctx);
         case "cast": return txCast(e, ctx);
         case "case": return txCas(e, ctx);
-        case "sousreq": return P("le résultat de " + sousRequete(e.req, ctx));
+        case "sousreq": var ag = agregatSimple(e.req, ctx); return P(ag || "le résultat de " + sousRequete(e.req, ctx));
         case "tuple": return K("(" + e.liste.map(function (x) { return tx(x, ctx).t; }).join(", ") + ")");
         case "intervalle": return txIntervalle(e, ctx);
         case "chemin": return txChemin(e, ctx);
@@ -2587,6 +2799,11 @@
         case "like": return txLike(e, ctx);
         case "isnull":
           lien(e.non ? "IS NOT NULL" : "IS NULL", MC);
+          var cv = conversionEssai(e.e, ctx);
+          if (cv) {
+            var cg = cv.de.g, conv = " être " + accord("converti", cg) + " en " + cv.en;
+            return P(sujet(cv.de) + " " + (e.non ? vb("peut", "peuvent", cg) + conv : vb("ne peut pas", "ne peuvent pas", cg) + conv + ", ou " + vb("est", "sont", cg) + " " + accord("vide", cg) + " (NULL)"));
+          }
           var ir = tx(e.e, ctx);
           return P(sujet(ir) + (e.non ? " " + vb("a", "ont", ir.g) + " une valeur (pas NULL)" : " " + vb("est", "sont", ir.g) + " " + accord("vide", ir.g) + " (NULL)"));
         case "isbool":
@@ -2594,8 +2811,10 @@
           return P(sujet(br) + (e.non ? " " + vb("n'est pas", "ne sont pas", br.g) + " " : " " + vb("est", "sont", br.g) + " ") + bv);
         case "distinctde":
           lien("IS DISTINCT FROM", MC);
-          var da = tx(e.g, ctx), db = objet(tx(e.d, ctx));
-          return P(sujet(da) + " " + (e.non ? vb("est", "sont", da.g) + " " + accord("égal", da.g) : vb("n'est pas", "ne sont pas", da.g) + " " + accord("égal", da.g)) + " " + prep("à", db) + " (deux NULL comptent comme égaux)");
+          var da = tx(e.g, ctx), db = objet(tx(e.d, ctx)), colD = colonneNue(e.g) || colonneNue(e.d);
+          if (e.non) return P(sujet(da) + " " + vb("est", "sont", da.g) + " " + accord("égal", da.g) + " " + prep("à", db) + " (vide compte comme une valeur : deux vides sont égaux)");
+          return P(sujet(da) + " " + vb("est", "sont", da.g) + " " + accord("différent", da.g) + " " + prep("de", db) + " (vide compte comme une valeur" +
+            (filtreLignes(ctx) && colD && e.d.t !== "col" && e.d.t !== "null" ? " : une ligne où " + colD + " est vide sort)" : ")"));
         case "exists":
           lien("EXISTS", MC);
           return P("il existe au moins une ligne dans " + sousRequete(e.req, ctx, { exists: true }));
@@ -2615,8 +2834,19 @@
       if (e.t === "et" || e.t === "ou") return morceauxCond(e, ctx).join(" " + (e.t === "et" ? "et" : "ou") + " ");
       if (e.t === "non") {
         lien("NOT", MC);
-        if (e.e.t === "exists") { lien("NOT EXISTS", MC); return "il n'existe aucune ligne dans " + sousRequete(e.e.req, ctx, { exists: true }); }
-        return "pas (" + cond(e.e, ctx) + ")";
+        var x = e.e;
+        if (x.t === "exists") { lien("NOT EXISTS", MC); return "il n'existe aucune ligne dans " + sousRequete(x.req, ctx, { exists: true }); }
+        if (x.t === "cmp" && /^(=|<>|!=|<|>|<=|>=)$/.test(x.op) && x.g.t !== "null" && x.d.t !== "null") return txCmp(x, ctx, true, e).t;
+        if ((x.t === "in" || x.t === "like" || x.t === "between") && !x.non) {
+          var y = {};
+          for (var k in x) if (Object.prototype.hasOwnProperty.call(x, k)) y[k] = x[k];
+          y.non = true; y.src = e.src;
+          return tx(y, ctx).t;
+        }
+        pileCond.push({ t: "non" });
+        var rn = "pas (" + cond(x, ctx) + ")";
+        pileCond.pop();
+        return rn;
       }
       if (e.t === "xor") return "soit " + cond(e.g, ctx) + ", soit " + cond(e.d, ctx) + " (pas les deux)";
       if (e.t === "bool") return e.v === "TRUE" ? "toujours vrai" : "jamais vrai";
@@ -2628,24 +2858,59 @@
       lien(e.t === "et" ? "AND" : "OR", MC);
       if (e.t === "ou" && e.termes.some(function (x) { return x.t === "et" && !x.paren; }))
         note(6, CODE("AND") + " et " + CODE("OR") + " mélangés sans parenthèses : ET passe avant OU. Le pseudo-code montre le vrai regroupement, entre parenthèses.");
-      return e.termes.map(function (x) {
+      var cadre = { t: e.t, idx: 0, textes: [], attente: [], racine: pileCond.every(function (f) { return f.t === "et"; }) };
+      pileCond.push(cadre);
+      var r = e.termes.map(function (x, k) {
+        cadre.idx = k;
         var t = cond(x, ctx);
-        return (e.t === "et" && (x.t === "ou" || x.t === "xor")) || (e.t === "ou" && x.t === "et") ? "(" + t + ")" : t;
+        t = (e.t === "et" && (x.t === "ou" || x.t === "xor")) || (e.t === "ou" && x.t === "et") ? "(" + t + ")" : t;
+        cadre.textes.push(t);
+        return t;
       });
+      pileCond.pop();
+      cadre.attente.forEach(function (f) { f(); });
+      return r;
     }
     function condLignes(e, ctx) {
       if (e.t !== "et" && e.t !== "ou") return [cond(e, ctx)];
       var m = morceauxCond(e, ctx), mot = e.t === "et" ? "et" : "ou";
       var une = m.join(" " + mot + " ");
-      if (une.replace(/\u0001\d+\u0001/g, "").length <= 110 && m.length <= 3) return [une];
+      if (une.replace(/\u0001\d+\u0001/g, "").length <= 98 && m.length <= 2) return [une];
       return m.map(function (t, k) { return k ? mot + " " + t : t; });
     }
 
     // --- Lignes avec sous-requêtes : « … fait partie du résultat de : » puis le bloc décalé ---
+    // Les morceaux d'un texte coupé à ses « ; », hors parenthèses et hors textes entre apostrophes.
+    function morceauxPointVirgule(t) {
+      var l = [], prof = 0, dans = false, d = 0;
+      for (var k = 0; k < t.length; k++) {
+        var c = t.charAt(k);
+        if (c === "'") {
+          // un texte SQL commence après un blanc ou une parenthèse ; l'apostrophe de « jusqu'à » est collée à une lettre
+          if (!dans) dans = k === 0 || !/[A-Za-z0-9_\u00C0-\u017F]/.test(t.charAt(k - 1));
+          else if (t.charAt(k + 1) === "'") k++;
+          else dans = false;
+        }
+        else if (!dans && (c === "(" || c === "[")) prof++;
+        else if (!dans && (c === ")" || c === "]")) prof = Math.max(0, prof - 1);
+        else if (!dans && !prof && c === ";" && t.charAt(k - 1) === " " && t.charAt(k + 1) === " ") { l.push(t.slice(d, k - 1)); d = k + 2; }
+        else if (!dans && !prof && (c === "\u0004" || c === "\u0005")) { l.push(t.slice(d, k)); d = k + 1; }
+      }
+      l.push(t.slice(d));
+      return l;
+    }
     function emettre(niv, verbe, texte, ctx) {
       var re = /\u0001(\d+)\u0001/g, ks = [], m;
       while ((m = re.exec(texte))) ks.push(parseInt(m[1], 10));
-      if (!ks.length) { ligne(niv, verbe, texte); return; }
+      if (!ks.length) {
+        // Une idée par ligne : au-delà de 120 caractères, les morceaux séparés par « ; » passent sur des sous-lignes.
+        var mx = (verbe ? verbe + " " : "") + texte.replace(/\u0004/g, " ").replace(/\u0005/g, ", "), parts = mx.length > 120 ? morceauxPointVirgule(texte) : [texte];
+        if (parts.length > 1 && parts.every(function (x) { return x.length >= 12; })) {
+          ligne(niv, verbe, parts[0]);
+          parts.slice(1).forEach(function (x) { ligne(niv + 1, "", x); });
+        } else ligne(niv, verbe, texte);
+        return;
+      }
       var marque = "\u0001" + ks[0] + "\u0001";
       if (ks.length === 1 && finitPar(texte, marque)) {
         ligne(niv, verbe, texte.slice(0, texte.length - marque.length).replace(/\s+$/, "") + " :");
@@ -2721,7 +2986,12 @@
         d.texte += decrireVoyage(p.voyage);
         if (p.temporel) d.texte += ", telle qu'elle était à " + compact(p.temporel.src) + " (table temporelle)";
         if (p.indices) {
-          if (/NOLOCK|READUNCOMMITTED/.test(p.indices)) { lien("NOLOCK"); d.texte += ", lue sans attendre les verrous (NOLOCK : elle peut lire des changements pas encore validés)"; }
+          if (/NOLOCK|READUNCOMMITTED/.test(p.indices)) {
+            lien("NOLOCK");
+            if (nolockDit) d.texte += ", lue elle aussi avec NOLOCK";
+            else { d.texte += ", lue avec NOLOCK"; d.apres.push("NOLOCK : la table est lue sans attendre les verrous ; elle peut lire des changements pas encore validés"); }
+            nolockDit = true;
+          }
           else d.texte += ", avec l'indication " + p.indices;
         }
         return d;
@@ -2755,7 +3025,17 @@
           d.texte = "les morceaux de " + emb(tx(f.args[0], ctx)) + ", coupé à chaque " + tx(f.args[1], ctx).t + " (une ligne par morceau, colonne value)" + appelee;
           return d;
         }
-        if (f && f.nom === "OPENJSON") { d.texte = "les éléments du JSON " + emb(tx(f.args[0], ctx)) + " (une ligne par élément, OPENJSON)" + appelee; return d; }
+        if (f && f.nom === "OPENJSON" && f.args.length) {
+          lien("OPENJSON");
+          d.texte = "les éléments du JSON " + emb(tx(f.args[0], ctx)) + (f.args[1] ? ", au chemin " + tx(f.args[1], ctx).t : "") + " (OPENJSON" + (p.alias ? ", appelés " + p.alias : "") + ")";
+          if (p.schemaJson) {
+            d.apres.push("une ligne par élément, lue avec les colonnes :");
+            p.schemaJson.forEach(function (c) {
+              d.apres.push({ t: c.nom + " : " + typeTexte(c.type) + (c.chemin ? ", pris dans " + c.chemin : "") + (c.json ? " (gardé en JSON)" : ""), n: 1 });
+            });
+          } else d.apres.push("une ligne par élément (colonnes key, value et type)");
+          return d;
+        }
         d.texte = "le résultat de la fonction " + compact(p.fonction.src || "?") + appelee;
         return d;
       }
@@ -2771,13 +3051,141 @@
       lv.slice(0, 5).forEach(function (l) { emettre(niv, "", "(" + l.map(function (v) { return tx(v, ctx).t; }).join(", ") + ")", ctx); });
       if (lv.length > 5) ligne(niv, "", "… et " + (lv.length - 5) + " autres lignes");
     }
+    function apresLignes(d, niv) { d.apres.forEach(function (t) { ligne(niv + 1 + (t.n || 0), "", t.t || t); }); }
     function sourceLigne(p, niv, verbe, portee, opts) {
       var d = decrire(p, portee, opts);
       ligne(niv, verbe, d.texte + (d.bloc ? " :" : ""));
       if (d.bloc) d.bloc(niv + 1);
-      d.apres.forEach(function (t) { ligne(niv + 1, "", t); });
+      apresLignes(d, niv);
+    }
+    // --- Les relations entre tables : recherche par la clé, ou une ligne vers plusieurs ---
+    function qualifCol(e) { return e && e.t === "col" && e.parts.length >= 2 ? cleNom(e.parts[e.parts.length - 2]) : null; }
+    function nomCol(e) { return e && e.t === "col" ? cleNom(e.parts[e.parts.length - 1]) : null; }
+    function egalites(c) {
+      var l = [];
+      (function plat(e) { if (!e) return; if (e.t === "et") e.termes.forEach(plat); else if (e.t === "cmp" && e.op === "=" && e.g.t === "col" && e.d.t === "col") l.push(e); })(c);
+      return l;
+    }
+    // Une sous-requête regroupée par la colonne du ON : une seule ligne par valeur.
+    function sourceUnique(p, on) {
+      var r = p.req && p.req.corps;
+      if (!r || r.t !== "select" || !r.groupe || r.groupe.tout || r.groupe.elements.length !== 1 || r.groupe.elements[0].t !== "expr") return false;
+      var g = nomCol(r.groupe.elements[0].e), b = cleNom(p.alias || "");
+      return egalites(on).some(function (e) { return (qualifCol(e.g) === b && nomCol(e.g) === g) || (qualifCol(e.d) === b && nomCol(e.d) === g); });
+    }
+    // « cle » : la ligne de b est cherchée par sa clé (au plus une) ; « 1n » : b porte la clé d'une table déjà prise
+    // (chaque ligne de celle-ci peut sortir plusieurs fois) ; « ? » : on ne sait pas.
+    function relation(j, avant) {
+      var p = j.source, b = cleNom(nomAffichage(p)), r = { rel: "?", parent: null };
+      if (!j.on) return r;
+      if (p.req && sourceUnique(p, j.on)) { r.rel = "cle"; return r; }
+      egalites(j.on).forEach(function (e) {
+        [[e.g, e.d], [e.d, e.g]].forEach(function (c) {
+          var qb = qualifCol(c[0]), qa = qualifCol(c[1]);
+          if (qb !== b || !qa || qa === b || avant.indexOf(qa) < 0) return;
+          if (nomCol(c[0]) === "ID") r.rel = "cle";
+          else if (nomCol(c[1]) === "ID" && r.rel !== "cle") { r.rel = "1n"; r.parent = c[1].parts[c[1].parts.length - 2]; }
+        });
+      });
+      return r;
+    }
+    // LEFT JOIN b … WHERE b.x IS NULL (x dans le ON, ou x = id) : on cherche ce qui manque (anti-jointure).
+    function antiJointures(from, where) {
+      var r = {};
+      if (!from || !where) return r;
+      var termes = [];
+      (function plat(e) { if (e.t === "et") e.termes.forEach(plat); else termes.push(e); })(where);
+      from.forEach(function (src) {
+        src.jointures.forEach(function (j) {
+          if (j.type !== "LEFT" || !j.on) return;
+          var b = cleNom(nomAffichage(j.source)), cols = {};
+          parcourir(j.on, function (x) { if (x.t === "col" && qualifCol(x) === b) cols[nomCol(x)] = true; }, false);
+          termes.forEach(function (t) {
+            if (t.t === "isnull" && !t.non && qualifCol(t.e) === b && (cols[nomCol(t.e)] || nomCol(t.e) === "ID"))
+              r[b] = { gauche: from.length === 1 && src.jointures.length === 1 ? nomAffichage(src.premiere) : null, droite: nomAffichage(j.source), terme: t };
+          });
+        });
+      });
+      return r;
+    }
+    // Ce qu'on sait des jointures d'un FROM : les tables du côté facultatif (LEFT / RIGHT), et les liens « une ligne
+    // de A pour plusieurs lignes de B » (B.x = A.id) qui peuvent gonfler un total.
+    function infosJointures(from, where) {
+      var r = { vides: {}, tables: {}, unN: [] };
+      if (!from) return r;
+      function ajouterUnN(e) {
+        [[e.g, e.d], [e.d, e.g]].forEach(function (c) {
+          var qa = qualifCol(c[0]), qb = qualifCol(c[1]);
+          if (qa && qb && qa !== qb && nomCol(c[0]) === "ID" && nomCol(c[1]) !== "ID") r.unN.push({ un: qa, n: qb });
+        });
+      }
+      from.forEach(function (src) {
+        [src.premiere].concat(src.jointures.map(function (j) { return j.source; })).forEach(function (p) {
+          r.tables[cleNom(nomAffichage(p))] = { alias: nomAffichage(p), table: p.table ? p.table.texte : nomAffichage(p) };
+        });
+        var avant = [src.premiere];
+        src.jointures.forEach(function (j) {
+          var n = cleNom(nomAffichage(j.source));
+          if (j.type === "LEFT") r.vides[n] = { genre: "LEFT", j: j, garde: avant.length === 1 && from.length === 1 ? nomAffichage(avant[0]) : null };
+          if (j.type === "RIGHT") avant.forEach(function (a) { r.vides[cleNom(nomAffichage(a))] = { genre: "RIGHT", j: j, garde: nomAffichage(j.source) }; });
+          if (j.on && !(j.source.req && sourceUnique(j.source, j.on))) egalites(j.on).forEach(ajouterUnN);
+          avant.push(j.source);
+        });
+      });
+      if (from.length > 1 && where) egalites(where).forEach(ajouterUnN);
+      return r;
+    }
+    // Le regroupement ne porte que sur le côté gardé d'un LEFT JOIN (pour les notes 12 et « vide, pas 0 »).
+    function groupeCoteGarde(s, infos) {
+      if (!s.groupe || s.groupe.tout || !Object.keys(infos.vides).length) return false;
+      var ok = true;
+      parcourir(s.groupe, function (x) { if (x.t === "col") { var q = qualifCol(x); if (!q || infos.vides[q]) ok = false; } }, false);
+      return ok;
+    }
+    function videDe(f, infos) {     // l'agrégat f porte-t-il sur une seule table du côté facultatif ? → sa description
+      var q = {}, k;
+      parcourir(f.args, function (x) { if (x.t === "col") q[qualifCol(x) || "?"] = true; }, false);
+      k = Object.keys(q);
+      return k.length === 1 && infos.vides[k[0]] ? infos.vides[k[0]] : null;
+    }
+    function nomTable(x) { return x.table && cleNom(x.table) !== cleNom(x.alias) ? x.table + " (" + x.alias + ")" : x.alias; }
+    function notesJointures(s, items, infos) {
+      var groupesQ = {};
+      if (s.groupe) parcourir(s.groupe, function (x) { if (x.t === "col" && qualifCol(x)) groupesQ[qualifCol(x)] = true; }, false);
+      // Note 11 : un agrégat sur la table A, après une jointure où B porte la clé de A : un total gonflé.
+      items.forEach(function (it) {
+        if (it.fen || it.c.variable) return;
+        parcourir(it.c.e, function (x) {
+          if (x.t !== "fn" || x.over || x.distinct || x.etoile || x.args.length !== 1 || !/^(SUM|AVG|COUNT|COUNT_BIG)$/.test(x.nom)) return;
+          var q = {}, col = null;
+          parcourir(x.args[0], function (y) { if (y.t === "col") { q[qualifCol(y) || "?"] = true; col = col || y; } }, false);
+          var k = Object.keys(q);
+          if (k.length !== 1 || k[0] === "?") return false;
+          infos.unN.forEach(function (r) {
+            if (r.un !== k[0] || groupesQ[r.n]) return;
+            var nn = infos.tables[r.n] || { alias: r.n, table: r.n }, aa = infos.tables[r.un] || { alias: r.un, table: r.un }, c = col.parts[col.parts.length - 1];
+            var effet = x.nom === "SUM" ? "son " + c + " est compté plusieurs fois (total gonflé). Fais la somme avant la jointure, ou additionne une colonne de " + nn.alias :
+              x.nom === "AVG" ? "son " + c + " pèse plusieurs fois dans la moyenne (moyenne faussée). Fais la moyenne avant la jointure" :
+              "elle est comptée plusieurs fois (nombre gonflé). Pour compter chaque ligne de " + aa.alias + " une seule fois, écris " + CODE("COUNT(DISTINCT " + aa.alias + ".id)");
+            note(11, CODE(x.src) + " après la jointure avec " + nn.table + " : si une ligne de la table " + nomTable(aa) + " correspond à plusieurs lignes de la table " + nomTable(nn) + ", " + effet + ".");
+          });
+          return false;
+        }, false);
+      });
+      // Note 12 : COUNT(*) regroupé par le côté gardé d'un LEFT JOIN compte 1 pour une ligne sans correspondance.
+      if (groupeCoteGarde(s, infos) && items.some(function (it) {
+        return !it.fen && contient(it.c.e, function (x) { return x.t === "fn" && !x.over && /^COUNT(_BIG)?$/.test(x.nom) && (x.etoile || (x.args.length === 1 && x.args[0].t === "nombre")); });
+      })) {
+        var b = Object.keys(infos.vides)[0], v = infos.vides[b], nb = infos.tables[b] || { alias: b, table: b }, colB = null;
+        parcourir(v.j.on, function (x) { if (!colB && x.t === "col" && qualifCol(x) === b) colB = x.v; }, false);
+        var jt = v.j.source.table ? v.j.source.table.texte : nomAffichage(v.j.source), g = v.garde ? infos.tables[cleNom(v.garde)] : null;
+        note(12, CODE("COUNT(*)") + " après " + CODE(v.genre + " JOIN " + jt) + " : une ligne de " + (g ? nomTable(g) : "la table gardée") + " sans ligne dans " + nomTable(nb) +
+          " garde une ligne (avec les colonnes de " + nb.alias + " vides), donc elle compte 1, pas 0. Pour ne compter que les lignes de " + nb.alias + ", écris " +
+          CODE("COUNT(" + (colB || nb.alias + ".id") + ")") + ".");
+      }
     }
     function fromTrad(liste, niv, portee, opts, dml) {
+      var avant = [];
       liste.forEach(function (src, k) {
         var p = src.premiere;
         if (k === 0) sourceLigne(p, niv, dml ? dml.verbeSource || "PRENDRE" : "PRENDRE", portee, opts);
@@ -2788,7 +3196,7 @@
             ligne(niv, "RELIER", "pour chaque ligne, " + d.texte + (d.bloc ? ", calculé avec cette ligne" : ""));
             if (!d.flatten) ligne(niv + 1, "", "une ligne pour laquelle ce bloc ne renvoie rien disparaît");
             if (d.bloc) { ligne(niv + 1, "", "sous-requête" + (p.alias ? " " + p.alias : "") + " :"); d.bloc(niv + 2); }
-            d.apres.forEach(function (t) { ligne(niv + 1, "", t); });
+            apresLignes(d, niv);
           } else {
             ligne(niv, "RELIER", d.texte + " : toutes les combinaisons (virgule)" + (d.bloc ? " :" : ""));
             if (d.bloc) d.bloc(niv + 1);
@@ -2796,20 +3204,24 @@
           }
         }
         var gauche = k === 0 && liste.length === 1 ? nomAffichage(p) : null;
-        src.jointures.forEach(function (j, kj) { jointureLigne(j, niv, portee, opts, kj === 0 ? gauche : null, dml); });
+        avant.push(cleNom(nomAffichage(p)));
+        src.jointures.forEach(function (j, kj) {
+          jointureLigne(j, niv, portee, opts, kj === 0 ? gauche : null, dml, avant);
+          avant.push(cleNom(nomAffichage(j.source)));
+        });
       });
     }
     var NOMS_JOINTURES = { INNER: "INNER JOIN", LEFT: "LEFT JOIN", RIGHT: "RIGHT JOIN", FULL: "FULL OUTER JOIN", CROSS: "CROSS JOIN" };
-    function jointureLigne(j, niv, portee, opts, gauche, dml) {
+    function jointureLigne(j, niv, portee, opts, gauche, dml, avant) {
       var p = j.source, droite = nomAffichage(p);
       if (j.type === "CROSS APPLY" || j.type === "OUTER APPLY") {
         lien(j.type, MC);
         var da = decrire(p, portee, opts);
         ligne(niv, "RELIER", "pour chaque ligne, " + da.texte + (da.bloc ? ", calculé avec cette ligne" : ""));
-        ligne(niv + 1, "", j.type === "CROSS APPLY" ? "une ligne pour laquelle ce bloc ne renvoie rien disparaît" :
-          "une ligne pour laquelle ce bloc ne renvoie rien reste, avec des colonnes vides (NULL)");
-        if (da.bloc) { ligne(niv + 1, "", "sous-requête" + (p.alias ? " " + p.alias : "") + " :"); da.bloc(niv + 2); }
-        da.apres.forEach(function (t) { ligne(niv + 1, "", t); });
+        var regle = j.type === "CROSS APPLY" ? "une ligne pour laquelle ce bloc ne renvoie rien disparaît" :
+          "une ligne pour laquelle ce bloc ne renvoie rien reste, avec des colonnes vides (NULL)";
+        if (da.bloc) { ligne(niv + 1, "", regle); ligne(niv + 1, "", "sous-requête" + (p.alias ? " " + p.alias : "") + " :"); da.bloc(niv + 2); }
+        else { apresLignes(da, niv); ligne(niv + 1, "", regle); }
         return;
       }
       lien(NOMS_JOINTURES[j.type], MC);
@@ -2822,26 +3234,38 @@
       if (p.lateral && d.bloc) { emettre(niv, "RELIER", "pour chaque ligne, " + d.texte + quand, ctx); }
       else emettre(niv, "RELIER", d.texte + quand, ctx);
       if (d.bloc) { ligne(niv + 1, "", "sous-requête" + (p.alias ? " " + p.alias : "") + " :"); d.bloc(niv + 2); }
-      d.apres.forEach(function (t) { ligne(niv + 1, "", t); });
-      var repete = "une ligne qui a plusieurs correspondances sort une fois pour chacune";
+      apresLignes(d, niv);
+      // La répétition des lignes : seulement là où elle peut changer un résultat (jointure d'une ligne vers plusieurs).
+      var rel = relation(j, avant || []), repete = null;
+      if (!(opts.antis && opts.antis[cleNom(droite)])) {
+        if (rel.rel === "1n") repete = "chaque ligne de " + rel.parent + " sort une fois pour chaque ligne de " + droite + " qui correspond";
+        else if (rel.rel === "?" && opts.agregats) repete = "si une ligne " + (gauche ? "de " + gauche : "déjà prise") + " a plusieurs correspondances dans " + droite + ", elle sort une fois pour chacune";
+      }
       switch (j.type) {
         case "INNER":
           if (!j.on && !j.using && !j.naturel) { ligne(niv + 1, "", "toutes les combinaisons (pas de condition ON)"); break; }
-          if (dml) { ligne(niv + 1, "", "seulement les lignes qui ont une correspondance : une ligne de " + dml.cible + " sans correspondance n'est pas " + dml.participe); break; }
+          if (dml) {
+            ligne(niv + 1, "", "seulement les lignes qui ont une correspondance : une ligne de " + dml.cible + " sans correspondance n'est pas " + dml.participe);
+            if (dml.participe === "modifiée" && rel.rel !== "cle") {
+              ligne(niv + 1, "", "une ligne de " + dml.cible + " qui a plusieurs correspondances n'est modifiée qu'une fois :");
+              ligne(niv + 2, "", "avec les valeurs d'une seule d'entre elles, prise au hasard");
+            }
+            break;
+          }
           ligne(niv + 1, "", "seulement les lignes qui ont une correspondance");
-          ligne(niv + 1, "", repete);
+          if (repete) ligne(niv + 1, "", repete);
           break;
         case "LEFT":
           ligne(niv + 1, "", "toutes les lignes " + (gauche ? "de " + gauche : "déjà prises") + ", même sans correspondance (les colonnes de " + droite + " sont alors vides : NULL)");
-          ligne(niv + 1, "", repete);
+          if (repete) ligne(niv + 1, "", repete);
           break;
         case "RIGHT":
           ligne(niv + 1, "", "toutes les lignes de " + droite + ", même sans correspondance (les colonnes " + (gauche ? "de " + gauche : "de l'autre côté") + " sont alors vides : NULL)");
-          ligne(niv + 1, "", repete);
+          if (repete) ligne(niv + 1, "", repete);
           break;
         case "FULL":
           ligne(niv + 1, "", "toutes les lignes des deux côtés, même sans correspondance (les colonnes de l'autre côté sont alors vides : NULL)");
-          ligne(niv + 1, "", repete);
+          if (repete) ligne(niv + 1, "", repete);
           break;
         case "CROSS":
           ligne(niv + 1, "", "toutes les combinaisons : chaque ligne avec chaque ligne de " + droite);
@@ -2870,7 +3294,9 @@
         else if (t.t === "isnull" && t.non) q = vides[qualif(t.e)] ? qualif(t.e) : null;
         if (!q) continue;
         var genre = vides[q];
-        note(3, CODE(genre + " JOIN") + " puis, dans le WHERE, " + CODE(t.src) + " : les lignes sans correspondance (où " + qui[q] +
+        if (t.t === "isnull") note(3, CODE(genre + " JOIN") + " puis, dans le WHERE, " + CODE(t.src) + " : il ne reste que les lignes qui ont une correspondance. " +
+          "C'est un JOIN simple écrit autrement : écris JOIN.");
+        else note(3, CODE(genre + " JOIN") + " puis, dans le WHERE, " + CODE(t.src) + " : les lignes sans correspondance (où " + qui[q] +
           " est vide) disparaissent, la jointure agit comme un JOIN simple. Pour les garder, mets cette condition dans le ON.");
         return;
       }
@@ -2907,12 +3333,14 @@
       });
       var stage = false;
       if (s.from) parcourir(s.from, function (x) { if (x.table && /^@/.test(x.table.texte) && !(opts.variablesTable && opts.variablesTable[cleNom(x.table.texte)])) stage = true; }, false);
-      var o2 = { portee: portee, instr: opts.instr, exists: opts.exists, stage: stage || opts.stage, variablesTable: opts.variablesTable };
+      var antis = antiJointures(s.from, s.where), infos = infosJointures(s.from, s.where);
+      var o2 = { portee: portee, instr: opts.instr, exists: opts.exists, stage: stage || opts.stage, variablesTable: opts.variablesTable,
+        antis: antis, agregats: !!s.groupe || items.some(function (it) { return it.aggr; }) };
       if (s.from && !(s.from.length === 1 && !s.from[0].jointures.length && s.from[0].premiere.table && /^DUAL$/i.test(s.from[0].premiere.table.texte))) {
         lien("FROM", MC);
         fromTrad(s.from, niv, portee, o2);
       }
-      var base = { portee: portee, instr: opts.instr || "select", alias: aliasSel, stage: o2.stage,
+      var base = { portee: portee, instr: opts.instr || "select", alias: aliasSel, stage: o2.stage, infos: infos,
         uneLigne: !s.groupe && items.some(function (it) { return it.aggr && !it.fen; }) };
       if (s.where) {
         lien("WHERE", MC);
@@ -2920,22 +3348,70 @@
         if (s.from && s.from.length > 1) cw.compact = true;
         etapeCondition(niv, "GARDER", "les lignes où", s.where, cw);
         if (s.from) note3(s.from, s.where);
+        var ka = Object.keys(antis);
+        if (ka.length) ligne(niv + 1, "", "→ il ne reste que les lignes " + (antis[ka[0]].gauche ? "de " + antis[ka[0]].gauche : "déjà prises") +
+          " qui n'ont aucune correspondance dans " + antis[ka[0]].droite);
+        else sensRang(s.where, null, s.from, niv + 1, false);
       }
+      if (s.from) notesJointures(s, items, infos);
       if (s.groupe || items.some(function (it) { return it.aggr && !it.fen; }) || (s.having && contientAgregat(s.having))) regrouper(s, items, niv, base);
       if (s.having) { lien("HAVING", MC); etapeCondition(niv, "GARDER", "les groupes où", s.having, ctxNouveau(base, { filtre: "having", developper: true })); }
       var fq = [];
       if (s.qualify) parcourir(s.qualify, function (x) { if (x.t === "fn" && x.over) { fq.push(x); return false; } }, false);
-      if (items.some(function (it) { return it.fen; }) || fq.length) calculer(items, fq, niv, base);
-      if (s.qualify) { lien("QUALIFY", MC); etapeCondition(niv, "GARDER", "les lignes où", s.qualify, ctxNouveau(base, { filtre: "qualify", developper: true })); }
+      if (items.some(function (it) { return it.fen; }) || fq.length) calculer(items, fq, niv, base, s);
+      if (s.qualify) {
+        lien("QUALIFY", MC);
+        etapeCondition(niv, "GARDER", "les lignes où", s.qualify, ctxNouveau(base, { filtre: "qualify", developper: true }), " (QUALIFY, après le calcul)");
+        sensRang(s.qualify, items, null, niv + 1, false);
+      }
       afficher(items, niv, base, opts);
       if (s.distinct) { lien("DISTINCT", MC); ligne(niv, "ENLEVER", "les lignes en double"); }
       return { colonnes: items };
     }
-    function etapeCondition(niv, verbe, debut, e, ctx) {
+    function etapeCondition(niv, verbe, debut, e, ctx, suffixe) {
       var l = condLignes(e, ctx);
-      if (l.length === 1) { emettre(niv, verbe, debut + " " + l[0], ctx); return; }
-      ligne(niv, verbe, debut + " :");
+      if (l.length === 1) { emettre(niv, verbe, debut + " " + l[0] + (suffixe || ""), ctx); return; }
+      ligne(niv, verbe, debut + (suffixe || "") + " :");
       l.forEach(function (t) { emettre(niv + 1, "", t, ctx); });
+    }
+    // Le sens d'un filtre sur un numéro de ligne (rn = 1, rn <= 3, rn > 1) : quelles lignes restent.
+    function fenetreDe(e, items, from) {
+      if (e.t === "fn" && e.over) return /^(ROW_NUMBER|RANK|DENSE_RANK)$/.test(e.nom) && e.over.tri && !e.over.nom ? e : null;
+      if (e.t !== "col") return null;
+      var n = nomCol(e), r = null;
+      function dans(cols) { (cols || []).forEach(function (c) { if (!r && c.alias && cleNom(c.alias) === n && c.e.t === "fn" && c.e.over) r = c.e; }); }
+      if (items) dans(items.map(function (it) { return it.c; }));
+      if (!r && from) from.forEach(function (src) {
+        [src.premiere].concat(src.jointures.map(function (j) { return j.source; })).forEach(function (p) {
+          var cte = p.table && p.table.parts.length === 1 ? cteDe(p.table.texte) : null, req = p.req || (cte ? cte.cte.req : null);
+          if (req && req.corps && req.corps.t === "select") dans(req.corps.colonnes);
+        });
+      });
+      return r && /^(ROW_NUMBER|RANK|DENSE_RANK)$/.test(r.nom) && r.over.tri && !r.over.nom ? r : null;
+    }
+    function sensRang(e, items, from, niv, supprime) {
+      var termes = [];
+      (function plat(x) { if (x.t === "et") x.termes.forEach(plat); else termes.push(x); })(e);
+      for (var k = 0; k < termes.length; k++) {
+        var t = termes[k];
+        if (t.t !== "cmp") continue;
+        var op = t.op, g = t.g, d = t.d;
+        if (valeurNombre(g) !== null && valeurNombre(d) === null) { var x = g; g = d; d = x; op = { "<": ">", ">": "<", "<=": ">=", ">=": "<=" }[op] || op; }
+        var n = valeurNombre(d), f = n !== null && n === Math.floor(n) ? fenetreDe(g, items, from) : null;
+        if (!f) continue;
+        var garde = op === "=" && n === 1 ? 1 : op === "<=" && n >= 1 ? n : op === "<" && n >= 2 ? n - 1 : 0;
+        var sauf = (op === ">" && n === 1) || (op === ">=" && n === 2) || ((op === "<>" || op === "!=") && n === 1);
+        if (!garde && !sauf) continue;
+        var w = f.over, cs = ctxSimple(), cle = w.tri[0], quoi = dansListe(tx(cle.e, cs)), plus = cle.sens === "DESC" ? "grand" : "petit";
+        var groupe = !w.partition ? "" : w.partition.length === 1 ? " de chaque groupe de " + dansListe(tx(w.partition[0], cs)) : " de chaque groupe";
+        var la = "la plus " + plus + "e " + valeurDe(quoi), les = "les plus " + plus + "es " + valeursDe(quoi), txt;
+        if (sauf) txt = supprime ? "il reste la 1re ligne" + groupe + " : celle qui a " + la : "toutes les lignes sauf la 1re" + groupe + " (celle qui a " + la + ")";
+        else if (f.nom !== "ROW_NUMBER") txt = "les lignes " + (garde === 1 ? "au 1er rang" : "des " + garde + " premiers rangs") + groupe + " : celles qui ont " +
+          (garde === 1 ? la : les) + " (ex aequo compris)";
+        else txt = garde === 1 ? "la 1re ligne" + groupe + " : celle qui a " + la : "les " + garde + " premières lignes" + groupe + " : celles qui ont " + les;
+        ligne(niv, "", "→ " + txt);
+        return;
+      }
     }
     function produit(a, b) { var r = []; a.forEach(function (x) { b.forEach(function (y) { r.push(x.concat(y)); }); }); return r; }
     function sousEnsembles(l) {
@@ -2944,7 +3420,7 @@
       return r.sort(function (a, b) { return b.length - a.length; });
     }
     function regrouper(s, items, niv, base) {
-      var ctx = ctxNouveau(base, { developper: true }), g = s.groupe, tete, plusieurs = false;
+      var ctx = ctxNouveau(base, { developper: true }), g = s.groupe, tete, plusieurs = false, toutCols = null;
       if (!g) tete = "toutes les lignes en un seul groupe (une seule ligne de résultat)";
       else {
         lien("GROUP BY", MC);
@@ -2955,10 +3431,10 @@
         };
         if (g.tout) {
           lien("GROUP BY ALL");
-          tete = "par toutes les colonnes affichées qui ne sont pas des calculs de groupe : " +
-            enumerer(items.filter(function (it) { return !it.aggr && !it.fen && !it.c.variable; }).map(function (it) {
-              return it.c.alias && !it.simple ? it.c.alias + " (c'est-à-dire " + tx(it.c.e, ctx).t + ")" : nomItem(it);
-            }));
+          toutCols = items.filter(function (it) { return !it.aggr && !it.fen && !it.c.variable; }).map(function (it) {
+            return it.c.alias && !it.simple ? it.c.alias + " (c'est-à-dire " + tx(it.c.e, ctx).t + ")" : nomItem(it);
+          });
+          tete = "par toutes les colonnes affichées qui ne sont pas des calculs de groupe : " + enumerer(toutCols);
         } else {
           var listes = [[]];
           g.elements.forEach(function (el) {
@@ -2987,32 +3463,68 @@
           } else tete = "plusieurs fois, puis assembler les résultats : " + listes.map(function (st) { return st.length ? "par " + enumerer(st) : "tout ensemble (total général)"; }).join(" ; ");
         }
       }
-      emettre(niv, "REGROUPER", tete, ctx);
+      if (toutCols && tete.replace(/\u0001\d+\u0001/g, "").length > 110) {
+        ligne(niv, "REGROUPER", "par toutes les colonnes affichées qui ne sont pas des calculs de groupe :");
+        toutCols.forEach(function (c) { emettre(niv + 1, "", c, ctx); });
+      } else emettre(niv, "REGROUPER", tete, ctx);
       var calc = items.filter(function (it) { return it.aggr && !it.fen && !it.c.variable; });
       if (calc.length) {
         var c2 = ctxNouveau(base, {}), pour = g ? "pour chaque groupe" : "pour ce groupe";
-        var defs = calc.map(function (it) { return definition(it, c2); });
+        var gardeOk = base.infos && groupeCoteGarde(s, base.infos);
+        var defs = calc.map(function (it) {
+          var d = definition(it, c2), e = it.c.e, v = gardeOk && e.t === "fn" && !e.over && /^(SUM|AVG|MIN|MAX)$/.test(e.nom) ? videDe(e, base.infos) : null;
+          if (v) d += " (vide" + (/^(SUM|AVG)$/.test(e.nom) ? ", pas 0," : "") + " pour une ligne " + (v.garde ? "de " + v.garde + " " : "") + "sans correspondance)";
+          return d;
+        });
         if (defs.length === 1) emettre(niv + 1, "", pour + " : " + defs[0], c2);
         else { ligne(niv + 1, "", pour + " :"); defs.forEach(function (d) { emettre(niv + 2, "", d, c2); }); }
       }
       if (plusieurs) ligne(niv + 1, "", "dans les lignes de sous-total et de total, les colonnes qui ne sont pas regroupées sont vides (NULL)");
     }
-    function calculer(items, fq, niv, base) {
-      var ctx = ctxNouveau(base, {}), defs = items.filter(function (it) { return it.fen && !it.c.variable; }).map(function (it) { return definition(it, ctx); });
-      var n = 0;
+    function calculer(items, fq, niv, base, s) {
+      var ctx = ctxNouveau(base, {}), defs = [], pris = {};
+      items.forEach(function (it) { if (it.c.alias) pris[cleNom(it.c.alias)] = true; });
+      items.filter(function (it) { return it.fen && !it.c.variable; }).forEach(function (it) {
+        var e = it.c.e, m = e.t === "fn" && e.over ? fenetreMorceaux(e, ctx) : null;
+        if (m) { it.defini = true; defs.push({ nom: it.c.alias || compact(it.c.src), m: m }); }
+        else defs.push({ texte: definition(it, ctx) });
+      });
+      // Un calcul écrit seulement dans QUALIFY : il prend le nom de sa fonction (« numéro », « rang »), puis on y renvoie (« ce numéro »).
+      var cq = ctxNouveau(base, { developper: true, sous: ctx.sous, compteur: ctx.compteur });
       fq.forEach(function (f) {
         var meme = items.filter(function (it) { return it.c.alias && compact(it.c.e.src) === compact(f.src); })[0];
         if (meme) { f._etiquette = meme.c.alias; return; }
-        var t = tx(f, ctx).t;
-        f._etiquette = "calcul " + (++n);
-        defs.push(f._etiquette + " = " + t);
+        var nc = NOMS_CALCULS[f.nom] || ["calcul", "ce"], nomC = nc[0], k = 2;
+        while (pris[cleNom(nomC)]) nomC = nc[0] + " " + (k++);
+        pris[cleNom(nomC)] = true;
+        var m = fenetreMorceaux(f, cq);
+        defs.push(m ? { nom: nomC, m: m } : { texte: nomC + " = " + tx(f, cq).t });
+        f._etiquette = nc[1] + " " + nomC;
       });
-      if (defs.length === 1) emettre(niv, "CALCULER", "sur chaque ligne, sans regrouper : " + defs[0], ctx);
-      else { ligne(niv, "CALCULER", "sur chaque ligne, sans regrouper :"); defs.forEach(function (d) { emettre(niv + 1, "", d, ctx); }); }
+      // Une fenêtre commune à tous les calculs : écrite une seule fois, dans la ligne CALCULER.
+      var str = defs.filter(function (d) { return d.m; }), cle0 = str.length ? str[0].m.part + "|" + str[0].m.ordre : "";
+      var commun = str.length >= 2 && str.length === defs.length && (str[0].m.part || str[0].m.ordre) &&
+        str.every(function (d) { return !d.m.special && d.m.part + "|" + d.m.ordre === cle0; }) ? str[0].m : null;
+      var regroupee = "";
+      if (s && s.groupe) {
+        var g = s.groupe;
+        regroupee = g.tout || g.elements.some(function (el) { return el.t !== "expr"; }) ? " regroupée" :
+          " regroupée (une par " + enumerer(g.elements.map(function (el) { return dansListe(tx(el.e, ctx)); })) + ")";
+      } else if (base.uneLigne) regroupee = " regroupée";
+      var fen = commun ? [commun.part, commun.ordre].filter(Boolean).join(", ") : "", tete = "sur chaque ligne" + regroupee + ", sans regrouper";
+      var l = defs.map(function (d) { return d.m ? lignesFenetre(d.nom, d.m, !!commun) : { t: d.texte, sous: [] }; });
+      if (fen && (tete + ", " + fen).length + 2 <= 120) tete += ", " + fen;
+      else if (fen) l.unshift({ t: "pour tous ces calculs : " + fen, sous: [] });
+      if (l.length === 1 && !l[0].sous.length && ("CALCULER " + tete + " : " + l[0].t).replace(/\u0001\d+\u0001/g, "").length <= 120) {
+        emettre(niv, "CALCULER", tete + " : " + l[0].t, ctx);
+        return;
+      }
+      ligne(niv, "CALCULER", tete + " :");
+      l.forEach(function (x) { emettre(niv + 1, "", x.t, ctx); x.sous.forEach(function (y) { emettre(niv + 2, "", y, ctx); }); });
     }
     function afficher(items, niv, base, opts) {
       if (opts.exists) return;                       // EXISTS : ce que liste le SELECT ne compte pas
-      var ctx = ctxNouveau(base, {});
+      var ctx = ctxNouveau(base, { colonnes: true });
       var aff = items.filter(function (it) { return it.c.variable; });
       if (aff.length) {
         lien("SELECT @var =");
@@ -3022,9 +3534,20 @@
           emettre(niv, "RANGER", "dans " + it.c.variable + " " + (val.p ? val.t : "la valeur " + val.t), ctx);
         });
         var vs = enumerer(aff.map(function (it) { return it.c.variable; }));
-        if (!base.uneLigne) ligne(niv + 1, "", "si plusieurs lignes : la valeur de la dernière ligne lue (sans ORDER BY : n'importe laquelle) ; si aucune ligne : " + vs +
-          (aff.length > 1 ? " gardent leur" : " garde son") + " ancienne valeur");
+        if (!base.uneLigne) {
+          ligne(niv + 1, "", "si plusieurs lignes : la valeur de la dernière ligne lue (sans ORDER BY : n'importe laquelle)");
+          ligne(niv + 1, "", "si aucune ligne : " + vs + (aff.length > 1 ? " gardent leur" : " garde son") + " ancienne valeur");
+        }
         return;
+      }
+      // 2e partie d'un UNION ou d'un RÉPÉTER : les colonnes prennent les noms de la 1re partie.
+      if (opts.noms && opts.noms.length === items.length && !items.some(function (it) { return it.c.e.t === "etoile"; })) {
+        var autre = items.some(function (it, k) { var e = it.c.e; return e.t !== "col" || cleNom(e.parts[e.parts.length - 1]) !== cleNom(opts.noms[k]); });
+        if (autre) {
+          emettre(niv, "AFFICHER", opts.noms.join(", ") + " (les noms viennent " + opts.nomsDe + ")", ctx);
+          items.forEach(function (it, k) { emettre(niv + 1, "", opts.noms[k] + " = " + (it.defini && it.c.alias ? it.c.alias : tx(it.c.e, ctx).t), ctx); });
+          return;
+        }
       }
       var noms = [], defs = [], cas = [];
       items.forEach(function (it) {
@@ -3075,14 +3598,14 @@
         if (!mot) mot = "OFFSET";
       }
       if (!n && !saut) return;
-      if (saut) { lien("OFFSET"); ligne(niv, "SAUTER", "les " + texteNombre(saut) + " premières lignes"); }
+      if (saut) { lien("OFFSET"); var st = texteNombre(saut); ligne(niv, "SAUTER", st === "1" ? "la première ligne" : "les " + st + " premières lignes"); }
       if (n) {
         var nt = texteNombre(n), ph;
         if (pourcent) ph = nt + " % des lignes (arrondi au nombre entier supérieur)";
-        else if (saut) ph = "les " + nt + " lignes suivantes";
+        else if (saut) ph = nt === "1" ? "la ligne suivante" : "les " + nt + " lignes suivantes";
         else ph = nt === "1" ? "la première ligne" : "les " + nt + " premières lignes";
-        if (exaequo) ph += ", plus celles ex aequo avec la dernière gardée (même valeur de tri) : il peut en sortir plus de " + nt;
-        ligne(niv, "GARDER", ph);
+        if (exaequo) ph += ", plus celles ex aequo avec la dernière gardée (même valeur de tri) ; il peut en sortir plus de " + nt;
+        emettre(niv, "GARDER", ph, ctxSimple());
       }
       if (!aTri && !opts.exists) note(5, CODE(mot) + " sans ORDER BY : les lignes gardées ne sont pas choisies dans un ordre garanti ; elles peuvent changer d'une fois à l'autre.");
     }
@@ -3123,6 +3646,18 @@
       intoTrad((c.t === "select" && c.into) || r.into, niv);
       pileCte.length = pile;
     }
+    // Les noms des colonnes d'un résultat (null si une colonne n'a pas de nom).
+    function nomsResultat(cols) {
+      if (!cols) return null;
+      var l = cols.map(function (it) { return it.c.alias || (it.c.e.t === "col" ? it.c.e.parts[it.c.e.parts.length - 1] : null); });
+      return l.every(function (x) { return x; }) ? l : null;
+    }
+    function avecNoms(opts, noms, de) {
+      var o = {};
+      for (var k in opts) if (Object.prototype.hasOwnProperty.call(opts, k)) o[k] = opts[k];
+      o.noms = noms; o.nomsDe = de;
+      return o;
+    }
     function brancheTrad(f, niv, opts) {
       if (f.t === "select") { var info = selectTrad(f, niv, opts); limiter(f.top, null, false, niv, opts); intoTrad(f.into, niv); return info.colonnes; }
       if (f.t === "requete") { requete(f, niv, opts); return null; }
@@ -3136,10 +3671,11 @@
         if (n.t === "ensemble") { voir(n.g, n); voir(n.d, n); internes.push(n); }
         else { feuilles.push(n); n._num = feuilles.length; }
       })(e, null);
+      var premNoms = null;
       feuilles.forEach(function (f, k) {
         ligne(niv, "REQUÊTE " + (k + 1), ":");
-        var cols = brancheTrad(f, niv + 1, opts);
-        if (!k) premieres = cols;
+        var cols = brancheTrad(f, niv + 1, k && premNoms ? avecNoms(opts, premNoms, "de la requête 1") : opts);
+        if (!k) { premieres = cols; premNoms = nomsResultat(cols); }
       });
       internes.forEach(function (n, k) { n._etape = k; });
       var lettre = 0;
@@ -3156,7 +3692,7 @@
         if (op === "INTERSECT" && n._parent && n._parent.op !== "INTERSECT" && n._parent.d === n && !n.paren) t += " ; INTERSECT est calculé avant " + n._parent.op;
         if (n.parNom) t += " ; les colonnes sont associées par leur nom (BY NAME)";
         if (n._nom) t += " → " + n._nom.replace(/^le /, "");
-        ligne(niv, v, t);
+        emettre(niv, v, t, ctxSimple());
       });
       if (avecNull) ligne(niv + 1, "", "(pour repérer les doublons, deux NULL comptent comme égaux)");
       return premieres;
@@ -3178,11 +3714,19 @@
           (function plat(n) { if (n.t === "ensemble" && (n.op === "UNION")) { plat(n.g); ops.push(n.tout); plat(n.d); } else branches.push(n); })(corps);
           var depart = branches.filter(function (b) { return !citeSoiMeme(b, cle); }), rep = branches.filter(function (b) { return citeSoiMeme(b, cle); });
           ligne(niv + 1, "DÉPART", ":");
-          depart.forEach(function (b, k) { if (depart.length > 1) ligne(niv + 2, "", "partie " + (k + 1) + " :"); brancheTrad(b, niv + 2 + (depart.length > 1 ? 1 : 0), opts); });
+          var nomsDepart = c.colonnes ? c.colonnes.slice() : null, nomsDe = c.colonnes ? "de la liste de « " + c.nom + " »" : "du DÉPART";
+          depart.forEach(function (b, k) {
+            if (depart.length > 1) ligne(niv + 2, "", "partie " + (k + 1) + " :");
+            var cols = brancheTrad(b, niv + 2 + (depart.length > 1 ? 1 : 0), opts);
+            if (!nomsDepart) nomsDepart = nomsResultat(cols);
+          });
           ligne(niv + 1, "RÉPÉTER", "tant que de nouvelles lignes arrivent (« " + c.nom + " » = les lignes trouvées au tour d'avant) :");
           var avant = enRecursion;
           enRecursion = cle;
-          rep.forEach(function (b, k) { if (rep.length > 1) ligne(niv + 2, "", "partie " + (k + 1) + " :"); brancheTrad(b, niv + 2 + (rep.length > 1 ? 1 : 0), opts); });
+          rep.forEach(function (b, k) {
+            if (rep.length > 1) ligne(niv + 2, "", "partie " + (k + 1) + " :");
+            brancheTrad(b, niv + 2 + (rep.length > 1 ? 1 : 0), nomsDepart ? avecNoms(opts, nomsDepart, nomsDe) : opts);
+          });
           enRecursion = avant;
           var tousAll = ops.every(function (x) { return x; });
           ligne(niv + 1, "EMPILER", "les lignes du départ et de tous les tours" + (tousAll ? " (UNION ALL : les doublons restent)" : " (UNION : sans les lignes en double)"));
@@ -3223,20 +3767,22 @@
       return r;
     }
     function dmlFrom(liste, cible, niv, portee, opts, dml) {
+      var avant = cible ? [cleNom(nomAffichage(cible))] : [];
       liste.forEach(function (src, k) {
+        if (src.premiere !== cible) avant.push(cleNom(nomAffichage(src.premiere)));
         if (src.premiere !== cible) {
           var d = decrire(src.premiere, portee, opts);
           ligne(niv, "RELIER", d.texte + (k || cible ? " : toutes les combinaisons ; le lien est dans le WHERE" : "") + (d.bloc ? " :" : ""));
           if (d.bloc) d.bloc(niv + 1);
-          d.apres.forEach(function (t) { ligne(niv + 1, "", t); });
+          apresLignes(d, niv);
         }
-        src.jointures.forEach(function (j) { if (j.source !== cible) jointureLigne(j, niv, portee, opts, null, dml); });
+        src.jointures.forEach(function (j) { if (j.source !== cible) jointureLigne(j, niv, portee, opts, null, dml, avant); avant.push(cleNom(nomAffichage(j.source))); });
       });
     }
     function quantite(s) {
-      if (s.top) return "au plus " + texteNombre(s.top.n) + (s.top.pourcent ? " % des lignes de " : " lignes de ");
-      if (s.limite) return "au plus " + texteNombre(s.limite.n) + " lignes de ";
-      return "";
+      var n = s.top ? texteNombre(s.top.n) : s.limite ? texteNombre(s.limite.n) : null;
+      if (n === null) return "";
+      return "au plus " + n + (s.top && s.top.pourcent ? " % des lignes de " : n === "1" ? " ligne de " : " lignes de ");
     }
     function apresDml(s, niv, ctx, quoi, verbeMot, participe) {
       if (s.where) etapeCondition(niv + 1, "", "seulement les lignes où", s.where, ctx);
@@ -3256,7 +3802,11 @@
       var d = decrire(def || c0, portee, opts), cible = nomAffichage(def || c0);
       ligne(niv, "MODIFIER", (tout ? "toutes les lignes de " : quantite(s)) + d.texte);
       var dml = { cible: cible, participe: "modifiée" };
-      if (s.cible.jointures.length) { lien("UPDATE JOIN"); s.cible.jointures.forEach(function (j) { jointureLigne(j, niv + 1, portee, opts, null, dml); }); }
+      if (s.cible.jointures.length) {
+        lien("UPDATE JOIN");
+        var avant = [cleNom(nomAffichage(c0))];
+        s.cible.jointures.forEach(function (j) { jointureLigne(j, niv + 1, portee, opts, null, dml, avant); avant.push(cleNom(nomAffichage(j.source))); });
+      }
       if (s.from) { lien("UPDATE FROM"); dmlFrom(s.from, def, niv + 1, portee, opts, dml); }
       apresDml(s, niv, ctx, "", "UPDATE", "modifiées");
       if (s.from && (s.from.length > 1 || s.from[0].jointures.length) || s.cible.jointures.length)
@@ -3290,6 +3840,7 @@
       if (liste) { lien("DELETE FROM"); dmlFrom(liste, def, niv + 1, portee, opts, dml); }
       if (s.using) { lien("DELETE USING"); dmlFrom(s.using, null, niv + 1, portee, opts, dml); }
       apresDml(s, niv, ctx, quoi, "DELETE", "supprimées");
+      if (s.where && cte) sensRang(s.where, null, [{ premiere: s.cible, jointures: [] }], niv + 2, true);
       if ((liste && liste.some(function (src) { return src.jointures.length || src !== liste[0]; })) || s.using)
         ligne(niv + 1, "", "les autres tables ne sont pas touchées : seules des lignes de " + (s.cibles ? enumerer(s.cibles) : nomC) + " sont supprimées");
       if (tout) note(4, CODE("DELETE") + " sans WHERE : toutes les lignes de la table " + nomC + " sont supprimées (la table reste, vide).");
@@ -3311,18 +3862,26 @@
       } else if (s.req) {
         ligne(niv, verbe, top + dans + " le résultat de :");
         requete(s.req, niv + 1, { instr: "insert" });
-        if (s.colonnes) ligne(niv + 1, "", "les colonnes sont remplies dans l'ordre : la 1re colonne affichée va dans " + s.colonnes[0] +
+        if (s.colonnes) ligne(niv + 1, "", "dans l'ordre : la 1re colonne affichée va dans " + s.colonnes[0] +
           (s.colonnes.length > 1 ? ", la 2e dans " + s.colonnes[1] + (s.colonnes.length > 2 ? ", et ainsi de suite" : "") : ""));
       } else if (s.defaut) ligne(niv, verbe, "1 ligne " + dans + ", avec les valeurs par défaut");
       else if (s.set) emettre(niv, verbe, "1 ligne " + dans + " : " + affsTexte(s.set, ctx).join(", "), ctx);
       else if (s.exec) { ligne(niv, verbe, dans + " le résultat de :"); instr(s.exec, niv + 1); }
-      if (s.remplacer) ligne(niv + 1, "", "REPLACE : si une ligne avec la même clé (primaire ou UNIQUE) existe déjà, elle est d'abord SUPPRIMÉE, puis la nouvelle est ajoutée ; les colonnes non citées prennent leur valeur par défaut (ce n'est pas une modification)");
-      if (s.ignorer) ligne(niv + 1, "", "INSERT IGNORE : une ligne qui ferait un doublon de clé est sautée, sans erreur ; une valeur invalide est ajustée (texte trop long coupé) avec un simple avertissement");
+      if (s.remplacer) {
+        ligne(niv + 1, "", "REPLACE : si une ligne avec la même clé (primaire ou UNIQUE) existe déjà :");
+        ligne(niv + 2, "", "elle est d'abord SUPPRIMÉE, puis la nouvelle est ajoutée");
+        ligne(niv + 2, "", "les colonnes non citées prennent leur valeur par défaut (ce n'est pas une modification)");
+      }
+      if (s.ignorer) {
+        ligne(niv + 1, "", "INSERT IGNORE :");
+        ligne(niv + 2, "", "une ligne qui ferait un doublon de clé est sautée, sans erreur");
+        ligne(niv + 2, "", "une valeur invalide est ajustée (texte trop long coupé) avec un simple avertissement");
+      }
       if (s.doublon) {
         lien("ON DUPLICATE KEY UPDATE");
-        ligne(niv + 1, "", "ON DUPLICATE KEY UPDATE : si une ligne avec la même clé primaire, ou la même valeur d'un index UNIQUE, existe déjà, ne pas l'ajouter mais MODIFIER la ligne existante :");
-        mettre(s.doublon, niv + 2, ctx);
-        if (s.aliasLignes) ligne(niv + 2, "", s.aliasLignes + ".colonne = la valeur qu'on voulait ajouter ; " + t + ".colonne = la valeur actuelle");
+        ligne(niv + 1, "", "ON DUPLICATE KEY UPDATE : si une ligne avec la même clé primaire, ou la même valeur d'un index UNIQUE, existe déjà :");
+        ligne(niv + 2, "", "ne pas l'ajouter, mais MODIFIER la ligne existante :");
+        mettre(s.doublon, niv + 3, ctxNouveau({ portee: [], instr: "insert" }, { doublon: { table: cleNom(s.table.court || t), alias: s.aliasLignes ? cleNom(s.aliasLignes) : null } }));
       }
       if (s.top) note(5, CODE("INSERT TOP (" + texteNombre(s.top.n) + ")") + " : les lignes ajoutées sont prises sans ordre garanti (on ne peut pas écrire d'ORDER BY ici).");
       sortie(s.output, niv, ctx);
@@ -3337,26 +3896,39 @@
         if (p.table) return nom + " " + d.texte.replace(/^la table /, "");
         return p.alias && d.texte.indexOf("(appelée " + p.alias + ")") >= 0 ? d.texte.replace("(appelée " + p.alias + ")", "(appelée " + p.alias + ", " + nom + ")") : d.texte + " (" + nom + ")";
       }
-      emettre(niv, "FUSIONNER", role(s.source, ds, "la source") + " dans " + role(s.cible, dc, "la cible") + ", en reliant quand " + cond(s.on, ctx), ctx);
+      var tete = role(s.source, ds, "la source") + " dans " + role(s.cible, dc, "la cible"), lienM = "en reliant quand " + cond(s.on, ctx);
+      if (("FUSIONNER " + tete + ", " + lienM).replace(/\u0001\d+\u0001/g, "").length <= 120) emettre(niv, "FUSIONNER", tete + ", " + lienM, ctx);
+      else { ligne(niv, "FUSIONNER", tete); emettre(niv + 1, "", lienM, ctx); }
       if (ds.bloc) { ligne(niv + 1, "", "la source :"); ds.bloc(niv + 2); }
       ligne(niv + 1, "", "les cas WHEN sont testés dans l'ordre : le premier qui convient s'applique");
-      var vus = {};
+      var vus = {}, modifie = false;
       s.quand.forEach(function (w) {
-        var cx = ctxNouveau({ portee: portee, instr: "merge" }, {}), si, act;
+        var clause = w.genre === "existe" ? "WHEN MATCHED AND" : w.genre === "absent" ? "WHEN NOT MATCHED AND" : "WHEN NOT MATCHED BY SOURCE AND";
+        var participe = w.action === "supprimer" ? "supprimée" : w.action === "modifier" ? "mise à jour" : "ajoutée";
+        var cx = ctxNouveau({ portee: portee, instr: "merge" }, { filtre: "matched", merge: { clause: clause, action: participe, cible: cleNom(nomAffichage(s.cible)),
+          colonnes: (w.set || []).map(function (a) { return a.cible; }) } }), si, verbe, act;
         si = w.genre === "existe" ? "si la ligne de la source a une correspondance dans la cible" :
           w.genre === "absent" ? "si la ligne de la source n'a pas de correspondance dans la cible" : "si une ligne de la cible n'a pas de correspondance dans la source";
         if (vus[w.genre]) si = "sinon, " + si;
         vus[w.genre] = true;
+        if (w.genre === "existe") modifie = true;
         if (w.cond) si += ", et que " + cond(w.cond, cx);
-        if (w.action === "supprimer") act = "SUPPRIMER cette ligne de la cible";
-        else if (w.action === "modifier") act = "METTRE " + affsTexte(w.set, cx).join(", ");
-        else act = "AJOUTER une ligne dans la cible" + (w.colonnes ? " (" + w.colonnes.join(", ") + ")" : "") +
-          (w.defaut ? ", avec les valeurs par défaut" : " avec (" + (w.valeurs || []).map(function (v) { return tx(v, cx).t; }).join(", ") + ")");
-        emettre(niv + 1, "", si + " : " + act, cx);
-        if (w.genre === "absentSource" && w.action === "supprimer") ligne(niv + 2, "", "attention : si la source est partielle (un seul fichier, un seul client…), toutes les autres lignes de la cible sont supprimées");
+        if (w.action === "supprimer") { verbe = "SUPPRIMER"; act = "cette ligne de la cible"; }
+        else if (w.action === "modifier") { verbe = "METTRE"; act = affsTexte(w.set, cx).join(", "); }
+        else {
+          verbe = "AJOUTER";
+          act = "une ligne dans la cible" + (w.colonnes ? " (" + w.colonnes.join(", ") + ")" : "") +
+            (w.defaut ? ", avec les valeurs par défaut" : (w.colonnes && w.colonnes.length > 2 ? "\u0004" : " ") + "avec (" + (w.valeurs || []).map(function (v) { return tx(v, cx).t; }).join(", ") + ")");
+        }
+        if ((si + " : " + verbe + " " + act).replace(/\u0001\d+\u0001/g, "").length <= 120) emettre(niv + 1, "", si + " : " + verbe + " " + act, cx);
+        else { emettre(niv + 1, "", si + " :", cx); emettre(niv + 2, verbe, act, cx); }
+        if (w.genre === "absentSource" && w.action === "supprimer") ligne(niv + 2, "", "attention : si la source est partielle (un fichier, un client…), les autres lignes de la cible sont supprimées");
       });
       if (!vus.absentSource) ligne(niv + 1, "", "les lignes de la cible absentes de la source ne changent pas");
-      if (vus.existe) ligne(niv + 1, "", "si plusieurs lignes de la source correspondent à la même ligne de la cible : erreur (avec les réglages par défaut)");
+      if (modifie) {
+        ligne(niv + 1, "", "si plusieurs lignes de la source correspondent à la même ligne de la cible");
+        ligne(niv + 2, "", "et qu'une clause WHEN MATCHED doit la modifier ou la supprimer : erreur (réglages par défaut)");
+      }
       if (s.top) note(5, CODE("MERGE TOP (" + texteNombre(s.top.n) + ")") + " : les lignes touchées sont prises sans ordre garanti.");
       sortie(s.output, niv, ctx);
     }
@@ -3367,7 +3939,7 @@
       [["surSuppr", "supprimée"], ["surModif", "modifiée"]].forEach(function (x) {
         var a = c[x[0]];
         if (!a) return;
-        if (a === "CASCADE") l.push("si la ligne visée est " + x[1] + ", celle-ci l'est aussi (CASCADE)");
+        if (a === "CASCADE") l.push("si la ligne visée est " + x[1] + ", cette ligne l'est aussi (CASCADE)");
         else if (a === "SET NULL") l.push("si la ligne visée est " + x[1] + ", cette colonne est vidée (SET NULL)");
         else if (a === "SET DEFAULT") l.push("si la ligne visée est " + x[1] + ", cette colonne reprend sa valeur par défaut");
         else l.push("la ligne visée ne peut pas être " + x[1] + " tant qu'elle est utilisée (" + a + ")");
@@ -3381,11 +3953,20 @@
       if (c.cle) { l.push("clé primaire"); lien("PRIMARY KEY"); }
       if (c.obligatoire) { l.push("obligatoire (NOT NULL)"); lien("NOT NULL"); }
       if (c.unique) { l.push("valeur unique"); lien("UNIQUE"); }
-      if (c.auto) { l.push("numéro automatique" + (c.autoDebut ? " (départ " + c.autoDebut + (c.autoPas ? ", pas de " + c.autoPas : "") + ")" : "")); lien("IDENTITY"); }
-      if (c.defaut) { l.push("par défaut : " + tx(c.defaut, ctx).t); lien("DEFAULT"); }
-      if (c.ref) { l.push("doit exister dans " + c.ref + (c.refCols ? " (" + c.refCols.join(", ") + ")" : "") + " (clé étrangère)" + actionsTexte(c)); lien("FOREIGN KEY"); }
-      if (c.check) { l.push("règle : " + cond(c.check, ctx)); lien("CHECK"); }
-      return c.nom + " : " + l.join(", ");
+      if (c.auto) {
+        var pas = c.autoPas ? String(c.autoPas) : "1";
+        l.push("numéro automatique" + (c.autoDebut ? " (commence à " + c.autoDebut + ", " + (pas.charAt(0) === "-" ? pas : "+" + pas) + " à chaque ligne)" : ""));
+        lien("IDENTITY");
+      }
+      var t = c.nom + " : " + l.join(", ");
+      if (c.defaut) { t += " ; par défaut : " + tx(c.defaut, ctx).t; lien("DEFAULT"); }
+      if (c.check) { t += " ; règle : " + cond(c.check, ctx); lien("CHECK"); }
+      if (c.ref) {
+        lien("FOREIGN KEY");
+        var vide = !c.obligatoire && !c.cle, dans = "doit exister dans " + c.ref + (c.refCols ? " (" + c.refCols.join(", ") + ")" : "") + " (clé étrangère)";
+        t += " ; " + (vide ? "s'il est rempli, il " + dans + " ; vide (NULL) permis" : dans) + actionsTexte(c);
+      }
+      return t;
     }
     function contrainteTexte(c, ctx) {
       var n = c.nom ? " (" + c.nom + ")" : "";
@@ -3411,14 +3992,18 @@
         var remplace = "si elle existe déjà, elle est REMPLACÉE : l'ancienne table et toutes ses lignes disparaissent";
         if (s.comme) ligne(niv, "CRÉER", nomT + si + ", avec la même structure que " + s.comme + " (sans les lignes)");
         else if (s.clone) { lien("CLONE"); ligne(niv, "CRÉER", nomT + si + ", copie de " + s.clone + (s.cloneVoyage ? " telle qu'elle était à un moment passé" : "") + " (CLONE : sans recopier les données sur le disque)"); }
-        else if (s.req) {
+        else if (s.req && s.ouRemplacer) {
+          ligne(niv, "CRÉER", nomT + si + " avec le résultat de la requête ci-dessous");
+          ligne(niv + 1, "", remplace);
+          ligne(niv + 1, "", "la requête :");
+          requete(s.req, niv + 2, { instr: "select" });
+        } else if (s.req) {
           ligne(niv, "CRÉER", nomT + si + " avec le résultat de :");
-          if (s.ouRemplacer) ligne(niv + 1, "", remplace);
           requete(s.req, niv + 1, { instr: "select" });
         } else {
           ligne(niv, "CRÉER", nomT + si + (s.colonnes ? ", avec les colonnes :" : ""));
           if (s.ouRemplacer) ligne(niv + 1, "", remplace);
-          (s.colonnes || []).forEach(function (c) { ligne(niv + 1, "", c.t === "colonne" ? colonneTexte(c, ctx) : "règle : " + contrainteTexte(c, ctx)); });
+          (s.colonnes || []).forEach(function (c) { emettre(niv + 1, "", c.t === "colonne" ? colonneTexte(c, ctx) : "règle : " + contrainteTexte(c, ctx), ctx); });
         }
         return;
       }
@@ -3448,8 +4033,8 @@
       ligne(niv, s.alter ? "MODIFIER" : "CRÉER", (proc ? "la procédure " : "la fonction ") + s.nom + ouAutre(s, true));
       if (s.params.length) ligne(niv + 1, "", s.params.length === 1 ? "son paramètre :" : "ses " + s.params.length + " paramètres :");
       s.params.forEach(function (p) {
-        ligne(niv + 2, "", p.nom + " : " + typeTexte(p.type) + (p.defaut ? ", " + tx(p.defaut, ctx).t + " par défaut" : "") +
-          (p.sortie || p.mode === "OUT" || p.mode === "INOUT" ? ", en sortie (" + (p.mode || "OUTPUT") + " : la valeur revient à l'appelant)" : ""));
+        emettre(niv + 2, "", p.nom + " : " + typeTexte(p.type) + (p.defaut ? ", " + tx(p.defaut, ctx).t + " par défaut" : "") +
+          (p.sortie || p.mode === "OUT" || p.mode === "INOUT" ? "\u0005en sortie (" + (p.mode || "OUTPUT") + " : la valeur revient à l'appelant)" : ""), ctx);
       });
       if (s.retour) {
         var rt = s.retour;
@@ -3463,7 +4048,8 @@
       if (s.lot && s.corps.length > 1) {
         var der = s.corps[s.corps.length - 1];
         if (der.t === "exec" && der.nom && cleNom(der.nom.texte) === cleNom(s.nom))
-          ligne(niv + 1, "", "attention : sans GO, l'EXEC " + der.nom.texte + " fait partie de la procédure (elle s'appelle elle-même). Ce script crée la procédure, il ne l'exécute pas.");
+        { ligne(niv + 1, "", "attention : sans GO, l'EXEC " + der.nom.texte + " fait partie de la procédure (elle s'appelle elle-même)");
+          ligne(niv + 1, "", "ce script crée la procédure, il ne l'exécute pas"); }
         else if (s.corps[0].t === "bloc") ligne(niv + 1, "", "attention : sans GO après END, les instructions suivantes font aussi partie de la procédure");
       }
     }
@@ -3532,7 +4118,8 @@
       }
       function texteVar(v) {
         var maintenant = v.init && v.init.t === "fn" && /^(GETDATE|SYSDATETIME|CURRENT_TIMESTAMP|NOW|SYSDATE)$/.test(v.init.nom);
-        var init = !v.init ? ", vide (NULL) au départ" : v.init.t === "sousreq" ? ", qui vaut au départ " + VALEUR_SOUS + sousRequete(v.init.req, ctx) :
+        var ag = v.init && v.init.t === "sousreq" ? agregatSimple(v.init.req, ctx) : null;
+        var init = !v.init ? ", vide (NULL) au départ" : ag ? ", qui vaut au départ " + ag : v.init.t === "sousreq" ? ", qui vaut au départ " + valeurSous(v.init.req) + sousRequete(v.init.req, ctx) :
           maintenant && v.type && v.type.nom === "DATE" ? ", qui vaut au départ la date du jour (le type DATE garde la date, sans l'heure)" :
           ", qui vaut au départ " + tx(v.init, ctx).t;
         return v.nom + " : " + typeTexte(v.type) + init;
@@ -3550,19 +4137,19 @@
         emettre(niv + 1, "", texteVar(v), ctx);
       });
     }
-    var VALEUR_SOUS = "le résultat de la sous-requête (NULL si elle ne renvoie aucune ligne ; erreur si elle en renvoie plusieurs) ";
     function setTrad(s, niv) {
       s.affs.forEach(function (a) {
         var ctx = ctxSimple();
         if (a.reglage) { emettre(niv, "RÉGLER", a.cible + " = " + tx(a.val, ctx).t, ctx); return; }
         lien("SET @variable");
         if (a.val.t === "sousreq" && (a.op === "=" || a.op === ":=")) {
-          emettre(niv, "METTRE", "dans " + a.cible + " " + VALEUR_SOUS + sousRequete(a.val.req, ctx), ctx);
+          var ag = agregatSimple(a.val.req, ctx);
+          emettre(niv, "METTRE", "dans " + a.cible + " " + (ag || valeurSous(a.val.req) + sousRequete(a.val.req, ctx)), ctx);
           return;
         }
         var v = tx(a.val, ctx), val = a.op === "=" || a.op === ":=" ? v : K(a.cible + " " + a.op.charAt(0) + " " + emb(v));
         var t = "dans " + a.cible + " " + (val.p ? val.t : "la valeur " + val.t), sql = valeurTexte(a.val);
-        if (sql !== null && /^\s*(select|insert|update|delete|merge|with|exec|execute|create|drop|alter|truncate)\b/i.test(sql)) t += " (un texte qui contient une requête : elle n'est pas exécutée ici)";
+        if (sql !== null && /^\s*(select|insert|update|delete|merge|with|exec|execute|create|drop|alter|truncate)\b/i.test(sql)) t += " ; c'est un texte qui contient une requête : elle n'est pas exécutée ici";
         emettre(niv, "METTRE", t, ctx);
       });
     }
@@ -3608,10 +4195,10 @@
       var params = a.slice(3).map(function (x) { return tx(x, ctx).t; });
       var rempl = params.length && /%[ds]/.test(msg) ? " (" + (msg.match(/%[a-z]/g) || []).join(", ") + " remplacé par " + enumerer(params) + ")" : "";
       var vite = s.options.indexOf("NOWAIT") >= 0 ? " ; affiché tout de suite (WITH NOWAIT)" : "";
-      if (grav !== null && grav <= 10) ligne(niv, "ÉCRIRE", "le message " + msg + rempl + " : gravité " + grav + ", un simple message d'information, pas une erreur ; rien ne s'arrête" + vite);
-      else if (grav !== null && grav <= 19) ligne(niv, "SIGNALER", "l'erreur " + msg + rempl + " (gravité " + grav + ") : dans un TRY, on passe au CATCH" + vite);
-      else if (grav !== null) ligne(niv, "SIGNALER", "l'erreur grave " + msg + rempl + " (gravité " + grav + ") : la connexion est coupée");
-      else ligne(niv, "SIGNALER", "le message " + msg + rempl + " (gravité " + (a[1] ? tx(a[1], ctx).t : "?") + ")" + vite);
+      if (grav !== null && grav <= 10) emettre(niv, "ÉCRIRE", "le message " + msg + rempl + " : gravité " + grav + " ; un simple message d'information, pas une erreur ; rien ne s'arrête" + vite, ctx);
+      else if (grav !== null && grav <= 19) emettre(niv, "SIGNALER", "l'erreur " + msg + rempl + " (gravité " + grav + ") : dans un TRY, on passe au CATCH" + vite, ctx);
+      else if (grav !== null) emettre(niv, "SIGNALER", "l'erreur grave " + msg + rempl + " (gravité " + grav + ") : la connexion est coupée", ctx);
+      else emettre(niv, "SIGNALER", "le message " + msg + rempl + " (gravité " + (a[1] ? tx(a[1], ctx).t : "?") + ")" + vite, ctx);
     }
     function execTrad(s, niv) {
       var ctx = ctxSimple();
@@ -3639,6 +4226,16 @@
         return (x.nom ? x.nom + " = " : "") + v + (x.sortie ? " (en sortie : la valeur revient dans " + v + ")" : "");
       });
       emettre(niv, "EXÉCUTER", "la procédure " + nom + (args.length ? ", avec " + args.join(", ") : "") + (s.retour ? ", et RANGER son code retour dans " + s.retour : ""), ctx);
+      // La procédure est créée plus haut dans le texte : dire quels paramètres ne sont pas donnés.
+      var params = procedures[cleNom(nom)];
+      if (!params) return;
+      var donnes = {};
+      s.args.forEach(function (x, k) { if (x.nom) donnes[cleNom(x.nom)] = true; else if (params[k]) donnes[cleNom(params[k].nom)] = true; });
+      params.forEach(function (pr) {
+        if (donnes[cleNom(pr.nom)]) return;
+        if (pr.defaut) ligne(niv + 1, "", pr.nom + " n'est pas donné : il vaut " + tx(pr.defaut, ctx).t + " (sa valeur par défaut)");
+        else if (!pr.sortie) ligne(niv + 1, "", pr.nom + " n'est pas donné et n'a pas de valeur par défaut : erreur");
+      });
     }
     var SENS_LECTURE = { NEXT: "la ligne suivante", PRIOR: "la ligne précédente", FIRST: "la première ligne", LAST: "la dernière ligne" };
     function instr(s, niv) {
@@ -3649,7 +4246,7 @@
         case "update": updateTrad(s, niv); return;
         case "delete": deleteTrad(s, niv); return;
         case "merge": mergeTrad(s, niv); return;
-        case "truncate": lien("TRUNCATE TABLE", MC); ligne(niv, "VIDER", "la table " + s.table + (s.siExiste ? " (si elle existe)" : "") + " : toutes ses lignes sont supprimées d'un coup, sans condition possible ; la table reste (vide)"); return;
+        case "truncate": lien("TRUNCATE TABLE", MC); emettre(niv, "VIDER", "la table " + s.table + (s.siExiste ? " (si elle existe)" : "") + " : toutes ses lignes sont supprimées d'un coup, sans condition possible ; la table reste (vide)", ctxSimple()); return;
         case "create-table": case "create-view": case "create-index": case "create-objet": case "create-routine": createTrad(s, niv); return;
         case "alter-table": alterTrad(s, niv); return;
         case "drop": dropTrad(s, niv); return;
@@ -3757,6 +4354,7 @@
       return { dec: dec, util: util };
     }
     var varsLots = parLots ? nonVides.map(variablesDuLot) : [];
+    parcourir(lots, function (x) { if (x.t === "create-routine" && x.genre === "procedure" && x.params) procedures[cleNom(x.nom)] = x.params; }, true);
     nonVides.forEach(function (lot, kl) {
       var nivLot = 0, plus = lot.instrs.length > 1;
       if (parLots) {
@@ -3773,6 +4371,7 @@
       }
       lot.instrs.forEach(function (s, k) {
         etiquette = (parLots ? "lot " + (kl + 1) + (plus ? ", " : "") : "") + (plus ? "instruction " + (k + 1) : "");
+        nolockDit = false;
         var niv = nivLot;
         if (plus) { ligne(nivLot, "INSTRUCTION " + (k + 1), ":"); niv = nivLot + 1; }
         instr(s, niv);
@@ -3807,7 +4406,28 @@
     }
     return false;
   }
+  // SQL Server ou Snowflake : reconnu à des marques sûres (sinon null, et les remarques citent les moteurs).
+  var MARQUES_TSQL = ensemble("NOLOCK PRINT RAISERROR NOCOUNT GO APPLY EOMONTH ISNULL TRY_CONVERT DATETIME2 SYSDATETIME OUTPUT IDENTITY_INSERT XACT_ABORT DEALLOCATE");
+  var MARQUES_SNOWFLAKE = ensemble("QUALIFY IFF FLATTEN VARIANT TIMESTAMP_NTZ TIMESTAMP_LTZ TIMESTAMP_TZ PARSE_JSON TRY_PARSE_JSON ILIKE WAREHOUSE TRANSIENT " +
+    "UNDROP CLONE ZEROIFNULL NULLIFZERO DIV0 EQUAL_NULL OBJECT_CONSTRUCT TRY_TO_NUMBER TRY_TO_DATE TRY_TO_TIMESTAMP RESULT_SCAN");
+  var AVANT_STAGE = ensemble("FROM JOIN INTO LIST LS PUT GET REMOVE RM USING STAGE");
+  function moteurReconnu(lu, mysql) {
+    if (mysql) return "mysql";
+    var J = lu.jetons, ts = false, sf = false;
+    for (var k = 0; k < J.length; k++) {
+      var x = J[k], av = J[k - 1] || {};
+      if (x.t === "mot") {
+        if (MARQUES_TSQL[x.h] || /^@@/.test(x.v) || (/^#[A-Za-z_]/.test(x.v))) ts = true;
+        else if (x.v.charAt(0) === "@" && !(av.t === "mot" && AVANT_STAGE[av.h])) ts = true;
+        if (MARQUES_SNOWFLAKE[x.h]) sf = true;
+      } else if (x.t === "nom" && x.v.charAt(0) === "[") ts = true;
+      else if (x.t === "op" && (x.v === "::" || (x.v === ":" && !x.esp && (av.t === "mot" || av.t === "nom")))) sf = true;
+      else if (x.t === "texte" && x.x === "dollar") sf = true;
+    }
+    return ts && !sf ? "tsql" : sf && !ts ? "snowflake" : null;
+  }
   var RIEN = "Rien à traduire : colle une requête SQL.";
+  var PAS_SQL = "Je n'arrive pas à lire la requête : ce texte ne ressemble pas à du SQL. Une requête commence par SELECT, WITH, INSERT, UPDATE, DELETE…";
   var MESSAGES_LECTURE = { texte: "un texte entre apostrophes n'est jamais fermé", dollar: "un texte $$ … $$ n'est jamais fermé",
     commentaire: "un commentaire /* … */ n'est jamais fermé", crochet: "un crochet [ n'est jamais fermé",
     guillemet: "un guillemet \" n'est jamais fermé", accent: "un accent grave ` n'est jamais fermé" };
@@ -3831,13 +4451,18 @@
     }
     if (lu.jetons.length === 1 && !lu.erreur) return resultatMessage(RIEN);
     var lots = lu.jetons.length > 1 ? analyser(lu.jetons, texte) : [{ instrs: [] }];
+    // Du texte qui n'est pas du SQL (plusieurs morceaux illisibles, et pas un mot de SQL au début) : un seul message.
+    var tous = [], j0 = lu.jetons[0];
+    lots.forEach(function (l) { tous = tous.concat(l.instrs); });
+    if ((tous.length + (lu.erreur ? 1 : 0)) >= 2 && tous.every(function (x) { return x.t === "erreur"; }) &&
+        !(j0.t === "op" && j0.v === "(") && !(j0.t === "mot" && (DEBUTS[j0.h] || NON_TRADUITES[j0.h] || j0.h === "GO"))) return resultatMessage(PAS_SQL, "erreur");
     if (lu.erreur) {
       var m = "Je n'arrive pas à lire la requête à partir de : " + court(texte.slice(lu.erreur.d, lu.erreur.d + 200), 60) + " (" + MESSAGES_LECTURE[lu.erreur.quoi] + ")";
       var ins = lots[lots.length - 1].instrs, der = ins[ins.length - 1];
       if (der && der.t === "erreur" && der.surFin) { der.message = m; der.inconnu = false; }
       else ins.push({ t: "erreur", message: m });
     }
-    var r = traduction(lots, texte, { mysql: mysql });
+    var r = traduction(lots, texte, { mysql: mysql, moteur: moteurReconnu(lu, mysql) });
     r.erreurs = r.lignes.filter(function (l) { return l.genre === "erreur" || l.genre === "inconnu"; }).map(function (l) { return l.texte; });
     r.texte = enTexte(r);
     return r;
