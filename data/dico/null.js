@@ -29,6 +29,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT id, COALESCE(motif, 'Aucun') AS motif\nFROM flux_edi\nWHERE type = 'ORDERS';",
     resultat: [["id", "motif"], [1, "Aucun"], [2, "Aucun"], [3, "EAN inconnu"], [5, "Aucun"]],
     piege: "Sur SQL Server et Snowflake, des types différents plantent : avec `COALESCE(ville, 0)`, le moteur essaie de convertir 'Lyon' en nombre (MySQL, lui, rend du texte). Donne un remplaçant du même type : `COALESCE(ville, '')`.",
+    pratique: "Pour prendre la première valeur remplie parmi plusieurs colonnes, enchaîne-les dans l'ordre de préférence : `COALESCE(email_compta, email_contact, 'à compléter')` donne l'adresse d'envoi des factures.",
     motsCles: ["remplacer", "vide", "défaut", "secours", "valeur", "premier", "rempli", "manquant", "remplacement", "zéro", "nvl", "ifnull", "absent", "rien"],
     voirAussi: ["isnull", "nullif", "is-null", "concat"],
     module: "m02"
@@ -52,6 +53,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "siren", "avec_isnull", "avec_coalesce"], ["C003", null, "Non rense", "Non renseigné"], ["C005", null, "Non rense", "Non renseigné"]],
     piege: "ISNULL prend le type du 1er argument : sur `siren CHAR(9)`, SQL Server coupe 'Non renseigné' en 'Non rense', sans erreur. COALESCE garde le texte entier : préfère-le.",
+    pratique: "Sur SQL Server, `SELECT ISNULL(code, '') AS code INTO copie FROM …` crée une colonne NOT NULL ; avec COALESCE, elle accepte NULL. Pratique pour poser ensuite une clé primaire sur `code`.",
     motsCles: ["remplacer", "vide", "défaut", "secours", "valeur", "nvl", "ifnull", "remplacement", "zéro", "manquant", "absent", "rien", "null"],
     voirAussi: ["coalesce", "nullif", "is-null"],
     module: "m02"
@@ -71,6 +73,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Une alerte seulement sur les flux rejetés\nSELECT id, statut, NULLIF(statut, 'OK') AS alerte\nFROM flux_edi\nWHERE type = 'ORDERS';",
     resultat: [["id", "statut", "alerte"], [1, "OK", null], [2, "OK", null], [3, "REJET", "REJET"], [5, "OK", null]],
     piege: "`montant / qte` plante (« division par zéro ») dès qu'une ligne a qte = 0, et tout le rapport s'arrête. Écris `montant / NULLIF(qte, 0)` : la ligne donne NULL au lieu de planter.",
+    pratique: "Pour compter sans CASE les articles en stock, écris `COUNT(NULLIF(stock, 0))` : les stocks à 0 deviennent NULL, et COUNT ne compte pas les NULL.",
     motsCles: ["division", "zéro", "diviser", "erreur", "vide", "transformer", "égal", "éviter", "protéger", "annuler", "vider", "planter", "null"],
     voirAussi: ["coalesce", "division", "is-null", "charindex"],
     module: "m02"
@@ -93,6 +96,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["id", "statut", "motif"], [1, "OK", null], [2, "OK", null], [4, "OK", null], [5, "OK", null], [6, "REJET", "Quantité ≠ commande"]],
     piege: "`WHERE motif <> 'EAN inconnu'` ne garde que le flux 6 : les 4 flux au motif vide disparaissent, sans erreur. `IS DISTINCT FROM` les garde ; sur SQL Server avant 2022, ajoute `OR motif IS NULL`.",
+    pratique: "Pour trouver les fiches changées entre deux imports, compare chaque colonne avec `IS DISTINCT FROM` (SQL Server 2022+, Snowflake) : passer de NULL à 'Lyon' compte comme un changement. MySQL : `NOT (a <=> b)`.",
     motsCles: ["comparer", "égalité", "différent", "changement", "détecter", "modification", "égal", "vides", "comparaison", "distinct", "null", "sûr", "nulls", "equal_null"],
     voirAussi: ["is-null", "coalesce", "and-or-not"],
     module: "m02"

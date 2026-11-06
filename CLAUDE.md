@@ -132,8 +132,21 @@ Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. S
   Exemple sur la base d'exemple (`docs/base-exemple.sql`, tables sans schéma), résultat vérifié avec SQLite.
 - Recherche sans IA dans `js/app.js` (bloc « Super dico ») : mots vides, racines, fautes tolérées.
   Sélecteur de moteur gardé dans le navigateur (`learnsql-dico-moteur`).
+- Champ `pratique` : le conseil pratique (règle 9), affiché sous le piège dans un encadré « En pratique ».
+  `outils/verifier.js` le contrôle (non vide, 40 mots au plus, différent du piège) ; constante `PRATIQUE_OBLIGATOIRE`.
 - `node outils/verifier.js` contrôle aussi le dico ; test navigateur : `outils/tests/dico.js`.
 - Étape 3 (à venir) : fiches perso de l'élève, privées, dans son compte.
+
+## Traduire une requête
+
+Page `#/traduire`, ouverte à tous, sans compte. Spécification : `docs/traducteur.md`.
+- L'élève colle une requête (SQL Server, Snowflake, MySQL) ; le site l'explique en pseudo-code français, dans l'ordre
+  où SQL la calcule, avec des notes « À savoir » et des liens vers le dico. Sans IA, tout dans le navigateur :
+  la requête n'est enregistrée nulle part (ni localStorage, ni URL).
+- Moteur : `js/traducteur.js`, fonction pure `LEARNSQL.traduire(texte)` (lignes, notes, fiches, erreurs, texte).
+  Affichage : `pageTraduire` dans `js/app.js` (bloc « Traduire une requête »).
+- Tests : `node outils/tests/traducteur-cas.js` (cas sans navigateur), `node outils/tests/traducteur-corpus.js`
+  (le corpus de l'expert : 87 vraies requêtes et leurs notes), `outils/tests/traduire.js` (navigateur, dans `lancer.sh`).
 
 ## Questions Divalto
 

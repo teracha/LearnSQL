@@ -44,6 +44,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE WAREHOUSE wh_rapport\n  WAREHOUSE_SIZE = 'XSMALL' AUTO_SUSPEND = 60 AUTO_RESUME = TRUE;\nUSE WAREHOUSE wh_rapport;\nSELECT statut, COUNT(*) AS nb_cdes FROM commande GROUP BY statut;",
     resultat: "wh_rapport calcule le SELECT, s'arrête seul après 60 s sans requête, et redémarre à la requête suivante : tu paies au moins 1 minute à chaque démarrage, puis à la seconde.",
     piege: "Exemple écrit pour Snowflake. Sans warehouse actif, la requête plante (« No active warehouse selected in the current session ») ; et avec `AUTO_SUSPEND = 0`, un warehouse oublié ne s'arrête jamais et brûle des crédits toute la nuit.",
+    pratique: "Crée un warehouse par usage : un pour les chargements, un pour les rapports Power BI. Un gros import ne ralentit plus les rapports, et tu vois qui consomme les crédits.",
     motsCles: ["warehouse", "entrepôt", "calcul", "puissance", "crédits", "coût", "facture", "payer", "taille", "serveur", "cluster", "suspendre", "démarrer", "compute", "performance", "virtuel"],
     voirAussi: ["copy-into", "time-travel", "cluster-by"],
     module: "m14"
@@ -63,6 +64,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- La table telle qu'elle était il y a 1 heure, avant un UPDATE raté\nSELECT num_cde, statut\nFROM commande AT (OFFSET => -3600)\nWHERE canal = 'EDI'\nORDER BY num_cde;",
     resultat: [["num_cde", "statut"], ["CDE-1001", "LIVREE"], ["CDE-1003", "LIVREE"], ["CDE-1007", "EN_COURS"]],
     piege: "Exemple écrit pour Snowflake. Un UPDATE raté vendredi, vu lundi : avec 1 jour de rétention (le défaut), il est trop tard ; règle `DATA_RETENTION_TIME_IN_DAYS` sur les tables importantes avant l'incident.",
+    pratique: "Juste après un UPDATE raté, note son identifiant : `SELECT LAST_QUERY_ID();`. Puis lis la table d'avant avec `BEFORE (STATEMENT => 'cet identifiant')` : pas besoin de deviner l'heure.",
     motsCles: ["passé", "historique", "revenir", "annuler", "erreur", "restaurer", "récupérer", "hier", "ancienne version", "time travel", "voyage dans le temps", "update raté", "retour arrière", "état", "rétention", "avant"],
     voirAussi: ["undrop", "clone", "update"],
     module: "m14"
@@ -82,6 +84,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "DROP TABLE flux_edi;      -- supprimée par erreur\nUNDROP TABLE flux_edi;    -- elle revient, avec ses lignes\nSELECT COUNT(*) AS nb_flux FROM flux_edi;",
     resultat: [["nb_flux"], [6]],
     piege: "Exemple écrit pour Snowflake. Après un `CREATE OR REPLACE TABLE flux_edi`, UNDROP échoue car le nom est pris : renomme d'abord la nouvelle table (`ALTER TABLE flux_edi RENAME TO flux_edi_vide`), puis lance UNDROP.",
+    pratique: "Pour voir les tables supprimées encore récupérables, lance `SHOW TABLES HISTORY LIKE 'flux%';` : la colonne dropped_on donne la date de suppression (vide pour une table active).",
     motsCles: ["restaurer", "récupérer", "supprimée", "effacée", "drop", "annuler", "erreur", "revenir", "table perdue", "corbeille", "undelete", "rétablir", "réparer"],
     voirAussi: ["time-travel", "clone", "drop-table"],
     module: "m14"
@@ -105,6 +108,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["en_cours_origine", "en_cours_copie"], [3, 0]],
     piege: "Le clone n'a pas l'historique de chargement de la table d'origine : un `COPY INTO` relancé sur le clone recharge des fichiers déjà chargés, et crée des doublons. Pour tester un chargement, vide d'abord le clone (`TRUNCATE TABLE`).",
+    pratique: "Pour une recette sur des données réelles, clone toute la base en une commande : `CREATE DATABASE ventes_recette CLONE ventes;`. Seules les données modifiées ensuite coûtent du stockage en plus.",
     motsCles: ["copie", "copier", "dupliquer", "test", "tester", "bac à sable", "sandbox", "environnement", "recette", "instantané", "zéro copie", "clone", "cloner", "sauvegarde", "dev"],
     voirAussi: ["time-travel", "undrop", "copy-into", "create-table"],
     module: "m14"
@@ -128,6 +132,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["cde", "client", "qte_1"], ["CDE-1007", "C001", "150"]],
     piege: "Les noms de clés tiennent compte de la casse : `doc:Cde` renvoie NULL, sans erreur. Et sans `::STRING`, Snowflake affiche `\"CDE-1007\"` avec ses guillemets (MySQL aussi, avec `->`) : convertis toujours.",
+    pratique: "Pour découvrir les clés d'un message JSON reçu, liste-les : `OBJECT_KEYS(doc)` sur Snowflake, `JSON_KEYS(doc)` sur MySQL, la colonne `[key]` de `CROSS APPLY OPENJSON(doc)` sur SQL Server. Seul le premier niveau sort.",
     motsCles: ["json", "semi-structuré", "document", "champ", "clé", "extraire", "parse", "deux-points", "chemin", "objet", "tableau", "api", "variant", "xml", "message", "lire"],
     voirAussi: ["flatten", "cast", "copy-into"],
     module: "m14"
@@ -151,6 +156,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["cde", "article", "qte"], ["CDE-1007", "CHL-5", 150], ["CDE-1007", "FIL-14", 5]],
     piege: "Une commande dont le tableau `lignes` est vide disparaît du résultat, sans erreur, comme avec un INNER JOIN. Pour la garder : `FLATTEN(input => …, OUTER => TRUE)` (SQL Server : `OUTER APPLY` ; MySQL : `LEFT JOIN JSON_TABLE(…) ON TRUE`).",
+    pratique: "Pour garder le numéro de ligne du message, lis `l.index + 1` : FLATTEN numérote les éléments à partir de 0. MySQL : une colonne `num FOR ORDINALITY` dans JSON_TABLE, qui compte à partir de 1.",
     motsCles: ["json", "tableau", "array", "lignes", "déplier", "éclater", "exploser", "dérouler", "éléments", "openjson", "lateral", "détail", "unnest"],
     voirAussi: ["variant", "cross-apply", "string-split", "left-join"],
     module: "m14"
@@ -174,6 +180,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Les lignes du fichier CSV (champs séparés par des points-virgules, sans la ligne d'en-tête) sont ajoutées à la table commande.",
     piege: "Relancés, BULK INSERT et LOAD DATA rechargent le fichier : doublons, ou erreur de clé en double. COPY INTO, lui, saute les fichiers déjà chargés depuis 64 jours, sauf avec `FORCE = TRUE`.",
+    pratique: "Avant de charger un nouveau fichier, teste-le : le même COPY INTO (sans transformation) avec `VALIDATION_MODE = RETURN_ERRORS` liste toutes ses erreurs, sans charger une ligne. Un COPY normal n'en montre qu'une par fichier.",
     motsCles: ["charger", "chargement", "importer", "import", "fichier", "csv", "intégrer", "injecter", "bulk", "load", "copy", "stage", "snowpipe", "ingestion", "alimenter", "edi"],
     voirAussi: ["stage", "variant", "clone", "insert"],
     module: "m14"
@@ -193,6 +200,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE STAGE stage_edi\n  FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1);\nPUT file://C:\\edi\\commandes.csv @stage_edi/commandes/;  -- Snowflake CLI, pas une feuille Snowsight\nLIST @stage_edi/commandes/;\nSELECT $1, $2, $3 FROM @stage_edi/commandes/ LIMIT 5;",
     resultat: "LIST montre le fichier déposé (nom, taille, date) ; le SELECT lit ses 3 premières colonnes sans rien charger.",
     piege: "Exemple écrit pour Snowflake. Les fichiers restent dans le stage après le COPY INTO et sont facturés comme du stockage : ajoute `PURGE = TRUE` au COPY, ou nettoie avec `REMOVE @stage_edi/commandes/`.",
+    pratique: "Pour savoir de quel fichier vient chaque ligne, ajoute `METADATA$FILENAME` au SELECT sur le stage, ou au COPY avec transformation : tu retrouves vite le fichier EDI d'une ligne en erreur.",
     motsCles: ["dépôt", "déposer", "fichier", "fichiers", "zone", "s3", "azure", "blob", "put", "upload", "envoyer", "remove", "dossier", "stockage", "externe", "interne"],
     voirAussi: ["copy-into", "variant", "warehouse"],
     module: "m14"

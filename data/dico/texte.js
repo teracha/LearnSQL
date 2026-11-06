@@ -36,6 +36,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "siren", "longueur"], ["C002", "423456789", 9], ["C003", null, null], ["C004", "334567890", 9], ["C006", "423456789", 9], ["C007", "245678901", 9]],
     piege: "SQL Server ignore les espaces de fin : `LEN('C001  ')` vaut 4, Snowflake dit 6 ; un contrôle de champ EDI à longueur fixe ne voit donc pas ces espaces. Sur MySQL, `LENGTH('Genève')` vaut 7 (des octets) : compte avec `CHAR_LENGTH`.",
+    pratique: "Avant un export vers un champ limité (35 caractères pour un nom de partenaire en EDIFACT), liste les noms trop longs : `WHERE LEN(nom) > 35` ; MySQL : `CHAR_LENGTH(nom) > 35`.",
     motsCles: ["longueur", "taille", "compter", "caractères", "nombre", "lettres", "combien", "long", "length", "espaces", "contrôle", "chiffres", "octets", "courte"],
     voirAussi: ["trim", "left", "substring", "lpad"],
     module: "m03"
@@ -55,6 +56,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT code, LEFT(code, 3) AS prefixe\nFROM article\nWHERE famille = 'CHIMIE';",
     resultat: [["code", "prefixe"], ["CHL-5", "CHL"], ["CHL-25", "CHL"], ["PH-5", "PH-"]],
     piege: "Une longueur fixe trahit dès que les codes varient : `LEFT(code, 3)` donne 'PH-' pour PH-5. Coupe plutôt au tiret, avec CHARINDEX protégé par NULLIF : `LEFT(code, NULLIF(CHARINDEX('-', code), 0) - 1)`.",
+    pratique: "Pour un total par classe de comptes (6 = charges, 7 = produits), groupe sur le premier chiffre : `SELECT LEFT(compte, 1) AS classe, SUM(montant) … GROUP BY LEFT(compte, 1)`.",
     motsCles: ["gauche", "début", "premiers", "caractères", "couper", "extraire", "préfixe", "garder", "tronquer", "lettres", "commence", "raccourcir", "racine"],
     voirAussi: ["right", "substring", "charindex", "like"],
     module: "m03"
@@ -74,6 +76,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT num_fact, RIGHT(num_fact, 4) AS numero\nFROM facture;",
     resultat: [["num_fact", "numero"], ["FA-2026-0301", "0301"], ["FA-2026-0302", "0302"], ["FA-2026-0303", "0303"], ["FA-2026-0401", "0401"]],
     piege: "Sur SQL Server, une colonne CHAR(n) est complétée par des espaces : `RIGHT(ref, 4)` peut ne rendre que des blancs. Enlève-les d'abord : `RIGHT(RTRIM(ref), 4)`.",
+    pratique: "Pour masquer un IBAN dans un rapport, n'affiche que la fin : `CONCAT('**** ', RIGHT(iban, 4))` marche sur les 3 moteurs.",
     motsCles: ["droite", "fin", "derniers", "caractères", "couper", "extraire", "suffixe", "garder", "numéro", "terminaison", "chiffres", "lettres", "queue"],
     voirAussi: ["left", "substring", "trim", "lpad"],
     module: "m03"
@@ -93,6 +96,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT num_fact,\n       SUBSTRING(num_fact, 4, 4) AS annee,\n       SUBSTRING(num_fact, 9, 2) AS mois\nFROM facture;",
     resultat: [["num_fact", "annee", "mois"], ["FA-2026-0301", "2026", "03"], ["FA-2026-0302", "2026", "03"], ["FA-2026-0303", "2026", "03"], ["FA-2026-0401", "2026", "04"]],
     piege: "Les positions commencent à 1. Avec 0, chaque moteur fait autre chose : `SUBSTRING('CHL-25', 0, 3)` donne 'CH' sur SQL Server, 'CHL' sur Snowflake et '' (vide) sur MySQL.",
+    pratique: "Pour lire un fichier à positions fixes chargé ligne par ligne, découpe chaque champ à sa place : `SUBSTRING(ligne, 1, 10)` pour le code client, `SUBSTRING(ligne, 11, 8)` pour la date.",
     motsCles: ["extraire", "morceau", "partie", "couper", "milieu", "position", "caractères", "découper", "portion", "mid", "substr", "tranche", "isoler", "sous-chaîne"],
     voirAussi: ["left", "right", "charindex", "string-split"],
     module: "m03"
@@ -116,6 +120,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "tiret"], ["CHL-5", 4], ["CHL-25", 4], ["PH-5", 3], ["EPU-F", 4], ["BACHE8", 0]],
     piege: "Renvoie 0 quand le caractère est absent (BACHE8) : `LEFT(code, CHARINDEX('-', code) - 1)` plante alors sur SQL Server. Protège avec `NULLIF(CHARINDEX('-', code), 0)`.",
+    pratique: "Pour trouver le 2e tiret, cherche à partir du 1er : `CHARINDEX('-', num_fact, CHARINDEX('-', num_fact) + 1)` donne 8 pour 'FA-2026-0301'. Ce 3e argument (point de départ) existe aussi dans `LOCATE` de MySQL.",
     motsCles: ["chercher", "rechercher", "trouver", "position", "caractère", "lettre", "où", "place", "contient", "tiret", "emplacement", "rang", "index", "indexof"],
     voirAussi: ["like", "substring", "left", "nullif"],
     module: "m03"
@@ -135,6 +140,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT code, REPLACE(code, '-', '') AS code_edi\nFROM article\nWHERE famille = 'CHIMIE';",
     resultat: [["code", "code_edi"], ["CHL-5", "CHL5"], ["CHL-25", "CHL25"], ["PH-5", "PH5"]],
     piege: "Sur '1 234,50', remplacer seulement la virgule donne '1 234.50', que TRY_CAST refuse (NULL). Enlève d'abord l'espace des milliers, puis la virgule : `REPLACE(REPLACE(m, ' ', ''), ',', '.')`.",
+    pratique: "Pour changer plusieurs caractères d'un coup, `TRANSLATE(date_txt, '/.', '--')` remplace chaque caractère par celui de même place : '01/03/2026' et '01.03.2026' deviennent '01-03-2026'. SQL Server 2017+ et Snowflake ; pas sur MySQL.",
     motsCles: ["remplacer", "substituer", "changer", "enlever", "supprimer", "caractère", "virgule", "point", "nettoyer", "corriger", "translate", "échanger", "modifier", "retirer"],
     voirAussi: ["trim", "stuff", "try-cast", "upper-lower"],
     module: "m03"
@@ -154,6 +160,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT code, nom, UPPER(nom) AS nom_edi\nFROM client\nWHERE pays = 'CH' OR type = 'GD';",
     resultat: [["code", "nom", "nom_edi"], ["C001", "AquaBleu", "AQUABLEU"], ["C005", "Pool & Garden", "POOL & GARDEN"]],
     piege: "Sur SQL Server, la colonne est souvent déjà sans casse (collation `_CI_`) : `WHERE UPPER(nom) = 'AQUABLEU'` ne sert à rien et empêche l'index. Sur Snowflake, la casse compte : là, UPPER ou ILIKE est nécessaire.",
+    pratique: "Normalise les codes une seule fois, au chargement de l'import : `INSERT … SELECT UPPER(TRIM(code)) …`. Les requêtes qui lisent ensuite la table n'ont plus besoin de convertir.",
     motsCles: ["majuscules", "minuscules", "casse", "capitales", "convertir", "maj", "ucase", "lcase", "lettres", "texte", "uppercase", "lowercase", "initcap", "minuscule"],
     voirAussi: ["ilike", "like", "trim", "replace"],
     module: "m03"
@@ -177,6 +184,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["avec_trim", "avec_rtrim"], ["[C001]", "[  C001]"]],
     piege: "TRIM n'enlève que l'espace simple : une tabulation, un retour à la ligne ou l'espace insécable d'Excel restent, et la comparaison échoue sans erreur. Enlève-les d'abord, par exemple `REPLACE(x, CHAR(9), '')` pour la tabulation.",
+    pratique: "Pour lister les codes reçus avec des espaces autour : `WHERE code <> TRIM(code)` sur Snowflake et MySQL (collation par défaut). Sur SQL Server, `<>` ignore les espaces de fin : compare `DATALENGTH(code) <> DATALENGTH(TRIM(code))` (pas sur un CHAR).",
     motsCles: ["espaces", "enlever", "supprimer", "nettoyer", "blancs", "début", "fin", "retirer", "ltrim", "rtrim", "zéros", "propre", "nettoyage", "rogner"],
     voirAussi: ["replace", "len", "nullif", "upper-lower"],
     module: "m03"
@@ -196,6 +204,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT ville,\n       CONCAT(nom, ' (', ville, ')') AS etiquette\nFROM client\nWHERE pays = 'FR' AND type = 'PRO';",
     resultat: [["ville", "etiquette"], ["Grenoble", "Piscines Dumont (Grenoble)"], ["Nice", "Bleu Lagon (Nice)"], ["Montpellier", "Hydro Sud (Montpellier)"], ["Lyon", "Piscines Dumont (Lyon)"], [null, "Camping Les Flots ()"]],
     piege: "Sur Snowflake et MySQL, un seul NULL rend tout le texte NULL : la dernière étiquette (Camping Les Flots, ville vide) sort vide. Pour un code qui marche partout : `CONCAT(nom, ' (', COALESCE(ville, ''), ')')`.",
+    pratique: "CONCAT convertit seul les nombres en texte : `CONCAT('Stock : ', stock)` marche sur les 3 moteurs. Avec `+`, SQL Server tente une addition et plante (« Conversion failed »).",
     motsCles: ["coller", "concaténer", "concaténation", "assembler", "joindre", "fusionner", "ajouter", "plus", "pipe", "étiquette", "combiner", "chaîne", "accoler", "texte", "regrouper"],
     voirAussi: ["concat-ws", "coalesce", "cast", "lpad"],
     module: "m03"
@@ -215,6 +224,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Une ligne de fichier CSV par client\nSELECT CONCAT_WS(';', code, nom, ville, siren) AS ligne_csv\nFROM client\nWHERE pays = 'FR' AND type = 'PRO';",
     resultat: [["ligne_csv"], ["C002;Piscines Dumont;Grenoble;423456789"], ["C003;Bleu Lagon;Nice"], ["C004;Hydro Sud;Montpellier;334567890"], ["C006;Piscines Dumont;Lyon;423456789"], ["C007;Camping Les Flots;245678901"]],
     piege: "Sauter un NULL décale les colonnes du CSV : C007 n'a plus que 3 champs, et son SIREN tombe dans la colonne ville. Garde la place vide avec `COALESCE(ville, '')` (sur Snowflake, un NULL rend même toute la ligne NULL).",
+    pratique: "Pour une clé de rapprochement sur deux colonnes, mets un séparateur : `CONCAT_WS('|', cde_id, article_id)`. Sans lui, 1 et 23 donnent '123', comme 12 et 3 : deux lignes différentes se confondent.",
     motsCles: ["séparateur", "coller", "concaténer", "csv", "point-virgule", "virgule", "liste", "export", "assembler", "ligne", "délimiteur", "fichier", "joindre", "separator"],
     voirAussi: ["concat", "coalesce", "string-split"],
     module: "m03"
@@ -238,6 +248,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_fact", "morceau"], ["FA-2026-0303", "FA"], ["FA-2026-0303", "2026"], ["FA-2026-0303", "0303"]],
     piege: "STRING_SPLIT ne garantit pas l'ordre des morceaux : pour prendre « le 2e », ajoute le 3e argument `1` et filtre sur la colonne `ordinal` (2022+). Sur Snowflake, `SPLIT_PART(num_fact, '-', 2)` donne directement '2026'.",
+    pratique: "Sur SQL Server, découpe un paramètre de rapport reçu en un seul texte ('C001; C002') pour filtrer : `WHERE code IN (SELECT TRIM(value) FROM STRING_SPLIT(@liste, ';'))`. TRIM enlève l'espace après chaque point-virgule.",
     motsCles: ["découper", "couper", "séparer", "séparateur", "morceaux", "split", "éclater", "liste", "point-virgule", "partie", "segment", "diviser", "lignes", "délimiteur", "tableau"],
     voirAussi: ["substring", "charindex", "concat-ws"],
     module: "m03"
@@ -261,6 +272,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "siren", "siren_lisible"], ["C001", "512345678", "512 345 678"], ["C002", "423456789", "423 456 789"], ["C004", "334567890", "334 567 890"], ["C006", "423456789", "423 456 789"], ["C007", "245678901", "245 678 901"]],
     piege: "Chaque insertion décale les positions qui suivent : insère d'abord le plus à droite (7), puis le plus à gauche (4). Dans l'autre ordre, on obtient '512 34 5678'.",
+    pratique: "Dans un vieux code SQL Server, `STUFF((SELECT ',' + code … FOR XML PATH('')), 1, 1, '')` colle une liste : STUFF y retire la 1re virgule. Depuis 2017, `STRING_AGG(code, ',')` fait ce travail, plus lisiblement.",
     motsCles: ["insérer", "ajouter", "position", "caractère", "séparateur", "remplacer", "supprimer", "milieu", "espace", "intercaler", "glisser", "formater", "mettre", "deux-points"],
     voirAussi: ["replace", "substring", "lpad", "concat"],
     module: "m03"
@@ -284,6 +296,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "stock", "stock_fixe"], ["FIL-14", 12, "00012"], ["POMP-1", 0, "00000"], ["ROB-X", 5, "00005"]],
     piege: "Trop long, le texte est coupé sans erreur : 123456 sur 5 chiffres donne '23456' avec RIGHT, et '12345' avec LPAD. Vérifie la longueur avant (`LEN`), sinon le fichier EDI part avec un faux chiffre.",
+    pratique: "Pour un fichier à longueur fixe, complète aussi les textes à droite : `RPAD(nom, 35, ' ')` sur Snowflake et MySQL ; sur SQL Server, `CAST(nom AS char(35))` ajoute les espaces de fin.",
     motsCles: ["compléter", "zéros", "remplir", "gauche", "longueur", "fixe", "padding", "aligner", "format", "rpad", "devant", "chiffres", "code", "pad", "replicate"],
     voirAussi: ["right", "format", "cast", "len"],
     module: "m03"

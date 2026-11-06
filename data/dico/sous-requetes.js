@@ -37,6 +37,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Les commandes au-dessus de la moyenne\nSELECT num_cde, montant_ht\nFROM commande\nWHERE montant_ht > (SELECT AVG(montant_ht) FROM commande);",
     resultat: [["num_cde", "montant_ht"], ["CDE-1001", "4780.00"], ["CDE-1003", "2385.00"], ["CDE-1007", "7950.00"]],
     piege: "Après `=` ou `>`, la sous-requête doit rendre une seule valeur : le jour où elle en rend deux, la requête plante (« Subquery returned more than 1 value »). Utilise `IN`, ou garantis une seule ligne (`MAX`, `TOP (1)`).",
+    pratique: "Pour contrôler un chargement, compare deux comptes dans un seul `SELECT`, sans `FROM` : `SELECT (SELECT COUNT(*) FROM import_cde) AS lues, (SELECT COUNT(*) FROM commande) AS chargees;`. Un écart saute aux yeux.",
     motsCles: ["sous-requête", "imbriquée", "imbriquer", "intérieur", "moyenne", "comparer", "parenthèses", "corrélée", "dérivée", "subquery", "scalaire", "nested", "calcul", "dépasse"],
     voirAussi: ["exists", "any-all", "with-cte", "in", "where"],
     module: "m06"
@@ -56,6 +57,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Les commandes sans aucun flux EDI\nSELECT c.num_cde, c.canal\nFROM commande AS c\nWHERE NOT EXISTS (SELECT 1 FROM flux_edi AS f\n                  WHERE f.cde_id = c.id);",
     resultat: [["num_cde", "canal"], ["CDE-1002", "TEL"], ["CDE-1004", "WEB"], ["CDE-1005", "TEL"], ["CDE-1006", "WEB"], ["CDE-1008", "TEL"]],
     piege: "`WHERE id NOT IN (SELECT cde_id FROM flux_edi)` renvoie 0 ligne, sans erreur : le flux 3 a un `cde_id` vide (NULL), et un seul NULL suffit. `NOT EXISTS` n'a pas ce piège : prends-le pour chaque recherche « sans flux », « sans facture ».",
+    pratique: "Pour filtrer sans dupliquer, préfère `EXISTS` à une jointure : un client qui a 3 commandes sort une seule fois avec `WHERE EXISTS (…)`, mais 3 fois avec `JOIN commande`, et il faudrait un `DISTINCT`.",
     motsCles: ["existe", "client sans commande", "aucun", "commande sans flux", "absent", "manquant", "jamais", "orphelin", "présence", "absence", "anti-jointure", "vérifier", "lié", "lien", "correspondance"],
     voirAussi: ["in", "sous-requete", "any-all", "left-join", "is-null"],
     module: "m06"
@@ -75,6 +77,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Les articles plus chers que TOUS les produits chimiques\nSELECT code, famille, prix_tarif\nFROM article\nWHERE prix_tarif > ALL (SELECT prix_tarif FROM article\n                        WHERE famille = 'CHIMIE');",
     resultat: [["code", "famille", "prix_tarif"], ["FIL-14", "FILTRATION", "549.00"], ["POMP-1", "FILTRATION", "389.00"], ["ROB-X", "ROBOT", "1290.00"]],
     piege: "`id <> ANY (SELECT cde_id FROM flux_edi)` ne veut pas dire « absent de la liste » : c'est vrai dès qu'une valeur diffère, et les 8 commandes sortent. Pour « absent », écris `NOT EXISTS`.",
+    pratique: "`= ANY (SELECT …)` revient à `IN (SELECT …)`, et `<> ALL (SELECT …)` à `NOT IN`, avec le même piège des NULL. Préfère `IN` et `NOT EXISTS` : plus courants, donc plus faciles à relire.",
     motsCles: ["tous", "toutes", "chacun", "moins", "quelconque", "comparer", "comparaison", "maximum", "minimum", "supérieur", "inférieur", "some", "any", "all", "ensemble", "plus grand que tous"],
     voirAussi: ["sous-requete", "exists", "in", "min-max"],
     module: "m06"
@@ -94,6 +97,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "WITH ca_client AS (\n  SELECT client_id, SUM(montant_ht) AS ca\n  FROM commande\n  GROUP BY client_id\n)\nSELECT client_id, ca\nFROM ca_client\nWHERE ca > 1000;",
     resultat: [["client_id", "ca"], [1, "15115.00"], [2, "2580.00"]],
     piege: "Sur SQL Server, si l'instruction d'avant ne finit pas par `;`, le `WITH` plante (erreur 319, « Incorrect syntax near the keyword 'with' »). Et une CTE n'est pas un cache : elle ne vit que pour la requête qui suit, et SQL Server peut la recalculer à chaque fois qu'elle est citée.",
+    pratique: "Enchaîne les étapes avec une virgule, sans répéter `WITH` : `WITH a AS (…), b AS (SELECT … FROM a)`. Pour déboguer, termine par `SELECT * FROM a` : tu vérifies chaque étape une par une.",
     motsCles: ["cte", "with", "étape", "nom", "nommer", "lisible", "lisibilité", "découper", "intermédiaire", "temporaire", "réutiliser", "point-virgule", "common", "expression"],
     voirAussi: ["sous-requete", "cte-recursive", "table-temporaire", "create-view"],
     module: "m06"
@@ -117,6 +121,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["jour", "nb_cde"], ["2026-04-01", 1], ["2026-04-02", 0], ["2026-04-03", 1], ["2026-04-04", 0], ["2026-04-05", 0]],
     piege: "Sur SQL Server, la récursion s'arrête à 100 niveaux : un calendrier de 365 jours plante (« The maximum recursion 100 has been exhausted »). Ajoute `OPTION (MAXRECURSION 400)` à la fin, et garde toujours une condition d'arrêt (`WHERE jour < …`).",
+    pratique: "Un calendrier sert à beaucoup de rapports : crée-le une fois dans une vraie table (une ligne par jour, avec mois, semaine, jour ouvré). Chaque rapport n'a plus qu'à la joindre, sans récursion.",
     motsCles: ["récursif", "récursive", "récursion", "hiérarchie", "arbre", "parent", "nomenclature", "organigramme", "niveaux", "boucle", "calendrier", "série", "générer", "jours", "maxrecursion", "hiérarchique"],
     voirAussi: ["with-cte", "union-all", "dateadd", "left-join"],
     module: "m06"

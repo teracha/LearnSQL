@@ -34,6 +34,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_fact", "age_jours"], ["FA-2026-0301", 58], ["FA-2026-0302", 55], ["FA-2026-0303", 51], ["FA-2026-0401", 19]],
     piege: "GETDATE contient l'heure : `WHERE date_cde = GETDATE()` ne trouve rien, même pour une commande du jour. Compare à la date seule : `CAST(GETDATE() AS date)`.",
+    pratique: "Sur Snowflake, CURRENT_TIMESTAMP suit le paramètre TIMEZONE, réglé par défaut sur America/Los_Angeles (Californie). Pour l'heure de Paris : `ALTER SESSION SET TIMEZONE = 'Europe/Paris';`.",
     motsCles: ["maintenant", "aujourd'hui", "heure", "date", "actuelle", "courante", "instant", "now", "horodatage", "timestamp", "système", "moment", "présent", "horloge"],
     voirAussi: ["current-date", "dateadd", "datediff", "cast"],
     module: "m03"
@@ -57,6 +58,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "canal", "montant_ht"], ["CDE-1007", "EDI", "7950.00"]],
     piege: "Sur une colonne date + heure (DATETIME), `= CAST(GETDATE() AS date)` ne garde que les lignes de minuit pile. Prends la journée entière : `>= CAST(GETDATE() AS date)` et `< DATEADD(day, 1, CAST(GETDATE() AS date))`.",
+    pratique: "Pour contrôler chaque matin les flux de la veille, écris la date d'hier : `DATEADD(day, -1, CAST(GETDATE() AS date))` sur SQL Server, `CURRENT_DATE - 1` sur Snowflake, `CURRENT_DATE - INTERVAL 1 DAY` sur MySQL.",
     motsCles: ["aujourd'hui", "aujourdhui", "date du jour", "date", "jour", "courante", "actuelle", "curdate", "today", "maintenant", "quotidien", "journée", "calendrier"],
     voirAussi: ["getdate", "cast", "dateadd", "datediff"],
     module: "m02"
@@ -79,6 +81,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_fact", "date_fact", "echeance"], ["FA-2026-0301", "2026-03-03", "2026-04-02"], ["FA-2026-0302", "2026-03-06", "2026-04-05"], ["FA-2026-0303", "2026-03-10", "2026-04-09"], ["FA-2026-0401", "2026-04-11", "2026-05-11"]],
     piege: "`DATEADD(month, 1, '20260131')` donne le 28 février : le jour est ramené au dernier jour du mois. Une échéance « le 31 » glisse ainsi au 28 ; pour une fin de mois, repars de `EOMONTH`.",
+    pratique: "DATEADD compte les jours du calendrier, week-ends compris. Pour un délai fournisseur en jours ouvrés, passe par une table calendrier : une ligne par jour, avec une colonne ouvré (oui ou non).",
     motsCles: ["ajouter", "retirer", "enlever", "jours", "mois", "années", "échéance", "décaler", "date", "interval", "délai", "semaines", "plus", "moins", "avancer"],
     voirAussi: ["datediff", "eomonth", "getdate", "datepart"],
     module: "m03"
@@ -102,6 +105,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_fact", "date_fact", "age_jours"], ["FA-2026-0301", "2026-03-03", 58], ["FA-2026-0302", "2026-03-06", 55], ["FA-2026-0303", "2026-03-10", 51], ["FA-2026-0401", "2026-04-11", 19]],
     piege: "DATEDIFF compte les frontières franchies, pas les durées : `DATEDIFF(year, '20251231', '20260101')` vaut 1 pour un seul jour. Pour un âge, retire 1 si l'anniversaire n'est pas passé (`TIMESTAMPDIFF` de MySQL, lui, compte des années pleines).",
+    pratique: "Pour un horodatage en millisecondes depuis 1970 (format « epoch » de certaines API), `DATEDIFF(millisecond, '19700101', d)` plante sur SQL Server : le résultat dépasse un INT. Écris `DATEDIFF_BIG` (BIGINT).",
     motsCles: ["écart", "différence", "durée", "jours", "mois", "années", "âge", "ancienneté", "retard", "entre", "délai", "compter", "intervalle", "temps", "nombre"],
     voirAussi: ["dateadd", "getdate", "datepart", "current-date"],
     module: "m03"
@@ -125,6 +129,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_cde", "annee", "mois", "trimestre"], ["CDE-1001", "2026-03-02", 2026, 3, 1], ["CDE-1003", "2026-03-09", 2026, 3, 1], ["CDE-1007", "2026-04-07", 2026, 4, 2]],
     piege: "`WHERE YEAR(date_cde) = 2026` enveloppe la colonne : l'index ne sert plus, toute la table est lue. Écris une plage : `date_cde >= '20260101' AND date_cde < '20270101'`.",
+    pratique: "Pour un numéro de semaine comme en France (norme ISO : semaine du lundi au dimanche), écris `DATEPART(iso_week, d)` ; Snowflake : `WEEKISO(d)` ; MySQL : `WEEK(d, 3)`. La semaine « simple » (`week`) suit d'autres règles.",
     motsCles: ["extraire", "année", "mois", "jour", "trimestre", "semaine", "partie", "numéro", "year", "month", "day", "quarter", "extract", "heure", "date"],
     voirAussi: ["date-trunc", "eomonth", "datefromparts", "dateadd"],
     module: "m03"
@@ -148,6 +153,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_fact", "date_fact", "fin_de_mois", "fin_mois_suivant"], ["FA-2026-0301", "2026-03-03", "2026-03-31", "2026-04-30"], ["FA-2026-0302", "2026-03-06", "2026-03-31", "2026-04-30"], ["FA-2026-0303", "2026-03-10", "2026-03-31", "2026-04-30"], ["FA-2026-0401", "2026-04-11", "2026-04-30", "2026-05-31"]],
     piege: "EOMONTH renvoie une date sans heure : face à une colonne date + heure, elle vaut minuit. `date_recu <= EOMONTH(@d)` oublie donc le dernier jour après 0 h ; écris `< DATEADD(day, 1, EOMONTH(@d))`.",
+    pratique: "Pour une échéance à 30 jours fin de mois (+ 30 jours, puis fin du mois), écris `EOMONTH(DATEADD(day, 30, date_fact))`. Snowflake : `LAST_DAY(date_fact + 30)` ; MySQL : `LAST_DAY(date_fact + INTERVAL 30 DAY)`.",
     motsCles: ["fin", "dernier", "jour", "mois", "échéance", "clôture", "last_day", "mensuel", "arrêté", "période", "calendrier", "eom"],
     voirAussi: ["dateadd", "date-trunc", "datefromparts", "datepart"],
     module: "m03"
@@ -171,6 +177,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_cde", "debut_mois"], ["CDE-1005", "2026-04-01", "2026-04-01"], ["CDE-1006", "2026-04-03", "2026-04-01"], ["CDE-1007", "2026-04-07", "2026-04-01"]],
     piege: "SQL Server refuse une date impossible (`DATEFROMPARTS(2026, 2, 30)` plante), mais Snowflake la décale sans rien dire : un mois 0 donne décembre de l'année d'avant. Contrôle tes nombres avant de fabriquer la date.",
+    pratique: "Pour un exercice comptable de juillet à juin, fabrique les bornes depuis l'année : `>= DATEFROMPARTS(@annee, 7, 1)` et `< DATEFROMPARTS(@annee + 1, 7, 1)`. Snowflake : `DATE_FROM_PARTS` ; MySQL : `MAKEDATE(@annee, 1) + INTERVAL 6 MONTH`.",
     motsCles: ["fabriquer", "construire", "créer", "date", "année", "mois", "jour", "assembler", "premier", "début", "composer", "nombres", "makedate", "parties"],
     voirAussi: ["datepart", "eomonth", "date-trunc", "convert"],
     module: "m03"
@@ -194,6 +201,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_cde", "mois"], ["CDE-1002", "2026-03-05", "2026-03-01"], ["CDE-1005", "2026-04-01", "2026-04-01"], ["CDE-1008", "2026-04-10", "2026-04-01"]],
     piege: "Pour un total par mois, `MONTH(date_cde)` met mars 2025 et mars 2026 dans la même case. Tronque plutôt au mois : `DATETRUNC(month, date_cde)` garde l'année.",
+    pratique: "Pour un graphique mensuel dans Power BI ou Excel, garde le mois en vraie date (le 1er du mois, avec DATETRUNC). Un texte comme 'mars 2026' se trie par l'alphabet : avril passe avant mars.",
     motsCles: ["tronquer", "début", "mois", "premier", "jour", "année", "semaine", "période", "regrouper", "arrondir", "trimestre", "trunc", "ramener", "mensuel"],
     voirAussi: ["eomonth", "datefromparts", "datepart", "dateadd"],
     module: "m03"

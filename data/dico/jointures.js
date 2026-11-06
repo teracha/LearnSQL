@@ -32,6 +32,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT f.id, f.type, f.statut, co.num_cde\nFROM flux_edi AS f\nINNER JOIN commande AS co ON co.id = f.cde_id\nWHERE f.type = 'ORDERS'\nORDER BY f.id;",
     resultat: [["id", "type", "statut", "num_cde"], [1, "ORDERS", "OK", "CDE-1001"], [2, "ORDERS", "OK", "CDE-1003"], [5, "ORDERS", "OK", "CDE-1007"]],
     piege: "Le flux 3, rejeté (EAN inconnu), n'a pas de commande : l'INNER JOIN le fait disparaître, sans erreur, et le suivi des rejets EDI devient faux. Pour garder toutes les lignes de gauche, écris `LEFT JOIN`.",
+    pratique: "Dans un ERP multi-sociétés, joins sur toute la clé : `ON l.societe = c.societe AND l.num_cde = c.num_cde`. Avec le numéro seul, une ligne se relie aussi à la commande de même numéro d'une autre société.",
     motsCles: ["jointure", "joindre", "relier", "lier", "associer", "correspondance", "rapprocher", "croiser", "deux tables", "commun", "join", "inner", "liaison", "clé", "combiner"],
     voirAussi: ["left-join", "full-outer-join", "cross-join", "using", "sum"],
     module: "m05"
@@ -51,6 +52,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Clients sans aucune commande\nSELECT cl.code, cl.nom, co.num_cde\nFROM client AS cl\nLEFT JOIN commande AS co ON co.client_id = cl.id\nWHERE co.id IS NULL;",
     resultat: [["code", "nom", "num_cde"], ["C005", "Pool & Garden", null], ["C007", "Camping Les Flots", null]],
     piege: "Un filtre sur la table de droite mis dans le `WHERE` (`WHERE co.statut = 'EN_COURS'`) retire les clients sans commande : le LEFT JOIN devient un INNER JOIN, sans erreur. Mets-le dans le `ON` : `ON co.client_id = cl.id AND co.statut = 'EN_COURS'`.",
+    pratique: "Avant de dire qu'un code importé manque dans l'ERP (`LEFT JOIN … IS NULL`), enlève les espaces de fin (`TRIM`) : SQL Server les ignore avec `=`, pas Snowflake ni MySQL 8 (collation par défaut).",
     motsCles: ["garder", "tous", "manquant", "absent", "aucun", "orphelin", "facultatif", "optionnel", "left", "outer", "externe", "gauche", "droite", "right", "anti-jointure", "correspondance", "clients sans commande", "garder toutes les lignes"],
     voirAussi: ["inner-join", "full-outer-join", "is-null", "coalesce", "exists"],
     module: "m05"
@@ -73,6 +75,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["flux", "num_cde"], [1, "CDE-1001"], [2, "CDE-1003"], [3, null], [5, "CDE-1007"]],
     piege: "Un `WHERE` sur un seul côté, après la jointure (`WHERE co.canal = 'EDI'`), retire les lignes où ce côté est NULL : le flux 3 disparaît, et le rapprochement dit « tout va bien ». Filtre chaque côté avant de joindre, comme ici avec `WITH`.",
+    pratique: "Pour un rapprochement ERP / EDI, ajoute une colonne d'état : `CASE WHEN f.id IS NULL THEN 'Manque EDI' WHEN co.id IS NULL THEN 'Manque ERP' ELSE 'OK' END`. Tu comptes ensuite les écarts par état.",
     motsCles: ["rapprocher", "rapprochement", "comparer", "réconcilier", "réconciliation", "manquants", "les deux côtés", "écarts", "full", "outer", "complet", "tout garder", "erp", "edi", "contrôle", "deux sources"],
     voirAussi: ["left-join", "union-all", "coalesce", "inner-join"],
     module: "m05"
@@ -92,6 +95,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Le stock du filtre à sable dans chaque dépôt, zéros compris\nSELECT a.code, d.nom AS depot, COALESCE(s.qte, 0) AS qte\nFROM article AS a\nCROSS JOIN depot AS d\nLEFT JOIN stock_depot AS s ON s.article_id = a.id AND s.depot_id = d.id\nWHERE a.code = 'FIL-14' ORDER BY d.id;",
     resultat: [["code", "depot", "qte"], ["FIL-14", "Lyon", 8], ["FIL-14", "Toulouse", 4], ["FIL-14", "Nantes", 0]],
     piege: "Un produit cartésien involontaire (`FROM a, b` sans condition, ou un `ON` oublié en MySQL) multiplie les lignes : 10 000 × 10 000 = 100 millions. Écris `CROSS JOIN` en toutes lettres, pour montrer que c'est voulu.",
+    pratique: "Pour appliquer un même paramètre à toutes les lignes (date d'arrêté, taux de TVA), mets-le dans une table d'une ligne et croise : `CROSS JOIN (SELECT CAST('2026-03-31' AS DATE) AS date_arrete) AS p`.",
     motsCles: ["combinaisons", "toutes les combinaisons", "produit cartésien", "cartésien", "multiplier", "croiser", "grille", "chaque", "tous les", "cross", "matrice", "générer", "paires", "calendrier"],
     voirAussi: ["inner-join", "left-join", "coalesce"],
     module: "m05"
@@ -111,6 +115,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Fiches client en double : même SIREN\nSELECT a.code, b.code AS doublon, a.nom, a.siren\nFROM client AS a\nJOIN client AS b ON b.siren = a.siren AND a.id < b.id;",
     resultat: [["code", "doublon", "nom", "siren"], ["C002", "C006", "Piscines Dumont", "423456789"]],
     piege: "Avec `a.id <> b.id`, chaque paire sort deux fois (C002-C006, puis C006-C002) : le rapport compte deux fois trop de doublons. Écris `a.id < b.id` ; et les SIREN vides (NULL) ne se joignent jamais, ils ne sortent pas.",
+    pratique: "Pour repérer deux tarifs qui se chevauchent, joins la table à elle-même : `ON b.article_id = a.article_id AND a.id < b.id AND a.debut <= COALESCE(b.fin, '9999-12-31') AND b.debut <= COALESCE(a.fin, '9999-12-31')` ; `COALESCE` garde les tarifs sans date de fin.",
     motsCles: ["même table", "elle-même", "deux alias", "self", "paires", "même siren", "comparer", "hiérarchie", "responsable", "manager", "parent", "autojointure", "auto jointure", "auto"],
     voirAussi: ["inner-join", "left-join", "lag-lead", "cte-recursive"],
     module: "m05"
@@ -134,6 +139,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "num_cde", "date_cde"], ["C001", "CDE-1007", "2026-04-07"], ["C002", "CDE-1006", "2026-04-03"], ["C003", "CDE-1004", "2026-03-12"], ["C004", "CDE-1005", "2026-04-01"], ["C006", "CDE-1008", "2026-04-10"]],
     piege: "CROSS APPLY fait disparaître les clients sans commande (C005, C007), sans erreur, comme un INNER JOIN. Pour les garder avec des NULL, écris `OUTER APPLY` (MySQL : `LEFT JOIN LATERAL (…) ON TRUE`).",
+    pratique: "Sur SQL Server, `CROSS APPLY (SELECT c.montant_ht * 1.2 AS ttc) AS x` donne un nom à un calcul : `x.ttc` sert ensuite dans le `WHERE` et le `GROUP BY`, sans recopier la formule.",
     motsCles: ["apply", "lateral", "pour chaque ligne", "sous-requête", "dernière", "dernier", "top par groupe", "corrélée", "fonction table", "outer apply", "chaque client", "récent"],
     voirAussi: ["inner-join", "left-join", "row-number", "qualify", "flatten", "top"],
     module: "m05"
@@ -157,6 +163,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["cde_id", "num_fact", "type", "statut"], [1, "FA-2026-0301", "ORDERS", "OK"], [1, "FA-2026-0301", "INVOIC", "OK"], [3, "FA-2026-0303", "ORDERS", "OK"]],
     piege: "Ne prends pas `NATURAL JOIN` pour un raccourci : il joint sur toutes les colonnes de même nom (ici `id`, `cde_id` et `statut`) et renvoie 0 ligne, sans erreur. Et une requête Snowflake avec USING plante sur SQL Server : écris `ON`.",
+    pratique: "Sur Snowflake et MySQL, après `LEFT JOIN … USING (cde_id)`, cherche les orphelins sur une colonne de droite (`WHERE e.id IS NULL`) : `cde_id IS NULL` regarde seulement la valeur de gauche, pas s'il existe une ligne à droite.",
     motsCles: ["using", "même nom", "colonne commune", "raccourci", "natural", "naturelle", "jointure", "simplifier", "join using", "nom identique", "abréger", "clé commune"],
     voirAussi: ["inner-join", "left-join", "from"],
     module: "m05"

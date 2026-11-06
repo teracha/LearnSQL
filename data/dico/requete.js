@@ -27,6 +27,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT code, prix_tarif, stock,\n       prix_tarif * stock AS valeur_stock\nFROM article\nWHERE famille = 'CHIMIE'\nORDER BY valeur_stock DESC;",
     resultat: [["code", "prix_tarif", "stock", "valeur_stock"], ["CHL-25", "159.00", 40, "6360.00"], ["CHL-5", "39.90", 120, "4788.00"], ["PH-5", "24.50", 80, "1960.00"]],
     piege: "`SELECT *` dans une vue ou un flux EDI : le jour où une colonne s'ajoute, le rapport ou l'import se décale, ou plante. Liste tes colonnes, et donne un nom (`AS`) à chaque calcul.",
+    pratique: "Pour retrouver une colonne dans une grosse table d'ERP, cherche-la par son nom : `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'commande' AND COLUMN_NAME LIKE '%date%'`. Sur Snowflake, écris les noms cherchés en MAJUSCULES.",
     motsCles: ["afficher", "choisir", "colonne", "lire", "voir", "extraire", "requête", "sélectionner", "étoile", "calcul", "interroger", "consulter", "champs"],
     voirAussi: ["from", "as", "where", "order-by", "distinct"],
     module: "m01"
@@ -46,6 +47,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT f.num_fact, f.montant_ht\nFROM facture AS f\nWHERE f.statut = 'PAYEE';",
     resultat: [["num_fact", "montant_ht"], ["FA-2026-0301", "4780.00"], ["FA-2026-0302", "1290.00"]],
     piege: "Une fois l'alias posé (`FROM facture AS f`), écrire `facture.statut` plante : seul `f.statut` marche. Prends l'habitude : un alias court par table, utilisé partout.",
+    pratique: "Pour une liste de codes copiée d'Excel, colle-la dans la requête : `FROM (VALUES ('C001'), ('C005')) AS v(code)`, puis joins-la à tes tables, sans rien créer. MySQL écrit `VALUES ROW('C001'), ROW('C005')`.",
     motsCles: ["table", "source", "lire", "depuis", "provenance", "origine", "schéma", "base", "alias", "dbo", "données", "où"],
     voirAussi: ["select", "as", "where"],
     module: "m01"
@@ -69,6 +71,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "Nom client", "ville_livraison"], ["C003", "Bleu Lagon", "Nice"], ["C005", "Pool & Garden", "Genève"]],
     piege: "Sur SQL Server et MySQL, l'alias n'existe pas encore dans `WHERE` : `WHERE ville_livraison = 'Nice'` plante (Snowflake l'accepte). Et une virgule oubliée, `SELECT nom ville`, renomme `nom` sans erreur : écris toujours `AS`.",
+    pratique: "Sur Snowflake, un alias sans guillemets sort en MAJUSCULES : `AS DateLivraison` devient DATELIVRAISON dans l'en-tête de l'export. Pour garder la casse (fichier CSV, Power BI), écris `AS \"DateLivraison\"`.",
     motsCles: ["alias", "renommer", "nom", "colonne", "titre", "en-tête", "surnom", "abréviation", "crochets", "guillemets", "libellé", "nommer", "appeler"],
     voirAussi: ["select", "from", "order-by"],
     module: "m01"
@@ -88,6 +91,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT nom, ville\nFROM client\nWHERE pays = 'FR' AND type = 'PRO'\nORDER BY ville;",
     resultat: [["nom", "ville"], ["Camping Les Flots", null], ["Piscines Dumont", "Grenoble"], ["Piscines Dumont", "Lyon"], ["Hydro Sud", "Montpellier"], ["Bleu Lagon", "Nice"]],
     piege: "Sans `ORDER BY`, aucun ordre n'est garanti, même si le résultat « a l'air » trié : un rapport ou un fichier EDI peut changer d'ordre du jour au lendemain. Ici, Snowflake mettrait Camping Les Flots (ville vide) en dernier.",
+    pratique: "SQL Server et MySQL n'ont pas `NULLS LAST`. Pour mettre les villes vides à la fin, trie d'abord sur un test : `ORDER BY CASE WHEN ville IS NULL THEN 1 ELSE 0 END, ville`.",
     motsCles: ["trier", "tri", "classer", "ordre", "ranger", "croissant", "décroissant", "alphabétique", "sort", "premier", "dernier", "inverser", "classement"],
     voirAussi: ["top", "offset-fetch", "distinct", "select"],
     module: "m01"
@@ -111,6 +115,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "montant_ht"], ["CDE-1007", "7950.00"], ["CDE-1001", "4780.00"], ["CDE-1003", "2385.00"]],
     piege: "Sans `ORDER BY`, `TOP` prend 3 lignes quelconques, qui changent d'un jour à l'autre. Et pour « les 4 plus grosses », CDE-1002 et CDE-1006 sont ex aequo à 1290.00 : `TOP (4)` en garde une au hasard, `TOP (4) WITH TIES` garde les deux.",
+    pratique: "Pour un contrôle par sondage (20 factures à vérifier), tire-les au hasard : `TOP (20) … ORDER BY NEWID()` sur SQL Server, `ORDER BY RAND() LIMIT 20` sur MySQL, `FROM facture SAMPLE (20 ROWS)` sur Snowflake.",
     motsCles: ["limiter", "premières", "lignes", "nombre", "meilleurs", "classement", "palmarès", "aequo", "égalité", "limit", "dernières", "récentes", "grosses", "plus"],
     voirAussi: ["order-by", "offset-fetch", "distinct"],
     module: "m01"
@@ -134,6 +139,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_cde"], ["CDE-1004", "2026-03-12"], ["CDE-1005", "2026-04-01"], ["CDE-1006", "2026-04-03"]],
     piege: "Trie toujours sur une colonne unique (un id) : avec des ex aequo, une ligne peut sortir sur deux pages, ou sur aucune. Et à la page 5 000, `OFFSET` relit tout ce qui précède : pagine plutôt par clé, `WHERE id > @dernier_id ORDER BY id`.",
+    pratique: "Sur SQL Server, OFFSET et FETCH acceptent des variables et des calculs : `OFFSET (@page - 1) * @taille ROWS FETCH NEXT @taille ROWS ONLY`. Une seule requête sert alors à toutes les pages d'un rapport.",
     motsCles: ["pagination", "page", "paginer", "sauter", "ignorer", "suivantes", "décaler", "offset", "fetch", "skip", "suite", "défiler", "lot", "tranche"],
     voirAussi: ["top", "order-by"],
     module: "m01"
@@ -153,6 +159,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT DISTINCT type, statut\nFROM flux_edi\nORDER BY type, statut;",
     resultat: [["type", "statut"], ["DESADV", "REJET"], ["INVOIC", "OK"], ["ORDERS", "OK"], ["ORDERS", "REJET"]],
     piege: "`DISTINCT` compare la ligne entière : ORDERS sort deux fois (OK et REJET). L'ajouter pour cacher les doublons d'une jointure rend les lignes propres, mais les totaux restent faux : cherche d'abord d'où viennent les doublons.",
+    pratique: "Avant un mapping EDI, regarde aussi combien de fois chaque code revient : remplace DISTINCT par GROUP BY, `SELECT statut, COUNT(*) AS nb FROM flux_edi GROUP BY statut`.",
     motsCles: ["doublon", "doublons", "enlever les doublons", "unique", "dédoublonner", "différentes", "valeurs", "répétition", "éliminer", "supprimer", "distinctes", "fois", "liste", "dedup"],
     voirAussi: ["select", "order-by", "top"],
     module: "m01"

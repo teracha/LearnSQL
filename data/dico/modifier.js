@@ -44,6 +44,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "INSERT INTO client (id, code, nom, ville, pays, type)\nVALUES (8, 'C008', 'Piscines Martin', 'Toulon', 'FR', 'PRO'),\n       (9, 'C009', 'Aqua Center', NULL, 'BE', 'PRO');",
     resultat: [["code", "nom", "ville", "pays", "siren"], ["C008", "Piscines Martin", "Toulon", "FR", null], ["C009", "Aqua Center", null, "BE", null]],
     piege: "Sans la liste des colonnes, `INSERT INTO client VALUES (…)` dépend de l'ordre des colonnes de la table : le jour où une colonne s'ajoute, l'INSERT plante, ou range les valeurs au mauvais endroit. Liste toujours les colonnes : celles qui manquent prennent leur valeur par défaut, ou NULL (ici, le siren).",
+    pratique: "Pour charger un fichier de milliers de lignes, n'écris pas des INSERT : `BULK INSERT` (SQL Server), `COPY INTO` (Snowflake) ou `LOAD DATA INFILE` (MySQL : en général 20 fois plus rapide que des INSERT).",
     motsCles: ["ajouter", "insérer", "créer", "nouvelle", "nouveau", "ajouter une ligne", "enregistrement", "saisir", "values", "insert", "into", "remplir", "alimenter", "écrire"],
     voirAussi: ["insert-select", "update", "default", "identity", "output"],
     module: "m09"
@@ -63,6 +64,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Une ligne de stock à 0 à Nantes pour les articles qui n'y sont pas\nINSERT INTO stock_depot (article_id, depot_id, qte)\nSELECT a.id, 3, 0\nFROM article AS a\nWHERE NOT EXISTS (SELECT 1 FROM stock_depot AS s\n                  WHERE s.article_id = a.id AND s.depot_id = 3);",
     resultat: "4 lignes ajoutées : CHL-25, FIL-14, POMP-1 et ROB-X ont maintenant une ligne à 0 à Nantes. Relancé, l'INSERT n'ajoute plus rien.",
     piege: "Relancé sans le `NOT EXISTS`, l'INSERT reprend les mêmes articles : SQL Server et MySQL refusent tout (clé primaire en double), et Snowflake, qui ne vérifie pas la clé primaire, crée des doublons sans rien dire. Écris tes INSERT … SELECT pour qu'ils puissent être relancés.",
+    pratique: "Avant une correction de masse, sauvegarde les lignes visées dans une table datée : `SELECT * INTO sauv_commande_20261106 FROM commande WHERE …` (Snowflake, MySQL : `CREATE TABLE … AS SELECT`). En cas d'erreur, tu les remets.",
     motsCles: ["copier", "recopier", "ajouter", "insérer", "archiver", "archive", "transférer", "alimenter", "charger", "remplir", "relancer", "select", "into", "overwrite", "dupliquer"],
     voirAussi: ["insert", "exists", "merge", "create-table", "primary-key"],
     module: "m09"
@@ -82,6 +84,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "UPDATE commande\nSET statut = 'LIVREE'\nWHERE statut = 'EN_COURS';",
     resultat: "3 lignes modifiées : CDE-1005, CDE-1006 et CDE-1007 passent à LIVREE.",
     piege: "Sans `WHERE`, les 8 commandes passent à LIVREE, même l'annulée, sans aucun message d'alerte. Écris d'abord le `SELECT` avec le même `WHERE`, puis lance l'UPDATE dans une transaction (`BEGIN TRAN`, vérifier, puis `COMMIT`).",
+    pratique: "Pour appliquer un fichier de nouveaux tarifs, charge-le dans une table de travail (une ligne par article), puis lance un seul UPDATE avec jointure : une instruction pour tout le fichier, pas une par article.",
     motsCles: ["modifier", "changer", "corriger", "mettre à jour", "maj", "remplacer", "statut", "valeur", "set", "update", "rectifier", "passer", "masse", "jointure"],
     voirAussi: ["where", "begin-transaction", "merge", "output", "delete", "rowcount"],
     module: "m09"
@@ -101,6 +104,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Purge des flux EDI rejetés (déjà retraités)\nDELETE FROM flux_edi\nWHERE statut = 'REJET';",
     resultat: "2 lignes supprimées : le flux 3 (ORDERS, « EAN inconnu ») et le flux 6 (DESADV, « Quantité ≠ commande »).",
     piege: "Sans `WHERE`, `DELETE FROM flux_edi` vide toute la table, sans demander de confirmation. Écris d'abord `SELECT * FROM flux_edi WHERE …`, vérifie le nombre de lignes, puis remplace `SELECT *` par `DELETE`, dans une transaction.",
+    pratique: "Supprime d'abord les lignes de commande, puis la commande : dans l'autre ordre, la clé étrangère refuse le DELETE (SQL Server, MySQL ; sauf `ON DELETE CASCADE`). Snowflake, lui, laisse des lignes orphelines, sans erreur.",
     motsCles: ["supprimer", "effacer", "enlever", "retirer", "purger", "purge", "nettoyer", "vider", "supprimer des lignes", "delete", "suppression", "détruire", "jointure", "using"],
     voirAussi: ["truncate", "where", "begin-transaction", "update", "foreign-key"],
     module: "m09"
@@ -120,6 +124,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Vider la table avant le chargement de la nuit\nTRUNCATE TABLE flux_edi;",
     resultat: "flux_edi est vide (0 ligne) ; la table et ses colonnes restent en place.",
     piege: "TRUNCATE est refusé sur une table qu'une clé étrangère référence, même si l'autre table est vide : `TRUNCATE TABLE commande` plante (SQL Server : erreur 4712 ; MySQL : erreur 1701). Réserve-le aux tables de chargement ; pour une table métier, écris `DELETE`.",
+    pratique: "Un compte d'interface qui a le droit DELETE ne peut pas forcément faire TRUNCATE : il faut le droit ALTER sur la table (SQL Server), DROP (MySQL) ou TRUNCATE (Snowflake). Prévois-le avec l'administrateur.",
     motsCles: ["vider", "purger", "effacer", "tout", "rapide", "réinitialiser", "remettre", "zéro", "chargement", "staging", "truncate", "compteur", "identity"],
     voirAussi: ["delete", "drop-table", "copy-into", "identity", "foreign-key"],
     module: "m09"
@@ -142,6 +147,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Inventaire de Lyon : 1 ligne modifiée (CHL-5 : 60 → 55) et 1 ligne ajoutée (POMP-1 : 10).",
     piege: "Deux lignes source pour le même article et le même dépôt : SQL Server et Snowflake plantent (la même ligne cible serait modifiée deux fois), MySQL garde la dernière sans rien dire. Dédoublonne la source avant le MERGE (`GROUP BY` ou `ROW_NUMBER`).",
+    pratique: "Sur SQL Server, `WHEN NOT MATCHED BY SOURCE THEN DELETE` efface toute ligne absente de la source. Fichier d'un seul dépôt ? Limite-le : `WHEN NOT MATCHED BY SOURCE AND stock_depot.depot_id = 1 THEN DELETE`.",
     motsCles: ["fusionner", "synchroniser", "upsert", "insérer", "mettre", "jour", "existe", "sinon", "ajouter", "merge", "matched", "duplicate", "synchroniser deux tables", "intégration", "flux"],
     voirAussi: ["insert", "update", "insert-select", "output", "row-number"],
     module: "m09"
@@ -165,6 +171,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "avant", "apres"], ["CDE-1005", "EN_COURS", "LIVREE"], ["CDE-1006", "EN_COURS", "LIVREE"], ["CDE-1007", "EN_COURS", "LIVREE"]],
     piege: "Sur une table qui a un trigger, `OUTPUT` sans `INTO` plante (erreur 334) : écris `OUTPUT … INTO` une table de journal. Et sur MySQL, après un INSERT de 3 lignes, `LAST_INSERT_ID()` donne l'id de la 1re ligne, pas de la dernière.",
+    pratique: "Sur SQL Server, pour un import de plusieurs commandes, `OUTPUT inserted.id, inserted.num_cde INTO @nouvelles` garde tous les id créés, avec leur numéro : de quoi rattacher ensuite les lignes. `SCOPE_IDENTITY()` ne donne que le dernier.",
     motsCles: ["récupérer", "retour", "renvoyer", "avant", "après", "journal", "tracer", "historique", "trace", "inserted", "deleted", "returning", "généré", "audit", "modifiées", "id"],
     voirAussi: ["update", "merge", "insert", "identity", "rowcount", "time-travel"],
     module: "m09"

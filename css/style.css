@@ -252,3 +252,29 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
   text-decoration: none; font-weight: 700; font-size: 15px; font-family: "JetBrains Mono", ui-monospace, monospace;
 }
 @media (max-width: 520px) { .syntaxe { grid-template-columns: 1fr; gap: 0 12px; } .syntaxe dd { margin-bottom: 6px; } }
+
+/* Conseil pratique d'une fiche du dico : un encadré à part (ni piège, ni correction) */
+.feedback.pratique { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+
+/* Traduire une requête */
+.tr-sql { min-height: 180px; font-size: 15px; }
+.tr-titre-ex { margin-top: 18px; }
+.tr-exemples { display: flex; flex-wrap: wrap; gap: 8px; }
+.tr-ex {
+  border: 2px solid var(--line); background: var(--card); color: var(--accent);
+  border-radius: 99px; padding: 4px 14px; font-weight: 700; font-size: 15px; text-align: left;
+}
+.tr-ex:hover { border-color: var(--accent); }
+.tr-code { margin-top: 18px; line-height: 1.55; overflow-wrap: anywhere; }
+.tr-l { padding-left: calc(var(--n, 0) * 1.6em + 1.2em); text-indent: -1.2em; margin: 2px 0; }
+.tr-verbe { color: var(--accent); letter-spacing: 0.02em; }
+.tr-erreur { color: var(--ko); font-weight: 700; }
+.tr-inconnu { color: var(--muted); font-style: italic; }
+.tr-attention { color: var(--ko); }
+.tr-vide { margin-top: 18px; font-weight: 700; }
+.tr-notes { padding-left: 22px; }
+.tr-notes li { margin-bottom: 8px; }
+@media (max-width: 520px) {
+  .tr-code { padding: 12px; }
+  .tr-l { padding-left: calc(min(var(--n, 0), 7) * 0.9em + 1em); text-indent: -1em; }
+}

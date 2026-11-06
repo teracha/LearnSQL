@@ -48,6 +48,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "statut", "num_fact", "montant_ht"], ["CDE-1005", "LIVREE", "FA-2026-0402", "318.00"]],
     piege: "Une transaction ouverte puis oubliée (pas de COMMIT) garde ses verrous : l'ERP attend, les utilisateurs sont bloqués. Termine toujours par `COMMIT` ou `ROLLBACK`, et garde la transaction courte : jamais d'attente d'un clic dedans.",
+    pratique: "L'ERP est bloqué par une transaction oubliée ? `DBCC OPENTRAN;` (SQL Server, droit db_owner) montre la plus ancienne transaction ouverte de la base : sa session (SPID) et son heure de début.",
     motsCles: ["transaction", "commencer", "démarrer", "ouvrir", "début", "begin", "begin tran", "start transaction", "autocommit", "tout ou rien", "plusieurs modifications", "atomique", "acid", "regrouper"],
     voirAussi: ["commit", "rollback", "savepoint", "try-catch", "xact-abort", "begin-end"],
     module: "m11"
@@ -71,6 +72,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "2 lignes modifiées : CDE-1005 et CDE-1006 passent à LIVREE, pour de bon.",
     piege: "Avant le COMMIT, les autres ne voient pas tes changements, ou attendent tes verrous : un COMMIT oublié dans SSMS bloque l'ERP. Après le COMMIT, plus de retour arrière : seule une sauvegarde (ou le Time Travel de Snowflake) rattrape une erreur.",
+    pratique: "Par défaut, les 3 moteurs valident chaque instruction seule (autocommit). Mais une session réglée autrement par l'outil (MySQL `autocommit = 0`, SQL Server `IMPLICIT_TRANSACTIONS ON`, Snowflake `AUTOCOMMIT = FALSE`) attend ton COMMIT, même après un simple UPDATE.",
     motsCles: ["valider", "validation", "confirmer", "enregistrer", "définitif", "terminer", "fin", "transaction", "commit", "visible", "appliquer"],
     voirAussi: ["begin-transaction", "rollback", "trancount", "time-travel"],
     module: "m11"
@@ -94,6 +96,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["nb_factures"], [4]],
     piege: "Sur MySQL et Snowflake, un ordre de structure au milieu (`CREATE TABLE`, ou `TRUNCATE` sur MySQL) valide tout ce qui précède : avec un `CREATE TABLE` avant le `ROLLBACK`, il ne resterait ici que 2 factures. Garde ces ordres hors des transactions de données.",
+    pratique: "Pour essayer un UPDATE sur la vraie base sans risque : ouvre une transaction, lance l'UPDATE, regarde le résultat avec un SELECT, puis `ROLLBACK`. Tu vois l'effet, rien ne change. Fais-le vite : les lignes restent verrouillées.",
     motsCles: ["annuler", "annulation", "défaire", "revenir en arrière", "retour", "erreur", "oups", "transaction", "rollback", "tester", "corriger", "effacer", "restaurer"],
     voirAussi: ["begin-transaction", "commit", "savepoint", "xact-abort", "truncate", "time-travel"],
     module: "m11"
@@ -117,6 +120,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "CDE-1005 passe bien à LIVREE, mais la facture FA-2026-0402 n'existe pas : seul le travail fait après le point est annulé.",
     piege: "Sur SQL Server, `ROLLBACK` sans nom de point annule TOUTE la transaction, pas seulement depuis le point. Et `ROLLBACK TRAN point` ne ferme rien : sans `COMMIT` (ou `ROLLBACK`) ensuite, la transaction reste ouverte et garde ses verrous.",
+    pratique: "Sur SQL Server, dans une procédure appelée pendant une transaction, pose un point au début (`SAVE TRAN debut_proc`) : en cas d'erreur, `ROLLBACK TRAN debut_proc` n'annule que son travail, si `XACT_STATE()` vaut 1. L'appelant garde le sien.",
     motsCles: ["point de sauvegarde", "savepoint", "annuler une partie", "partiel", "partie", "retour", "intermédiaire", "étape", "repère", "transaction", "rollback to", "save tran"],
     voirAussi: ["rollback", "begin-transaction", "trancount", "try-catch"],
     module: "m11"
@@ -140,6 +144,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["nb_livrees", "ca_livre"], [4, "8534.80"]],
     piege: "Monter en SERIALIZABLE « pour être tranquille » multiplie les blocages et les deadlocks sur l'ERP. Pour lire sans bloquer ni être bloqué, préfère SNAPSHOT ou RCSI (à valider avec l'éditeur), et souviens-toi que MySQL est en REPEATABLE READ par défaut, pas en READ COMMITTED.",
+    pratique: "Pour savoir si ta base SQL Server lit sans bloquer : `SELECT name, is_read_committed_snapshot_on, snapshot_isolation_state_desc FROM sys.databases;` (1 = RCSI actif). Sur MySQL, `SELECT @@transaction_isolation;` donne ton niveau.",
     motsCles: ["isolation", "niveau", "niveau d'isolation", "verrou", "bloquer", "blocage", "cohérence", "photo", "concurrence", "attendre", "snapshot", "serializable", "repeatable", "fantôme", "rapport", "lecture"],
     voirAussi: ["nolock", "begin-transaction", "commit", "time-travel"],
     module: "m11"
@@ -163,6 +168,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["ca_en_cours"], ["1608.00"]],
     piege: "Ce 1608.00 n'a peut-être jamais existé : si la session 1 annule, le vrai total reste 9558.00 (c'est ce que lisent Snowflake, et MySQL par défaut). NOLOCK peut aussi sauter ou doubler des lignes : jamais pour des chiffres qui servent à facturer, payer ou décider.",
+    pratique: "Cherche les NOLOCK cachés : une vue ou une procédure qui en contient les passe à tous les rapports qui l'utilisent. `SELECT OBJECT_NAME(object_id) FROM sys.sql_modules WHERE definition LIKE '%NOLOCK%';` les liste (SQL Server).",
     motsCles: ["lecture sale", "dirty read", "sans verrou", "verrou", "bloquer", "blocage", "attendre", "rapide", "accélérer", "lent", "non validé", "read uncommitted", "nolock", "lire"],
     voirAussi: ["isolation", "begin-transaction", "rollback"],
     module: "m11"
@@ -186,6 +192,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "L'INSERT plante (montant_ht est obligatoire) : avec XACT_ABORT ON, toute la transaction est annulée, et CDE-1005 reste EN_COURS, sans facture.",
     piege: "Sans XACT_ABORT ON, seul l'INSERT est annulé : le COMMIT valide CDE-1005 à LIVREE sans facture, et personne n'est prévenu. MySQL et Snowflake font pareil par défaut : prévois toi-même le `ROLLBACK` (handler MySQL, bloc `EXCEPTION` Snowflake).",
+    pratique: "Pour modifier une table d'un serveur lié (linked server) dans une transaction, `SET XACT_ABORT ON` est obligatoire avec la plupart des fournisseurs OLE DB, dont celui de SQL Server.",
     motsCles: ["erreur", "annuler", "automatique", "transaction", "xact_abort", "abort", "arrêter", "incohérent", "moitié", "à moitié", "sécurité", "procédure", "plante", "rollback automatique"],
     voirAussi: ["try-catch", "rollback", "begin-transaction", "throw"],
     module: "m11"
@@ -209,6 +216,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["niveau"], [1]],
     piege: "Un `ROLLBACK` dans une procédure appelée annule aussi le travail de l'appelant (erreur 266 : le compteur n'est plus le même). Dans un CATCH, écris `IF @@TRANCOUNT > 0 ROLLBACK;` : un ROLLBACK sans transaction ouverte plante, et cache la vraie erreur.",
+    pratique: "Avant de fermer une fenêtre SSMS ou de partir en pause, lance `SELECT @@TRANCOUNT;` : plus de 0, une transaction est encore ouverte et bloque peut-être l'ERP. Finis-la par `COMMIT` ou `ROLLBACK`.",
     motsCles: ["transaction ouverte", "combien", "compteur", "niveau", "imbriquée", "imbrication", "en cours", "oubliée", "vérifier", "trancount", "ouverte", "nombre de transactions"],
     voirAussi: ["begin-transaction", "commit", "rollback", "try-catch", "savepoint"],
     module: "m11"

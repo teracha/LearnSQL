@@ -1512,7 +1512,7 @@
     if (id) { pageFiche(decodeURIComponent(id)); return; }
     app.innerHTML = '<h1>Super dico SQL</h1>' +
       '<p class="muted">Pose ta question en mots simples (« enlever les espaces »), ou tape un nom (« COALESCE »). ' +
-      'Les fautes de frappe sont tolérées.</p>' +
+      'Les fautes de frappe sont tolérées. Une requête entière à comprendre ? <a href="#/traduire">Traduire une requête</a>.</p>' +
       '<div class="dico-recherche"><input type="search" id="dico-q" autocomplete="off" spellcheck="false" ' +
       'placeholder="Ex. : chercher un caractère, COALESCE…" aria-label="Rechercher dans le dico"></div>' +
       selecteurMoteurs(dicoMoteur()) + '<div id="dico-res"></div>';
@@ -1556,10 +1556,95 @@
       if (f.resultat) html += resultatCours(f.resultat);
       if (f.piege) html += '<div class="feedback ko"><p><strong>Le piège :</strong> ' + fmt(f.piege) + '</p></div>';
       if (f.correction) html += '<div class="feedback ok"><p><strong>La correction :</strong> ' + fmt(f.correction) + '</p></div>';
+      if (f.pratique) html += '<div class="feedback pratique"><p><strong>En pratique :</strong> ' + fmt(f.pratique) + '</p></div>';
       document.getElementById("fiche-corps").innerHTML = html;
     };
     brancherMoteurs(rendre);
     rendre();
+  }
+
+  // ---------- Traduire une requête (docs/traducteur.md) ----------
+  // Le moteur est dans js/traducteur.js (LEARNSQL.traduire), sans IA. La requête reste dans une variable le temps
+  // de l'onglet (pour la retrouver après un clic vers le dico) : jamais dans localStorage ni dans l'URL.
+  var TRADUIRE_EXEMPLES = [
+    { nom: "Regroupement (GROUP BY)", sql: "SELECT c.nom, SUM(co.montant_ht) AS total\nFROM commande co\nJOIN client c ON c.id = co.client_id\n" +
+      "WHERE co.statut <> 'ANNULEE'\nGROUP BY c.nom\nHAVING SUM(co.montant_ht) > 5000\nORDER BY total DESC;" },
+    { nom: "Clients sans commande (LEFT JOIN)", sql: "SELECT c.code, c.nom\nFROM client c\nLEFT JOIN commande co ON co.client_id = c.id\n" +
+      "WHERE co.id IS NULL;" },
+    { nom: "Dernière commande par client (CTE et ROW_NUMBER)", sql: "WITH derniere AS (\n  SELECT co.*,\n" +
+      "         ROW_NUMBER() OVER (PARTITION BY co.client_id ORDER BY co.date_cde DESC) AS rn\n  FROM commande co\n)\n" +
+      "SELECT client_id, num_cde, date_cde, montant_ht\nFROM derniere\nWHERE rn = 1;" }
+  ];
+  var traduireSql = "", traduireFait = false, traduireCopie = "";
+
+  // Tout texte venu de la requête passe par esc : aucune balise de l'utilisateur n'arrive dans la page.
+  function htmlTraduction(r) {
+    var html = r.lignes.length ? '<div class="card tr-code">' + r.lignes.map(function (l) {
+      return '<div class="tr-l' + (l.genre ? ' tr-' + l.genre : '') + '" style="--n:' + Math.min(Number(l.niveau) || 0, 12) + '">' +
+        (l.verbe ? '<strong class="tr-verbe">' + esc(l.verbe) + '</strong> ' : '') + esc(l.texte) + '</div>';
+    }).join('') + '</div>' : '<p class="tr-vide">' + esc(r.erreurs[0] || "Rien à traduire.") + '</p>';
+    if (r.notes.length) html += '<h2>À savoir</h2><ul class="tr-notes">' + r.notes.map(function (n) {
+      return '<li>' + n.morceaux.map(function (m) { return m.code ? '<code>' + esc(m.t) + '</code>' : esc(m.t); }).join('') + '</li>';
+    }).join('') + '</ul>';
+    if (r.fiches.length) html += '<h2>Dans le dico</h2><div class="puces">' + r.fiches.map(function (f) {
+      return '<a class="puce" href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a>';
+    }).join('') + '</div>';
+    return html;
+  }
+  // Copie dans le presse-papiers ; repli (textarea + execCommand) si l'API manque ou refuse.
+  function copierTexte(t, fini) {
+    function repli() {
+      var ta = document.createElement("textarea"), ok = false;
+      ta.value = t; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      fini(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { fini(true); }, repli);
+    else repli();
+  }
+  function pageTraduire() {
+    app.innerHTML = '<h1>Traduire une requête</h1>' +
+      '<p class="muted">Colle une requête SQL. Le site l\'explique en pseudo-code, dans l\'ordre où SQL la calcule. ' +
+      'Rien n\'est envoyé : tout reste dans ton navigateur.</p>' +
+      '<textarea id="tr-sql" class="tr-sql" spellcheck="false" autocomplete="off" autocapitalize="off" ' +
+      'aria-label="Requête SQL" placeholder="SELECT … FROM …"></textarea>' +
+      '<div class="actions"><button type="button" class="btn" id="tr-go">Traduire</button>' +
+      '<button type="button" class="btn ghost" id="tr-copier" disabled>Copier</button></div>' +
+      '<p class="label tr-titre-ex">Exemples</p><div class="tr-exemples">' + TRADUIRE_EXEMPLES.map(function (x, k) {
+        return '<button type="button" class="tr-ex" data-ex="' + k + '">' + esc(x.nom) + '</button>';
+      }).join('') + '</div>' +
+      '<p id="tr-msg" class="muted" role="status"></p><div id="tr-res"></div>';
+    var champ = document.getElementById("tr-sql"), zone = document.getElementById("tr-res");
+    var msg = document.getElementById("tr-msg"), copier = document.getElementById("tr-copier");
+    champ.value = traduireSql;
+    function traduire() {
+      traduireSql = champ.value; traduireFait = true;
+      var r = null;
+      try { r = DATA.traduire ? DATA.traduire(champ.value) : null; } catch (e) { r = null; }
+      msg.textContent = "";
+      if (!r) { zone.innerHTML = '<p class="tr-vide">Le traducteur n\'est pas chargé : recharge la page.</p>'; copier.disabled = true; return; }
+      zone.innerHTML = htmlTraduction(r);
+      traduireCopie = r.texte;
+      copier.disabled = !r.lignes.length;
+    }
+    document.getElementById("tr-go").addEventListener("click", traduire);
+    champ.addEventListener("input", function () { traduireSql = champ.value; });
+    champ.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); traduire(); }
+    });
+    Array.prototype.forEach.call(app.querySelectorAll(".tr-ex"), function (b) {
+      b.addEventListener("click", function () { champ.value = TRADUIRE_EXEMPLES[Number(b.getAttribute("data-ex"))].sql; traduire(); });
+    });
+    copier.addEventListener("click", function () {
+      copierTexte(traduireCopie, function (ok) {
+        msg.textContent = ok ? "Copié : le pseudo-code est prêt à coller." : "Copie impossible : sélectionne le texte et copie-le à la main.";
+      });
+    });
+    if (traduireFait && traduireSql) traduire();
   }
 
   // ---------- Routeur ----------
@@ -1581,6 +1666,7 @@
     else if (parts[0] === "confidentialite") pageLegale("Confidentialité", "confidentialite");
     else if (parts[0] === "equipe") pageEquipe(parts[1]);
     else if (parts[0] === "dico") pageDico(parts[1]);
+    else if (parts[0] === "traduire") pageTraduire();
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);

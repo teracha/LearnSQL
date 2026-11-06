@@ -31,6 +31,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- TTC des commandes EDI, en décimal exact\nSELECT num_cde, montant_ht,\n       CAST(montant_ht * 1.2 AS decimal(10,2)) AS montant_ttc\nFROM commande\nWHERE canal = 'EDI';",
     resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
     piege: "`CAST(12.7 AS int)` donne 12 sur SQL Server (il coupe), mais 13 sur Snowflake (il arrondit, comme `AS SIGNED` sur MySQL) : un montant migré change sans erreur. Arrondis toi-même avant : `CAST(ROUND(x, 0) AS int)` donne 13 partout (MySQL : `AS SIGNED`).",
+    pratique: "Donne toujours une longueur : sur SQL Server, `CAST(x AS varchar)` coupe à 30 caractères, sans erreur, et `DECLARE @v varchar` n'en garde qu'un seul.",
     motsCles: ["convertir", "conversion", "type", "transformer", "changer", "entier", "décimal", "texte", "nombre", "varchar", "int", "typer", "caster", "numérique"],
     voirAussi: ["convert", "try-cast", "round", "format"],
     module: "m03"
@@ -54,6 +55,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_cde", "date_fr", "date_edi"], ["CDE-1001", "2026-03-02", "02/03/2026", "20260302"], ["CDE-1003", "2026-03-09", "09/03/2026", "20260309"], ["CDE-1007", "2026-04-07", "07/04/2026", "20260407"]],
     piege: "Pour lire un texte, donne aussi le style : `CONVERT(date, '22/10/2026', 103)`. Sans lui, la lecture dépend de la langue du serveur : en anglais, '22/10/2026' veut dire mois 22, et la requête plante.",
+    pratique: "Sur SQL Server, pour un horodatage ISO 8601 (fichiers XML, JSON, API), écris `CONVERT(varchar(19), date_recu, 126)` : il donne '2026-04-07T06:08:00', avec le T entre la date et l'heure.",
     motsCles: ["convertir", "style", "format", "date", "texte", "103", "112", "120", "français", "lire", "écrire", "edi", "aaaammjj", "jour", "mois"],
     voirAussi: ["cast", "format", "try-cast", "datefromparts"],
     module: "m03"
@@ -76,6 +78,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "numero"], ["CHL-5", 5], ["CHL-25", 25], ["PH-5", 5], ["EPU-F", null], ["BACHE8", null]],
     piege: "CAST s'arrête sur la première valeur impossible : un import EDI de 10 000 lignes bloqué par un 'F'. Avec TRY_CAST, liste plutôt les rejets : `WHERE TRY_CAST(x AS int) IS NULL AND x IS NOT NULL`.",
+    pratique: "Sur SQL Server, ne valide pas un import avec `ISNUMERIC` : il dit 1 pour '-', '+' ou '$', qui ne sont pas des nombres. Teste plutôt `TRY_CAST(x AS decimal(18,2)) IS NOT NULL`.",
     motsCles: ["convertir", "erreur", "planter", "contrôle", "import", "valider", "numérique", "nombre", "vérifier", "rejets", "try", "isnumeric", "données", "douteuses", "nettoyer"],
     voirAussi: ["cast", "convert", "replace", "is-null"],
     module: "m03"
@@ -99,6 +102,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_cde", "mois_fr"], ["CDE-1001", "2026-03-02", "mars 2026"], ["CDE-1003", "2026-03-09", "mars 2026"], ["CDE-1007", "2026-04-07", "avril 2026"]],
     piege: "FORMAT passe par .NET, hors du moteur : très lent sur un million de lignes, formate plutôt dans Power BI. Attention aussi : `MM` = mois mais `mm` = minutes ; et Snowflake et MySQL écrivent « March 2026 ».",
+    pratique: "Sur MySQL, pour des mois en français, règle d'abord la session : `SET lc_time_names = 'fr_FR';`. Ensuite, `DATE_FORMAT(d, '%M %Y')` donne « mars 2026 » au lieu de « March 2026 ».",
     motsCles: ["formater", "mise", "forme", "affichage", "afficher", "séparateur", "milliers", "décimales", "mois", "lettres", "euros", "présentation", "culture", "lisible", "monnaie"],
     voirAussi: ["convert", "cast", "lpad", "round"],
     module: "m03"

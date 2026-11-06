@@ -29,6 +29,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Commandes qui ont au moins un document : flux EDI ou facture\nSELECT cde_id FROM flux_edi WHERE cde_id IS NOT NULL\nUNION\nSELECT cde_id FROM facture\nORDER BY cde_id;",
     resultat: [["cde_id"], [1], [2], [3], [7], [8]],
     piege: "UNION retire aussi les vraies lignes en double : deux ventes identiques (même client, même jour, même montant) n'en font plus qu'une, et le CA baisse sans erreur. Pour empiler des montants, écris `UNION ALL`.",
+    pratique: "Pour rapprocher trois sources ou plus (ERP, EDI, entrepôt), pars de la liste unique des clés : `SELECT code FROM erp UNION SELECT code FROM edi UNION SELECT code FROM wms`, puis joins-y chaque source en LEFT JOIN.",
     motsCles: ["empiler", "combiner", "fusionner", "ajouter", "assembler", "réunir", "union", "doublons", "deux requêtes", "deux tables", "concaténer", "superposer", "regrouper"],
     voirAussi: ["union-all", "intersect", "except", "distinct"],
     module: "m07"
@@ -48,6 +49,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT cde_id, COUNT(*) AS nb_documents\nFROM (SELECT cde_id FROM flux_edi WHERE cde_id IS NOT NULL\n      UNION ALL\n      SELECT cde_id FROM facture) AS docs\nGROUP BY cde_id\nORDER BY cde_id;",
     resultat: [["cde_id", "nb_documents"], [1, 3], [2, 1], [3, 2], [7, 2], [8, 1]],
     piege: "Les colonnes sont associées par leur place, pas par leur nom : `SELECT nom, ville … UNION ALL SELECT ville, nom …` mélange villes et noms, sans erreur. Écris les colonnes dans le même ordre, et jamais `SELECT *`.",
+    pratique: "Pour un fichier à plat en-tête + détail (EDI, banque), empile les deux types de lignes avec UNION ALL, plus une colonne de tri (0 = en-tête, 1 = détail) : `ORDER BY num_cde, type_ligne`.",
     motsCles: ["empiler", "combiner", "ajouter", "assembler", "réunir", "union all", "tout garder", "garder", "deux requêtes", "deux tables", "superposer", "historique", "archive", "sociétés"],
     voirAussi: ["union", "full-outer-join", "group-by", "intersect"],
     module: "m07"
@@ -67,6 +69,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Articles en stock à Lyon (dépôt 1) ET à Nantes (dépôt 3)\nSELECT article_id FROM stock_depot WHERE depot_id = 1\nINTERSECT\nSELECT article_id FROM stock_depot WHERE depot_id = 3\nORDER BY article_id;",
     resultat: [["article_id"], [1], [3], [7], [8]],
     piege: "INTERSECT compare la ligne entière : ajoute `qte` aux deux SELECT, et il ne reste rien, car aucun article n'a la même quantité dans les deux dépôts. Mets seulement les colonnes qui doivent être égales.",
+    pratique: "Pour contrôler une liste de codes reçue par EDI, coupe-la en deux : `INTERSECT` avec la table des articles donne les codes connus, `EXCEPT` ceux que l'ERP ne connaît pas.",
     motsCles: ["commun", "communs", "les deux", "à la fois", "présent", "partout", "intersection", "croiser", "recouper", "comparer", "deux résultats", "en même temps", "fidèles"],
     voirAussi: ["except", "union", "inner-join", "exists"],
     module: "m07"
@@ -86,6 +89,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Commandes sans aucun flux EDI\nSELECT id FROM commande\nEXCEPT\nSELECT cde_id FROM flux_edi\nORDER BY id;",
     resultat: [["id"], [2], [4], [5], [6], [8]],
     piege: "`WHERE id NOT IN (SELECT cde_id FROM flux_edi)` renvoie 0 ligne : le flux 3 a un `cde_id` NULL, et un NULL dans la liste bloque tout. EXCEPT n'a pas ce piège ; mais l'ordre compte : `flux EXCEPT commande` répond à une autre question.",
+    pratique: "Pour voir les prix changés entre deux tarifs, mets la clé et le prix dans les deux SELECT : `SELECT code, prix FROM tarif_2026 EXCEPT SELECT code, prix FROM tarif_2025` liste les articles nouveaux ou modifiés.",
     motsCles: ["manquant", "manquants", "absent", "absents", "différence", "soustraire", "moins", "minus", "sauf", "comparer", "écart", "écarts", "rapprochement", "contrôle", "orphelins", "lignes manquantes", "différence entre deux tables", "comparer deux tables"],
     voirAussi: ["intersect", "union", "left-join", "in", "exists"],
     module: "m07"

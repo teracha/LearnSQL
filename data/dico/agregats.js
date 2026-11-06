@@ -37,6 +37,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT COUNT(*) AS nb_clients,\n       COUNT(siren) AS avec_siren,\n       COUNT(DISTINCT siren) AS siren_differents\nFROM client;",
     resultat: [["nb_clients", "avec_siren", "siren_differents"], [7, 5, 4]],
     piege: "Après un `LEFT JOIN`, `COUNT(*)` compte 1 pour un client sans commande : Pool & Garden sort avec 1 commande au lieu de 0. Compte la clé de droite, `COUNT(co.id)`, qui ignore les NULL.",
+    pratique: "Après un import, compare trois nombres : les lignes du fichier, celles chargées (`COUNT(*)` sur la table) et celles rejetées. Si chargées et rejetées ne font pas le total du fichier, des lignes se sont perdues ou doublées.",
     motsCles: ["compter", "nombre", "combien", "lignes", "comptage", "count", "distinct", "différents", "valeurs", "dénombrer", "nb", "vides", "remplies", "total", "enregistrements", "compter les lignes"],
     voirAussi: ["sum", "group-by", "distinct", "left-join", "is-null"],
     module: "m04"
@@ -56,6 +57,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT canal, SUM(montant_ht) AS ca_ht\nFROM commande\nWHERE statut <> 'ANNULEE'\nGROUP BY canal\nORDER BY canal;",
     resultat: [["canal", "ca_ht"], ["EDI", "15115.00"], ["TEL", "1687.80"], ["WEB", "1290.00"]],
     piege: "Après une jointure 1-N (`commande` puis `ligne_cde`), `SUM(co.montant_ht)` compte chaque commande une fois par ligne : CDE-1001 vaut 9560.00 au lieu de 4780.00. Additionne le détail, `SUM(li.qte * li.prix_unit)`, ou agrège avant de joindre.",
+    pratique: "Pour un total qui doit afficher 0 et pas une case vide, écris `COALESCE(SUM(montant_ht), 0)` : un `SUM` sur aucune ligne renvoie NULL, pas 0.",
     motsCles: ["additionner", "somme", "total", "totaliser", "cumuler", "montant", "chiffre d'affaires", "ht", "addition", "sum", "sommer", "argent", "euros"],
     voirAussi: ["count", "avg", "group-by", "inner-join", "coalesce"],
     module: "m04"
@@ -75,6 +77,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Montant moyen : par facture, ou par commande ?\nSELECT AVG(f.montant_ht) AS moy_factures,\n       AVG(COALESCE(f.montant_ht, 0)) AS moy_commandes\nFROM commande AS co\nLEFT JOIN facture AS f ON f.cde_id = co.id;",
     resultat: [["moy_factures", "moy_commandes"], ["2133.700000", "1066.850000"]],
     piege: "« Montant moyen facturé par commande » avec `AVG(f.montant_ht)` : les 4 commandes sans facture (NULL) ne comptent pas, et la moyenne double (2133.70 au lieu de 1066.85). Si une absence vaut 0, écris `AVG(COALESCE(f.montant_ht, 0))`.",
+    pratique: "Pour un prix moyen pondéré (PMP), n'écris pas `AVG(prix_unit)` : une ligne de 1 pièce pèserait autant qu'une ligne de 1 000. Écris `SUM(qte * prix_unit) / SUM(qte)`. Pour CHL-5 : 36.02, et non 37.18.",
     motsCles: ["moyenne", "moyen", "panier", "average", "avg", "milieu", "répartir", "diviser", "décimales", "entier", "mean", "prix moyen", "ratio"],
     voirAussi: ["sum", "count", "coalesce", "division", "cast"],
     module: "m04"
@@ -94,6 +97,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT client_id,\n       MIN(date_cde) AS premiere_cde,\n       MAX(date_cde) AS derniere_cde\nFROM commande\nGROUP BY client_id\nORDER BY client_id;",
     resultat: [["client_id", "premiere_cde", "derniere_cde"], [1, "2026-03-02", "2026-04-07"], [2, "2026-03-05", "2026-04-03"], [3, "2026-03-12", "2026-03-12"], [4, "2026-04-01", "2026-04-01"], [6, "2026-04-10", "2026-04-10"]],
     piege: "Sur une date rangée en texte au format JJ/MM/AAAA (fichier EDI, import Excel), `MAX` compare des caractères : '31/03/2026' passe devant '01/04/2026'. Convertis d'abord en date, `MAX(CONVERT(date, col, 103))`.",
+    pratique: "Pour vérifier qu'une valeur est la même dans tout un groupe (une seule devise par commande), compare le plus petit et le plus grand : `HAVING MIN(devise) <> MAX(devise)` liste les commandes à problème.",
     motsCles: ["minimum", "maximum", "plus petit", "plus grand", "premier", "dernier", "première", "dernière", "date", "récent", "ancien", "min", "max", "extrême", "plus haut", "plus bas"],
     voirAussi: ["group-by", "order-by", "convert", "row-number"],
     module: "m04"
@@ -113,6 +117,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT statut, COUNT(*) AS nb_cdes, SUM(montant_ht) AS total_ht\nFROM commande\nGROUP BY statut\nORDER BY statut;",
     resultat: [["statut", "nb_cdes", "total_ht"], ["ANNULEE", 1, "549.00"], ["EN_COURS", 3, "9558.00"], ["LIVREE", 4, "8534.80"]],
     piege: "`SELECT client_id, statut, COUNT(*) … GROUP BY client_id` plante sur SQL Server, Snowflake et MySQL 8 : `statut` n'est ni groupé ni agrégé. Sans `ONLY_FULL_GROUP_BY` (ancien MySQL, ou mode retiré), la requête passe et affiche un statut pris au hasard : ajoute la colonne au `GROUP BY`, ou agrège-la.",
+    pratique: "Groupe sur la clé, pas sur le libellé : `GROUP BY c.id, c.nom`. Groupé sur le nom seul, les deux agences « Piscines Dumont » (C002 et C006) fusionnent en un seul client.",
     motsCles: ["regrouper", "grouper", "groupe", "chaque", "agréger", "agrégat", "group", "regroupement", "synthèse", "résumé", "ventiler", "ventilation", "par client", "par statut", "par mois", "catégorie"],
     voirAussi: ["having", "count", "sum", "rollup", "distinct"],
     module: "m04"
@@ -132,6 +137,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT client_id, COUNT(*) AS nb_cdes, SUM(montant_ht) AS ca\nFROM commande\nWHERE statut <> 'ANNULEE'\nGROUP BY client_id\nHAVING SUM(montant_ht) > 2000\nORDER BY client_id;",
     resultat: [["client_id", "nb_cdes", "ca"], [1, 3, "15115.00"], [2, 2, "2580.00"]],
     piege: "`WHERE montant_ht > 2000` garde les grosses commandes, pas les gros clients : Piscines Dumont (2 commandes de 1290.00, soit 2580.00) disparaît. Une condition sur un total va dans le `HAVING` ; un agrégat dans le `WHERE` plante.",
+    pratique: "Pour trouver les doublons d'un import (même facture reçue deux fois), groupe sur la clé et garde les groupes de plus d'une ligne : `GROUP BY num_fact HAVING COUNT(*) > 1`.",
     motsCles: ["filtrer", "groupe", "total", "condition", "après", "agrégat", "doublons", "having", "seuil", "supérieur", "plus de", "au moins", "filtre", "regroupement", "trouver les doublons"],
     voirAussi: ["group-by", "where", "count", "sum"],
     module: "m04"
@@ -154,6 +160,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["canal", "total_ht", "est_total"], ["EDI", "15115.00", 0], ["TEL", "1687.80", 0], ["WEB", "1290.00", 0], [null, "18092.80", 1]],
     piege: "Sur la ligne de total, `canal` vaut NULL, comme un vrai canal vide : un rapport qui remplace les NULL mélange les deux. Teste `GROUPING(canal) = 1` pour écrire « Total » : `CASE WHEN GROUPING(canal) = 1 THEN 'Total' ELSE canal END`.",
+    pratique: "L'ordre compte : `ROLLUP (annee, mois)` donne un sous-total par année, puis le total général. Mets toujours le niveau le plus large en premier (MySQL : `GROUP BY annee, mois WITH ROLLUP`).",
     motsCles: ["sous-total", "sous-totaux", "total général", "totaux", "rollup", "cube", "grouping", "synthèse", "récapitulatif", "rapport", "tableau croisé", "hiérarchie", "niveaux", "grand total"],
     voirAussi: ["group-by", "sum", "case", "coalesce"],
     module: "m04"
@@ -177,6 +184,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["client_id", "commandes"], [1, "CDE-1001, CDE-1003, CDE-1007"], [2, "CDE-1002, CDE-1006"], [3, "CDE-1004"], [4, "CDE-1005"], [6, "CDE-1008"]],
     piege: "Sans `WITHIN GROUP (ORDER BY …)`, l'ordre de la liste peut changer d'une exécution à l'autre : un fichier ou un contrôle qui compare ces textes se met à varier. Et MySQL coupe `GROUP_CONCAT` à 1024 octets par défaut (un é compte pour 2), avec un simple avertissement : monte `group_concat_max_len`.",
+    pratique: "Pour une liste sans doublon : `LISTAGG(DISTINCT ville, ', ')` sur Snowflake, `GROUP_CONCAT(DISTINCT ville)` sur MySQL. STRING_AGG de SQL Server n'accepte pas DISTINCT : dédoublonne d'abord dans une sous-requête.",
     motsCles: ["concaténer", "liste", "virgule", "séparateur", "coller", "assembler", "regrouper", "texte", "listagg", "group_concat", "plusieurs lignes", "une seule ligne", "csv", "agréger", "chaîne"],
     voirAussi: ["group-by", "string-split", "concat", "concat-ws"],
     module: "m04"

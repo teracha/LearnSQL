@@ -53,6 +53,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE TABLE remise_client (\n  client_id INT          NOT NULL,\n  famille   VARCHAR(12)  NOT NULL,\n  taux      DECIMAL(5,2) NOT NULL DEFAULT 0 CHECK (taux BETWEEN 0 AND 100),\n  PRIMARY KEY (client_id, famille),\n  FOREIGN KEY (client_id) REFERENCES client (id)\n);\nINSERT INTO remise_client VALUES (2, 'CHIMIE', 150);",
     resultat: "Table créée ; l'insertion d'une remise de 150 % est refusée par le CHECK (Msg 547) : la table reste vide.",
     piege: "Sur Snowflake, `CREATE OR REPLACE TABLE` sur une table qui existe la recrée vide, sans prévenir : seul Time Travel rattrape les lignes. Pour un script relançable, écris `CREATE TABLE IF NOT EXISTS` (SQL Server : `IF OBJECT_ID(…) IS NULL`), puis fais évoluer la table avec `ALTER TABLE`.",
+    pratique: "Nomme tes contraintes (`CONSTRAINT ck_remise_taux CHECK (…)`) : sur SQL Server et MySQL, le message d'erreur cite ce nom, et un script la retrouve partout sous ce nom. Sans nom, le moteur en invente un.",
     motsCles: ["créer", "nouvelle", "colonnes", "structure", "définir", "création", "ddl", "contraintes", "fabriquer", "champs", "modèle", "ctas", "construire"],
     voirAussi: ["alter-table", "drop-table", "primary-key", "foreign-key", "check", "default", "table-temporaire"],
     module: "m10"
@@ -76,6 +77,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Les 8 articles ont une nouvelle colonne ean, vide (NULL) ; libelle accepte 80 caractères et reste obligatoire.",
     piege: "Sur SQL Server, `ALTER COLUMN libelle VARCHAR(80)` sans `NOT NULL` rend la colonne facultative, sans message. MySQL fait pareil avec `MODIFY`, et perd aussi le `DEFAULT` : réécris toujours la définition complète de la colonne.",
+    pratique: "Pour renommer une colonne : `ALTER TABLE t RENAME COLUMN ancien TO nouveau` (Snowflake, MySQL 8) ; sur SQL Server, `EXEC sp_rename 't.ancien', 'nouveau', 'COLUMN'`. Les vues et requêtes qui citent l'ancien nom ne sont pas corrigées.",
     motsCles: ["modifier", "ajouter", "colonne", "changer", "type", "agrandir", "allonger", "renommer", "supprimer colonne", "structure", "évoluer", "champ", "longueur", "add", "modify"],
     voirAussi: ["create-table", "drop-table", "not-null", "default", "types-texte"],
     module: "m10"
@@ -99,6 +101,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Relancé 10 fois, le script ne plante jamais : la 1re fois, `IF EXISTS` saute la suppression ; ensuite, il efface l'ancienne table et ses lignes avant de la recréer.",
     piege: "Sur SQL Server et MySQL, un `DROP TABLE` validé n'a ni corbeille ni retour arrière : seule une sauvegarde rend les lignes (Snowflake, lui, a `UNDROP TABLE`). Avant un script de nettoyage, vérifie sur quelle base tu es connecté.",
+    pratique: "Une vieille table semble inutile ? Renomme-la d'abord (`zz_import_tarif`) et attends quelques semaines : si un rapport ou un flux casse, tu la remets en un instant. Ensuite seulement, `DROP TABLE`.",
     motsCles: ["supprimer", "supprimer une table", "effacer", "détruire", "drop", "if exists", "nettoyer", "relançable", "script", "jeter", "disparaître", "corbeille", "ménage"],
     voirAussi: ["create-table", "truncate", "undrop", "alter-table"],
     module: "m10"
@@ -118,6 +121,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE TABLE stock_mini (\n  article_id INT NOT NULL,\n  depot_id   INT NOT NULL,\n  qte_mini   INT NOT NULL,\n  CONSTRAINT pk_stock_mini PRIMARY KEY (article_id, depot_id)\n);\nINSERT INTO stock_mini VALUES (1, 1, 20), (1, 2, 10), (1, 1, 30);",
     resultat: "Refusé (Msg 2627) : le couple article 1 / dépôt 1 arrive deux fois. Aucune des 3 lignes n'entre.",
     piege: "Sur Snowflake, la même clé ne bloque rien : les 3 lignes entrent, et le stock mini de l'article 1 au dépôt 1 existe en double. Contrôle les doublons toi-même après chaque chargement (`GROUP BY … HAVING COUNT(*) > 1`).",
+    pratique: "Pour trouver la clé primaire d'une table d'ERP sans documentation : `EXEC sp_pkeys 'commande';` (SQL Server), `SHOW PRIMARY KEYS IN TABLE commande;` (Snowflake), `SHOW KEYS FROM commande WHERE Key_name = 'PRIMARY';` (MySQL).",
     motsCles: ["clé primaire", "pk", "identifiant", "doublon", "identifier", "ligne", "clé", "composée", "id", "contrainte", "unicité", "unique"],
     voirAussi: ["unique", "foreign-key", "identity", "create-index", "having"],
     module: "m10"
@@ -137,6 +141,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE TABLE adresse_livraison (\n  id        INT PRIMARY KEY,\n  client_id INT NOT NULL,\n  ville     VARCHAR(40) NOT NULL,\n  CONSTRAINT fk_adresse_client FOREIGN KEY (client_id) REFERENCES client (id)\n);\nINSERT INTO adresse_livraison VALUES (1, 99, 'Nice');",
     resultat: "Refusé (Msg 547) : le client 99 n'existe pas dans client.",
     piege: "Sur Snowflake, la même table accepte l'adresse du client 99 : la clé n'est qu'une étiquette. Un rapport en `INNER JOIN client` perd ensuite ces lignes sans erreur : cherche les orphelins après chaque chargement (`NOT EXISTS`).",
+    pratique: "Sur SQL Server, une clé étrangère ne crée pas d'index (MySQL, lui, en crée un) : ajoute `CREATE INDEX ix_commande_client ON commande (client_id)`, sinon jointures et suppressions de clients lisent toute la table commande.",
     motsCles: ["clé étrangère", "fk", "référence", "lien", "relation", "orphelin", "parent", "enfant", "intégrité", "cascade", "relier", "client inconnu", "exister"],
     voirAussi: ["primary-key", "create-table", "exists", "left-join", "delete"],
     module: "m10"
@@ -156,6 +161,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "ALTER TABLE client ADD CONSTRAINT uq_client_code UNIQUE (code);\nINSERT INTO client (id, code, nom, pays, type)\nVALUES (8, 'C002', 'Aqua Nord', 'FR', 'PRO');",
     resultat: "Contrainte ajoutée (les 7 codes sont tous différents) ; le nouveau client est refusé (Msg 2627) : le code C002 existe déjà.",
     piege: "Sur `siren`, la même contrainte échoue : les deux agences Piscines Dumont ont le même SIREN, et SQL Server refuse aussi deux NULL (C003, C005). Vérifie d'abord les doublons ; pour « unique quand c'est rempli » : `CREATE UNIQUE INDEX … WHERE siren IS NOT NULL`.",
+    pratique: "Pour qu'une facture fournisseur n'entre jamais deux fois, pose UNIQUE sur la clé complète, `(fournisseur_id, num_fact_fourn)` : deux fournisseurs peuvent avoir le même numéro. Sur Snowflake, UNIQUE ne bloque rien : contrôle par requête.",
     motsCles: ["doublon", "unicité", "interdire", "numéro", "code", "clé métier", "double", "deux fois", "même valeur", "contrainte", "uq", "siren"],
     voirAussi: ["primary-key", "create-index", "check", "not-null"],
     module: "m10"
@@ -168,7 +174,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Pose une règle sur les valeurs d'une ligne : une valeur qui ne la respecte pas est refusée.",
     moteurs: {
       sqlserver: "`CONSTRAINT ck_x CHECK (statut IN ('A', 'B'))` : appliqué, et les lignes déjà là sont vérifiées",
-      snowflake: "`CONSTRAINT ck_x CHECK (…)` : appliqué depuis avril 2026 ; ajouté à une table pleine, il ne vérifie pas l'existant (`ENABLE NOVALIDATE`)",
+      snowflake: "`CONSTRAINT ck_x CHECK (…)` : appliqué depuis avril 2026 ; ajouté à une table pleine, il ne vérifie pas l'existant (`ENABLE NOVALIDATE`) ; pour l'instant, `COPY INTO` et Snowpipe échouent sur une table qui a un CHECK",
       mysql: "`CONSTRAINT ck_x CHECK (…)` : appliqué depuis MySQL 8.0.16 (avant, accepté puis ignoré)"
     },
     noms: [],
@@ -178,6 +184,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Contrainte ajoutée (les 8 commandes la respectent) ; l'UPDATE vers 'LIVRE', une faute de frappe, est refusé (Msg 547).",
     piege: "Un CHECK laisse passer NULL : `CHECK (qte > 0)` accepte une quantité vide, car NULL > 0 n'est pas « faux ». Ajoute `NOT NULL` sur la colonne quand la valeur est obligatoire.",
+    pratique: "Un CHECK peut comparer deux colonnes de la même ligne, s'il est écrit à part des colonnes : `CONSTRAINT ck_echeance CHECK (date_echeance >= date_fact)` refuse une échéance avant la date de facture.",
     motsCles: ["règle", "contrôle", "valider", "vérifier", "valeurs autorisées", "interdire", "contrainte", "condition", "refuser", "plage", "statut", "ck", "validation", "faute de frappe"],
     voirAussi: ["not-null", "default", "unique", "foreign-key", "in"],
     module: "m10"
@@ -197,6 +204,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "CREATE TABLE relance (\n  fact_id INT         NOT NULL,\n  niveau  INT         NOT NULL DEFAULT 1,\n  statut  VARCHAR(10) NOT NULL DEFAULT 'A_ENVOYER'\n);\nINSERT INTO relance (fact_id) VALUES (3);\nINSERT INTO relance (fact_id, niveau, statut) VALUES (3, 2, NULL);",
     resultat: "1re relance de la facture 3 : niveau 1 et statut A_ENVOYER (les DEFAULT). La 2e est refusée (Msg 515) : un NULL écrit en toutes lettres n'est pas remplacé par le DEFAULT.",
     piege: "Le DEFAULT ne joue qu'à l'INSERT : un UPDATE ne le recalcule jamais (une colonne `modifie_le` reste figée). Et sur SQL Server, une colonne qui accepte NULL, ajoutée avec un DEFAULT, reste vide sur les lignes existantes : ajoute `WITH VALUES` (MySQL et Snowflake, eux, les remplissent).",
+    pratique: "Sur SQL Server, ajoute à tes tables d'import une colonne `charge_le DATETIME2(0) NOT NULL DEFAULT SYSDATETIME()` (MySQL : `DATETIME DEFAULT CURRENT_TIMESTAMP`) : chaque ligne garde l'heure de son INSERT, sans rien écrire dans la requête.",
     motsCles: ["valeur par défaut", "automatique", "remplir", "préremplir", "initialiser", "omis", "oublié", "date du jour", "valeur initiale", "colonne", "insert", "auto"],
     voirAussi: ["not-null", "create-table", "alter-table", "insert", "coalesce"],
     module: "m10"
@@ -220,6 +228,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Refusé : le client C007 (Camping Les Flots) n'a pas de ville ; la colonne reste facultative.",
     piege: "Une colonne écrite sans `NULL` ni `NOT NULL` accepte NULL (sur SQL Server, selon les réglages de la connexion) : un import EDI peut alors créer des clients sans ville. Écris toujours l'un ou l'autre, et corrige les vides (`UPDATE … WHERE ville IS NULL`) avant de passer en NOT NULL.",
+    pratique: "Pour mesurer les vides de plusieurs colonnes en une lecture : `SELECT COUNT(*) - COUNT(ville) AS sans_ville, COUNT(*) - COUNT(siren) AS sans_siren FROM client;` (`COUNT(col)` ignore les NULL).",
     motsCles: ["obligatoire", "vide", "null", "interdire", "requis", "remplir", "manquant", "renseigné", "saisie", "facultatif", "absent", "non nul"],
     voirAussi: ["default", "check", "is-null", "coalesce", "alter-table"],
     module: "m10"
@@ -243,6 +252,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["id", "code", "prix_tarif"], [1, "CHL-5", "41.50"], [2, "PH-5", "25.90"]],
     piege: "Les numéros ont des trous : un INSERT annulé (ROLLBACK) consomme quand même son numéro, et SQL Server peut sauter un bloc après un redémarrage. Ne t'en sers jamais pour une numérotation légale de factures sans trou : garde un numéro métier à part, avec UNIQUE.",
+    pratique: "Pour une reprise de données qui garde les anciens numéros, SQL Server demande `SET IDENTITY_INSERT import_tarif ON;` avant l'INSERT (avec la liste des colonnes), puis `OFF` : une seule table à la fois par session.",
     motsCles: ["auto-incrément", "numéro", "compteur", "automatique", "séquence", "clé technique", "incrémenter", "numéroter", "id", "identifiant", "autoincrement", "auto_increment", "trou", "suivant"],
     voirAussi: ["primary-key", "unique", "create-table", "insert", "rollback"],
     module: "m10"
@@ -266,6 +276,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "nom", "montant_ht"], ["CDE-1005", "Hydro Sud", "318.00"], ["CDE-1006", "Piscines Dumont", "1290.00"], ["CDE-1007", "AquaBleu", "7950.00"]],
     piege: "SQL Server refuse `ORDER BY` dans une vue (Msg 1033), sauf avec `TOP` ; et `TOP 100 PERCENT … ORDER BY` passe, mais l'ordre n'est pas garanti à la lecture. Mets le tri dans la requête qui lit la vue, comme ici.",
+    pratique: "Pour Power BI ou Excel, donne une vue plutôt que les tables de l'ERP : noms de colonnes clairs, jointures déjà faites. Si les tables changent, tu corriges la vue, et les rapports continuent de marcher.",
     motsCles: ["vue", "requête enregistrée", "sauvegarder", "réutiliser", "simplifier", "masquer", "colonnes", "sécurité", "virtuelle", "nommer", "enregistrer", "fenêtre"],
     voirAussi: ["select", "order-by", "top", "inner-join", "create-table"],
     module: "m10"
@@ -289,6 +300,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "client_id", "montant_ht"], ["CDE-1005", 4, "318.00"], ["CDE-1006", 2, "1290.00"], ["CDE-1007", 1, "7950.00"]],
     piege: "`#cde_ouverte` vit jusqu'à la fin de ta session : relancer le script dans la même fenêtre SSMS plante (« There is already an object named », Msg 2714). Commence par `DROP TABLE IF EXISTS #cde_ouverte;`.",
+    pratique: "Sur SQL Server, une table `#t` créée par `CREATE TABLE` prend la collation de tempdb, pas celle de ta base : écris `code VARCHAR(10) COLLATE DATABASE_DEFAULT`, sinon la jointure avec ta base peut planter (conflit de collation).",
     motsCles: ["temporaire", "temp", "travail", "intermédiaire", "session", "dièse", "provisoire", "stocker", "étape", "tempdb", "brouillon", "résultat intermédiaire"],
     voirAussi: ["create-table", "drop-table", "with-cte", "insert-select", "declare"],
     module: "m10"
@@ -308,6 +320,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- code est un VARCHAR(10)\nINSERT INTO client (id, code, nom, pays, type)\nVALUES (8, 'C008-LYON-NORD', 'Aqua Nord', 'FR', 'PRO');",
     resultat: "Refusé (Msg 2628) : 'C008-LYON-NORD' fait 14 caractères pour un code de 10 ; SQL Server montre la valeur coupée, 'C008-LYON-' (base en compatibilité 140 ou moins : Msg 8152, sans ce détail).",
     piege: "`VARCHAR` sans longueur garde 1 seul caractère sur SQL Server : `DECLARE @code VARCHAR = 'CHL-25'` donne 'C', sans erreur (et `CAST(x AS VARCHAR)` coupe à 30). Écris toujours la longueur : `VARCHAR(20)`.",
+    pratique: "Pour les noms de partenaires étrangers (polonais, grec…), prends `NVARCHAR` sur SQL Server et écris `N'texte'` : en `VARCHAR` sans collation UTF-8, les lettres hors de l'alphabet de la base sont perdues, sans erreur.",
     motsCles: ["texte", "chaîne", "caractères", "longueur", "unicode", "accents", "taille", "alphabet", "tronqué", "trop long", "string", "libellé", "utf8", "type"],
     voirAussi: ["len", "cast", "trim", "types-nombre", "alter-table"],
     module: "m10"
@@ -327,6 +340,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT code, prix_tarif,\n       CAST(prix_tarif AS DECIMAL) AS sans_echelle,\n       CAST(prix_tarif AS DECIMAL(10,2)) AS avec_echelle\nFROM article\nWHERE famille = 'ACCESSOIRE';",
     resultat: [["code", "prix_tarif", "sans_echelle", "avec_echelle"], ["EPU-F", "19.90", "20", "19.90"], ["BACHE8", "149.00", "149", "149.00"]],
     piege: "`DECIMAL` sans précision ni échelle garde 0 décimale sur les 3 moteurs : 19.90 devient 20, sans erreur. Écris toujours `DECIMAL(10,2)` ; et pour l'argent, jamais FLOAT : 0.1 + 0.2 n'y vaut pas 0.3.",
+    pratique: "Un code fait de chiffres (EAN, SIREN, code postal) se range en texte, `CHAR(13)`, pas en nombre : un `BIGINT` perd les zéros de tête (`0123…` devient `123…`), et on ne calcule jamais avec ce code.",
     motsCles: ["nombre", "entier", "décimal", "décimales", "virgule", "précision", "échelle", "montant", "argent", "prix", "arrondi", "approché", "numérique", "chiffres", "centimes", "type"],
     voirAussi: ["cast", "round", "division", "types-texte", "sum"],
     module: "m10"
@@ -350,6 +364,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["cde_id", "date_prevue", "expedie_le"], [7, "2026-04-08", "2026-04-08 17:30:00"]],
     piege: "Sur SQL Server, `TIMESTAMP` n'est pas une date : c'est un compteur de version de ligne (rowversion). Une table recopiée de Snowflake ou de MySQL avec `TIMESTAMP` refuse alors tes dates (Msg 273) : écris `DATETIME2`.",
+    pratique: "Pour des heures de flux venues de plusieurs pays, range-les en UTC, ou avec leur décalage (`DATETIMEOFFSET`, `TIMESTAMP_TZ`) : en heure de Paris, la nuit du passage à l'heure d'hiver, 2 h 30 existe deux fois.",
     motsCles: ["date", "heure", "horodatage", "jour", "temps", "fuseau", "seconde", "calendrier", "moment", "utc", "2038", "type", "timezone"],
     voirAussi: ["getdate", "current-date", "cast", "dateadd", "datediff"],
     module: "m10"
@@ -373,6 +388,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["code", "actif"], ["AQUABLEU", 1], ["DUMONT", 0]],
     piege: "Sans `NOT NULL`, la colonne a trois états : `WHERE actif = 0` oublie les lignes à NULL, et le compte des partenaires inactifs est faux. Sur Snowflake, la même requête affiche TRUE et FALSE au lieu de 1 et 0.",
+    pratique: "Pour compter les partenaires actifs : sur SQL Server, `SUM(CAST(actif AS INT))`, car `SUM` refuse le type BIT ; sur Snowflake, `COUNT_IF(actif)` ; sur MySQL, `SUM(actif)` suffit.",
     motsCles: ["booléen", "oui", "non", "vrai", "faux", "actif", "inactif", "drapeau", "flag", "case à cocher", "indicateur", "logique", "0 ou 1", "type"],
     voirAussi: ["case", "iif", "where", "default", "not-null"],
     module: "m10"

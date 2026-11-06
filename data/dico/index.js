@@ -43,6 +43,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Index créé. La recherche peut aller droit aux 2 commandes du client 1 depuis le 05/03 (CDE-1003, CDE-1007) ; MySQL le confirme : `key = ix_commande_client_date`, `rows = 2`.",
     piege: "L'ordre des colonnes compte : cet index sert `WHERE client_id = …` (seul ou avec la date), pas `WHERE date_cde >= …` seul (MySQL : `type = ALL`, toute la table). Et chaque index ralentit les INSERT, UPDATE et DELETE : garde ceux qui servent vraiment.",
+    pratique: "Sur SQL Server, créer un index non cluster bloque les modifications de la table, et un index cluster bloque même les lectures. Sur une grosse table, crée-le hors heures, ou `WITH (ONLINE = ON)` si ton édition le permet.",
     motsCles: ["index", "accélérer", "performance", "rapide", "lent", "recherche", "optimiser", "cluster", "non cluster", "seek", "lenteur", "vitesse", "colonne", "trier"],
     voirAussi: ["include", "plan-execution", "statistiques", "cluster-by", "primary-key"],
     module: "m12"
@@ -66,6 +67,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Index créé : les 2 commandes du client 2 (05/03 et 03/04, 1290.00 chacune) se lisent dans l'index seul, sans retour à la table (MySQL : « Using index »).",
     piege: "Ajoute une colonne au SELECT (ici `num_cde`) et l'index ne couvre plus : chaque ligne trouvée repart chercher le reste dans la table (Key Lookup), et MySQL perd son « Using index ». Liste seulement les colonnes utiles : un `SELECT *` n'est presque jamais couvert.",
+    pratique: "Le plan de SSMS propose parfois un « index manquant » avec INCLUDE : ne le crée pas tel quel. L'ordre des colonnes n'est pas choisi, la taille pas pesée, et un index proche existe peut-être.",
     motsCles: ["index couvrant", "couvrir", "key lookup", "lookup", "colonnes", "inclure", "ajouter", "performance", "lectures", "accélérer", "covering", "aller-retour"],
     voirAussi: ["create-index", "plan-execution", "select"],
     module: "m12"
@@ -89,6 +91,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Toute la table est lue pour garder 3 commandes : Clustered Index Scan sur SQL Server, `type = ALL` et `rows = 8` sur MySQL. Aucun index ne sert le filtre sur client_id.",
     piege: "Le plan estimé devine le nombre de lignes : ici, MySQL en prévoit 1 après le filtre, il y en a 3 (`EXPLAIN ANALYZE`). Sur une grosse table, un tel écart donne un mauvais plan : compare toujours l'estimé et le réel.",
+    pratique: "Sur Snowflake, dans le Query Profile, compare « Partitions scanned » et « Partitions total » : si la requête lit presque toutes les partitions, ton filtre n'a rien évité, et toute la table est lue.",
     motsCles: ["plan", "exécution", "explain", "lent", "lenteur", "performance", "optimiser", "estimé", "réel", "scan", "seek", "analyser", "diagnostic", "pourquoi lent", "query profile"],
     voirAussi: ["create-index", "include", "statistiques", "cluster-by"],
     module: "m12"
@@ -112,6 +115,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Statistiques de commande recalculées en lisant toutes les lignes : les prochains plans partent de chiffres à jour (MySQL répond `status OK`).",
     piege: "Juste après un gros chargement, les statistiques ne sont pas encore à jour : une requête rapide hier devient lente, avec un plan prévu pour 1 ligne qui en traite des millions. Lance `UPDATE STATISTICS` à la fin du chargement, avant les rapports.",
+    pratique: "Pour voir la date des statistiques d'une table (SQL Server) : `SELECT name, STATS_DATE(object_id, stats_id) AS maj FROM sys.stats WHERE object_id = OBJECT_ID('commande');`. Plus vieilles que le dernier gros chargement ? À refaire.",
     motsCles: ["statistiques", "stats", "histogramme", "répartition", "estimation", "mettre à jour", "recalculer", "optimiseur", "lent", "chargement", "analyze", "fullscan", "cardinalité", "plan"],
     voirAussi: ["plan-execution", "create-index", "cluster-by"],
     module: "m12"
@@ -135,6 +139,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Table créée : ses lignes sont rangées par date_cde, pas par id. Sur Snowflake, `CLUSTER BY` fait ce rangement en tâche de fond, sur les micro-partitions.",
     piege: "Sur Snowflake, une clé de clustering se paie en crédits, à chaque réorganisation : sur une petite table, ou sur un horodatage à la seconde, tu paies pour rien. Réserve-la aux tables de plusieurs To filtrées sur les mêmes colonnes, et range sur la date plutôt que l'heure : `CLUSTER BY (TO_DATE(date_recu))`.",
+    pratique: "Sur Snowflake, une table chargée chaque jour dans l'ordre des dates (flux EDI, ventes) est déjà presque rangée par date, sans clé. Une clé sert surtout si tes filtres portent sur une autre colonne.",
     motsCles: ["clustering", "clé de clustering", "micro-partitions", "pruning", "ranger", "trier", "grosse table", "crédits", "élaguer", "partition", "réorganiser", "regrouper", "performance", "snowflake"],
     voirAussi: ["create-index", "warehouse", "plan-execution", "statistiques"],
     module: "m14"

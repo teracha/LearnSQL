@@ -47,10 +47,14 @@ for (const [m, qs] of Object.entries(LEARNSQL.questions)) {
 }
 // ---------- Super dico (docs/dico.md) ----------
 const dossierDico = path.join(racine, 'data/dico');
+// Le conseil pratique (champ `pratique`, règle 9 de docs/dico.md) : obligatoire, chaque fiche en a un.
+const PRATIQUE_OBLIGATOIRE = true;
+const PRATIQUE_MAX_MOTS = 40;
 if (!filtre && fs.existsSync(dossierDico)) {
   for (const f of fs.readdirSync(dossierDico).filter(f => f.endsWith('.js'))) require(path.join(dossierDico, f));
   const fiches = LEARNSQL.dico || [], idsDico = new Set(), modules = new Set((LEARNSQL.modules || []).map(m => m.id));
   const typesOk = ['fonction', 'mot-clé', 'erreur'], moteurs = ['sqlserver', 'snowflake', 'mysql'];
+  let avecPratique = 0;
   fiches.forEach(f => {
     if (!f.id || !/^[a-z0-9-]+$/.test(f.id)) { console.log('ERREUR dico id', f.id); erreurs++; }
     if (idsDico.has(f.id)) { console.log('ERREUR dico id en double', f.id); erreurs++; } idsDico.add(f.id);
@@ -62,9 +66,20 @@ if (!filtre && fs.existsSync(dossierDico)) {
     if (f.exemples && Object.keys(f.exemples).some(k => ['snowflake', 'mysql'].indexOf(k) < 0)) { console.log('ERREUR dico exemples (snowflake, mysql)', f.id); erreurs++; }
     if (f.resultat !== undefined && !(typeof f.resultat === 'string' || (Array.isArray(f.resultat) && f.resultat.length >= 1 &&
         f.resultat.every(r => Array.isArray(r) && r.length === f.resultat[0].length)))) { console.log('ERREUR dico résultat', f.id); erreurs++; }
+    if (f.pratique !== undefined) {
+      const p = typeof f.pratique === 'string' ? f.pratique.trim() : '';
+      const pareil = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
+      if (!p) { console.log('ERREUR dico pratique vide', f.id); erreurs++; }
+      else {
+        avecPratique++;
+        const mots = p.split(/\s+/).length;
+        if (mots > PRATIQUE_MAX_MOTS) { console.log('ERREUR dico pratique trop long (' + mots + ' mots, ' + PRATIQUE_MAX_MOTS + ' au plus)', f.id); erreurs++; }
+        if (pareil(p) === pareil(f.piege)) { console.log('ERREUR dico pratique identique au piège', f.id); erreurs++; }
+      }
+    } else if (PRATIQUE_OBLIGATOIRE) { console.log('ERREUR dico pratique manquant', f.id); erreurs++; }
   });
   fiches.forEach(f => (f.voirAussi || []).forEach(v => { if (!idsDico.has(v)) { console.log('ERREUR dico voirAussi inconnu', f.id, v); erreurs++; } }));
-  console.log(`dico ${fiches.length} fiches`);
+  console.log(`dico ${fiches.length} fiches (conseil pratique : ${avecPratique})`);
 }
 console.log(`total ${ids.size} questions · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
 process.exitCode = erreurs ? 1 : 0;

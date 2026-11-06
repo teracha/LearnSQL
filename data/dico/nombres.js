@@ -31,6 +31,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT num_cde, montant_ht,\n       ROUND(montant_ht, -2) AS a_la_centaine\nFROM commande\nWHERE canal = 'EDI';",
     resultat: [["num_cde", "montant_ht", "a_la_centaine"], ["CDE-1001", "4780.00", "4800.00"], ["CDE-1003", "2385.00", "2400.00"], ["CDE-1007", "7950.00", "8000.00"]],
     piege: "Arrondir chaque ligne puis additionner ne donne pas toujours l'arrondi du total : la facture EDI et la compta diffèrent de quelques centimes. Décide où tu arrondis (ligne ou total), et calcule en DECIMAL, jamais en FLOAT.",
+    pratique: "Pour arrondir à 5 centimes (francs suisses), arrondis le nombre de pièces de 5 centimes, puis reviens en francs : `ROUND(montant * 20, 0) / 20`. 79.83 donne 79.85.",
     motsCles: ["arrondir", "arrondi", "décimales", "virgule", "chiffres", "centaine", "dizaine", "tronquer", "couper", "précision", "centimes", "montant", "trunc", "approximation"],
     voirAussi: ["ceiling", "floor", "cast", "division"],
     module: "m03"
@@ -53,6 +54,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["id", "qte", "palettes"], [7, 8, 1], [9, 150, 15], [10, 5, 1], [11, 4, 1]],
     piege: "`CEILING(qte / 10)` sur deux entiers donne 0 palette pour 8 cartons sur SQL Server : la division a déjà coupé avant l'arrondi. Écris `qte / 10.0`.",
+    pratique: "Pour commander par cartons entiers (lots de 12), arrondis le besoin au multiple supérieur : `CEILING(besoin / 12.0) * 12` (Snowflake : `CEIL`). Un besoin de 30 donne 36.",
     motsCles: ["arrondir", "supérieur", "haut", "plafond", "entier", "au-dessus", "excès", "palettes", "colis", "ceil", "cartons", "majorer", "monter"],
     voirAussi: ["floor", "round", "division", "modulo"],
     module: "m03"
@@ -72,6 +74,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "SELECT num_fact, montant_ht,\n       FLOOR(montant_ht) AS plancher,\n       FLOOR(-montant_ht) AS plancher_avoir\nFROM facture\nWHERE statut <> 'PAYEE';",
     resultat: [["num_fact", "montant_ht", "plancher", "plancher_avoir"], ["FA-2026-0303", "2385.00", 2385, -2385], ["FA-2026-0401", "79.80", 79, -80]],
     piege: "Sur un avoir (montant négatif), FLOOR descend : `FLOOR(-79.80)` donne -80, pas -79. Pour couper les décimales sans changer de sens : `ROUND(x, 0, 1)` sur SQL Server, `TRUNC(x)` sur Snowflake, `TRUNCATE(x, 0)` sur MySQL.",
+    pratique: "Pour un rapport par tranches de 1 000 € (0, 1 000, 2 000…), calcule la tranche de chaque commande : `FLOOR(montant_ht / 1000) * 1000`, puis groupe sur ce calcul.",
     motsCles: ["arrondir", "inférieur", "bas", "plancher", "entier", "dessous", "défaut", "négatif", "avoir", "partie", "descendre", "minorer", "tronquer", "complets"],
     voirAussi: ["ceiling", "round", "division", "modulo"],
     module: "m03"
@@ -95,6 +98,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["id", "qte", "palettes_pleines", "cartons_en_plus"], [7, 8, 0, 8], [9, 150, 15, 0], [10, 5, 0, 5], [11, 4, 0, 4]],
     piege: "Sur SQL Server, le reste garde le signe du premier nombre : `-7 % 3` vaut -1, pas 2. Pour tester « impair », écris `x % 2 <> 0`, jamais `x % 2 = 1`.",
+    pratique: "Pour découper un gros traitement en 4 lots, le reste donne le numéro de lot : `id % 4` vaut 0, 1, 2 ou 3. Traite `WHERE id % 4 = 0`, puis 1, 2 et 3.",
     motsCles: ["reste", "division", "pair", "impair", "cycle", "multiple", "divisible", "lots", "répartir", "alterner", "paquets", "entière", "mod"],
     voirAussi: ["division", "floor", "ceiling", "round"],
     module: "m01"
@@ -114,6 +118,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     exemple: "-- Palettes de 10 cartons\nSELECT id, qte,\n       qte / 10 AS palettes,\n       qte / 10.0 AS palettes_exact\nFROM ligne_cde\nWHERE cde_id IN (5, 7, 8);",
     resultat: [["id", "qte", "palettes", "palettes_exact"], [7, 8, 0, "0.800000"], [9, 150, 15, "15.000000"], [10, 5, 0, "0.500000"], [11, 4, 0, "0.400000"]],
     piege: "Sur SQL Server, 8 cartons / 10 = 0 palette : entier divisé par entier coupe les décimales, sans erreur. Écris `qte / 10.0` ; Snowflake et MySQL donnent déjà 0.8, donc une requête migrée change ses chiffres.",
+    pratique: "Pour la part de chaque commande dans le total (analyse ABC, Pareto), divise par la somme de toutes les lignes : `100.0 * montant_ht / SUM(montant_ht) OVER ()`, sans sous-requête.",
     motsCles: ["diviser", "division", "quotient", "entier", "décimales", "virgule", "ratio", "taux", "pourcentage", "moyenne", "partager", "div", "zéro", "fraction"],
     voirAussi: ["modulo", "ceiling", "nullif", "cast", "round"],
     module: "m03"

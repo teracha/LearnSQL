@@ -54,6 +54,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["client_id", "total_ht"], [1, "15115.00"]],
     piege: "Une variable déclarée sans valeur vaut NULL : `@total + 100` donne NULL, sans erreur. Donne une valeur de départ (`= 0`), et une longueur à tes textes : `DECLARE @nom VARCHAR` vaut `VARCHAR(1)` et coupe tout après la 1re lettre.",
+    pratique: "Sur SQL Server, mets les paramètres d'un script en tête, en une seule ligne : `DECLARE @debut DATE = '20260401', @fin DATE = '20260501';`. Pour un autre mois, tu ne changes que cette ligne.",
     motsCles: ["variable", "déclarer", "créer une variable", "stocker", "garder", "mémoriser", "retenir", "valeur", "let", "type", "initialiser", "conserver", "script"],
     voirAussi: ["set-variable", "if-else", "while", "sql-dynamique"],
     module: "m13"
@@ -77,6 +78,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "`@ville` reçoit la ville d'une seule des 2 lignes, souvent la dernière lue (Lyon), sans erreur ni avertissement.",
     piege: "`SELECT @v = col` sur plusieurs lignes garde une seule valeur sans prévenir ; sur zéro ligne, la variable garde son ancienne valeur (piège dans une boucle). Pour une seule valeur, écris `SET @v = (SELECT …)` : il plante s'il y a plusieurs lignes (MySQL et Snowflake refusent aussi), et donne NULL s'il n'y en a aucune.",
+    pratique: "Pour dater un import, prends l'heure une seule fois en tête (`SET @lot = SYSDATETIME();`, MySQL : `NOW()`), puis écris `@lot` dans chaque table : tout l'import porte la même heure, facile à retrouver.",
     motsCles: ["affecter", "assigner", "valeur", "variable", "remplir", "mettre", "stocker", "set", "plusieurs lignes", "into", "résultat", "écraser", "récupérer", "assignation"],
     voirAussi: ["declare", "sous-requete", "top", "while"],
     module: "m13"
@@ -100,6 +102,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "CDE-1005 n'a pas encore de facture : FA-2026-0402 est créée, message « Facture créée ». Relancé, le script affiche « Déjà facturée » et n'insère rien.",
     piege: "Sans `BEGIN … END`, seule la 1re instruction dépend du IF : la suivante s'exécute toujours, même quand la condition est fausse. Et IF ne s'écrit pas dans un SELECT : là, c'est `CASE` (ou `IIF`).",
+    pratique: "Pour un script de déploiement relançable, teste avant de modifier la structure : `IF COL_LENGTH('article', 'ean') IS NULL ALTER TABLE article ADD ean CHAR(13) NULL;` (SQL Server : COL_LENGTH vaut NULL si la colonne n'existe pas).",
     motsCles: ["si", "sinon", "alors", "condition", "test", "tester", "vérifier", "choix", "branche", "elseif", "existe", "déjà", "contrôle", "if"],
     voirAussi: ["case", "iif", "begin-end", "while", "exists"],
     module: "m13"
@@ -123,6 +126,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "3 tours de boucle, 3 UPDATE d'une ligne : CDE-1005, CDE-1006 puis CDE-1007 passent à LIVREE. La version ensembliste fait la même chose en une seule instruction.",
     piege: "Une boucle traite une ligne par tour : sur 100 000 commandes, des minutes au lieu d'une seconde (et sur Snowflake, chaque petite requête coûte). Si la condition n'avance jamais (un UPDATE qui ne change rien), la boucle ne s'arrête plus : il faut l'annuler à la main.",
+    pratique: "Bon usage d'une boucle (SQL Server) : purger une grosse table par lots, `DELETE TOP (1000) … WHERE …` jusqu'à 0 ligne. Une instruction qui pose 5 000 verrous peut bloquer toute la table, et l'ERP attend.",
     motsCles: ["boucle", "répéter", "tant que", "itération", "tour", "une ligne à la fois", "break", "continue", "loop", "recommencer", "ensembliste", "infinie", "lot", "while"],
     voirAussi: ["if-else", "begin-end", "curseur", "update", "rowcount"],
     module: "m13"
@@ -146,6 +150,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["id", "type", "motif"], [3, "ORDERS", "EAN inconnu"], [6, "DESADV", "Quantité ≠ commande"]],
     piege: "`BEGIN … END` n'est pas une transaction : si la 2e instruction plante, la 1re reste faite. Pour « tout ou rien », c'est `BEGIN TRAN … COMMIT` ; et sur MySQL et Snowflake, `BEGIN;` seul (hors bloc) ouvre justement une transaction.",
+    pratique: "Sur Snowflake, un bloc `BEGIN … END` lancé depuis SnowSQL, Snowflake CLI ou `execute_string` (connecteur Python) s'écrit dans `EXECUTE IMMEDIATE $$ … $$;` : sans ces `$$`, erreur de syntaxe en fin de texte.",
     motsCles: ["bloc", "regrouper", "grouper", "plusieurs instructions", "begin", "end", "accolades", "corps", "ensemble", "séquence", "début", "fin"],
     voirAussi: ["if-else", "while", "begin-transaction", "create-procedure", "try-catch"],
     module: "m13"
@@ -169,6 +174,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Tout va bien : CDE-1005 passe à LIVREE et FA-2026-0402 est créée. Si l'INSERT plante (une colonne obligatoire vide, par exemple), le CATCH annule aussi la livraison, puis renvoie l'erreur à l'appelant.",
     piege: "Un CATCH qui ne fait qu'un PRINT « avale » l'erreur : le job de nuit est vu comme réussi, et personne n'est prévenu. Finis toujours par `THROW;` (Snowflake : `RAISE;`, MySQL : `RESIGNAL;`), et sache que CATCH n'attrape pas une faute de nom de table dans le même bloc.",
+    pratique: "Pour que le CATCH attrape aussi une table absente (table d'import pas encore créée), lance cette partie dans une procédure ou par `sp_executesql` : l'erreur naît un niveau plus bas, et le CATCH la reçoit.",
     motsCles: ["erreur", "gérer", "gestion d'erreur", "attraper", "capturer", "exception", "try", "catch", "planter", "échec", "handler", "intercepter", "journaliser", "rattraper"],
     voirAussi: ["throw", "xact-abort", "rollback", "trancount", "begin-end"],
     module: "m13"
@@ -192,6 +198,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Erreur 50001, gravité 16 : « Commande annulée : facturation impossible ». Le lot s'arrête là : aucune facture n'est créée.",
     piege: "`THROW` exige un point-virgule à la fin de l'instruction d'avant : sans lui, erreur de syntaxe. Et préfère THROW à RAISERROR dans le code neuf : THROW respecte XACT_ABORT, RAISERROR non.",
+    pratique: "Pour un message qui cite la valeur en cause, prépare-le dans une variable : `DECLARE @msg NVARCHAR(2048) = CONCAT('Commande ', @cde_id, ' annulée');` puis `THROW 50001, @msg, 1;`. THROW n'accepte pas d'expression directe.",
     motsCles: ["erreur", "lever", "déclencher", "provoquer", "signaler", "arrêter", "stopper", "message", "raise", "signal", "raiserror", "exception", "personnalisée", "règle métier"],
     voirAussi: ["try-catch", "if-else", "rowcount", "xact-abort"],
     module: "m13"
@@ -215,6 +222,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "La procédure est enregistrée dans la base : rien n'est facturé tant qu'on ne l'appelle pas (voir la fiche EXEC).",
     piege: "`CREATE PROCEDURE` plante si la procédure existe déjà : le script de déploiement s'arrête au milieu. Écris `CREATE OR ALTER` (SQL Server), `CREATE OR REPLACE` (Snowflake) ou `DROP PROCEDURE IF EXISTS` juste avant (MySQL) ; et sur MySQL, préfixe les paramètres (`p_cde_id`) : un paramètre nommé comme une colonne prend sa place.",
+    pratique: "Ne nomme pas tes procédures `sp_…` : SQL Server réserve ce préfixe à ses procédures système, et si l'une d'elles porte un jour le même nom, la tienne risque de ne plus s'exécuter. Préfère `p_` ou `usp_`.",
     motsCles: ["procédure", "procédure stockée", "stored procedure", "créer", "enregistrer", "traitement", "paramètre", "réutiliser", "automatiser", "routine", "déployer", "delimiter", "stocker"],
     voirAussi: ["exec", "create-function", "declare", "try-catch", "begin-end"],
     module: "m13"
@@ -238,6 +246,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_fact", "cde_id", "montant_ht", "statut"], ["FA-2026-0402", 5, "318.00", "EMISE"]],
     piege: "Un appel par position (`EXEC p_facturer 5, 6, 'FA-2026-0402'`) se trompe en silence si quelqu'un inverse deux paramètres dans la procédure : la facture part sur la commande 6 au lieu de la 5. Nomme les paramètres (`@cde_id = 5`) : l'ordre ne compte plus, et une faute de nom donne une erreur.",
+    pratique: "Pour réutiliser le résultat d'une procédure, range-le dans une table : `INSERT INTO #resultat (…) EXEC p_nom …;` (SQL Server). La table doit exister avant, avec des colonnes compatibles avec le résultat.",
     motsCles: ["lancer", "exécuter", "appeler", "appel", "procédure", "call", "execute", "paramètre", "nommé", "run", "procédure stockée"],
     voirAussi: ["create-procedure", "sql-dynamique", "declare"],
     module: "m13"
@@ -261,6 +270,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
     piege: "Une fonction scalaire est appelée pour chaque ligne : dans un SELECT sur un million de lignes, c'est un million d'appels, sans parallélisme (SQL Server 2019+ l'intègre parfois à la requête, pas toujours). Pour renvoyer des lignes, préfère une fonction table « inline » (`RETURNS TABLE AS RETURN (SELECT …)`), traitée comme une vue avec paramètres.",
+    pratique: "Sur SQL Server 2019+, vérifie si ta fonction scalaire peut être intégrée à la requête : `SELECT is_inlineable FROM sys.sql_modules WHERE object_id = OBJECT_ID('dbo.f_ttc');` (1 = oui, si la base est en compatibilité 150 ou plus).",
     motsCles: ["udf", "créer", "créer une fonction", "calcul", "réutiliser", "scalaire", "tvf", "fonction utilisateur", "perso", "renvoyer", "returns", "lent", "performance", "formule", "inline"],
     voirAussi: ["create-procedure", "cross-apply", "create-view", "round"],
     module: "m13"
@@ -284,6 +294,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "montant_ht"], ["CDE-1007", "7950.00"], ["CDE-1006", "1290.00"], ["CDE-1005", "318.00"]],
     piege: "Coller une valeur saisie dans le texte (`'… WHERE statut = ''' + @statut + ''''`) ouvre la porte à l'injection SQL : avec la saisie `x' OR '1'='1`, la requête lit toutes les commandes. Passe toujours les valeurs en paramètres, et les noms de table par `QUOTENAME` + une liste autorisée.",
+    pratique: "Avant d'exécuter, affiche le texte construit (`PRINT @sql;`) et relis-le : un espace ou une virgule qui manque se voit tout de suite. PRINT coupe après 4 000 caractères en NVARCHAR : au-delà, `SELECT @sql;`.",
     motsCles: ["dynamique", "texte", "construire", "concaténer", "injection", "paramètre", "exécuter", "chaîne", "variable", "quotename", "execute immediate", "prepare", "sécurité", "critères"],
     voirAussi: ["exec", "declare", "concat", "create-procedure"],
     module: "m13"
@@ -307,6 +318,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "0 ligne modifiée : CDE-1009 n'existe pas. L'erreur 50002 arrête le traitement, au lieu d'un « succès » silencieux.",
     piege: "`@@ROWCOUNT` change après presque chaque instruction (`PRINT`, `COMMIT`, `SET @x = …`) : lu une ligne trop tard, il ne compte plus ton UPDATE ; range-le tout de suite dans une variable. Sur MySQL, `ROW_COUNT()` donne aussi 0 pour CDE-1001, déjà LIVREE : « rien changé » ne veut pas dire « introuvable ».",
+    pratique: "Sur SQL Server, `SET NOCOUNT ON` (en tête de procédure) supprime seulement le message « n lignes affectées » : `@@ROWCOUNT` reste à jour, et tu peux toujours le lire juste après ton UPDATE.",
     motsCles: ["nombre de lignes", "lignes modifiées", "combien", "affectées", "touchées", "vérifier", "contrôle", "rowcount", "row_count", "aucune ligne", "introuvable", "trouvé", "modifiées", "supprimées"],
     voirAussi: ["update", "throw", "if-else", "while"],
     module: "m13"
@@ -330,6 +342,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["total_client_1"], ["15115.00"]],
     piege: "Un curseur traite une ligne à la fois : sur 100 000 lignes, des minutes au lieu d'une seconde. Ici, `SELECT SUM(montant_ht) FROM commande WHERE client_id = 1` donne 15115.00 d'un coup : garde le curseur pour une action vraiment unitaire (un fichier par client…).",
+    pratique: "Sur SQL Server, sans `LOCAL`, le curseur est GLOBAL par défaut (réglage de la base) : il vit jusqu'à la déconnexion, et un script arrêté avant `DEALLOCATE` plante à la relance. `LOCAL` le libère à la fin du lot.",
     motsCles: ["curseur", "une ligne à la fois", "ligne par ligne", "parcourir", "boucle", "fetch", "unitaire", "itérer", "chaque ligne", "lent", "ensembliste", "traiter", "row by row"],
     voirAussi: ["while", "sum", "update", "declare"],
     module: "m13"
@@ -353,6 +366,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: "Onglet Messages : « Flux EDI rejetés : 2 ».",
     piege: "Les PRINT d'un long traitement arrivent souvent tous à la fin (mémoire tampon) : pour suivre en direct, `RAISERROR('…', 0, 1) WITH NOWAIT`. Et un job de nuit n'a pas d'onglet Messages : écris le suivi dans une table de log.",
+    pratique: "Écris `PRINT CONCAT('Flux EDI rejetés : ', @nb);` : CONCAT convertit le nombre tout seul, sans `CAST`, et un NULL n'efface pas tout le message (avec `+`, un NULL donne un message vide).",
     motsCles: ["afficher", "message", "écrire", "suivre", "suivi", "debug", "déboguer", "log", "journal", "console", "progression", "étape", "print", "avancement"],
     voirAussi: ["throw", "concat", "cast", "declare"],
     module: "m13"
