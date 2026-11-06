@@ -443,13 +443,13 @@ LEARNSQL.questions.m09 = [
   },
   {
     id: "m09-q25", dialecte: "SQL Server",
-    q: "Comment mettre à jour une très grosse table par lots de 10 000 lignes ?",
+    q: "Comment mettre à jour une très grosse table par lots de 1 000 lignes ?",
     choixCode: true,
     choix: [
       "UPDATE t SET statut = 'X' WHERE statut <> 'X' (une seule fois)",
-      "Une boucle : UPDATE TOP (10000) t SET statut = 'X' WHERE statut <> 'X'; jusqu'à @@ROWCOUNT = 0",
-      "Une boucle : UPDATE TOP (10000) t SET statut = 'X'; jusqu'à @@ROWCOUNT = 0",
-      "Une boucle : UPDATE t SET statut = 'X' WHERE statut <> 'X' LIMIT 10000; jusqu'à @@ROWCOUNT = 0"
+      "Une boucle : UPDATE TOP (1000) t SET statut = 'X' WHERE statut <> 'X'; jusqu'à @@ROWCOUNT = 0",
+      "Une boucle : UPDATE TOP (1000) t SET statut = 'X'; jusqu'à @@ROWCOUNT = 0",
+      "Une boucle : UPDATE t SET statut = 'X' WHERE statut <> 'X' LIMIT 1000; jusqu'à @@ROWCOUNT = 0"
     ],
     bonne: 1,
     pourquoi: [
@@ -1131,7 +1131,7 @@ LEARNSQL.questions.m09 = [
     bonne: 1,
     pourquoi: [
       "Non. Il commence par des verrous de ligne ; c'est le nombre de verrous qui fait monter à la table.",
-      "Oui. Au-delà d'environ 5 000 verrous, SQL Server remplace les verrous de lignes par un verrou sur toute la table. Supprimer par lots de quelques milliers de lignes évite l'escalade.",
+      "Oui. Au-delà d'environ 5 000 verrous, SQL Server remplace les verrous de lignes par un verrou sur toute la table. Supprimer par lots de moins de 5 000 lignes (1 000, par exemple) évite l'escalade.",
       "Non. DELETE ne verrouille pas toute la base.",
       "Non. Les NULL ne jouent aucun rôle."
     ],

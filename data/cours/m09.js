@@ -41,7 +41,7 @@ LEARNSQL.cours.m09 = {
         "`TRUNCATE` vide toute la table, très vite. Pas de WHERE.",
         "SQL Server : TRUNCATE remet le compteur IDENTITY à zéro.",
         "TRUNCATE est refusé si une clé étrangère pointe vers la table.",
-        "Gros DELETE : par lots (`DELETE TOP (10000) … ` en boucle) pour ne pas bloquer."
+        "Gros DELETE : par petits lots (`DELETE TOP (1000) …` en boucle) : moins de 5 000 verrous par lot, donc pas de verrou sur toute la table."
       ],
       retenir: "DELETE = lignes choisies. TRUNCATE = tout, vite."
     },

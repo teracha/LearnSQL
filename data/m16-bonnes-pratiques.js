@@ -1192,7 +1192,7 @@ LEARNSQL.questions.m16 = [
     bonne: 1,
     pourquoi: [
       "Non. Journal énorme, verrous sur toute la table, utilisateurs bloqués longtemps.",
-      "Oui. `DELETE TOP (50000) … WHERE …` dans une boucle. Ici, la boucle est justifiée : chaque lot reste petit et court.",
+      "Oui. `DELETE TOP (1000) … WHERE …` dans une boucle, jusqu'à 0 ligne. Ici, la boucle est justifiée : chaque lot reste petit et court, sous le seuil d'escalade (5 000 verrous).",
       "Non. Beaucoup trop lent.",
       "Non. On perdrait les lignes à garder."
     ],
