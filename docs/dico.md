@@ -127,9 +127,9 @@ Demandé par l'élève : un second domaine du dico, sur l'ERP Divalto 10.13 (tab
   categorie: "Tables Divalto",     // "Tables Divalto" | "Champs Divalto" | "Vues Divalto" | "Requêtes Dataviz"
   definition: "Les lignes des pièces commerciales : une ligne par article d'une commande, d'un BL ou d'une facture.",
   noms: ["mouvements"],            // facultatif : d'autres noms de la même chose
-  champs: [["PINO", "le numéro de la pièce"], ["REF", "la référence de l'article"]],  // tables et vues : SEULEMENT les
+  champs: [["CDNO", "le numéro de commande"], ["REF", "la référence de l'article"]],  // tables et vues : SEULEMENT les
                                    // champs que la doc décrit, avec le sens qu'elle leur donne
-  liens: ["ENT : l'en-tête de la pièce (une pièce ENT, plusieurs lignes MOUV)"],      // facultatif, s'il est dans la doc
+  liens: ["ENT : l'en-tête ; MOUV.CDNO = ENT.PINO pour une commande, même DOS et TICOD"],  // facultatif, s'il est dans la doc
   indicateurs: ["Client", "Chiffre d'affaires"],   // requêtes Dataviz : ce que la requête affiche
   regles: ["Basé sur les factures de vente (C, CPV)"],  // requêtes Dataviz : les règles de gestion de la doc
   exemple: "SELECT …",             // facultatif : SQL Server ; tiré de la doc, ou écrit avec ce qu'elle décrit
