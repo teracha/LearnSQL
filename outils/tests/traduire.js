@@ -15,10 +15,12 @@ const { chromium } = require('playwright');
   const lignes = () => p.$$eval('#tr-res .tr-l', xs => xs.map(x => x.textContent));
   const verifier = (ok, m) => { if (!ok) errs.push(m); };
 
-  // 1. Le menu, puis la page
+  // 1. Le menu (lien « Outils », docs/outils.md), la carte « Traduire une requête », puis la page
   await p.goto(U + '#/'); await p.waitForTimeout(150);
-  verifier(await p.$('nav a[href="#/traduire"]'), 'lien « Traduire » absent du menu');
-  await p.click('nav a[href="#/traduire"]'); await p.waitForTimeout(150);
+  verifier(!(await p.$('nav a[href="#/traduire"]')), 'le lien « Traduire » est encore dans le menu (il est dans Outils)');
+  verifier(await p.$('nav a[href="#/outils"]'), 'lien « Outils » absent du menu');
+  await p.click('nav a[href="#/outils"]'); await p.waitForTimeout(150);
+  await p.click('#app a[href="#/traduire"]'); await p.waitForTimeout(150);
   const h1 = await p.textContent('h1'); verifier(h1 === 'Traduire une requête', 'titre : ' + h1);
   verifier(await p.isDisabled('#tr-copier'), 'Copier devrait attendre une traduction');
 

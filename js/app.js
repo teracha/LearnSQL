@@ -489,6 +489,9 @@
           return '<tr><td>' + fmt(d[0]) + '</td><td>' + fmt(d[1]) + '</td><td>' + fmt(d[2]) + '</td></tr>';
         }).join('') + '</tbody></table></div>';
     }
+    // Les outils qui mettent ce cours en pratique (champ « cours » des outils, docs/outils.md).
+    var outils = outilsDuCours(id);
+    if (outils.length) html += '<h2>Les outils de ce cours</h2>' + outils.map(carteOutil).join('');
     html += '<div class="actions">' +
       (DATA.questions[id] ? '<a class="btn" href="#/quiz/' + id + '">Faire le QCM</a>' : '') +
       '<a class="btn ghost" href="#/p/' + chaineModule(id).join('/') + '">Retour au parcours</a></div>';
@@ -1922,11 +1925,594 @@
     if (traduireFait && traduireSql) traduire();
   }
 
+  // ---------- Outils (docs/outils.md) ----------
+  // #/outils : une section par sujet (data/outils/sujets.js), une carte par outil. Un sujet lié à un parcours
+  // (parcours: "chef-projet") n'apparaît qu'avec ce parcours (accesOK, comme l'onglet Divalto du dico) ; sinon ses pages
+  // affichent un message court. #/outils/<id> : l'outil et les documents de l'élève ; #/outils/<id>/<doc> : un document ;
+  // #/outils/<id>/exemple : l'exemple, en lecture. Le moteur (calculs, alertes, contrôle d'un fichier, Excel, copie) est
+  // dans js/outils.js (LEARNSQL.outilsMoteur) : ici, seulement l'écran, sans code propre à un outil.
+  // Les documents restent dans ce navigateur (localStorage, clé learnsql-outils) : jamais envoyés, jamais synchronisés.
+  var OUTILS_KEY = "learnsql-outils";
+  var OM = DATA.outilsMoteur;
+  var TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  var outilsSecours = null, outilsStockageKO = false;   // localStorage refusé : les documents vivent le temps de l'onglet
+  var outilCourant = null;   // le document ouvert : { def, doc, lecture }
+  var outilsMessage = "";    // un message pour la page suivante (« Fichier ouvert », « Document supprimé »…)
+
+  function definitionOutil(id) {
+    return (DATA.outils || []).filter(function (d) { return d.id === id; })[0] || null;
+  }
+  // Le sujet qui range cet outil (data/outils/sujets.js).
+  function sujetOutil(def) {
+    return (DATA.outilsSujets || []).filter(function (s) { return s.id === def.sujet && (s.outils || []).indexOf(def.id) >= 0; })[0] || null;
+  }
+  // Un sujet lié à un parcours suit la règle de ce parcours (masquage d'écran, comme les parcours).
+  function sujetVisible(s) {
+    if (!s.parcours) return true;
+    var n = noeud(s.parcours);
+    return accesOK(n ? n.chaine : [s.parcours]);
+  }
+  // Les outils d'un sujet, dans l'ordre : une définition, ou un lien vers une page du site ({ titre, resume, lien }).
+  function outilsDuSujet(s) {
+    return (s.outils || []).map(function (o) { return typeof o === "string" ? definitionOutil(o) : o; }).filter(Boolean);
+  }
+  function carteOutil(o) {
+    return '<a class="card parcours o-carte" href="' + esc(o.lien || "#/outils/" + o.id) + '"><div><h3>' + esc(o.titre) + '</h3>' +
+      '<p>' + fmt(o.resume) + '</p></div><span class="fleche" aria-hidden="true">›</span></a>';
+  }
+  // « Les outils de ce cours » : les outils visibles dont le champ cours contient ce module, dans l'ordre des sujets.
+  function outilsDuCours(mid) {
+    var l = [];
+    (DATA.outilsSujets || []).filter(sujetVisible).forEach(function (s) {
+      outilsDuSujet(s).forEach(function (o) { if (!o.lien && (o.cours || []).indexOf(mid) >= 0) l.push(o); });
+    });
+    return l;
+  }
+  function coursOutil(def) {
+    return (def.cours || []).filter(function (m) { return module(m) && DATA.cours[m] && moduleVisible(m); });
+  }
+  function exporte(def, x) { return !def.export || def.export.indexOf(x) >= 0; }
+  function surClic(id, f) { var b = document.getElementById(id); if (b) b.addEventListener("click", f); }
+  function prendreMessage() { var m = outilsMessage; outilsMessage = ""; return m; }
+  function decoder(t) { try { return decodeURIComponent(t); } catch (e) { return ""; } }
+
+  // Les documents de l'élève : { version: 1, docs: [{ id, outil, nom, cree, maj, contenu }] }.
+  function lireOutils() {
+    var brut = null, s = null;
+    if (outilsStockageKO) return outilsSecours || { version: 1, docs: [] };
+    try { brut = localStorage.getItem(OUTILS_KEY); } catch (e) { outilsStockageKO = true; return outilsSecours || { version: 1, docs: [] }; }
+    try { s = JSON.parse(brut); } catch (e) { s = null; }
+    return s && s.version === 1 && Array.isArray(s.docs) ? s : { version: 1, docs: [] };
+  }
+  function ecrireOutils(s) {
+    outilsSecours = s;
+    try { localStorage.setItem(OUTILS_KEY, JSON.stringify(s)); outilsStockageKO = false; return true; }
+    catch (e) { outilsStockageKO = true; return false; }
+  }
+  function docsOutil(id) {
+    return lireOutils().docs.filter(function (d) { return d && d.outil === id && typeof d.id === "string"; });
+  }
+  function docOutil(id, docId) { return docsOutil(id).filter(function (d) { return d.id === docId; })[0] || null; }
+  function enregistrerDoc(doc) {
+    var s = lireOutils(), trouve = false;
+    doc.maj = new Date().toISOString();
+    s.docs = s.docs.map(function (d) { if (d && d.id === doc.id) { trouve = true; return doc; } return d; });
+    if (!trouve) s.docs.push(doc);
+    return ecrireOutils(s);
+  }
+  function supprimerDoc(docId) {
+    var s = lireOutils();
+    s.docs = s.docs.filter(function (d) { return d && d.id !== docId; });
+    return ecrireOutils(s);
+  }
+  function creerDoc(def, nom, contenu) {
+    var doc = { id: "d" + Date.now().toString(36) + Math.floor(Math.random() * 1679616).toString(36), outil: def.id,
+      nom: String(nom || "").slice(0, OM.MAX.nom), cree: new Date().toISOString(), contenu: contenu };
+    if (!enregistrerDoc(doc)) outilsMessage = "Attention : ce navigateur ne garde pas les documents. Pense à « Enregistrer dans un fichier ».";
+    return doc;
+  }
+  function depuisExemple(def) {
+    var d = creerDoc(def, def.exemple.nom, OM.contenuExemple(def));
+    location.hash = "#/outils/" + def.id + "/" + d.id;
+  }
+
+  // Les fichiers : « registre-des-risques-demat-2027.xlsx », téléchargés sans rien envoyer (Blob dans le navigateur).
+  function nomFichier(def, doc, ext) {
+    var t = sansAccents(def.titre + " " + (doc ? doc.nom || "" : "modele vide")).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
+    return (t || "document") + "." + ext;
+  }
+  function telecharger(nom, donnees, type) {
+    var url = URL.createObjectURL(new Blob([donnees], { type: type })), a = document.createElement("a");
+    a.href = url; a.download = nom; a.hidden = true;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 30000);
+  }
+  function telechargerExcel(def, doc, msg) {
+    try {
+      telecharger(nomFichier(def, doc, "xlsx"), OM.xlsx(OM.classeur(def, doc)), TYPE_XLSX);
+      msg.textContent = doc ? "Fichier Excel téléchargé." : "Modèle Excel téléchargé.";
+    } catch (e) { msg.textContent = "Le fichier Excel n'a pas pu être fait."; }
+  }
+  // Copier : le HTML mis en forme (pour Word, un e-mail) et le texte simple. Replis : l'événement « copy », puis le
+  // texte seul (copierTexte).
+  function copierRiche(html, texte, fini) {
+    function parEvenement() {
+      var ok = false, surCopie = function (e) {
+        if (!e.clipboardData) return;
+        e.clipboardData.setData("text/html", html);
+        e.clipboardData.setData("text/plain", texte);
+        e.preventDefault();
+        ok = true;
+      };
+      document.addEventListener("copy", surCopie);
+      try { document.execCommand("copy"); } catch (e) { ok = false; }
+      document.removeEventListener("copy", surCopie);
+      if (ok) fini(true); else copierTexte(texte, fini);
+    }
+    var item = null;
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+      try {
+        item = new window.ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([texte], { type: "text/plain" }) });
+      } catch (e) { item = null; }
+    }
+    if (item) navigator.clipboard.write([item]).then(function () { fini(true); }, parEvenement);
+    else parEvenement();
+  }
+
+  function pageOutils() {
+    var sujets = DATA.outilsSujets || [], visibles = sujets.filter(sujetVisible);
+    var html = '<h1>Outils</h1><p class="muted">Des outils pour ton travail, rangés par sujet.</p>';
+    visibles.forEach(function (s) {
+      var liste = outilsDuSujet(s);
+      if (liste.length) html += '<section class="o-sujet" id="sujet-' + esc(s.id) + '"><h2>' + esc(s.titre) + '</h2>' +
+        (s.resume ? '<p class="muted">' + fmt(s.resume) + '</p>' : '') + liste.map(carteOutil).join('') + '</section>';
+    });
+    if (visibles.length < sujets.length && !lireSession()) {
+      html += '<p class="muted"><a href="#/compte">Connecte-toi</a> pour voir les autres outils.</p>';
+    }
+    app.innerHTML = html;
+  }
+
+  function pageOutil(id, docId) {
+    var def = OM ? definitionOutil(id) : null, s = def ? sujetOutil(def) : null;
+    if (!def || !s) { location.hash = "#/outils"; return; }
+    if (!sujetVisible(s)) { pageOutilReserve(s); return; }
+    if (docId) pageOutilDoc(def, docId);
+    else pageOutilAccueil(def, s);
+  }
+  // Sans le parcours du sujet : un message court, pas le contenu (même règle que les fiches Divalto du dico).
+  function pageOutilReserve(s) {
+    var n = noeud(s.parcours);
+    app.innerHTML = '<p class="muted"><a href="#/outils">Outils</a></p><h1>Outil réservé</h1>' +
+      '<p>Cet outil fait partie du parcours « ' + esc(n ? n.n.titre : s.titre) + ' ». Il est réservé aux comptes qui ont ce parcours.</p>' +
+      '<div class="actions">' + (lireSession() ? '' : '<a class="btn" href="#/compte">Se connecter</a>') +
+      '<a class="btn ghost" href="#/outils">Retour aux outils</a></div>';
+  }
+
+  function pageOutilAccueil(def, s) {
+    var docs = docsOutil(def.id).sort(function (a, b) { return String(b.maj || "").localeCompare(String(a.maj || "")); });
+    var cours = coursOutil(def), ex = !!def.exemple;
+    app.innerHTML = '<p class="muted"><a href="#/outils">Outils</a> › ' + esc(s.titre) + '</p>' +
+      '<h1>' + esc(def.titre) + '</h1><p class="o-resume">' + fmt(def.resume) + '</p>' +
+      '<div class="card o-guide"><p class="label">Quand s\'en servir</p><p>' + fmt(def.quand) + '</p>' +
+      '<p class="label">Comment faire</p><ol class="o-etapes">' + (def.etapes || []).map(function (e) { return '<li>' + fmt(e) + '</li>'; }).join('') + '</ol>' +
+      (ex ? '<div class="actions"><a class="btn ghost" id="o-voir-exemple" href="#/outils/' + esc(def.id) + '/exemple">Voir l\'exemple</a></div>' : '') +
+      '</div>' +
+      '<h2>Tes documents</h2><p class="muted">Tes documents restent dans ce navigateur : rien n\'est envoyé sur Internet.</p>' +
+      (docs.length ? '<div class="o-docs">' + docs.map(function (d) { return carteDoc(def, d); }).join('') + '</div>' : '<p>Pas encore de document.</p>') +
+      '<div class="actions"><button type="button" class="btn" id="o-nouveau">Nouveau</button>' +
+      (ex ? '<button type="button" class="btn ghost" id="o-depuis-exemple">Partir de l\'exemple</button>' : '') +
+      '<button type="button" class="btn ghost" id="o-ouvrir">Ouvrir un fichier</button></div>' +
+      '<input type="file" id="o-fichier" accept=".json,application/json" hidden>' +
+      '<p id="o-msg" class="muted" role="status">' + esc(prendreMessage()) + '</p>' +
+      (exporte(def, "excel") ? '<h2>Le modèle vide</h2><p class="muted">Pour t\'en servir au travail, sans le site.</p>' +
+        '<div class="actions"><button type="button" class="btn ghost" id="o-modele">Télécharger le modèle vide (Excel)</button></div>' : '') +
+      (cours.length ? '<h2>Dans les cours</h2><ul class="points">' + cours.map(function (m) {
+        return '<li><a href="#/cours/' + esc(m) + '">' + esc(module(m).titre) + '</a></li>';
+      }).join('') + '</ul>' : '');
+    var msg = document.getElementById("o-msg");
+    surClic("o-nouveau", function () {
+      var d = creerDoc(def, "Nouveau document", OM.contenuVide(def));
+      location.hash = "#/outils/" + def.id + "/" + d.id;
+    });
+    surClic("o-depuis-exemple", function () { depuisExemple(def); });
+    surClic("o-modele", function () { telechargerExcel(def, null, msg); });
+    brancherOuvrir(def, msg);
+  }
+  function carteDoc(def, d) {
+    var c = OM.examiner(def, d.contenu).contenu;
+    return '<a class="card parcours o-doc" href="#/outils/' + esc(def.id) + '/' + esc(encodeURIComponent(d.id)) + '"><div>' +
+      '<h3>' + esc(d.nom || "Sans nom") + '</h3><p>' + esc(c ? OM.resumeDocument(def, c) : "Document abîmé") +
+      (d.maj ? ' · modifié le ' + esc(fmtDate(d.maj)) : '') + '</p></div><span class="fleche" aria-hidden="true">›</span></a>';
+  }
+  // « Ouvrir un fichier » : le fichier est contrôlé par le moteur ; un fichier faux donne un message, jamais une erreur.
+  function brancherOuvrir(def, msg) {
+    var entree = document.getElementById("o-fichier");
+    surClic("o-ouvrir", function () { entree.click(); });
+    entree.addEventListener("change", function () {
+      var f = entree.files && entree.files[0];
+      if (!f) return;
+      if (f.size > 2000000) { msg.textContent = "Ce fichier est trop gros pour un document d'outil."; entree.value = ""; return; }
+      var lecteur = new FileReader();
+      lecteur.onload = function () {
+        var r = OM.lireFichier(String(lecteur.result || ""), def, DATA.outils || []);
+        if (!r.ok) { msg.textContent = r.message; return; }
+        var d = creerDoc(def, r.doc.nom, r.doc.contenu);
+        outilsMessage = outilsMessage || "Fichier ouvert : « " + d.nom + " »." +
+          (r.corrections ? " " + r.corrections + " valeur(s) corrigée(s) ou vidée(s)." : "");
+        location.hash = "#/outils/" + def.id + "/" + d.id;
+      };
+      lecteur.onerror = function () { msg.textContent = "Ce fichier n'a pas pu être lu."; };
+      lecteur.readAsText(f);
+      entree.value = "";
+    });
+  }
+
+  // Un document (ou l'exemple, en lecture) : l'éditeur, les totaux, les alertes, les sorties.
+  function pageOutilDoc(def, docId) {
+    var lecture = docId === "exemple", doc = null;
+    if (lecture) doc = def.exemple ? { id: "exemple", nom: def.exemple.nom, contenu: OM.contenuExemple(def) } : null;
+    else {
+      doc = docOutil(def.id, docId);
+      if (doc) doc.contenu = OM.examiner(def, doc.contenu).contenu || OM.contenuVide(def);
+    }
+    var fil = '<p class="muted"><a href="#/outils">Outils</a> › <a href="#/outils/' + esc(def.id) + '">' + esc(def.titre) + '</a></p>';
+    if (!doc) {
+      app.innerHTML = fil + '<h1>Document introuvable</h1><p>Ce document n\'est pas dans ce navigateur. Il a peut-être été ' +
+        'supprimé, ou fait sur un autre appareil.</p><div class="actions"><a class="btn" href="#/outils/' + esc(def.id) + '">Retour à l\'outil</a></div>';
+      return;
+    }
+    outilCourant = { def: def, doc: doc, lecture: lecture };
+    app.classList.add("large");
+    document.body.classList.add("o-imprimable");
+    app.innerHTML = '<div class="o-ecran">' + fil + '<h1>' + esc(def.titre) + '</h1>' +
+      (lecture ? '<p class="o-exemple"><span class="tag">Exemple</span> <strong>' + esc(doc.nom) + '</strong></p>' :
+        '<div class="o-nom"><label for="o-nom">Nom du document</label><input type="text" id="o-nom" maxlength="' + OM.MAX.nom +
+        '" value="' + esc(doc.nom) + '"></div><p class="muted o-local" id="o-etat">Enregistré dans ce navigateur à chaque saisie. Rien n\'est envoyé.</p>') +
+      '<div id="o-editeur" class="o-editeur">' + htmlEditeur(def, doc.contenu, lecture) + '</div>' +
+      '<div id="o-alertes" aria-live="polite"></div>' +
+      '<div class="actions o-sorties">' +
+      (exporte(def, "excel") ? '<button type="button" class="btn" id="o-excel">Télécharger en Excel</button>' : '') +
+      (exporte(def, "copier") ? '<button type="button" class="btn ghost" id="o-copier">Copier</button>' : '') +
+      (exporte(def, "imprimer") ? '<button type="button" class="btn ghost" id="o-imprimer">Imprimer / PDF</button>' : '') + '</div>' +
+      (lecture ? '<div class="actions"><button type="button" class="btn" id="o-depuis-exemple">Partir de cet exemple</button>' +
+        '<a class="btn ghost" href="#/outils/' + esc(def.id) + '">Retour à l\'outil</a></div>' :
+        '<div class="actions"><button type="button" class="btn ghost" id="o-enregistrer">Enregistrer dans un fichier</button>' +
+        '<button type="button" class="btn ghost" id="o-dupliquer">Dupliquer</button>' +
+        '<button type="button" class="btn danger" id="o-supprimer">Supprimer</button></div>') +
+      '<p id="o-msg" class="muted" role="status">' + esc(prendreMessage()) + '</p></div>' +
+      '<div class="o-impression" id="o-impression"></div>';
+    modeZones();
+    majSuivi();
+    brancherEditeur();
+    brancherDocument(def, doc, lecture);
+  }
+  function brancherDocument(def, doc, lecture) {
+    var msg = document.getElementById("o-msg");
+    surClic("o-excel", function () { telechargerExcel(def, doc, msg); });
+    surClic("o-copier", function () {
+      copierRiche(OM.htmlDocument(def, doc), OM.texteDocument(def, doc), function (ok) {
+        msg.textContent = ok ? "Copié : colle-le dans Word ou dans un e-mail." : "Copie impossible : utilise Imprimer / PDF.";
+      });
+    });
+    surClic("o-imprimer", function () { remplirImpression(); window.print(); });
+    if (lecture) { surClic("o-depuis-exemple", function () { depuisExemple(def); }); return; }
+    var nom = document.getElementById("o-nom");
+    nom.addEventListener("input", function () { doc.nom = nom.value.slice(0, OM.MAX.nom); sauverOutil(); });
+    surClic("o-enregistrer", function () {
+      telecharger(nomFichier(def, doc, "json"), OM.fichier(def, doc), "application/json");
+      msg.textContent = "Fichier enregistré. Pour le rouvrir : « Ouvrir un fichier », sur la page de l'outil.";
+    });
+    surClic("o-dupliquer", function () {
+      var d = creerDoc(def, "Copie de " + (doc.nom || "sans nom"), JSON.parse(JSON.stringify(doc.contenu)));
+      outilsMessage = outilsMessage || "Copie faite : tu travailles maintenant sur la copie.";
+      location.hash = "#/outils/" + def.id + "/" + d.id;
+    });
+    surClic("o-supprimer", function () {
+      if (!confirm("Supprimer « " + (doc.nom || "sans nom") + " » ? C'est définitif.")) return;
+      supprimerDoc(doc.id);
+      outilsMessage = "Document supprimé.";
+      location.hash = "#/outils/" + def.id;
+    });
+  }
+
+  // L'éditeur, selon le type de l'outil (tableau, matrice, document). lecture : l'exemple, sans champs.
+  function htmlEditeur(def, c, lecture) {
+    if (def.type === "tableau") return htmlZone(def, "", c.lignes, lecture);
+    if (def.type === "matrice") return htmlMatrice(def, c, lecture);
+    return def.rubriques.map(function (r) { return htmlRubrique(r, c.rubriques[r.id], lecture); }).join('');
+  }
+  // Un tableau (l'outil, ou une rubrique « tableau » d'un document) : un tableau sur PC ; une carte par ligne quand la
+  // place manque, sur téléphone (modeZones). Chaque champ a son étiquette, visible sur les cartes.
+  function htmlZone(t, r, lignes, lecture) {
+    var nomL = OM.ligneDef(t).titre;
+    var html = '<div class="o-zone" data-min="' + largeurMin(t.colonnes) + '"><table class="o-table"><thead><tr><th class="o-n">N°</th>' +
+      t.colonnes.map(function (c) { return '<th>' + esc(c.titre) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      lignes.map(function (l, i) { return htmlLigneZone(t, r, l, i, lecture); }).join('') + '</tbody></table></div>';
+    if (!lignes.length) html += '<p class="muted">Aucune ligne.</p>';
+    if (!lecture) html += '<div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-ligne" data-r="' +
+      esc(r) + '">+ ' + esc(nomL) + '</button></div>';
+    if ((t.totaux || []).length) html += '<div class="o-totaux" data-totaux="' + esc(r) + '"></div>';
+    return html;
+  }
+  function teteLigne(nomL, i, r, lecture) {
+    return '<td class="o-n o-plein"><span class="o-num"><span class="o-cartes-seul">' + esc(nomL) + ' </span>' + (i + 1) + '</span>' +
+      ' <span class="o-marque" hidden>Alerte</span>' + (lecture ? '' : ' <button type="button" class="lien danger o-suppr" ' +
+      'data-action="suppr-ligne" data-r="' + esc(r) + '" data-l="' + i + '" aria-label="Supprimer : ' + esc(nomL) + ' ' + (i + 1) + '">Supprimer</button>') + '</td>';
+  }
+  function htmlLigneZone(t, r, l, i, lecture) {
+    var calc = OM.calculerLigne(t.colonnes, l);
+    return '<tr data-r="' + esc(r) + '" data-l="' + i + '">' + teteLigne(OM.ligneDef(t).titre, i, r, lecture) + t.colonnes.map(function (c) {
+      var id = "o-" + (r ? r + "-" : "") + i + "-" + c.id, large = c.type === "texte" || c.type === "texte-long";
+      var td = '<td class="o-t-' + c.type + (large ? ' o-plein' : '') + '">';
+      if (c.type === "calcul") return td + '<span class="o-lib">' + esc(c.titre) + '</span><span class="o-calc" data-c="' + esc(c.id) + '">' +
+        htmlCalcul(c, calc) + '</span></td>';
+      if (lecture) return td + '<span class="o-lib">' + esc(c.titre) + '</span><span class="o-val">' + esc(OM.texteValeur(c, l[c.id])) +
+        badge(calc.niveaux[c.id]) + '</span></td>';
+      return td + '<label class="o-lib" for="' + id + '">' + esc(c.titre) + '</label>' +
+        champHtml(c, l[c.id], id, 'data-champ="cellule" data-r="' + esc(r) + '" data-l="' + i + '" data-c="' + esc(c.id) + '"') +
+        (c.niveaux ? '<span class="o-calc" data-c="' + esc(c.id) + '">' + badge(calc.niveaux[c.id]) + '</span>' : '') + '</td>';
+    }).join('') + '</tr>';
+  }
+  function htmlCalcul(c, calc) {
+    var v = calc.valeurs[c.id];
+    return v === null || v === undefined ? '<span class="muted">—</span>' : esc(OM.fmtNombre(v)) + badge(calc.niveaux[c.id]);
+  }
+  // Un niveau : toujours un mot, avec sa couleur.
+  function badge(nv) {
+    return nv ? ' <span class="o-niveau o-' + esc(nv.couleur || "neutre") + '">' + esc(nv.libelle) + '</span>' : '';
+  }
+  function champHtml(c, v, id, attrs) {
+    var base = ' id="' + id + '" ' + attrs, aide = c.aide ? ' placeholder="' + esc(c.aide) + '"' : '';
+    v = v === undefined || v === null ? "" : v;
+    if (c.type === "texte-long") return '<textarea' + base + aide + ' rows="2" maxlength="' + OM.MAX.texteLong + '">' + esc(v) + '</textarea>';
+    if (c.type === "date") return '<input type="date"' + base + ' value="' + esc(v) + '">';
+    if (c.type === "nombre") return '<input type="text" inputmode="decimal"' + base + aide + ' value="' + esc(String(v).replace(".", ",")) + '">';
+    if (c.type === "choix") {
+      var k = OM.indexValeur(c.valeurs, v);
+      return '<select' + base + '><option value="">—</option>' + c.valeurs.map(function (x, j) {
+        return '<option value="' + esc(String(x)) + '"' + (j === k ? ' selected' : '') + '>' + esc(OM.texteChoix(c, j)) + '</option>';
+      }).join('') + '</select>';
+    }
+    return '<input type="text"' + base + aide + ' maxlength="' + OM.MAX.texte + '" value="' + esc(v) + '">';
+  }
+  // La matrice : les colonnes que l'élève ajoute (personnes…), puis une ligne par livrable, une valeur par case.
+  function htmlMatrice(def, c, lecture) {
+    var nomC = def.colonne.titre, html = '';
+    if (!lecture) html = '<section class="o-rubrique"><h2 class="o-h2">' + esc(def.colonne.pluriel || nomC + "s") + '</h2>' +
+      (def.colonne.aide ? '<p class="muted">' + fmt(def.colonne.aide) + '</p>' : '') + '<ul class="o-items">' + c.colonnes.map(function (n, k) {
+        return '<li><label class="o-lib" for="o-col-' + k + '">' + esc(nomC) + ' ' + (k + 1) + '</label><input type="text" id="o-col-' + k +
+          '" data-champ="colonne" data-k="' + k + '" maxlength="' + OM.MAX.nom + '" value="' + esc(n) + '" placeholder="' + esc(nomC) + ' ' + (k + 1) + '">' +
+          '<button type="button" class="lien danger" data-action="suppr-colonne" data-k="' + k + '" aria-label="Supprimer : ' + esc(nomC) + ' ' +
+          (k + 1) + '">Supprimer</button></li>';
+      }).join('') + '</ul><div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-colonne">+ ' +
+      esc(nomC) + '</button></div></section>';
+    return html + '<section class="o-rubrique"><h2 class="o-h2">' + esc(def.ligne.pluriel || def.ligne.titre + "s") + '</h2>' +
+      '<p class="o-legende">' + def.valeurs.map(function (v, k) {
+        return '<strong>' + esc(v) + '</strong> = ' + esc(def.libelles ? def.libelles[k] : v);
+      }).join(' · ') + '</p><div id="o-matrice">' + htmlMatriceTable(def, c, lecture) + '</div>' +
+      (lecture ? '' : '<div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-ligne" data-r="">+ ' +
+        esc(def.ligne.titre) + '</button></div>') + '</section>';
+  }
+  function htmlMatriceTable(def, c, lecture) {
+    var nomL = def.ligne.titre, choix = { type: "choix", valeurs: def.valeurs };
+    var noms = c.colonnes.map(function (n, k) { return n || def.colonne.titre + " " + (k + 1); });
+    return '<div class="o-zone o-matrice" data-min="' + (270 + 64 * noms.length) + '"><table class="o-table"><thead><tr><th class="o-n">N°</th>' +
+      '<th>' + esc(nomL) + '</th>' + noms.map(function (n) { return '<th class="o-case">' + esc(n) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      c.lignes.map(function (l, i) {
+        return '<tr data-r="" data-l="' + i + '">' + teteLigne(nomL, i, "", lecture) + '<td class="o-plein">' +
+          (lecture ? '<span class="o-lib">' + esc(nomL) + '</span><span class="o-val">' + esc(l.nom) + '</span>' :
+            '<label class="o-lib" for="o-m-' + i + '">' + esc(nomL) + '</label><input type="text" id="o-m-' + i + '" data-champ="nom-ligne" data-l="' + i +
+            '" maxlength="' + OM.MAX.nom + '" value="' + esc(l.nom) + '"' + (def.ligne.aide ? ' placeholder="' + esc(def.ligne.aide) + '"' : '') + '>') + '</td>' +
+          noms.map(function (n, k) {
+            var id = "o-m-" + i + "-" + k;
+            return '<td class="o-case' + (lecture && OM.estVide(l.cases[k]) ? ' o-vide' : '') + '">' + (lecture ?
+              '<span class="o-lib">' + esc(n) + '</span><span class="o-val">' + esc(l.cases[k] || "") + '</span>' :
+              '<label class="o-lib" for="' + id + '">' + esc(n) + '</label>' + champHtml(choix, l.cases[k], id, 'data-champ="case" data-l="' + i + '" data-k="' + k + '"')) + '</td>';
+          }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>' + (c.lignes.length ? '' : '<p class="muted">Aucune ligne.</p>');
+  }
+  // Une rubrique d'un document : un champ, une liste (une ligne par élément) ou un tableau.
+  function htmlRubrique(r, v, lecture) {
+    var id = "o-r-" + r.id, titre = '<h2 class="o-h2">' + esc(r.titre) + '</h2>';
+    if (r.type === "tableau") return '<section class="o-rubrique">' + titre + htmlZone(r, r.id, v, lecture) + '</section>';
+    if (r.type === "liste") {
+      var nomL = OM.ligneDef(r).titre, items = v.filter(function (x) { return !OM.estVide(x); });
+      if (lecture) return '<section class="o-rubrique">' + titre + (items.length ? '<ul class="points o-val">' + items.map(function (x) {
+        return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="muted">—</p>') + '</section>';
+      return '<section class="o-rubrique">' + titre + (r.aide ? '<p class="muted">' + fmt(r.aide) + '</p>' : '') + '<ul class="o-items">' +
+        v.map(function (x, k) {
+          return '<li><label class="o-lib" for="' + id + '-' + k + '">' + esc(nomL) + ' ' + (k + 1) + '</label><textarea id="' + id + '-' + k +
+            '" data-champ="item" data-r="' + esc(r.id) + '" data-i="' + k + '" rows="2" maxlength="' + OM.MAX.texte + '">' + esc(x) + '</textarea>' +
+            '<button type="button" class="lien danger" data-action="suppr-item" data-r="' + esc(r.id) + '" data-i="' + k + '" aria-label="Supprimer : ' +
+            esc(nomL) + ' ' + (k + 1) + '">Supprimer</button></li>';
+        }).join('') + '</ul><div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-item" data-r="' +
+        esc(r.id) + '">+ ' + esc(nomL) + '</button></div></section>';
+    }
+    if (lecture) return '<div class="o-rubrique o-champ"><p class="label">' + esc(r.titre) + '</p><p class="o-val">' +
+      (OM.estVide(v) ? '—' : esc(OM.texteValeur(r, v))) + '</p></div>';
+    return '<div class="o-rubrique o-champ"><label for="' + id + '">' + esc(r.titre) + '</label>' +
+      champHtml(r, v, id, 'data-champ="rubrique" data-r="' + esc(r.id) + '"') + '</div>';
+  }
+  // La largeur (px) sous laquelle un tableau passe en cartes : la somme des largeurs utiles de ses colonnes
+  // (une liste de choix : la largeur de son plus long choix).
+  function largeurMin(cols) {
+    return cols.reduce(function (t, c) {
+      if (c.type === "choix") return t + 34 + 8.5 * Math.max.apply(null, c.valeurs.map(function (v, k) { return OM.texteChoix(c, k).length; }));
+      return t + ({ "texte-long": 150, texte: 110, date: 140, nombre: 80, calcul: c.niveaux ? 120 : 70 }[c.type] || 110);
+    }, 70);
+  }
+  function modeZones() {
+    Array.prototype.forEach.call(app.querySelectorAll(".o-zone[data-min]"), function (z) {
+      var cartes = z.clientWidth < Number(z.getAttribute("data-min"));
+      if (z.classList.contains("o-cartes") !== cartes) z.classList.toggle("o-cartes", cartes);
+    });
+  }
+
+  // La saisie : le document est mis à jour, les calculs et les alertes aussi, et tout est enregistré tout de suite.
+  function brancherEditeur() {
+    var ed = document.getElementById("o-editeur");
+    if (!ed || !outilCourant || outilCourant.lecture) return;
+    ed.addEventListener("input", function (e) { surSaisie(e.target); });
+    ed.addEventListener("change", function (e) { surSaisie(e.target); });
+    ed.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-action]") : null;
+      if (b && ed.contains(b)) surAction(b);
+    });
+  }
+  function rubriqueDe(def, r) { return (def.rubriques || []).filter(function (x) { return x.id === r; })[0] || null; }
+  function tableauDe(def, r) { return r ? rubriqueDe(def, r) : def; }
+  function lignesDe(def, c, r) { return r ? c.rubriques[r] : c.lignes; }
+  function colonneDe(t, id) { return t ? t.colonnes.filter(function (x) { return x.id === id; })[0] || null : null; }
+  function valeurChamp(c, el) {
+    var v = el.value;
+    if (c.type === "choix") { var k = OM.indexValeur(c.valeurs, v); return k < 0 ? "" : c.valeurs[k]; }
+    if (c.type === "date") return OM.jour(v) === null ? "" : v;
+    if (c.type === "nombre") {
+      var n = OM.lireNombre(v), faux = v.trim() !== "" && n === null;
+      el.classList.toggle("o-invalide", faux);
+      if (faux) el.setAttribute("aria-invalid", "true"); else el.removeAttribute("aria-invalid");
+      return n === null ? "" : n;
+    }
+    return v.slice(0, c.type === "texte-long" ? OM.MAX.texteLong : OM.MAX.texte);
+  }
+  function surSaisie(el) {
+    var oc = outilCourant, champ = el.getAttribute ? el.getAttribute("data-champ") : null;
+    if (!oc || oc.lecture || !champ) return;
+    var def = oc.def, c = oc.doc.contenu, r = el.getAttribute("data-r") || "";
+    var l = Number(el.getAttribute("data-l")), k = Number(el.getAttribute("data-k")), i = Number(el.getAttribute("data-i"));
+    if (champ === "cellule") {
+      var t = tableauDe(def, r), col = colonneDe(t, el.getAttribute("data-c")), ligne = (lignesDe(def, c, r) || [])[l];
+      if (!col || !ligne) return;
+      ligne[col.id] = valeurChamp(col, el);
+      majCalculs(t, r, l, ligne);
+    } else if (champ === "rubrique") {
+      var rub = rubriqueDe(def, r);
+      if (rub) c.rubriques[r] = valeurChamp(rub, el);
+    } else if (champ === "item") {
+      if (c.rubriques[r]) c.rubriques[r][i] = el.value.slice(0, OM.MAX.texte);
+    } else if (champ === "nom-ligne") {
+      if (c.lignes[l]) c.lignes[l].nom = el.value.slice(0, OM.MAX.nom);
+    } else if (champ === "case") {
+      if (c.lignes[l]) c.lignes[l].cases[k] = valeurChamp({ type: "choix", valeurs: def.valeurs }, el);
+    } else if (champ === "colonne") {
+      c.colonnes[k] = el.value.slice(0, OM.MAX.nom);
+      nommerColonne(def, k, c.colonnes[k]);
+    }
+    majSuivi();
+    sauverOutil();
+  }
+  // Renommer une colonne de la matrice : l'en-tête et les étiquettes changent sur place (refaire le tableau ferait perdre
+  // la case que l'élève vient de cliquer).
+  function nommerColonne(def, k, nom) {
+    var t = nom || def.colonne.titre + " " + (k + 1), th = app.querySelectorAll("#o-matrice th.o-case")[k];
+    if (th) th.textContent = t;
+    Array.prototype.forEach.call(app.querySelectorAll("#o-matrice tbody tr"), function (tr) {
+      var td = tr.querySelectorAll("td.o-case")[k], lib = td ? td.querySelector(".o-lib") : null;
+      if (lib) lib.textContent = t;
+    });
+  }
+  function majCalculs(t, r, l, ligne) {
+    var tr = app.querySelector('#o-editeur tr[data-r="' + r + '"][data-l="' + l + '"]');
+    if (!tr) return;
+    var calc = OM.calculerLigne(t.colonnes, ligne);
+    Array.prototype.forEach.call(tr.querySelectorAll(".o-calc"), function (s) {
+      var col = colonneDe(t, s.getAttribute("data-c"));
+      if (col) s.innerHTML = col.type === "calcul" ? htmlCalcul(col, calc) : badge(calc.niveaux[col.id]);
+    });
+  }
+  // Les totaux sous chaque tableau, la marque « Alerte » des lignes, et les alertes en phrases sous le document.
+  function majSuivi() {
+    var oc = outilCourant;
+    if (!oc) return;
+    var s = OM.suivi(oc.def, oc.doc.contenu);
+    Array.prototype.forEach.call(app.querySelectorAll("[data-totaux]"), function (z) {
+      var r = z.getAttribute("data-totaux"), t = s.totaux.filter(function (x) { return x.rubrique === r; });
+      z.innerHTML = t.length ? '<p class="label">Totaux</p><ul class="o-liste">' + t.map(function (x) {
+        return '<li>' + esc(x.libelle) + ' : <strong>' + esc(x.texte) + '</strong></li>';
+      }).join('') + '</ul>' : '';
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("#o-editeur tr[data-l]"), function (tr) {
+      var r = tr.getAttribute("data-r") || "", l = Number(tr.getAttribute("data-l")), m = tr.querySelector(".o-marque");
+      if (m) m.hidden = !s.alertes.some(function (a) { return a.rubrique === r && a.ligne === l; });
+    });
+    var boite = document.getElementById("o-alertes");
+    if (boite) boite.innerHTML = !OM.aDesAlertes(oc.def) ? '' : s.alertes.length ?
+      '<div class="o-alertes"><p class="label">Alertes</p><ul>' + s.alertes.map(function (a) { return '<li>' + esc(a.texte) + '</li>'; }).join('') + '</ul></div>' :
+      '<p class="o-sans-alerte">Aucune alerte.</p>';
+  }
+  function sauverOutil() {
+    var oc = outilCourant;
+    if (!oc || oc.lecture) return;
+    var ok = enregistrerDoc(oc.doc), etat = document.getElementById("o-etat");
+    if (etat) etat.textContent = ok ? "Enregistré dans ce navigateur à chaque saisie. Rien n'est envoyé." :
+      "Attention : ce navigateur n'enregistre pas. Utilise « Enregistrer dans un fichier » avant de partir.";
+  }
+  // Ajouter ou supprimer une ligne, une colonne (matrice), un élément de liste : l'éditeur est refait.
+  function surAction(b) {
+    var oc = outilCourant;
+    if (!oc || oc.lecture) return;
+    var def = oc.def, c = oc.doc.contenu, a = b.getAttribute("data-action"), r = b.getAttribute("data-r") || "", focus = "";
+    var l = Number(b.getAttribute("data-l")), k = Number(b.getAttribute("data-k")), i = Number(b.getAttribute("data-i"));
+    if (a === "ajouter-ligne") {
+      if (def.type === "matrice") {
+        c.lignes.push({ nom: "", cases: c.colonnes.map(function () { return ""; }) });
+        focus = "#o-m-" + (c.lignes.length - 1);
+      } else {
+        var ls = lignesDe(def, c, r);
+        ls.push(OM.ligneVide(tableauDe(def, r).colonnes));
+        focus = '#o-editeur tr[data-r="' + r + '"][data-l="' + (ls.length - 1) + '"] [data-champ]';
+      }
+    } else if (a === "suppr-ligne") {
+      var liste = def.type === "matrice" ? c.lignes : lignesDe(def, c, r);
+      var remplie = def.type === "matrice" ? !OM.estVide(liste[l]) : OM.ligneRemplie(tableauDe(def, r).colonnes, liste[l]);
+      if (remplie && !confirm("Supprimer la ligne " + (l + 1) + " ? Ce qu'elle contient sera perdu.")) return;
+      liste.splice(l, 1);
+      focus = '#o-editeur [data-action="ajouter-ligne"][data-r="' + r + '"]';
+    } else if (a === "ajouter-colonne") {
+      c.colonnes.push("");
+      c.lignes.forEach(function (x) { x.cases.push(""); });
+      focus = "#o-col-" + (c.colonnes.length - 1);
+    } else if (a === "suppr-colonne") {
+      var pleine = !OM.estVide(c.colonnes[k]) || c.lignes.some(function (x) { return !OM.estVide(x.cases[k]); });
+      if (pleine && !confirm("Supprimer la colonne « " + (c.colonnes[k] || k + 1) + " » et ses cases ?")) return;
+      c.colonnes.splice(k, 1);
+      c.lignes.forEach(function (x) { x.cases.splice(k, 1); });
+      focus = '#o-editeur [data-action="ajouter-colonne"]';
+    } else if (a === "ajouter-item") {
+      c.rubriques[r].push("");
+      focus = "#o-r-" + r + "-" + (c.rubriques[r].length - 1);
+    } else if (a === "suppr-item") {
+      if (!OM.estVide(c.rubriques[r][i]) && !confirm("Supprimer cette ligne ? Ce qu'elle contient sera perdu.")) return;
+      c.rubriques[r].splice(i, 1);
+      focus = '#o-editeur [data-action="ajouter-item"][data-r="' + r + '"]';
+    } else return;
+    document.getElementById("o-editeur").innerHTML = htmlEditeur(def, c, false);
+    modeZones();
+    majSuivi();
+    sauverOutil();
+    var cible = focus ? app.querySelector(focus) : null;
+    if (cible) cible.focus();
+  }
+  // Imprimer / PDF : le document mis en forme (le même HTML que Copier) ; le CSS d'impression n'imprime que lui.
+  function remplirImpression() {
+    var z = document.getElementById("o-impression"), oc = outilCourant;
+    if (!z || !oc) return;
+    z.className = "o-impression" + (oc.def.type === "document" ? "" : " o-paysage");
+    z.innerHTML = OM.htmlDocument(oc.def, oc.doc);
+  }
+  window.addEventListener("beforeprint", remplirImpression);
+  window.addEventListener("resize", modeZones);
+
   // ---------- Routeur ----------
   function route() {
     var h = location.hash.replace(/^#\/?/, "");
     var parts = h.split("/");
     window.scrollTo(0, 0);
+    outilCourant = null;
+    app.classList.remove("large");
+    document.body.classList.remove("o-imprimable");
     if (parts[0] !== "compte") messageCompte = "";
     if (parts[0] === "quiz" && parts[1]) demarrerQuiz(parts[1], parts[2], parts[3]);
     else if (parts[0] === "cours" && parts[1]) pageCours(parts[1]);
@@ -1942,6 +2528,10 @@
     else if (parts[0] === "equipe") pageEquipe(parts[1]);
     else if (parts[0] === "dico") pageDico(parts[1]);
     else if (parts[0] === "traduire") pageTraduire();
+    else if (parts[0] === "outils") {
+      if (parts[1]) pageOutil(decoder(parts[1]), parts[2] ? decoder(parts[2]) : "");
+      else pageOutils();
+    }
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);
