@@ -28,18 +28,18 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q02",
     "dialecte": "Divalto 10.13",
-    "q": "Commande client : tu saisis 50 unités d'un article de contremarque. Le stock est vide. Que t'affiche Divalto sur le disponible ?",
+    "q": "Commande client : tu saisis 50 unités d'un article de contremarque. Le stock est vide. Que fait Divalto ?",
     "choix": [
-      "Une alerte de disponible insuffisant",
-      "Un blocage de la ligne de commande",
-      "Une proposition de réserver le stock",
-      "Rien, cette alerte n'est pas activée"
+      "Il affiche l'alerte de disponible insuffisant",
+      "Il bloque la ligne faute de stock",
+      "Il propose de réserver sur le stock",
+      "Il n'affiche pas d'alerte de disponible"
     ],
     "bonne": 3,
     "pourquoi": [
       "Non. Pour un article contremarqué, le message « Disponible insuffisant. Voulez-vous consulter le disponible ? » n'est pas activé.",
       "Non. La ligne n'est pas bloquée : la contremarque sert justement à acheter ce qui manque.",
-      "Non. Divalto ne propose pas de réservation sur le stock : l'achat se fait par la contremarque.",
+      "Non. Rien n'est proposé à la saisie de la quantité : l'alerte sur le disponible n'est pas activée.",
       "Oui. Pour un article de contremarque, l'alerte « Disponible insuffisant » n'est pas activée. Le stock et le disponible restent consultables par clic droit sur la quantité."
     ],
     "retenir": "Article de contremarque : pas d'alerte « Disponible insuffisant » en saisie de commande.",
@@ -106,7 +106,7 @@ LEARNSQL.questions.dv03 = [
     ],
     "bonne": 3,
     "pourquoi": [
-      "Non. La directe ne passe avant qu'à couleur égale. Une ligne rouge, même réceptionnée, passe avant une ligne verte.",
+      "Non. La page dit que la directe « prend le dessus », mais sa règle détaillée la fait passer avant seulement à couleur égale. Une ligne rouge, même réceptionnée, passe avant une ligne verte.",
       "Non. Divalto ne mélange pas les lignes : il reprend le type et la couleur de la ligne la plus problématique.",
       "Non. Il n'y a pas de couleur moyenne : on montre le pire cas, pour pousser à ouvrir l'arbre.",
       "Oui. Ordre : directe rouge, puis réceptionnée rouge, puis directe orange, réceptionnée orange, directe verte, réceptionnée verte. Ici, pas de directe rouge : la pièce est « réceptionnée rouge »."
@@ -124,7 +124,7 @@ LEARNSQL.questions.dv03 = [
     "choix": [
       "Une famille de réappro dans le dossier",
       "La règle de gestion CBN de l'article",
-      "La sous-fiche de réappro du fournisseur",
+      "Les conditions de réappro du fournisseur",
       "Un tarif de contremarque chez ce fournisseur"
     ],
     "bonne": 2,
@@ -134,7 +134,7 @@ LEARNSQL.questions.dv03 = [
       "Oui. Les sous-fiches « conditions de réapprovisionnement » (bouton Fournisseur) ne sont pas créées toutes seules. La contremarque y lit le délai, la quantité minimale et le multiple.",
       "Non. Le tarif de contremarque donne un prix. Il ne porte ni délai, ni minimum, ni multiple."
     ],
-    "retenir": "Contremarque : délai, minimum et multiple viennent de la sous-fiche « conditions de réapprovisionnement ». Elle n'est pas créée toute seule.",
+    "retenir": "Contremarque : délai, minimum et multiple viennent des « conditions de réapprovisionnement » du fournisseur. Sans l'option du dossier, elles ne sont pas créées toutes seules.",
     "source": {
       "titre": "Contremarque : Conditions de réapprovisionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704719911/Contremarque+Conditions+de+r+approvisionnement"
@@ -166,21 +166,21 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q08",
     "dialecte": "Divalto 10.13",
-    "q": "Une commande provisoire de contremarque attend chez ton fournisseur de pompes. Un client a besoin d'une pompe en urgence, livrée en direct. Comment lancer une commande active sans toucher à la provisoire ?",
+    "q": "Une commande provisoire de contremarque attend chez ton fournisseur de pompes. Un client a besoin d'une pompe en urgence, livrée chez lui par le fournisseur. Comment lancer une commande active sans toucher à la provisoire ?",
     "choix": [
-      "Cocher D ou A dans l'arbitrage",
+      "Cocher la case Direct dans l'arbitrage",
       "Activer d'abord la commande provisoire",
       "Supprimer la provisoire puis relancer",
       "Passer par une demande d'achat urgente"
     ],
     "bonne": 0,
     "pourquoi": [
-      "Oui. Depuis la V10.9, la ligne est affectée par défaut à la provisoire. En urgence, on coche D (direct), ou A (actif) en indirect : une commande active est créée, la provisoire ne bouge pas.",
+      "Oui. Depuis la V10.9, avec l'option du dossier, la ligne va par défaut sur la provisoire. En urgence, on coche la case D « Direct » : une commande directe active est créée, la provisoire ne bouge pas.",
       "Non. La provisoire sert à grouper les besoins jusqu'au bon volume. L'activer maintenant l'enverrait trop tôt, avec ses autres lignes.",
-      "Non. Rien à supprimer : les cases D et A suffisent.",
+      "Non. Rien à supprimer : la case D suffit. En indirect, c'est la case A « Actif ».",
       "Non. Une demande d'achat ajoute une étape. La contremarque crée directement la commande."
     ],
-    "retenir": "Urgence en contremarque : case D (direct) ou A (actif) pour une commande active ; la provisoire reste en attente.",
+    "retenir": "Urgence en contremarque : case D pour une directe, case A pour une indirecte active ; la provisoire reste en attente.",
     "source": {
       "titre": "Commandes provisoires en contremarque (V10.5)",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704719860/Commandes+provisoires+en+contremarque+V10.5"
@@ -267,7 +267,7 @@ LEARNSQL.questions.dv03 = [
     ],
     "bonne": 2,
     "pourquoi": [
-      "Non. Depuis la V10.12, on peut modifier les quantités à livrer proposées : pas besoin d'attendre.",
+      "Non. Un ancien paragraphe de la page exige une « livraison totale ». Depuis la V10.12, on peut modifier les quantités à livrer : pas besoin d'attendre.",
       "Non. On ne peut pas dépasser la quantité livrable.",
       "Oui. Depuis la V10.12, la quantité à livrer se modifie : une ligne à 0 ne figure pas sur le BL client. Il faut au moins une ligne non nulle pour valider.",
       "Non. Inutile de supprimer : une quantité à livrer à 0 suffit, la ligne n'est pas sur ce BL client."
@@ -401,7 +401,7 @@ LEARNSQL.questions.dv03 = [
       "L'administration des propositions CBN",
       "La supervision des demandes d'achat",
       "La relance de pièce fournisseur",
-      "L'Aide à l'Achat, par fournisseur"
+      "L'Aide à l'Achat en vue fournisseur"
     ],
     "bonne": 3,
     "pourquoi": [
@@ -421,7 +421,7 @@ LEARNSQL.questions.dv03 = [
     "dialecte": "Divalto 10.13",
     "q": "Deux acheteurs utilisent l'Aide à l'Achat en même temps. Comment éviter qu'ils traitent le même fournisseur ?",
     "choix": [
-      "Réserver le fournisseur, puis le libérer",
+      "Réserver le fournisseur puis le libérer",
       "Marquer ses lignes avec la touche F5",
       "Changer le fournisseur des propositions",
       "Lancer chacun sa propre collecte"
@@ -445,7 +445,7 @@ LEARNSQL.questions.dv03 = [
     "q": "Aide à l'Achat : une proposition regroupe 100 venus du CBN et 50 d'une demande d'achat, soit 150. Tu retiens 120 et tu génères la commande. Que deviennent les deux sources ?",
     "choix": [
       "Le CBN est traité, la demande garde 30",
-      "Les deux gardent un reste de 30",
+      "Les deux se partagent le reste de 30",
       "Toutes deux traitées et verrouillées",
       "Rien n'est verrouillé avant la réception"
     ],
@@ -453,10 +453,10 @@ LEARNSQL.questions.dv03 = [
     "pourquoi": [
       "Non. La demande d'achat ne garde pas de solde : elle est considérée comme traitée.",
       "Non. Aucun reste n'est gardé : les sources sont verrouillées en totalité.",
-      "Oui. Si la quantité retenue est plus petite que la quantité calculée et couvre en partie une source, toutes les sources sont traitées en totalité et verrouillées. La demande d'achat passe périmée, liée à la commande.",
+      "Oui. 120 ne couvre pas les deux sources en entier : une source est couverte en partie. Dans ce cas, toutes les sources sont traitées en totalité et verrouillées, et la demande d'achat passe périmée, liée à la commande.",
       "Non. Le verrouillage se fait à la génération de la commande, pour éviter les doublons."
     ],
-    "retenir": "Aide à l'Achat : générer la commande verrouille toutes les sources, même si tu retiens moins que calculé.",
+    "retenir": "Aide à l'Achat : si tu retiens moins que calculé et couvres une source en partie, toutes les sources sont quand même verrouillées.",
     "source": {
       "titre": "Ecran d'administration des résultats",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704721667/Ecran+d+administration+des+r+sultats"
@@ -474,8 +474,8 @@ LEARNSQL.questions.dv03 = [
     ],
     "bonne": 1,
     "pourquoi": [
-      "Non. 50 €, c'est 25 % de 200 € : la part du poids est mal appliquée.",
-      "Oui. On prend d'abord 50 % des frais : 100 €. Puis on répartit au poids : 75 % de 100 € = 75 € sur les pompes.",
+      "Non. 50 €, c'est appliquer 50 % deux fois (50 % de 100 €). La 2e étape prend la part du poids des pompes : 75 %.",
+      "Oui. 50 % de 200 € = 100 € à répartir, puis 75 % de 100 € au poids = 75 € sur les pompes. Attention : l'exemple chiffré de la page contient des erreurs de calcul.",
       "Non. 100 €, c'est la part à répartir (50 % de 200 €). Il faut encore appliquer les 75 % du poids.",
       "Non. 150 €, c'est 75 % de 200 € : le pourcentage du type de frais est oublié."
     ],
@@ -521,7 +521,7 @@ LEARNSQL.questions.dv03 = [
     "bonne": 3,
     "pourquoi": [
       "Non. Sur une fiche terminée, on ne peut plus lier de frais ni de produits, ni lancer de calcul.",
-      "Non. Inutile : une fiche terminée peut être réactivée, et les produits de l'import sont déjà liés à cette fiche.",
+      "Non. On crée une fiche par importation, et celle-ci existe déjà avec ses produits liés. Une fiche terminée se réactive.",
       "Non. Le calcul est impossible sur une fiche terminée, et la nouvelle facture n'est pas encore liée.",
       "Oui. On remet la fiche au statut Actif (liste des fiches de frais d'approche). Puis on lie la facture et on relance le calcul."
     ],
@@ -718,9 +718,9 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q32",
     "dialecte": "Divalto 10.13",
-    "q": "Relance ARC par mail, avec un processus. À qui les mails partent-ils chez le fournisseur ?",
+    "q": "Relance ARC par mail, avec un processus. À qui les mails partent-ils ?",
     "choix": [
-      "À l'e-mail de la fiche fournisseur",
+      "À l'adresse e-mail de la fiche fournisseur",
       "À l'acheteur indiqué sur la commande",
       "Au contact principal de la commande",
       "Aux contacts ayant le code fonction prévu"
@@ -728,7 +728,7 @@ LEARNSQL.questions.dv03 = [
     "bonne": 3,
     "pourquoi": [
       "Non. Le mail vise des contacts précis : ceux qui gèrent les commandes chez le fournisseur.",
-      "Non. L'acheteur travaille chez toi : c'est le fournisseur qu'on relance.",
+      "Non. L'acheteur travaille chez toi : les mails partent chez le fournisseur, qu'on relance.",
       "Non. Ce n'est pas un contact par commande : ce sont les contacts qui portent le code fonction choisi.",
       "Oui. Un code est mis dans le dossier (onglet Pièces 2, Contacts de destination, champ Commande) et sur les contacts du fournisseur (groupe Fonctions). Chaque fournisseur reçoit un seul mail avec tout ce qui le concerne."
     ],
@@ -764,7 +764,7 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q34",
     "dialecte": "Divalto 10.13",
-    "q": "Sur la période, un fournisseur a 10 réceptions qualité. 2 sont en retard. Une autre a un défaut. Quel est son taux sans incident ?",
+    "q": "Sur la période, un fournisseur a 10 réceptions qualité. 2 sont en retard. Une autre a un défaut. Les autres sont à l'heure, sans défaut. Quel est son taux sans incident ?",
     "choix": [
       "70 %",
       "80 %",
@@ -774,11 +774,11 @@ LEARNSQL.questions.dv03 = [
     "bonne": 0,
     "pourquoi": [
       "Oui. Taux sans incident = réceptions sans incident délai ni incident fournisseur / total. 10 – 2 – 1 = 7, donc 7 / 10 = 70 %.",
-      "Non. 80 %, c'est le taux dans délai : il ne compte que les retards.",
+      "Non. 80 %, c'est le taux dans délai : il ne compte que les incidents de délai (ici, les 2 retards).",
       "Non. 90 %, c'est en ne comptant que le défaut. Les retards sont aussi des incidents.",
       "Non. Les retards et les défauts sont des incidents : le taux baisse."
     ],
-    "retenir": "Taux dans délai = réceptions sans retard / total ; taux sans incident = ni retard ni défaut / total.",
+    "retenir": "Taux dans délai = réceptions sans incident de délai (niveau A) / total ; taux sans incident = ni incident de délai ni défaut / total.",
     "source": {
       "titre": "Suivi Fournisseur",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705868831/Suivi+Fournisseur"
@@ -820,7 +820,7 @@ LEARNSQL.questions.dv03 = [
     "bonne": 3,
     "pourquoi": [
       "Non. Le barème donne les tranches, mais le calcul automatique de l'écart n'est pas fait en standard.",
-      "Non. Même avec des réceptions qualité générées depuis Achat-Vente, le calcul de l'écart demande un développement.",
+      "Non. Par défaut, une réception est jugée « A », délai respecté. Le calcul automatique de l'écart demande une surcharge.",
       "Non. Le niveau délai se juge à la réception, pas sur la commande.",
       "Oui. Pour un niveau délai automatique, il faut une surcharge fonctionnelle du programme de saisie réception, qui calcule l'écart en jours. Sinon, on choisit le niveau à la main, avec les libellés du barème."
     ],
@@ -835,8 +835,8 @@ LEARNSQL.questions.dv03 = [
     "dialecte": "Divalto 10.13",
     "q": "Indicateur combiné d'un fournisseur, avec les poids livrés à la création du dossier Qualité. Quel critère pèse le plus ?",
     "choix": [
-      "La conformité",
-      "Le respect du délai",
+      "La conformité des produits",
+      "Le respect des délais annoncés",
       "L'évaluation commerciale",
       "L'organisation du système"
     ],
@@ -861,7 +861,7 @@ LEARNSQL.questions.dv03 = [
       "Ils gardent leur qualification",
       "Ils passent au niveau D",
       "Ils deviennent non valides",
-      "Ils sont déqualifiés"
+      "Ils perdent leur qualification"
     ],
     "bonne": 3,
     "pourquoi": [
@@ -948,7 +948,7 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q42",
     "dialecte": "Divalto 10.13",
-    "q": "Un article n'a de consommations que depuis 8 mois : 140 au total. Comment le calcul du stock de sécurité obtient-il la moyenne ?",
+    "q": "Analyse des consommations (V10.8) : un article n'a de consommations que depuis 8 mois, 140 au total. Quelle moyenne mensuelle est retenue ?",
     "choix": [
       "140 / 12 = 11,7, sur toute l'année",
       "140 / 8 = 17,5, dès le 1er mois utile",
@@ -958,11 +958,11 @@ LEARNSQL.questions.dv03 = [
     "bonne": 1,
     "pourquoi": [
       "Non. Les mois vides du début ne comptent pas : on ne divise pas par 12.",
-      "Oui. On compte les mois à partir du premier mois significatif, le premier avec une quantité : 140 / 8 = 17,5 (exemple de la doc, V10.8).",
+      "Oui. On compte les mois à partir du premier avec une quantité : 140 / 8 = 17,5. L'exemple de la page (V10.8) porte sur un article indicé, et la page dit que ce calcul vaut aussi pour les autres.",
       "Non. Le calcul se fait avec l'historique disponible, sans attendre 12 mois.",
       "Non. La moyenne = somme des consommations constatées / nombre de mois."
     ],
-    "retenir": "Moyenne des consommations : on divise par le nombre de mois depuis la 1re consommation, pas toujours par 12.",
+    "retenir": "Stock de sécurité (V10.8) : la moyenne divise par le nombre de mois depuis la 1re consommation, pas toujours par 12.",
     "source": {
       "titre": "Analyse des besoins (analyse des consommations)",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704721265/Analyse+des+besoins+analyse+des+consommations"
@@ -982,10 +982,10 @@ LEARNSQL.questions.dv03 = [
     "pourquoi": [
       "Non. 17,12 oublie le coefficient du taux de service (1,96).",
       "Non. 28,07 multiplie par 21 / 30 sans prendre la racine carrée.",
-      "Oui. Stock de sécurité = écart-type × coefficient × √(jours de couverture / 30) = 20,46 × 1,96 × √(21 / 30) ≈ 33,55.",
+      "Oui. Depuis la V10.8 : écart-type × coefficient × √(jours de couverture / 30) = 20,46 × 1,96 × √(21 / 30) ≈ 33,55. L'ancienne formule de la même page divise encore par 360.",
       "Non. 40,10 = 20,46 × 1,96 : il manque le facteur de couverture √(21 / 30)."
     ],
-    "retenir": "Stock de sécurité = écart-type × coefficient du taux de service × √(jours de couverture / 30).",
+    "retenir": "Stock de sécurité (V10.8) = écart-type × coefficient du taux de service × √(jours de couverture / 30).",
     "source": {
       "titre": "Analyse des besoins (analyse des consommations)",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704721265/Analyse+des+besoins+analyse+des+consommations"
@@ -1052,7 +1052,7 @@ LEARNSQL.questions.dv03 = [
       "Oui. Le programme d'intégration comptable traite le code opération de l'en-tête de pièce : c'est lui qui donne le journal.",
       "Non. Le journal ne change pas ligne par ligne : il vient de l'en-tête.",
       "Non. L'ordre des lignes ne compte pas : seul l'en-tête compte pour le journal.",
-      "Non. La fiche fournisseur ne porte pas le journal : il est paramétré sur le code opération."
+      "Non. Le journal est paramétré sur le code opération, et c'est celui de l'en-tête qui est traité."
     ],
     "retenir": "Intégration comptable : le journal vient du code opération de l'en-tête de pièce.",
     "source": {
@@ -1090,7 +1090,7 @@ LEARNSQL.questions.dv03 = [
     "choix": [
       "Les deux articles, un tarif chacun",
       "Celui du dépôt principal du dossier",
-      "La première ligne trouvée, dépôt ignoré",
+      "La 1re ligne trouvée, dépôt ignoré",
       "Aucun, le doublon est signalé"
     ],
     "bonne": 2,
@@ -1201,7 +1201,7 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q53",
     "dialecte": "Divalto 10.13",
-    "q": "WMS : ton paramétrage RF a la coche « Interdire la ligne de réception si non présente sur la commande ». La commande prévoit 20 rouleaux. Tu en scannes 25. Que se passe-t-il ?",
+    "q": "WMS : ton paramétrage RF a la coche « Interdire la ligne de réception si non présente sur la commande ». La commande prévoit 20 rouleaux. Tu en saisis 25 au terminal. Que se passe-t-il ?",
     "choix": [
       "Les 25 entrent, la commande s'ajuste",
       "20 entrent, et 5 passent en litige",
@@ -1226,7 +1226,7 @@ LEARNSQL.questions.dv03 = [
     "dialecte": "Divalto 10.13",
     "q": "Réception sur un dépôt WMS, avec contrôle qualité demandé. Le contrôle est fait. Où le valider pour mettre à jour la pièce et le stock WMS ?",
     "choix": [
-      "Sur le terminal WMS, pour tout le BL",
+      "Sur le terminal WMS pour tout le BL",
       "Coche du BL fournisseur dans Divalto",
       "Dans le rapport de contrôle du lot",
       "En rangeant le stock WMS à sa place"
@@ -1247,19 +1247,19 @@ LEARNSQL.questions.dv03 = [
   {
     "id": "dv03-q55",
     "dialecte": "Divalto 10.13",
-    "q": "Tu saisis un Incoterm sur une commande fournisseur. Quels contrôles Divalto fait-il dessus ?",
+    "q": "Tu saisis un Incoterm sur une commande fournisseur. Quel contrôle Divalto fait-il dessus ?",
     "choix": [
-      "Les contrôles bloquants de la vente",
-      "Un contrôle avec le mode de transport",
-      "Un blocage si le lieu n'est pas saisi",
-      "Aucun contrôle bloquant, c'est informatif"
+      "Les mêmes contrôles bloquants qu'en vente",
+      "Un contrôle de cohérence avec le transport",
+      "Aucun, sauf si le lieu Incoterm est vide",
+      "Aucun contrôle bloquant en pièce d'achat"
     ],
     "bonne": 3,
     "pourquoi": [
       "Non. Les contrôles bloquants de l'Incoterm sont réservés aux pièces client.",
-      "Non. Aucun contrôle n'est fait sur l'Incoterm côté fournisseur.",
-      "Non. Le lieu n'est pas contrôlé sur une pièce fournisseur.",
-      "Oui. Sur les pièces fournisseur, l'Incoterm (onglet Complément, code et lieu) est purement informatif. Les contrôles bloquants ne se font que sur les pièces client."
+      "Non. Aucun contrôle n'est fait sur l'Incoterm d'une pièce fournisseur.",
+      "Non. Le lieu n'est pas contrôlé non plus : sur une pièce fournisseur, rien n'est bloquant.",
+      "Oui. Sur les pièces fournisseur, l'Incoterm (onglet Complément, code et lieu) est une donnée informative. Les contrôles bloquants ne se font que sur les pièces client."
     ],
     "retenir": "Incoterm sur une pièce fournisseur : informatif ; contrôles bloquants seulement côté client.",
     "source": {
@@ -1348,7 +1348,7 @@ LEARNSQL.questions.dv03 = [
     ],
     "bonne": 3,
     "pourquoi": [
-      "Non. Le widget ne regarde pas les factures, mais la date de dernière opération de la fiche.",
+      "Non. Le critère n'est pas l'année civile : c'est la date de dernière opération de la fiche, sur 12 mois glissants.",
       "Non. Une commande ouverte n'est pas le critère : c'est la date de dernière opération.",
       "Non. Le chiffre d'affaires sert au widget Top 10 fournisseurs, pas à celui des actifs.",
       "Oui. Actif = date de dernière opération de la fiche ≥ date du jour – 12 mois ; inactif = strictement avant. Cette date bouge à la création, la modification ou la suppression d'une pièce (page « Le fournisseur »)."
