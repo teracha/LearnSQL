@@ -268,10 +268,11 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
 .onglet:hover { color: var(--accent); }
 .onglet:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .onglet.actif { color: var(--accent); border-bottom-color: var(--accent); }
+.fiche-dv { overflow-wrap: anywhere; }   /* un long code (« ART.COMPETCOD = … ») passe à la ligne sur mobile */
 .fiche-dv .label { margin-top: 16px; }
 .fiche-dv .label:first-child { margin-top: 0; }
 .champs th, .champs td { vertical-align: top; }
-.champs td:first-child { white-space: nowrap; }
+.champs td:first-child code { white-space: nowrap; }   /* une case de plusieurs champs passe à la ligne entre eux */
 .fiche-tete strong.titre, .fiche-nom.titre, .puce.titre { font-family: inherit; }
 .fiche-tete strong, .fiche-nom, .puce { overflow-wrap: anywhere; }
 

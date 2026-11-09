@@ -138,6 +138,8 @@ Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. S
 - Onglet « Divalto » (fiches `domaine: "divalto"`, ids `dv-…`, dans `data/dico/divalto.js`) : seulement si `accesOK(["divalto"])`,
   sinon pas d'onglet et une fiche `dv-…` affiche un message. Onglet gardé (`learnsql-dico-domaine`) ; la recherche ne
   cherche que dans l'onglet choisi ; Traduire ne renvoie que vers des fiches SQL. Test : `outils/tests/dico-divalto.js`.
+  Recherche Divalto : réglages en plus (`DICO_REGLAGES`) ; test `node outils/tests/recherche-divalto.js` (123 questions
+  de l'expert au rang 1, 0 échec). Les 5 harnais SQL du scratchpad doivent garder une sortie identique.
 - Étape 3 (à venir) : fiches perso de l'élève, privées, dans son compte.
 
 ## Traduire une requête

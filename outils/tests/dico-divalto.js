@@ -15,7 +15,7 @@ const FICHES = [
     voirAussi: ['dv-test-ent', 'inner-join', 'dv-test-pino'], source: src('mouv') },
   { id: 'dv-test-ent', nom: 'ENT', type: 'table', domaine: 'divalto', categorie: 'Tables Divalto',
     definition: "L'en-tête des pièces commerciales : une ligne par commande, BL ou facture.",
-    champs: [['PINO', 'le numéro de la pièce'], ['TICOD', 'le type de tiers']],
+    champs: [['DOS / PINO', 'le dossier et le numéro de la pièce'], ['TICOD', 'le type de tiers']],
     motsCles: ['entete', 'en-tete', 'piece', 'commande', 'facture', 'bon de livraison', 'tiers', 'client'], source: src('ent') },
   { id: 'dv-test-pino', nom: 'PINO', type: 'champ', domaine: 'divalto', categorie: 'Champs Divalto',
     definition: "Le numéro d'une pièce : il relie l'en-tête et ses lignes.",
@@ -134,6 +134,8 @@ const MESSAGE = 'Cette fiche fait partie du dico Divalto, réservé aux comptes 
   await attendu('PINO', ['dv-test-pino', 'dv-test-ent', 'dv-test-mouv']);       // la fiche du champ, puis les tables qui l'ont
   const carte = await p.$eval('.fiche-res[href="#/dico/dv-test-mouv"]', x => x.textContent).catch(() => '(pas de carte)');
   verifier(/Champ PINO : le numéro de la pièce/.test(carte), 'la carte de MOUV ne dit pas son champ PINO : ' + carte);
+  const carteEnt = await p.$eval('.fiche-res[href="#/dico/dv-test-ent"]', x => x.textContent).catch(() => '(pas de carte)');
+  verifier(/Champ DOS \/ PINO : le dossier/.test(carteEnt), 'la carte de ENT ne dit pas sa case « DOS / PINO » : ' + carteEnt);
   await attendu('TICOD', ['dv-test-ent']);
   await attendu('lignes de commande', ['dv-test-mouv']);
   await attendu('mouvements', ['dv-test-mouv']);
@@ -175,6 +177,11 @@ const MESSAGE = 'Cette fiche fait partie du dico Divalto, réservé aux comptes 
   verifier(f.sources.join() === 'Page de test mouv|https://divalto.atlassian.net/wiki/test-mouv|noopener' && /Source : Page de test mouv/.test(f.texte), 'MOUV : source');
   verifier(!f.moteurs && !/Indicateurs|Règles de gestion|Version/.test(f.texte), 'MOUV : bloc en trop');
   await largeur('fiche MOUV');
+  // Une case qui groupe plusieurs champs : chaque code a sa police code, seul PINO (qui a sa fiche) est un lien.
+  await fiche('dv-test-ent');
+  const caseGroupee = await p.$eval('.champs tbody tr td', td => ({ codes: Array.from(td.querySelectorAll('code')).map(c => c.textContent),
+    liens: Array.from(td.querySelectorAll('a')).map(a => a.textContent + ' ' + a.hash) }));
+  verifier(caseGroupee.codes.join() === 'DOS,PINO' && caseGroupee.liens.join() === 'PINO #/dico/dv-test-pino', 'ENT : case « DOS / PINO » ' + JSON.stringify(caseGroupee));
   f = await fiche('dv-test-ca');
   verifier(f.h1 === "Chiffre d'affaires par client" && !/JetBrains/.test(f.police), 'requête : titre ' + f.police);
   verifier(f.labels.join() === 'Indicateurs,Règles de gestion' && f.points.join('|') === "Client|Chiffre d'affaires|Basé sur les factures de vente (C, CPV)", 'requête : ' + f.labels.join() + ' ' + f.points.join('|'));

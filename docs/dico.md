@@ -100,8 +100,13 @@ Sans IA, sans service externe, dans le navigateur :
   (une ou deux lettres de différence, ou même squelette de consonnes : « carreceete » ≈ « caractère »), mot de la
   définition ;
 - les fiches les mieux notées s'affichent ; si aucune ne passe le seuil, les plus proches quand même, avec un message.
-- la recherche ne cherche que dans l'onglet choisi (SQL ou Divalto), avec ses propres poids ; dans l'onglet Divalto, le
-  nom d'un champ (`champs`) compte aussi, moins que le nom de la fiche (« PINO » : la fiche du champ, puis ses tables).
+- la recherche ne cherche que dans l'onglet choisi (SQL ou Divalto), avec ses propres poids. L'onglet SQL garde la
+  recherche ci-dessus. L'onglet Divalto a des réglages en plus (`DICO_REGLAGES` dans `js/app.js`) :
+  - le nom d'un champ compte, moins que le nom de la fiche (« PINO » : la fiche du champ, puis les tables qui l'ont) ;
+    seulement un code, pas un mot courant comme « référence » ; une case « DOS / TICOD » compte pour chaque champ ;
+  - un mot tapé seul (« commande ») donne d'abord la table (ENT), puis le champ, avant les vues et les requêtes ;
+  - une faute sur un nom entier (« fiche fourniseur », « clinet ») ou sur un mot-clé de plusieurs mots est tolérée ;
+  - test : `node outils/tests/recherche-divalto.js` (les 123 questions de l'expert, chacune au rang 1).
 
 ## Le dico Divalto
 
