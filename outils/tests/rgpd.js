@@ -1,4 +1,5 @@
-// RGPD : pages légales, aucun appel externe, suppression de son compte, comptes inactifs et suppression par l'admin.
+// RGPD : pages légales, aucun appel externe, suppression de son compte (et, si l'élève le veut, de ses notes et de ses
+// documents des outils sur cet appareil), comptes inactifs et suppression par l'admin.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(process.env.CHR ? { executablePath: process.env.CHR } : {});
@@ -7,7 +8,8 @@ const { chromium } = require('playwright');
   p.on('pageerror', e => errs.push(e.message));
   p.on('request', r => { const u = r.url(); if (!u.startsWith('file:') && !u.includes('supabase.co')) externes.push(u); });
   let reponseDialogue = '';
-  p.on('dialog', d => d.type() === 'prompt' ? d.accept(reponseDialogue) : d.accept());
+  const questions = [];
+  p.on('dialog', d => { questions.push(d.message()); return d.type() === 'prompt' ? d.accept(reponseDialogue) : d.accept(); });
   const ilYa3ans = new Date(Date.now() - 3 * 365 * 86400000).toISOString();
   let moi = { id: 'u1', email: 'admin@x.fr', role: 'admin' };
   await p.route('https://kkugxebgeteijhxijohk.supabase.co/**', async r => {
@@ -29,6 +31,10 @@ const { chromium } = require('playwright');
   verifie('mentions : hébergeur', (await texte()).includes('GitHub, Inc.') && (await texte()).includes('Terasoft'));
   await p.goto(U + '#/confidentialite');
   verifie('confidentialité : CNIL et 2 ans', (await texte()).includes('CNIL') && (await texte()).includes('2 ans'));
+  const conf = await texte();
+  verifie('confidentialité : les documents des outils (dans le navigateur, jamais envoyés, pas effacés à la déconnexion, comment les effacer)',
+    conf.includes('Les documents des outils') && conf.includes('restent dans ton navigateur') && conf.includes('jamais envoyés à un serveur, et jamais synchronisés') &&
+    conf.includes('pas effacés quand tu te déconnectes') && conf.includes('« Effacer tous mes documents »') && !!(await p.$('#app a[href="#/outils"]')));
   verifie('liens en pied de page', !!(await p.$('footer a[href="#/mentions"]')) && !!(await p.$('footer a[href="#/confidentialite"]')));
   await p.goto(U + '#/compte');
   verifie('info à la création', (await texte()).includes('Confidentialité'));
@@ -45,9 +51,13 @@ const { chromium } = require('playwright');
   await p.goto(U + '#/compte'); await p.click('details:has(#supprimer-compte) summary');
   reponseDialogue = 'non'; await p.click('#supprimer-compte'); await p.waitForTimeout(200);
   verifie('confirmation refusée : rien', rpc.length === 1);
+  await p.evaluate(() => localStorage.setItem('learnsql-outils', JSON.stringify({ version: 1, docs: [{ id: 'd1', outil: 'gp-risques', nom: 'Mon registre', contenu: { lignes: [] } }] })));
   reponseDialogue = 'SUPPRIMER'; await p.click('#supprimer-compte'); await p.waitForTimeout(500);
   verifie('suppression de mon compte', rpc[1] === 'supprimer_mon_compte {}');
   verifie('déconnecté ensuite', (await p.evaluate(() => localStorage.getItem('learnsql-session'))) === null && (await texte()).includes('Ton compte a été supprimé'));
+  verifie('« oui » à « Effacer aussi tes notes… » : les documents des outils sont effacés aussi',
+    questions.some(q => q === 'Compte supprimé. Effacer aussi tes notes et tes documents des outils de CET appareil ?') &&
+    (await p.evaluate(() => localStorage.getItem('learnsql-outils'))) === null);
   verifie('aucun appel externe (Google…)', externes.length === 0);
   if (externes.length) console.log(externes);
   console.log('errors', errs); await b.close();

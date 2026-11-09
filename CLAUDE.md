@@ -161,14 +161,18 @@ Page `#/traduire`, ouverte à tous, sans compte. Spécification : `docs/traducte
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
 - Sujets : `data/outils/sujets.js` (SQL : le dico et Traduire, ouverts à tous ; Gestion de projet : `parcours:
-  "chef-projet"`, visible seulement si `accesOK`, sinon ses pages donnent un message court).
+  "chef-projet"`, visible seulement si `accesOK`, sinon ses pages donnent un message court ; ses outils rangés en 4
+  étapes, `groupes` : Cadrer, Piloter, Décider, Livrer).
 - Un outil = un fichier `data/outils/<id>.js` (`LEARNSQL.outils = (LEARNSQL.outils || []).concat([...])`), chargé dans
   `index.html`. Trois types : `tableau`, `document`, `matrice`. 12 outils de gestion de projet (définis par l'expert
   chef de projet ; règles et mots des cours cp03 à cp21, exemples DEMAT 2027).
 - Moteur sans `eval` : `js/outils.js` (`LEARNSQL.outilsMoteur` : expressions et formules Excel, calculs, alertes,
   totaux, contrôle d'un fichier, texte, HTML, `.xlsx` fait sans bibliothèque). Écran : bloc « Outils » de `js/app.js`.
-- Documents de l'élève : dans le navigateur seulement (`learnsql-outils`), jamais envoyés ; fichier `.json` pour les
-  garder ou changer d'ordinateur. Sorties : Excel (avec ses formules), Copier, Imprimer / PDF.
+- Cases vides (site et Excel, même résultat) : vide = 0 dans une somme ou une différence ; dans un produit ou un
+  quotient, calcul vide et une alerte qui dit quelle case manque (`docs/outils.md`, « Les expressions »).
+- Documents de l'élève : dans le navigateur seulement (`learnsql-outils`), jamais envoyés, pas effacés à la
+  déconnexion (« Effacer tous mes documents » en bas de `#/outils`) ; fichier `.json` pour les garder ou changer
+  d'ordinateur. Sorties : Excel (avec ses formules), Copier, Imprimer / PDF.
 - La page d'un cours (`#/cours/cpXX`) montre « Les outils de ce cours » (champ `cours` des outils).
 - `node outils/verifier.js` contrôle les définitions ; tests : `node outils/tests/outils-moteur.js` (avec openpyxl ;
   `OUTILS_LIBREOFFICE=1` : LibreOffice recalcule les formules) et `outils/tests/outils.js` (navigateur, dans `lancer.sh`).

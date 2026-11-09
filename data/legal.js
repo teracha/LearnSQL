@@ -1,7 +1,7 @@
 // Mentions légales et politique de confidentialité (HTML affiché tel quel par js/app.js).
 // À mettre à jour si l'hébergeur, les sous-traitants ou les données collectées changent.
 LEARNSQL.legal = {
-  maj: "29 octobre 2026",
+  maj: "9 novembre 2026",
 
   mentions:
     '<h2>Éditeur</h2>' +
@@ -49,6 +49,15 @@ LEARNSQL.legal = {
     '<li>Ce stockage sert seulement au fonctionnement du site : il ne demande pas de consentement.</li>' +
     '</ul>' +
 
+    '<h2>Les documents des outils</h2>' +
+    '<ul class="points">' +
+    '<li>Les documents que tu remplis dans les <a href="#/outils">Outils</a> (registre des risques, note de cadrage…) restent dans ton navigateur.</li>' +
+    '<li>Ils ne sont jamais envoyés à un serveur, et jamais synchronisés avec ton compte.</li>' +
+    '<li>Ils ne sont pas effacés quand tu te déconnectes.</li>' +
+    '<li>Pour les effacer : bouton « Effacer tous mes documents », en bas de la page <a href="#/outils">Outils</a>. Ou « Supprimer », dans chaque document.</li>' +
+    '<li>Sur un ordinateur partagé, efface-les avant de partir.</li>' +
+    '</ul>' +
+
     '<h2>Avec un compte : quelles données ?</h2>' +
     '<ul class="points">' +
     '<li>Ton adresse e-mail.</li>' +
@@ -83,7 +92,7 @@ LEARNSQL.legal = {
     '<ul class="points">' +
     '<li>Tant que ton compte est actif.</li>' +
     '<li>Un compte sans activité depuis 2 ans est signalé à l\'admin, puis supprimé.</li>' +
-    '<li>Tu peux supprimer ton compte toi-même à tout moment : page <a href="#/compte">Compte</a>. Tout est effacé : e-mail, progression, groupes.</li>' +
+    '<li>Tu peux supprimer ton compte toi-même à tout moment : page <a href="#/compte">Compte</a>. Tout est effacé : e-mail, progression, groupes. Le site te demande aussi s\'il faut effacer tes notes et tes documents des outils de cet appareil.</li>' +
     '</ul>' +
 
     '<h2>Tes droits</h2>' +

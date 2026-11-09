@@ -491,7 +491,7 @@
     }
     // Les outils qui mettent ce cours en pratique (champ « cours » des outils, docs/outils.md).
     var outils = outilsDuCours(id);
-    if (outils.length) html += '<h2>Les outils de ce cours</h2>' + outils.map(carteOutil).join('');
+    if (outils.length) html += '<h2>Les outils de ce cours</h2>' + outils.map(function (o) { return carteOutil(o); }).join('');
     html += '<div class="actions">' +
       (DATA.questions[id] ? '<a class="btn" href="#/quiz/' + id + '">Faire le QCM</a>' : '') +
       '<a class="btn ghost" href="#/p/' + chaineModule(id).join('/') + '">Retour au parcours</a></div>';
@@ -961,8 +961,9 @@
         }).then(function () {
           ecrireSession(null);
           etatSync = "";
-          if (confirm("Compte supprimé. Effacer aussi tes notes de CET appareil ?")) {
+          if (confirm("Compte supprimé. Effacer aussi tes notes et tes documents des outils de CET appareil ?")) {
             try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignoré */ }
+            effacerDocsOutils();
           }
           messageCompte = "Ton compte a été supprimé.";
           majNav();
@@ -1937,14 +1938,21 @@
   var TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   var outilsSecours = null, outilsStockageKO = false;   // localStorage refusé : les documents vivent le temps de l'onglet
   var outilCourant = null;   // le document ouvert : { def, doc, lecture }
-  var outilsMessage = "";    // un message pour la page suivante (« Fichier ouvert », « Document supprimé »…)
+  // Un message pour la page suivante (« Fichier ouvert », « Document supprimé »…) : un texte, ou { texte, details }.
+  var outilsMessage = "";
+  var STOCKAGE_KO = "Attention : ce navigateur n'enregistre pas tes documents. Ils seront perdus en fermant l'onglet : " +
+    "utilise « Enregistrer dans un fichier » avant de partir.";
 
   function definitionOutil(id) {
     return (DATA.outils || []).filter(function (d) { return d.id === id; })[0] || null;
   }
+  // Les outils d'un sujet, dans l'ordre : sa liste, ou celles de ses groupes (étapes).
+  function entreesSujet(s) {
+    return s.groupes ? s.groupes.reduce(function (l, g) { return l.concat(g.outils || []); }, []) : (s.outils || []);
+  }
   // Le sujet qui range cet outil (data/outils/sujets.js).
   function sujetOutil(def) {
-    return (DATA.outilsSujets || []).filter(function (s) { return s.id === def.sujet && (s.outils || []).indexOf(def.id) >= 0; })[0] || null;
+    return (DATA.outilsSujets || []).filter(function (s) { return s.id === def.sujet && entreesSujet(s).indexOf(def.id) >= 0; })[0] || null;
   }
   // Un sujet lié à un parcours suit la règle de ce parcours (masquage d'écran, comme les parcours).
   function sujetVisible(s) {
@@ -1952,12 +1960,15 @@
     var n = noeud(s.parcours);
     return accesOK(n ? n.chaine : [s.parcours]);
   }
-  // Les outils d'un sujet, dans l'ordre : une définition, ou un lien vers une page du site ({ titre, resume, lien }).
-  function outilsDuSujet(s) {
-    return (s.outils || []).map(function (o) { return typeof o === "string" ? definitionOutil(o) : o; }).filter(Boolean);
+  // Des outils, dans l'ordre : une définition, ou un lien vers une page du site ({ titre, resume, lien }).
+  function outilsDe(liste) {
+    return (liste || []).map(function (o) { return typeof o === "string" ? definitionOutil(o) : o; }).filter(Boolean);
   }
-  function carteOutil(o) {
-    return '<a class="card parcours o-carte" href="' + esc(o.lien || "#/outils/" + o.id) + '"><div><h3>' + esc(o.titre) + '</h3>' +
+  function outilsDuSujet(s) { return outilsDe(entreesSujet(s)); }
+  // h : le niveau du titre de la carte (h4 sous une étape, sinon h3).
+  function carteOutil(o, h) {
+    h = h === "h4" ? "h4" : "h3";
+    return '<a class="card parcours o-carte" href="' + esc(o.lien || "#/outils/" + o.id) + '"><div><' + h + '>' + esc(o.titre) + '</' + h + '>' +
       '<p>' + fmt(o.resume) + '</p></div><span class="fleche" aria-hidden="true">›</span></a>';
   }
   // « Les outils de ce cours » : les outils visibles dont le champ cours contient ce module, dans l'ordre des sujets.
@@ -1974,6 +1985,16 @@
   function exporte(def, x) { return !def.export || def.export.indexOf(x) >= 0; }
   function surClic(id, f) { var b = document.getElementById(id); if (b) b.addEventListener("click", f); }
   function prendreMessage() { var m = outilsMessage; outilsMessage = ""; return m; }
+  // Un message : un texte, ou { texte, details: [...] } (ce qui a été corrigé ou coupé à l'ouverture d'un fichier).
+  function htmlMessage(m) {
+    if (!m) return "";
+    if (typeof m === "string") return esc(m);
+    return '<span>' + esc(m.texte) + '</span>' + (m.details && m.details.length ?
+      '<ul>' + m.details.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>' : '');
+  }
+  function montrer(el, m) { if (el) el.innerHTML = htmlMessage(m); }
+  // Le nom d'un document : « Sans nom » s'il n'a que des espaces.
+  function nomDoc(d) { return String((d && d.nom) || "").replace(/\s+/g, " ").trim() || "Sans nom"; }
   function decoder(t) { try { return decodeURIComponent(t); } catch (e) { return ""; } }
 
   // Les documents de l'élève : { version: 1, docs: [{ id, outil, nom, cree, maj, contenu }] }.
@@ -1988,6 +2009,21 @@
     outilsSecours = s;
     try { localStorage.setItem(OUTILS_KEY, JSON.stringify(s)); outilsStockageKO = false; return true; }
     catch (e) { outilsStockageKO = true; return false; }
+  }
+  // Le navigateur garde-t-il les documents ? Un essai d'écriture (la même valeur), dès l'ouverture d'une page d'outil :
+  // le message juste, tout de suite, et un seul.
+  function stockageOutilsOK() {
+    try {
+      var v = localStorage.getItem(OUTILS_KEY);
+      localStorage.setItem(OUTILS_KEY, v === null ? '{"version":1,"docs":[]}' : v);
+      if (v === null) localStorage.removeItem(OUTILS_KEY);
+    } catch (e) { outilsStockageKO = true; }
+    return !outilsStockageKO;
+  }
+  // « Effacer tous mes documents » (page Outils) et « Supprimer mon compte » : plus rien des outils dans ce navigateur.
+  function effacerDocsOutils() {
+    outilsSecours = null;
+    try { localStorage.removeItem(OUTILS_KEY); } catch (e) { /* ignoré */ }
   }
   function docsOutil(id) {
     return lireOutils().docs.filter(function (d) { return d && d.outil === id && typeof d.id === "string"; });
@@ -2005,10 +2041,11 @@
     s.docs = s.docs.filter(function (d) { return d && d.id !== docId; });
     return ecrireOutils(s);
   }
+  // Si le navigateur n'enregistre pas, la page du document le dit (#o-etat) : pas de second message.
   function creerDoc(def, nom, contenu) {
     var doc = { id: "d" + Date.now().toString(36) + Math.floor(Math.random() * 1679616).toString(36), outil: def.id,
-      nom: String(nom || "").slice(0, OM.MAX.nom), cree: new Date().toISOString(), contenu: contenu };
-    if (!enregistrerDoc(doc)) outilsMessage = "Attention : ce navigateur ne garde pas les documents. Pense à « Enregistrer dans un fichier ».";
+      nom: nomDoc({ nom: String(nom || "").slice(0, OM.MAX.nom) }), cree: new Date().toISOString(), contenu: contenu };
+    enregistrerDoc(doc);
     return doc;
   }
   function depuisExemple(def) {
@@ -2018,7 +2055,7 @@
 
   // Les fichiers : « registre-des-risques-demat-2027.xlsx », téléchargés sans rien envoyer (Blob dans le navigateur).
   function nomFichier(def, doc, ext) {
-    var t = sansAccents(def.titre + " " + (doc ? doc.nom || "" : "modele vide")).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
+    var t = sansAccents(def.titre + " " + (doc ? nomDoc(doc) : "modele vide")).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
     return (t || "document") + "." + ext;
   }
   function telecharger(nom, donnees, type) {
@@ -2060,18 +2097,37 @@
     else parEvenement();
   }
 
+  // Un sujet : ses outils ; ou ses étapes (groupes), numérotées, chacune avec ses outils.
   function pageOutils() {
-    var sujets = DATA.outilsSujets || [], visibles = sujets.filter(sujetVisible);
+    var sujets = DATA.outilsSujets || [], visibles = sujets.filter(sujetVisible), nbDocs = lireOutils().docs.length;
     var html = '<h1>Outils</h1><p class="muted">Des outils pour ton travail, rangés par sujet.</p>';
     visibles.forEach(function (s) {
-      var liste = outilsDuSujet(s);
-      if (liste.length) html += '<section class="o-sujet" id="sujet-' + esc(s.id) + '"><h2>' + esc(s.titre) + '</h2>' +
-        (s.resume ? '<p class="muted">' + fmt(s.resume) + '</p>' : '') + liste.map(carteOutil).join('') + '</section>';
+      var corps = s.groupes ? s.groupes.map(function (g, k) {
+        var l = outilsDe(g.outils);
+        return l.length ? '<div class="o-groupe"><h3 class="o-etape"><span class="o-etape-n">' + (k + 1) + '.</span> ' + esc(g.titre) + '</h3>' +
+          l.map(function (o) { return carteOutil(o, "h4"); }).join('') + '</div>' : '';
+      }).join('') : outilsDuSujet(s).map(function (o) { return carteOutil(o); }).join('');
+      if (corps) html += '<section class="o-sujet" id="sujet-' + esc(s.id) + '"><h2>' + esc(s.titre) + '</h2>' +
+        (s.resume ? '<p class="muted">' + fmt(s.resume) + '</p>' : '') + corps + '</section>';
     });
     if (visibles.length < sujets.length && !lireSession()) {
       html += '<p class="muted"><a href="#/compte">Connecte-toi</a> pour voir les autres outils.</p>';
     }
+    // Ordinateur partagé : les documents restent dans ce navigateur, même après la déconnexion. On peut tout effacer.
+    if (nbDocs) html += '<section class="o-effacer" id="o-effacer"><h2>Tes documents</h2><p>' +
+      (nbDocs > 1 ? 'Tu as ' + nbDocs + ' documents' : 'Tu as 1 document') + ' dans ce navigateur. ' +
+      'Ils y restent, même après la déconnexion. Sur un ordinateur partagé, efface-les avant de partir.</p>' +
+      '<div class="actions"><button type="button" class="btn ghost o-danger" id="o-effacer-tout">Effacer tous mes documents</button></div>' +
+      '<div id="o-msg" class="muted o-msg" role="status"></div></section>';
     app.innerHTML = html;
+    surClic("o-effacer-tout", function () {
+      var n = lireOutils().docs.length, msg = document.getElementById("o-msg");
+      if (!confirm("Effacer " + (n > 1 ? "tes " + n + " documents" : "ton document") + " des outils, dans ce navigateur ? C'est définitif.")) return;
+      effacerDocsOutils();
+      var b = document.getElementById("o-effacer-tout");
+      if (b) b.parentNode.removeChild(b);   // (hidden ne suffit pas : .btn s'affiche en inline-block)
+      msg.textContent = "C'est fait : tes documents des outils sont effacés de ce navigateur.";
+    });
   }
 
   function pageOutil(id, docId) {
@@ -2099,13 +2155,14 @@
       '<p class="label">Comment faire</p><ol class="o-etapes">' + (def.etapes || []).map(function (e) { return '<li>' + fmt(e) + '</li>'; }).join('') + '</ol>' +
       (ex ? '<div class="actions"><a class="btn ghost" id="o-voir-exemple" href="#/outils/' + esc(def.id) + '/exemple">Voir l\'exemple</a></div>' : '') +
       '</div>' +
-      '<h2>Tes documents</h2><p class="muted">Tes documents restent dans ce navigateur : rien n\'est envoyé sur Internet.</p>' +
+      '<h2>Tes documents</h2>' + (stockageOutilsOK() ? '<p class="muted">Tes documents restent dans ce navigateur : rien n\'est envoyé sur Internet.</p>' :
+        '<p class="o-avertir" id="o-stockage">' + esc(STOCKAGE_KO) + '</p>') +
       (docs.length ? '<div class="o-docs">' + docs.map(function (d) { return carteDoc(def, d); }).join('') + '</div>' : '<p>Pas encore de document.</p>') +
       '<div class="actions"><button type="button" class="btn" id="o-nouveau">Nouveau</button>' +
       (ex ? '<button type="button" class="btn ghost" id="o-depuis-exemple">Partir de l\'exemple</button>' : '') +
       '<button type="button" class="btn ghost" id="o-ouvrir">Ouvrir un fichier</button></div>' +
       '<input type="file" id="o-fichier" accept=".json,application/json" hidden>' +
-      '<p id="o-msg" class="muted" role="status">' + esc(prendreMessage()) + '</p>' +
+      '<div id="o-msg" class="muted o-msg" role="status">' + htmlMessage(prendreMessage()) + '</div>' +
       (exporte(def, "excel") ? '<h2>Le modèle vide</h2><p class="muted">Pour t\'en servir au travail, sans le site.</p>' +
         '<div class="actions"><button type="button" class="btn ghost" id="o-modele">Télécharger le modèle vide (Excel)</button></div>' : '') +
       (cours.length ? '<h2>Dans les cours</h2><ul class="points">' + cours.map(function (m) {
@@ -2123,7 +2180,7 @@
   function carteDoc(def, d) {
     var c = OM.examiner(def, d.contenu).contenu;
     return '<a class="card parcours o-doc" href="#/outils/' + esc(def.id) + '/' + esc(encodeURIComponent(d.id)) + '"><div>' +
-      '<h3>' + esc(d.nom || "Sans nom") + '</h3><p>' + esc(c ? OM.resumeDocument(def, c) : "Document abîmé") +
+      '<h3>' + esc(nomDoc(d)) + '</h3><p>' + esc(c ? OM.resumeDocument(def, c) : "Document abîmé") +
       (d.maj ? ' · modifié le ' + esc(fmtDate(d.maj)) : '') + '</p></div><span class="fleche" aria-hidden="true">›</span></a>';
   }
   // « Ouvrir un fichier » : le fichier est contrôlé par le moteur ; un fichier faux donne un message, jamais une erreur.
@@ -2139,8 +2196,7 @@
         var r = OM.lireFichier(String(lecteur.result || ""), def, DATA.outils || []);
         if (!r.ok) { msg.textContent = r.message; return; }
         var d = creerDoc(def, r.doc.nom, r.doc.contenu);
-        outilsMessage = outilsMessage || "Fichier ouvert : « " + d.nom + " »." +
-          (r.corrections ? " " + r.corrections + " valeur(s) corrigée(s) ou vidée(s)." : "");
+        outilsMessage = r.annonce;   // en haut du document : ce qui a été corrigé ou coupé
         location.hash = "#/outils/" + def.id + "/" + d.id;
       };
       lecteur.onerror = function () { msg.textContent = "Ce fichier n'a pas pu être lu."; };
@@ -2157,7 +2213,13 @@
       aujourdhui: def.exemple.date ? OM.jour(def.exemple.date) : undefined } : null;
     else {
       doc = docOutil(def.id, docId);
-      if (doc) doc.contenu = OM.examiner(def, doc.contenu).contenu || OM.contenuVide(def);
+      if (doc) {
+        // Un document gardé est contrôlé comme un fichier ouvert ; ce qui est corrigé est dit en haut de la page.
+        var ex = OM.examiner(def, doc.contenu);
+        if (!ex.contenu) outilsMessage = outilsMessage || "Ce document était abîmé : il repart vide. Le fichier enregistré, s'il existe, est intact.";
+        else if (ex.problemes.length) outilsMessage = outilsMessage || OM.annonceOuverture("Ce document a été corrigé à l'ouverture.", ex.problemes);
+        doc.contenu = ex.contenu || OM.contenuVide(def);
+      }
     }
     var fil = '<p class="muted"><a href="#/outils">Outils</a> › <a href="#/outils/' + esc(def.id) + '">' + esc(def.titre) + '</a></p>';
     if (!doc) {
@@ -2168,11 +2230,14 @@
     outilCourant = { def: def, doc: doc, lecture: lecture, auj: doc.aujourdhui };
     app.classList.add("large");
     document.body.classList.add("o-imprimable");
+    var annonce = htmlMessage(prendreMessage()), stocke = lecture || stockageOutilsOK();
     app.innerHTML = '<div class="o-ecran">' + fil + '<h1>' + esc(def.titre) + '</h1>' +
+      (annonce ? '<div id="o-annonce" class="o-annonce" role="status">' + annonce + '</div>' : '') +
       (lecture ? '<p class="o-exemple"><span class="tag">Exemple</span> <strong>' + esc(doc.nom) + '</strong>' +
         (def.exemple.date ? ' <span class="muted">· situation au ' + esc(OM.dateFr(def.exemple.date)) + '</span>' : '') + '</p>' :
         '<div class="o-nom"><label for="o-nom">Nom du document</label><input type="text" id="o-nom" maxlength="' + OM.MAX.nom +
-        '" value="' + esc(doc.nom) + '"></div><p class="muted o-local" id="o-etat">Enregistré dans ce navigateur à chaque saisie. Rien n\'est envoyé.</p>') +
+        '" value="' + esc(doc.nom) + '"></div>' + (stocke ? '<p class="muted o-local" id="o-etat">Enregistré dans ce navigateur à chaque saisie. Rien n\'est envoyé.</p>' :
+          '<p class="o-avertir o-local" id="o-etat">' + esc(STOCKAGE_KO) + '</p>')) +
       '<div id="o-editeur" class="o-editeur">' + htmlEditeur(def, doc.contenu, lecture, doc.aujourdhui) + '</div>' +
       '<div id="o-alertes" aria-live="polite"></div>' +
       '<div class="actions o-sorties">' +
@@ -2184,7 +2249,7 @@
         '<div class="actions"><button type="button" class="btn ghost" id="o-enregistrer">Enregistrer dans un fichier</button>' +
         '<button type="button" class="btn ghost" id="o-dupliquer">Dupliquer</button>' +
         '<button type="button" class="btn danger" id="o-supprimer">Supprimer</button></div>') +
-      '<p id="o-msg" class="muted" role="status">' + esc(prendreMessage()) + '</p></div>' +
+      '<div id="o-msg" class="muted o-msg" role="status"></div></div>' +
       '<div class="o-impression" id="o-impression"></div>';
     modeZones();
     majSuivi();
@@ -2203,17 +2268,19 @@
     if (lecture) { surClic("o-depuis-exemple", function () { depuisExemple(def); }); return; }
     var nom = document.getElementById("o-nom");
     nom.addEventListener("input", function () { doc.nom = nom.value.slice(0, OM.MAX.nom); sauverOutil(); });
+    // En quittant le champ : un nom fait seulement d'espaces devient « Sans nom ».
+    nom.addEventListener("change", function () { doc.nom = nomDoc({ nom: nom.value.slice(0, OM.MAX.nom) }); nom.value = doc.nom; sauverOutil(); });
     surClic("o-enregistrer", function () {
       telecharger(nomFichier(def, doc, "json"), OM.fichier(def, doc), "application/json");
       msg.textContent = "Fichier enregistré. Pour le rouvrir : « Ouvrir un fichier », sur la page de l'outil.";
     });
     surClic("o-dupliquer", function () {
-      var d = creerDoc(def, "Copie de " + (doc.nom || "sans nom"), JSON.parse(JSON.stringify(doc.contenu)));
+      var d = creerDoc(def, "Copie de " + nomDoc(doc), JSON.parse(JSON.stringify(doc.contenu)));
       outilsMessage = outilsMessage || "Copie faite : tu travailles maintenant sur la copie.";
       location.hash = "#/outils/" + def.id + "/" + d.id;
     });
     surClic("o-supprimer", function () {
-      if (!confirm("Supprimer « " + (doc.nom || "sans nom") + " » ? C'est définitif.")) return;
+      if (!confirm("Supprimer « " + nomDoc(doc) + " » ? C'est définitif.")) return;
       supprimerDoc(doc.id);
       outilsMessage = "Document supprimé.";
       location.hash = "#/outils/" + def.id;
@@ -2489,8 +2556,10 @@
     var oc = outilCourant;
     if (!oc || oc.lecture) return;
     var ok = enregistrerDoc(oc.doc), etat = document.getElementById("o-etat");
-    if (etat) etat.textContent = ok ? "Enregistré dans ce navigateur à chaque saisie. Rien n'est envoyé." :
-      "Attention : ce navigateur n'enregistre pas. Utilise « Enregistrer dans un fichier » avant de partir.";
+    if (etat) {
+      etat.textContent = ok ? "Enregistré dans ce navigateur à chaque saisie. Rien n'est envoyé." : STOCKAGE_KO;
+      etat.className = ok ? "muted o-local" : "o-avertir o-local";
+    }
   }
   // Ajouter ou supprimer une ligne, une colonne (matrice), un élément de liste : l'éditeur est refait.
   function surAction(b) {
@@ -2499,6 +2568,8 @@
     var def = oc.def, c = oc.doc.contenu, a = b.getAttribute("data-action"), r = b.getAttribute("data-r") || "", focus = "";
     var l = Number(b.getAttribute("data-l")), k = Number(b.getAttribute("data-k")), i = Number(b.getAttribute("data-i"));
     if (a === "ajouter-ligne") {
+      var max = (def.type === "matrice" ? c.lignes : lignesDe(def, c, r)).length >= OM.MAX.lignes;
+      if (max) { limite(b, "Limite atteinte : " + OM.pluriel(OM.ligneDef(def.type === "matrice" ? def : tableauDe(def, r)), OM.MAX.lignes) + " au plus."); return; }
       if (def.type === "matrice") {
         c.lignes.push({ nom: "", cases: c.colonnes.map(function () { return ""; }) });
         focus = "#o-m-" + (c.lignes.length - 1);
@@ -2514,6 +2585,7 @@
       liste.splice(l, 1);
       focus = '#o-editeur [data-action="ajouter-ligne"][data-r="' + r + '"]';
     } else if (a === "ajouter-colonne") {
+      if (c.colonnes.length >= OM.MAX.colonnes) { limite(b, "Limite atteinte : " + OM.pluriel(def.colonne, OM.MAX.colonnes) + " au plus."); return; }
       c.colonnes.push("");
       c.lignes.forEach(function (x) { x.cases.push(""); });
       focus = "#o-col-" + (c.colonnes.length - 1);
@@ -2524,6 +2596,7 @@
       c.lignes.forEach(function (x) { x.cases.splice(k, 1); });
       focus = '#o-editeur [data-action="ajouter-colonne"]';
     } else if (a === "ajouter-item") {
+      if (c.rubriques[r].length >= OM.MAX.items) { limite(b, "Limite atteinte : " + OM.pluriel(OM.ligneDef(rubriqueDe(def, r)), OM.MAX.items) + " au plus."); return; }
       c.rubriques[r].push("");
       focus = "#o-r-" + r + "-" + (c.rubriques[r].length - 1);
     } else if (a === "suppr-item") {
@@ -2537,6 +2610,17 @@
     sauverOutil();
     var cible = focus ? app.querySelector(focus) : null;
     if (cible) cible.focus();
+  }
+  // Une limite atteinte (300 lignes, 40 colonnes, 100 éléments) : rien n'est ajouté, un message le dit sous le bouton.
+  function limite(b, texte) {
+    var zone = b.parentNode, m = zone.nextElementSibling;
+    if (!m || !m.classList.contains("o-limite")) {
+      m = document.createElement("p");
+      m.className = "o-limite o-avertir";
+      m.setAttribute("role", "status");
+      zone.parentNode.insertBefore(m, zone.nextSibling);
+    }
+    m.textContent = texte;
   }
   // Imprimer / PDF : le document mis en forme (le même HTML que Copier) ; le CSS d'impression n'imprime que lui.
   function remplirImpression() {

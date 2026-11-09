@@ -6,11 +6,17 @@
 // zip, pour les 12 outils), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
 // d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le parcours chef-projet est réservé au groupe 1.
 // L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
+// Corrections de novembre 2026 (24) : les 4 étapes, les cases vides (budget et business case du testeur), la tolérance
+// avec une virgule, la note du rapport, les limites, les messages d'un fichier ouvert, « Sans nom », 320 px sans
+// débordement, les cibles tactiles de 44 px, le stockage refusé (un seul message), l'impression, « Effacer tous mes
+// documents ».
 const { chromium } = require('playwright'); const fs = require('fs'), path = require('path'), zlib = require('zlib');
 const lireZip = require('./lire-zip.js');
 const racine = path.join(__dirname, '..', '..');
-const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-rapport', 'gp-options', 'gp-decisions', 'gp-changements',
-  'gp-budget', 'gp-business-case', 'gp-recette', 'gp-bascule'];
+// Les 12 outils, dans l'ordre de la page : 1. Cadrer, 2. Piloter, 3. Décider, 4. Livrer (data/outils/sujets.js).
+const ETAPES = [['Cadrer', ['gp-cadrage', 'gp-business-case', 'gp-raci']], ['Piloter', ['gp-risques', 'gp-rapport', 'gp-budget', 'gp-compte-rendu']],
+  ['Décider', ['gp-options', 'gp-decisions', 'gp-changements']], ['Livrer', ['gp-recette', 'gp-bascule']]];
+const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
 (async () => {
   const b = await chromium.launch(process.env.CHR ? { executablePath: process.env.CHR } : {});
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'fr-FR', acceptDownloads: true });
@@ -18,7 +24,8 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   await p.clock.setFixedTime(new Date('2027-01-15T10:00:00'));
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   const verifier = (ok, msg) => { if (!ok) errs.push(msg); };
-  const dialogues = []; p.on('dialog', d => { dialogues.push(d.message()); d.accept(); });
+  let refuser = false;   // true : la prochaine question (confirm) reçoit « Annuler »
+  const dialogues = []; p.on('dialog', d => { dialogues.push(d.message()); if (refuser) d.dismiss(); else d.accept(); });
   // Impression et presse-papiers simulés : on garde ce qui est imprimé ou copié.
   await p.addInitScript(() => {
     window.__imprime = 0; window.print = () => { window.__imprime++; };
@@ -35,7 +42,7 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   const envois = [];
   const db = { profil: [{ user_id: 'u2', role: 'agent' }], groupe: [{ id: 1, nom: 'Pôle projet' }, { id: 2, nom: 'Invité' }],
     membre: [{ groupe_id: 2, user_id: 'u2' }], progression: [], acces: [{ element: 'chef-projet', groupe_id: 1 }] };
-  await p.route('https://kkugxebgeteijhxijohk.supabase.co/**', async r => {
+  const supa = async r => {
     const u = new URL(r.request().url()), m = r.request().method();
     const json = (o, s) => r.fulfill({ status: s || 200, contentType: 'application/json', body: JSON.stringify(o) });
     if (r.request().postData()) envois.push(r.request().postData());
@@ -47,7 +54,8 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
     if (m === 'GET' && tab === 'membre') return json(rows.filter(match).map(x => ({ groupe_id: x.groupe_id, groupe: { nom: db.groupe.find(g => g.id === x.groupe_id).nom } })));
     if (m === 'GET') return json(rows.filter(match));
     return r.fulfill({ status: m === 'POST' ? 201 : 204, body: '' });
-  });
+  };
+  await p.route('https://kkugxebgeteijhxijohk.supabase.co/**', supa);
   const U = 'file://' + racine + '/index.html';
   const attendre = ms => p.waitForTimeout(ms || 150);
   const aller = async h => { await p.evaluate(x => { location.hash = x; }, h); await attendre(); };
@@ -55,17 +63,17 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   const texte = s => p.textContent(s);
   const alertes = () => texte('#o-alertes');
   const lignes = sel => p.$$eval((sel || '#o-editeur') + ' tbody tr', xs => xs.length);
-  // Rien ne dépasse à droite (390 px) : ni la page, ni un élément visible.
-  const largeur = async ou => {
-    const r = await p.evaluate(() => {
+  // Rien ne dépasse à droite (390 px, ou 320 px) : ni la page, ni un élément visible.
+  const largeur = async (ou, q) => {
+    const r = await (q || p).evaluate(() => {
       const l = innerWidth, trop = [];
       document.querySelectorAll('body *').forEach(e => {
         const b = e.getBoundingClientRect();
         if (b.width && b.right > l + 1 && getComputedStyle(e).position !== 'absolute') trop.push(e.tagName + '.' + e.className + ' ' + Math.round(b.right));
       });
-      return { sw: document.documentElement.scrollWidth, trop: trop.slice(0, 4) };
+      return { l: l, sw: document.documentElement.scrollWidth, trop: trop.slice(0, 4) };
     });
-    verifier(r.sw <= 390 && !r.trop.length, ou + ' déborde sur téléphone : ' + JSON.stringify(r));
+    verifier(r.sw <= r.l && !r.trop.length, ou + ' déborde sur téléphone : ' + JSON.stringify(r));
   };
   const telecharger = async sel => {
     const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }), p.click(sel)]);
@@ -124,6 +132,10 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   verifier(sujets.join('|') === 'SQL|Gestion de projet', 'avec le parcours : sujets ' + sujets.join('|'));
   const cartesGp = await p.$$eval('#sujet-gestion-projet .o-carte', xs => xs.map(x => x.getAttribute('href').replace('#/outils/', '')));
   verifier(cartesGp.join(' ') === OUTILS.join(' '), 'cartes de la gestion de projet : ' + cartesGp.join(' '));
+  // Les 4 étapes, numérotées, chacune avec ses outils (titres des cartes en h4, sous le h3 de l'étape)
+  const etapes = await p.$$eval('#sujet-gestion-projet .o-groupe', gs => gs.map(g => [g.querySelector('h3').textContent.replace(/\s+/g, ' ').trim(),
+    Array.from(g.querySelectorAll('.o-carte')).map(a => a.getAttribute('href').replace('#/outils/', '')), g.querySelectorAll('.o-carte h4').length]));
+  verifier(JSON.stringify(etapes) === JSON.stringify(ETAPES.map((e, k) => [(k + 1) + '. ' + e[0], e[1], e[1].length])), 'les 4 étapes : ' + JSON.stringify(etapes));
   await largeur('page Outils (avec le parcours)');
 
   // 5. La page d'un outil : à quoi il sert, quand, « Comment faire » (3 étapes), « Voir l'exemple », ses cours
@@ -216,7 +228,7 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   verifier(await p.evaluate(() => window.__xss === undefined && !document.querySelector('#app img')), 'le HTML du nom a été exécuté (liste)');
   await aller(docRisques); await p.click('#o-dupliquer'); await attendre();
   const docCopie = await hash();
-  verifier(docCopie !== docRisques && await p.inputValue('#o-nom') === 'Copie de ' + NOM && /Copie faite/.test(await texte('#o-msg')), 'Dupliquer : ' + docCopie);
+  verifier(docCopie !== docRisques && await p.inputValue('#o-nom') === 'Copie de ' + NOM && /Copie faite/.test(await texte('#o-annonce')), 'Dupliquer : ' + docCopie);
   verifier(await p.inputValue('#o-0-risque') === apres.risque, 'la copie n\'a pas le contenu');
   await aller('#/outils/gp-risques');
   verifier((await p.$$('.o-doc')).length === 3, 'après Dupliquer : pas 3 documents');
@@ -254,8 +266,8 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
     'fichier enregistré : ' + JSON.stringify(json).slice(0, 200));
   await aller('#/outils/gp-risques');
   await ouvrir('mon-registre.json', f.octets.toString('utf8'));
-  verifier(/^#\/outils\/gp-risques\/d/.test(await hash()) && await p.inputValue('#o-nom') === NOM && /Fichier ouvert/.test(await texte('#o-msg')),
-    'Ouvrir un fichier : ' + await hash() + ' ' + await texte('#o-msg'));
+  verifier(/^#\/outils\/gp-risques\/d/.test(await hash()) && await p.inputValue('#o-nom') === NOM && /^Fichier ouvert : « Mon registre/.test(await texte('#o-annonce')),
+    'Ouvrir un fichier : ' + await hash() + ' ' + await texte('#app .o-ecran'));
   verifier(await p.inputValue('#o-0-risque') === json.contenu.lignes[0].risque && await p.inputValue('#o-0-quand') === '2027-03-01', 'contenu du fichier ouvert');
   // Des fichiers faux : un message, jamais une erreur, aucun document créé
   await aller('#/outils/gp-risques');
@@ -266,7 +278,8 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
     ['vide.json', '', /pas au bon format/],
     ['autre.json', JSON.stringify({ format: 'autre' }), /n'est pas un document/],
     ['raci.json', JSON.stringify(Object.assign({ outil: 'gp-raci', contenu: { colonnes: [], lignes: [] } }, enTete)), /Matrice RACI/],
-    ['abime.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: 'oups' } }, enTete)), /abîmé/]
+    ['abime.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: 'oups' } }, enTete)), /abîmé/],
+    ['version.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: [] } }, enTete, { version: 2 })), /version inconnue des outils \(version 2\)/]
   ]) {
     await ouvrir(nom, contenu);
     const r = await p.evaluate(() => ({ h: location.hash, msg: document.getElementById('o-msg').textContent }));
@@ -275,8 +288,12 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   verifier((await p.$$('.o-doc')).length === nbDocs, 'un fichier faux a créé un document');
   // Des valeurs non permises : le document s'ouvre, elles sont vidées, et c'est dit
   await ouvrir('valeurs.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: [{ risque: 'Un risque', proba: 7, impact: '2', inconnue: 'x', quand: '2027-02-30', note: 99 }] } }, enTete, { nom: 'Valeurs fausses' })));
+  const annonce = await p.evaluate(() => ({ t: document.querySelector('#o-annonce > span').textContent,
+    l: Array.from(document.querySelectorAll('#o-annonce li')).map(x => x.textContent), haut: document.getElementById('o-annonce').getBoundingClientRect().top }));
   verifier(await p.inputValue('#o-nom') === 'Valeurs fausses' && await p.inputValue('#o-0-proba') === '' && await p.inputValue('#o-0-impact') === '2' &&
-    /5 valeur\(s\) corrigée\(s\)/.test(await texte('#o-msg')), 'valeurs fausses : ' + await texte('#o-msg'));
+    annonce.t === 'Fichier ouvert : « Valeurs fausses ». Ce qui a été corrigé ou coupé :' && annonce.l.length === 5 &&
+    annonce.l.indexOf('Ligne 1, Probabilité : « 7 » n\'est pas une valeur permise (1, 2, 3).') >= 0 && annonce.haut < 400,
+    'valeurs fausses : le message dit ce qui est corrigé, en haut de la page : ' + JSON.stringify(annonce));
 
   // 13. Copier : HTML mis en forme et texte simple ; puis le repli (sans l'API du presse-papiers)
   await aller(docRisques);
@@ -447,9 +464,145 @@ const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-ra
   verifier(ratios.every(r => r >= 4.5), 'contraste des niveaux en thème sombre : ' + ratios.join(', '));
   await p.emulateMedia({ colorScheme: 'light' });
 
-  // 23. Rien n'est envoyé : aucun document dans les envois à Supabase
+  // 23. Les corrections de novembre 2026
+  // a. Cases vides : le budget du testeur (plafond 50 000, un consommé vide, une référence vide)
+  await aller('#/outils/gp-budget'); await p.click('#o-nouveau'); await attendre();
+  await p.fill('#o-r-plafond', '50000');
+  const ligneBudget = async (k, v) => { for (const c of Object.keys(v)) await p.fill('#o-postes-' + k + '-' + c, v[c]); };
+  await ligneBudget(0, { poste: 'Intégrateur', reference: '30000', engage: '30000', consomme: '18000', reste: '12000' });
+  await p.click('[data-action="ajouter-ligne"][data-r="postes"]'); await attendre(80);
+  await ligneBudget(1, { poste: 'Formation (pas commencée)', reference: '4000', engage: '4000', reste: '4000' });
+  await p.click('[data-action="ajouter-ligne"][data-r="postes"]'); await attendre(80);
+  await ligneBudget(2, { poste: 'Avenant archivage (hors référence)', engage: '20000', consomme: '0', reste: '20000' }); await attendre(80);
+  tot = await texte('.o-totaux[data-totaux="postes"]');
+  al = await p.$$eval('#o-alertes li', xs => xs.map(x => x.textContent));
+  verifier(/Atterrissage \(€\) : 54\s000/.test(tot) && /Écart \(€\) : 20\s000/.test(tot), 'budget du testeur : totaux ' + tot);
+  verifier(al.length === 2 && /^L'atterrissage dépasse le plafond/.test(al[0]) && /^Poste 3 .*: Écart sans cause/.test(al[1]), 'budget du testeur : les 2 alertes ' + JSON.stringify(al));
+  n = await calc('#o-editeur tr[data-r="postes"][data-l="1"] .o-calc[data-c="atterrissage"]');
+  verifier(n.t === '4 000', 'atterrissage d\'un poste au consommé vide (vide = 0) : ' + n.t);
+  f = await telecharger('#o-excel'); z = lireZip(f.octets);
+  const xf1 = z['xl/worksheets/sheet1.xml'].data.toString('utf8'), xf2 = z['xl/worksheets/sheet2.xml'].data.toString('utf8');
+  verifier(/<v>54000<\/v>/.test(xf2) && /<v>20000<\/v>/.test(xf2) && /<t>Alertes du document<\/t>/.test(xf1) && /Export du 15\/01\/2027/.test(xf1) &&
+    /L'atterrissage dépasse le plafond/.test(xf1), 'budget du testeur en Excel : totaux, alertes du document, date de l\'export');
+  // b. Cases vides : le business case du testeur (un forfait sans quantité)
+  await aller('#/outils/gp-business-case'); await p.click('#o-nouveau'); await attendre();
+  await p.fill('#o-tco-0-poste', 'Abonnement'); await p.fill('#o-tco-0-quantite', '36'); await p.fill('#o-tco-0-prix', '850');
+  await p.click('[data-action="ajouter-ligne"][data-r="tco"]'); await attendre(80);
+  await p.fill('#o-tco-1-poste', 'Mise en service (forfait)'); await p.fill('#o-tco-1-prix', '7400'); await attendre(80);
+  tot = await texte('.o-totaux[data-totaux="tco"]'); al = await alertes();
+  verifier(/Total sur la durée \(€\) : 30\s600/.test(tot) &&
+    /Poste 2 \(« Mise en service \(forfait\) »\) : « Quantité » est vide, donc pas de « Total \(€\) » sur cette ligne, ni dans les totaux\./.test(al),
+    'business case du testeur : ' + tot + ' / ' + al);
+  await p.fill('#o-tco-1-quantite', '1'); await attendre(80);
+  verifier(/Total sur la durée \(€\) : 38\s000/.test(await texte('.o-totaux[data-totaux="tco"]')) && !/« Quantité » est vide/.test(await alertes()),
+    'quantité écrite : la ligne compte, l\'alerte part');
+  // c. La tolérance avec une virgule : le niveau et l'alerte disent la même chose ; d. la note du rapport : 1, 2, 3, 4, 6, 9
+  await aller('#/outils/gp-rapport'); await p.click('#o-nouveau'); await attendre();
+  await p.fill('#o-r-tolerance', '14,5');
+  await p.fill('#o-jalons-0-jalon', 'PV'); await p.fill('#o-jalons-0-prevu', '2027-04-30'); await p.fill('#o-jalons-0-prevision', '2027-05-15'); await attendre(80);
+  n = await calc('#o-editeur tr[data-r="jalons"][data-l="0"] .o-t-calcul:last-child .o-calc');
+  verifier(n.t === '-0,5 Hors tolérance' && /Jalon hors tolérance/.test(await alertes()), 'tolérance 14,5 j, écart 15 j : ' + JSON.stringify(n));
+  await p.fill('#o-jalons-0-prevision', '2027-05-14'); await attendre(80);
+  n = await calc('#o-editeur tr[data-r="jalons"][data-l="0"] .o-t-calcul:last-child .o-calc');
+  verifier(n.t === '0,5 Dans la tolérance' && !/hors tolérance/i.test(await alertes()), 'tolérance 14,5 j, écart 14 j : ' + JSON.stringify(n));
+  const notes = await p.$$eval('#o-risques-0-note option', xs => xs.map(x => x.value));
+  verifier(notes.join() === ',1,2,3,4,6,9', 'rapport : les notes permises ' + notes.join());
+  // e. Les limites : un fichier trop gros est coupé, et c'est dit ; au-delà de la limite, rien n'est ajouté, et c'est dit
+  await aller('#/outils/gp-risques');
+  await ouvrir('gros.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: Array.from({ length: 305 }, (v, k) =>
+    ({ risque: 'Risque ' + k, proba: 1, impact: 1, reponse: 'x', proprietaire: 'y', quand: '2027-06-01' })) } }, enTete, { nom: 'Gros registre' })));
+  verifier(await lignes() === 300 && /Plus de 300 lignes, la fin est coupée \(5 en trop\)\./.test(await texte('#o-annonce')), 'fichier de 305 risques : ' + await texte('#o-annonce'));
+  await p.click('#o-editeur [data-action="ajouter-ligne"]'); await attendre(80);
+  verifier(await lignes() === 300 && await texte('.o-limite') === 'Limite atteinte : 300 risques au plus.', 'au-delà de 300 risques : ' + await lignes());
+  await aller('#/outils/gp-raci');
+  await ouvrir('raci.json', JSON.stringify(Object.assign({ outil: 'gp-raci', contenu: { colonnes: Array.from({ length: 42 }, (v, k) => 'Personne ' + (k + 1)),
+    lignes: [{ nom: 'Livrable X', cases: [] }] } }, enTete, { nom: 'Grand RACI' })));
+  verifier((await p.$$('#o-matrice th.o-case')).length === 40 && /Plus de 40 personnes et rôles, la fin est coupée \(2 en trop\)\./.test(await texte('#o-annonce')),
+    'RACI de 42 personnes : ' + await texte('#o-annonce'));
+  await p.click('[data-action="ajouter-colonne"]'); await attendre(80);
+  verifier((await p.$$('#o-matrice th.o-case')).length === 40 && await texte('.o-limite') === 'Limite atteinte : 40 personnes et rôles au plus.', 'au-delà de 40 personnes');
+  // f. Un nom fait d'espaces : « Sans nom »
+  await p.fill('#o-nom', '   '); await p.press('#o-nom', 'Tab'); await attendre(80);
+  verifier(await p.inputValue('#o-nom') === 'Sans nom', 'un nom fait d\'espaces : ' + JSON.stringify(await p.inputValue('#o-nom')));
+  await aller('#/outils/gp-raci');
+  verifier((await p.$$eval('.o-doc h3', xs => xs.map(x => x.textContent))).indexOf('Sans nom') >= 0, 'la liste n\'affiche pas « Sans nom »');
+  // g. 320 px : des noms très longs sans espace et le message « Fichier ouvert » passent à la ligne, rien ne déborde
+  await p.setViewportSize({ width: 320, height: 700 });
+  await aller('#/outils/gp-risques');
+  await ouvrir('long.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: [{ risque: 'Y'.repeat(150), proba: 2, impact: 2 }] } },
+    enTete, { nom: 'Registre' + 'X'.repeat(110) })));
+  await largeur('document au nom très long, avec le message « Fichier ouvert » (320 px)');
+  await aller('#/outils/gp-risques'); await largeur('liste des documents aux noms très longs (320 px)');
+  await aller('#/outils'); await largeur('page Outils (320 px)');
+  await aller('#/outils/gp-raci'); await p.click('#o-nouveau'); await attendre();
+  await p.fill('#o-col-0', 'Z'.repeat(100)); await p.fill('#o-m-0', 'W'.repeat(100)); await attendre(80);
+  await largeur('RACI aux noms très longs (320 px)');
+  for (const id of OUTILS) { await aller('#/outils/' + id + '/exemple'); await largeur(id + ' (exemple, 320 px)'); }
+  await p.setViewportSize({ width: 390, height: 844 });
+  // h. Imprimer : un titre ne reste pas seul en bas de page, l'en-tête d'un tableau se répète
+  await aller('#/outils/gp-budget/exemple'); await p.click('#o-imprimer'); await attendre();
+  await p.emulateMedia({ media: 'print' });
+  const coupe = await p.evaluate(() => { const z = document.querySelector('.o-impression'), st = s => getComputedStyle(z.querySelector(s));
+    return { h1: st('h1').breakAfter, h2: st('h2').breakAfter, thead: st('thead').display }; });
+  await p.emulateMedia({ media: 'screen' });
+  verifier(coupe.h1 === 'avoid' && coupe.h2 === 'avoid' && coupe.thead === 'table-header-group', 'impression : ' + JSON.stringify(coupe));
+  // i. Écran tactile : « Supprimer » (ligne, personne) et « + … » font au moins 44 px de haut ; j. stockage refusé : un message
+  const memoire = await p.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k !== 'learnsql-outils') o[k] = localStorage.getItem(k); } return o; });
+  const autrePage = async (options, refuse) => {
+    const c = await b.newContext(Object.assign({ viewport: { width: 390, height: 844 }, locale: 'fr-FR' }, options)), q = await c.newPage();
+    await q.clock.setFixedTime(new Date('2027-01-15T10:00:00'));
+    q.on('pageerror', e => errs.push(e.message)); q.on('dialog', d => d.accept());
+    await q.route('https://kkugxebgeteijhxijohk.supabase.co/**', supa);
+    await q.addInitScript(([m, refuse]) => {
+      if (!sessionStorage.getItem('copie')) { sessionStorage.setItem('copie', '1'); Object.keys(m).forEach(k => localStorage.setItem(k, m[k])); }
+      if (refuse) {
+        const avant = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (k, v) { if (k === 'learnsql-outils') { const e = new Error('Quota'); e.name = 'QuotaExceededError'; throw e; } return avant.call(this, k, v); };
+      }
+    }, [memoire, !!refuse]);
+    await q.goto(U + '#/outils'); await q.waitForTimeout(300);
+    return { c, q, aller: async h => { await q.evaluate(x => { location.hash = x; }, h); await q.waitForTimeout(250); } };
+  };
+  const tactile = await autrePage({ hasTouch: true, isMobile: true });
+  const cibles = () => tactile.q.evaluate(() => Array.from(document.querySelectorAll('.o-suppr, .o-items .lien, .o-ajout .btn'))
+    .filter(e => e.getBoundingClientRect().height > 0).map(e => Math.round(e.getBoundingClientRect().height)));
+  for (const id of ['gp-raci', 'gp-risques', 'gp-budget']) {
+    await tactile.aller('#/outils/' + id); await tactile.q.tap('#o-depuis-exemple'); await tactile.q.waitForTimeout(300);
+    const h = await cibles();
+    verifier(h.length >= 3 && h.every(x => x >= 44), id + ' au doigt : des cibles de moins de 44 px ' + h.join(','));
+  }
+  await tactile.c.close();
+  const refus = await autrePage({}, true);
+  await refus.aller('#/outils/gp-risques');
+  const fois = () => refus.q.evaluate(() => document.getElementById('app').textContent.split('n\'enregistre pas').length - 1);
+  verifier(await fois() === 1 && await refus.q.$('#o-stockage'), 'stockage refusé : la page de l\'outil le dit une fois, dès l\'ouverture');
+  await refus.q.click('#o-nouveau'); await refus.q.waitForTimeout(300);
+  const r1 = await refus.q.evaluate(() => ({ etat: document.getElementById('o-etat').textContent, annonce: !!document.getElementById('o-annonce'),
+    msg: document.getElementById('o-msg').textContent }));
+  verifier(/n'enregistre pas/.test(r1.etat) && !r1.annonce && !r1.msg && await fois() === 1, 'stockage refusé : un seul message, juste dès l\'ouverture ' + JSON.stringify(r1));
+  await refus.q.fill('#o-0-risque', 'Un risque'); await refus.q.waitForTimeout(100);
+  verifier(await fois() === 1, 'stockage refusé : le message se répète après une saisie');
+  await refus.c.close();
+  // k. « Effacer tous mes documents » (page Outils), avec confirmation ; « Annuler » n'efface rien
+  await aller('#/outils');
+  const nbAvant = await p.evaluate(() => JSON.parse(localStorage.getItem('learnsql-outils')).docs.length);
+  verifier(nbAvant > 3 && (await texte('#o-effacer')).indexOf('Tu as ' + nbAvant + ' documents dans ce navigateur') >= 0, 'page Outils : le nombre de documents');
+  nd = dialogues.length; refuser = true;
+  await p.click('#o-effacer-tout'); await attendre(); refuser = false;
+  verifier(dialogues.length === nd + 1 && await p.evaluate(() => JSON.parse(localStorage.getItem('learnsql-outils')).docs.length) === nbAvant, '« Annuler » a effacé des documents');
+  await p.click('#o-effacer-tout'); await attendre();
+  verifier(new RegExp('^Effacer tes ' + nbAvant + ' documents des outils, dans ce navigateur \\? C\'est définitif\\.$').test(dialogues[nd + 1] || ''), 'confirmation : ' + dialogues[nd + 1]);
+  verifier(await p.evaluate(() => localStorage.getItem('learnsql-outils')) === null && /^C'est fait : tes documents des outils sont effacés/.test(await texte('#o-msg')) &&
+    !(await p.$('#o-effacer-tout')), 'Effacer tous mes documents');
+  await aller('#/outils/gp-risques');
+  verifier(!(await p.$('.o-doc')) && /Pas encore de document/.test(await texte('#app')), 'après l\'effacement, il reste des documents');
+  await aller('#/outils');
+  verifier(!(await p.$('#o-effacer')), 'sans document, la page propose d\'effacer');
+
+  // 24. Rien n'est envoyé : aucun document dans les envois à Supabase
   verifier(envois.length > 0 && !envois.some(x => /Mon registre|Format de facture|learnsql-outil|seule Julie connaît/.test(x)), 'un document est parti vers Supabase');
 
-  console.log('outils : menu, sujets, 3 types, ajouts du moteur, documents, fichiers, Excel des 12 outils, copie, impression, cours, téléphone et PC');
+  console.log('outils : menu, sujets et étapes, 3 types, ajouts du moteur, documents, fichiers, Excel des 12 outils, copie, impression, cours, ' +
+    'téléphone et PC, cases vides, limites, 320 px, tactile, stockage refusé, effacement');
   console.log('errors', errs); await b.close();
 })();

@@ -59,18 +59,18 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           { id: "prevision", titre: "Prévision", type: "date", aide: "La date prévue aujourd'hui. Jalon tenu : la date réelle." },
           { id: "ecart", titre: "Écart, en jours", type: "calcul", formule: "prevision - prevu" },
           { id: "reste", titre: "Reste de tolérance, en jours", type: "calcul", formule: "tolerance - abs(ecart)",
-            niveaux: [{ max: -1, libelle: "Hors tolérance", couleur: "ko" }, { libelle: "Dans la tolérance", couleur: "ok" }] }
+            niveaux: [{ sous: 0, libelle: "Hors tolérance", couleur: "ko" }, { libelle: "Dans la tolérance", couleur: "ok" }] }
         ],
         alertes: [
-          { si: "abs(ecart) > tolerance", message: "Jalon hors tolérance : le délai est rouge, et le DAF le sait le jour même." },
+          { si: "reste < 0", message: "Jalon hors tolérance : le délai est rouge, et le DAF le sait le jour même." },
           { si: "reel vide et prevision vide", message: "Donne une prévision : la date prévue aujourd'hui." }
         ] },
       { id: "risques", titre: "Les 5 plus gros risques", type: "tableau", ligne: { titre: "Risque" },
         colonnes: [
           { id: "risque", titre: "Risque", type: "texte-long" },
-          { id: "note", titre: "Note", type: "nombre", aide: "De 1 à 9 : probabilité × impact, comme au registre des risques.",
-            niveaux: [{ max: 2, libelle: "On surveille", couleur: "ok" }, { max: 4, libelle: "Action simple", couleur: "attention" },
-              { max: 9, libelle: "Priorité", couleur: "ko" }] },
+          { id: "note", titre: "Note", type: "choix", aide: "Probabilité × impact, comme au registre des risques.",
+            valeurs: [1, 2, 3, 4, 6, 9], libelles: ["On surveille", "On surveille", "Action simple", "Action simple", "Priorité", "Priorité"],
+            couleurs: ["ok", "ok", "attention", "attention", "ko", "ko"] },
           { id: "action", titre: "Action", type: "texte-long" },
           { id: "proprietaire", titre: "Propriétaire", type: "texte" }
         ],

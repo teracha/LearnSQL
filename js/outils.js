@@ -6,7 +6,9 @@
 // - Le contrôle d'un document (fichier ouvert, exemple d'une définition) : examiner, lireFichier.
 // - Les sorties : texte simple et HTML mis en forme (Copier, Imprimer), classeur Excel (.xlsx : le XML minimal d'un
 //   classeur, dans un zip « stocké » avec CRC32).
-// Règle commune au site et à Excel : une comparaison avec une case vide est fausse ; une case vide se teste avec « vide ».
+// Règles communes au site et à Excel (cases vides) : dans une somme ou une différence, un nombre saisi vide compte pour 0 ;
+// dans un produit, un quotient ou avec une date, une case vide donne un calcul vide, et une alerte dit quelle case manque ;
+// une comparaison avec une case vide est fausse ; une case vide se teste avec « vide ».
 // Utilisé par js/app.js (bloc « Outils »), outils/verifier.js et outils/tests/outils-moteur.js.
 (function () {
   "use strict";
@@ -235,7 +237,9 @@
       case "aujourdhui": return typeof ctx.aujourdhui === "number" ? ctx.aujourdhui : aujourdhui();
       case "col": x = ctx.valeur(n.nom); return estVide(x) ? null : typeof x === "string" ? x.trim() : x;
       case "neg": x = evaluer(n.a, ctx); return typeof x === "number" ? -x : null;
-      case "op": return calcul(n.op, evaluer(n.a, ctx), evaluer(n.b, ctx));
+      case "op":
+        if (n.op === "+" || n.op === "-") return calcul(n.op, terme(n.a, ctx), terme(n.b, ctx));
+        return calcul(n.op, evaluer(n.a, ctx), evaluer(n.b, ctx));
       case "cmp": return comparer(n.op, evaluer(n.a, ctx), evaluer(n.b, ctx));
       case "et": return vrai(evaluer(n.a, ctx)) && vrai(evaluer(n.b, ctx));
       case "ou": return vrai(evaluer(n.a, ctx)) || vrai(evaluer(n.b, ctx));
@@ -246,6 +250,35 @@
         return ctx.nb ? ctx.nb(n.args[0].v) : 0;
     }
     return null;
+  }
+  // Un terme d'une somme ou d'une différence : un nombre saisi vide y compte pour 0 (ctx.souple(nom) le dit).
+  function terme(n, ctx) {
+    var x = evaluer(n, ctx);
+    return x === null && estTermeSouple(n, ctx.souple) ? 0 : x;
+  }
+  function estTermeSouple(n, souple) {
+    return !!souple && ((n.t === "col" && souple(n.nom)) || (n.t === "neg" && estTermeSouple(n.a, souple)));
+  }
+  // Une colonne ou une rubrique « souple » : un nombre saisi (nombre, ou choix de nombres). Les dates, les calculs et
+  // les totaux ne le sont pas : vides, le calcul qui les lit est vide.
+  function estSouple(c) {
+    return !!c && (c.type === "nombre" || (c.type === "choix" && (c.valeurs || []).length > 0 &&
+      c.valeurs.every(function (v) { return typeof v === "number"; })));
+  }
+  function jamais() { return false; }
+  // Les noms dont une case vide rend l'expression vide (ou une comparaison fausse) : tous, sauf un nombre saisi qui est
+  // un terme d'une somme ou d'une différence (il compte alors pour 0). souple(nom) : ce nombre saisi ; terme : la place.
+  function strictes(n, souple, terme_, liste) {
+    liste = liste || [];
+    if (!n) return liste;
+    switch (n.t) {
+      case "col": if (!(terme_ && souple(n.nom)) && liste.indexOf(n.nom) < 0) liste.push(n.nom); return liste;
+      case "neg": return strictes(n.a, souple, terme_, liste);
+      case "op": var t = n.op === "+" || n.op === "-"; strictes(n.a, souple, t, liste); return strictes(n.b, souple, t, liste);
+      case "fn": if (n.nom === "abs") strictes(n.args[0], souple, false, liste); return liste;
+      case "cmp": strictes(n.a, souple, false, liste); return strictes(n.b, souple, false, liste);
+    }
+    return liste;
   }
   function vrai(v) { return v === true || (typeof v === "number" && v !== 0); }
   function calcul(op, a, b) {
@@ -329,11 +362,12 @@
   function texteFormule(t) { return '"' + String(t).replace(/"/g, '""') + '"'; }
 
   // Les colonnes à tester avant une comparaison : une case vide la rend fausse (Excel, lui, dirait "" > 6 vrai).
-  // Inutile pour colonne = "texte" (une case vide n'est jamais égale à un texte non vide).
-  function gardes(n) {
+  // Pas un nombre saisi qui est le terme d'une somme (vide = 0, dans Excel aussi). Inutile pour colonne = "texte" (une
+  // case vide n'est jamais égale à un texte non vide).
+  function gardes(n, refs) {
     var lit = function (x) { return x.t === "texte" && x.v.trim() !== ""; };
     if (n.op === "=" && ((lit(n.a) && n.b.t === "col") || (lit(n.b) && n.a.t === "col"))) return [];
-    return citees(n);
+    return strictes(n, refs.souple || jamais, false);
   }
   function siVide(noms, refs) {
     var l = noms.map(function (c) { return refs.cellule(c) + '=""'; });
@@ -355,9 +389,10 @@
         return { f: (a.p < pr ? "(" + a.f + ")" : a.f) + n.op +
           (b.p < pr || b.p === 6 || (b.p === pr && (n.op === "-" || n.op === "/")) ? "(" + b.f + ")" : b.f), p: pr };
       case "cmp":
-        var g = gardes(n), expr = ecrireX(n.a, refs).f + n.op + ecrireX(n.b, refs).f;
+        var g = gardes(n, refs), expr = ecrireX(n.a, refs).f + n.op + ecrireX(n.b, refs).f;
+        if (aDivision(n)) expr = "IFERROR(" + expr + ",FALSE)";   // une division par zéro : la comparaison est fausse
         // SI(case vide ; FAUX ; comparaison) : SI ne calcule que la branche choisie (pas d'erreur #VALEUR!).
-        return g.length ? { f: "IF(" + siVide(g, refs) + ",FALSE," + expr + ")", p: 9 } : { f: expr, p: 1 };
+        return g.length ? { f: "IF(" + siVide(g, refs) + ",FALSE," + expr + ")", p: 9 } : { f: expr, p: aDivision(n) ? 9 : 1 };
       case "et": case "ou":
         return { f: (n.t === "et" ? "AND(" : "OR(") + aplatir(n, n.t).map(function (x) { return ecrireX(x, refs).f; }).join(",") + ")", p: 9 };
       case "non": return { f: "NOT(" + ecrireX(n.a, refs).f + ")", p: 9 };
@@ -377,7 +412,7 @@
       case "cmp":
         var expr = ecrireX(n.a, refs).f + n.op + ecrireX(n.b, refs).f;
         expr = aCalcul(n) ? "IFERROR(" + expr + ",FALSE)" : "(" + expr + ")";
-        var g = gardes(n).map(function (c) { return "(" + refs.cellule(c) + '<>"")'; });
+        var g = gardes(n, refs).map(function (c) { return "(" + refs.cellule(c) + '<>"")'; });
         return g.length ? "(" + g.join("*") + "*" + expr + ")" : expr;
     }
     throw new Error("Condition non traduisible en Excel");
@@ -398,11 +433,14 @@
   // Le contexte d'une ligne de tableau : ses colonnes (les calculées se calculent à la demande, une seule fois), puis
   // celles du parent : les rubriques du document (un tableau d'un document lit sa tolérance, son plafond…) et la date
   // du jour (« aujourdhui » ; pour un exemple, la date de l'exemple).
-  function contexteBase(auj) { return { aujourdhui: auj, valeur: function () { return null; } }; }
+  var AUCUNE = [];   // pas de rubriques : un outil « tableau »
+  function contexteBase(auj) { return { aujourdhui: auj, rubriques: AUCUNE, souple: jamais, valeur: function () { return null; } }; }
   function contexteLigne(cols, ligne, parent) {
     var parId = {}, memo = {}, enCours = {};
     cols.forEach(function (c) { parId[c.id] = c; });
-    var ctx = { aujourdhui: parent ? parent.aujourdhui : undefined, valeur: function (nom) {
+    var ctx = { aujourdhui: parent ? parent.aujourdhui : undefined, souple: function (nom) {
+      return parId[nom] ? estSouple(parId[nom]) : !!(parent && parent.souple && parent.souple(nom));
+    }, valeur: function (nom) {
       var c = parId[nom];
       if (!c) return parent ? parent.valeur(nom) : null;
       if (c.type !== "calcul") return valeurSaisie(c, ligne ? ligne[nom] : null);
@@ -417,12 +455,13 @@
     } };
     return ctx;
   }
-  // Le niveau d'un nombre (colonne, ou total) : le 1er dont le max n'est pas dépassé ; le dernier peut être sans max.
+  // Le niveau d'un nombre (colonne, ou total) : le 1er dont la borne tient (max : jusqu'à max compris ; sous : en
+  // dessous de sous, strictement) ; le dernier peut être sans borne.
   function niveau(col, v) {
     if (!col.niveaux || typeof v !== "number") return null;
     for (var k = 0; k < col.niveaux.length; k++) {
       var nv = col.niveaux[k];
-      if (nv.max === undefined || v <= nv.max) return nv;
+      if (nv.sous !== undefined ? v < nv.sous : nv.max === undefined || v <= nv.max) return nv;
     }
     return null;
   }
@@ -431,11 +470,11 @@
     var k = c.couleurs ? indexValeur(c.valeurs, v) : -1;
     return k >= 0 && c.couleurs[k] ? c.couleurs[k] : "";
   }
-  // Les valeurs calculées d'une ligne, leurs niveaux, et les couleurs de ses choix.
+  // Les valeurs calculées d'une ligne, leurs niveaux, et les couleurs de ses choix. Une ligne vide n'a pas de calcul.
   function calculerLigne(cols, ligne, parent) {
-    var ctx = contexteLigne(cols, ligne, parent), r = { valeurs: {}, niveaux: {}, couleurs: {} };
+    var ctx = contexteLigne(cols, ligne, parent), r = { valeurs: {}, niveaux: {}, couleurs: {} }, rempli = ligneRemplie(cols, ligne);
     cols.forEach(function (c) {
-      if (c.type === "calcul") r.valeurs[c.id] = ctx.valeur(c.id);
+      if (c.type === "calcul") r.valeurs[c.id] = rempli ? ctx.valeur(c.id) : null;
       if (c.niveaux) r.niveaux[c.id] = niveau(c, c.type === "calcul" ? r.valeurs[c.id] : valeurSaisie(c, ligne[c.id]));
       if (c.couleurs) r.couleurs[c.id] = couleurChoix(c, ligne[c.id]);
     });
@@ -472,11 +511,88 @@
     }
     return "";
   }
-  // Les messages d'alerte d'une ligne de tableau (une ligne vide n'a pas d'alerte).
+  // « « Quantité » est vide, donc pas de « Total (€) » sur cette ligne, ni dans les totaux. » : les cases qui, vides,
+  // rendent un calcul vide (un produit, un quotient, une date, un autre calcul vide), réunies en un seul message par
+  // ligne. Une case n'y est pas quand une alerte du tableau qui teste « case vide » le dit déjà (sauf).
+  // { cases: [{ nom, sauf: [conditions] }] (colonnes, puis rubriques du document : 5 au plus, vérificateur),
+  //   messages: [texte] } : messages[m], le message des cases vides m (m = la somme des 2^k des cases k vides).
+  var MAX_CASES_VIDES = 5;
+  var cacheIncompletes = [];
+  function incompletes(t, rubriques) {
+    rubriques = rubriques || AUCUNE;
+    for (var q = 0; q < cacheIncompletes.length; q++) if (cacheIncompletes[q].t === t && cacheIncompletes[q].r === rubriques) return cacheIncompletes[q].v;
+    var parId = {}, rubId = {}, memo = {}, parSaisie = {}, cases = [], messages = [""];
+    t.colonnes.forEach(function (c) { parId[c.id] = c; });
+    rubriques.forEach(function (r) { rubId[r.id] = r; });
+    var souple = function (nom) { return estSouple(parId[nom] || rubId[nom]); };
+    var saisie = function (nom) {
+      var x = parId[nom] || rubId[nom];
+      return !!x && x.type !== "calcul" && x.type !== "liste" && x.type !== "tableau";
+    };
+    function bloquantes(id, vus) {
+      if (memo[id]) return memo[id];
+      if (vus[id]) return [];
+      vus[id] = true;
+      var out = [];
+      strictes(arbre(parId[id].formule), souple, false).forEach(function (m) {
+        var l = parId[m] && parId[m].type === "calcul" ? bloquantes(m, vus) : saisie(m) ? [m] : [];
+        l.forEach(function (x) { if (out.indexOf(x) < 0) out.push(x); });
+      });
+      return (memo[id] = out);
+    }
+    t.colonnes.forEach(function (c) {
+      if (c.type === "calcul") bloquantes(c.id, {}).forEach(function (m) { (parSaisie[m] = parSaisie[m] || []).push(c.id); });
+    });
+    t.colonnes.map(function (c) { return c.id; }).concat(rubriques.map(function (r) { return r.id; })).forEach(function (m) {
+      if (parSaisie[m] && (parId[m] || rubId[m])) cases.push({ nom: m, titre: (parId[m] || rubId[m]).titre, calculs: parSaisie[m],
+        sauf: (t.alertes || []).filter(function (a) { return testeVide(arbre(a.si), m); }).map(function (a) { return a.si; }) });
+    });
+    var trop = cases.length > MAX_CASES_VIDES;   // refusé par le vérificateur
+    if (trop) cases = cases.slice(0, MAX_CASES_VIDES);
+    for (var masque = 1; masque < 1 << cases.length; masque++) {
+      var vides = cases.filter(function (x, k) { return masque & 1 << k; }), calcs = [];
+      t.colonnes.forEach(function (c) {
+        if (vides.some(function (x) { return x.calculs.indexOf(c.id) >= 0; })) calcs.push(c.id);
+      });
+      var compte = (t.totaux || []).some(function (tot) {
+        return calcs.indexOf(tot.colonne) >= 0 || (!!tot.si && citees(arbre(tot.si)).some(function (k) { return calcs.indexOf(k) >= 0; }));
+      });
+      messages.push(listeEt(vides.map(function (x) { return "« " + x.titre + " »"; })) + (vides.length > 1 ? " sont vides" : " est vide") +
+        ", donc pas " + listeDe(calcs.map(function (k) { return parId[k].titre; })) + " sur cette ligne" + (compte ? ", ni dans les totaux." : "."));
+    }
+    var v = { cases: cases, messages: messages, trop: trop };
+    cacheIncompletes.push({ t: t, r: rubriques, v: v });
+    return v;
+  }
+  // La condition teste-t-elle « nom vide » ?
+  function testeVide(n, nom) {
+    if (!n) return false;
+    if (n.t === "vide") return !n.non && n.a.t === "col" && n.a.nom === nom;
+    return testeVide(n.a, nom) || testeVide(n.b, nom);
+  }
+  // « de « Total (€) » », « d'« Écart » ni de « Reste » » ; « « A », « B » et « C » ».
+  function de(titre) { return (/^[aeiouyhàâäéèêëîïôöûü]/i.test(titre) ? "d'« " : "de « ") + titre + " »"; }
+  function listeDe(titres) {
+    var l = titres.map(de);
+    return l.length > 1 ? l.slice(0, -1).join(", ") + " ni " + l[l.length - 1] : l[0];
+  }
+  function listeEt(l) { return l.length > 1 ? l.slice(0, -1).join(", ") + " et " + l[l.length - 1] : l[0]; }
+  // Le message des cases vides d'une ligne remplie, ou "".
+  function messageIncomplet(t, ctx, parent) {
+    var inc = incompletes(t, parent && parent.rubriques), masque = 0;
+    inc.cases.forEach(function (x, k) {
+      if (ctx.valeur(x.nom) === null && !x.sauf.some(function (si) { return condition(si, ctx); })) masque += 1 << k;
+    });
+    return inc.messages[masque];
+  }
+  // Les messages d'alerte d'une ligne de tableau (une ligne vide n'a pas d'alerte) : ceux du tableau, puis les cases vides.
   function alertesLigne(t, ligne, parent) {
     if (!ligneRemplie(t.colonnes, ligne)) return [];
     var ctx = contexteLigne(t.colonnes, ligne, parent);
-    return (t.alertes || []).filter(function (a) { return condition(a.si, ctx); }).map(function (a) { return a.message; });
+    var res = (t.alertes || []).filter(function (a) { return condition(a.si, ctx); }).map(function (a) { return a.message; });
+    var m = messageIncomplet(t, ctx, parent);
+    if (m) res.push(m);
+    return res;
   }
   function totalTableau(t, tot, lignes, parent) {
     var vals = [], nb = 0;
@@ -524,7 +640,7 @@
       rub[r.id] = r;
       if (r.type === "tableau") (r.totaux || []).forEach(function (t) { if (t.id) tot[t.id] = { r: r, t: t }; });
     });
-    var ctx = { aujourdhui: auj, valeur: function (nom) {
+    var ctx = { aujourdhui: auj, rubriques: def.rubriques, souple: function (nom) { return estSouple(rub[nom]); }, valeur: function (nom) {
       var r = rub[nom], v = (contenu.rubriques || {})[nom], x = tot[nom];
       if (r) return r.type === "liste" || r.type === "tableau" ? (Array.isArray(v) ? v : []) : valeurSaisie(r, v);
       if (!x) return null;
@@ -625,7 +741,7 @@
   function examinerLignes(cols, lignes, ou, pb) {
     if (lignes === undefined || lignes === null) return [];
     if (!Array.isArray(lignes)) { pb.push(ou + "les lignes ne sont pas une liste"); return null; }
-    if (lignes.length > MAX.lignes) { pb.push(ou + "plus de " + MAX.lignes + " lignes : la fin est coupée"); lignes = lignes.slice(0, MAX.lignes); }
+    if (lignes.length > MAX.lignes) { pb.push(ou + "plus de " + MAX.lignes + " lignes, la fin est coupée (" + (lignes.length - MAX.lignes) + " en trop)"); lignes = lignes.slice(0, MAX.lignes); }
     var parId = {}, res = [];
     cols.forEach(function (c) { parId[c.id] = c; });
     lignes.forEach(function (l, i) {
@@ -661,8 +777,8 @@
     if (def.type === "matrice") {
       var cols = contenu.colonnes === undefined ? [] : contenu.colonnes, ls = contenu.lignes === undefined ? [] : contenu.lignes;
       if (!Array.isArray(cols) || !Array.isArray(ls)) return { contenu: null, problemes: pb.concat(["colonnes et lignes : des listes"]) };
-      if (cols.length > MAX.colonnes) { pb.push("plus de " + MAX.colonnes + " colonnes : la fin est coupée"); cols = cols.slice(0, MAX.colonnes); }
-      if (ls.length > MAX.lignes) { pb.push("plus de " + MAX.lignes + " lignes : la fin est coupée"); ls = ls.slice(0, MAX.lignes); }
+      if (cols.length > MAX.colonnes) { pb.push("plus de " + MAX.colonnes + " " + (def.colonne.pluriel || def.colonne.titre + "s").toLowerCase() + ", la fin est coupée (" + (cols.length - MAX.colonnes) + " en trop)"); cols = cols.slice(0, MAX.colonnes); }
+      if (ls.length > MAX.lignes) { pb.push("plus de " + MAX.lignes + " lignes, la fin est coupée (" + (ls.length - MAX.lignes) + " en trop)"); ls = ls.slice(0, MAX.lignes); }
       cols = cols.map(function (n, k) { return examinerTexte(n, "colonne " + (k + 1), pb, MAX.nom); });
       var choix = { type: "choix", valeurs: def.valeurs };
       var lignesM = [];
@@ -693,7 +809,7 @@
         res[r.id] = t || [];
       } else if (r.type === "liste") {
         if (v !== undefined && !Array.isArray(v)) { pb.push(r.titre + " : une liste de textes est attendue"); v = []; }
-        v = (v || []).slice(0, MAX.items);
+        if ((v || []).length > MAX.items) { pb.push(r.titre + " : plus de " + MAX.items + " lignes, la fin est coupée"); v = v.slice(0, MAX.items); }
         res[r.id] = v.map(function (x, k) { return examinerTexte(x, r.titre + " " + (k + 1), pb, MAX.texte); });
       } else res[r.id] = nettoyerValeur(r, v, r.titre, pb);
     });
@@ -705,7 +821,8 @@
     return JSON.stringify({ format: FORMAT_FICHIER, version: 1, outil: def.id, titre: def.titre, nom: doc.nom || "",
       enregistre: new Date().toISOString(), contenu: doc.contenu }, null, 2);
   }
-  // « Ouvrir un fichier » : ne lève jamais d'erreur. { ok, message } ou { ok: true, doc: { nom, contenu }, corrections }.
+  // « Ouvrir un fichier » : ne lève jamais d'erreur. { ok, message } ou { ok: true, doc: { nom, contenu }, corrections,
+  // problemes, annonce } (annonce : le message à montrer, voir annonceOuverture).
   function lireFichier(texte, def, toutes) {
     var d;
     try { d = JSON.parse(String(texte).replace(/^\uFEFF/, "")); } catch (e) { d = undefined; }
@@ -716,10 +833,21 @@
       return { ok: false, autre: autre ? autre.id : null, message: autre ? "Ce fichier est un document de l'outil « " + autre.titre + " » : ouvre-le depuis cet outil." :
         "Ce fichier vient d'un outil inconnu." };
     }
+    if (d.version !== 1) return { ok: false, message: "Ce fichier vient d'une version inconnue des outils" +
+      (typeof d.version === "number" && isFinite(d.version) ? " (version " + d.version + ")" : "") + " : il ne peut pas être ouvert ici." };
     var r = examiner(def, d.contenu);
     if (!r.contenu) return { ok: false, message: "Ce fichier est abîmé : son contenu ne peut pas être lu." };
-    var nom = typeof d.nom === "string" && d.nom.trim() ? d.nom.trim().slice(0, MAX.nom) : "Document ouvert";
-    return { ok: true, doc: { nom: nom, contenu: r.contenu }, corrections: r.problemes.length };
+    var nom = typeof d.nom === "string" ? d.nom.replace(/\s+/g, " ").trim() : "";
+    if (nom.length > MAX.nom) { r.problemes.unshift("nom trop long, coupé à " + MAX.nom + " caractères"); nom = nom.slice(0, MAX.nom).trim(); }
+    nom = nom || "Sans nom";
+    return { ok: true, doc: { nom: nom, contenu: r.contenu }, corrections: r.problemes.length, problemes: r.problemes,
+      annonce: annonceOuverture("Fichier ouvert : « " + nom + " ».", r.problemes) };
+  }
+  // Un message et la liste de ce qui a été corrigé ou coupé (5 points au plus) : { texte, details: [...] }.
+  function annonceOuverture(texte, problemes) {
+    var d = problemes.slice(0, 5).map(function (p) { return p.charAt(0).toUpperCase() + p.slice(1) + "."; });
+    if (problemes.length > 5) d.push("Et " + pluriel({ titre: "autre correction", pluriel: "autres corrections" }, problemes.length - 5) + ".");
+    return { texte: texte + (problemes.length ? " Ce qui a été corrigé ou coupé :" : ""), details: d };
   }
 
   // « 6 risques », « 5 livrables · 10 personnes », « 4 rubriques remplies sur 6 ».
@@ -772,7 +900,7 @@
   }
   // doc = { nom, contenu, aujourdhui (facultatif : la date de l'exemple) }
   function texteDocument(def, doc) {
-    var c = doc.contenu, s = suivi(def, c, doc.aujourdhui), o = [def.titre + (doc.nom ? " : " + doc.nom : "")];
+    var c = doc.contenu, s = suivi(def, c, doc.aujourdhui), nom = String(doc.nom || "").trim(), o = [def.titre + (nom ? " : " + nom : "")];
     var parent = parentDe(def, c, doc.aujourdhui);
     if (def.type === "tableau") {
       lignesTexteTableau(def, c.lignes, o, parent);
@@ -815,9 +943,10 @@
   // Styles écrits dans chaque balise : Word et les messageries ignorent les feuilles de style.
   var H = {
     doc: "font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.35;color:#000000;background:#ffffff",
-    h1: "font-size:16pt;margin:0 0 2pt",
+    h1: "font-size:16pt;margin:0 0 2pt;page-break-after:avoid;break-after:avoid",
     sous: "font-size:11pt;margin:0 0 10pt;color:#444444",
-    h2: "font-size:12.5pt;margin:12pt 0 4pt",
+    h2: "font-size:12.5pt;margin:12pt 0 4pt;page-break-after:avoid;break-after:avoid",
+    titreP: "margin:4pt 0;page-break-after:avoid;break-after:avoid",
     table: "border-collapse:collapse;width:100%;font-size:10pt",
     th: "border:1px solid #8c8c8c;background:#eeeeee;padding:4px 6px;text-align:left;vertical-align:bottom",
     td: "border:1px solid #8c8c8c;padding:4px 6px;text-align:left;vertical-align:top",
@@ -852,15 +981,15 @@
   }
   function htmlTotaux(s, rubrique, aide) {
     var t = s.totaux.filter(function (x) { return x.rubrique === rubrique; });
-    return t.length ? '<p style="' + H.p + '"><strong>Totaux</strong></p><ul style="' + H.ul + '">' +
+    return t.length ? '<p style="' + H.titreP + '"><strong>Totaux</strong></p><ul style="' + H.ul + '">' +
       t.map(function (x) { return "<li>" + escH(x.libelle) + " : <strong>" + escH(x.texte) + "</strong>" + badgeH(x.niveau) + "</li>"; }).join("") + "</ul>" +
       (aide ? '<p style="' + H.p + ';color:#444444">' + escH(aide) + "</p>" : "") : "";
   }
   // doc = { nom, contenu, aujourdhui (facultatif : la date de l'exemple) }
   function htmlDocument(def, doc) {
-    var c = doc.contenu, s = suivi(def, c, doc.aujourdhui), parent = parentDe(def, c, doc.aujourdhui);
+    var c = doc.contenu, s = suivi(def, c, doc.aujourdhui), parent = parentDe(def, c, doc.aujourdhui), nom = String(doc.nom || "").trim();
     var h = '<div style="' + H.doc + '"><h1 style="' + H.h1 + '">' + escH(def.titre) + "</h1>" +
-      (doc.nom ? '<p style="' + H.sous + '">' + escH(doc.nom) + "</p>" : "");
+      (nom ? '<p style="' + H.sous + '">' + escH(nom) + "</p>" : "");
     if (def.type === "tableau") h += htmlTableauDoc(def, c.lignes, parent) + htmlTotaux(s, "", def.aideTotaux);
     else if (def.type === "matrice") {
       h += '<p style="' + H.p + '">' + def.valeurs.map(function (v, k) { return "<strong>" + escH(v) + "</strong> = " + escH(def.libelles ? def.libelles[k] : v); }).join(" · ") + "</p>" +
@@ -876,11 +1005,11 @@
           var items = v.filter(function (x) { return !estVide(x); });
           h += '<h2 style="' + H.h2 + '">' + escH(r.titre) + "</h2>" + (items.length ? '<ul style="' + H.ul + '">' + items.map(function (x) { return "<li>" + escHL(x) + "</li>"; }).join("") + "</ul>" : '<p style="' + H.p + '">—</p>');
         } else if (r.type === "tableau") h += '<h2 style="' + H.h2 + '">' + escH(r.titre) + "</h2>" + htmlTableauDoc(r, v, parent) + htmlTotaux(s, r.id, r.aideTotaux);
-        else if (r.type === "texte-long") h += '<p style="' + H.p + '"><strong>' + escH(r.titre) + "</strong><br>" + (estVide(v) ? "—" : escHL(v)) + "</p>";
+        else if (r.type === "texte-long") h += '<p style="' + H.p + ';page-break-inside:avoid;break-inside:avoid"><strong>' + escH(r.titre) + "</strong><br>" + (estVide(v) ? "—" : escHL(v)) + "</p>";
         else h += '<p style="' + H.p + '"><strong>' + escH(r.titre) + " :</strong> " + (estVide(v) ? "—" : choixH(texteValeur(r, v), couleurChoix(r, v))) + "</p>";
       });
     }
-    if (s.alertes.length) h += '<div style="' + H.alertes + '"><p style="' + H.p + '"><strong>Alertes</strong></p><ul style="' + H.ul + '">' +
+    if (s.alertes.length) h += '<div style="' + H.alertes + '"><p style="' + H.titreP + '"><strong>Alertes</strong></p><ul style="' + H.ul + '">' +
       s.alertes.map(function (a) { return "<li>" + escH(a.texte) + "</li>"; }).join("") + "</ul></div>";
     return h + "</div>";
   }
@@ -920,18 +1049,31 @@
     var f = '""';
     for (var k = c.niveaux.length - 1; k >= 0; k--) {
       var nv = c.niveaux[k];
-      f = nv.max === undefined ? texteFormule(nv.libelle) : "IF(" + cellule + "<=" + nombreXml(nv.max) + "," + texteFormule(nv.libelle) + "," + f + ")";
+      f = nv.sous !== undefined ? "IF(" + cellule + "<" + nombreXml(nv.sous) + "," + texteFormule(nv.libelle) + "," + f + ")" :
+        nv.max === undefined ? texteFormule(nv.libelle) : "IF(" + cellule + "<=" + nombreXml(nv.max) + "," + texteFormule(nv.libelle) + "," + f + ")";
     }
     return "IF(" + cellule + '="","",' + f + ")";
   }
-  function excelCalcul(c, refs) {
-    var n = arbre(c.formule), f = excel(n, refs), noms = citees(n);
+  // SI(case stricte vide ; "" ; calcul). Un nombre saisi, terme d'une somme, compte pour 0 (Excel aussi) : la formule
+  // ne vaut alors "" que si la ligne est vide (existe = 0), comme sur le site. refs.ligne(nom) : la colonne de la ligne.
+  function excelCalcul(c, refs, existe) {
+    var n = arbre(c.formule), f = excel(n, refs), s = strictes(n, refs.souple || jamais, false);
     if (aDivision(n)) f = "IFERROR(" + f + ',"")';
-    return noms.length ? "IF(" + siVide(noms, refs) + ',"",' + f + ")" : f;
+    if (s.length) f = "IF(" + siVide(s, refs) + ',"",' + f + ")";
+    // Une case stricte de la ligne, sans valeur par défaut, est vide quand la ligne est vide : la garde suffit alors.
+    var garde = s.some(function (m) { var x = refs.ligne ? refs.ligne(m) : null; return !!x && (x.type === "calcul" || x.defaut === undefined); });
+    return existe && !garde ? "IF(" + existe + '=0,"",' + f + ")" : f;
   }
-  // Les messages d'alerte d'une ligne, réunis : SUPPRESPACE(SI(…;"Message 1 ";"")&SI(…;"Message 2 ";"")).
-  function excelAlertes(alertes, refs, existe) {
-    var morceaux = alertes.map(function (a) { return "IF(" + excel(arbre(a.si), refs) + "," + texteFormule(a.message + (alertes.length > 1 ? " " : "")) + ',"")'; });
+  // Les messages d'alerte d'une ligne, réunis : SUPPRESPACE(SI(…;"Message 1 ";"")&SI(…;"Message 2 ";"")), puis celui
+  // des cases vides : CHOISIR(1 + (B2="")*1 + (C2="")*2 ; "" ; "« B » est vide…" ; "« C » est vide…" ; "« B » et « C »…").
+  function excelAlertes(alertes, refs, existe, inc) {
+    var plus = alertes.length + (inc && inc.cases.length ? 1 : 0) > 1, fin = plus ? " " : "";
+    var morceaux = alertes.map(function (a) { return "IF(" + excel(arbre(a.si), refs) + "," + texteFormule(a.message + fin) + ',"")'; });
+    if (inc && inc.cases.length) morceaux.push("CHOOSE(1+" + inc.cases.map(function (x, k) {
+      var si = refs.cellule(x.nom) + '=""';
+      if (x.sauf.length) si = "AND(" + [si].concat(x.sauf.map(function (c) { return "NOT(" + excel(arbre(c), refs) + ")"; })).join(",") + ")";
+      return "(" + si + ")*" + (1 << k);
+    }).join("+") + "," + inc.messages.map(function (m) { return texteFormule(m ? m + fin : ""); }).join(",") + ")");
     return "IF(" + existe + '=0,"",' + (morceaux.length > 1 ? "TRIM(" + morceaux.join("&") + ")" : morceaux[0]) + ")";
   }
 
@@ -941,12 +1083,12 @@
   // déjà écrites (modele). parent : le contexte du document (pour les valeurs calculées) ; ext : une rubrique du
   // document → sa cellule sur la 1re feuille (« 'Rapport du COPIL et météo'!$B$6 »), pour une formule qui la lit.
   function feuilleTableau(t, nom, lignes, modele, parent, ext) {
-    var cols = t.colonnes, sortie = [], lettreDe = {};
+    var cols = t.colonnes, sortie = [], lettreDe = {}, inc = incompletes(t, parent && parent.rubriques);
     cols.forEach(function (c) {
       sortie.push({ sorte: "col", col: c });
       if (c.niveaux) sortie.push({ sorte: "niveau", col: c });
     });
-    if ((t.alertes || []).length) sortie.push({ sorte: "alertes" });
+    if ((t.alertes || []).length || inc.cases.length) sortie.push({ sorte: "alertes" });
     sortie.forEach(function (s, i) { s.l = lettre(i + 1); if (s.sorte === "col") lettreDe[s.col.id] = s.l; });
     if (modele) lignes = (t.modele || []).slice();
     var nb = modele ? Math.max(LIGNES_MODELE, lignes.length + LIGNES_EN_PLUS) : Math.max(LIGNES_MODELE - LIGNES_EN_PLUS, lignes.length) + LIGNES_EN_PLUS;
@@ -956,7 +1098,7 @@
     f.lignes.push(sortie.map(function (s) {
       return { t: "texte", s: "entete", v: s.sorte === "col" ? s.col.titre : s.sorte === "niveau" ? "Niveau : " + s.col.titre : "Alertes" };
     }));
-    for (var r = prem; r <= der; r++) f.lignes.push(ligneTableau(t, sortie, lettreDe, entrees, r, lignes[r - prem] || null, parent, ext));
+    for (var r = prem; r <= der; r++) f.lignes.push(ligneTableau(t, sortie, lettreDe, entrees, r, lignes[r - prem] || null, parent, ext, inc));
     sortie.forEach(function (s) {
       var plage = s.l + prem + ":" + s.l + der;
       if (s.sorte === "niveau") f.couleurs.push({ plage: plage, regles: s.col.niveaux.map(function (nv) { return { egal: nv.libelle, couleur: nv.couleur }; }) });
@@ -971,7 +1113,7 @@
       f.lignes.push([]);
       f.lignes.push([{ t: "texte", v: "Totaux", s: "gras" }]);
       t.totaux.forEach(function (tot, k) {
-        var x = excelTotal(tot, lettreDe, entrees, prem, der, ext), v = res.totaux[k].valeur, n = f.lignes.length + 1;
+        var x = excelTotal(tot, lettreDe, entrees, prem, der, ext, soupleDe(t, parent)), v = res.totaux[k].valeur, n = f.lignes.length + 1;
         var cellules = [{ t: "texte", v: tot.libelle, s: "gras" }, { t: "formule", f: x.f, tableau: x.tableau, v: v === null ? "" : v }];
         if (tot.niveaux) {
           cellules.push({ t: "formule", s: "haut", f: excelNiveau(tot, "B" + n), v: res.totaux[k].niveau ? res.totaux[k].niveau.libelle : "" });
@@ -986,25 +1128,33 @@
   function reglesCouleurs(c) {
     return c.valeurs.map(function (v, k) { return { egal: v, couleur: c.couleurs[k] }; }).filter(function (x) { return x.couleur; });
   }
-  function ligneTableau(t, sortie, lettreDe, entrees, r, ligne, parent, ext) {
-    var refs = { cellule: function (nom) { return lettreDe[nom] ? lettreDe[nom] + r : (ext || {})[nom] || nom; } };
+  // Nombre saisi (vide = 0 dans une somme) : une colonne du tableau, ou une rubrique du document.
+  function soupleDe(t, parent) {
+    return function (nom) {
+      var c = t.colonnes.filter(function (x) { return x.id === nom; })[0];
+      return c ? estSouple(c) : !!(parent && parent.souple && parent.souple(nom));
+    };
+  }
+  function ligneTableau(t, sortie, lettreDe, entrees, r, ligne, parent, ext, inc) {
+    var refs = { cellule: function (nom) { return lettreDe[nom] ? lettreDe[nom] + r : (ext || {})[nom] || nom; }, souple: soupleDe(t, parent),
+      ligne: function (nom) { return t.colonnes.filter(function (x) { return x.id === nom; })[0] || null; } };
     var existe = existeX(entrees, function (c) { return lettreDe[c.id] + r; }, false);
     var calc = ligne ? calculerLigne(t.colonnes, ligne, parent) : { valeurs: {}, niveaux: {}, couleurs: {} };
     return sortie.map(function (s) {
-      if (s.sorte === "alertes") return { t: "formule", s: "long", f: excelAlertes(t.alertes, refs, existe), v: ligne ? alertesLigne(t, ligne, parent).join(" ") : "" };
+      if (s.sorte === "alertes") return { t: "formule", s: "long", f: excelAlertes(t.alertes || [], refs, existe, inc), v: ligne ? alertesLigne(t, ligne, parent).join(" ") : "" };
       var c = s.col;
       if (s.sorte === "niveau") {
         var nv = calc.niveaux[c.id];
         return { t: "formule", s: "haut", f: excelNiveau(c, lettreDe[c.id] + r), v: nv ? nv.libelle : "" };
       }
-      if (c.type === "calcul") { var v = calc.valeurs[c.id]; return { t: "formule", s: "haut", f: excelCalcul(c, refs), v: v === null || v === undefined ? "" : v }; }
+      if (c.type === "calcul") { var v = calc.valeurs[c.id]; return { t: "formule", s: "haut", f: excelCalcul(c, refs, existe), v: v === null || v === undefined ? "" : v }; }
       return ligne ? celluleSaisie(c, ligne[c.id]) : null;
     });
   }
-  function excelTotal(tot, lettreDe, entrees, prem, der, ext) {
+  function excelTotal(tot, lettreDe, entrees, prem, der, ext, souple) {
     var plage = function (nom) { return lettreDe[nom] ? lettreDe[nom] + prem + ":" + lettreDe[nom] + der : (ext || {})[nom] || nom; };
     var existe = existeX(entrees, function (c) { return plage(c.id); }, true);
-    var cond = tot.si ? excelPlage(arbre(tot.si), { cellule: plage }) + "*" + existe : existe;
+    var cond = tot.si ? excelPlage(arbre(tot.si), { cellule: plage, souple: souple }) + "*" + existe : existe;
     var x = tot.colonne ? plage(tot.colonne) : "";
     switch (tot.calcul) {
       case "nombre": return { f: "SUM(" + cond + "*1)", tableau: true };
@@ -1060,7 +1210,7 @@
     var base = modele ? contenuVide(def) : { rubriques: c.rubriques };
     tableaux.forEach(function (x) { nomTab[x.r.id] = x.nom; });
     f.lignes.push([{ t: "texte", v: def.titre, s: "titre" }]);
-    if (!modele && c.nom) f.lignes.push([{ t: "texte", v: c.nom }]);
+    if (!modele && String(c.nom || "").trim()) f.lignes.push([{ t: "texte", v: String(c.nom).trim() }]);
     f.lignes.push([]);
     def.rubriques.forEach(function (r) {
       var v = base.rubriques[r.id], titre = { t: "texte", v: r.titre, s: "gras" }, n = f.lignes.length + 1;
@@ -1079,6 +1229,14 @@
         else if (r.aide) f.aides.push({ plage: "B" + n, titre: r.titre, aide: r.aide });
       }
     });
+    // Les alertes du document (pas celles d'une ligne : leur colonne « Alertes » se recalcule) : du texte, figé à l'export.
+    if (!modele && (def.alertes || []).length) {
+      var jourExport = aujourdhui(), al = suivi(def, base, auj).alertes.filter(function (a) { return a.rubrique === null; });
+      f.lignes.push([]);
+      f.lignes.push([{ t: "texte", v: "Alertes du document", s: "gras" }, { t: "texte", s: "long", v: "Export du " + dateFr(isoDuJour(jourExport)) +
+        (typeof auj === "number" && auj !== jourExport ? ", situation au " + dateFr(isoDuJour(auj)) : "") + " : ce texte ne se recalcule pas dans Excel." }]);
+      (al.length ? al.map(function (a) { return a.texte; }) : ["Aucune alerte."]).forEach(function (t) { f.lignes.push([null, { t: "texte", v: t, s: "long" }]); });
+    }
     var parent = contexteDocument(def, base, auj);
     return [f].concat(tableaux.map(function (x) { return feuilleTableau(x.r, x.nom, modele ? [] : c.rubriques[x.r.id], modele, parent, ext); }));
   }
@@ -1304,7 +1462,7 @@
     calculerLigne: calculerLigne, ligneRemplie: ligneRemplie, ligneVide: ligneVide, suivi: suivi, aDesAlertes: aDesAlertes,
     contexteDocument: contexteDocument, contexteBase: contexteBase, parentDe: parentDe, couleurChoix: couleurChoix,
     contenuVide: contenuVide, contenuExemple: contenuExemple, examiner: examiner, fichier: fichier, lireFichier: lireFichier,
-    resumeDocument: resumeDocument, pluriel: pluriel, ligneDef: ligneDef,
+    resumeDocument: resumeDocument, annonceOuverture: annonceOuverture, incompletes: incompletes, strictes: strictes, estSouple: estSouple, MAX_CASES_VIDES: MAX_CASES_VIDES, pluriel: pluriel, ligneDef: ligneDef,
     // sorties
     texteDocument: texteDocument, htmlDocument: htmlDocument, classeur: classeur, xlsx: xlsx, zip: zip, crc32: crc32, utf8: utf8,
     lettre: lettre

@@ -212,7 +212,7 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
 .case input { width: 18px; height: 18px; accent-color: var(--accent); }
 .card table { display: block; overflow-x: auto; }
 .parcours { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
-.parcours > div { flex: 1; }
+.parcours > div { flex: 1; min-width: 0; }   /* un long nom sans espace passe à la ligne, la flèche reste visible */
 .parcours h3 { color: var(--accent); }
 .parcours .fleche { font-size: 32px; color: var(--muted); }
 .lien { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
@@ -322,6 +322,18 @@ main.large { max-width: 1600px; }
 .o-guide .label { margin-top: 12px; }
 .o-guide .label:first-child { margin-top: 0; }
 .o-guide p { margin: 0 0 4px; }
+/* Page Outils : un sujet, ses étapes numérotées (groupes de data/outils/sujets.js), une carte par outil */
+.o-etape { margin: 22px 0 10px; font-size: 20px; }
+.o-etape-n { color: var(--accent); }
+.parcours h4 { margin: 0; font-size: 19px; color: var(--accent); }
+.o-carte h3, .o-carte h4, .o-carte p, .o-doc h3, .o-doc p { overflow-wrap: anywhere; }
+.btn.ghost.o-danger { color: var(--ko); border-color: var(--ko); }
+/* Les messages : sous les boutons (o-msg), en haut d'un document (o-annonce), un avertissement (o-avertir) */
+.o-msg, .o-annonce, .o-avertir, .o-exemple, .o-local { overflow-wrap: anywhere; }
+.o-msg ul, .o-annonce ul { margin: 6px 0 0; padding-left: 20px; }
+.o-annonce { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 10px 14px; margin: 8px 0 12px; }
+.o-avertir { background: var(--warn-soft); color: var(--warn); border-radius: var(--radius); padding: 8px 12px; font-weight: 700; }
+.o-limite { margin: 6px 0 10px; }
 .o-etapes { margin: 4px 0 0; padding-left: 24px; }
 .o-etapes li { margin-bottom: 4px; }
 .o-exemple { font-size: 19px; margin: 4px 0 10px; }
@@ -410,6 +422,13 @@ ul.o-legende li { margin-bottom: 2px; }
 .o-items li { display: flex; gap: 10px; align-items: flex-start; }
 .o-items input, .o-items textarea { flex: 1; }
 .o-items .lien { margin-top: 8px; }
+/* Écran tactile, ou cartes sur téléphone : « Supprimer » et « + Ligne » font au moins 44 px de haut (une cible au doigt) */
+.o-cartes .o-suppr { min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; }
+@media (pointer: coarse) {
+  .o-suppr, .o-items .lien, .o-ajout .btn.small { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .o-suppr, .o-items .lien { padding: 0 8px; }
+  .o-items .lien { margin-top: 0; }
+}
 
 /* Imprimer / PDF : seulement le document mis en forme (le même HTML que « Copier ») */
 .o-impression { display: none; }
@@ -419,6 +438,10 @@ ul.o-legende li { margin-bottom: 2px; }
   body.o-imprimable main { max-width: none; margin: 0; padding: 0; }
   body.o-imprimable .o-impression { display: block; }
   .o-impression tr { break-inside: avoid; }
+  /* Un titre ne reste pas seul en bas de page ; l'en-tête d'un tableau se répète sur chaque page, avec ses lignes */
+  .o-impression h1, .o-impression h2 { break-after: avoid; page-break-after: avoid; }
+  .o-impression thead { display: table-header-group; }
+  .o-impression p, .o-impression li { orphans: 3; widows: 3; }
   .o-impression.o-paysage { page: o-paysage; }
 }
 @page o-paysage { size: A4 landscape; margin: 12mm; }

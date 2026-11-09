@@ -273,6 +273,130 @@ egal(['OK', 'Anomalie', 'Pas joué'].map(v => OM.couleurChoix(colResultat, v)), 
 egal(OM.suivi(outil('gp-risques'), OM.contenuExemple(outil('gp-risques')), OM.jour('2027-03-20')).alertes.map(a => a.ligne), [0, 1, 2, 3, 4, 6],
   'registre lu au 20/03/2027 : des dates passées');
 
+// ---------- 7 ter. Les cases vides (novembre 2026) : vide = 0 dans une somme ; un produit vide a son alerte ; une ligne
+// vide n'a pas de calcul ; la tolérance (niveau et alerte : la même condition) ; la note du rapport ; limites et messages
+// d'un fichier ouvert ; les alertes du document dans Excel ; « Sans nom » ----------
+const ctxS = (vals, souples) => Object.assign(ctx(vals), { souple: n => souples.indexOf(n) >= 0 });
+[
+  ['a + b', { a: 1, b: null }, ['a', 'b'], 1],
+  ['a - b', { a: null, b: 5 }, ['a', 'b'], -5],
+  ['a + b', { a: null, b: null }, ['a', 'b'], 0],
+  ['a * b', { a: 2, b: null }, ['a', 'b'], null],
+  ['a / b', { a: null, b: 2 }, ['a', 'b'], null],
+  ['a + b * c', { a: 1, b: null, c: 2 }, ['a', 'b', 'c'], null],
+  ['-a + 3', { a: null }, ['a'], 3],
+  ['abs(a) + 1', { a: null }, ['a'], null],
+  ['fin - debut', { fin: null, debut: 46461 }, [], null],
+  ['calc - a', { calc: null, a: 2 }, ['a'], null],
+  ['a + b > 0', { a: null, b: null }, ['a', 'b'], false],
+  ['a + b >= 0', { a: null, b: null }, ['a', 'b'], true],
+  ['a > 0', { a: null }, ['a'], false]
+].forEach(([f, vals, souples, attendu]) => egal(OM.evaluer(OM.lire(f), ctxS(vals, souples)), attendu, 'case vide : ' + f + ' ' + JSON.stringify(vals)));
+const so = n => ['consomme', 'reste', 'reference', 'tolerance', 'quantite', 'prix', 'engage'].indexOf(n) >= 0;
+[['consomme + reste', []], ['atterrissage - reference', ['atterrissage']], ['quantite * prix', ['quantite', 'prix']],
+  ['tolerance - abs(ecart)', ['ecart']], ['consomme >= engage * 0.8', ['consomme', 'engage']], ['consomme + reste > engage', ['engage']]]
+  .forEach(([f, a]) => egal(OM.strictes(OM.lire(f), so, false), a, 'les cases qui rendent vide : ' + f));
+egal(OM.excel(OM.lire('consomme + reste > engage'), { cellule: n => ({ consomme: 'D2', reste: 'E2', engage: 'C2' })[n], souple: so }),
+  'IF(C2="",FALSE,D2+E2>C2)', 'Excel : la comparaison ne teste pas les termes de la somme (vides = 0, comme dans Excel)');
+// Le budget du testeur : plafond 50 000, un consommé vide, une référence vide
+const casBudget = () => {
+  const c = OM.contenuVide(bud);
+  c.rubriques.plafond = 50000;
+  c.rubriques.postes = [
+    { poste: 'Intégrateur', reference: 30000, engage: 30000, consomme: 18000, reste: 12000, cause: '' },
+    { poste: 'Formation (pas commencée)', reference: 4000, engage: 4000, consomme: '', reste: 4000, cause: '' },
+    { poste: 'Avenant archivage (hors référence)', reference: '', engage: 20000, consomme: 0, reste: 20000, cause: '' }];
+  return c;
+};
+st = OM.suivi(bud, casBudget());
+egal(st.totaux.map(t => t.valeur), [34000, 54000, 18000, 36000, 54000, 20000], 'budget du testeur : atterrissage 54 000, écart + 20 000');
+egal(st.alertes.map(a => a.texte), ['L\'atterrissage dépasse le plafond : le DAF décide, prévenu le jour même.',
+  'Poste 3 (« Avenant archivage (hors référence) ») : Écart sans cause : écris-la.'], 'budget du testeur : les 2 alertes, et seulement elles');
+const postes = bud.rubriques.filter(r => r.id === 'postes')[0];
+egal(casBudget().rubriques.postes.map(l => OM.calculerLigne(postes.colonnes, l, OM.contexteDocument(bud, casBudget())).valeurs),
+  [{ atterrissage: 30000, ecart: 0 }, { atterrissage: 4000, ecart: 0 }, { atterrissage: 20000, ecart: 20000 }], 'budget du testeur : chaque ligne');
+egal(OM.calculerLigne(postes.colonnes, OM.ligneVide(postes.colonnes), OM.contexteDocument(bud, casBudget())).valeurs,
+  { atterrissage: null, ecart: null }, 'une ligne vide n\'a pas de calcul (pas de 0)');
+// Le business case du testeur : un forfait sans quantité ; et une option sans surcoût, un gain sans volume ni coût horaire
+const bc = outil('gp-business-case'), casBc = OM.contenuVide(bc);
+casBc.rubriques.tco = [{ poste: 'Abonnement', quantite: 36, prix: 850, nature: '' }, { poste: 'Mise en service (forfait)', quantite: '', prix: 7400, nature: '' }];
+casBc.rubriques.options = [{ option: 'A', surcout: 0, gain_mois: 0, gain_en: 'Argent' }, { option: 'B', surcout: '', gain_mois: 3000, gain_en: 'Argent' }];
+casBc.rubriques.gains = [{ gain: 'G1', volume: 2000, minutes: 3, cout_horaire: 30, mesure: 'x' }, { gain: 'G2', volume: '', minutes: 2, cout_horaire: '', mesure: 'y' }];
+st = OM.suivi(bc, casBc);
+egal(st.totaux.filter(t => t.rubrique !== 'options').map(t => t.valeur), [30600, 100, 3000], 'business case du testeur : le forfait sans quantité n\'est pas compté (30 600)');
+egal(st.alertes.filter(a => a.rubrique).map(a => a.texte), [
+  'Option 2 (« B ») : « Surcoût (€) » est vide, donc pas de « Délai de retour (mois) » sur cette ligne.',
+  'Poste 2 (« Mise en service (forfait) ») : « Quantité » est vide, donc pas de « Total (€) » sur cette ligne, ni dans les totaux.',
+  'Gain 2 (« G2 ») : « Volume par mois » et « Coût horaire chargé (€) » sont vides, donc pas d\'« Heures par mois » ni de « Valeur par mois (€) » sur cette ligne, ni dans les totaux.'],
+  'business case du testeur : chaque alerte dit quelles cases manquent (une division par zéro n\'en a pas)');
+// Le registre : un seul message par ligne pour ses cases vides ; une ligne avec sa seule valeur par défaut n'a rien
+const reg = outil('gp-risques');
+st = OM.suivi(reg, { lignes: [{ risque: 'Un risque', proba: '', impact: '', reponse: 'Réduire', proprietaire: 'Le DAF', quand: '2099-01-01', statut: 'Ouvert' },
+  { risque: 'Deux', proba: 2, impact: '', reponse: 'x', proprietaire: 'y', quand: '2099-05-01', statut: 'Ouvert' }, { statut: 'Ouvert' }] });
+egal(st.alertes.map(a => a.texte), ['Risque 1 (« Un risque ») : « Probabilité » et « Impact » sont vides, donc pas de « Note » sur cette ligne, ni dans les totaux.',
+  'Risque 2 (« Deux ») : « Impact » est vide, donc pas de « Note » sur cette ligne, ni dans les totaux.'], 'registre : un message par ligne pour ses cases vides');
+// Les jalons : une date vide ; pas deux messages pour la même case
+const casRap = OM.contenuExemple(rap);
+casRap.rubriques.jalons = [{ jalon: 'Sans prévision', prevu: '2027-04-30', reel: '', prevision: '' },
+  { jalon: 'Tenu sans prévision', prevu: '2027-04-30', reel: '2027-04-30', prevision: '' }, { jalon: 'Sans dates', prevu: '', reel: '', prevision: '' },
+  { jalon: 'Hors tolérance', prevu: '2027-04-30', reel: '', prevision: '2027-05-15' }];
+casRap.rubriques.tolerance = 14.5;
+egal(OM.suivi(rap, casRap).alertes.filter(a => a.rubrique === 'jalons').map(a => a.ligne + ' ' + a.message), [
+  '0 Donne une prévision : la date prévue aujourd\'hui.',
+  '1 « Prévision » est vide, donc pas d\'« Écart, en jours » ni de « Reste de tolérance, en jours » sur cette ligne.',
+  '2 Donne une prévision : la date prévue aujourd\'hui.',
+  '2 « Prévu » est vide, donc pas d\'« Écart, en jours » ni de « Reste de tolérance, en jours » sur cette ligne.',
+  '3 Jalon hors tolérance : le délai est rouge, et le DAF le sait le jour même.'], 'rapport : une date vide est dite, une seule fois');
+// La tolérance avec une virgule : le niveau et l'alerte suivent la même condition
+const toler = (tol, e) => {
+  const c = OM.contenuExemple(rap);
+  c.rubriques.tolerance = tol;
+  c.rubriques.jalons = [{ jalon: 'J', prevu: '2027-04-30', reel: '', prevision: OM.isoDuJour(OM.jour('2027-04-30') + e) }];
+  const calc = OM.calculerLigne(jal.colonnes, c.rubriques.jalons[0], OM.contexteDocument(rap, c));
+  return [calc.niveaux.reste.libelle, OM.suivi(rap, c).alertes.some(a => a.rubrique === 'jalons' && /hors tolérance/.test(a.message))];
+};
+egal(toler(14.5, 15), ['Hors tolérance', true], 'tolérance 14,5 j, écart 15 j : hors tolérance, et l\'alerte');
+egal(toler(14.5, -14), ['Dans la tolérance', false], 'tolérance 14,5 j, avance de 14 j : dans la tolérance, pas d\'alerte');
+egal(toler(14, 14), ['Dans la tolérance', false], 'tolérance 14 j, écart 14 j : dans la tolérance (la borne comprise)');
+let contraires = 0;
+for (let tol = 0; tol <= 20; tol += 0.5) for (let e = -22; e <= 22; e++) { const [nv, hors] = toler(tol, e); if ((nv === 'Hors tolérance') !== hors) contraires++; }
+egal(contraires, 0, 'tolérance : le niveau et l\'alerte ne se contredisent jamais (1 845 cas)');
+// La note du rapport : seulement 1, 2, 3, 4, 6, 9 (probabilité × impact)
+const noteRap = rap.rubriques.filter(r => r.id === 'risques')[0].colonnes.filter(c => c.id === 'note')[0];
+egal([noteRap.type, noteRap.valeurs], ['choix', [1, 2, 3, 4, 6, 9]], 'rapport : la note se choisit parmi 1, 2, 3, 4, 6, 9');
+const exNote = OM.examiner(rap, { rubriques: { risques: [{ risque: 'x', note: 12 }, { risque: 'y', note: 5 }, { risque: 'z', note: 6 }] } });
+egal(exNote.contenu.rubriques.risques.map(l => l.note), ['', '', 6], 'rapport : une note hors liste (12, 5) est vidée à l\'ouverture');
+ok(exNote.problemes.some(p => /« 12 » n'est pas une valeur permise \(1, 2, 3, 4, 6, 9\)/.test(p)), 'rapport : la note 12 est signalée');
+ok(Object.keys(ATTENDU).every(id => suiviEx(id).alertes.every(a => !/ (est|sont) vides?, donc pas /.test(a.message))), 'les 12 exemples : aucune case vide');
+// Limites et messages d'un fichier ouvert
+let rf2 = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', version: 1, outil: 'gp-risques', nom: 'Gros',
+  contenu: { lignes: Array.from({ length: 305 }, (v, k) => ({ risque: 'R' + k })) } }), reg, OUTILS);
+ok(rf2.ok && rf2.doc.contenu.lignes.length === 300 && rf2.annonce.texte === 'Fichier ouvert : « Gros ». Ce qui a été corrigé ou coupé :' &&
+  rf2.annonce.details[0] === 'Plus de 300 lignes, la fin est coupée (5 en trop).', 'fichier de 305 risques : coupé à 300, et le message le dit');
+rf2 = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', version: 1, outil: 'gp-raci', nom: 'x',
+  contenu: { colonnes: Array.from({ length: 42 }, (v, k) => 'P' + k), lignes: [] } }), raci, OUTILS);
+egal(rf2.annonce.details, ['Plus de 40 personnes et rôles, la fin est coupée (2 en trop).'], 'fichier RACI de 42 personnes : le message dit ce qui est coupé');
+rf2 = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', version: 1, outil: 'gp-risques', nom: 'N'.repeat(130), contenu: { lignes: [1, 2, 3, 4, 5, 6, 7] } }), reg, OUTILS);
+ok(rf2.ok && rf2.doc.nom.length === 120 && rf2.annonce.details.length === 6 && rf2.annonce.details[0] === 'Nom trop long, coupé à 120 caractères.' &&
+  rf2.annonce.details[5] === 'Et 3 autres corrections.', 'fichier avec 8 corrections : 5 dites, puis « Et 3 autres corrections. » : ' + JSON.stringify(rf2.annonce));
+const exListe = OM.examiner(REUNION, { rubriques: { points: Array.from({ length: 103 }, (v, k) => 'x' + k) } });
+ok(exListe.contenu.rubriques.points.length === 100 && exListe.problemes.indexOf('Points ouverts : plus de 100 lignes, la fin est coupée') >= 0,
+  'liste de 103 lignes : coupée à 100, et dit');
+// Les alertes du document dans Excel : du texte, avec la date de l'export (et celle de la situation, pour un exemple)
+OM.fixerAujourdhui(OM.jour('2026-11-09'));
+const lignesF1 = cl => cl.feuilles[0].lignes.map(l => l.map(c => c && c.v).join(' | '));
+let f1 = lignesF1(OM.classeur(bud, { nom: 'Cas', contenu: casBudget() }));
+ok(f1.indexOf('Alertes du document | Export du 09/11/2026 : ce texte ne se recalcule pas dans Excel.') >= 0 &&
+  f1.indexOf(' | L\'atterrissage dépasse le plafond : le DAF décide, prévenu le jour même.') >= 0, 'Excel : les alertes du document, avec la date de l\'export');
+f1 = lignesF1(OM.classeur(bud, { nom: 'DEMAT', contenu: OM.contenuExemple(bud), aujourdhui: OM.jour(bud.exemple.date) }));
+ok(f1.indexOf('Alertes du document | Export du 09/11/2026, situation au 31/03/2027 : ce texte ne se recalcule pas dans Excel.') >= 0 &&
+  f1.indexOf(' | Aucune alerte.') >= 0, 'Excel de l\'exemple : la date de la situation, et « Aucune alerte. »');
+ok(!lignesF1(OM.classeur(bud, null)).some(t => /Alertes du document/.test(t)), 'modèle vide : pas d\'alertes du document');
+OM.fixerAujourdhui();
+// Un nom fait d'espaces
+ok(/^Registre des risques\n/.test(OM.texteDocument(reg, { nom: '   ', contenu: { lignes: [] } })) &&
+  OM.htmlDocument(reg, { nom: ' ', contenu: { lignes: [] } }).indexOf('color:#444444">') < 0, 'un nom fait d\'espaces : rien d\'écrit après le titre');
+
 // ---------- 8. Contrôle d'un document et d'un fichier : jamais d'erreur ----------
 const risques = outil('gp-risques');
 egal(OM.examiner(risques, null).contenu, null, 'contenu null');
@@ -296,13 +420,16 @@ const tous = OUTILS;
 [['pas du json', /pas au bon format/], ['', /pas au bon format/], ['null', /pas un document/], ['[]', /pas un document/], ['{"format":"autre"}', /pas un document/],
   [JSON.stringify({ format: 'learnsql-outil', outil: 'gp-raci', contenu: {} }), /Matrice RACI/],
   [JSON.stringify({ format: 'learnsql-outil', outil: 'inconnu', contenu: {} }), /outil inconnu/],
-  [JSON.stringify({ format: 'learnsql-outil', outil: 'gp-risques', contenu: { lignes: {} } }), /abîmé/]]
+  [JSON.stringify({ format: 'learnsql-outil', version: 1, outil: 'gp-risques', contenu: { lignes: {} } }), /abîmé/],
+  [JSON.stringify({ format: 'learnsql-outil', version: 2, outil: 'gp-risques', contenu: {} }), /version inconnue des outils \(version 2\) : il ne peut pas être ouvert/],
+  [JSON.stringify({ format: 'learnsql-outil', outil: 'gp-risques', contenu: {} }), /version inconnue des outils : il ne peut/]]
   .forEach(([t, re]) => { const r = OM.lireFichier(t, risques, tous); ok(r.ok === false && re.test(r.message), 'fichier faux ' + t.slice(0, 40) + ' : ' + JSON.stringify(r)); });
 const docEx = { nom: 'Mon registre', contenu: OM.contenuExemple(risques) };
 let rf = OM.lireFichier(String.fromCharCode(0xFEFF) + OM.fichier(risques, docEx), risques, tous);
 ok(rf.ok && rf.corrections === 0 && rf.doc.nom === 'Mon registre' && JSON.stringify(rf.doc.contenu) === JSON.stringify(docEx.contenu), 'aller-retour d\'un fichier (avec BOM)');
-rf = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', outil: 'gp-risques', nom: '   ', contenu: {} }), risques, tous);
-ok(rf.ok && rf.doc.nom === 'Document ouvert' && rf.doc.contenu.lignes.length === 0, 'fichier sans nom ni lignes');
+rf = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', version: 1, outil: 'gp-risques', nom: '   ', contenu: {} }), risques, tous);
+ok(rf.ok && rf.doc.nom === 'Sans nom' && rf.doc.contenu.lignes.length === 0 && rf.annonce.texte === 'Fichier ouvert : « Sans nom ».' &&
+  rf.annonce.details.length === 0, 'fichier sans nom ni lignes : « Sans nom »');
 // Des fichiers au hasard : jamais d'exception
 let graine = 7;
 const hasard = n => { graine = (graine * 1103515245 + 12345) % 2147483648; return graine % n; };
@@ -313,7 +440,7 @@ for (let k = 0; k < 400; k++) {
   const d = outil(['gp-risques', 'gp-raci', 'gp-compte-rendu'][k % 3]);
   const contenu = { lignes: valeur(0), colonnes: valeur(0), rubriques: hasard(2) ? valeur(0) : { date: valeur(1), decisions: valeur(1), actions: valeur(1) } };
   try {
-    const r = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', outil: d.id, nom: valeur(3), contenu: contenu }), d, tous);
+    const r = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', version: 1, outil: d.id, nom: valeur(3), contenu: contenu }), d, tous);
     if (r.ok) { OM.suivi(d, r.doc.contenu); OM.texteDocument(d, r.doc); OM.htmlDocument(d, r.doc); OM.xlsx(OM.classeur(d, r.doc)); }
   } catch (e) { plantages++; if (plantages < 3) console.log('plantage', e.message); }
 }
@@ -361,22 +488,31 @@ for (const def of OUTILS.concat([TACHES, REUNION])) {
   if (piege.contenu.lignes && piege.contenu.lignes[0] && def.type === 'tableau') piege.contenu.lignes[0][def.colonnes[0].id] = PIEGE;
   if (def.type === 'matrice') { piege.contenu.colonnes[0] = PIEGE; piege.contenu.lignes[0].nom = PIEGE; }
   if (def.type === 'document') piege.contenu.rubriques[def.rubriques.filter(r => r.type === 'texte' || r.type === 'texte-long')[0].id] = PIEGE;
-  for (const [quoi, doc] of [['modele', null], ['exemple', exemple], ['piege', piege]]) {
-    const cl = OM.classeur(def, doc), octets = Buffer.from(OM.xlsx(cl));
-    let parts = {};
-    try { parts = lireZip(octets); } catch (e) { ok(false, def.id + ' ' + quoi + ' : zip illisible ' + e.message); continue; }
-    const attendues = PARTIES.concat(cl.feuilles.map((f, i) => 'xl/worksheets/sheet' + (i + 1) + '.xml'));
-    egal(Object.keys(parts).sort(), attendues.sort(), def.id + ' ' + quoi + ' : parties du classeur');
-    Object.keys(parts).forEach(n => {
-      ok(parts[n].methode === 0 && (!zlib.crc32 || zlib.crc32(parts[n].data) === parts[n].crc), def.id + ' ' + quoi + ' ' + n + ' : CRC');
-      const e = xmlBienForme(parts[n].data.toString('utf8'));
-      ok(!e, def.id + ' ' + quoi + ' ' + n + ' : XML mal formé (' + e + ')');
-    });
-    unzipOk(octets, def.id + '-' + quoi + '.xlsx');
-    const fichier = path.join(dossier, def.id + '-' + quoi + '.xlsx');
-    fs.writeFileSync(fichier, octets);
-    classeurs.push({ def, quoi, cl, fichier, doc });
-  }
+  for (const [quoi, doc] of [['modele', null], ['exemple', exemple], ['piege', piege]]) ajouterClasseur(def, quoi, doc);
+}
+// Les cas des cases vides : mêmes contrôles (openpyxl), et LibreOffice doit trouver les mêmes résultats que le site.
+ajouterClasseur(bud, 'vides', { nom: 'Cas du testeur', contenu: casBudget() });
+ajouterClasseur(bc, 'vides', { nom: 'Cas du testeur', contenu: casBc });
+ajouterClasseur(rap, 'vides', { nom: 'Jalons', contenu: casRap });
+ajouterClasseur(reg, 'vides', { nom: 'Incomplet', contenu: { lignes: [
+  { risque: 'Un risque', proba: '', impact: '', reponse: 'Réduire', proprietaire: 'Le DAF', quand: '2099-01-01', statut: 'Ouvert' },
+  { risque: 'Deux', proba: 2, impact: '', reponse: 'x', proprietaire: 'y', quand: '2099-05-01', statut: 'Ouvert' },
+  { risque: 'Trois', proba: '', impact: 3, reponse: 'x', proprietaire: 'y', quand: '2099-05-01', statut: 'Fermé' }, { statut: 'Ouvert' }] } });
+function ajouterClasseur(def, quoi, doc) {
+  const cl = OM.classeur(def, doc), octets = Buffer.from(OM.xlsx(cl));
+  let parts = {};
+  try { parts = lireZip(octets); } catch (e) { ok(false, def.id + ' ' + quoi + ' : zip illisible ' + e.message); return; }
+  const attendues = PARTIES.concat(cl.feuilles.map((f, i) => 'xl/worksheets/sheet' + (i + 1) + '.xml'));
+  egal(Object.keys(parts).sort(), attendues.sort(), def.id + ' ' + quoi + ' : parties du classeur');
+  Object.keys(parts).forEach(n => {
+    ok(parts[n].methode === 0 && (!zlib.crc32 || zlib.crc32(parts[n].data) === parts[n].crc), def.id + ' ' + quoi + ' ' + n + ' : CRC');
+    const e = xmlBienForme(parts[n].data.toString('utf8'));
+    ok(!e, def.id + ' ' + quoi + ' ' + n + ' : XML mal formé (' + e + ')');
+  });
+  unzipOk(octets, def.id + '-' + quoi + '.xlsx');
+  const fichier = path.join(dossier, def.id + '-' + quoi + '.xlsx');
+  fs.writeFileSync(fichier, octets);
+  classeurs.push({ def, quoi, cl, fichier, doc });
 }
 const feuille = (id, quoi, n) => {
   const c = classeurs.filter(x => x.def.id === id && x.quoi === quoi)[0];
@@ -398,8 +534,8 @@ egal((x['xl/workbook.xml'].data.toString('utf8').match(/<sheet name="[^"]+"/g) |
   ['Compte rendu de réunion', 'Décisions', 'Actions', 'Points ouverts'], 'compte rendu : une feuille pour les rubriques, une par tableau');
 ok(/Voir la feuille « Actions »/.test(x['xl/worksheets/sheet1.xml'].data.toString('utf8')), 'compte rendu : les rubriques en texte');
 x = feuille('gp-rapport', 'exemple', 4);
-ok(x.indexOf("<f>IF(OR('Rapport du COPIL et météo'!$B$9=\"\",E2=\"\"),\"\",'Rapport du COPIL et météo'!$B$9-ABS(E2))</f><v>14</v>") >= 0,
-  'rapport : le reste de tolérance lit la rubrique sur la 1re feuille');
+ok(x.indexOf("<f>IF(E2=\"\",\"\",'Rapport du COPIL et météo'!$B$9-ABS(E2))</f><v>14</v>") >= 0,
+  'rapport : le reste de tolérance lit la rubrique sur la 1re feuille (vide = 0 dans une différence)');
 x = feuille('gp-rapport', 'exemple', 3);
 ok(/<c r="C34" s="6" t="str"><f>IF\(B34="","",IF\(B34&lt;=1,"Vert",IF\(B34&lt;=2,"Orange",IF\(B34&lt;=3,"Rouge",""\)\)\)\)<\/f><v>Orange<\/v><\/c>/.test(x) &&
   /<conditionalFormatting sqref="B2:B31"><cfRule type="cellIs" dxfId="0"[^>]*><formula>1<\/formula>/.test(x), 'rapport : niveau du total et couleurs du choix');

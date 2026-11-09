@@ -153,10 +153,22 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     idsSujets.add(s.id);
     if (!texte(s.titre) || !texte(s.resume)) err('sujet', s.id, ': titre et résumé');
     if (s.parcours !== undefined && !noeuds.has(s.parcours)) err('sujet', s.id, ': parcours inconnu', s.parcours);
-    if (!Array.isArray(s.outils) || !s.outils.length) err('sujet', s.id, ': outils, une liste non vide');
-    (s.outils || []).forEach(o => {
-      if (typeof o === 'string') { if (range[o]) err('outil rangé deux fois', o); range[o] = s.id; }
-      else if (!o || !texte(o.titre) || !texte(o.resume) || !/^#\/[a-z]/.test(o.lien || '')) err('sujet', s.id, ': un lien = { titre, resume, lien: "#/…" }');
+    // outils (une liste), ou groupes (des étapes : [{ titre, outils }]), pas les deux.
+    if ((s.outils === undefined) === (s.groupes === undefined)) err('sujet', s.id, ': outils ou groupes (l\'un des deux)');
+    if (s.groupes !== undefined) {
+      if (!Array.isArray(s.groupes) || !s.groupes.length) err('sujet', s.id, ': groupes, une liste non vide');
+      (Array.isArray(s.groupes) ? s.groupes : []).forEach((g, k) => {
+        if (!g || !texte(g.titre)) err('sujet', s.id, ': groupe', k + 1, ', titre manquant');
+        if (g) Object.keys(g).filter(x => ['titre', 'outils'].indexOf(x) < 0).forEach(x => alerte('sujet', s.id, ': groupe', k + 1, ', champ inconnu (ignoré)', x));
+      });
+    }
+    const listes = s.groupes !== undefined ? (Array.isArray(s.groupes) ? s.groupes : []).map(g => (g && g.outils)) : [s.outils];
+    listes.forEach(l => {
+      if (!Array.isArray(l) || !l.length) { err('sujet', s.id, ': outils, une liste non vide'); return; }
+      l.forEach(o => {
+        if (typeof o === 'string') { if (range[o]) err('outil rangé deux fois', o); range[o] = s.id; }
+        else if (!o || !texte(o.titre) || !texte(o.resume) || !/^#\/[a-z]/.test(o.lien || '')) err('sujet', s.id, ': un lien = { titre, resume, lien: "#/…" }');
+      });
     });
   });
   const modules = new Set((LEARNSQL.modules || []).map(m => m.id)), idsOutils = new Set(), parType = {};
@@ -197,13 +209,17 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   const verifierNiveaux = (ou, c) => {
     if (c.type !== 'calcul' && c.type !== 'nombre' && c.type !== 'total') { err(ou, ': niveaux seulement pour un nombre, un calcul ou un total'); return; }
     if (!Array.isArray(c.niveaux) || !c.niveaux.length) { err(ou, ': niveaux, une liste non vide'); return; }
-    let avant = -Infinity;
+    // max : jusqu'à max compris ; sous : en dessous de sous (strictement). Des bornes croissantes ; le dernier, sans borne.
+    let avant = -Infinity, avantSous = false;
     c.niveaux.forEach((n, k) => {
       if (!n || !texte(n.libelle)) err(ou, ': niveau ' + (k + 1) + ', libellé manquant (une couleur a toujours son mot)');
       if (OM.COULEURS.indexOf(n && n.couleur) < 0) err(ou, ': niveau ' + (k + 1) + ', couleur (' + OM.COULEURS.join(', ') + ')');
-      if (n && n.max === undefined) { if (k !== c.niveaux.length - 1) err(ou, ': niveau ' + (k + 1) + ', seul le dernier peut être sans max'); }
-      else if (!(n && typeof n.max === 'number' && n.max > avant)) err(ou, ': niveau ' + (k + 1) + ', max croissants');
-      else avant = n.max;
+      if (n && n.max !== undefined && n.sous !== undefined) err(ou, ': niveau ' + (k + 1) + ', max ou sous, pas les deux');
+      Object.keys(n || {}).filter(x => ['max', 'sous', 'libelle', 'couleur'].indexOf(x) < 0).forEach(x => alerte(ou, ': niveau ' + (k + 1) + ', champ inconnu (ignoré)', x));
+      const borne = n ? (n.sous !== undefined ? n.sous : n.max) : undefined;
+      if (borne === undefined) { if (k !== c.niveaux.length - 1) err(ou, ': niveau ' + (k + 1) + ', seul le dernier peut être sans borne (max ou sous)'); }
+      else if (!(typeof borne === 'number' && isFinite(borne) && (borne > avant || (borne === avant && avantSous && n.sous === undefined)))) err(ou, ': niveau ' + (k + 1) + ', bornes croissantes');
+      else { avant = borne; avantSous = n.sous !== undefined; }
     });
   };
   const verifierAlertes = (ou, liste, env) => {
@@ -217,7 +233,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     });
   };
   // rubriques : dans un document, ses rubriques simples (texte, nombre, date, choix), lisibles par les formules du tableau.
-  const verifierTableau = (ou, t, rubriques) => {
+  const verifierTableau = (ou, t, rubriques, defsRubriques) => {
     if (!Array.isArray(t.colonnes) || !t.colonnes.length) { err(ou, ': colonnes, une liste non vide'); return; }
     const ids = new Set(), env = { colonnes: Object.assign({}, rubriques || {}) }, deps = {};
     t.colonnes.forEach((c, k) => {
@@ -258,6 +274,11 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     };
     Object.keys(deps).forEach(id => { if (boucle(id)) err(ou, ': colonnes calculées en boucle, dont', id); });
     verifierAlertes(ou, t.alertes, env);
+    // Les cases qui, vides, rendent un calcul vide : un seul message par ligne (formule Excel CHOISIR), 5 cases au plus.
+    if (!Object.keys(deps).length || t.colonnes.every(c => !c || c.type !== 'calcul' || deps[c.id])) {
+      try { if (OM.incompletes(t, defsRubriques || []).trop) err(ou, ': plus de ' + OM.MAX_CASES_VIDES + ' cases qui peuvent manquer à un calcul (le message des cases vides)'); }
+      catch (e) { /* formule fausse : déjà signalée */ }
+    }
     if (t.totaux !== undefined && !Array.isArray(t.totaux)) err(ou, ': totaux, une liste');
     (Array.isArray(t.totaux) ? t.totaux : []).forEach((x, k) => {
       const lieu = ou + ' total ' + (k + 1);
@@ -327,7 +348,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
         if (OM.TYPES_RUBRIQUE.indexOf(r.type) < 0) err(lieu, ': type (' + OM.TYPES_RUBRIQUE.join(', ') + ') :', r.type);
         if (r.type === 'choix') verifierChoix(lieu, r);
         else if (r.couleurs !== undefined) err(lieu, ': couleurs seulement pour un choix');
-        if (r.type === 'tableau') verifierTableau(lieu, r, simples);
+        if (r.type === 'tableau') verifierTableau(lieu, r, simples, def.rubriques);
         else if (r.colonnes !== undefined || r.alertes !== undefined || r.totaux !== undefined || r.modele !== undefined || r.aideTotaux !== undefined) {
           err(lieu, ': colonnes, alertes, totaux, modele et aideTotaux seulement pour une rubrique « tableau »');
         }
