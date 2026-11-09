@@ -141,14 +141,14 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Jointures : MOUV → MVTL (sorties) → MRES (réservations) → MVTL (entrées)",
       "Bucket « Aucune réservation » : pas de MRES",
       "Bucket « Réservation non affectée » : CE2 = '2' ; « Affecté stock » : CE2 = '1'",
-      "Bucket « Affecté commande » : CE2 = '3' ; délai OK ou NON OK selon la date d'entrée prévue, « sans date prévue » si elle est vide",
+      "Bucket « Affecté commande » : CE2 = '3' ; délai OK ou NON OK selon la date d'entrée prévue, « sans date prévue » si cette date est NULL",
       "Paramètre contextuel {{id?12363}} : l'ENT_ID de la commande courante",
       "Widget : entité ENT, mode DQL, visualisation Tableau"
     ],
     exemple: ";WITH Ligne AS (\n     SELECT e.[PINO] AS NumCommande,\n            m.[ENRNO], m.[REF], m.[ARTIND], m.[SREF1], m.[SREF2],\n            ISNULL(m.[BLQTE], 0) AS QteLivree,\n            m.[CDQTE] AS QteCommandee,\n            (m.[CDQTE] - ISNULL(m.[BLQTE], 0)) AS QteRestante,\n            m.[CDDT] AS DateBesoinMouv\n     FROM ENT e\n     JOIN MOUV m\n       ON m.[DOS] = e.[DOS] AND m.[TICOD] = e.[TICOD]\n      AND m.[CDNO] = e.[PINO] AND m.[CE2] = '1' AND m.[SENS] = 2\n     WHERE e.[TICOD] = 'C' AND e.[PICOD] = 2\n       AND e.[ENT_ID] = {{id?12363}} AND e.[DOS] = '998'\n ),\n Sortie AS (\n     SELECT l.*,\n            vout.[TICKETRES] AS Ticket_Sortie,\n            COALESCE(vout.[DELDT], l.DateBesoinMouv) AS DateBesoin\n     FROM Ligne l\n     LEFT JOIN MVTL vout\n       ON vout.[ENRNO] = l.[ENRNO] AND vout.[DOS] = '998'\n      AND ISNULL(vout.[CE5], '') IN ('', '1') AND vout.[SENS] = 2\n ),\n Reserv AS (\n     SELECT s.*, r.[RESQTE], r.[CE2] AS CE2_RES, r.[TICKETRESE]\n     FROM Sortie s\n     LEFT JOIN MRES r\n       ON r.[TICKETRESS] = s.Ticket_Sortie AND r.[DOS] = '998'\n      AND r.[CE1] = 'A' AND ISNULL(s.Ticket_Sortie, 0) <> 0\n ),\n Entree AS (\n     SELECT r.*, vin.[DELDT] AS DateEntreePrevue\n     FROM Reserv r\n     LEFT JOIN MVTL vin\n       ON ISNULL(r.[TICKETRESE], 0) <> 0\n      AND vin.[TICKETRES] = r.[TICKETRESE] AND vin.[DOS] = '998'\n      AND ISNULL(vin.[CE5], '') IN ('', '1') AND vin.[SENS] = 1\n ),\n AvecArticle AS (\n     SELECT e.*, a.[DES] AS Designation,\n            e.[REF]\n              + ISNULL('-' + NULLIF(e.[ARTIND], ''), '')\n              + ISNULL('-' + NULLIF(e.[SREF1], ''), '')\n              + ISNULL('-' + NULLIF(e.[SREF2], ''), '') AS RefComplete\n     FROM Entree e\n     LEFT JOIN ART a\n       ON a.[DOS] = '998' AND a.[REF] = e.[REF]\n      AND ISNULL(a.[ARTIND], '') = ISNULL(e.[ARTIND], '')\n )\n SELECT CASE\n            WHEN RESQTE IS NULL THEN 'Aucune réservation'\n            WHEN CE2_RES = '2' THEN 'Réservation non affectée'\n            WHEN CE2_RES = '1' THEN 'Affecté stock'\n            WHEN CE2_RES = '3' AND DateEntreePrevue IS NULL THEN 'Affecté commande sans date prévue'\n            WHEN CE2_RES = '3' AND DateEntreePrevue <= DateBesoin THEN 'Affecté commande délai OK'\n            WHEN CE2_RES = '3' AND DateEntreePrevue > DateBesoin THEN 'Affecté commande délai NON OK'\n            ELSE 'Aucune réservation'\n        END AS Bucket,\n        RefComplete, [REF], [ARTIND], [SREF1], [SREF2],\n        Designation, QteCommandee, QteLivree, QteRestante,\n        DateBesoin, RESQTE, DateEntreePrevue\n FROM AvecArticle\n ORDER BY NumCommande, RefComplete;",
     piege: "Les requêtes Industrie filtrent en dur le dossier '998' (DOS = '998'), celui des exemples. Sur ta base, remplace '998' par ton code dossier, sinon la requête ne renvoie rien.",
     pratique: "Hors Dataviz, remplace {{id?12363}} par l'ENT_ID d'une commande pour tester. Le « Bucket » dit si chaque ligne est couverte par le stock ou par une commande fournisseur.",
-    motsCles: ["analyse commande client", "commande client", "couverture", "reservation", "ligne par ligne", "bucket", "retard de livraison", "affecte stock", "industrie", "dataviz"],
+    motsCles: ["analyse commande client", "commande client", "couverture", "reservation", "bucket", "retard de livraison", "affecte stock", "industrie", "dataviz", "lignes de commande client"],
     voirAussi: ["dv-ent", "dv-mouv", "dv-mvtl", "dv-mres", "dv-ticketres", "with-cte", "left-join"],
     source: { titre: "Industrie", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12896370759/Industrie" }
   },
@@ -206,12 +206,12 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Widget : entité BF, mode DQL, visualisation Tableau"
     ],
     exemple: ";WITH Params AS (\n     SELECT DATEADD(DAY, -365, CONVERT(date, GETDATE())) AS DateDebut,\n            DATEADD(DAY, 181, CONVERT(date, GETDATE())) AS DateFinExclusive\n ),\n ComposantsBase AS (\n     SELECT e.[PINO] AS OFNO, m.[ENRNO], m.[REF], m.[ARTIND], m.[SREF1], m.[SREF2],\n            m.[CDQTE] AS QteComposant,\n            ISNULL(m.[BLQTE], 0) AS QteConsommee,\n            CASE\n                WHEN m.[CDQTE] - ISNULL(m.[BLQTE], 0) <= 0 THEN 0\n                ELSE m.[CDQTE] - ISNULL(m.[BLQTE], 0)\n            END AS QteRestanteACouvrir,\n            bf.[PREVDEBDH] AS DatePlanifieeOF,\n            COALESCE(NULLIF(LTRIM(RTRIM(bf.[LIBOF])) COLLATE Latin1_General_CI_AI, ''),\n                     art.[DES] COLLATE Latin1_General_CI_AI) AS LibelleOF\n     FROM ENT e\n     JOIN MOUV m ON m.[DOS] = e.[DOS] AND m.[TICOD] = e.[TICOD]\n      AND m.[CDNO] = e.[PINO] AND m.[CE2] = '1' AND m.[SENS] = 2\n     JOIN BF bf ON bf.[DOS] = e.[DOS] AND bf.[PINO] = e.[PINO]\n      AND bf.[STATUS] NOT IN (5, 6)\n     LEFT JOIN ART art ON art.[DOS] = bf.[DOS] AND art.[REF] = bf.[REF]\n      AND ISNULL(art.[ARTIND], '') = ISNULL(bf.[ARTIND], '')\n     WHERE e.[DOS] = '998' AND e.[TICOD] = 'I' AND e.[PICOD] = 2\n ),\n VentilationBesoin AS (\n     SELECT c.OFNO, c.ENRNO, MIN(v.[DELDT]) AS DateBesoin\n     FROM ComposantsBase c\n     JOIN MVTL v ON v.[DOS] = '998' AND v.[ENRNO] = c.ENRNO\n      AND v.[SENS] = 2 AND v.[DELDT] IS NOT NULL\n     GROUP BY c.OFNO, c.ENRNO\n ),\n ComposantsSemaine AS (\n     SELECT c.*, vb.DateBesoin\n     FROM ComposantsBase c\n     JOIN VentilationBesoin vb ON vb.OFNO = c.OFNO AND vb.ENRNO = c.ENRNO\n     CROSS JOIN Params p\n     WHERE vb.DateBesoin >= p.DateDebut AND vb.DateBesoin < p.DateFinExclusive\n ),\n ReservationsComposant AS (\n     SELECT c.OFNO, c.ENRNO,\n            SUM(CASE\n                WHEN r.[MRES_ID] IS NULL THEN 0\n                WHEN ISNULL(r.[RESQTE], 0) <= 0 THEN 0\n                WHEN r.[CE2] = '1' THEN r.[RESQTE]\n                WHEN r.[CE2] = '3' AND vin.[DELDT] IS NOT NULL\n                     AND vin.[DELDT] <= c.DateBesoin THEN r.[RESQTE]\n                ELSE 0\n            END) AS QteReserveeCouvrante\n     FROM ComposantsSemaine c\n     LEFT JOIN MVTL v ON v.[DOS] = '998' AND v.[ENRNO] = c.ENRNO\n      AND v.[SENS] = 2 AND ISNULL(v.[TICKETRES], 0) <> 0\n     LEFT JOIN MRES r ON r.[DOS] = '998' AND r.[TICKETRESS] = v.[TICKETRES] AND r.[CE1] = 'A'\n     LEFT JOIN MVTL vin ON vin.[DOS] = '998' AND vin.[TICKETRES] = r.[TICKETRESE]\n      AND vin.[SENS] = 1 AND ISNULL(r.[TICKETRESE], 0) <> 0\n     GROUP BY c.OFNO, c.ENRNO\n ),\n Couverture AS (\n     SELECT c.*, ISNULL(r.QteReserveeCouvrante, 0) AS QteReserveeCouvrante,\n            CASE\n                WHEN c.QteRestanteACouvrir <= 0 THEN 1\n                WHEN ISNULL(r.QteReserveeCouvrante, 0) >= c.QteRestanteACouvrir THEN 1\n                ELSE 0\n            END AS EstCouvert\n     FROM ComposantsSemaine c\n     LEFT JOIN ReservationsComposant r ON r.OFNO = c.OFNO AND r.ENRNO = c.ENRNO\n ),\n ComposantsNonCouverts AS (\n     SELECT cv.OFNO,\n            STRING_AGG(c.[REF]\n                + ISNULL('-' + NULLIF(LTRIM(RTRIM(c.[ARTIND])), ''), '')\n                + ISNULL('-' + NULLIF(LTRIM(RTRIM(c.[SREF1])), ''), '')\n                + ISNULL('-' + NULLIF(LTRIM(RTRIM(c.[SREF2])), ''), ''), ', ') AS ReferencesNonCouvertes\n     FROM Couverture cv\n     JOIN ComposantsSemaine c ON c.OFNO = cv.OFNO AND c.ENRNO = cv.ENRNO\n     WHERE cv.EstCouvert = 0\n     GROUP BY cv.OFNO\n )\n SELECT c.OFNO,\n        MAX(c.LibelleOF) AS LibelleOF,\n        MIN(c.DatePlanifieeOF) AS DatePlanifieeOF,\n        MIN(c.DateBesoin) AS PremierBesoinComposant,\n        MAX(c.DateBesoin) AS DernierBesoinComposant,\n        MAX(cnc.ReferencesNonCouvertes) AS ReferencesNonCouvertes,\n        CAST(100.0 * SUM(cv.EstCouvert) / NULLIF(COUNT(*), 0) AS DECIMAL(5,2)) AS RatioCouverture,\n        COUNT(*) AS NbComposantsHorizon,\n        SUM(CASE WHEN cv.QteRestanteACouvrir <= 0 THEN 1 ELSE 0 END) AS NbComposantsDejaConsommes,\n        SUM(CASE WHEN cv.QteRestanteACouvrir > 0 AND cv.EstCouvert = 1 THEN 1 ELSE 0 END) AS NbComposantsCouverts,\n        SUM(CASE WHEN cv.QteRestanteACouvrir > 0 AND cv.EstCouvert = 0 THEN 1 ELSE 0 END) AS NbComposantsNonCouverts\n FROM ComposantsSemaine c\n LEFT JOIN Couverture cv ON cv.OFNO = c.OFNO AND cv.ENRNO = c.ENRNO\n LEFT JOIN ComposantsNonCouverts cnc ON cnc.OFNO = c.OFNO\n GROUP BY c.OFNO\n ORDER BY PremierBesoinComposant, c.OFNO;",
-    piege: "BF ne donne que l'en-tête de l'OF. Les composants sont lus dans ENT (TICOD = 'I', PICOD = 2) et MOUV (SENS = 2, sortie) : sans cette jointure, tu n'as aucun composant.",
+    piege: "Lire BF seule ne donne pas les composants : c'est l'en-tête de l'OF. La requête les lit dans ENT (TICOD = 'I', PICOD = 2) et MOUV (SENS = 2, sortie), reliés à BF par DOS et PINO.",
     pratique: "Usage prévu par la doc : anticiper les blocages au lancement de fabrication, prioriser les appros des OF urgents et voir le taux de complétude des dossiers.",
     motsCles: ["of", "ordre de fabrication", "composants", "reservation", "couverture", "manquants", "rupture", "fabrication", "lancement", "industrie", "dataviz"],
     voirAussi: ["dv-bf", "dv-mres", "dv-mvtl", "dv-mouv", "dv-ticod", "string-agg"],
     source: { titre: "Industrie", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12896370759/Industrie" },
-    version: "La requête dit STATUS 5 et 6 = terminé et annulé. La page technique de BF liste les états (préparé, confirmé, lancé, démarré, clôturé, valorisé) sans leurs codes : vérifie les valeurs sur ta base."
+    version: "La requête dit STATUS 5 et 6 = terminé et annulé. La page technique de BF liste six états (préparé, confirmé, lancé, démarré, clôturé, valorisé), sans leurs codes et sans « annulé » : vérifie les valeurs sur ta base."
   },
   {
     id: "dv-rq-incoherences-reservations-affaires",
@@ -238,7 +238,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Widget : entité GPABESOIN, mode DQL, visualisation Tableau"
     ],
     exemple: ";WITH Params AS (\n     SELECT DATEADD(DAY, -365, DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)) AS DateDebut,\n            DATEADD(DAY, 180, DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)) AS DateFin\n ),\n ElementsBase AS (\n     SELECT elem.[AFFAIRE], elem.[AFRINDICE], elem.[ELEMNO], elem.[ARBOCOD],\n            COALESCE(NULLIF(LTRIM(RTRIM(prj.[LIB80])) COLLATE DATABASE_DEFAULT, ''),\n                     elem.[AFFAIRE] COLLATE DATABASE_DEFAULT) AS LibelleAffaire,\n            COALESCE(NULLIF(LTRIM(RTRIM(elem.[LIB80])) COLLATE DATABASE_DEFAULT, ''),\n                     CAST(elem.[ELEMNO] AS varchar(20)) COLLATE DATABASE_DEFAULT) AS LibelleElement,\n            COALESCE(CAST(elem.[PLANDEBDH] AS date), elem.[PREVDT], CAST(GETDATE() AS date)) AS DateElement\n     FROM GPAELEM elem\n     LEFT JOIN PRJAP prj ON prj.[DOS] = elem.[DOS] AND prj.[AFFAIRE] = elem.[AFFAIRE]\n     JOIN GATELEMST st ON st.[DOS] = elem.[DOS] AND st.[STATUTTYP] = 1\n      AND st.[STATUTCOD] = elem.[STATUTCOD] AND st.[STATUTM] = 2\n     WHERE elem.[DOS] = '998' AND elem.[ARBOCOD] IN ('TEC', 'REA')\n ),\n CouverturesBase AS (\n     SELECT e.[AFFAIRE], e.[AFRINDICE], e.[ELEMNO], e.[ARBOCOD],\n            e.LibelleAffaire, e.LibelleElement, e.DateElement,\n            cb.[BESOINNO], cb.[REF], cb.[ARTIND], cb.[SREF1], cb.[SREF2],\n            cb.[DELDT] AS DateCouverture, cb.[TICKETRES],\n            cb.[COUVREFQTE] AS QteBesoin,\n            ISNULL(cb.[SORTIEREFQTE], 0) AS QteDejaSortie,\n            CASE\n                WHEN cb.[COUVREFQTE] - ISNULL(cb.[SORTIEREFQTE], 0) <= 0 THEN 0\n                ELSE cb.[COUVREFQTE] - ISNULL(cb.[SORTIEREFQTE], 0)\n            END AS QteRestanteACouvrir\n     FROM ElementsBase e\n     JOIN GPACBESOIN cb ON cb.[DOS] = '998' AND cb.[AFFAIRE] = e.[AFFAIRE]\n      AND cb.[AFRINDICE] = e.[AFRINDICE] AND cb.[ELEMNO] = e.[ELEMNO]\n     CROSS JOIN Params p\n     WHERE cb.[DELDT] >= p.DateDebut AND cb.[DELDT] < p.DateFin\n ),\n ReservationsCouverture AS (\n     SELECT c.[AFFAIRE], c.[AFRINDICE], c.[ELEMNO], c.[BESOINNO],\n            SUM(CASE\n                WHEN r.[MRES_ID] IS NULL THEN 0\n                WHEN ISNULL(r.[RESQTE], 0) <= 0 THEN 0\n                WHEN r.[CE2] = '1' THEN r.[RESQTE]\n                WHEN r.[CE2] = '3' AND vin.[DELDT] IS NOT NULL\n                     AND vin.[DELDT] <= c.DateCouverture THEN r.[RESQTE]\n                ELSE 0\n            END) AS QteReserveeCouvrante\n     FROM CouverturesBase c\n     LEFT JOIN MRES r ON r.[DOS] = '998' AND r.[TICKETRESS] = c.[TICKETRES]\n      AND r.[CE1] = 'A' AND ISNULL(c.[TICKETRES], 0) <> 0\n     LEFT JOIN MVTL vin ON vin.[DOS] = '998' AND vin.[TICKETRES] = r.[TICKETRESE]\n      AND ISNULL(vin.[CE5], '') IN ('', '1') AND vin.[SENS] = 1\n      AND ISNULL(r.[TICKETRESE], 0) <> 0\n     GROUP BY c.[AFFAIRE], c.[AFRINDICE], c.[ELEMNO], c.[BESOINNO]\n ),\n Couverture AS (\n     SELECT c.*, ISNULL(r.QteReserveeCouvrante, 0) AS QteReserveeCouvrante,\n            CASE\n                WHEN c.QteRestanteACouvrir <= 0 THEN 1\n                WHEN ISNULL(r.QteReserveeCouvrante, 0) >= c.QteRestanteACouvrir THEN 1\n                ELSE 0\n            END AS EstCouvert\n     FROM CouverturesBase c\n     LEFT JOIN ReservationsCouverture r\n       ON r.[AFFAIRE] = c.[AFFAIRE] AND r.[AFRINDICE] = c.[AFRINDICE]\n      AND r.[ELEMNO] = c.[ELEMNO] AND r.[BESOINNO] = c.[BESOINNO]\n ),\n BesoinsNonCouverts AS (\n     SELECT cv.[AFFAIRE], cv.[AFRINDICE], cv.[ELEMNO],\n            STRING_AGG(cv.[REF]\n                + ISNULL('-' + NULLIF(LTRIM(RTRIM(cv.[ARTIND])), ''), '')\n                + ISNULL('-' + NULLIF(LTRIM(RTRIM(cv.[SREF1])), ''), '')\n                + ISNULL('-' + NULLIF(LTRIM(RTRIM(cv.[SREF2])), ''), ''), ', ') AS ReferencesNonCouvertes\n     FROM Couverture cv\n     WHERE cv.EstCouvert = 0\n     GROUP BY cv.[AFFAIRE], cv.[AFRINDICE], cv.[ELEMNO]\n )\n SELECT cv.[AFFAIRE], cv.[AFRINDICE], cv.[ELEMNO],\n        MAX(cv.[ARBOCOD]) AS ARBOCOD,\n        MAX(cv.LibelleAffaire) AS LibelleAffaire,\n        MAX(cv.LibelleElement) AS LibelleElement,\n        MIN(cv.DateElement) AS DateElement,\n        MIN(cv.DateCouverture) AS PremiereDateCouverture,\n        MAX(cv.DateCouverture) AS DerniereDateCouverture,\n        COUNT(*) AS NbBesoinsCouverture,\n        SUM(CASE WHEN cv.QteRestanteACouvrir <= 0 THEN 1 ELSE 0 END) AS NbBesoinsDejaSortis,\n        SUM(cv.EstCouvert) AS NbBesoinsCouverts,\n        SUM(CASE WHEN cv.EstCouvert = 0 THEN 1 ELSE 0 END) AS NbBesoinsNonCouverts,\n        MAX(bnc.ReferencesNonCouvertes) AS ReferencesNonCouvertes,\n        CAST(100.0 * SUM(cv.EstCouvert) / NULLIF(COUNT(*), 0) AS DECIMAL(5,2)) AS RatioCouverture\n FROM Couverture cv\n LEFT JOIN BesoinsNonCouverts bnc\n   ON bnc.[AFFAIRE] = cv.[AFFAIRE] AND bnc.[AFRINDICE] = cv.[AFRINDICE] AND bnc.[ELEMNO] = cv.[ELEMNO]\n GROUP BY cv.[AFFAIRE], cv.[AFRINDICE], cv.[ELEMNO]\n ORDER BY PremiereDateCouverture, cv.[AFFAIRE], cv.[ELEMNO];",
-    piege: "Les codes d'arborescence 'TEC' et 'REA' sont ceux des exemples : le code arborescence se paramètre par société. Vérifie tes propres codes avant de lancer la requête.",
+    piege: "'TEC' et 'REA' sont écrits en dur, or les codes d'arborescence se paramètrent (« TEC - Technique » n'est qu'un exemple de la doc, 'REA' n'y est pas expliqué). Vérifie tes codes avant de lancer la requête.",
     pratique: "Usage prévu par la doc : détecter les incohérences de planification et corriger avant la date de besoin.",
     motsCles: ["elements d'affaire", "affaire", "besoins", "couverture", "reservation", "incoherence", "planification", "arborescence", "approvisionnement", "industrie", "dataviz"],
     voirAussi: ["dv-gpaelem", "dv-gpacbesoin", "dv-gatelemst", "dv-mres", "dv-rq-of-sans-reservations"],
@@ -246,7 +246,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       { titre: "Industrie", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12896370759/Industrie" },
       { titre: "Paramétrages liés aux arborescences", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704700065/Param+trages+li+s+aux+arborescences" }
     ],
-    version: "La requête garde STATUTM = 2 pour les éléments « actifs, en cours ». La page des arborescences liste les statuts maîtres (En cours, En attente, Suspendu, Terminé) sans leur code stocké : à vérifier sur ta base."
+    version: "La requête garde STATUTM = 2 pour les éléments « actifs, en cours ». La page des arborescences numérote les statuts maîtres 1 En cours, 2 En attente, 3 Suspendu, 4 Terminé, sans dire que c'est le code stocké : vérifie sur ta base."
   },
   {
     id: "dv-rq-commandes-achat-relancer",
@@ -348,7 +348,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Écrites sur la base standard Papyrus : à adapter si besoin (établissements, confidentialités)",
       "Noms des fichiers coupés dans la doc : libellés complétés avec les noms usuels des SIG"
     ],
-    piege: "Les requêtes ne prennent que les écritures de l'année 2026. En 2027, elles montreront encore 2026 : change l'année dans chaque requête.",
+    piege: "La doc limite ces requêtes aux écritures datées de 2026. Avant de t'en servir pour une autre année, vérifie le filtre de date dans chaque requête.",
     pratique: "Pour protéger les chiffres sensibles, ne donne les requêtes par indicateur qu'aux profils autorisés ; la requête globale C8_SIG montre tout le tableau d'un coup.",
     motsCles: ["sig", "soldes intermediaires de gestion", "marge commerciale", "valeur ajoutee", "ebe", "excedent brut d'exploitation", "resultat d'exploitation", "resultat net", "ebitda", "chiffre d'affaires", "finance", "comptabilite", "dataviz"],
     voirAussi: ["dv-c8", "dv-rq-repartition-analytique", "sum", "case"],
@@ -372,7 +372,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Une requête par axe analytique, en graphique camembert",
       "Restitutions croisables entre axes si besoin"
     ],
-    piege: "Comme les SIG, ces requêtes se limitent à l'exercice 2026 : change l'année, sinon le camembert reste figé sur 2026.",
+    piege: "Comme les SIG, la doc limite ces requêtes à l'exercice 2026. Avant de les utiliser sur un autre exercice, vérifie leur filtre de date.",
     pratique: "Un axe par graphique garde le camembert lisible : centre de coûts, activité, projet… selon les axes de ton dossier.",
     motsCles: ["analytique", "axe analytique", "repartition par axe", "repartition", "centre de cout", "camembert", "cx", "comptabilite analytique", "finance", "dataviz"],
     voirAussi: ["dv-cx", "dv-axe", "dv-c5", "dv-rq-sig"],
@@ -536,7 +536,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["ETABLISSEMENT", "code établissement"],
       ["REFERENCE", "référence de l'article commandé"],
       ["QUANTITESIGNEE", "quantité de la ligne, cumulée par SUM dans l'exemple de la doc"],
-      ["MONTANTSIGNE_DEV", "montant en devise, cumulé par SUM dans l'exemple de la doc"],
+      ["MONTANTSIGNE_DEV", "montant de la ligne, cumulé par SUM dans l'exemple de la doc (MONTANT_CUMUL)"],
       ["CLE_DOSSIER", "clé du dossier, jointe à ARTICLE_V.DOSSIER"],
       ["CLE_ARTICLE", "clé de l'article (le même champ que dans ARTICLE_V)"]
     ],
@@ -544,8 +544,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "ARTICLE_V : par CLE_ARTICLE, ou par CLE_DOSSIER + REFERENCE (exemple de la doc)"
     ],
     exemple: "SELECT CDE.DOSSIER, CDE.ETABLISSEMENT, CDE.REFERENCE,\n       ARTICLE_V.LIBELLE_FAM_STAT1 AS ARTICLE_STAT1,\n       SUM(CDE.QUANTITESIGNEE) AS QUANTITE_CUMUL,\n       SUM(CDE.MONTANTSIGNE_DEV) AS MONTANT_CUMUL\nFROM COMMANDE_VENTE_MOUV_V AS CDE\nLEFT JOIN ARTICLE_V ON ARTICLE_V.DOSSIER = CDE.CLE_DOSSIER\n                   AND ARTICLE_V.REFERENCE = CDE.REFERENCE\nGROUP BY CDE.DOSSIER, CDE.ETABLISSEMENT, CDE.REFERENCE, ARTICLE_V.LIBELLE_FAM_STAT1;",
-    pratique: "La doc s'en sert pour un instantané BI : photographier chaque jour les quantités en commande par article, puis suivre leur évolution dans le temps.",
-    motsCles: ["lignes de commande", "commandes de vente", "commandes clients", "portefeuille de commandes", "quantite commandee", "montant commande", "vue commande", "instantane", "power bi"],
+    pratique: "La doc s'en sert pour un instantané BI (GESCOM_EVOLCDE) : garder, à la date du jour, les quantités en commande par article, pour suivre leur évolution dans le temps.",
+    motsCles: ["commandes de vente", "commandes clients", "portefeuille de commandes", "quantite commandee", "montant commande", "vue commande", "instantane", "power bi", "lignes de commande de vente"],
     voirAussi: ["dv-mouv", "dv-article-v", "dv-cle", "sum", "group-by"],
     sources: [
       { titre: "Fichier de description des requêtes SQL pour snapshot", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516466751/Fichier+de+description+des+requ+tes+SQL+pour+snapshot" },
@@ -596,7 +596,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     motsCles: ["vue fournisseurs", "fournisseurs", "fournisseur_v", "nom fournisseur", "code fournisseur", "achats", "power bi", "reporting"],
     voirAussi: ["dv-fou", "dv-commande-achat-mouv-v", "dv-vues-sql", "dv-id"],
     source: { titre: "Microsoft Power BI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516467268/Microsoft+Power+BI" },
-    version: "Colonnes lues sur une capture d'une ancienne base (Divalto_VG81, SQL Server 2012) : vérifie-les sur ta version."
+    version: "Colonnes lues sur une capture de la doc (base Divalto_VG81, instance MSSQLSERVER2012) : vérifie-les sur ta version."
   },
   {
     id: "dv-commande-achat-mouv-v",
@@ -622,7 +622,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     motsCles: ["lignes de commande d'achat", "commandes fournisseur", "commandes d'achat", "achats", "vue commande achat", "date de commande", "power bi", "reporting"],
     voirAussi: ["dv-mouv", "dv-fournisseur-v", "dv-facture-achat-mouv-v", "dv-article-v"],
     source: { titre: "Microsoft Power BI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516467268/Microsoft+Power+BI" },
-    version: "Colonnes lues sur une capture d'une ancienne base (Divalto_VG81, SQL Server 2012) : vérifie-les sur ta version."
+    version: "Nom coupé sur la capture (« COMMANDE_ACHAT_M… ») : COMMANDE_ACHAT_MOUV_V est déduit du nom COMMANDE_VENTE_MOUV_V. Colonnes lues sur cette capture (base Divalto_VG81) : vérifie le nom et les colonnes sur ta base."
   },
   {
     id: "dv-facture-achat-mouv-v",
@@ -647,7 +647,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     motsCles: ["lignes de factures d'achat", "factures fournisseur", "factures d'achat", "achats", "vue facture achat", "power bi", "reporting", "sous-reference"],
     voirAussi: ["dv-mouv", "dv-fournisseur-v", "dv-commande-achat-mouv-v"],
     source: { titre: "Microsoft Power BI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516467268/Microsoft+Power+BI" },
-    version: "Colonnes lues sur une capture d'une ancienne base (Divalto_VG81, SQL Server 2012) : vérifie-les sur ta version."
+    version: "Nom coupé sur la capture (« FACTURE_ACHAT_MOU… ») : FACTURE_ACHAT_MOUV_V est déduit du nom FACTURE_VENTE_MOUV_V. Colonnes lues sur cette capture (base Divalto_VG81) : vérifie le nom et les colonnes sur ta base."
   },
   {
     id: "dv-of-entete-v",
@@ -768,7 +768,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["TIERSGRP", "code centrale"],
       ["ORIGINE", "origine : 1 saisie, 2 GTFI, 3 Internet, 4 EDI, 5 production, 10 Mobileo, 11 Retail"],
       ["INTEGREGL / USERINTEGRE", "importation comptable (1 non, 2 oui), utilisateur qui l'a lancée"],
-      ["ETATPDFSIGNE", "facture dématérialisée : 2 = un PDF est présent, 1 = aucun PDF"],
+      ["ETATPDFSIGNE", "facture dématérialisée : 2 = un PDF (signé ou non) est présent, 1 = aucun PDF, 0 = facture faite avant l'ajout du champ"],
       ["ENT_ID", "identifiant technique de l'en-tête"]
     ],
     liens: [
@@ -807,7 +807,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["DVNO / CDNO / BLNO / FANO", "numéro de devis, de commande, de BL, de facture"],
       ["CDDT / BLDT", "date de commande, de BL"],
       ["FADT", "date de facture, ou date du dernier mouvement"],
-      ["CDCE4 / BLCE4 / FACE4", "état de la ligne à chaque étape (1 actif, 8 périmé…)"],
+      ["CDCE4 / BLCE4 / FACE4", "valeur de CE4 à chaque étape, l'état de la pièce (1 actif, 8 périmé…)"],
       ["CE2", "1 mouvement (ligne article), 2 chapitre, 3 poste"],
       ["CE6 / CE7 / CE8", "1 si la ligne est passée en commande, en BL, en facture"],
       ["CDQTE / BLQTE / FAQTE", "quantité commandée, livrée, facturée"],
@@ -938,7 +938,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "ENT : même DOS, TICOD, PICOD et PINO",
       "ENT.ADRTYP : 1 adresse par code ; 2 à 7 adresse manuelle (ou idem devis, commande, BL, facture, relevé) ; EAD existe quand ADRTYP <> 1"
     ],
-    piege: "Une adresse de livraison tapée sur la pièce n'est pas dans T1 : si ENT.ADRTYP <> 1, va la chercher dans EAD, pas dans la fiche du tiers.",
+    piege: "Une adresse tapée sur la pièce n'est pas dans T1 : quand une case de ENT.ADRTYP (tableau de 5 cases, ADRTYP_0001 à ADRTYP_0005 en SQL) vaut 2 à 7, l'adresse est dans EAD, pas dans la fiche du tiers.",
     motsCles: ["adresse modifiee", "adresse de livraison", "adresse de facturation", "adresse manuelle", "adresse de la piece", "adresses", "livraison", "ead"],
     voirAussi: ["dv-ent", "dv-t1"],
     source: { titre: "Achat-vent technique base - Pièces", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490099273/Achat-vent+technique+base+-+Pi+ces" }
@@ -1018,7 +1018,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "MVTL : par VTLNO (une seule ventilation de commande)",
       "MRES : par BPDETNO (une réservation affectée par ligne de BP)"
     ],
-    motsCles: ["lignes de bp", "bon de preparation", "quantite preparee", "picking", "emplacement", "colis", "preparation", "reservation", "bpdet"],
+    motsCles: ["lignes de bp", "quantite preparee", "picking", "emplacement", "colis", "preparation", "reservation", "bpdet", "lignes de bon de preparation"],
     voirAussi: ["dv-bpent", "dv-mvtl", "dv-mres"],
     source: { titre: "Achat-vent technique base - BP, Livraison, TVA, Projets", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11491016710/Achat-vent+technique+base+-+BP+Livraison+TVA+Projets" }
   },
@@ -1063,7 +1063,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     voirAussi: ["dv-tiers", "dv-t1", "dv-t2", "dv-ent", "dv-tiersgrp", "dv-stc"],
     sources: [
       { titre: "Achat-vent technique base - Dossiers et tiers", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490033695/Achat-vent+technique+base+-+Dossiers+et+tiers" },
-      { titre: "Migration - Différence de collation des champs entre Vx12 et Vx13", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/13003456950/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx12+et+Vx13" },
+      { titre: "Migration - Différence de collation des champs entre Vx11 et Vx12", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11639881864/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx11+et+Vx12" },
       { titre: "Collation SQL sur champs (412)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11666456736/Collation+SQL+sur+champs+412" }
     ]
   },
@@ -1106,7 +1106,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     voirAussi: ["dv-tiers", "dv-rfo", "dv-tfo", "dv-ent", "dv-t3"],
     sources: [
       { titre: "Achat-vent technique base - Dossiers et tiers", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490033695/Achat-vent+technique+base+-+Dossiers+et+tiers" },
-      { titre: "Migration - Différence de collation des champs entre Vx12 et Vx13", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/13003456950/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx12+et+Vx13" },
+      { titre: "Migration - Différence de collation des champs entre Vx11 et Vx12", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11639881864/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx11+et+Vx12" },
       { titre: "Collation SQL sur champs (412)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11666456736/Collation+SQL+sur+champs+412" }
     ],
     version: "La doc écrit le protocole EDI PROTOCOD sur CLI et PROTOCOL sur FOU : vérifie le nom exact avec l'explorateur de champ."
@@ -1129,7 +1129,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["HSDT", "date de fin de validité"]
     ],
     liens: [
-      "CLI : TIERSCLI donne le client créé à partir du prospect",
+      "CLI : TIERSCLI donne le client dans lequel le prospect a été validé",
       "ENT : pièces du prospect (TICOD = 'P')"
     ],
     motsCles: ["prospect", "prospects", "qualification", "client potentiel", "prospection", "devis prospect", "fiche prospect", "crm", "pro"],
@@ -1287,7 +1287,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["AXEMAJTYP", "alimentation des axes analytiques : famille article, code statistique, projet, établissement"]
     ],
     liens: [
-      "Toutes les tables de gestion ont un champ DOS : le code du dossier",
+      "Les tables de gestion portent le code dossier DOS (ENT, MOUV, CLI, ART…)",
       "ETS : les établissements du dossier"
     ],
     exemple: "-- ENTCODN(n) est à la position n de ZONEPARAM depuis la X.10\nSELECT DOS,\n       SUBSTRING(ZONEPARAM, 5, 1) AS GestionStock,      -- ENTCODN(5)\n       SUBSTRING(ZONEPARAM, 6, 1) AS ValorisationStock  -- ENTCODN(6)\nFROM SOC;",
@@ -1312,7 +1312,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     champs: [
       ["DOS", "dossier"],
       ["ETB", "code établissement"],
-      ["PINO1 / PINO2", "compteurs de pièces par type (1 devis client, 2 commande client… 13 devis prospect)"]
+      ["PINO1 / PINO2", "numéros de pièce par type, indice 1 devis client, 2 commande client… 13 devis prospect (la doc ne dit pas si ce sont des compteurs ou des fourchettes)"]
     ],
     liens: [
       "T017 : chaque dépôt indique son établissement de rattachement",
@@ -1366,7 +1366,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     sources: [
       { titre: "Achat-vent technique base - Articles", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490361362/Achat-vent+technique+base+-+Articles" },
       { titre: "Les widgets  KPI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516465387/Les+widgets+KPI" },
-      { titre: "Migration - Différence de collation des champs entre Vx12 et Vx13", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/13003456950/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx12+et+Vx13" }
+      { titre: "Migration - Différence de collation des champs entre Vx11 et Vx12", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11639881864/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx11+et+Vx12" }
     ]
   },
   {
@@ -1394,7 +1394,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "SARTEAN : EAN multiples par article ou sous-référence"
     ],
     piege: "SART est obligatoire : un article sans sous-références a quand même une fiche SART, avec SREF1 et SREF2 à espace. Joins donc aussi sur SREF1 et SREF2 vides.",
-    pratique: "Le programme de calcul du CMP enregistre le CMP final dans la fiche sous-référence : pour valoriser un stock au CMP, lis SART.CMP.",
+    pratique: "Le calcul du CMP enregistre le CMP du dossier dans SART.CMP. Si l'échelle de valorisation est par établissement ou par dépôt, le CMP de chacun est dans SARTCR.",
     motsCles: ["sous-reference", "sous references", "variante", "cmp", "cout moyen pondere", "cout de revient", "cout standard", "prix d'achat", "valorisation", "sart"],
     voirAussi: ["dv-art", "dv-ref", "dv-mvtl", "dv-sartean"],
     sources: [
@@ -1682,7 +1682,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["TIERSNB", "nombre de clients"]
     ],
     piege: "STB est mise à jour seulement en batch : regarde STACALDT avant de te fier aux chiffres.",
-    pratique: "CAMTTB est un tableau de 4 cases (mois, 3 mois, 12 mois, N-1) : en SQL, une colonne par case. Vérifie le nom exact avec l'explorateur de champ (Ctrl + D).",
+    pratique: "CAMTTB est un tableau de 4 cases (mois, 3 mois, 12 mois, N-1) : en SQL, une colonne par case, de CAMTTB_0001 à CAMTTB_0004 (règle NomDuChamp_000x de l'explorateur de champ).",
     motsCles: ["recapitulatif article", "rotation", "taux de rotation", "stock moyen", "marge article", "ca article", "rang article", "classement articles", "stb"],
     voirAussi: ["dv-sta", "dv-stc", "dv-art", "dv-champ-tableau"],
     sources: [
@@ -1783,7 +1783,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       { titre: "Traitement des Affaires industrielles à l'état opportunité (V10.9) - (V10.11)", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705848847/Traitement+des+Affaires+industrielles+l+tat+opportunit+V10.9+-+V10.11" },
       { titre: "Collation SQL sur champs (412)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11666456736/Collation+SQL+sur+champs+412" }
     ],
-    version: "Les opportunités sont des affaires PRJAP à l'état opportunité ; la table PRJAV servait aux opportunités dans les anciennes versions."
+    version: "Depuis la 10.9, les opportunités d'affaire venues de weavy sont intégrées comme affaires PRJAP à l'état opportunité, et non plus dans PRJAV comme dans les anciennes versions."
   },
   {
     id: "dv-prjav",
@@ -1812,7 +1812,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       { titre: "Achat-vent technique base - BP, Livraison, TVA, Projets", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11491016710/Achat-vent+technique+base+-+BP+Livraison+TVA+Projets" },
       { titre: "Traitement des Affaires industrielles à l'état opportunité (V10.9) - (V10.11)", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705848847/Traitement+des+Affaires+industrielles+l+tat+opportunit+V10.9+-+V10.11" }
     ],
-    version: "La page « Affaires industrielles à l'état opportunité » dit de créer les opportunités dans PRJAP et non dans PRJAV (anciennes versions). La doc technique donne aussi CE1 = 'B' dans un tableau et 'A' dans l'autre."
+    version: "Depuis la 10.9, la page « Affaires industrielles à l'état opportunité » dit d'intégrer les opportunités d'affaire venues de weavy dans PRJAP, et non dans PRJAV (anciennes versions). La doc technique donne aussi CE1 = 'B' dans un tableau et 'A' dans l'autre."
   },
   {
     id: "dv-ceacontrat",
@@ -1871,7 +1871,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "CEACONTRAT : par DOS et CONTRATNO"
     ],
     pratique: "La requête Dataviz estime le montant d'une échéance ainsi : POURCENT du calendrier × montant actualisé du contrat.",
-    motsCles: ["calendrier contrat", "echeancier", "echeance", "pourcentage", "facturation contrat", "prochaine echeance", "contrat", "contratcal"],
+    motsCles: ["calendrier contrat", "echeancier", "echeance", "pourcentage", "facturation contrat", "prochaine echeance", "contrat", "contratcal", "echeances du contrat"],
     voirAussi: ["dv-ceacontrat", "dv-contratprefa", "dv-rq-contrats-actifs-client"],
     sources: [
       { titre: "Achat-vent technique base - Contrats, inventaires, demandes", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490656260/Achat-vent+technique+base+-+Contrats+inventaires+demandes" },
@@ -1892,7 +1892,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["CONTRATNO / SITECOD", "contrat, site"],
       ["STATUS", "1 générée, 2 en anomalie, 3 annulée, 4 validée en facture ou en avis de paiement"],
       ["ECHDT", "date d'échéance"],
-      ["DATD / DATF", "début et fin de la période"],
+      ["DATD / DATF", "dates de début et de fin de sélection"],
       ["PIDT", "date de la pièce"],
       ["TIERS", "tiers"],
       ["REF", "article"],
@@ -1905,7 +1905,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "CEACONTRAT : par CONTRATNO",
       "MOUV a aussi un champ PFCNO (« numéro d'élément de facturation » dans la doc ; MOUV.CEC = 1 s'il est renseigné)"
     ],
-    piege: "Pour un CA facturé, prends les PFC validées (STATUS = 4) et jamais les annulées (3) : la requête Dataviz garde les PFC « facturées, non annulées », en euros.",
+    piege: "Pour un CA facturé, écarte les PFC annulées (STATUS = 3) ; mais STATUS = 4 veut dire « validée en facture ou en avis de paiement ». La requête Dataviz garde les PFC « facturées, non annulées », en euros.",
     motsCles: ["preparation facture contrat", "pfc", "facturation contrat", "echeance", "lignes a facturer", "anomalie", "contrats", "contratprefa"],
     voirAussi: ["dv-ceacontrat", "dv-contratcal", "dv-rq-ca-contrats-famille", "dv-mouv"],
     sources: [
@@ -1985,7 +1985,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     ],
     liens: [
       "DAOENT : par DAONO",
-      "DAOLFOU : par DAOLGNO ; fournisseur (TIERS), prix (PUB), délai accepté, commande créée (CDNO), MARQUE = fournisseur choisi"
+      "DAOLFOU : par DAOLGNO ; fournisseur (TIERS), prix (PUB), délai accepté, numéro de commande (CDNO), MARQUE = fournisseur choisi"
     ],
     motsCles: ["lignes demande d'achat", "appel d'offre", "quantite demandee", "consultation", "fournisseur choisi", "achats", "daolig", "daolfou"],
     voirAussi: ["dv-daoent", "dv-mouv"],
@@ -2022,7 +2022,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     type: "table",
     domaine: "divalto",
     categorie: "Tables Divalto",
-    definition: "Les tables de paramétrage T000 à T107 : règlements, dépôts, TVA, familles… propres au dossier ou communes.",
+    definition: "Les tables de paramétrage T000 à T112 : règlements, dépôts, TVA, familles… propres au dossier ou communes.",
     noms: ["tables communes", "GTFTAB", "tables de paramétrage"],
     champs: [
       ["CEBIN", "numéro de la table (ex. 36 pour T036)"],
@@ -2118,12 +2118,12 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "ARTICLE_V : LIBELLE_FAM_STAT1 à 3"
     ],
     piege: "T012 range les 3 familles dans la même table : filtre FAMNO (1, 2 ou 3) en plus du code, sinon tu peux prendre le libellé d'une autre famille.",
-    pratique: "Depuis la X.12, T012.LIB est en collation CI_AI : ajoute COLLATE si tu le concatènes avec d'autres libellés.",
+    pratique: "Depuis la X.12, T012.LIB est en collation CI_AI : ajoute COLLATE si tu le concatènes avec un champ resté en collation par défaut (un code, par exemple).",
     motsCles: ["famille statistique", "famille article", "familles", "libelle famille", "regroupement articles", "categorie article", "statistiques", "collation", "t012"],
     voirAussi: ["dv-art", "dv-article-v", "dv-txxx"],
     sources: [
       { titre: "Achat-vent technique base - Tables communes Txxx", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490885655/Achat-vent+technique+base+-+Tables+communes+Txxx" },
-      { titre: "Migration - Différence de collation des champs entre Vx12 et Vx13", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/13003456950/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx12+et+Vx13" }
+      { titre: "x12 migration", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11454349316/x12+migration" }
     ]
   },
   {
@@ -2231,11 +2231,12 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "T086 : libellés des régimes tiers ; CTAX.EFFETDT : date d'effet du code TVA"
     ],
     piege: "T085 garde plusieurs taux par date d'effet (EFFETDT) : sans filtre sur la date, un même couple article-tiers sort plusieurs fois.",
-    motsCles: ["taux de tva", "tva", "regime tva", "taux", "autoliquidation", "tva article", "tva tiers", "date d'effet", "t085"],
+    motsCles: ["taux de tva", "tva", "regime tva", "taux", "autoliquidation", "tva article", "date d'effet", "t085"],
     voirAussi: ["dv-t086", "dv-ctax", "dv-art", "dv-tva-deb"],
     sources: [
       { titre: "Achat-vent technique base - Tables communes Txxx", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490885655/Achat-vent+technique+base+-+Tables+communes+Txxx" },
-      { titre: "Mapping des tables échangées", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/221844940/Mapping+des+tables+chang+es" }
+      { titre: "Mapping des tables échangées", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/221844940/Mapping+des+tables+chang+es" },
+      { titre: "Les tables", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705859105/Les+tables" }
     ]
   },
   {
@@ -2244,7 +2245,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     type: "table",
     domaine: "divalto",
     categorie: "Tables Divalto",
-    definition: "La table des régimes TVA des tiers : le code et son libellé, comme régime normal.",
+    definition: "La table des régimes TVA des tiers (régime normal, franchise, export…) : un code et son libellé.",
     noms: ["régimes TVA tiers"],
     champs: [
       ["DOS", "dossier ou '999'"],
@@ -2257,7 +2258,10 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     ],
     motsCles: ["regime tva", "regime tiers", "franchise", "export", "intracommunautaire", "tva tiers", "tva", "t086"],
     voirAussi: ["dv-t085", "dv-cli", "dv-txxx"],
-    source: { titre: "Achat-vent technique base - Tables communes Txxx", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490885655/Achat-vent+technique+base+-+Tables+communes+Txxx" }
+    sources: [
+      { titre: "Achat-vent technique base - Tables communes Txxx", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490885655/Achat-vent+technique+base+-+Tables+communes+Txxx" },
+      { titre: "Les tables", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705859105/Les+tables" }
+    ]
   },
   {
     id: "dv-t099",
@@ -2356,7 +2360,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     voirAussi: ["dv-c8", "dv-axe", "dv-c5", "dv-rq-repartition-analytique"],
     sources: [
       { titre: "Comptabilité Technique base", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/229627857/Comptabilit+Technique+base" },
-      { titre: "L'import-export dans l'ERP", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12009078980/L+import-export+dans+l+ERP" }
+      { titre: "L'import-export dans l'ERP", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12009078980/L+import-export+dans+l+ERP" },
+      { titre: "Intégration d'écritures comptables (V10.7) (JSON)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10530881587/Int+gration+d+critures+comptables+V10.7+JSON" }
     ]
   },
   {
@@ -2377,7 +2382,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["LETT / LETTDT", "code et date de lettrage (« * » en tête = lettrage partiel)"],
       ["CE4", "1 non lettrée, 2 lettrée"],
       ["ETATREG", "état de règlement"],
-      ["REGLEFL", "2 si un règlement a été initié pour l'échéance, 1 sinon"],
+      ["REGLEFL", "2 = écriture réglée (par exemple, un règlement a été initié), 1 sinon"],
       ["ENCFL", "encours : 0 non, 1 dans l'encours, 2 sortie de l'encours"],
       ["TIERSTYPE", "1 client, 2 fournisseur"],
       ["TIERS / TIERSG3 / DOSG3", "tiers ; tiers et dossier de la gestion commerciale"],
@@ -2389,7 +2394,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "DOSG3 et TIERSG3 : relient l'échéance au dossier et au tiers de la gestion commerciale"
     ],
     exemple: "-- Lettrages de CP non soldés (requête de contrôle de la doc)\nDECLARE @DOS VARCHAR(8) = '1'\nSELECT CP.DOS, CP.CPT, CP.LETT, CP.LETTDT,\n       SUM(CASE WHEN CP.SENS = 1 THEN CP.MT ELSE -CP.MT END) AS SOLDE\nFROM CP\nJOIN C3 ON CP.DOS = C3.DOS AND CP.CPT = C3.CPT\nWHERE LEFT(CP.LETT, 1) NOT IN (' ', '*')   -- lettré, pas partiel\n  AND CP.DOS = @DOS\n  AND C3.CPTNAT IN (3, 4, 5)                -- client, fournisseur, personnel\n  AND CP.LETTDT IS NOT NULL\nGROUP BY CP.DOS, CP.CPT, CP.LETT, CP.LETTDT\nHAVING SUM(CASE WHEN CP.SENS = 1 THEN CP.MT ELSE -CP.MT END) <> 0;",
-    pratique: "Pour un échéancier client : CP avec TIERSTYPE = 1 et REGLEFL = 1 (aucun règlement initié), trié par ECHDT.",
+    pratique: "Pour un échéancier client : CP avec TIERSTYPE = 1 et REGLEFL = 1 (échéance pas encore réglée), trié par ECHDT.",
     motsCles: ["echeance", "echeancier", "reglement", "encours", "relance", "recouvrement", "balance agee", "lettrage", "impayes", "cp"],
     voirAussi: ["dv-c8", "dv-c3", "dv-t006", "dv-t3"],
     sources: [
@@ -2571,7 +2576,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     voirAussi: ["dv-bg", "dv-bh", "dv-of-entete-v", "dv-ent", "dv-rq-of-sans-reservations"],
     sources: [
       { titre: "BF En-tête d'OF", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/229627911/BF+En-t+te+d+OF" },
-      { titre: "Industrie", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12896370759/Industrie" }
+      { titre: "Industrie", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12896370759/Industrie" },
+      { titre: "Microsoft Power BI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516467268/Microsoft+Power+BI" }
     ],
     version: "La page technique liste les états sans codes ; la requête Dataviz « OF à venir » dit STATUS 5 et 6 = terminé et annulé. Vérifie les valeurs sur ta base."
   },
@@ -2720,7 +2726,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "GPAACTIVITE et GPACBESOIN : par DOS, AFFAIRE, AFRINDICE et ELEMNO",
       "GATELEMST : le statut (STATUTCOD, STATUTTYP = 1)"
     ],
-    piege: "Les jointures vers les activités et les besoins utilisent 4 champs : DOS, AFFAIRE, AFRINDICE et ELEMNO. En oublier un (souvent AFRINDICE) mélange les indices d'une même affaire.",
+    piege: "Les jointures vers les activités et les besoins utilisent 4 champs : DOS, AFFAIRE, AFRINDICE et ELEMNO. En oublier un (par exemple AFRINDICE) mélange les indices d'une même affaire.",
     motsCles: ["element d'affaire", "elements", "arborescence", "affaire", "planning", "statut element", "indice", "gestion de projet", "gpaelem"],
     voirAussi: ["dv-prjap", "dv-gpaactivite", "dv-gpacbesoin", "dv-gatelemst", "dv-rq-ratio-activite-affaire"],
     sources: [
@@ -2864,7 +2870,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     sources: [
       { titre: "Achat-vente Technique base", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11491115009/Achat-vente+Technique+base" },
       { titre: "Les widgets  KPI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516465387/Les+widgets+KPI" },
-      { titre: "Migration - Différence de collation des champs entre Vx10 et Vx12", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11638604231/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx10+et+Vx12" }
+      { titre: "x12 migration", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11454349316/x12+migration" }
     ]
   },
   {
@@ -2907,7 +2913,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       ["EVTNO", "numéro d'événement"],
       ["EVENEMENT", "code événement (table GRTEVT)"],
       ["TIERS / TIERSINDIVIDU", "tiers ou individu"],
-      ["CE2", "2 prospect, 3 client"],
+      ["CE2", "type de tiers : 2 prospect, 3 client, 4 fournisseur, 5 représentant, 6 autre tiers, espace = sans tiers"],
       ["LIB80", "libellé"],
       ["EVTDT / EVTHE", "date et heure de début (ou de création)"],
       ["EVTFINDT / EVTFINHE", "date et heure de fin"],
@@ -2927,7 +2933,10 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     pratique: "Tâches en retard d'un commercial : REALISEOK = 1 (à réaliser) et EVTECHDT dépassée, filtrées sur EVTUSER.",
     motsCles: ["evenement", "evenements", "tache", "taches", "rendez-vous", "agenda", "crm", "relation tiers", "action commerciale", "evttiers"],
     voirAussi: ["dv-cli", "dv-muser", "dv-pro"],
-    source: { titre: "Mapping des tables échangées", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/221844940/Mapping+des+tables+chang+es" }
+    sources: [
+      { titre: "Mapping des tables échangées", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/221844940/Mapping+des+tables+chang+es" },
+      { titre: "Générer un événement en passant les paramètres", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/229625422/G+n+rer+un+v+nement+en+passant+les+param+tres" }
+    ]
   },
   {
     id: "dv-ndfent",
@@ -2948,7 +2957,10 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     pratique: "Exemple de widget KPI de la doc : les notes de frais actives du collaborateur ; @DOS vaut [MZ.DOS] et @COLLABORATEUR vaut [MUSER.USER].",
     motsCles: ["note de frais", "notes de frais", "ndf", "frais", "depenses", "remboursement", "validation manager", "collaborateur", "ndfent"],
     voirAussi: ["dv-muser", "case"],
-    source: { titre: "Les widgets  KPI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516465387/Les+widgets+KPI" }
+    sources: [
+      { titre: "Les widgets  KPI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516465387/Les+widgets+KPI" },
+      { titre: "Affaire Technique base", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490885669/Affaire+Technique+base" }
+    ]
   },
   {
     id: "dv-mtrctrace",
@@ -3305,13 +3317,14 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "MOUV.SENS, MVTL.SENS, T020.SENS : 1 entrée, 2 sortie",
       "C8.SENS, CX.SENS, CP.SENS : 1 débit, 2 crédit"
     ],
-    exemple: "-- Entrées prévues (ventilations d'entrée)\nSELECT ENRNO, DELDT\nFROM MVTL\nWHERE DOS = '998' AND SENS = 1;",
+    exemple: "-- Ventilations d'entrée (SENS = 1) et leur délai\nSELECT ENRNO, DELDT\nFROM MVTL\nWHERE DOS = '998' AND SENS = 1;",
     piege: "Le même nom SENS change de sens selon le module : 1 = entrée en stock, mais 1 = débit en comptabilité. Regarde la table avant de filtrer.",
     motsCles: ["sens", "entree", "sortie", "debit", "credit", "sens du mouvement", "entree de stock", "sortie de stock"],
     voirAussi: ["dv-mvtl", "dv-c8", "dv-t020"],
     sources: [
       { titre: "Achat-vent technique base - Pièces", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490099273/Achat-vent+technique+base+-+Pi+ces" },
-      { titre: "L'import-export dans l'ERP", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12009078980/L+import-export+dans+l+ERP" }
+      { titre: "L'import-export dans l'ERP", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12009078980/L+import-export+dans+l+ERP" },
+      { titre: "Intégration d'écritures comptables (V10.7) (JSON)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10530881587/Int+gration+d+critures+comptables+V10.7+JSON" }
     ]
   },
   {
@@ -3326,7 +3339,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "T020 : la table des codes opération",
       "ENT.OP, MOUV.OP, MVTL.OP, STA.OP, DAR.OP"
     ],
-    pratique: "Les requêtes Dataviz Négoce prennent les opérations C (factures de vente) et CPV (factures TPV) : regarde dans T020 les codes de ton dossier avant de filtrer.",
+    pratique: "Les requêtes Dataviz Négoce retiennent les opérations de type C (factures de vente) et CPV (factures TPV), sans dire sur quel champ : vérifie dans T020 les codes OP de ton dossier.",
     motsCles: ["code operation", "operation", "type d'operation", "nature de mouvement", "journal", "avoir", "op", "t020"],
     voirAussi: ["dv-t020", "dv-sens", "dv-sta"],
     sources: [
@@ -3352,7 +3365,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     voirAussi: ["dv-t017", "dv-mvtl", "dv-etb"],
     sources: [
       { titre: "Achat-vent technique base - Tables communes Txxx", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490885655/Achat-vent+technique+base+-+Tables+communes+Txxx" },
-      { titre: "Achat-vent technique base - Articles", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490361362/Achat-vent+technique+base+-+Articles" }
+      { titre: "Achat-vent technique base - Articles", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490361362/Achat-vent+technique+base+-+Articles" },
+      { titre: "Achat-vent technique base - Pièces", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490099273/Achat-vent+technique+base+-+Pi+ces" }
     ]
   },
   {
@@ -3407,7 +3421,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Entrée : MRES.TICKETRESE = MVTL.TICKETRES (MVTL.SENS = 1)",
       "GPACBESOIN.TICKETRES : un besoin d'affaire réservé"
     ],
-    exemple: "SELECT vout.ENRNO, r.CE2, r.RESQTE, vin.DELDT AS DateEntreePrevue\nFROM MVTL vout\nJOIN MRES r ON r.DOS = vout.DOS AND r.TICKETRESS = vout.TICKETRES\n           AND r.CE1 = 'A'\nLEFT JOIN MVTL vin ON vin.DOS = r.DOS AND vin.TICKETRES = r.TICKETRESE\n                  AND vin.SENS = 1\nWHERE vout.DOS = '998' AND vout.SENS = 2\n  AND ISNULL(vout.TICKETRES, 0) <> 0;",
+    exemple: "SELECT vout.ENRNO, r.CE2, r.RESQTE, vin.DELDT AS DateEntreePrevue\nFROM MVTL vout\nJOIN MRES r ON r.DOS = vout.DOS AND r.TICKETRESS = vout.TICKETRES\n           AND r.CE1 = 'A'\nLEFT JOIN MVTL vin ON vin.DOS = r.DOS AND vin.TICKETRES = r.TICKETRESE\n                  AND vin.SENS = 1 AND ISNULL(r.TICKETRESE, 0) <> 0\nWHERE vout.DOS = '998' AND vout.SENS = 2\n  AND ISNULL(vout.TICKETRES, 0) <> 0;",
     piege: "Un ticket à 0 veut dire « pas de réservation » : les requêtes Dataviz testent ISNULL(TICKETRES, 0) <> 0 avant de joindre, sinon les lignes sans réservation se relient entre elles.",
     motsCles: ["ticket de reservation", "reservation", "lien reservation", "couverture", "affectation", "ticketres", "ticketress", "ticketrese"],
     voirAussi: ["dv-mres", "dv-mvtl", "dv-rq-analyse-commande-client"],
@@ -3498,7 +3512,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     ],
     exemple: "SELECT PINO, USERCR, USERCRDH, USERMO, USERMODH\nFROM ENT\nWHERE DOS = '998' AND TICOD = 'C' AND PICOD = 2\nORDER BY USERMODH DESC;",
     pratique: "Pour savoir qui a modifié une pièce en dernier, lis ENT.USERMO et USERMODH ; la création est dans USERCR et USERCRDH.",
-    motsCles: ["qui a cree", "qui a modifie", "date de creation", "date de modification", "tracabilite", "auteur", "historique", "usercr", "usermo"],
+    motsCles: ["qui a cree", "qui a modifie", "date de creation", "date de modification", "tracabilite", "auteur", "historique", "usercr", "usermo", "qui a modifie la piece"],
     voirAussi: ["dv-muser", "dv-ent", "dv-mtrctrace"],
     source: { titre: "Achat-vent technique base - Pièces", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490099273/Achat-vent+technique+base+-+Pi+ces" }
   },
@@ -3558,12 +3572,13 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       "Exemples : ENT.PIRELCOD (pièce en reliquat), ENT.TRCOD (traite éditée), TAR.PAFORF (prix forfaitaire), SOC.RELCOD"
     ],
     exemple: "-- Commandes clients en reliquat\nSELECT PINO, PIRELCOD\nFROM ENT\nWHERE DOS = '998' AND TICOD = 'C' AND PICOD = 2\n  AND PIRELCOD = 2;",
-    piege: "WHERE champ = 1 ne veut pas dire « oui » : en général 1 = non et 2 = oui, dit la doc. Vérifie les valeurs du champ dans l'explorateur de champ.",
+    piege: "WHERE champ = 1 ne veut pas dire « oui » : en général 1 = non et 2 = oui, dit la doc, mais pas partout (TARPROMO.PAFORF y est noté 1 = oui). Vérifie les valeurs dans l'explorateur de champ.",
     motsCles: ["oui non", "booleen", "case a cocher", "vrai faux", "flag", "indicateur", "valeur 2", "1 2"],
     voirAussi: ["dv-champ-tableau", "dv-ce", "type-booleen"],
     sources: [
       { titre: "Explorateur de champ", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10936811521/Explorateur+de+champ" },
-      { titre: "Achat-vent technique base - Pièces", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490099273/Achat-vent+technique+base+-+Pi+ces" }
+      { titre: "Achat-vent technique base - Pièces", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490099273/Achat-vent+technique+base+-+Pi+ces" },
+      { titre: "Achat-vent technique base - Tarifs", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490000922/Achat-vent+technique+base+-+Tarifs" }
     ]
   },
   {
@@ -3605,7 +3620,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     voirAussi: ["dv-cli", "dv-sta", "dv-c8"],
     sources: [
       { titre: "Achat-vent technique base - Dossiers et tiers", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11490033695/Achat-vent+technique+base+-+Dossiers+et+tiers" },
-      { titre: "Les interrogations et les éditions", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12208046081/Les+interrogations+et+les+ditions" }
+      { titre: "Les interrogations et les éditions", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12208046081/Les+interrogations+et+les+ditions" },
+      { titre: "Achat-vent technique base - BP, Livraison, TVA, Projets", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11491016710/Achat-vent+technique+base+-+BP+Livraison+TVA+Projets" }
     ]
   },
   {
