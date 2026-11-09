@@ -27,7 +27,7 @@ LEARNSQL.parcours = [
   {
     id: "divalto", titre: "Divalto", resume: "L'ERP Divalto Infinity 10.13, par domaine.", modules: [],
     sous: [
-      { id: "divalto-gc", titre: "Gestion commerciale", resume: "Ventes, achats, stock et logistique.", modules: ["dv01"] }
+      { id: "divalto-gc", titre: "Gestion commerciale", resume: "Ventes, achats, stock et logistique.", modules: ["dv01", "dv02"] }
     ]
   }
 ];
