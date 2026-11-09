@@ -956,7 +956,7 @@ LEARNSQL.questions.dv02 = [
     ],
     "bonne": 0,
     "pourquoi": [
-      "Oui. Lignes de BR fournisseur sans facture (ou facturées après la date d'arrêté) = factures non parvenues. Une extourne est passée le lendemain de l'arrêté.",
+      "Oui. Lignes de BR fournisseur sans facture (ou facturées après la date d'arrêté) = factures non parvenues. Une extourne est passée le lendemain de l'arrêté, si la règle de cut-off la génère.",
       "Non. La FAE concerne les BL clients pas encore facturés (côté vente).",
       "Non. L'avoir à recevoir concerne des BR fournisseur de type avoir.",
       "Non. La provision transport porte sur des commandes fournisseur sans BR ni facture, avec des codes opération dédiés."

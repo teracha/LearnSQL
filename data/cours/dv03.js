@@ -15,7 +15,7 @@ LEARNSQL.cours.dv03 = {
         "L'assistant s'ouvre seul à la validation d'une commande en création, si le dossier coche « Lancer automatiquement à la création de commande client ». Sinon : bouton `Générer contremarque` (pages « Paramétrage Fiche dossier - Onglet Contremarque » et « Assistant de création de commandes de contremarques fournisseur »).",
         "Le CBN a aussi ses méthodes de contremarque : en directe, il commande la quantité exacte du client, sans minimum ni multiple (page « Utiliser le CBN (Calcul des Besoins Nets) - Réapprovisionnement »)."
       ],
-      retenir: "Contremarque : article de contremarque ou géré en stock, jamais hors stock ; délai, minimum et multiple viennent des conditions de réapprovisionnement.",
+      retenir: "Contremarque : jamais un article hors stock ; délai, minimum et multiple viennent des conditions de réapprovisionnement.",
       source: { titre: "La contremarque", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704719489/La+contremarque" }
     },
     {
@@ -34,16 +34,16 @@ LEARNSQL.cours.dv03 = {
     },
     {
       titre: "Après la réception : la post-réception de contremarque",
-      exemple: "Le fournisseur livre le chantier de PISCINES DURAND en 3 fois 20 sacs de sel. Tu valides son BL : la post-réception propose le BL client, une ligne de 60 avec 3 ventilations.",
+      exemple: "Contremarque directe : le fournisseur livre le chantier de PISCINES DURAND en 3 fois, 20 sacs de sel à chaque fois.\n- Tu fais ensuite le BL client.\n- Il porte une seule ligne de 60 sacs, avec 3 ventilations : une par livraison.",
       points: [
         "La post-réception s'ouvre à la validation du BL fournisseur si le dossier le prévoit (onglet Contremarque) : toujours, seulement en directe, ou seulement en réceptionnée.",
         "Le BL client reprend les réservations, les emplacements, les lots ou séries du BL fournisseur, et les coûts de revient.",
         "V10.12 : la quantité à livrer se modifie, sans dépasser le livrable. Une ligne à 0 n'est pas sur le BL client ; si tout est à 0, la validation est bloquée.",
         "Directe livrée en plusieurs fois : une ligne client, le détail en ventilations. Directe soldée à une quantité proche (1 000 litres commandés, 1 023 livrés) : le client reçoit la quantité réelle, sans reliquat, si les reliquats à la ligne sont gérés (dossier sur Toujours, et tiers).",
-        "Réceptionnée, si le dossier active le contrôle des délais (onglet Contremarque) : quand livraison fournisseur + temps de traitement dépasse le délai confirmé au client, Divalto propose de reporter ce délai. Rien ne change sans ton Oui.",
+        "Réceptionnée, si le dossier active le contrôle des délais (onglet Contremarque) : à l'enregistrement de la commande fournisseur, si livraison fournisseur + temps de traitement dépasse le délai confirmé au client, Divalto propose de reporter ce délai. Rien ne change sans ton Oui.",
         "Dépôt en WMS : la directe se valide en BL dans Divalto, sans les programmes WMS, car rien n'entre dans ton dépôt (page « Contremarque, réservations affectées sur commande et le WMS »)."
       ],
-      retenir: "Post-réception : on livre ce qui est arrivé (0 = pas livré) ; en directe, la quantité réelle, sans reliquat.",
+      retenir: "Post-réception : on livre ce qui est arrivé (0 = pas livré) ; directe soldée à une quantité proche = quantité réelle, sans reliquat.",
       source: { titre: "Post réception de contremarque", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704719606/Post+r+ception+de+contremarque" }
     },
     {
@@ -51,7 +51,7 @@ LEARNSQL.cours.dv03 = {
       exemple: "Lundi matin, fournisseur de pompes : 6 propositions du CBN, 2 demandes d'achat du SAV, 1 commande provisoire de contremarque. Tu réserves le fournisseur, tu ajustes les quantités, tu génères une seule commande.",
       points: [
         "Menu `Administration achats / Commande fournisseur / Aide à l'Achat` (V10.9) : propositions CBN, demandes d'achat et commandes provisoires de contremarque, avec les statistiques de l'article (page « Aide à l'Achat (V10.9) »).",
-        "Elle ne remplace pas le CBN : la collecte lit ce qui existe, sans rien calculer. Lance le CBN avant. L'épuration ne vide que les sources collectées pendant cette exécution (page « Ecran de sélection »).",
+        "Elle ne remplace pas le CBN : la collecte lit ce qui existe, sans lancer de CBN. Lance le CBN avant. L'épuration ne vide que les sources collectées pendant cette exécution (page « Ecran de sélection »).",
         "`Réserver le fournisseur` le bloque pour les autres acheteurs ; `Libérer le fournisseur` quand tu as fini.",
         "La quantité retenue se modifie (`F4`). « Annuler proposition » la met à 0 : la ligne reste visible.",
         "« Générer commande » (active, provisoire, ou complément d'une provisoire) verrouille les sources. Si tu retiens moins que calculé et que ça couvre une source en partie, toutes les sources sont traitées en totalité ; la demande d'achat passe périmée."
@@ -64,7 +64,7 @@ LEARNSQL.cours.dv03 = {
       exemple: "Conteneur de 200 pompes venu de Chine. Facture du transitaire : fret et douane. Tu lies cette facture et la commande de pompes à une fiche de frais d'approche, tu lances le calcul : le coût de revient des pompes monte.",
       points: [
         "Frais d'approche = tous les frais d'import : fret, douane, stockage, taxes portuaires. On les active dans le dossier, bouton `Grand Import`.",
-        "Le type de frais fixe le pourcentage du frais à répartir, et le mode : quantité, montant, poids ou volume. Il se cherche d'abord sur l'article de frais.",
+        "Le type de frais fixe le pourcentage du frais à répartir, et le mode : quantité, montant, poids ou volume. Un type posé sur la fiche de frais (bouton `Types de frais`) est cherché en premier ; sinon, celui de l'article de frais.",
         "Frais en pied de pièce : pris seulement si « Prendre en compte pied de pièce fournisseur » (1, 2 ou 3) est coché dans le dossier Grand Import.",
         "Le calcul met à jour le coût des entrées, puis des sorties liées. La fiche sous-référence ne change qu'à l'entrée de la marchandise, sauf option (V10.8).",
         "Calcul relançable tant que la fiche n'est pas « terminée » ; une fois terminée, on la remet en Actif. Avoir (V10.10) : CR = (achat – avoir + frais) / quantité actualisée ; un avoir financier ne retire pas de quantité.",
@@ -90,17 +90,17 @@ LEARNSQL.cours.dv03 = {
     },
     {
       titre: "Évaluer et suivre les fournisseurs",
-      exemple: "Ton fournisseur de produits chimiques : 20 réceptions dans l'année, 3 en retard, 1 bidon percé.\n- Taux dans délai : 17 / 20 = 85 %.\n- Taux sans incident : 16 / 20 = 80 %.",
+      exemple: "Ton fournisseur de produits chimiques : 20 réceptions dans l'année.\n- 3 en retard, 1 autre avec un bidon percé, les 16 autres parfaites.\n- Taux dans délai : 17 / 20 = 85 %.\n- Taux sans incident : 16 / 20 = 80 %.",
       points: [
         "Fiche qualité fournisseur : seulement pour les fournisseurs qui comptent pour la qualité de tes produits. Elle s'appuie sur la fiche tiers et se crée à la première évaluation système.",
         "Niveaux de A (très bon) à D (médiocre). On évalue le système, la réactivité, le commercial ; les réceptions qualité donnent la conformité et le délai. Sans compétences déclarées, seulement des indicateurs généraux.",
-        "Taux dans délai = réceptions sans retard / total. Taux sans incident = ni retard ni défaut / total. Par défaut, une réception est jugée à l'heure (A) et conforme.",
+        "Incident de délai = niveau délai autre que A (retard ou avance). Taux dans délai = réceptions sans incident de délai / total. Taux sans incident = ni incident de délai, ni défaut / total. Par défaut, une réception est jugée à l'heure (A) et conforme.",
         "Barème délai livré : l'avance compte aussi. Avance : 0-1 jour = A, 2-6 = B, 7-13 = C, 14 et plus = D. Retard : 0 = A, 1 = B, 2-6 = C, 7 et plus = D. Calcul automatique = surcharge du programme de saisie réception (page « Paramétrage dossier Divalto Qualité »).",
         "Indicateur combiné = moyenne pondérée. Poids livrés : conformité 5, délai 2, organisation 1, réactivité 1, commercial 1 (page « Paramétrage dossier Divalto Qualité »).",
         "Sélection/classification : panel trié par l'indicateur combiné. Le processus de qualification qualifie la liste et déqualifie les absents. Compétence à incidence qualité = fournisseur qualifié seulement.",
         "Widget « Fournisseurs actifs » (V10.10) : actif = dernière opération de la fiche il y a moins de 12 mois (page « Le widget nombre de fournisseurs actifs (V10.10) »)."
       ],
-      retenir: "Fiche qualité pour les fournisseurs qui comptent ; taux sans incident = ni retard ni défaut ; l'avance compte aussi.",
+      retenir: "Fiche qualité pour les fournisseurs qui comptent ; taux sans incident = ni incident de délai (retard ou avance), ni défaut.",
       source: { titre: "Suivi Fournisseur", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705868831/Suivi+Fournisseur" }
     },
     {
@@ -111,7 +111,7 @@ LEARNSQL.cours.dv03 = {
         "Lignes prises : code opération coché « Consommation pour réapprovisionnement » ET fiche réappro cochée « A prendre en compte dans l'analyse des consommations ».",
         "« Mettre à jour les fiches » écrit stock d'alerte, quantité optimale et stock de sécurité. En réglage, décoche-la pour tester plusieurs fois.",
         "Délai fournisseur : celui de la fiche « Conditions fournisseur » d'abord ; sinon un lissage des délais constatés, mauvais pour les livraisons cadencées ou variables. Plus de délai = plus de stock de sécurité.",
-        "Stock de sécurité = écart-type × coefficient du taux de service × √(jours de couverture / 30). Coefficients : 99,9 % → 3 ; 99 % → 2,33 ; 97,5 % → 1,96. La moyenne compte les mois depuis la première consommation (V10.8).",
+        "Stock de sécurité (V10.8) = écart-type × coefficient du taux de service × √(jours de couverture / 30). Coefficients : 99,9 % → 3 ; 99 % → 2,33 ; 97,5 % → 1,96. Dans ce calcul, la moyenne divise par le nombre de mois depuis le premier mois avec une quantité : 140 / 8, pas / 12, dans l'exemple de la doc.",
         "V10.9 : une coche « Analyse consommation » par ligne de pièce, modifiable après coup, même sur une facture imprimée ou intégrée (`Outils` > « Inclure / Exclure Analyse de consommation »).",
         "Classement ABC : la catégorie A s'arrête à la règle des 20/80 (20 % des articles font 80 % du CA) ; rossignols = articles sans mouvement. Seuls les codes opération cochés « Classement ABC » comptent."
       ],
@@ -120,16 +120,16 @@ LEARNSQL.cours.dv03 = {
     },
     {
       titre: "Codes opération, tarifs d'achat et réglages utiles",
-      exemple: "Tes achats de pompes passent par le code opération F (Achat), livré par Divalto :\n- tiers Fournisseur, sens Entrée, nature de stock N ;\n- valorisation « Saisie du prix, calcul du CR » ;\n- journal d'achat A1.",
+      exemple: "Tes achats de pompes passent par le code opération F (Achat). La capture de la doc montre :\n- tiers Fournisseur, sens Entrée, nature de stock N ;\n- valorisation « Saisie du prix, calcul du CR » ;\n- journal d'achat A1 (un réglage du code opération).",
       points: [
         "Le code opération fixe le sens, le tiers, la nature de stock, la valorisation et le journal. Son nom suit une convention (F = entrée fournisseur, G = sortie fournisseur, C = vente) : c'est le paramétrage qui fait foi.",
         "Intégration comptable : le journal vient du code opération de l'en-tête de pièce. Achat d'immobilisation : coche « Achat d'immobilisation » sur le code.",
         "Tarif d'achat par tableur (V10.11) : avec la seule référence fournisseur, coche « Compléter la référence par le référencement fournisseur ». Le dépôt est ignoré : la première ligne trouvée donne ta référence (page « Les tarifs »).",
         "Pièces fournisseur : l'Incoterm est informatif, les contrôles bloquants sont côté client. La confidentialité « Visualiser les coûts et les prix d'achat » masque les coûts, pas le tarif d'achat (page « Gérer les achats »).",
-        "Sous-traitance de négoce (V10.5) : tu achètes une prestation sur tes composants, par exemple l'assemblage de kits. Un seul ordre de sous-traitance par commande fournisseur, sans reliquat (page « Gérer la sous-traitance de négoce (V10.5) »).",
+        "Sous-traitance de négoce (V10.5) : tu achètes une prestation sur tes composants, par exemple le remplissage de présentoirs. Un seul ordre de sous-traitance par commande fournisseur, sans reliquat (page « Gérer la sous-traitance de négoce (V10.5) »).",
         "L'article fini porte le tarif d'achat, pour la seule valeur ajoutée. La réception des produits finis ouvre la consommation des composants. Pour le CBN, la durée de la prestation se met sur la nomenclature (même page)."
       ],
-      retenir: "Le paramétrage du code opération fait foi ; le journal vient de l'en-tête ; l'import par référence fournisseur prend la première ligne trouvée.",
+      retenir: "Le paramétrage du code opération fait foi, pas son nom ; le journal vient du code de l'en-tête de pièce.",
       source: { titre: "Le code opération", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704708985/Le+code+op+ration" }
     },
     {

@@ -29,7 +29,7 @@ LEARNSQL.cours.dv02 = {
         "Prix d'achat : en général, prix particulier du couple article/fournisseur (code tarif 99).",
         "Coût de revient = prix d'achat + % (code % CR) + montant fixe (code montant CR) + frais de la ligne. Ex. : 400 € + 2 % + 5 € + 7 € = 420 €."
       ],
-      retenir: "Feu orange, seuil, minimum : alerte. Feu rouge, plafond commande : blocage.",
+      retenir: "Feu orange, seuil, minimum : alerte ; feu rouge, plafond commande : blocage.",
       source: { titre: "Le fournisseur", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704703163/Le+fournisseur" }
     },
     {
@@ -39,7 +39,7 @@ LEARNSQL.cours.dv02 = {
         "Champ « Origine » (onglet Identifiant de l'en-tête) : Saisie, EDI, CBN, Demande d'achat, Appel d'offre, Contremarque… (page « Gérer les achats »).",
         "Devise : sans l'option du dossier « Maj taux de change lors de la validation des pièces d'achat », le taux de la commande suit jusqu'à la facture. Avec (V10.11), il est recalculé à chaque pièce, puis grisé (page « Réactualiser le taux de change… (V10.11) »).",
         "Adresse de réception (V10.11, dossier, onglet « Pièce 3 ») : dossier, établissement ou dépôt ; introuvable = celle du dossier (page « Choisir l'adresse de réception de la marchandise (V10.11) »).",
-        "ARC, en-tête (onglet « Livraison ») : Statut ARC (AR total ou partiel), numéro, date. Les lignes les reprennent (modifiables). En-tête « AR partiel » = au moins une ligne en partiel. Tout suit jusqu'à la facture.",
+        "ARC, en-tête (onglet « Livraison ») : Statut ARC (AR total ou partiel), numéro, date. Les lignes les reprennent (modifiables). En-tête « AR partiel » : au moins une ligne doit être en partiel (contrôle non bloquant). Tout suit jusqu'à la facture.",
         "`Commande fournisseur / Relance ARC` : par défaut, filtre « AR attendu » + « AR partiel ». Relance par téléphone, ou par mail (processus).",
         "`Commande fournisseur / Retard de livraison commande` : en retard = délai reporté dépassé, s'il est renseigné. Le délai demandé ne sert qu'en dernier recours."
       ],
@@ -51,12 +51,12 @@ LEARNSQL.cours.dv02 = {
       exemple: "HydroPompes annonce 40 pompes (avis d'expédition).\n- Avis saisi → « En réception » : 40, police normale.\n- Pompes au quai : pré-réception → 40 en gras.\n- BL généré → elles entrent en stock.",
       points: [
         "C'est le BL fournisseur qui fait entrer en stock : saisi en direct, ou issu de la validation de la commande en BL (page « Gérer les achats »).",
-        "`BL Fournisseur / Saisie des réceptions` + coche du dossier « Gérer la pré-réception pour le magasinier en saisie des réceptions » : avis saisi = « En réception » en police normale (en transit) ; marchandise pointée au quai = en gras, la réception peut se faire.",
+        "`BL Fournisseur / Saisie des réceptions`, avec la coche du dossier « Gérer la pré-réception pour le magasinier en saisie des réceptions ». Avis saisi = « En réception » en police normale (en transit). Marchandise pointée au quai = en gras : la réception peut se faire.",
         "Avis d'expédition en fichier : le dataset RECEPFOU du Data Hub (V10.5) crée une pré-saisie de la réception ; n° de commande obligatoire (page « Pré-réception fournisseur (V10.5) »).",
         "Dates (V10.11) : date d'expédition et date de réception, jamais avant l'expédition. Chaque ligne validée en pré-réception remet la date du jour : la dernière opération fixe la date du BL.",
         "Deux commandes avec une remise en pied, sur un même BL (V10.9) : le BL additionne les deux remises ; la répartition par ligne est recalculée (page « Gérer les achats »)."
       ],
-      retenir: "« En réception » : police normale = en route, gras = arrivé. Le BL fait entrer en stock.",
+      retenir: "« En réception » : police normale = en route, gras = arrivé ; c'est le BL qui fait entrer en stock.",
       source: { titre: "Saisie des préparations/pré-réceptions", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704711219/Saisie+des+pr+parations+pr+-r+ceptions" }
     },
     {
@@ -64,7 +64,7 @@ LEARNSQL.cours.dv02 = {
       exemple: "12 liners commandés chez LinerSud, 8 livrés.\n- Reliquats gérés → 4 restent actifs.\n- Modèle arrêté → « solde du reliquat », motif « Fin de série » → ligne « Périmé ».",
       points: [
         "Reliquats : 3 réglages. Dossier : « Autoriser la gestion des reliquats à la ligne ». Fiche fournisseur : « Gérer les reliquats en commande ». Commande : « Accepte les reliquats » (page « Saisie des préparations/pré-réceptions »).",
-        "Sans reliquats (V10.6) : réception partielle possible, après confirmation, mais la commande passe « périmée » et le reste est perdu (même page).",
+        "En saisie des réceptions, sans reliquats (V10.6) : réception partielle possible, après confirmation, mais la commande passe « périmée » et le reste est perdu (même page).",
         "Solder en validation en BL : mode fiche de la ligne, onglet « Généralités », case « solde du reliquat » (visible seulement si la ligne est en reliquat). La ligne passe « Périmé ».",
         "Motif : table `Motif solde reliquats`, saisi sur la ligne de commande (onglet « Livraison ») ; obligatoire si le dossier le demande.",
         "Ligne à ne pas livrer : par défaut, pas de suppression en validation ; mets sa quantité à 0, la trace reste. Suppression possible si le dossier coche « Autoriser la suppression de mouvement en validation de pièce » (page « Suppression de ligne en validation de pièce (V10.5) »)."
@@ -104,12 +104,12 @@ LEARNSQL.cours.dv02 = {
       exemple: "30 juin : chlore reçu, pas de facture → cut-off : FNP, extournée le 1er juillet.\n- 5 juillet : facture reçue. Visa exigé → ta responsable vise, tu génères la facture.\n- Intégration comptable, sans impression.",
       points: [
         "Visa : exigé si la fiche fournisseur coche « Nécessite une validation manuelle du contrôle facture ». La coche compte à la création du contrôle : la décocher ensuite ne dispense pas ce contrôle-là.",
-        "Tolérances : l'assistant essaie la tolérance de rapprochement, puis celle d'acceptation. Celle de la fiche fournisseur doit dépasser celle du dossier, et elle prime (page « Traitement de Contrôle factures fournisseurs »).",
+        "Tolérances : l'assistant essaie la tolérance de rapprochement, puis celle d'acceptation. La tolérance d'acceptation de la fiche fournisseur doit dépasser celle du dossier ; elle prime (page « Traitement de Contrôle factures fournisseurs »).",
         "`Facture fournisseur / Intégration comptable` : contrairement aux ventes, une facture d'achat n'a pas besoin d'être imprimée avant (page « Intégration des pièces commerciales en comptabilité »).",
-        "Cut-off : BR fournisseur sans facture, ou facturé après la date d'arrêté = facture non parvenue (FNP), extournée le lendemain (page « Le Cut-off dans l'ERP »).",
+        "Cut-off : BR fournisseur sans facture, ou facturé après la date d'arrêté = facture non parvenue (FNP). L'extourne se fait le lendemain, si la règle de cut-off la génère (page « Le Cut-off dans l'ERP »).",
         "RFA (bonification fournisseur, V10.5) : après le calcul, `Facturation` crée une facture au fournisseur. Il lui faut un compte client (« Client à facturer » du contrat). Pas d'avoir auto-généré (page « Gérer les BFA-RFA »)."
       ],
-      retenir: "Visa : figé à la création du contrôle. Facture d'achat : pas d'impression avant la comptabilité.",
+      retenir: "Visa : figé à la création du contrôle ; facture d'achat : pas d'impression avant la comptabilité.",
       source: { titre: "Le contrôle facture fournisseur", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704720571/Le+contr+le+facture+fournisseur" }
     },
     {
@@ -121,7 +121,7 @@ LEARNSQL.cours.dv02 = {
         "Écriture en attente venue du Data Hub : visa obligatoire avant l'intégration (`Viser l'écriture`, droit CEv). Saisie directe : visa facultatif (page « Saisie des écritures en attente »).",
         "Factur-X (V10.11) seule : le Data Hub lit le XML embarqué, sans pivot. Avec un pivot : traitée comme un PDF classique (page « Intégrer une facture au format Factur-X par le datahub (V10.11) »).",
         "Identification du dossier et du fournisseur (V10.13) : SIRET, GLN, DUNS, en recherche cumulative. Bon réflexe : renseigne-les tous sur les fiches, sinon la facture s'arrête (page « Intégration technique des Factures Factur‑X… »).",
-        "EDI sortant : support « EDI » ou « EDI et papier » sur la fiche du tiers (onglet Documents). Fichier créé à l'impression, dans `EDI_PIECES`, avec la référence externe du tiers (sans référencement : aucune) (pages « Impression de pièce en EDI » et « Le fichier pivot et les fichiers compagnons »)."
+        "EDI sortant : support « EDI » ou « EDI et papier » sur la fiche du tiers (onglet Documents). Fichier créé à l'impression, dans `EDI_PIECES`, avec par défaut la référence externe du tiers (sans référencement : aucune) (pages « Impression de pièce en EDI » et « Le fichier pivot et les fichiers compagnons »)."
       ],
       retenir: "Facture d'achat → rapprochement ; facture sans achat → écriture en attente, à viser.",
       source: { titre: "Les factures fournisseurs traitées par la dématérialisation", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704720297/Les+factures+fournisseurs+trait+es+par+la+d+mat+rialisation" }
@@ -132,7 +132,7 @@ LEARNSQL.cours.dv02 = {
       points: [
         "Besoin net = besoin brut − (stock + approvisionnements prévus). Besoin brut = commandes clients, parfois prévisions. Articles gérés en stock seulement.",
         "`Stocks / Réapprovisionnement / Calcul des besoins` : régénératif = anciennes propositions non traitées supprimées ; complémentaire = gardées, le CBN en ajoute.",
-        "Méthode (fiche « Réappro ») : global (articles C, peu chers ; n'évite pas les ruptures) ; à date sur portefeuille (stock virtuel jour par jour ; articles A, B, chers) ; historique des consommations (12 derniers mois) ; contremarque réceptionnée (livrée chez toi) ou directe (livrée chez ton client).",
+        "Méthode, sur la fiche « Réappro ». Global : articles C, peu chers ; n'évite pas les ruptures. À date sur portefeuille : stock virtuel jour par jour ; articles A, B, chers. Historique des consommations : 12 derniers mois. Contremarque : réceptionnée (livrée chez toi) ou directe (livrée chez ton client).",
         "Délai de sécurité : la commande est proposée plus tôt d'autant de jours ; la date du besoin ne bouge pas.",
         "Délai entre deux commandes : le CBN regroupe les besoins de cette période. Piège : vide (dossier et famille de réappro) = 30 jours.",
         "`Administration des propositions` : propositions en unités d'achat (lignes générées aussi), modifiables avant validation. Montant en rouge = seuil tarifaire du fournisseur pas atteint (option du dossier).",
