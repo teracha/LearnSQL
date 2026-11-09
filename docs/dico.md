@@ -100,3 +100,53 @@ Sans IA, sans service externe, dans le navigateur :
   (une ou deux lettres de différence, ou même squelette de consonnes : « carreceete » ≈ « caractère »), mot de la
   définition ;
 - les fiches les mieux notées s'affichent ; si aucune ne passe le seuil, les plus proches quand même, avec un message.
+
+## Le dico Divalto
+
+Demandé par l'élève : un second domaine du dico, sur l'ERP Divalto 10.13 (tables, champs, vues SQL, requêtes Dataviz).
+
+- **Deux onglets** en haut de `#/dico` : « SQL » (le dico ci-dessus, par défaut) et « Divalto ». La recherche et le
+  parcours par catégorie se font dans l'onglet choisi : les fiches Divalto ne se mêlent pas aux fiches SQL. L'onglet
+  choisi est gardé dans le navigateur (`learnsql-dico-domaine`).
+- **Droits** : l'onglet Divalto suit la règle du parcours Divalto (`accesOK(["divalto"])` dans `js/app.js`) : pas
+  d'onglet sans compte, ni pour un compte qui n'a pas le parcours. C'est un masquage d'écran, comme pour les parcours.
+- **Source unique** : la base documentaire `/home/user/divalto_10` (dépôt `teracha/Divalto_10`), en **lecture
+  seule**. Pas de page = pas de fiche. Chaque fiche a sa source (titre et lien « Page source » du fichier .md).
+- Fichier : `data/dico/divalto.js`, même enveloppe que les autres (`LEARNSQL.dico = (LEARNSQL.dico || []).concat([…])`).
+
+### Le format d'une fiche Divalto
+
+```js
+{
+  id: "dv-mouv",                   // préfixe « dv- » pour tout le dico Divalto
+  nom: "MOUV",                     // le nom exact de la table, du champ ou de la vue ; le titre pour une requête
+  type: "table",                   // "table" | "champ" | "vue" | "requête"
+  domaine: "divalto",              // obligatoire : c'est lui qui range la fiche dans l'onglet Divalto
+  categorie: "Tables Divalto",     // "Tables Divalto" | "Champs Divalto" | "Vues Divalto" | "Requêtes Dataviz"
+  definition: "Les lignes des pièces commerciales : une ligne par article d'une commande, d'un BL ou d'une facture.",
+  noms: ["mouvements"],            // facultatif : d'autres noms de la même chose
+  champs: [["PINO", "le numéro de la pièce"], ["REF", "la référence de l'article"]],  // tables et vues : SEULEMENT les
+                                   // champs que la doc décrit, avec le sens qu'elle leur donne
+  liens: ["ENT : l'en-tête de la pièce (une pièce ENT, plusieurs lignes MOUV)"],      // facultatif, s'il est dans la doc
+  indicateurs: ["Client", "Chiffre d'affaires"],   // requêtes Dataviz : ce que la requête affiche
+  regles: ["Basé sur les factures de vente (C, CPV)"],  // requêtes Dataviz : les règles de gestion de la doc
+  exemple: "SELECT …",             // facultatif : SQL Server ; tiré de la doc, ou écrit avec ce qu'elle décrit
+  piege: "…",                      // facultatif : seulement s'il s'appuie sur la doc
+  pratique: "…",                   // facultatif (règle 9) : seulement s'il s'appuie sur la doc
+  motsCles: ["ligne", "lignes de commande", "detail", "article", "piece"],  // 8 à 20 : ce que l'élève taperait
+  voirAussi: ["dv-ent", "inner-join"],   // des id du dico Divalto ou du dico SQL
+  source: { titre: "…", url: "https://divalto.atlassian.net/wiki/…" },  // obligatoire (ou sources: [ … ], 1 à 3)
+  version: "…"                     // facultatif : si deux pages se contredisent (ancienne version), le dire
+}
+```
+
+Pas de champ `moteurs` : Divalto tourne sur SQL Server. La fiche affiche les champs (tableau), les liens, les
+indicateurs et règles (requêtes), l'exemple, le piège, le conseil pratique, « Voir aussi » et le lien vers la source.
+
+### Les règles d'écriture Divalto
+1. Tout vient de la doc : nom de table, champ, valeur codée (« C » pour client…), lien entre tables. Jamais deviné.
+2. La définition : une phrase, 20 mots au plus, mots simples (règle 1 du dico SQL).
+3. Une table n'a une fiche que si la doc dit ce qu'elle contient. Un champ a sa propre fiche s'il revient dans
+   plusieurs tables ou plusieurs pages (clé de pièce, type de tiers, dossier…).
+4. Un exemple SQL n'utilise que des tables, champs et liens décrits dans la doc.
+5. Si la doc a plusieurs versions qui se contredisent, la fiche suit la 10.13 et le dit dans `version`.
