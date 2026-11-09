@@ -29,5 +29,10 @@ Règles :
     Pas de marque réservée à la bonne réponse non plus, même de ponctuation : le point-virgule (« X ; Y ») apparaît aussi dans des choix faux (cp23 : « le seul choix avec un point-virgule » était bon 10 fois sur 10). Contrôle : quand un seul choix porte la marque, il est bon au plus 1 fois sur 2. Même chose pour la forme : le seul choix qui ne commence pas par « Tu » (ou le seul entre guillemets) est bon au plus 1 fois sur 2 ; et le seul qui commence par « Tu » n'est pas toujours faux (sur cp01 à cp23 : bon 1 fois sur 75).
 12. Juridique : donne d'abord la règle par défaut de la loi, puis ce que le contrat peut changer (cp14 : par défaut, une pénalité n'est due qu'après une mise en demeure ; « dès la date » seulement si le contrat le dit). Toute affirmation juridique hors de la fiche est listée dans le rapport pour vérification.
 
+**Les outils de gestion de projet** (`data/outils/gp-*.js`, section Outils, `docs/outils.md`) appliquent les règles des
+cours mot pour mot (échelles, seuils, rubriques, mots). Si tu changes une règle dans un cours ou une question, vérifie les
+outils liés (champ `cours` des outils ; tableau « Les outils de gestion de projet » de `docs/plan-chef-de-projet.md`) et
+signale la correction à faire. Un outil ne contredit jamais un cours.
+
 Avant de rendre la main : `node outils/verifier.js <module>` → 0 erreur, 0 alerte.
 Ton rapport final : ce que tu as écrit, et les points où plusieurs réponses se défendent.

@@ -414,3 +414,24 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 | E. Vers DSI adjoint | cp24 Conformité dans un projet SI · cp25 Portefeuille et priorisation · cp26 Manager une équipe · cp27 Budget SI annuel et direction générale |
 
 **Priorités (expert)** : cp04 Cadrer, cp08 Piloter et reporter, cp11 Business case. cp01 en échauffement.
+
+## Les outils de gestion de projet
+
+La section Outils du site (`#/outils`, `docs/outils.md`) propose des modèles d'outils tirés de ce parcours, avec un
+exemple DEMAT 2027. Leurs règles (échelles, seuils, rubriques, mots) sont celles des cours, mot pour mot : un cours qui
+change une règle doit faire vérifier ses outils (`data/outils/gp-*.js`).
+
+| Outil | Type | Cours |
+|---|---|---|
+| Note de cadrage (`gp-cadrage`) | document | cp04, cp06 |
+| Registre des risques (`gp-risques`) | tableau | cp07, cp08 |
+| Matrice RACI (`gp-raci`) | matrice | cp09 |
+| Compte rendu de réunion (`gp-compte-rendu`) | document | cp09, cp17 |
+| Rapport du COPIL et météo (`gp-rapport`) | document | cp08, cp09 |
+| Note de décision : options chiffrées (`gp-options`) | document | cp03, cp17, cp18 |
+| Registre des décisions (`gp-decisions`) | tableau | cp09 |
+| Registre des changements (`gp-changements`) | tableau | cp10 |
+| Suivi du budget (`gp-budget`) | document | cp12 |
+| Business case : le coût sur 3 ans (`gp-business-case`) | document | cp11 |
+| Cahier de recette (`gp-recette`) | document | cp19, cp08 |
+| Go / no-go et plan de bascule (`gp-bascule`) | document | cp21 |
