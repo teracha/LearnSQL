@@ -16,6 +16,7 @@ LEARNSQL.outilsSujets = [
   {
     id: "gestion-projet", titre: "Gestion de projet", parcours: "chef-projet",
     resume: "Des modèles simples à remplir, tirés des cours du parcours Chef de projet SI.",
-    outils: ["gp-risques", "gp-raci", "gp-compte-rendu"]
+    outils: ["gp-cadrage", "gp-risques", "gp-raci", "gp-compte-rendu", "gp-rapport", "gp-options", "gp-decisions",
+      "gp-changements", "gp-budget", "gp-business-case", "gp-recette", "gp-bascule"]
   }
 ];

@@ -38,30 +38,31 @@ qu'on ajoute, et une valeur par case : RACI).
   id: "gp-risques",
   sujet: "gestion-projet",
   titre: "Registre des risques",
-  resume: "Lister les risques du projet, les noter et suivre leurs actions.",   // une phrase
-  quand: "Dès le cadrage, puis à chaque point projet : 15 minutes sur ce qui bouge.",  // quand s'en servir
+  resume: "Lister les risques du projet, les noter de 1 à 9, et suivre leur action.",   // une phrase
+  quand: "Dès le cadrage. Puis chaque semaine, 15 minutes au point projet, sur ce qui bouge.",  // quand s'en servir
   etapes: ["…", "…", "…"],          // « Comment faire » : 3 étapes au plus, mots simples
-  cours: ["cp07"],                  // les modules qui l'enseignent
+  cours: ["cp07", "cp08"],          // les modules qui l'enseignent
   type: "tableau",
+  ligne: { titre: "Risque" },       // le nom d'une ligne (cartes sur téléphone, alertes)
   colonnes: [
-    { id: "risque", titre: "Risque", type: "texte-long", aide: "Cause → risque → conséquence" },
+    { id: "risque", titre: "Risque", type: "texte-long", aide: "Cause → risque → conséquence." },
     { id: "proba", titre: "Probabilité", type: "choix", valeurs: [1, 2, 3], libelles: ["Faible", "Moyenne", "Forte"] },
     { id: "impact", titre: "Impact", type: "choix", valeurs: [1, 2, 3], libelles: ["Faible", "Moyen", "Fort"] },
     { id: "note", titre: "Note", type: "calcul", formule: "proba * impact",
-      niveaux: [{ max: 2, libelle: "Faible", couleur: "ok" }, { max: 4, libelle: "Moyen", couleur: "attention" },
-                { max: 9, libelle: "Fort", couleur: "ko" }] },
-    { id: "porteur", titre: "Porteur", type: "texte" },
-    { id: "echeance", titre: "Échéance", type: "date" },
-    { id: "statut", titre: "Statut", type: "choix", valeurs: ["Ouvert", "Fermé"] }
+      niveaux: [{ max: 2, libelle: "On surveille", couleur: "ok" }, { max: 4, libelle: "Action simple", couleur: "attention" },
+                { max: 9, libelle: "Priorité", couleur: "ko" }] },
+    { id: "reponse", titre: "Réponse et action", type: "texte-long" },
+    { id: "proprietaire", titre: "Propriétaire", type: "texte" },   // « porteur » : réservé à l'escalade (cp07)
+    { id: "quand", titre: "Pour quand", type: "date" },
+    { id: "statut", titre: "Statut", type: "choix", valeurs: ["Ouvert", "Arrivé", "Fermé"], defaut: "Ouvert" }
   ],
-  alertes: [ { si: "note >= 6 et action vide", message: "Risque fort sans action." } ],
-  totaux: [ … ],                    // facultatif : sommes, nombres, moyennes en bas du tableau
-  exemple: { nom: "DEMAT 2027", lignes: [ … ] },   // un exemple rempli, tiré du fil rouge des cours
+  alertes: [ { si: "statut <> \"Fermé\" et (reponse vide ou quand vide)", message: "Sans action ni date, c'est une liste d'inquiétudes." } ],
+  totaux: [ { libelle: "Risques ouverts", calcul: "nombre", si: "statut = \"Ouvert\"" } ],
+  exemple: { nom: "DEMAT 2027", date: "2027-02-08", lignes: [ … ] },   // un exemple rempli, tiré du fil rouge
   export: ["excel", "copier", "imprimer"]
 }
 ```
-Le format exact (types de champs, formules, alertes, totaux, matrice) est décrit ici par le développeur quand il le
-fige. Règles :
+Le format exact est figé plus bas (« Le format figé »). Règles :
 - **Pas d'`eval`, pas de `new Function`** : une formule est lue par un petit lecteur d'expressions (+ − × ÷,
   comparaisons, et / ou, noms de colonnes, nombres, `vide`), qui sert aussi à écrire les formules Excel.
 - Les règles d'un outil (échelles, seuils, mots) sont **celles des cours**, mot pour mot. Exemple : le cours cp07
@@ -91,3 +92,131 @@ fige. Règles :
 - Un tableau sur téléphone (390 px) : une carte par ligne, sans défilement horizontal ; un tableau classique sur PC.
 - Une couleur a toujours son mot (« Fort », pas seulement du rouge). Des boutons larges, peu de mots.
 - Les alertes s'affichent sous le tableau, en phrases courtes.
+
+## Le format figé (développeur, novembre 2026)
+
+Moteur : `js/outils.js` (`LEARNSQL.outilsMoteur`, sans DOM, sans `eval`). Écran : bloc « Outils » de `js/app.js`.
+Contrôle : `node outils/verifier.js` (section « Outils »). Tests : `outils/tests/outils-moteur.js` (node) et
+`outils/tests/outils.js` (navigateur, dans `lancer.sh`).
+
+### Les fichiers
+
+- `data/outils/sujets.js` : `LEARNSQL.outilsSujets = [{ id, titre, resume, parcours?, outils: [...] }]`.
+  `outils` : dans l'ordre, l'id d'une définition, ou un lien `{ titre, resume, lien: "#/dico" }`.
+  `parcours` : un id de `data/parcours.js` (parcours ou sous-parcours) ; le sujet suit `accesOK`.
+- `data/outils/<id>.js` : **un outil par fichier**, nommé comme son id, chargé dans `index.html` (le vérificateur le
+  contrôle). L'outil doit être rangé par son sujet (`sujet` = l'id du sujet, et l'id dans sa liste `outils`).
+- Ids : outil `gp-risques` (a-z, 0-9, tirets) ; colonne, rubrique et total `prochaine_revue` (a-z, 0-9, `_`). Mots
+  réservés, interdits comme id : `et`, `ou`, `non`, `vide`, `aujourdhui`, `nb` (d'où `lieu` pour une colonne « Où »).
+
+### Les champs communs d'un outil
+
+`id`, `sujet`, `titre`, `resume` (une phrase, 25 mots au plus), `quand`, `etapes` (1 à 3, 25 mots au plus chacune),
+`cours` (ids de modules qui ont une fiche de cours ; liste vide permise), `type` (`tableau`, `document`, `matrice`),
+`exemple` (obligatoire), `export` (facultatif, parmi `excel`, `copier`, `imprimer` ; par défaut les trois).
+Un champ inconnu donne une alerte du vérificateur (une faute de frappe ne passe pas en silence).
+
+### Les colonnes (et les rubriques simples d'un document)
+
+| type | saisie | valeur gardée | dans Excel |
+|---|---|---|---|
+| `texte` | une ligne | texte (2 000 caractères au plus) | texte |
+| `texte-long` | plusieurs lignes | texte (5 000 au plus) | texte, retour à la ligne |
+| `nombre` | « 12,5 » ou « 12.5 » | nombre | nombre |
+| `date` | le calendrier | `"2027-03-15"` ; affichée 15/03/2027 | date (un nombre de jours) |
+| `choix` | une liste | une des `valeurs` (nombres ou textes, pas mélangés) | liste déroulante |
+| `calcul` | rien : calculé | — (jamais gardé) | **formule** Excel |
+
+Options : `aide` (l'indication : texte d'attente dans le site, message de saisie dans Excel) ; `defaut` (valeur d'une
+ligne neuve, permise ; pas pour un calcul) ; `largeur` (largeur Excel, 1 à 120) ; pour un choix : `libelles` (« 3 ·
+Forte ») et `couleurs` (une par valeur : `ok`, `attention`, `ko`, `neutre`, ou `""`) ; pour un calcul : `formule` ;
+pour un calcul ou un nombre : `niveaux`.
+
+**Niveaux** : `[{ max: 2, libelle: "On surveille", couleur: "ok" }, …]`, `max` croissants ; le dernier peut être sans
+`max` (tout le reste). Le 1er niveau dont le `max` n'est pas dépassé s'applique. Toujours un mot (`libelle`) avec sa
+couleur. Dans Excel : une colonne « Niveau : … » (formule SI imbriquée) colorée par une mise en forme conditionnelle.
+
+### Les expressions (formules, alertes, conditions des totaux)
+
+- Nombres (`6`, `0.8` : point décimal), textes entre guillemets (`"Ouvert"`), noms de colonnes ou de rubriques.
+- Calcul : `+ - * /`, ou `− × ÷` ; parenthèses ; moins devant (`-x`).
+- Comparaisons : `= <> < <= > >=`, ou `!= ≠ ≤ ≥`. Logique : `et`, `ou`, `non` (sans majuscules ou en majuscules).
+- `x vide`, `x non vide` : seulement après un nom (une liste ou un tableau d'un document : seulement ainsi).
+- `aujourdhui` (ou `aujourd'hui`) : la date du jour ; pour un exemple, `exemple.date`.
+- `abs(x)` : sans signe (un écart de ± 14 jours) ; `nb("A")` : dans une matrice, les cases de la ligne égales à A.
+- Une date est un nombre de jours : `prevision - prevu` donne des jours.
+- **Une comparaison avec une case vide est fausse** ; un calcul avec une case vide est vide ; une division par zéro
+  est vide. Les textes se comparent sans tenir compte des majuscules (comme Excel).
+- Types contrôlés : un calcul donne un nombre ; une alerte ou un `si` donne une condition ; pas de calcul sur un
+  texte ; pas de comparaison nombre / texte ; `statut = "Ouvrt"` est refusé (pas une valeur de `statut`).
+- Ce qu'une expression peut lire : les colonnes de sa ligne ; dans un tableau d'un document, aussi les rubriques
+  simples du document (texte, nombre, date, choix ; un même nom est refusé) ; dans une alerte du document, les
+  rubriques et les totaux qui ont un `id`.
+- Excel : le lecteur écrit la même formule, en anglais avec des virgules (Excel en français l'affiche en français).
+  Une comparaison devient `SI(case vide ; FAUX ; comparaison)`, un calcul `SI(case vide ; "" ; calcul)`.
+
+### Le type `tableau` (et la rubrique `tableau` d'un document)
+
+`colonnes` (au moins une), `ligne: { titre, pluriel? }`, `alertes`, `totaux`, `aideTotaux` (un texte sous les totaux),
+`modele` (des lignes déjà écrites dans un document neuf et dans le modèle vide d'Excel, ex. les 4 axes de la météo).
+- **Une ligne compte** (alertes, totaux) si une case est remplie autrement que par sa valeur par défaut.
+- **Alertes** : `{ si, message }`, par ligne ; elles s'affichent sous le document : « Risque 3 (« Le début du texte… ») :
+  message », et la ligne porte la marque « Alerte ». Message de 30 mots au plus.
+- **Totaux** : `{ libelle, calcul, colonne?, si?, id?, niveaux? }`. `calcul` : `nombre` (les lignes qui comptent, sans
+  colonne), `somme`, `moyenne`, `min`, `max` (avec une colonne de nombres). `si` : seulement les lignes où la condition
+  est vraie. `id` : le total se lit dans les alertes du document. `niveaux` : un mot et une couleur (la météo globale :
+  « 2 · Orange »).
+- Écran : un tableau sur PC ; une carte par ligne quand la place manque (téléphone, 390 px), sans défilement de côté.
+
+### Le type `document`
+
+`rubriques: [...]`, `alertes` (du document). Une rubrique : `{ id, titre, type, aide? }`, type parmi les colonnes
+saisies (`texte`, `texte-long`, `nombre`, `date`, `choix`), `liste` (des lignes de texte ; `ligne: { titre }`) ou
+`tableau` (voir plus haut). Exemple : `exemple: { nom, date?, rubriques: { id: valeur } }` ; une liste vaut
+`["…", "…"]`, un tableau `[{ colonne: valeur }]`.
+
+### Le type `matrice`
+
+`ligne: { titre, pluriel?, aide? }` (ex. Livrable), `colonne: { titre, pluriel?, aide? }` (ex. Personne : l'élève
+ajoute, renomme, supprime les colonnes), `valeurs` (une par case, ou vide), `libelles`, `aides` (une par valeur, sous
+la matrice), `alertes` par ligne avec `nb("A")`. Exemple : `{ nom, colonnes: ["DAF", …], lignes: [{ nom, cases: ["A", "", …] }] }`.
+
+### L'exemple
+
+Obligatoire, rempli, conforme (valeurs permises, colonnes connues : le vérificateur le contrôle). `date` facultative :
+l'exemple se lit à cette date (« situation au 08/02/2027 ») ; ses alertes « date passée » ne changent pas avec le
+temps. Les exemples sont tirés de DEMAT 2027 (`docs/plan-chef-de-projet.md`).
+
+### Les documents de l'élève et les fichiers
+
+- `localStorage`, clé `learnsql-outils` : `{ version: 1, docs: [{ id, outil, nom, cree, maj, contenu }] }`.
+  `contenu` : `{ lignes }` (tableau), `{ rubriques }` (document), `{ colonnes, lignes }` (matrice). Enregistré à chaque
+  saisie ; navigateur qui refuse : les documents vivent le temps de l'onglet, et la page le dit.
+- Fichier (« Enregistrer dans un fichier ») : `{ format: "learnsql-outil", version: 1, outil, titre, nom, enregistre,
+  contenu }`. « Ouvrir un fichier » contrôle tout : un fichier faux donne un message ; une valeur non permise est vidée
+  (le nombre de corrections est dit) ; un fichier d'un autre outil est refusé (avec son nom).
+
+### Les sorties
+
+- **Excel** (`.xlsx` fait dans le navigateur : le XML minimal d'un classeur dans un zip « stocké » avec CRC32).
+  Tableau : une feuille, l'en-tête en gras et figé, les largeurs, une ligne par ligne du document puis 10 lignes vides
+  avec leurs formules (le modèle vide : 30 lignes), les colonnes calculées en formules, « Niveau : … » et « Alertes »
+  en formules, les listes déroulantes et les messages d'aide, les couleurs, les totaux en dessous (formules
+  matricielles pour les `si`). Document : une feuille pour les rubriques (en texte), puis une feuille par tableau ; une
+  formule qui lit une rubrique pointe sur sa cellule. Matrice : une feuille, les alertes par ligne (NB.SI), la légende.
+  Les valeurs calculées sont écrites aussi (lisibles sans recalcul) ; Excel recalcule à l'ouverture.
+- **Copier** : le HTML mis en forme (styles dans les balises, pour Word et les messageries) et le texte simple ; repli
+  par l'événement « copy », puis le texte seul.
+- **Imprimer / PDF** : le même HTML ; le CSS d'impression n'imprime que lui (tableau et matrice en paysage).
+
+### Contrôles et tests
+
+- `node outils/verifier.js` : ids et fichiers, sujets, types, colonnes, choix, niveaux, valeurs par défaut, lignes du
+  modèle, formules lues et typées (colonnes existantes, pas de boucle), alertes, totaux, cours qui existent, exemple
+  conforme, sorties faites sans erreur.
+- `node outils/tests/outils-moteur.js` : le lecteur (calculs, erreurs, types, formules Excel), les valeurs, les calculs
+  des 12 exemples (totaux et alertes attendus), le contrôle des fichiers (400 fichiers au hasard), le zip et les
+  classeurs ; avec python3 et openpyxl, chaque cellule de chaque classeur est relue ; avec `OUTILS_LIBREOFFICE=1`,
+  LibreOffice recalcule toutes les formules et doit trouver les mêmes résultats que le site.
+- `outils/tests/outils.js` (navigateur) : menu, droits, les 3 types, documents, fichiers, Excel des 12 outils, copie,
+  impression, cours, téléphone et PC.

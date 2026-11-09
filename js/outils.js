@@ -47,12 +47,12 @@
   // Évite les restes du calcul en virgule flottante (0,1 + 0,2 = 0,3).
   function arrondi(n) { return parseFloat(n.toPrecision(15)); }
 
-  // 2,5 → « 2,5 » ; 12 000 → « 12 000 » (espace insécable dès 5 chiffres, pas pour 2027) ; 2 décimales au plus.
+  // 2,5 → « 2,5 » ; 2250 → « 2 250 » (espace insécable entre les milliers, comme pour un montant) ; 2 décimales au plus.
   function fmtNombre(n) {
     if (typeof n !== "number" || !isFinite(n)) return "";
     var r = Math.round(n * 100) / 100, signe = r < 0 ? "-" : "", a = Math.abs(r);
     var ent = Math.floor(a), dec = Math.round((a - ent) * 100), s = String(ent);
-    if (ent >= 10000) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+    if (ent >= 1000) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
     if (dec) s += "," + (dec < 10 ? "0" + dec : String(dec).replace(/0$/, ""));
     return signe + s;
   }
@@ -137,7 +137,8 @@
   }
 
   // Grammaire (de la priorité la plus faible à la plus forte) :
-  // ou → et → non → comparaison (a = b, a vide, a non vide) → + − → × ÷ → − unaire → nombre, "texte", nom, nb(…), ( … )
+  // ou → et → non → comparaison (a = b, a vide, a non vide) → + − → × ÷ → − unaire → nombre, "texte", nom, ( … ),
+  // nb("A") (matrice : les cases de la ligne qui valent A), abs(x) (la valeur sans son signe : un écart de ± 14 jours)
   function lire(texte) {
     var jetons = decouper(texte), k = 0;
     if (!jetons.length) throw erreur("Formule vide", texte, -1);
@@ -183,14 +184,16 @@
       if (j.t === "nom") {
         k++;
         if (voir().t !== "(") return { t: "col", nom: j.v };
-        if (j.v.toLowerCase() !== "nb") throw erreur("Fonction inconnue « " + j.v + " » (seule nb existe)", texte, j.pos);
+        var fn = j.v.toLowerCase();
+        if (fn !== "nb" && fn !== "abs") throw erreur("Fonction inconnue « " + j.v + " » (seules nb et abs existent)", texte, j.pos);
         k++;
         var args = [];
         if (voir().t !== ")") { args.push(ou()); while (voir().t === ",") { k++; args.push(ou()); } }
-        if (voir().t !== ")") throw erreur("Parenthèse fermante manquante après nb(", texte, voir().pos);
+        if (voir().t !== ")") throw erreur("Parenthèse fermante manquante après " + fn + "(", texte, voir().pos);
         k++;
-        if (args.length !== 1 || (args[0].t !== "texte" && args[0].t !== "nombre")) throw erreur("nb(…) prend une seule valeur, par exemple nb(\"A\")", texte, j.pos);
-        return { t: "fn", nom: "nb", args: args };
+        if (args.length !== 1) throw erreur(fn + "(…) prend une seule valeur", texte, j.pos);
+        if (fn === "nb" && args[0].t !== "texte" && args[0].t !== "nombre") throw erreur("nb(…) prend une seule valeur, par exemple nb(\"A\")", texte, j.pos);
+        return { t: "fn", nom: fn, args: args };
       }
       if (j.t === "fin") throw erreur("Formule incomplète : il manque une valeur à la fin", texte, j.pos);
       throw erreur("« " + nomJeton(j) + " » inattendu", texte, j.pos);
@@ -217,7 +220,9 @@
     (n.args || []).forEach(function (x) { citees(x, liste); });
     return liste;
   }
-  function aCalcul(n) { return !!n && (n.t === "op" || n.t === "neg" || aCalcul(n.a) || aCalcul(n.b)); }
+  function aCalcul(n) {
+    return !!n && (n.t === "op" || n.t === "neg" || (n.t === "fn" && n.nom === "abs") || aCalcul(n.a) || aCalcul(n.b) || (n.args || []).some(aCalcul));
+  }
   function aDivision(n) { return !!n && ((n.t === "op" && n.op === "/") || aDivision(n.a) || aDivision(n.b)); }
   function aplatir(n, t) { return n.t === t ? aplatir(n.a, t).concat(aplatir(n.b, t)) : [n]; }
 
@@ -227,7 +232,7 @@
     var x;
     switch (n.t) {
       case "nombre": case "texte": return n.v;
-      case "aujourdhui": return ctx.aujourdhui !== undefined ? ctx.aujourdhui : aujourdhui();
+      case "aujourdhui": return typeof ctx.aujourdhui === "number" ? ctx.aujourdhui : aujourdhui();
       case "col": x = ctx.valeur(n.nom); return estVide(x) ? null : typeof x === "string" ? x.trim() : x;
       case "neg": x = evaluer(n.a, ctx); return typeof x === "number" ? -x : null;
       case "op": return calcul(n.op, evaluer(n.a, ctx), evaluer(n.b, ctx));
@@ -236,7 +241,9 @@
       case "ou": return vrai(evaluer(n.a, ctx)) || vrai(evaluer(n.b, ctx));
       case "non": return !vrai(evaluer(n.a, ctx));
       case "vide": x = n.a.t === "col" ? ctx.valeur(n.a.nom) : evaluer(n.a, ctx); return n.non ? !estVide(x) : estVide(x);
-      case "fn": return ctx.nb ? ctx.nb(n.args[0].v) : 0;
+      case "fn":
+        if (n.nom === "abs") { x = evaluer(n.args[0], ctx); return typeof x === "number" ? Math.abs(x) : null; }
+        return ctx.nb ? ctx.nb(n.args[0].v) : 0;
     }
     return null;
   }
@@ -298,6 +305,7 @@
         if (!env.colonnes[n.a.nom]) throw erreur("Colonne inconnue « " + n.a.nom + " »", texte);
         return "condition";
       case "fn":
+        if (n.nom === "abs") { attendre(typer(n.args[0], env, texte), "nombre", "abs(…) prend un nombre"); return "nombre"; }
         if (!env.nb) throw erreur("nb(…) s'emploie seulement dans une matrice", texte);
         if (indexValeur(env.nb, n.args[0].v) < 0) throw erreur("nb(" + JSON.stringify(n.args[0].v) + ") : la valeur n'est pas dans la liste (" + env.nb.join(", ") + ")", texte);
         return "nombre";
@@ -339,7 +347,7 @@
       case "texte": return { f: texteFormule(n.v), p: 9 };
       case "aujourdhui": return { f: "TODAY()", p: 9 };
       case "col": return { f: refs.cellule(n.nom), p: 9 };
-      case "fn": return { f: refs.nb(n.args[0].v), p: 9 };
+      case "fn": return { f: n.nom === "abs" ? "ABS(" + ecrireX(n.args[0], refs).f + ")" : refs.nb(n.args[0].v), p: 9 };
       case "neg": a = ecrireX(n.a, refs); return { f: "-" + (a.p < 9 ? "(" + a.f + ")" : a.f), p: 6 };
       case "op":
         pr = n.op === "+" || n.op === "-" ? 3 : 4;
@@ -387,13 +395,16 @@
     if (typeof v === "string") return v.trim() ? v.trim() : null;
     return typeof v === "number" && isFinite(v) ? v : null;
   }
-  // Le contexte d'une ligne de tableau : les colonnes calculées se calculent à la demande (une seule fois).
-  function contexteLigne(cols, ligne) {
+  // Le contexte d'une ligne de tableau : ses colonnes (les calculées se calculent à la demande, une seule fois), puis
+  // celles du parent : les rubriques du document (un tableau d'un document lit sa tolérance, son plafond…) et la date
+  // du jour (« aujourdhui » ; pour un exemple, la date de l'exemple).
+  function contexteBase(auj) { return { aujourdhui: auj, valeur: function () { return null; } }; }
+  function contexteLigne(cols, ligne, parent) {
     var parId = {}, memo = {}, enCours = {};
     cols.forEach(function (c) { parId[c.id] = c; });
-    var ctx = { valeur: function (nom) {
+    var ctx = { aujourdhui: parent ? parent.aujourdhui : undefined, valeur: function (nom) {
       var c = parId[nom];
-      if (!c) return null;
+      if (!c) return parent ? parent.valeur(nom) : null;
       if (c.type !== "calcul") return valeurSaisie(c, ligne ? ligne[nom] : null);
       if (Object.prototype.hasOwnProperty.call(memo, nom)) return memo[nom];
       if (enCours[nom]) return null;   // boucle (refusée par le vérificateur)
@@ -406,6 +417,7 @@
     } };
     return ctx;
   }
+  // Le niveau d'un nombre (colonne, ou total) : le 1er dont le max n'est pas dépassé ; le dernier peut être sans max.
   function niveau(col, v) {
     if (!col.niveaux || typeof v !== "number") return null;
     for (var k = 0; k < col.niveaux.length; k++) {
@@ -414,12 +426,18 @@
     }
     return null;
   }
-  // Les valeurs calculées d'une ligne et leurs niveaux.
-  function calculerLigne(cols, ligne) {
-    var ctx = contexteLigne(cols, ligne), r = { valeurs: {}, niveaux: {} };
+  // La couleur d'un choix (couleurs: ["neutre", "ok", "ko"], une par valeur), ou "".
+  function couleurChoix(c, v) {
+    var k = c.couleurs ? indexValeur(c.valeurs, v) : -1;
+    return k >= 0 && c.couleurs[k] ? c.couleurs[k] : "";
+  }
+  // Les valeurs calculées d'une ligne, leurs niveaux, et les couleurs de ses choix.
+  function calculerLigne(cols, ligne, parent) {
+    var ctx = contexteLigne(cols, ligne, parent), r = { valeurs: {}, niveaux: {}, couleurs: {} };
     cols.forEach(function (c) {
       if (c.type === "calcul") r.valeurs[c.id] = ctx.valeur(c.id);
       if (c.niveaux) r.niveaux[c.id] = niveau(c, c.type === "calcul" ? r.valeurs[c.id] : valeurSaisie(c, ligne[c.id]));
+      if (c.couleurs) r.couleurs[c.id] = couleurChoix(c, ligne[c.id]);
     });
     return r;
   }
@@ -455,16 +473,16 @@
     return "";
   }
   // Les messages d'alerte d'une ligne de tableau (une ligne vide n'a pas d'alerte).
-  function alertesLigne(t, ligne) {
+  function alertesLigne(t, ligne, parent) {
     if (!ligneRemplie(t.colonnes, ligne)) return [];
-    var ctx = contexteLigne(t.colonnes, ligne);
+    var ctx = contexteLigne(t.colonnes, ligne, parent);
     return (t.alertes || []).filter(function (a) { return condition(a.si, ctx); }).map(function (a) { return a.message; });
   }
-  function totalTableau(t, tot, lignes) {
+  function totalTableau(t, tot, lignes, parent) {
     var vals = [], nb = 0;
     lignes.forEach(function (l) {
       if (!ligneRemplie(t.colonnes, l)) return;
-      var ctx = contexteLigne(t.colonnes, l);
+      var ctx = contexteLigne(t.colonnes, l, parent);
       if (tot.si && !condition(tot.si, ctx)) return;
       nb++;
       if (tot.colonne) { var v = ctx.valeur(tot.colonne); if (typeof v === "number") vals.push(v); }
@@ -476,16 +494,16 @@
     return tot.calcul === "min" ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
   }
   // t : une définition de type tableau, ou une rubrique « tableau » (colonnes, alertes, totaux, ligne).
-  function suiviTableau(t, lignes, rubrique, res) {
+  function suiviTableau(t, lignes, rubrique, res, parent) {
     var nomL = ligneDef(t).titre;
     lignes.forEach(function (l, i) {
-      alertesLigne(t, l).forEach(function (m) {
+      alertesLigne(t, l, parent).forEach(function (m) {
         res.alertes.push({ rubrique: rubrique, ligne: i, message: m, texte: nomL + " " + (i + 1) + extrait(premierTexte(t.colonnes, l)) + " : " + m });
       });
     });
     (t.totaux || []).forEach(function (tot) {
-      var v = totalTableau(t, tot, lignes);
-      res.totaux.push({ rubrique: rubrique, libelle: tot.libelle, valeur: v, texte: v === null ? "—" : fmtNombre(v) });
+      var v = totalTableau(t, tot, lignes, parent);
+      res.totaux.push({ rubrique: rubrique, id: tot.id, libelle: tot.libelle, valeur: v, niveau: niveau(tot, v), texte: v === null ? "—" : fmtNombre(v) });
     });
   }
   function contexteMatrice(ligne) {
@@ -498,20 +516,31 @@
     var ctx = contexteMatrice(ligne);
     return (def.alertes || []).filter(function (a) { return condition(a.si, ctx); }).map(function (a) { return a.message; });
   }
-  function contexteDocument(def, contenu) {
-    var rub = {};
-    def.rubriques.forEach(function (r) { rub[r.id] = r; });
-    return { valeur: function (nom) {
-      var r = rub[nom], v = (contenu.rubriques || {})[nom];
-      if (!r) return null;
-      return r.type === "liste" || r.type === "tableau" ? (Array.isArray(v) ? v : []) : valeurSaisie(r, v);
+  // Le contexte d'un document : ses rubriques (une liste ou un tableau ne se teste qu'avec « vide »), et les totaux de
+  // ses tableaux qui ont un id (« total_atterrissage > plafond »).
+  function contexteDocument(def, contenu, auj) {
+    var rub = {}, tot = {}, memo = {};
+    def.rubriques.forEach(function (r) {
+      rub[r.id] = r;
+      if (r.type === "tableau") (r.totaux || []).forEach(function (t) { if (t.id) tot[t.id] = { r: r, t: t }; });
+    });
+    var ctx = { aujourdhui: auj, valeur: function (nom) {
+      var r = rub[nom], v = (contenu.rubriques || {})[nom], x = tot[nom];
+      if (r) return r.type === "liste" || r.type === "tableau" ? (Array.isArray(v) ? v : []) : valeurSaisie(r, v);
+      if (!x) return null;
+      if (!Object.prototype.hasOwnProperty.call(memo, nom)) memo[nom] = totalTableau(x.r, x.t, (contenu.rubriques || {})[x.r.id] || [], ctx);
+      return memo[nom];
     } };
+    return ctx;
   }
+  // Le parent des lignes : les rubriques du document (pour ses tableaux), ou seulement la date du jour.
+  function parentDe(def, contenu, auj) { return def.type === "document" ? contexteDocument(def, contenu, auj) : contexteBase(auj); }
   // Tout ce qui s'affiche sous un document : { alertes: [{ rubrique, ligne, message, texte }], totaux: [...] }.
   // rubrique = "" pour un tableau ou une matrice, l'id d'une rubrique « tableau », ou null (alerte du document).
-  function suivi(def, contenu) {
+  // auj : la date du jour à prendre (l'exemple a la sienne) ; sans elle, aujourd'hui.
+  function suivi(def, contenu, auj) {
     var res = { alertes: [], totaux: [] };
-    if (def.type === "tableau") suiviTableau(def, contenu.lignes || [], "", res);
+    if (def.type === "tableau") suiviTableau(def, contenu.lignes || [], "", res, contexteBase(auj));
     else if (def.type === "matrice") {
       var nomL = ligneDef(def).titre;
       (contenu.lignes || []).forEach(function (l, i) {
@@ -520,12 +549,12 @@
         });
       });
     } else {
-      var ctx = contexteDocument(def, contenu);
+      var ctx = contexteDocument(def, contenu, auj);
       (def.alertes || []).forEach(function (a) {
         if (condition(a.si, ctx)) res.alertes.push({ rubrique: null, ligne: -1, message: a.message, texte: a.message });
       });
       def.rubriques.forEach(function (r) {
-        if (r.type === "tableau") suiviTableau(r, (contenu.rubriques || {})[r.id] || [], r.id, res);
+        if (r.type === "tableau") suiviTableau(r, (contenu.rubriques || {})[r.id] || [], r.id, res, ctx);
       });
     }
     return res;
@@ -537,12 +566,21 @@
   // ---------- Documents : vide, exemple, contrôle ----------
   // Une ligne neuve : chaque colonne vide, ou sa valeur par défaut (defaut: "Ouvert").
   function ligneVide(cols) { var l = {}; saisies(cols).forEach(function (c) { l[c.id] = c.defaut !== undefined ? c.defaut : ""; }); return l; }
+  // Les lignes d'un tableau neuf : celles du modèle (modele: [{ axe: "Délai" }, …]), ou une ligne vide.
+  function lignesDepart(t) {
+    if (!t.modele || !t.modele.length) return [ligneVide(t.colonnes)];
+    return t.modele.map(function (m) {
+      var l = ligneVide(t.colonnes);
+      Object.keys(m || {}).forEach(function (k) { if (Object.prototype.hasOwnProperty.call(l, k)) l[k] = m[k]; });
+      return l;
+    });
+  }
   function contenuVide(def) {
-    if (def.type === "tableau") return { lignes: [ligneVide(def.colonnes)] };
+    if (def.type === "tableau") return { lignes: lignesDepart(def) };
     if (def.type === "matrice") return { colonnes: ["", ""], lignes: [{ nom: "", cases: ["", ""] }] };
     var r = {};
     def.rubriques.forEach(function (x) {
-      r[x.id] = x.type === "liste" ? [""] : x.type === "tableau" ? [ligneVide(x.colonnes)] : x.defaut !== undefined ? x.defaut : "";
+      r[x.id] = x.type === "liste" ? [""] : x.type === "tableau" ? lignesDepart(x) : x.defaut !== undefined ? x.defaut : "";
     });
     return { rubriques: r };
   }
@@ -551,6 +589,7 @@
     if (!def.exemple) return contenuVide(def);
     var e = copie(def.exemple);
     delete e.nom;
+    delete e.date;   // la date à laquelle l'exemple se lit (alertes « date passée »)
     return examiner(def, e).contenu || contenuVide(def);
   }
 
@@ -713,11 +752,11 @@
     var t = texteValeur(c, ligne[c.id]), nv = calc.niveaux[c.id];
     return t && nv ? t + " · " + nv.libelle : t;
   }
-  function lignesTexteTableau(t, lignes, sortie) {
+  function lignesTexteTableau(t, lignes, sortie, parent) {
     var nomL = ligneDef(t).titre;
     lignes.forEach(function (l, i) {
       if (!ligneRemplie(t.colonnes, l)) return;
-      var calc = calculerLigne(t.colonnes, l);
+      var calc = calculerLigne(t.colonnes, l, parent);
       sortie.push("", nomL + " " + (i + 1));
       t.colonnes.forEach(function (c) {
         var v = texteCellule(c, l, calc);
@@ -725,14 +764,21 @@
       });
     });
   }
-  function texteSuivi(s, rubrique, sortie) {
+  function texteTotal(x) { return x.texte + (x.niveau ? " · " + x.niveau.libelle : ""); }
+  function texteSuivi(s, rubrique, sortie, aide) {
     var t = s.totaux.filter(function (x) { return x.rubrique === rubrique; });
-    if (t.length) { sortie.push("", "Totaux"); t.forEach(function (x) { sortie.push("- " + x.libelle + " : " + x.texte); }); }
+    if (t.length) { sortie.push("", "Totaux"); t.forEach(function (x) { sortie.push("- " + x.libelle + " : " + texteTotal(x)); }); }
+    if (t.length && aide) sortie.push(aide);
   }
+  // doc = { nom, contenu, aujourdhui (facultatif : la date de l'exemple) }
   function texteDocument(def, doc) {
-    var c = doc.contenu, s = suivi(def, c), o = [def.titre + (doc.nom ? " : " + doc.nom : "")];
-    if (def.type === "tableau") { lignesTexteTableau(def, c.lignes, o); if (o.length === 1) o.push("", "Aucune ligne remplie."); texteSuivi(s, "", o); }
-    else if (def.type === "matrice") {
+    var c = doc.contenu, s = suivi(def, c, doc.aujourdhui), o = [def.titre + (doc.nom ? " : " + doc.nom : "")];
+    var parent = parentDe(def, c, doc.aujourdhui);
+    if (def.type === "tableau") {
+      lignesTexteTableau(def, c.lignes, o, parent);
+      if (o.length === 1) o.push("", "Aucune ligne remplie.");
+      texteSuivi(s, "", o, def.aideTotaux);
+    } else if (def.type === "matrice") {
       c.lignes.forEach(function (l, i) {
         if (estVide(l)) return;
         o.push("", l.nom || ligneDef(def).titre + " " + (i + 1));
@@ -752,8 +798,9 @@
           else o.push("- —");
         } else if (r.type === "tableau") {
           o.push("", r.titre);
-          lignesTexteTableau(r, v, o);
-          texteSuivi(s, r.id, o);
+          lignesTexteTableau(r, v, o, parent);
+          if (!v.some(function (l) { return ligneRemplie(r.colonnes, l); })) o.push("- —");
+          texteSuivi(s, r.id, o, r.aideTotaux);
         } else if (!estVide(v)) o.push((r.type === "texte-long" ? "\n" : "") + r.titre + " : " + texteValeur(r, v));
       });
     }
@@ -783,32 +830,38 @@
   function badgeH(nv) {
     return nv ? ' <span style="padding:0 4pt;font-weight:bold;' + (H.niveau[nv.couleur] || H.niveau.neutre) + '">' + escH(nv.libelle) + "</span>" : "";
   }
-  function htmlTableauDoc(t, lignes) {
-    var nomL = ligneDef(t).titre, cols = t.colonnes;
+  // Un choix qui a une couleur : son mot, sur sa couleur.
+  function choixH(texte, couleur) {
+    return couleur ? '<span style="padding:0 4pt;font-weight:bold;' + (H.niveau[couleur] || H.niveau.neutre) + '">' + escH(texte) + "</span>" : escHL(texte);
+  }
+  function htmlTableauDoc(t, lignes, parent) {
+    var cols = t.colonnes;
     var h = '<table style="' + H.table + '"><thead><tr><th style="' + H.th + '">N°</th>' +
       cols.map(function (c) { return '<th style="' + H.th + '">' + escH(c.titre) + "</th>"; }).join("") + "</tr></thead><tbody>";
     lignes.forEach(function (l, i) {
       if (!ligneRemplie(cols, l)) return;
-      var calc = calculerLigne(cols, l);
+      var calc = calculerLigne(cols, l, parent);
       h += '<tr><td style="' + H.td + '">' + (i + 1) + "</td>" + cols.map(function (c) {
         if (c.type === "calcul") { var v = calc.valeurs[c.id]; return '<td style="' + H.td + '">' + (v === null ? "" : escH(fmtNombre(v)) + badgeH(calc.niveaux[c.id])) + "</td>"; }
-        return '<td style="' + H.td + '">' + escHL(texteValeur(c, l[c.id])) + badgeH(calc.niveaux[c.id]) + "</td>";
+        return '<td style="' + H.td + '">' + choixH(texteValeur(c, l[c.id]), calc.couleurs[c.id]) + badgeH(calc.niveaux[c.id]) + "</td>";
       }).join("") + "</tr>";
     });
     h += "</tbody></table>";
     if (!lignes.some(function (l) { return ligneRemplie(cols, l); })) h = '<p style="' + H.p + '">Aucune ligne remplie.</p>';
     return h;
   }
-  function htmlTotaux(s, rubrique) {
+  function htmlTotaux(s, rubrique, aide) {
     var t = s.totaux.filter(function (x) { return x.rubrique === rubrique; });
     return t.length ? '<p style="' + H.p + '"><strong>Totaux</strong></p><ul style="' + H.ul + '">' +
-      t.map(function (x) { return "<li>" + escH(x.libelle) + " : <strong>" + escH(x.texte) + "</strong></li>"; }).join("") + "</ul>" : "";
+      t.map(function (x) { return "<li>" + escH(x.libelle) + " : <strong>" + escH(x.texte) + "</strong>" + badgeH(x.niveau) + "</li>"; }).join("") + "</ul>" +
+      (aide ? '<p style="' + H.p + ';color:#444444">' + escH(aide) + "</p>" : "") : "";
   }
+  // doc = { nom, contenu, aujourdhui (facultatif : la date de l'exemple) }
   function htmlDocument(def, doc) {
-    var c = doc.contenu, s = suivi(def, c);
+    var c = doc.contenu, s = suivi(def, c, doc.aujourdhui), parent = parentDe(def, c, doc.aujourdhui);
     var h = '<div style="' + H.doc + '"><h1 style="' + H.h1 + '">' + escH(def.titre) + "</h1>" +
       (doc.nom ? '<p style="' + H.sous + '">' + escH(doc.nom) + "</p>" : "");
-    if (def.type === "tableau") h += htmlTableauDoc(def, c.lignes) + htmlTotaux(s, "");
+    if (def.type === "tableau") h += htmlTableauDoc(def, c.lignes, parent) + htmlTotaux(s, "", def.aideTotaux);
     else if (def.type === "matrice") {
       h += '<p style="' + H.p + '">' + def.valeurs.map(function (v, k) { return "<strong>" + escH(v) + "</strong> = " + escH(def.libelles ? def.libelles[k] : v); }).join(" · ") + "</p>" +
         '<table style="' + H.table + '"><thead><tr><th style="' + H.th + '">' + escH(ligneDef(def).titre) + "</th>" +
@@ -822,9 +875,9 @@
         if (r.type === "liste") {
           var items = v.filter(function (x) { return !estVide(x); });
           h += '<h2 style="' + H.h2 + '">' + escH(r.titre) + "</h2>" + (items.length ? '<ul style="' + H.ul + '">' + items.map(function (x) { return "<li>" + escHL(x) + "</li>"; }).join("") + "</ul>" : '<p style="' + H.p + '">—</p>');
-        } else if (r.type === "tableau") h += '<h2 style="' + H.h2 + '">' + escH(r.titre) + "</h2>" + htmlTableauDoc(r, v) + htmlTotaux(s, r.id);
+        } else if (r.type === "tableau") h += '<h2 style="' + H.h2 + '">' + escH(r.titre) + "</h2>" + htmlTableauDoc(r, v, parent) + htmlTotaux(s, r.id, r.aideTotaux);
         else if (r.type === "texte-long") h += '<p style="' + H.p + '"><strong>' + escH(r.titre) + "</strong><br>" + (estVide(v) ? "—" : escHL(v)) + "</p>";
-        else h += '<p style="' + H.p + '"><strong>' + escH(r.titre) + " :</strong> " + (estVide(v) ? "—" : escH(texteValeur(r, v))) + "</p>";
+        else h += '<p style="' + H.p + '"><strong>' + escH(r.titre) + " :</strong> " + (estVide(v) ? "—" : choixH(texteValeur(r, v), couleurChoix(r, v))) + "</p>";
       });
     }
     if (s.alertes.length) h += '<div style="' + H.alertes + '"><p style="' + H.p + '"><strong>Alertes</strong></p><ul style="' + H.ul + '">' +
@@ -884,8 +937,10 @@
 
   // Une feuille pour un tableau : l'en-tête en ligne 1 (gras, figé), une ligne Excel par ligne du document, puis des
   // lignes vides avec leurs formules, et les totaux en dessous. Une colonne calculée garde sa formule ; un niveau devient
-  // une colonne « Niveau : … » (mot + couleur) ; les alertes, une colonne « Alertes ».
-  function feuilleTableau(t, nom, lignes, modele) {
+  // une colonne « Niveau : … » (mot + couleur) ; les alertes, une colonne « Alertes ». Le modèle vide reprend les lignes
+  // déjà écrites (modele). parent : le contexte du document (pour les valeurs calculées) ; ext : une rubrique du
+  // document → sa cellule sur la 1re feuille (« 'Rapport du COPIL et météo'!$B$6 »), pour une formule qui la lit.
+  function feuilleTableau(t, nom, lignes, modele, parent, ext) {
     var cols = t.colonnes, sortie = [], lettreDe = {};
     cols.forEach(function (c) {
       sortie.push({ sorte: "col", col: c });
@@ -893,39 +948,50 @@
     });
     if ((t.alertes || []).length) sortie.push({ sorte: "alertes" });
     sortie.forEach(function (s, i) { s.l = lettre(i + 1); if (s.sorte === "col") lettreDe[s.col.id] = s.l; });
-    var nb = modele ? LIGNES_MODELE : Math.max(LIGNES_MODELE - LIGNES_EN_PLUS, lignes.length) + LIGNES_EN_PLUS;
+    if (modele) lignes = (t.modele || []).slice();
+    var nb = modele ? Math.max(LIGNES_MODELE, lignes.length + LIGNES_EN_PLUS) : Math.max(LIGNES_MODELE - LIGNES_EN_PLUS, lignes.length) + LIGNES_EN_PLUS;
     var prem = 2, der = prem + nb - 1, entrees = saisies(cols);
     var f = { nom: nom, figer: 1, paysage: true, lignes: [], listes: [], aides: [], couleurs: [],
       largeurs: sortie.map(function (s) { return s.sorte === "col" ? largeurExcel(s.col) : s.sorte === "niveau" ? 16 : 40; }) };
     f.lignes.push(sortie.map(function (s) {
       return { t: "texte", s: "entete", v: s.sorte === "col" ? s.col.titre : s.sorte === "niveau" ? "Niveau : " + s.col.titre : "Alertes" };
     }));
-    for (var r = prem; r <= der; r++) f.lignes.push(ligneTableau(t, sortie, lettreDe, entrees, r, modele ? null : lignes[r - prem] || null));
+    for (var r = prem; r <= der; r++) f.lignes.push(ligneTableau(t, sortie, lettreDe, entrees, r, lignes[r - prem] || null, parent, ext));
     sortie.forEach(function (s) {
       var plage = s.l + prem + ":" + s.l + der;
       if (s.sorte === "niveau") f.couleurs.push({ plage: plage, regles: s.col.niveaux.map(function (nv) { return { egal: nv.libelle, couleur: nv.couleur }; }) });
       if (s.sorte !== "col") return;
+      if (s.col.couleurs) f.couleurs.push({ plage: plage, regles: reglesCouleurs(s.col) });
       if (s.col.type === "choix") f.listes.push({ plage: plage, valeurs: s.col.valeurs, titre: s.col.titre, aide: aideChoix(s.col) });
       else if (s.col.aide && s.col.type !== "calcul") f.aides.push({ plage: plage, titre: s.col.titre, aide: s.col.aide });
     });
     if ((t.totaux || []).length) {
       var res = { alertes: [], totaux: [] };
-      suiviTableau(t, modele ? [] : lignes, "", res);
+      suiviTableau(t, lignes, "", res, parent);
       f.lignes.push([]);
       f.lignes.push([{ t: "texte", v: "Totaux", s: "gras" }]);
       t.totaux.forEach(function (tot, k) {
-        var x = excelTotal(tot, lettreDe, entrees, prem, der), v = res.totaux[k].valeur;
-        f.lignes.push([{ t: "texte", v: tot.libelle, s: "gras" }, { t: "formule", f: x.f, tableau: x.tableau, v: v === null ? "" : v }]);
+        var x = excelTotal(tot, lettreDe, entrees, prem, der, ext), v = res.totaux[k].valeur, n = f.lignes.length + 1;
+        var cellules = [{ t: "texte", v: tot.libelle, s: "gras" }, { t: "formule", f: x.f, tableau: x.tableau, v: v === null ? "" : v }];
+        if (tot.niveaux) {
+          cellules.push({ t: "formule", s: "haut", f: excelNiveau(tot, "B" + n), v: res.totaux[k].niveau ? res.totaux[k].niveau.libelle : "" });
+          f.couleurs.push({ plage: "C" + n, regles: tot.niveaux.map(function (nv) { return { egal: nv.libelle, couleur: nv.couleur }; }) });
+        }
+        f.lignes.push(cellules);
       });
+      if (t.aideTotaux) f.lignes.push([{ t: "texte", v: t.aideTotaux }]);
     }
     return f;
   }
-  function ligneTableau(t, sortie, lettreDe, entrees, r, ligne) {
-    var refs = { cellule: function (nom) { return lettreDe[nom] + r; } };
+  function reglesCouleurs(c) {
+    return c.valeurs.map(function (v, k) { return { egal: v, couleur: c.couleurs[k] }; }).filter(function (x) { return x.couleur; });
+  }
+  function ligneTableau(t, sortie, lettreDe, entrees, r, ligne, parent, ext) {
+    var refs = { cellule: function (nom) { return lettreDe[nom] ? lettreDe[nom] + r : (ext || {})[nom] || nom; } };
     var existe = existeX(entrees, function (c) { return lettreDe[c.id] + r; }, false);
-    var calc = ligne ? calculerLigne(t.colonnes, ligne) : { valeurs: {}, niveaux: {} };
+    var calc = ligne ? calculerLigne(t.colonnes, ligne, parent) : { valeurs: {}, niveaux: {}, couleurs: {} };
     return sortie.map(function (s) {
-      if (s.sorte === "alertes") return { t: "formule", s: "long", f: excelAlertes(t.alertes, refs, existe), v: ligne ? alertesLigne(t, ligne).join(" ") : "" };
+      if (s.sorte === "alertes") return { t: "formule", s: "long", f: excelAlertes(t.alertes, refs, existe), v: ligne ? alertesLigne(t, ligne, parent).join(" ") : "" };
       var c = s.col;
       if (s.sorte === "niveau") {
         var nv = calc.niveaux[c.id];
@@ -935,8 +1001,8 @@
       return ligne ? celluleSaisie(c, ligne[c.id]) : null;
     });
   }
-  function excelTotal(tot, lettreDe, entrees, prem, der) {
-    var plage = function (nom) { return lettreDe[nom] + prem + ":" + lettreDe[nom] + der; };
+  function excelTotal(tot, lettreDe, entrees, prem, der, ext) {
+    var plage = function (nom) { return lettreDe[nom] ? lettreDe[nom] + prem + ":" + lettreDe[nom] + der : (ext || {})[nom] || nom; };
     var existe = existeX(entrees, function (c) { return plage(c.id); }, true);
     var cond = tot.si ? excelPlage(arbre(tot.si), { cellule: plage }) + "*" + existe : existe;
     var x = tot.colonne ? plage(tot.colonne) : "";
@@ -963,7 +1029,10 @@
     f.listes.push({ plage: "B" + prem + ":" + derL + der, valeurs: def.valeurs, titre: def.colonne.titre, aide: aideChoix(def) });
     f.aides.push({ plage: "A" + prem + ":A" + der, titre: def.ligne.titre, aide: def.ligne.aide || "" });
     f.lignes.push([]);
-    f.lignes.push([{ t: "texte", v: def.valeurs.map(function (v, k) { return v + " = " + (def.libelles ? def.libelles[k] : v); }).join(" · ") }]);
+    if (def.aides) def.valeurs.forEach(function (v, k) {
+      f.lignes.push([{ t: "texte", v: v + " = " + (def.libelles ? def.libelles[k] : v) + " : " + def.aides[k] }]);
+    });
+    else f.lignes.push([{ t: "texte", v: def.valeurs.map(function (v, k) { return v + " = " + (def.libelles ? def.libelles[k] : v); }).join(" · ") }]);
     return f;
   }
   function ligneMatrice(def, ligne, r, nbC, derL, alerte) {
@@ -980,19 +1049,21 @@
     return cells;
   }
 
-  // Un document : une feuille pour ses rubriques (en texte), puis une feuille par rubrique « tableau ».
-  function feuillesDocument(def, c, modele, pris) {
+  // Un document : une feuille pour ses rubriques (en texte ; le modèle vide garde les valeurs par défaut), puis une
+  // feuille par rubrique « tableau ». Une formule d'un tableau qui lit une rubrique pointe sur sa cellule (1re feuille).
+  function feuillesDocument(def, c, modele, pris, auj) {
     var f = { nom: nomFeuille(def.titre, pris), largeurs: [28, 90], lignes: [], listes: [], aides: [], couleurs: [] };
     var tableaux = def.rubriques.filter(function (r) { return r.type === "tableau"; }).map(function (r) {
       return { r: r, nom: nomFeuille(r.titre, pris) };
     });
-    var nomTab = {};
+    var nomTab = {}, ext = {}, feuille = "'" + f.nom.replace(/'/g, "''") + "'!";
+    var base = modele ? contenuVide(def) : { rubriques: c.rubriques };
     tableaux.forEach(function (x) { nomTab[x.r.id] = x.nom; });
     f.lignes.push([{ t: "texte", v: def.titre, s: "titre" }]);
     if (!modele && c.nom) f.lignes.push([{ t: "texte", v: c.nom }]);
     f.lignes.push([]);
     def.rubriques.forEach(function (r) {
-      var v = modele ? null : c.rubriques[r.id], titre = { t: "texte", v: r.titre, s: "gras" }, n = f.lignes.length + 1;
+      var v = base.rubriques[r.id], titre = { t: "texte", v: r.titre, s: "gras" }, n = f.lignes.length + 1;
       if (r.type === "liste") {
         var items = modele ? ["", "", ""] : v.filter(function (x) { return !estVide(x); });
         if (!items.length) items = [""];
@@ -1001,20 +1072,23 @@
       } else if (r.type === "tableau") {
         f.lignes.push([titre, { t: "texte", v: "Voir la feuille « " + nomTab[r.id] + " ».", s: "long" }]);
       } else {
-        f.lignes.push([titre, modele ? null : celluleSaisie(r, v)]);
+        ext[r.id] = feuille + "$B$" + n;
+        f.lignes.push([titre, celluleSaisie(r, v)]);
+        if (r.couleurs) f.couleurs.push({ plage: "B" + n, regles: reglesCouleurs(r) });
         if (r.type === "choix") f.listes.push({ plage: "B" + n, valeurs: r.valeurs, titre: r.titre, aide: aideChoix(r) });
         else if (r.aide) f.aides.push({ plage: "B" + n, titre: r.titre, aide: r.aide });
       }
     });
-    return [f].concat(tableaux.map(function (x) { return feuilleTableau(x.r, x.nom, modele ? [] : c.rubriques[x.r.id], modele); }));
+    var parent = contexteDocument(def, base, auj);
+    return [f].concat(tableaux.map(function (x) { return feuilleTableau(x.r, x.nom, modele ? [] : c.rubriques[x.r.id], modele, parent, ext); }));
   }
 
-  // Le classeur d'un outil : doc = { nom, contenu } ; sans doc, le modèle vide.
+  // Le classeur d'un outil : doc = { nom, contenu, aujourdhui (facultatif) } ; sans doc, le modèle vide.
   function classeur(def, doc) {
-    var modele = !doc, pris = [], c = doc ? doc.contenu : null;
-    if (def.type === "tableau") return { feuilles: [feuilleTableau(def, nomFeuille(def.titre, pris), modele ? [] : c.lignes, modele)] };
+    var modele = !doc, pris = [], c = doc ? doc.contenu : null, auj = doc ? doc.aujourdhui : undefined;
+    if (def.type === "tableau") return { feuilles: [feuilleTableau(def, nomFeuille(def.titre, pris), modele ? [] : c.lignes, modele, contexteBase(auj))] };
     if (def.type === "matrice") return { feuilles: [feuilleMatrice(def, nomFeuille(def.titre, pris), c, modele)] };
-    return { feuilles: feuillesDocument(def, modele ? null : { nom: doc.nom, rubriques: c.rubriques }, modele, pris) };
+    return { feuilles: feuillesDocument(def, modele ? null : { nom: doc.nom, rubriques: c.rubriques }, modele, pris, auj) };
   }
 
   // ---------- L'écrivain xlsx : le XML minimal d'un classeur ----------
@@ -1113,7 +1187,7 @@
     (f.couleurs || []).forEach(function (cf) {
       x.push('<conditionalFormatting sqref="' + cf.plage + '">' + cf.regles.map(function (rg) {
         return '<cfRule type="cellIs" dxfId="' + (DXF[rg.couleur] === undefined ? DXF.neutre : DXF[rg.couleur]) + '" priority="' + priorite++ +
-          '" operator="equal"><formula>' + escX(texteFormule(rg.egal)) + "</formula></cfRule>";
+          '" operator="equal"><formula>' + escX(typeof rg.egal === "number" ? nombreXml(rg.egal) : texteFormule(rg.egal)) + "</formula></cfRule>";
       }).join("") + "</conditionalFormatting>");
     });
     var valid = [];
@@ -1228,6 +1302,7 @@
     lire: lire, evaluer: evaluer, excel: excel, excelPlage: excelPlage, typer: typer, citees: citees,
     // documents
     calculerLigne: calculerLigne, ligneRemplie: ligneRemplie, ligneVide: ligneVide, suivi: suivi, aDesAlertes: aDesAlertes,
+    contexteDocument: contexteDocument, contexteBase: contexteBase, parentDe: parentDe, couleurChoix: couleurChoix,
     contenuVide: contenuVide, contenuExemple: contenuExemple, examiner: examiner, fichier: fichier, lireFichier: lireFichier,
     resumeDocument: resumeDocument, pluriel: pluriel, ligneDef: ligneDef,
     // sorties

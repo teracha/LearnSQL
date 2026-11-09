@@ -131,7 +131,8 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   const err = (...m) => { console.log('ERREUR outils', ...m); erreurs++; };
   const alerte = (...m) => { console.log('ALERTE outils', ...m); alertes++; };
   const texte = t => typeof t === 'string' && t.trim() !== '';
-  const nbMots = t => String(t).trim().split(/\s+/).length;
+  // Les mots d'un texte : « : », « → » ou « · » seuls ne comptent pas.
+  const nbMots = t => String(t).trim().split(/\s+/).filter(m => /[0-9A-Za-zÀ-ÿ]/.test(m)).length;
   for (const f of fs.readdirSync(dossierOutils).filter(f => f.endsWith('.js')).sort()) {
     const avant = (LEARNSQL.outils || []).length;
     require(path.join(dossierOutils, f));
@@ -159,10 +160,12 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     });
   });
   const modules = new Set((LEARNSQL.modules || []).map(m => m.id)), idsOutils = new Set(), parType = {};
-  const CHAMPS_OUTIL = ['id', 'sujet', 'titre', 'resume', 'quand', 'etapes', 'cours', 'type', 'colonnes', 'alertes', 'totaux', 'ligne',
-    'colonne', 'valeurs', 'libelles', 'rubriques', 'exemple', 'export'];
-  const CHAMPS_COLONNE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'formule', 'niveaux', 'defaut', 'largeur'];
-  const CHAMPS_RUBRIQUE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'defaut', 'colonnes', 'alertes', 'totaux', 'ligne'];
+  const CHAMPS_OUTIL = ['id', 'sujet', 'titre', 'resume', 'quand', 'etapes', 'cours', 'type', 'colonnes', 'alertes', 'totaux', 'aideTotaux',
+    'modele', 'ligne', 'colonne', 'valeurs', 'libelles', 'aides', 'rubriques', 'exemple', 'export'];
+  const CHAMPS_COLONNE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'couleurs', 'formule', 'niveaux', 'defaut', 'largeur'];
+  const CHAMPS_RUBRIQUE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'couleurs', 'defaut', 'colonnes', 'alertes', 'totaux',
+    'aideTotaux', 'modele', 'ligne'];
+  const CHAMPS_TOTAL = ['id', 'libelle', 'calcul', 'colonne', 'si', 'niveaux'];
   // Le genre d'une colonne dans une formule : nombre (nombre, date, calcul, choix de nombres), texte, liste ou tableau.
   const genre = c => c.type === 'texte' || c.type === 'texte-long' ? 'texte' : c.type === 'liste' || c.type === 'tableau' ? c.type :
     c.type === 'choix' ? ((c.valeurs || []).every(v => typeof v === 'number') ? 'nombre' : 'texte') : 'nombre';
@@ -181,6 +184,8 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     if (!c.valeurs.every(v => typeof v === 'number' && isFinite(v)) && !c.valeurs.every(texte)) err(ou, ': valeurs, toutes des nombres ou toutes des textes');
     if (c.libelles !== undefined && !(Array.isArray(c.libelles) && c.libelles.length === c.valeurs.length && c.libelles.every(texte))) err(ou, ': libelles, un texte par valeur');
     if (c.valeurs.some(v => /[,"]/.test(String(v)))) alerte(ou, ': une valeur avec une virgule ou un guillemet n\'a pas de liste déroulante dans Excel');
+    if (c.couleurs !== undefined && !(Array.isArray(c.couleurs) && c.couleurs.length === c.valeurs.length &&
+        c.couleurs.every(x => x === '' || x === null || OM.COULEURS.indexOf(x) >= 0))) err(ou, ': couleurs, une par valeur (' + OM.COULEURS.join(', ') + ', ou "")');
   };
   // Une valeur par défaut doit être une valeur permise (même contrôle qu'un fichier ouvert).
   const verifierDefaut = (ou, c) => {
@@ -190,7 +195,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     if (r.problemes.length || OM.estVide(c.defaut)) err(ou, ': valeur par défaut', JSON.stringify(c.defaut), r.problemes.join(' ; '));
   };
   const verifierNiveaux = (ou, c) => {
-    if (c.type !== 'calcul' && c.type !== 'nombre') { err(ou, ': niveaux seulement pour un nombre ou un calcul'); return; }
+    if (c.type !== 'calcul' && c.type !== 'nombre' && c.type !== 'total') { err(ou, ': niveaux seulement pour un nombre, un calcul ou un total'); return; }
     if (!Array.isArray(c.niveaux) || !c.niveaux.length) { err(ou, ': niveaux, une liste non vide'); return; }
     let avant = -Infinity;
     c.niveaux.forEach((n, k) => {
@@ -207,21 +212,24 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     liste.forEach((a, k) => {
       const lieu = ou + ' alerte ' + (k + 1);
       if (!a || !texte(a.message)) err(lieu, ': message manquant');
-      else if (nbMots(a.message) > 15) alerte(lieu, ': message long (' + nbMots(a.message) + ' mots, 15 au plus)');
+      else if (nbMots(a.message) > 30) alerte(lieu, ': message long (' + nbMots(a.message) + ' mots, 30 au plus)');
       if (a && texte(a.si)) formule(lieu, a.si, env, 'condition'); else err(lieu, ': si manquant');
     });
   };
-  const verifierTableau = (ou, t) => {
+  // rubriques : dans un document, ses rubriques simples (texte, nombre, date, choix), lisibles par les formules du tableau.
+  const verifierTableau = (ou, t, rubriques) => {
     if (!Array.isArray(t.colonnes) || !t.colonnes.length) { err(ou, ': colonnes, une liste non vide'); return; }
-    const ids = new Set(), env = { colonnes: {} }, deps = {};
+    const ids = new Set(), env = { colonnes: Object.assign({}, rubriques || {}) }, deps = {};
     t.colonnes.forEach((c, k) => {
       const lieu = ou + ' colonne ' + ((c && c.id) || k + 1);
       if (!c || !/^[a-z][a-z0-9_]*$/.test(c.id || '') || OM.MOTS_RESERVES.indexOf(c.id) >= 0) err(lieu, ': id en a-z, 0-9, _ (pas un mot réservé : ' + OM.MOTS_RESERVES.join(', ') + ')');
       if (!c) return;
       if (ids.has(c.id)) err(lieu, ': id en double');
+      if (rubriques && rubriques[c.id]) err(lieu, ': même nom qu\'une rubrique du document (la formule ne saurait pas laquelle lire)');
       ids.add(c.id);
       if (!texte(c.titre)) err(lieu, ': titre manquant');
       if (OM.TYPES_CHAMP.indexOf(c.type) < 0) err(lieu, ': type (' + OM.TYPES_CHAMP.join(', ') + ') :', c.type);
+      if (c.couleurs !== undefined && c.type !== 'choix') err(lieu, ': couleurs seulement pour un choix');
       if (c.type === 'choix') verifierChoix(lieu, c);
       if (c.type === 'calcul' && !texte(c.formule)) err(lieu, ': formule manquante');
       if (c.type !== 'calcul' && c.formule !== undefined) err(lieu, ': formule seulement pour une colonne calculée');
@@ -254,6 +262,9 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     (Array.isArray(t.totaux) ? t.totaux : []).forEach((x, k) => {
       const lieu = ou + ' total ' + (k + 1);
       if (!x || !texte(x.libelle)) err(lieu, ': libellé manquant');
+      if (x && x.id !== undefined && (!/^[a-z][a-z0-9_]*$/.test(x.id) || OM.MOTS_RESERVES.indexOf(x.id) >= 0)) err(lieu, ': id en a-z, 0-9, _ (pas un mot réservé)');
+      if (x && x.niveaux !== undefined) verifierNiveaux(lieu, Object.assign({}, x, { type: 'total' }));
+      if (x) Object.keys(x).filter(y => CHAMPS_TOTAL.indexOf(y) < 0).forEach(y => alerte(lieu, ': champ inconnu (ignoré)', y));
       if (!x || OM.CALCULS_TOTAL.indexOf(x.calcul) < 0) { err(lieu, ': calcul (' + OM.CALCULS_TOTAL.join(', ') + ')'); return; }
       if (x.calcul === 'nombre' && x.colonne !== undefined) err(lieu, ': « nombre » compte des lignes, sans colonne (une condition va dans si)');
       if (x.calcul !== 'nombre') {
@@ -264,6 +275,12 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       if (x.si !== undefined) formule(lieu, x.si, env, 'condition');
     });
     if (t.ligne !== undefined && !(t.ligne && texte(t.ligne.titre))) err(ou, ': ligne, { titre }');
+    if (t.aideTotaux !== undefined && (!texte(t.aideTotaux) || !Array.isArray(t.totaux) || !t.totaux.length)) err(ou, ': aideTotaux, un texte sous des totaux');
+    // Les lignes déjà écrites du modèle vide : des valeurs permises, comme un exemple.
+    if (t.modele !== undefined) {
+      if (!Array.isArray(t.modele) || !t.modele.length || t.modele.length > 20) err(ou, ': modele, 1 à 20 lignes');
+      else OM.examiner({ type: 'tableau', colonnes: t.colonnes }, { lignes: t.modele }).problemes.forEach(pb => err(ou, ': modele,', pb));
+    }
   };
   outils.forEach(def => {
     const id = def && def.id;
@@ -274,9 +291,9 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     if (!idsSujets.has(def.sujet)) err(id, ': sujet inconnu', def.sujet);
     else if (range[id] !== def.sujet) err(id, ': le sujet « ' + def.sujet + ' » ne le range pas (data/outils/sujets.js)');
     if (!texte(def.titre) || !texte(def.resume) || !texte(def.quand)) err(id, ': titre, resume et quand');
-    if (texte(def.resume) && (nbMots(def.resume) > 20 || (def.resume.match(/[.!?](\s|$)/g) || []).length > 1)) alerte(id, ': resume, une phrase courte (20 mots au plus)');
+    if (texte(def.resume) && (nbMots(def.resume) > 25 || (def.resume.match(/[.!?](\s|$)/g) || []).length > 1)) alerte(id, ': resume, une phrase courte (25 mots au plus)');
     if (!Array.isArray(def.etapes) || def.etapes.length < 1 || def.etapes.length > 3 || !def.etapes.every(texte)) err(id, ': etapes, 1 à 3 textes');
-    else def.etapes.forEach((e, k) => { if (nbMots(e) > 20) alerte(id, ': étape ' + (k + 1) + ' longue (' + nbMots(e) + ' mots, 20 au plus)'); });
+    else def.etapes.forEach((e, k) => { if (nbMots(e) > 25) alerte(id, ': étape ' + (k + 1) + ' longue (' + nbMots(e) + ' mots, 25 au plus)'); });
     if (!Array.isArray(def.cours)) err(id, ': cours, une liste de modules (vide si aucun)');
     (def.cours || []).forEach(m => {
       if (!modules.has(m)) err(id, ': cours inconnu', m);
@@ -284,16 +301,23 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     });
     if (def.export !== undefined && !(Array.isArray(def.export) && def.export.every(x => ['excel', 'copier', 'imprimer'].indexOf(x) >= 0))) err(id, ': export, parmi excel, copier, imprimer');
     Object.keys(def).filter(x => CHAMPS_OUTIL.indexOf(x) < 0).forEach(x => alerte(id, ': champ inconnu (ignoré)', x));
-    if (def.type === 'tableau') verifierTableau(id, def);
+    if (def.type === 'tableau') verifierTableau(id, def, null);
     else if (def.type === 'matrice') {
       if (!def.ligne || !texte(def.ligne.titre)) err(id, ': ligne, { titre }');
       if (!def.colonne || !texte(def.colonne.titre)) err(id, ': colonne, { titre } (les colonnes, l\'élève les ajoute)');
       if (def.colonnes !== undefined || def.totaux !== undefined) err(id, ': une matrice n\'a ni colonnes fixes ni totaux');
       verifierChoix(id, def);
+      if (def.aides !== undefined && !(Array.isArray(def.aides) && def.aides.length === (def.valeurs || []).length && def.aides.every(texte))) err(id, ': aides, un texte par valeur');
       verifierAlertes(id, def.alertes, { colonnes: {}, nb: def.valeurs || [] });
     } else if (def.type === 'document') {
       if (!Array.isArray(def.rubriques) || !def.rubriques.length) err(id, ': rubriques, une liste non vide');
-      const env = { colonnes: {} }, ids = new Set();
+      const env = { colonnes: {} }, ids = new Set(), simples = {};
+      // Les rubriques simples d'abord : les formules des tableaux du document peuvent les lire.
+      (def.rubriques || []).forEach(r => {
+        if (r && /^[a-z][a-z0-9_]*$/.test(r.id || '') && ['texte', 'texte-long', 'nombre', 'date', 'choix'].indexOf(r.type) >= 0) {
+          simples[r.id] = { type: genre(r), valeurs: r.type === 'choix' ? r.valeurs : undefined };
+        }
+      });
       (def.rubriques || []).forEach((r, k) => {
         const lieu = id + ' rubrique ' + ((r && r.id) || k + 1);
         if (!r || !/^[a-z][a-z0-9_]*$/.test(r.id || '') || OM.MOTS_RESERVES.indexOf(r.id) >= 0) { err(lieu, ': id en a-z, 0-9, _ (pas un mot réservé)'); return; }
@@ -302,13 +326,22 @@ if (!filtre && fs.existsSync(dossierOutils)) {
         if (!texte(r.titre)) err(lieu, ': titre manquant');
         if (OM.TYPES_RUBRIQUE.indexOf(r.type) < 0) err(lieu, ': type (' + OM.TYPES_RUBRIQUE.join(', ') + ') :', r.type);
         if (r.type === 'choix') verifierChoix(lieu, r);
-        if (r.type === 'tableau') verifierTableau(lieu, r);
-        else if (r.colonnes !== undefined || r.alertes !== undefined || r.totaux !== undefined) err(lieu, ': colonnes, alertes et totaux seulement pour une rubrique « tableau »');
+        else if (r.couleurs !== undefined) err(lieu, ': couleurs seulement pour un choix');
+        if (r.type === 'tableau') verifierTableau(lieu, r, simples);
+        else if (r.colonnes !== undefined || r.alertes !== undefined || r.totaux !== undefined || r.modele !== undefined || r.aideTotaux !== undefined) {
+          err(lieu, ': colonnes, alertes, totaux, modele et aideTotaux seulement pour une rubrique « tableau »');
+        }
         if ((r.type === 'tableau' || r.type === 'liste') && r.ligne !== undefined && !(r.ligne && texte(r.ligne.titre))) err(lieu, ': ligne, { titre }');
         Object.keys(r).filter(x => CHAMPS_RUBRIQUE.indexOf(x) < 0).forEach(x => alerte(lieu, ': champ inconnu (ignoré)', x));
         verifierDefaut(lieu, r);
         env.colonnes[r.id] = { type: genre(r), valeurs: r.type === 'choix' ? r.valeurs : undefined };
       });
+      // Un total qui a un id se lit dans les alertes du document (« total_atterrissage > plafond »).
+      (def.rubriques || []).forEach(r => (r && r.type === 'tableau' && Array.isArray(r.totaux) ? r.totaux : []).forEach(x => {
+        if (!x || x.id === undefined) return;
+        if (env.colonnes[x.id]) err(id, ': le total', x.id, 'a le même nom qu\'une rubrique ou qu\'un autre total');
+        env.colonnes[x.id] = { type: 'nombre' };
+      }));
       verifierAlertes(id, def.alertes, env);
       if (def.totaux !== undefined) err(id, ': les totaux d\'un document vont dans sa rubrique « tableau »');
     } else { err(id, ': type (tableau, document, matrice) :', def.type); return; }
@@ -316,6 +349,8 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     if (!def.exemple || !texte(def.exemple.nom)) { err(id, ': exemple { nom, … } manquant'); return; }
     const contenu = Object.assign({}, def.exemple);
     delete contenu.nom;
+    if (contenu.date !== undefined && OM.jour(contenu.date) === null) err(id, ': exemple.date, une date AAAA-MM-JJ (la date à laquelle l\'exemple se lit)');
+    delete contenu.date;
     const r = OM.examiner(def, contenu);
     r.problemes.forEach(pb => err(id, ': exemple,', pb));
     if (!r.contenu) return;

@@ -2152,7 +2152,9 @@
   // Un document (ou l'exemple, en lecture) : l'éditeur, les totaux, les alertes, les sorties.
   function pageOutilDoc(def, docId) {
     var lecture = docId === "exemple", doc = null;
-    if (lecture) doc = def.exemple ? { id: "exemple", nom: def.exemple.nom, contenu: OM.contenuExemple(def) } : null;
+    // L'exemple se lit à sa date (exemple.date) : ses alertes « date passée » ne changent pas avec le temps.
+    if (lecture) doc = def.exemple ? { id: "exemple", nom: def.exemple.nom, contenu: OM.contenuExemple(def),
+      aujourdhui: def.exemple.date ? OM.jour(def.exemple.date) : undefined } : null;
     else {
       doc = docOutil(def.id, docId);
       if (doc) doc.contenu = OM.examiner(def, doc.contenu).contenu || OM.contenuVide(def);
@@ -2163,14 +2165,15 @@
         'supprimé, ou fait sur un autre appareil.</p><div class="actions"><a class="btn" href="#/outils/' + esc(def.id) + '">Retour à l\'outil</a></div>';
       return;
     }
-    outilCourant = { def: def, doc: doc, lecture: lecture };
+    outilCourant = { def: def, doc: doc, lecture: lecture, auj: doc.aujourdhui };
     app.classList.add("large");
     document.body.classList.add("o-imprimable");
     app.innerHTML = '<div class="o-ecran">' + fil + '<h1>' + esc(def.titre) + '</h1>' +
-      (lecture ? '<p class="o-exemple"><span class="tag">Exemple</span> <strong>' + esc(doc.nom) + '</strong></p>' :
+      (lecture ? '<p class="o-exemple"><span class="tag">Exemple</span> <strong>' + esc(doc.nom) + '</strong>' +
+        (def.exemple.date ? ' <span class="muted">· situation au ' + esc(OM.dateFr(def.exemple.date)) + '</span>' : '') + '</p>' :
         '<div class="o-nom"><label for="o-nom">Nom du document</label><input type="text" id="o-nom" maxlength="' + OM.MAX.nom +
         '" value="' + esc(doc.nom) + '"></div><p class="muted o-local" id="o-etat">Enregistré dans ce navigateur à chaque saisie. Rien n\'est envoyé.</p>') +
-      '<div id="o-editeur" class="o-editeur">' + htmlEditeur(def, doc.contenu, lecture) + '</div>' +
+      '<div id="o-editeur" class="o-editeur">' + htmlEditeur(def, doc.contenu, lecture, doc.aujourdhui) + '</div>' +
       '<div id="o-alertes" aria-live="polite"></div>' +
       '<div class="actions o-sorties">' +
       (exporte(def, "excel") ? '<button type="button" class="btn" id="o-excel">Télécharger en Excel</button>' : '') +
@@ -2218,22 +2221,27 @@
   }
 
   // L'éditeur, selon le type de l'outil (tableau, matrice, document). lecture : l'exemple, sans champs.
-  function htmlEditeur(def, c, lecture) {
-    if (def.type === "tableau") return htmlZone(def, "", c.lignes, lecture);
+  function htmlEditeur(def, c, lecture, auj) {
+    var parent = OM.parentDe(def, c, auj);
+    if (def.type === "tableau") return htmlZone(def, "", c.lignes, lecture, parent);
     if (def.type === "matrice") return htmlMatrice(def, c, lecture);
-    return def.rubriques.map(function (r) { return htmlRubrique(r, c.rubriques[r.id], lecture); }).join('');
+    return def.rubriques.map(function (r) { return htmlRubrique(r, c.rubriques[r.id], lecture, parent); }).join('');
   }
   // Un tableau (l'outil, ou une rubrique « tableau » d'un document) : un tableau sur PC ; une carte par ligne quand la
   // place manque, sur téléphone (modeZones). Chaque champ a son étiquette, visible sur les cartes.
-  function htmlZone(t, r, lignes, lecture) {
-    var nomL = OM.ligneDef(t).titre;
-    var html = '<div class="o-zone" data-min="' + largeurMin(t.colonnes) + '"><table class="o-table"><thead><tr><th class="o-n">N°</th>' +
+  function htmlZone(t, r, lignes, lecture, parent) {
+    var nomL = OM.ligneDef(t).titre, aides = t.colonnes.filter(function (c) { return c.aide; });
+    // Les aides des colonnes, une seule fois au-dessus du tableau (une liste ou une date n'a pas de texte d'attente).
+    var html = (lecture || !aides.length ? '' : '<details class="o-aides"><summary>Comment remplir les colonnes</summary><ul>' +
+      aides.map(function (c) { return '<li><strong>' + esc(c.titre) + ' :</strong> ' + fmt(c.aide) + '</li>'; }).join('') + '</ul></details>') +
+      '<div class="o-zone" data-min="' + largeurMin(t.colonnes) + '"><table class="o-table"><thead><tr><th class="o-n">N°</th>' +
       t.colonnes.map(function (c) { return '<th>' + esc(c.titre) + '</th>'; }).join('') + '</tr></thead><tbody>' +
-      lignes.map(function (l, i) { return htmlLigneZone(t, r, l, i, lecture); }).join('') + '</tbody></table></div>';
+      lignes.map(function (l, i) { return htmlLigneZone(t, r, l, i, lecture, parent); }).join('') + '</tbody></table></div>';
     if (!lignes.length) html += '<p class="muted">Aucune ligne.</p>';
     if (!lecture) html += '<div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-ligne" data-r="' +
       esc(r) + '">+ ' + esc(nomL) + '</button></div>';
-    if ((t.totaux || []).length) html += '<div class="o-totaux" data-totaux="' + esc(r) + '"></div>';
+    if ((t.totaux || []).length) html += '<div class="o-totaux" data-totaux="' + esc(r) + '"></div>' +
+      (t.aideTotaux ? '<p class="muted o-aide-totaux">' + fmt(t.aideTotaux) + '</p>' : '');
     return html;
   }
   function teteLigne(nomL, i, r, lecture) {
@@ -2241,17 +2249,17 @@
       ' <span class="o-marque" hidden>Alerte</span>' + (lecture ? '' : ' <button type="button" class="lien danger o-suppr" ' +
       'data-action="suppr-ligne" data-r="' + esc(r) + '" data-l="' + i + '" aria-label="Supprimer : ' + esc(nomL) + ' ' + (i + 1) + '">Supprimer</button>') + '</td>';
   }
-  function htmlLigneZone(t, r, l, i, lecture) {
-    var calc = OM.calculerLigne(t.colonnes, l);
+  function htmlLigneZone(t, r, l, i, lecture, parent) {
+    var calc = OM.calculerLigne(t.colonnes, l, parent);
     return '<tr data-r="' + esc(r) + '" data-l="' + i + '">' + teteLigne(OM.ligneDef(t).titre, i, r, lecture) + t.colonnes.map(function (c) {
       var id = "o-" + (r ? r + "-" : "") + i + "-" + c.id, large = c.type === "texte" || c.type === "texte-long";
       var td = '<td class="o-t-' + c.type + (large ? ' o-plein' : '') + '">';
       if (c.type === "calcul") return td + '<span class="o-lib">' + esc(c.titre) + '</span><span class="o-calc" data-c="' + esc(c.id) + '">' +
         htmlCalcul(c, calc) + '</span></td>';
-      if (lecture) return td + '<span class="o-lib">' + esc(c.titre) + '</span><span class="o-val">' + esc(OM.texteValeur(c, l[c.id])) +
+      if (lecture) return td + '<span class="o-lib">' + esc(c.titre) + '</span><span class="o-val">' + valeurLue(c, l[c.id], calc.couleurs[c.id]) +
         badge(calc.niveaux[c.id]) + '</span></td>';
       return td + '<label class="o-lib" for="' + id + '">' + esc(c.titre) + '</label>' +
-        champHtml(c, l[c.id], id, 'data-champ="cellule" data-r="' + esc(r) + '" data-l="' + i + '" data-c="' + esc(c.id) + '"') +
+        champHtml(c, l[c.id], id, 'data-champ="cellule" data-r="' + esc(r) + '" data-l="' + i + '" data-c="' + esc(c.id) + '"', calc.couleurs[c.id]) +
         (c.niveaux ? '<span class="o-calc" data-c="' + esc(c.id) + '">' + badge(calc.niveaux[c.id]) + '</span>' : '') + '</td>';
     }).join('') + '</tr>';
   }
@@ -2263,15 +2271,27 @@
   function badge(nv) {
     return nv ? ' <span class="o-niveau o-' + esc(nv.couleur || "neutre") + '">' + esc(nv.libelle) + '</span>' : '';
   }
-  function champHtml(c, v, id, attrs) {
-    var base = ' id="' + id + '" ' + attrs, aide = c.aide ? ' placeholder="' + esc(c.aide) + '"' : '';
+  // Une valeur en lecture (l'exemple) ; un choix qui a une couleur s'écrit sur sa couleur.
+  function valeurLue(c, v, couleur) {
+    var t = OM.texteValeur(c, v);
+    return couleur ? '<span class="o-niveau o-' + esc(couleur) + '">' + esc(t) + '</span>' : esc(t);
+  }
+  // couleur : celle du choix (couleurs: [...]) ; la liste se colore, le mot reste écrit dedans.
+  // La hauteur d'une zone de texte : tout son contenu visible (environ 40 caractères par ligne), de 2 à 8 lignes.
+  function lignesTexte(v) {
+    var n = String(v || "").split("\n").reduce(function (t, l) { return t + Math.max(1, Math.ceil(l.length / 40)); }, 0);
+    return Math.min(8, Math.max(2, n));
+  }
+  // sansAttente : l'aide est déjà écrite sous l'étiquette (rubrique d'un document), pas en texte d'attente.
+  function champHtml(c, v, id, attrs, couleur, sansAttente) {
+    var base = ' id="' + id + '" ' + attrs, aide = c.aide && !sansAttente ? ' placeholder="' + esc(c.aide) + '"' : '';
     v = v === undefined || v === null ? "" : v;
-    if (c.type === "texte-long") return '<textarea' + base + aide + ' rows="2" maxlength="' + OM.MAX.texteLong + '">' + esc(v) + '</textarea>';
+    if (c.type === "texte-long") return '<textarea' + base + aide + ' rows="' + lignesTexte(v) + '" maxlength="' + OM.MAX.texteLong + '">' + esc(v) + '</textarea>';
     if (c.type === "date") return '<input type="date"' + base + ' value="' + esc(v) + '">';
     if (c.type === "nombre") return '<input type="text" inputmode="decimal"' + base + aide + ' value="' + esc(String(v).replace(".", ",")) + '">';
     if (c.type === "choix") {
       var k = OM.indexValeur(c.valeurs, v);
-      return '<select' + base + '><option value="">—</option>' + c.valeurs.map(function (x, j) {
+      return '<select' + base + (couleur ? ' class="o-c-' + esc(couleur) + '"' : '') + '><option value="">—</option>' + c.valeurs.map(function (x, j) {
         return '<option value="' + esc(String(x)) + '"' + (j === k ? ' selected' : '') + '>' + esc(OM.texteChoix(c, j)) + '</option>';
       }).join('') + '</select>';
     }
@@ -2289,9 +2309,11 @@
       }).join('') + '</ul><div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-colonne">+ ' +
       esc(nomC) + '</button></div></section>';
     return html + '<section class="o-rubrique"><h2 class="o-h2">' + esc(def.ligne.pluriel || def.ligne.titre + "s") + '</h2>' +
-      '<p class="o-legende">' + def.valeurs.map(function (v, k) {
+      (def.aides ? '<ul class="o-legende">' + def.valeurs.map(function (v, k) {
+        return '<li><strong>' + esc(v) + '</strong> = ' + esc(def.libelles ? def.libelles[k] : v) + ' : ' + fmt(def.aides[k]) + '</li>';
+      }).join('') + '</ul>' : '<p class="o-legende">' + def.valeurs.map(function (v, k) {
         return '<strong>' + esc(v) + '</strong> = ' + esc(def.libelles ? def.libelles[k] : v);
-      }).join(' · ') + '</p><div id="o-matrice">' + htmlMatriceTable(def, c, lecture) + '</div>' +
+      }).join(' · ') + '</p>') + '<div id="o-matrice">' + htmlMatriceTable(def, c, lecture) + '</div>' +
       (lecture ? '' : '<div class="actions o-ajout"><button type="button" class="btn ghost small" data-action="ajouter-ligne" data-r="">+ ' +
         esc(def.ligne.titre) + '</button></div>') + '</section>';
   }
@@ -2314,9 +2336,10 @@
       }).join('') + '</tbody></table></div>' + (c.lignes.length ? '' : '<p class="muted">Aucune ligne.</p>');
   }
   // Une rubrique d'un document : un champ, une liste (une ligne par élément) ou un tableau.
-  function htmlRubrique(r, v, lecture) {
+  function htmlRubrique(r, v, lecture, parent) {
     var id = "o-r-" + r.id, titre = '<h2 class="o-h2">' + esc(r.titre) + '</h2>';
-    if (r.type === "tableau") return '<section class="o-rubrique">' + titre + htmlZone(r, r.id, v, lecture) + '</section>';
+    if (r.type === "tableau") return '<section class="o-rubrique">' + titre + (r.aide && !lecture ? '<p class="muted">' + fmt(r.aide) + '</p>' : '') +
+      htmlZone(r, r.id, v, lecture, parent) + '</section>';
     if (r.type === "liste") {
       var nomL = OM.ligneDef(r).titre, items = v.filter(function (x) { return !OM.estVide(x); });
       if (lecture) return '<section class="o-rubrique">' + titre + (items.length ? '<ul class="points o-val">' + items.map(function (x) {
@@ -2331,9 +2354,11 @@
         esc(r.id) + '">+ ' + esc(nomL) + '</button></div></section>';
     }
     if (lecture) return '<div class="o-rubrique o-champ"><p class="label">' + esc(r.titre) + '</p><p class="o-val">' +
-      (OM.estVide(v) ? '—' : esc(OM.texteValeur(r, v))) + '</p></div>';
+      (OM.estVide(v) ? '—' : valeurLue(r, v, OM.couleurChoix(r, v))) + '</p></div>';
     return '<div class="o-rubrique o-champ"><label for="' + id + '">' + esc(r.titre) + '</label>' +
-      champHtml(r, v, id, 'data-champ="rubrique" data-r="' + esc(r.id) + '"') + '</div>';
+      (r.aide ? '<p class="muted o-aide" id="' + id + '-aide">' + fmt(r.aide) + '</p>' : '') +
+      champHtml(r, v, id, 'data-champ="rubrique" data-r="' + esc(r.id) + '"' + (r.aide ? ' aria-describedby="' + id + '-aide"' : ''),
+        OM.couleurChoix(r, v), true) + '</div>';
   }
   // La largeur (px) sous laquelle un tableau passe en cartes : la somme des largeurs utiles de ses colonnes
   // (une liste de choix : la largeur de son plus long choix).
@@ -2386,10 +2411,11 @@
       var t = tableauDe(def, r), col = colonneDe(t, el.getAttribute("data-c")), ligne = (lignesDe(def, c, r) || [])[l];
       if (!col || !ligne) return;
       ligne[col.id] = valeurChamp(col, el);
+      colorer(el, col, ligne[col.id]);
       majCalculs(t, r, l, ligne);
     } else if (champ === "rubrique") {
       var rub = rubriqueDe(def, r);
-      if (rub) c.rubriques[r] = valeurChamp(rub, el);
+      if (rub) { c.rubriques[r] = valeurChamp(rub, el); colorer(el, rub, c.rubriques[r]); majTousCalculs(); }
     } else if (champ === "item") {
       if (c.rubriques[r]) c.rubriques[r][i] = el.value.slice(0, OM.MAX.texte);
     } else if (champ === "nom-ligne") {
@@ -2413,24 +2439,41 @@
       if (lib) lib.textContent = t;
     });
   }
+  // Un choix qui a des couleurs : la liste prend la couleur de la valeur choisie.
+  function colorer(el, c, v) {
+    if (!c.couleurs || el.tagName !== "SELECT") return;
+    el.className = el.className.replace(/\bo-c-\S+/g, "").trim();
+    var couleur = OM.couleurChoix(c, v);
+    if (couleur) el.classList.add("o-c-" + couleur);
+  }
   function majCalculs(t, r, l, ligne) {
-    var tr = app.querySelector('#o-editeur tr[data-r="' + r + '"][data-l="' + l + '"]');
-    if (!tr) return;
-    var calc = OM.calculerLigne(t.colonnes, ligne);
+    var tr = app.querySelector('#o-editeur tr[data-r="' + r + '"][data-l="' + l + '"]'), oc = outilCourant;
+    if (!tr || !oc) return;
+    var calc = OM.calculerLigne(t.colonnes, ligne, OM.parentDe(oc.def, oc.doc.contenu, oc.auj));
     Array.prototype.forEach.call(tr.querySelectorAll(".o-calc"), function (s) {
       var col = colonneDe(t, s.getAttribute("data-c"));
       if (col) s.innerHTML = col.type === "calcul" ? htmlCalcul(col, calc) : badge(calc.niveaux[col.id]);
     });
   }
-  // Les totaux sous chaque tableau, la marque « Alerte » des lignes, et les alertes en phrases sous le document.
+  // Une rubrique a changé (une tolérance, un plafond…) : les calculs des tableaux qui la lisent sont refaits.
+  function majTousCalculs() {
+    var oc = outilCourant;
+    if (!oc || oc.def.type !== "document") return;
+    Array.prototype.forEach.call(app.querySelectorAll("#o-editeur tr[data-r]"), function (tr) {
+      var r = tr.getAttribute("data-r"), l = Number(tr.getAttribute("data-l")), t = tableauDe(oc.def, r), ligne = (lignesDe(oc.def, oc.doc.contenu, r) || [])[l];
+      if (t && ligne) majCalculs(t, r, l, ligne);
+    });
+  }
+  // Les totaux sous chaque tableau (un total peut avoir un niveau : mot et couleur), la marque « Alerte » des lignes,
+  // et les alertes en phrases sous le document.
   function majSuivi() {
     var oc = outilCourant;
     if (!oc) return;
-    var s = OM.suivi(oc.def, oc.doc.contenu);
+    var s = OM.suivi(oc.def, oc.doc.contenu, oc.auj);
     Array.prototype.forEach.call(app.querySelectorAll("[data-totaux]"), function (z) {
       var r = z.getAttribute("data-totaux"), t = s.totaux.filter(function (x) { return x.rubrique === r; });
       z.innerHTML = t.length ? '<p class="label">Totaux</p><ul class="o-liste">' + t.map(function (x) {
-        return '<li>' + esc(x.libelle) + ' : <strong>' + esc(x.texte) + '</strong></li>';
+        return '<li>' + esc(x.libelle) + ' : <strong>' + esc(x.texte) + '</strong>' + badge(x.niveau) + '</li>';
       }).join('') + '</ul>' : '';
     });
     Array.prototype.forEach.call(app.querySelectorAll("#o-editeur tr[data-l]"), function (tr) {
@@ -2488,7 +2531,7 @@
       c.rubriques[r].splice(i, 1);
       focus = '#o-editeur [data-action="ajouter-item"][data-r="' + r + '"]';
     } else return;
-    document.getElementById("o-editeur").innerHTML = htmlEditeur(def, c, false);
+    document.getElementById("o-editeur").innerHTML = htmlEditeur(def, c, false, oc.auj);
     modeZones();
     majSuivi();
     sauverOutil();

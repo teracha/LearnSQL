@@ -119,7 +119,7 @@ egal(OM.jour('15/03/2027'), null, 'une date au mauvais format');
 egal(OM.jour(46461), null, 'un nombre n\'est pas une date');
 egal(OM.isoDuJour(46461), '2027-03-15', 'retour du jour Excel');
 egal(OM.dateFr('2027-03-15'), '15/03/2027', 'date en français');
-egal([2.5, 12000, 2027, -0.5, 1 / 3, 0.05, 6].map(OM.fmtNombre), ['2,5', '12' + NBSP + '000', '2027', '-0,5', '0,33', '0,05', '6'], 'nombres en français');
+egal([2.5, 12000, 2250, 999, -1600, 1 / 3, 0.05, 6].map(OM.fmtNombre), ['2,5', '12' + NBSP + '000', '2' + NBSP + '250', '999', '-1' + NBSP + '600', '0,33', '0,05', '6'], 'nombres en français');
 egal(['12,5', ' 1 000 ', 'abc', '', '3', '-2.5'].map(OM.lireNombre), [12.5, 1000, null, null, 3, -2.5], 'lire un nombre');
 
 // ---------- 6. CRC32, UTF-8, zip ----------
@@ -214,30 +214,84 @@ egal(OM.resumeDocument(REUNION, reunion), '5 rubriques remplies sur 6', 'résum�
 const raci = outil('gp-raci');
 st = OM.suivi(raci, { colonnes: ['DAF', 'Toi', 'Julie'], lignes: [{ nom: 'A', cases: ['A', 'R', 'A'] }, { nom: 'B', cases: ['', 'R', ''] },
   { nom: 'C', cases: ['a', 'I', ''] }, { nom: '', cases: ['', '', ''] }] });
-egal(st.alertes.map(a => a.ligne + ' ' + a.message.split(' :')[0]), ['0 Plus d\'un A', '1 Pas de A', '2 Pas de R'], 'matrice : alertes par ligne');
+egal(st.alertes.map(a => a.ligne + ' ' + a.message.split(' :')[0]), ['0 Deux A, c\'est aucun', '1 Personne n\'approuve ce livrable'],
+  'matrice : alertes par ligne (un « a » minuscule compte comme un A)');
 
-// Les exemples des outils pilotes
-const suiviEx = id => OM.suivi(outil(id), OM.contenuExemple(outil(id)));
-egal(suiviEx('gp-risques').totaux.map(t => t.valeur), [6, 5, 4], 'exemple du registre : totaux');
-egal(suiviEx('gp-risques').alertes.map(a => a.ligne), [5], 'exemple du registre : une alerte (risque 6)');
-egal(suiviEx('gp-raci').alertes.map(a => a.ligne + ' ' + a.message), ['4 Pas de A : personne ne valide ce livrable.'], 'exemple du RACI');
-egal(suiviEx('gp-compte-rendu').totaux.map(t => t.valeur), [3, 2], 'exemple du compte rendu : totaux');
+// Les exemples des 12 outils, lus à leur date (exemple.date) : les totaux et les alertes annoncés par l'expert
+const suiviEx = id => { const d = outil(id); return OM.suivi(d, OM.contenuExemple(d), d.exemple.date ? OM.jour(d.exemple.date) : undefined); };
+const ATTENDU = {
+  'gp-cadrage': { totaux: [3], alertes: [] },
+  'gp-risques': { totaux: [7, 4, 0], alertes: [] },
+  'gp-raci': { totaux: [], alertes: [] },
+  'gp-compte-rendu': { totaux: [4, 4], alertes: [] },
+  'gp-rapport': { totaux: [2, 5], alertes: [] },
+  'gp-options': { totaux: [3], alertes: [] },
+  'gp-decisions': { totaux: [7, 0], alertes: [] },
+  'gp-changements': { totaux: [7, 5250, 0], alertes: [] },
+  'gp-budget': { totaux: [85250, 81100, 30350, 57150, 87500, 2250], alertes: [] },
+  'gp-business-case': { totaux: [2, 80000, 100, 3000], alertes: ['options 1 Gain en temps'] },
+  'gp-recette': { totaux: [8, 7, 2, 2, 2, 1, 4], alertes: [0, 3, 4, 5].map(k => 'cas ' + k + ' Pas de PV tant que cette anomalie est ouverte') },
+  'gp-bascule': { totaux: [6, 6], alertes: [] }
+};
+egal(OUTILS.map(o => o.id).sort(), Object.keys(ATTENDU).sort(), 'les 12 outils');
+Object.keys(ATTENDU).forEach(id => {
+  const s = suiviEx(id);
+  egal(s.totaux.map(t => t.valeur), ATTENDU[id].totaux, id + ' : totaux de l\'exemple');
+  egal(s.alertes.map(a => (a.rubrique ? a.rubrique + ' ' : '') + a.ligne + ' ' + a.message.split(' :')[0]), ATTENDU[id].alertes, id + ' : alertes de l\'exemple');
+});
+egal(suiviEx('gp-rapport').totaux[0].niveau.libelle, 'Orange', 'rapport : la météo globale a son mot (niveau d\'un total)');
+
+// ---------- 7 bis. Les ajouts du moteur : abs(), une rubrique lue par un tableau, un total lu par le document, le niveau
+// d'un total, les lignes du modèle, la couleur d'un choix, la date de l'exemple ----------
+egal(OM.evaluer(OM.lire('abs(a - b)'), ctx({ a: 3, b: 10 })), 7, 'abs()');
+egal(OM.evaluer(OM.lire('abs(a)'), ctx({ a: null })), null, 'abs() d\'une case vide');
+egal(OM.excel(OM.lire('abs(ecart) > tolerance'), { cellule: n => ({ ecart: 'E2', tolerance: "'Rapport'!$B$7" })[n] }),
+  "IF(OR(E2=\"\",'Rapport'!$B$7=\"\"),FALSE,ABS(E2)>'Rapport'!$B$7)", 'Excel de abs() et d\'une rubrique');
+egal(OM.typer(OM.lire('abs(ecart) - 1'), { colonnes: { ecart: { type: 'nombre' } } }), 'nombre', 'type de abs()');
+ok(/abs/.test(erreurDe(() => OM.typer(OM.lire('abs(nom)'), { colonnes: { nom: { type: 'texte' } } }))), 'abs() d\'un texte refusé');
+// Une rubrique lue par un tableau (rapport : la tolérance des jalons, ± : l'avance compte comme le retard)
+const rap = outil('gp-rapport'), cRap = OM.contenuExemple(rap), jal = rap.rubriques.filter(r => r.id === 'jalons')[0];
+const reste = c => c.rubriques.jalons.map(l => OM.calculerLigne(jal.colonnes, l, OM.contexteDocument(rap, c)).valeurs.reste);
+egal(reste(cRap), [14, 14, 7, 7, 14], 'rapport : reste de tolérance (14 jours)');
+cRap.rubriques.tolerance = 5;
+egal(reste(cRap), [5, 5, -2, -2, 5], 'rapport : la tolérance changée (5 jours)');
+egal(OM.suivi(rap, cRap).alertes.map(a => a.rubrique + ' ' + a.ligne), ['jalons 2', 'jalons 3'], 'rapport : jalons hors tolérance');
+cRap.rubriques.tolerance = 14;
+cRap.rubriques.jalons[4].prevision = '2027-05-24';
+egal(OM.suivi(rap, cRap).alertes.map(a => a.rubrique + ' ' + a.ligne), ['jalons 4'], 'rapport : 21 jours d\'avance sortent de la tolérance');
+// Un total lu par le document (budget : l'atterrissage au-dessus du plafond)
+const bud = outil('gp-budget'), cBud = OM.contenuExemple(bud);
+egal(OM.suivi(bud, cBud).alertes.length, 0, 'budget : sous le plafond, pas d\'alerte');
+cBud.rubriques.plafond = 85000;
+egal(OM.suivi(bud, cBud).alertes.map(a => (a.rubrique === null ? 'document ' : '') + a.message.split(' :')[0]), ['document L\'atterrissage dépasse le plafond'],
+  'budget : au-dessus du plafond, l\'alerte du document');
+// Les lignes du modèle ; la couleur d'un choix ; la date de l'exemple
+egal(OM.contenuVide(rap).rubriques.meteo.map(l => l.axe), ['Délai', 'Budget', 'Périmètre', 'Qualité et risques'], 'modèle : les 4 axes de la météo');
+egal(OM.contenuVide(outil('gp-options')).rubriques.options.map(l => l.option), ['A. Ne rien changer'], 'modèle : « Ne rien changer »');
+const colResultat = outil('gp-recette').rubriques.filter(r => r.id === 'cas')[0].colonnes.filter(c => c.id === 'resultat')[0];
+egal(['OK', 'Anomalie', 'Pas joué'].map(v => OM.couleurChoix(colResultat, v)), ['ok', 'ko', ''], 'couleur d\'un choix');
+egal(OM.suivi(outil('gp-risques'), OM.contenuExemple(outil('gp-risques')), OM.jour('2027-03-20')).alertes.map(a => a.ligne), [0, 1, 2, 3, 4, 6],
+  'registre lu au 20/03/2027 : des dates passées');
 
 // ---------- 8. Contrôle d'un document et d'un fichier : jamais d'erreur ----------
 const risques = outil('gp-risques');
 egal(OM.examiner(risques, null).contenu, null, 'contenu null');
 egal(OM.examiner(risques, { lignes: 'x' }).contenu, null, 'lignes qui ne sont pas une liste');
-let ex = OM.examiner(risques, { lignes: [{ risque: 12, proba: '3', impact: 7, statut: 'fermé', note: 4, zzz: 1, echeance: '2027-13-01' }], autre: 1 });
-egal(ex.contenu.lignes[0], { risque: '12', proba: 3, impact: '', reponse: '', action: '', proprietaire: '', echeance: '', statut: 'Fermé' }, 'valeurs remises au propre');
+let ex = OM.examiner(risques, { lignes: [{ risque: 12, proba: '3', impact: 7, statut: 'fermé', note: 4, zzz: 1, quand: '2027-13-01' }], autre: 1 });
+egal(ex.contenu.lignes[0], { risque: '12', proba: 3, impact: '', reponse: '', proprietaire: '', quand: '', statut: 'Fermé' }, 'valeurs remises au propre');
 ok(ex.problemes.length === 8 && ex.problemes.some(m => /« 7 » n'est pas une valeur permise/.test(m)) && ex.problemes.some(m => /calculée/.test(m)),
   'problèmes notés : ' + ex.problemes.join(' | '));
 ex = OM.examiner(risques, { lignes: Array.from({ length: 400 }, () => ({ risque: 'x'.repeat(6000) })) });
 ok(ex.contenu.lignes.length === 300 && ex.contenu.lignes[0].risque.length === OM.MAX.texteLong, 'contenu trop gros : coupé');
 ex = OM.examiner(raci, { colonnes: ['DAF', 3, null], lignes: [{ nom: 'X', cases: ['A', 'Z', 'r', 'en trop'] }, 'pas une ligne'] });
 egal(ex.contenu, { colonnes: ['DAF', '3', ''], lignes: [{ nom: 'X', cases: ['A', '', 'R'] }] }, 'matrice remise au propre');
-ex = OM.examiner(outil('gp-compte-rendu'), { rubriques: { date: '2027-02-09', decisions: 'pas une liste', actions: [{ action: 'x', statut: 'fait' }], zzz: 1 } });
-ok(ex.contenu && ex.contenu.rubriques.decisions.length === 0 && ex.contenu.rubriques.actions[0].statut === 'Fait' && ex.problemes.length === 3,
+ex = OM.examiner(REUNION, { rubriques: { jour: '2027-02-09', points: 'pas une liste', taches: [{ quoi: 'x', jours: '3' }], zzz: 1 } });
+ok(ex.contenu && ex.contenu.rubriques.points.length === 0 && ex.contenu.rubriques.taches[0].jours === 3 && ex.problemes.length === 3,
   'document remis au propre : ' + ex.problemes.join(' | '));
+ex = OM.examiner(outil('gp-compte-rendu'), { rubriques: { actions: [{ action: 'x', fait: 'oui' }], decisions: 'pas une liste' } });
+ok(ex.contenu === null, 'document dont un tableau n\'est pas une liste : abîmé');
+ex = OM.examiner(outil('gp-compte-rendu'), { rubriques: { actions: [{ action: 'x', fait: 'oui' }] } });
+ok(ex.contenu && ex.contenu.rubriques.actions[0].fait === 'Oui' && ex.contenu.rubriques.decisions.length === 0, 'document : valeurs remises au propre');
 const tous = OUTILS;
 [['pas du json', /pas au bon format/], ['', /pas au bon format/], ['null', /pas un document/], ['[]', /pas un document/], ['{"format":"autre"}', /pas un document/],
   [JSON.stringify({ format: 'learnsql-outil', outil: 'gp-raci', contenu: {} }), /Matrice RACI/],
@@ -274,7 +328,11 @@ ok(/^Registre des risques : <script>/.test(t) && /- Note : 9 · Priorité/.test(
 t = OM.texteDocument(raci, { nom: 'DEMAT', contenu: OM.contenuExemple(raci) });
 ok(/Format de facture\n- R · Réalise : Toi, Intégrateur\n- A · Approuve : DAF/.test(t), 'texte de la matrice : ' + t.slice(0, 160));
 t = OM.texteDocument(outil('gp-compte-rendu'), { nom: 'COPIL', contenu: OM.contenuExemple(outil('gp-compte-rendu')) });
-ok(/Date de la réunion : 09\/02\/2027/.test(t) && /Décisions\n- Changements n° 7/.test(t) && /Points ouverts\n- —/.test(t), 'texte du compte rendu');
+ok(/Date : 09\/02\/2027/.test(t) && /Décisions\n\nDécision 1\n- Décision : Changement n° 7 accepté/.test(t) &&
+  /Points ouverts\n\nPoint ouvert 1\n- Point ouvert : Clôture de mars/.test(t) && /Actions pas encore faites : 4/.test(t), 'texte du compte rendu : ' + t.slice(0, 300));
+t = OM.texteDocument(outil('gp-rapport'), { nom: 'Avril', contenu: OM.contenuExemple(outil('gp-rapport')) });
+ok(/Météo globale : l'axe le plus mauvais : 2 · Orange/.test(t) && /- Couleur : 2 · Orange/.test(t) && /- Reste de tolérance, en jours : 7 · Dans la tolérance/.test(t),
+  'texte du rapport : niveaux des totaux et des calculs');
 
 // ---------- 10. Les classeurs Excel : un zip valide, un XML bien formé, des formules ----------
 function xmlBienForme(x) {
@@ -331,11 +389,23 @@ ok(/<f t="array" ref="B36">SUM\(/.test(x) && /<conditionalFormatting sqref="E2:E
   'registre : totaux (formules matricielles), couleurs des niveaux, listes de choix');
 ok(/<pane ySplit="1"/.test(x) && /<c r="A1" s="1" t="inlineStr"><is><t>Risque<\/t><\/is><\/c>/.test(x) && /<col min="1" max="1" width="45"/.test(x), 'registre : en-tête figé, en gras, largeurs');
 x = feuille('gp-raci', 'exemple');
-ok(x.indexOf('COUNTIF(B6:K6,"A")=0') >= 0 && /Pas de A : personne ne valide ce livrable\.<\/v>/.test(x), 'RACI : alerte par ligne (formule et valeur)');
+ok(x.indexOf('<f>IF(COUNTA(A2:K2)=0,"",TRIM(IF(COUNTIF(B2:K2,"A")&gt;1,"Deux A, c\'est aucun : un seul A par livrable. ","")&amp;IF(COUNTIF(B2:K2,"A")=0,') >= 0,
+  'RACI : alertes par ligne en formule');
+ok(/<t>R = Réalise : Fait le travail\. Il peut y en avoir plusieurs\.<\/t>/.test(x), 'RACI : les aides des valeurs sous la matrice');
 ok(/<dataValidation type="list"[^>]*sqref="B2:K21"><formula1>"R,A,C,I"<\/formula1>/.test(x), 'RACI : liste R, A, C, I');
 x = lireZip(fs.readFileSync(classeurs.filter(c => c.def.id === 'gp-compte-rendu' && c.quoi === 'exemple')[0].fichier));
-ok(/<sheet name="Compte rendu de réunion"[^>]*\/><sheet name="Actions"/.test(x['xl/workbook.xml'].data.toString('utf8')), 'compte rendu : une feuille par tableau');
+egal((x['xl/workbook.xml'].data.toString('utf8').match(/<sheet name="[^"]+"/g) || []).map(m => m.slice(13, -1)),
+  ['Compte rendu de réunion', 'Décisions', 'Actions', 'Points ouverts'], 'compte rendu : une feuille pour les rubriques, une par tableau');
 ok(/Voir la feuille « Actions »/.test(x['xl/worksheets/sheet1.xml'].data.toString('utf8')), 'compte rendu : les rubriques en texte');
+x = feuille('gp-rapport', 'exemple', 4);
+ok(x.indexOf("<f>IF(OR('Rapport du COPIL et météo'!$B$9=\"\",E2=\"\"),\"\",'Rapport du COPIL et météo'!$B$9-ABS(E2))</f><v>14</v>") >= 0,
+  'rapport : le reste de tolérance lit la rubrique sur la 1re feuille');
+x = feuille('gp-rapport', 'exemple', 3);
+ok(/<c r="C34" s="6" t="str"><f>IF\(B34="","",IF\(B34&lt;=1,"Vert",IF\(B34&lt;=2,"Orange",IF\(B34&lt;=3,"Rouge",""\)\)\)\)<\/f><v>Orange<\/v><\/c>/.test(x) &&
+  /<conditionalFormatting sqref="B2:B31"><cfRule type="cellIs" dxfId="0"[^>]*><formula>1<\/formula>/.test(x), 'rapport : niveau du total et couleurs du choix');
+ok(/<t>Délai<\/t>/.test(feuille('gp-rapport', 'modele', 3)), 'modèle vide : les axes de la météo déjà écrits');
+x = feuille('gp-budget', 'exemple', 2);
+ok(['85250', '81100', '30350', '57150', '87500', '2250'].every(v => x.indexOf('<v>' + v + '</v>') >= 0), 'budget : les totaux de la fiche dans le fichier Excel');
 x = feuille('gp-risques', 'modele');
 ok(x.indexOf('<f>IF(OR(B31="",C31=""),"",B31*C31)</f>') >= 0 && !/DEMAT/.test(x) && !/<c r="A2"/.test(x), 'modèle vide : 30 lignes de formules, sans données');
 x = feuille('gp-risques', 'piege');

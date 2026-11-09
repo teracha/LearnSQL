@@ -1,16 +1,21 @@
 // Outils (docs/outils.md) : le menu, la page Outils (sans compte, sans le parcours, avec le parcours Chef de projet),
 // les trois types d'outils (tableau, matrice, document : saisie, calcul, niveau, alerte, une carte par ligne à 390 px
-// sans débordement, un tableau sur PC), les documents (nouveau, partir de l'exemple, renommer, dupliquer, supprimer,
-// recharger la page), Enregistrer et Ouvrir un fichier (dont des fichiers faux), Excel (un vrai zip), Copier, Imprimer,
-// les liens avec les cours, du HTML dans les textes de l'élève, rien d'envoyé, aucune erreur JavaScript.
-// Supabase simulé : julie (agent) ; le parcours chef-projet est réservé au groupe 1.
+// sans débordement, un tableau sur PC), les ajouts du moteur (rubrique lue par un tableau, total lu par le document,
+// niveau d'un total, lignes du modèle, couleur d'un choix), les documents (nouveau, partir de l'exemple, renommer,
+// dupliquer, supprimer, recharger la page), Enregistrer et Ouvrir un fichier (dont des fichiers faux), Excel (un vrai
+// zip, pour les 12 outils), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
+// d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le parcours chef-projet est réservé au groupe 1.
+// L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
 const { chromium } = require('playwright'); const fs = require('fs'), path = require('path'), zlib = require('zlib');
 const lireZip = require('./lire-zip.js');
 const racine = path.join(__dirname, '..', '..');
+const OUTILS = ['gp-cadrage', 'gp-risques', 'gp-raci', 'gp-compte-rendu', 'gp-rapport', 'gp-options', 'gp-decisions', 'gp-changements',
+  'gp-budget', 'gp-business-case', 'gp-recette', 'gp-bascule'];
 (async () => {
   const b = await chromium.launch(process.env.CHR ? { executablePath: process.env.CHR } : {});
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'fr-FR', acceptDownloads: true });
   const p = await ctx.newPage();
+  await p.clock.setFixedTime(new Date('2027-01-15T10:00:00'));
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   const verifier = (ok, msg) => { if (!ok) errs.push(msg); };
   const dialogues = []; p.on('dialog', d => { dialogues.push(d.message()); d.accept(); });
@@ -48,6 +53,8 @@ const racine = path.join(__dirname, '..', '..');
   const aller = async h => { await p.evaluate(x => { location.hash = x; }, h); await attendre(); };
   const hash = () => p.evaluate(() => location.hash);
   const texte = s => p.textContent(s);
+  const alertes = () => texte('#o-alertes');
+  const lignes = sel => p.$$eval((sel || '#o-editeur') + ' tbody tr', xs => xs.length);
   // Rien ne dépasse à droite (390 px) : ni la page, ni un élément visible.
   const largeur = async ou => {
     const r = await p.evaluate(() => {
@@ -68,8 +75,10 @@ const racine = path.join(__dirname, '..', '..');
     await p.setInputFiles('#o-fichier', { name: nom, mimeType: 'application/json', buffer: Buffer.from(contenu) });
     await attendre(300);
   };
-  const lignes = () => p.$$eval('#o-editeur tbody tr', xs => xs.length);
-  const alertes = () => texte('#o-alertes');
+  const calc = (sel) => p.evaluate(s => {
+    const c = document.querySelector(s), n = c ? c.querySelector('.o-niveau') : null;
+    return { t: c ? c.textContent.replace(/\s+/g, ' ').trim() : '', cl: n ? n.className : '' };
+  }, sel);
 
   // 1. Le menu : un seul lien « Outils », à la place de « Dico » et « Traduire »
   await p.goto(U + '#/'); await attendre();
@@ -89,7 +98,7 @@ const racine = path.join(__dirname, '..', '..');
   await largeur('page Outils (sans compte)');
   await p.click('.o-carte[href="#/dico"]'); await attendre();
   verifier(await texte('h1') === 'Super dico SQL', 'la carte du dico ne mène pas au dico');
-  for (const h of ['#/outils/gp-risques', '#/outils/gp-risques/exemple', '#/outils/gp-raci/exemple', '#/outils/gp-compte-rendu/d123']) {
+  for (const h of ['#/outils/gp-risques', '#/outils/gp-risques/exemple', '#/outils/gp-raci/exemple', '#/outils/gp-cadrage/d123']) {
     await aller(h);
     const t = await texte('#app');
     verifier(/Outil réservé/.test(t) && /Chef de projet SI/.test(t) && !(await p.$('.o-table')) && !/DEMAT|Registre/.test(t), h + ' sans compte : ' + t.slice(0, 120));
@@ -107,14 +116,14 @@ const racine = path.join(__dirname, '..', '..');
   await aller('#/outils/gp-raci');
   verifier(/Outil réservé/.test(await texte('#app')) && !(await p.$('#app .actions a[href="#/compte"]')), 'compte sans le parcours : message court, sans « Se connecter »');
 
-  // 4. Avec le parcours (groupe 1) : le sujet « Gestion de projet » et ses outils
+  // 4. Avec le parcours (groupe 1) : le sujet « Gestion de projet » et ses 12 outils, dans l'ordre
   db.membre.push({ groupe_id: 1, user_id: 'u2' });
   await aller('#/compte'); await p.click('#sync'); await attendre(800);
   await aller('#/outils');
   sujets = await p.$$eval('.o-sujet h2', xs => xs.map(x => x.textContent));
   verifier(sujets.join('|') === 'SQL|Gestion de projet', 'avec le parcours : sujets ' + sujets.join('|'));
-  const cartesGp = await p.$$eval('#sujet-gestion-projet .o-carte', xs => xs.map(x => x.getAttribute('href')));
-  verifier(cartesGp.join(' ') === '#/outils/gp-risques #/outils/gp-raci #/outils/gp-compte-rendu', 'cartes de la gestion de projet : ' + cartesGp.join(' '));
+  const cartesGp = await p.$$eval('#sujet-gestion-projet .o-carte', xs => xs.map(x => x.getAttribute('href').replace('#/outils/', '')));
+  verifier(cartesGp.join(' ') === OUTILS.join(' '), 'cartes de la gestion de projet : ' + cartesGp.join(' '));
   await largeur('page Outils (avec le parcours)');
 
   // 5. La page d'un outil : à quoi il sert, quand, « Comment faire » (3 étapes), « Voir l'exemple », ses cours
@@ -123,60 +132,62 @@ const racine = path.join(__dirname, '..', '..');
     etapes: document.querySelectorAll('.o-etapes li').length, exemple: !!document.querySelector('#o-voir-exemple'),
     cours: Array.from(document.querySelectorAll('#app a[href^="#/cours/"]')).map(a => a.getAttribute('href')), t: document.querySelector('#app').textContent }));
   verifier(page.h1 === 'Registre des risques' && page.resume && page.etapes === 3 && page.exemple && /Quand s'en servir/.test(page.t), 'page de l\'outil : ' + JSON.stringify(page).slice(0, 200));
-  verifier(page.cours.join() === '#/cours/cp07', 'lien vers le cours cp07 : ' + page.cours.join());
+  verifier(page.cours.join() === '#/cours/cp07,#/cours/cp08', 'liens vers les cours : ' + page.cours.join());
   verifier(/restent dans ce navigateur : rien n'est envoyé/.test(page.t), 'la page ne dit pas que les documents restent dans le navigateur');
   await largeur('page de l\'outil');
 
-  // 6. L'exemple, en lecture : niveaux (mot + couleur), alerte et sa marque, totaux, une carte par ligne
+  // 6. L'exemple, en lecture, à sa date (8 février 2027) : niveaux (mot + couleur), totaux, aucune alerte, des cartes
   await p.click('#o-voir-exemple'); await attendre();
   const ex = await p.evaluate(() => ({ champs: document.querySelectorAll('#o-editeur input, #o-editeur select, #o-editeur textarea').length,
     lignes: document.querySelectorAll('#o-editeur tbody tr').length, cartes: !!document.querySelector('.o-zone.o-cartes'),
-    priorites: Array.from(document.querySelectorAll('.o-niveau.o-ko')).map(x => x.textContent),
-    surveille: document.querySelectorAll('.o-niveau.o-ok').length, simple: document.querySelectorAll('.o-niveau.o-attention').length,
-    alertes: document.querySelector('#o-alertes').textContent, totaux: document.querySelector('.o-totaux').textContent,
-    marques: Array.from(document.querySelectorAll('.o-marque')).filter(m => !m.hidden).length }));
-  verifier(ex.champs === 0 && ex.lignes === 6 && ex.cartes, 'exemple : ' + JSON.stringify(ex).slice(0, 300));
-  verifier(ex.priorites.length === 4 && ex.priorites.every(t => t === 'Priorité') && ex.surveille === 1 && ex.simple === 1, 'niveaux de l\'exemple : ' + JSON.stringify(ex.priorites));
-  verifier(/Risque 6/.test(ex.alertes) && /sans action/.test(ex.alertes) && ex.marques === 1, 'alerte de l\'exemple : ' + ex.alertes);
-  verifier(/Risques : 6/.test(ex.totaux) && /Priorités ouvertes \(6 ou 9\) : 4/.test(ex.totaux), 'totaux de l\'exemple : ' + ex.totaux);
+    ko: document.querySelectorAll('.o-niveau.o-ko').length, ok: document.querySelectorAll('.o-niveau.o-ok').length,
+    att: document.querySelectorAll('.o-niveau.o-attention').length, date: document.querySelector('.o-exemple').textContent,
+    alertes: document.querySelector('#o-alertes').textContent, totaux: document.querySelector('.o-totaux').textContent }));
+  verifier(ex.champs === 0 && ex.lignes === 8 && ex.cartes && /situation au 08\/02\/2027/.test(ex.date), 'exemple : ' + JSON.stringify(ex).slice(0, 300));
+  verifier(ex.ko === 5 && ex.ok === 1 && ex.att === 2, 'niveaux de l\'exemple : ' + JSON.stringify(ex));
+  verifier(/Aucune alerte/.test(ex.alertes), 'l\'exemple du registre a une alerte : ' + ex.alertes);
+  verifier(/les 5 plus gros au COPIL\) : 7/.test(ex.totaux) && /dont priorités \(6 ou 9\) : 4/.test(ex.totaux) && /Arrivés : 0/.test(ex.totaux), 'totaux de l\'exemple : ' + ex.totaux);
   await largeur('exemple du registre');
 
   // 7. Partir de l'exemple : un document modifiable
   await p.click('#o-depuis-exemple'); await attendre();
   verifier(/^#\/outils\/gp-risques\/d/.test(await hash()), 'Partir de l\'exemple : pas de document');
-  verifier(await p.inputValue('#o-nom') === 'DEMAT 2027' && await lignes() === 6, 'le document tiré de l\'exemple');
+  verifier(await p.inputValue('#o-nom') === 'DEMAT 2027' && await lignes() === 8, 'le document tiré de l\'exemple');
 
-  // 8. Nouveau : saisir, calculer, niveaux, alertes, totaux
+  // 8. Le registre (tableau) : saisir, calculer, niveaux, alertes, totaux
   await aller('#/outils/gp-risques'); await p.click('#o-nouveau'); await attendre();
   const docRisques = await hash();
   verifier(await p.inputValue('#o-0-statut') === 'Ouvert', 'statut par défaut d\'un nouveau risque');
+  verifier(/Propriétaire : Une personne nommée/.test(await texte('.o-aides')) && /Arrivé : c'est devenu un problème/.test(await texte('.o-aides')),
+    'les aides des colonnes ne sont pas au-dessus du tableau');
   let tot = await texte('.o-totaux');
-  verifier(/Risques : 0/.test(tot), 'une ligne neuve (seulement le statut par défaut) compte comme un risque : ' + tot);
-  await p.fill('#o-0-risque', 'Seule Julie connaît les flux EDI → personne pour la remplacer → flux bloqués.');
+  verifier(/COPIL\) : 0/.test(tot), 'une ligne neuve (seulement le statut par défaut) compte comme un risque : ' + tot);
+  await p.fill('#o-0-risque', 'Parce que seule Julie connaît les flux EDI, il peut arriver que personne ne la remplace, ce qui bloquerait les flux.');
   await p.selectOption('#o-0-proba', '3'); await p.selectOption('#o-0-impact', '2'); await attendre(80);
-  const note = () => p.evaluate(() => {
-    const c = document.querySelector('#o-editeur tr[data-l="0"] .o-calc'), n = c.querySelector('.o-niveau');
-    return { t: c.textContent.replace(/\s+/g, ' ').trim(), cl: n ? n.className : '' };
-  });
-  let n = await note();
+  let n = await calc('#o-editeur tr[data-l="0"] .o-calc');
   verifier(n.t === '6 Priorité' && /o-ko/.test(n.cl), 'note 3 × 2 : ' + JSON.stringify(n));
-  verifier(/Note de 6 ou 9 sans action/.test(await alertes()), 'alerte « sans action » absente : ' + await alertes());
-  verifier(await p.isVisible('#o-editeur tr[data-l="0"] .o-marque'), 'la ligne en alerte n\'a pas sa marque « Alerte »');
-  await p.fill('#o-0-action', 'Former Sophie aux flux EDI.'); await attendre(80);
   let al = await alertes();
-  verifier(!/sans action/.test(al) && /sans propriétaire ou sans date/.test(al), 'alerte après l\'action : ' + al);
-  await p.fill('#o-0-proprietaire', 'Marc'); await p.fill('#o-0-echeance', '2027-03-01'); await attendre(80);
-  verifier(/Aucune alerte/.test(await alertes()), 'il reste une alerte : ' + await alertes());
-  verifier(await p.isHidden('#o-editeur tr[data-l="0"] .o-marque'), 'la marque reste après correction');
+  verifier(/liste d'inquiétudes/.test(al) && /Nomme un propriétaire/.test(al), 'alertes d\'un risque sans action ni propriétaire : ' + al);
+  verifier(await p.isVisible('#o-editeur tr[data-l="0"] .o-marque'), 'la ligne en alerte n\'a pas sa marque « Alerte »');
+  await p.fill('#o-0-reponse', 'Réduire : former Sophie aux flux EDI.'); await p.fill('#o-0-quand', '2027-03-01'); await attendre(80);
+  al = await alertes();
+  verifier(!/liste d'inquiétudes/.test(al) && /Nomme un propriétaire/.test(al), 'alerte après l\'action et la date : ' + al);
+  await p.fill('#o-0-proprietaire', 'Marc'); await attendre(80);
+  verifier(/Aucune alerte/.test(await alertes()) && await p.isHidden('#o-editeur tr[data-l="0"] .o-marque'), 'il reste une alerte : ' + await alertes());
   tot = await texte('.o-totaux');
-  verifier(/Risques : 1/.test(tot) && /Risques ouverts : 1/.test(tot) && /Priorités ouvertes \(6 ou 9\) : 1/.test(tot), 'totaux : ' + tot);
-  await p.selectOption('#o-0-proba', '1'); await attendre(80); n = await note();
+  verifier(/COPIL\) : 1/.test(tot) && /dont priorités \(6 ou 9\) : 1/.test(tot) && /Arrivés : 0/.test(tot), 'totaux : ' + tot);
+  await p.fill('#o-0-quand', '2027-01-10'); await attendre(80);
+  verifier(/La date est passée/.test(await alertes()), 'date passée (horloge au 15/01/2027) : pas d\'alerte');
+  await p.fill('#o-0-quand', '2027-03-01'); await p.selectOption('#o-0-statut', 'Arrivé'); await attendre(80);
+  verifier(/Le risque est arrivé/.test(await alertes()) && /Arrivés : 1/.test(await texte('.o-totaux')), 'risque arrivé');
+  await p.selectOption('#o-0-statut', 'Ouvert');
+  await p.selectOption('#o-0-proba', '1'); await attendre(80); n = await calc('#o-editeur tr[data-l="0"] .o-calc');
   verifier(n.t === '2 On surveille' && /o-ok/.test(n.cl), 'note 1 × 2 : ' + JSON.stringify(n));
-  await p.selectOption('#o-0-impact', '3'); await attendre(80); n = await note();
+  await p.selectOption('#o-0-impact', '3'); await attendre(80); n = await calc('#o-editeur tr[data-l="0"] .o-calc');
   verifier(n.t === '3 Action simple' && /o-attention/.test(n.cl), 'note 1 × 3 : ' + JSON.stringify(n));
-  await p.selectOption('#o-0-impact', ''); await attendre(80); n = await note();
+  await p.selectOption('#o-0-impact', ''); await attendre(80); n = await calc('#o-editeur tr[data-l="0"] .o-calc');
   verifier(n.t === '—' && !n.cl, 'note sans impact : ' + JSON.stringify(n));
-  await p.selectOption('#o-0-proba', '3'); await p.selectOption('#o-0-impact', '3'); await attendre(80); n = await note();
+  await p.selectOption('#o-0-proba', '3'); await p.selectOption('#o-0-impact', '3'); await attendre(80); n = await calc('#o-editeur tr[data-l="0"] .o-calc');
   verifier(n.t === '9 Priorité', 'note 3 × 3 : ' + JSON.stringify(n));
   // + Risque (le focus va dans la nouvelle ligne), puis supprimer cette ligne vide : sans question
   await p.click('#o-editeur [data-action="ajouter-ligne"]'); await attendre(80);
@@ -194,7 +205,7 @@ const racine = path.join(__dirname, '..', '..');
   await p.reload(); await attendre(400);
   const apres = await p.evaluate(() => ({ nom: document.getElementById('o-nom').value, risque: document.getElementById('o-0-risque').value,
     proba: document.getElementById('o-0-proba').value, note: document.querySelector('#o-editeur .o-calc').textContent, stock: localStorage.getItem('learnsql-outils') }));
-  verifier(apres.nom === NOM && /Julie connaît/.test(apres.risque) && apres.proba === '3' && /^9/.test(apres.note), 'après rechargement : ' + JSON.stringify(apres).slice(0, 300));
+  verifier(apres.nom === NOM && /seule Julie connaît/.test(apres.risque) && apres.proba === '3' && /^9/.test(apres.note), 'après rechargement : ' + JSON.stringify(apres).slice(0, 300));
   verifier(apres.stock && JSON.parse(apres.stock).version === 1, 'documents absents de la clé learnsql-outils');
 
   // 10. La liste des documents (le nom reste du texte), Dupliquer, Supprimer (avec confirmation)
@@ -227,7 +238,7 @@ const racine = path.join(__dirname, '..', '..');
   if (zlib.crc32) verifier(Object.keys(z).every(k => zlib.crc32(z[k].data) === z[k].crc), 'Excel : CRC32 faux');
   let feuille = z['xl/worksheets/sheet1.xml'] ? z['xl/worksheets/sheet1.xml'].data.toString('utf8') : '';
   verifier(feuille.indexOf('<f>IF(OR(B2="",C2=""),"",B2*C2)</f><v>9</v>') >= 0, 'Excel : formule de la note absente');
-  verifier(/Julie connaît les flux EDI/.test(feuille) && /<t>Probabilité<\/t>/.test(feuille) && /Niveau : Note/.test(feuille), 'Excel : valeurs ou en-têtes absents');
+  verifier(/seule Julie connaît les flux EDI/.test(feuille) && /<t>Probabilité<\/t>/.test(feuille) && /Niveau : Note/.test(feuille), 'Excel : valeurs ou en-têtes absents');
   verifier(/Fichier Excel téléchargé/.test(await texte('#o-msg')), 'Excel : pas de message');
   await aller('#/outils/gp-risques');
   f = await telecharger('#o-modele');
@@ -245,7 +256,7 @@ const racine = path.join(__dirname, '..', '..');
   await ouvrir('mon-registre.json', f.octets.toString('utf8'));
   verifier(/^#\/outils\/gp-risques\/d/.test(await hash()) && await p.inputValue('#o-nom') === NOM && /Fichier ouvert/.test(await texte('#o-msg')),
     'Ouvrir un fichier : ' + await hash() + ' ' + await texte('#o-msg'));
-  verifier(await p.inputValue('#o-0-risque') === json.contenu.lignes[0].risque && await p.inputValue('#o-0-echeance') === '2027-03-01', 'contenu du fichier ouvert');
+  verifier(await p.inputValue('#o-0-risque') === json.contenu.lignes[0].risque && await p.inputValue('#o-0-quand') === '2027-03-01', 'contenu du fichier ouvert');
   // Des fichiers faux : un message, jamais une erreur, aucun document créé
   await aller('#/outils/gp-risques');
   const nbDocs = (await p.$$('.o-doc')).length;
@@ -263,7 +274,7 @@ const racine = path.join(__dirname, '..', '..');
   }
   verifier((await p.$$('.o-doc')).length === nbDocs, 'un fichier faux a créé un document');
   // Des valeurs non permises : le document s'ouvre, elles sont vidées, et c'est dit
-  await ouvrir('valeurs.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: [{ risque: 'Un risque', proba: 7, impact: '2', inconnue: 'x', echeance: '2027-02-30', note: 99 }] } }, enTete, { nom: 'Valeurs fausses' })));
+  await ouvrir('valeurs.json', JSON.stringify(Object.assign({ outil: 'gp-risques', contenu: { lignes: [{ risque: 'Un risque', proba: 7, impact: '2', inconnue: 'x', quand: '2027-02-30', note: 99 }] } }, enTete, { nom: 'Valeurs fausses' })));
   verifier(await p.inputValue('#o-nom') === 'Valeurs fausses' && await p.inputValue('#o-0-proba') === '' && await p.inputValue('#o-0-impact') === '2' &&
     /5 valeur\(s\) corrigée\(s\)/.test(await texte('#o-msg')), 'valeurs fausses : ' + await texte('#o-msg'));
 
@@ -273,7 +284,7 @@ const racine = path.join(__dirname, '..', '..');
   await p.click('#o-copier'); await attendre();
   let copie = await p.evaluate(() => window.__copie) || {};
   const html = copie['text/html'] || '', simple = copie['text/plain'] || '';
-  verifier(/<table/.test(html) && /Julie connaît les flux EDI/.test(html) && /&lt;img/.test(html) && !/<img/.test(html), 'copie HTML : ' + html.slice(0, 200));
+  verifier(/<table/.test(html) && /seule Julie connaît les flux EDI/.test(html) && /&lt;img/.test(html) && !/<img/.test(html), 'copie HTML : ' + html.slice(0, 200));
   verifier(simple.indexOf('Registre des risques : ' + NOM) === 0 && /- Note : 9 · Priorité/.test(simple), 'copie texte : ' + simple.slice(0, 200));
   verifier(/Copié/.test(await texte('#o-msg')), 'pas de message après Copier');
   await p.evaluate(() => {
@@ -295,12 +306,12 @@ const racine = path.join(__dirname, '..', '..');
     return { menu: vu('.topbar'), pied: vu('.foot'), ecran: vu('.o-ecran'), doc: vu('.o-impression'), table: !!(z && z.querySelector('table')),
       t: z ? z.textContent : '', img: !!(z && z.querySelector('img')), paysage: !!(z && z.classList.contains('o-paysage')) };
   });
-  verifier(!impr.menu && !impr.pied && !impr.ecran && impr.doc && impr.table && impr.paysage && /Julie connaît/.test(impr.t) && /Alertes|Totaux/.test(impr.t) && !impr.img,
+  verifier(!impr.menu && !impr.pied && !impr.ecran && impr.doc && impr.table && impr.paysage && /seule Julie connaît/.test(impr.t) && /Totaux/.test(impr.t) && !impr.img,
     'impression : ' + JSON.stringify(impr).slice(0, 200));
   await p.emulateMedia({ media: 'screen' });
   verifier(await p.isHidden('.o-impression'), 'la zone d\'impression se voit à l\'écran');
 
-  // 15. La matrice (RACI) : des colonnes ajoutées par l'élève, une valeur par case, des alertes par ligne
+  // 15. La matrice (RACI) : des colonnes ajoutées par l'élève, une valeur par case, les 2 règles du cours en alerte
   await aller('#/outils/gp-raci'); await p.click('#o-nouveau'); await attendre();
   await p.fill('#o-col-0', 'DAF'); await p.fill('#o-col-1', 'Toi');
   await p.click('[data-action="ajouter-colonne"]'); await attendre(80);
@@ -309,60 +320,108 @@ const racine = path.join(__dirname, '..', '..');
   await p.selectOption('#o-m-0-0', 'A'); await p.selectOption('#o-m-0-1', 'R'); await attendre(80);
   verifier(/Aucune alerte/.test(await alertes()), 'RACI juste : ' + await alertes());
   await p.selectOption('#o-m-0-2', 'A'); await attendre(80);
-  verifier(/Livrable 1 \(« Format de facture »\) : Plus d'un A/.test(await alertes()), 'deux A : ' + await alertes());
-  await p.selectOption('#o-m-0-2', ''); await p.selectOption('#o-m-0-0', 'C'); await attendre(80);
+  verifier(/Livrable 1 \(« Format de facture »\) : Deux A, c'est aucun/.test(await alertes()), 'deux A : ' + await alertes());
+  await p.selectOption('#o-m-0-2', ''); await p.selectOption('#o-m-0-0', 'C'); await p.selectOption('#o-m-0-1', 'I'); await attendre(80);
   al = await alertes();
-  verifier(/Pas de A/.test(al) && !/Plus d'un A/.test(al) && !/Pas de R/.test(al), 'sans A : ' + al);
-  await p.selectOption('#o-m-0-1', 'I'); await attendre(80);
-  al = await alertes();
-  verifier(/Pas de A/.test(al) && /Pas de R/.test(al), 'sans A ni R : ' + al);
+  verifier(/Personne n'approuve ce livrable/.test(al) && !/Deux A/.test(al) && !/réalise/.test(al), 'sans A (et sans R : pas d\'alerte, décision du superviseur) : ' + al);
   const mat = await p.evaluate(() => ({ cartes: !!document.querySelector('#o-matrice .o-zone.o-cartes'),
     libs: Array.from(document.querySelectorAll('#o-matrice tr[data-l="0"] .o-case .o-lib')).map(x => x.textContent),
-    th: Array.from(document.querySelectorAll('#o-matrice th.o-case')).map(x => x.textContent) }));
-  verifier(mat.cartes && mat.libs.join() === 'DAF,Toi,Julie' && mat.th.join() === 'DAF,Toi,Julie', 'matrice sur téléphone : ' + JSON.stringify(mat));
+    th: Array.from(document.querySelectorAll('#o-matrice th.o-case')).map(x => x.textContent), aides: document.querySelectorAll('ul.o-legende li').length }));
+  verifier(mat.cartes && mat.libs.join() === 'DAF,Toi,Julie' && mat.th.join() === 'DAF,Toi,Julie' && mat.aides === 4, 'matrice sur téléphone : ' + JSON.stringify(mat));
   await largeur('matrice RACI');
   nd = dialogues.length;
   await p.click('[data-action="suppr-colonne"][data-k="0"]'); await attendre(80);
   verifier(dialogues.length === nd + 1 && await p.inputValue('#o-col-0') === 'Toi' && (await p.$$('#o-matrice tr[data-l="0"] .o-case')).length === 2,
     'supprimer une colonne remplie (avec confirmation)');
   await aller('#/outils/gp-raci/exemple');
-  verifier(await lignes() === 5 && /Livrable 5 \(« Planning de formation de la compta »\) : Pas de A/.test(await alertes()), 'exemple du RACI : ' + await alertes());
+  verifier(await lignes() === 7 && /Aucune alerte/.test(await alertes()), 'exemple du RACI : ' + await alertes());
   await largeur('exemple du RACI');
 
-  // 16. Le document (compte rendu) : rubriques, liste, tableau d'actions, alertes et totaux, deux feuilles Excel
+  // 16. Le compte rendu (document) : rubriques, 3 tableaux, alerte du document (sous 24 h), alertes et totaux des actions
   await aller('#/outils/gp-compte-rendu'); await p.click('#o-nouveau'); await attendre();
-  verifier(/Date de la réunion manquante/.test(await alertes()), 'pas d\'alerte pour la date vide');
-  await p.fill('#o-r-date', '2027-02-09'); await p.fill('#o-r-objet', 'COPIL de février'); await p.fill('#o-r-participants', 'Le DAF, toi.');
-  await p.fill('#o-r-decisions-0', 'Changement n° 7 accepté.');
-  await p.click('[data-action="ajouter-item"][data-r="decisions"]'); await attendre(80);
-  verifier(await p.evaluate(() => document.activeElement.id) === 'o-r-decisions-1', 'le focus n\'est pas sur la 2e décision');
-  await p.fill('#o-r-decisions-1', 'Changement n° 9 accepté.');
-  verifier(await p.inputValue('#o-actions-0-statut') === 'À faire', 'statut par défaut d\'une action');
+  verifier(/Aucune alerte/.test(await alertes()) && await p.inputValue('#o-actions-0-fait') === 'Non', 'compte rendu neuf : ' + await alertes());
+  await p.fill('#o-r-reunion', 'COPIL de février'); await p.fill('#o-r-date', '2027-02-09'); await p.fill('#o-r-envoye_le', '2027-02-12'); await attendre(80);
+  verifier(/Envoie le compte rendu sous 24 h/.test(await alertes()), 'compte rendu envoyé 3 jours après : pas d\'alerte');
+  await p.fill('#o-r-envoye_le', '2027-02-10'); await attendre(80);
+  verifier(!/sous 24 h/.test(await alertes()), 'compte rendu envoyé le lendemain : alerte');
+  await p.fill('#o-decisions-0-decision', 'Changement n° 7 accepté.');
+  await p.click('[data-action="ajouter-ligne"][data-r="decisions"]'); await attendre(80);
+  verifier(await p.evaluate(() => document.activeElement.id) === 'o-decisions-1-decision', 'le focus n\'est pas sur la 2e décision');
+  await p.fill('#o-decisions-1-decision', 'Changement n° 9 accepté.');
   await p.fill('#o-actions-0-action', 'Signer les commandes.'); await attendre(80);
   al = await alertes();
-  verifier(!/Date de la réunion/.test(al) && /Action 1 \(« Signer les commandes\. »\) : Action sans « qui »/.test(al), 'alertes du compte rendu : ' + al);
-  await p.fill('#o-actions-0-qui', 'Le DAF'); await p.fill('#o-actions-0-quand', '2027-02-12'); await attendre(80);
+  verifier(/Action 1 \(« Signer les commandes\. »\) : Chaque action : un nom et une date/.test(al), 'alertes des actions : ' + al);
+  await p.fill('#o-actions-0-qui', 'Le DAF'); await p.fill('#o-actions-0-quand', '2027-01-10'); await attendre(80);
+  verifier(/Action en retard/.test(await alertes()), 'action en retard (horloge au 15/01/2027) : pas d\'alerte');
+  await p.selectOption('#o-actions-0-fait', 'Oui'); await attendre(80);
   verifier(/Aucune alerte/.test(await alertes()), 'compte rendu : il reste une alerte : ' + await alertes());
   tot = await texte('.o-totaux[data-totaux="actions"]');
-  verifier(/Actions : 1/.test(tot) && /pas encore faites : 1/.test(tot), 'totaux des actions : ' + tot);
+  verifier(/Actions : 1/.test(tot) && /pas encore faites : 0/.test(tot), 'totaux des actions : ' + tot);
   await largeur('compte rendu');
   f = await telecharger('#o-excel'); z = lireZip(f.octets);
-  verifier(z['xl/worksheets/sheet2.xml'] && /<sheet name="Actions"/.test(z['xl/workbook.xml'].data.toString('utf8')) &&
-    /Changement n° 9 accepté/.test(z['xl/worksheets/sheet1.xml'].data.toString('utf8')), 'compte rendu en Excel : une feuille de rubriques et une feuille « Actions »');
+  verifier(((z['xl/workbook.xml'] || { data: '' }).data.toString('utf8').match(/<sheet name="[^"]+"/g) || []).join() ===
+    '<sheet name="Compte rendu de réunion",<sheet name="Décisions",<sheet name="Actions",<sheet name="Points ouverts"', 'compte rendu en Excel : 4 feuilles');
   await p.click('#o-copier'); await attendre();
   copie = await p.evaluate(() => window.__copie) || {};
-  verifier(/Décisions\n- Changement n° 7 accepté\.\n- Changement n° 9 accepté\./.test(copie['text/plain'] || ''), 'copie du compte rendu : ' + (copie['text/plain'] || '').slice(0, 200));
+  verifier(/Décision 2\n- Décision : Changement n° 9 accepté\./.test(copie['text/plain'] || '') && /Actions pas encore faites : 0/.test(copie['text/plain'] || ''),
+    'copie du compte rendu : ' + (copie['text/plain'] || '').slice(0, 200));
 
-  // 17. Les cours : « Les outils de ce cours » en bas de cp07 et cp17 ; rien sur un cours sans outil
+  // 17. Le rapport : la météo (4 axes déjà écrits, couleur d'un choix, météo globale avec son mot) et les jalons, dont le
+  //     reste de tolérance lit la rubrique « Tolérance » (changée : les calculs se refont tout de suite)
+  await aller('#/outils/gp-rapport'); await p.click('#o-nouveau'); await attendre();
+  const axes = await p.$$eval('[data-r="meteo"][data-c="axe"]', xs => xs.map(x => x.value));
+  verifier(axes.join('|') === 'Délai|Budget|Périmètre|Qualité et risques' && await p.inputValue('#o-r-tolerance') === '14', 'rapport neuf : axes ' + axes.join('|'));
+  await p.selectOption('#o-meteo-0-couleur', '3'); await p.selectOption('#o-meteo-1-couleur', '1'); await attendre(80);
+  verifier(/o-c-ko/.test(await p.getAttribute('#o-meteo-0-couleur', 'class')) && /o-c-ok/.test(await p.getAttribute('#o-meteo-1-couleur', 'class')), 'couleur d\'un choix');
+  tot = await p.evaluate(() => { const z = document.querySelector('.o-totaux[data-totaux="meteo"]'); return { t: z.textContent, ko: !!z.querySelector('.o-niveau.o-ko') }; });
+  verifier(/l'axe le plus mauvais : 3 Rouge/.test(tot.t) && tot.ko, 'météo globale : ' + JSON.stringify(tot));
+  al = await alertes();
+  verifier(/Rouge : le sponsor doit décider/.test(al) && /Orange ou rouge : écris la cause/.test(al), 'alertes de la météo : ' + al);
+  await p.fill('#o-jalons-0-jalon', 'PV de recette signé'); await p.fill('#o-jalons-0-prevu', '2027-04-30'); await p.fill('#o-jalons-0-prevision', '2027-05-07'); await attendre(80);
+  n = await calc('#o-editeur tr[data-r="jalons"][data-l="0"] .o-t-calcul:last-child .o-calc');
+  verifier(n.t === '7 Dans la tolérance' && /o-ok/.test(n.cl), 'reste de tolérance : ' + JSON.stringify(n));
+  await p.fill('#o-r-tolerance', '5'); await attendre(80);
+  n = await calc('#o-editeur tr[data-r="jalons"][data-l="0"] .o-t-calcul:last-child .o-calc');
+  verifier(n.t === '-2 Hors tolérance' && /o-ko/.test(n.cl) && /Jalon hors tolérance/.test(await alertes()), 'tolérance changée à 5 jours : ' + JSON.stringify(n));
+  await largeur('rapport');
+
+  // 18. Le budget : un total lu par le document (atterrissage au-dessus du plafond)
+  await aller('#/outils/gp-budget/exemple');
+  tot = await texte('.o-totaux[data-totaux="postes"]');
+  verifier(/Engagé \(€\) : 81\s100/.test(tot) && /Consommé \(€\) : 30\s350/.test(tot) && /Atterrissage \(€\) : 87\s500/.test(tot) && /Écart \(€\) : 2\s250/.test(tot) &&
+    /Aucune alerte/.test(await alertes()), 'budget de l\'exemple : ' + tot);
+  await p.click('#o-depuis-exemple'); await attendre();
+  await p.fill('#o-r-plafond', '85000'); await attendre(80);
+  verifier(/L'atterrissage dépasse le plafond/.test(await alertes()), 'atterrissage au-dessus du plafond : pas d\'alerte du document');
+
+  // 19. Les 12 outils : la page, l'exemple (sans débordement à 390 px) et son fichier Excel (un zip, avec des formules)
+  for (const id of OUTILS) {
+    await aller('#/outils/' + id + '/exemple');
+    verifier(await p.$('#o-editeur') && !(await p.$('#o-editeur input, #o-editeur textarea, #o-editeur select')), id + ' : exemple en lecture');
+    await largeur(id + ' (exemple)');
+    f = await telecharger('#o-excel');
+    try {
+      z = lireZip(f.octets);
+      const formules = Object.keys(z).filter(k => /worksheets/.test(k)).some(k => /<f[ >]/.test(z[k].data.toString('utf8')));
+      verifier(f.octets.slice(0, 4).toString('hex') === '504b0304' && z['xl/workbook.xml'] && formules, id + ' : fichier Excel sans formule');
+    } catch (e) { verifier(false, id + ' : Excel illisible ' + e.message); }
+  }
+  await aller('#/outils/gp-recette/exemple');
+  const couleurs = await p.$$eval('.o-t-choix .o-niveau', xs => xs.map(x => x.className.replace('o-niveau ', '') + ' ' + x.textContent));
+  verifier(couleurs.indexOf('o-ko Anomalie') >= 0 && couleurs.indexOf('o-ok OK') >= 0 && couleurs.indexOf('o-attention Mineure') >= 0, 'recette : couleurs des choix ' + couleurs.slice(0, 6).join(', '));
+  verifier((await alertes()).split('Pas de PV').length - 1 === 4, 'recette : les 4 alertes « Pas de PV » de l\'exemple');
+
+  // 20. Les cours : « Les outils de ce cours » en bas des cours ; rien sur un cours sans outil
   await aller('#/cours/cp07');
   verifier(/Les outils de ce cours/.test(await texte('#app')) && await p.$('#app a.o-carte[href="#/outils/gp-risques"]'), 'cp07 sans ses outils');
   await aller('#/cours/cp17');
-  verifier(await p.$('#app a.o-carte[href="#/outils/gp-compte-rendu"]') && !(await p.$('#app a.o-carte[href="#/outils/gp-risques"]')), 'cp17 : outils');
+  verifier(await p.$('#app a.o-carte[href="#/outils/gp-compte-rendu"]') && await p.$('#app a.o-carte[href="#/outils/gp-options"]') &&
+    !(await p.$('#app a.o-carte[href="#/outils/gp-risques"]')), 'cp17 : outils');
   await aller('#/cours/cp01');
   verifier(!/Les outils de ce cours/.test(await texte('#app')), 'cp01 affiche des outils');
   await largeur('cours cp07');
 
-  // 18. Sur PC (1280 px) : un tableau classique ; retour au téléphone : les cartes reviennent
+  // 21. Sur PC (1280 px) : un tableau classique ; retour au téléphone : les cartes reviennent
   await p.setViewportSize({ width: 1280, height: 900 });
   await aller(docRisques); await attendre(200);
   const pc = await p.evaluate(() => ({ cartes: document.querySelectorAll('.o-zone.o-cartes').length, thead: getComputedStyle(document.querySelector('.o-table thead')).display,
@@ -374,7 +433,7 @@ const racine = path.join(__dirname, '..', '..');
   await p.setViewportSize({ width: 390, height: 844 }); await attendre(200);
   verifier(await p.evaluate(() => !!document.querySelector('.o-zone.o-cartes')), 'retour au téléphone : pas de cartes');
 
-  // 19. Thème sombre : un niveau reste lisible (contraste d'au moins 4,5)
+  // 22. Thème sombre : un niveau reste lisible (contraste d'au moins 4,5)
   await p.emulateMedia({ colorScheme: 'dark' });
   await aller('#/outils/gp-risques/exemple');
   const ratios = await p.evaluate(() => {
@@ -388,9 +447,9 @@ const racine = path.join(__dirname, '..', '..');
   verifier(ratios.every(r => r >= 4.5), 'contraste des niveaux en thème sombre : ' + ratios.join(', '));
   await p.emulateMedia({ colorScheme: 'light' });
 
-  // 20. Rien n'est envoyé : aucun document dans les envois à Supabase
-  verifier(envois.length > 0 && !envois.some(x => /Mon registre|Format de facture|learnsql-outil|Julie connaît/.test(x)), 'un document est parti vers Supabase');
+  // 23. Rien n'est envoyé : aucun document dans les envois à Supabase
+  verifier(envois.length > 0 && !envois.some(x => /Mon registre|Format de facture|learnsql-outil|seule Julie connaît/.test(x)), 'un document est parti vers Supabase');
 
-  console.log('outils : menu, sujets, 3 types, documents, fichiers, Excel, copie, impression, cours, téléphone et PC');
+  console.log('outils : menu, sujets, 3 types, ajouts du moteur, documents, fichiers, Excel des 12 outils, copie, impression, cours, téléphone et PC');
   console.log('errors', errs); await b.close();
 })();

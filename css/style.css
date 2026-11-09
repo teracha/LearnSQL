@@ -383,6 +383,19 @@ main.large { max-width: 1600px; }
 .o-ko { background: var(--ko-soft); color: var(--ko); }
 .o-neutre { background: var(--code-bg); color: var(--muted); }
 .o-calc { font-weight: 700; }
+/* Un choix qui a une couleur (couleurs: [...]) : la liste prend sa couleur, le mot reste écrit dedans */
+.o-ecran select.o-c-ok { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+.o-ecran select.o-c-attention { border-color: var(--warn); background: var(--warn-soft); color: var(--warn); font-weight: 700; }
+.o-ecran select.o-c-ko { border-color: var(--ko); background: var(--ko-soft); color: var(--ko); font-weight: 700; }
+.o-ecran select.o-c-neutre { border-color: var(--muted); }
+.o-aide-totaux { margin: 0 0 14px; font-size: 16px; }
+.o-champ .o-aide { margin: 0 0 6px; font-size: 16px; }
+.o-aides { margin: 4px 0 8px; font-size: 16px; }
+.o-aides summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+.o-aides ul { margin: 6px 0 0; padding-left: 20px; }
+.o-aides li { margin-bottom: 4px; }
+ul.o-legende { margin: 0 0 10px; padding-left: 20px; }
+ul.o-legende li { margin-bottom: 2px; }
 .o-marque { display: inline-block; background: var(--ko-soft); color: var(--ko); font-weight: 700; font-size: 14px; padding: 0 8px; border-radius: 99px; }
 .o-marque[hidden] { display: none; }
 .o-totaux { margin: 6px 0 14px; }
