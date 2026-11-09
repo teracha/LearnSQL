@@ -6,16 +6,16 @@ LEARNSQL.cours.dv01 = {
   sections: [
     {
       titre: "Du devis à la commande : la transformation",
-      exemple: "Le magasin AquaBleu accepte le devis D-500 : pompe, liner, filtre. Tu fais « Valider en commande ».\n- Pompe à 10 → elle passe sur la commande.\n- Liner à 0 → il reste en reliquat sur le devis.\n- Filtre supprimé → il disparaît du devis ET de la commande.\n- Robot ajouté → il va seulement sur la commande.",
+      exemple: "Le magasin AquaBleu accepte le devis D-500 : pompe, liner, filtre. Tu fais « Valider en commande ».\n- Pompe à 10 → elle passe sur la commande.\n- Liner à 0 → il reste en reliquat sur le devis.\n- Filtre supprimé, si le dossier le permet → il disparaît du devis ET de la commande.\n- Robot ajouté → il va seulement sur la commande.",
       points: [
         "Menu `Validation` > « Valider en commande », depuis la saisie des devis. Un devis peut aussi aller directement en BL, ou même en facture.",
         "En transformation, on travaille sur les 2 pièces en même temps : celle d'origine et la nouvelle.",
         "Quantité à 0 = la ligne n'est pas transformée. Elle reste en reliquat sur la pièce d'origine (si les reliquats sont gérés pour cette pièce).",
-        "Supprimer une ligne = elle est supprimée sur les 2 pièces (avec confirmation). Ajouter une ligne = elle va seulement sur la nouvelle pièce.",
+        "Supprimer une ligne : interdit par défaut. Si le dossier l'autorise (paramètre « Autoriser la suppression de mouvement en validation de pièce »), elle est supprimée sur les 2 pièces, après confirmation. Sinon, mets sa quantité à 0. Ajouter une ligne = elle va seulement sur la nouvelle pièce.",
         "Sur une ligne : clic droit sur la quantité = stock et disponible de l'article. `Ctrl+R` = texte de ligne, `Ctrl+N` = note de ligne, `Ctrl+D` = libellé complémentaire.",
         "Adresse « Manuelle » = saisie libre, pour cette pièce seulement (ex. : livrer le client de votre client). Autres types : Codifiée, ou « Identique à » (devis, commande, BL, facture), qui reprend une adresse déjà saisie en manuel."
       ],
-      retenir: "En transformation : 0 = reliquat, supprimer = sur les 2 pièces, ajouter = sur la nouvelle seulement.",
+      retenir: "En transformation : 0 = reliquat ; supprimer, si le dossier l'autorise = sur les 2 pièces ; ajouter = sur la nouvelle seulement.",
       source: { titre: "Création d'une commande de vente", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704712833/Cr+ation+d+une+commande+de+vente" }
     },
     {
