@@ -43,7 +43,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           impact: "+ 7 jours d'intégrateur, 5 250 € ; référence 85 250 €.", trace: "Compte rendu" },
         { date: "2027-03-09", decision: "Avenant d'archivage : 50 € par mois, d'avril 2027 à novembre 2029, payé sur la réserve.", qui: "Le DAF", lieu: "COPIL",
           impact: "+ 1 600 € engagés ; réserve 6 400 €.", trace: "Compte rendu" },
-        { date: "2027-03-29", decision: "Commande de 3 jours d'intégrateur (flux EDI sous-estimés).", qui: "Le DAF", lieu: "Téléphone",
+        { date: "2027-03-30", decision: "Commande de 3 jours d'intégrateur (flux EDI sous-estimés).", qui: "Le DAF", lieu: "Téléphone",
           impact: "+ 2 250 € ; atterrissage 87 500 €, sous 90 k€.", trace: "Écrit (mail)" },
         { date: "2027-04-09", decision: "Signataire du PV fournisseurs désigné pendant le congé de la cheffe comptable (pas Julie).",
           qui: "La cheffe comptable (A du PV)", lieu: "Mail", impact: "RACI mis à jour du 12 au 30 avril.", trace: "Écrit (mail)" },

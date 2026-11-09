@@ -17,7 +17,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Donne une couleur à chacun des 4 axes, d'après les seuils, pas d'après l'humeur.",
       "Reporte les jalons, les 5 plus gros risques et la ligne budget, puis envoie. Duplique le rapport le mois suivant."
     ],
-    cours: ["cp08", "cp09"],
+    cours: ["cp08", "cp09", "cp05"],
     type: "document",
     rubriques: [
       { id: "copil", titre: "COPIL du", type: "date" },
@@ -105,7 +105,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
         decisions: [
           { question: "Un intérimaire pour la recette, 2 semaines : oui ou non ?",
             prix: "Environ 4 000 €, payés sur la réserve (il resterait 2 400 €). Sans lui : PV prévu le 7 mai, dans la tolérance.",
-            recommandation: "Non pour l'instant. On revoit si la prévision du PV passe le 14 mai.", quand: "2027-04-13" }
+            recommandation: "Oui : le PV revient vers le 30 avril, et le pilote démarre le 3 mai, comme prévu.", quand: "2027-04-13" }
         ],
         meteo: [
           { axe: "Délai", couleur: 2, pourquoi: "Flux EDI en retard (1 fini sur 3 prévus) et recette lente : PV prévu le 7 mai au lieu du 30 avril, dans la tolérance.",

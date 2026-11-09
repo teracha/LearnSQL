@@ -14,7 +14,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Écris les décisions, puis les actions : chacune avec un nom et une date.",
       "Un « peut-être » va en point ouvert : ce qui manque, qui l'apporte, pour quand."
     ],
-    cours: ["cp09", "cp17"],
+    cours: ["cp09", "cp17", "cp15"],
     type: "document",
     rubriques: [
       { id: "reunion", titre: "Réunion", type: "texte", aide: "COPIL, point projet, comité fournisseur…" },

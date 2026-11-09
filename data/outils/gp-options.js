@@ -15,7 +15,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Donne les faits, puis 2 ou 3 options, dont « Ne rien changer » quand c'est possible, chacune avec son prix.",
       "Recommande une option, en une ligne, avec sa raison. Le décideur choisit."
     ],
-    cours: ["cp03", "cp17", "cp18"],
+    cours: ["cp03", "cp17", "cp18", "cp16", "cp10"],
     type: "document",
     rubriques: [
       { id: "decision", titre: "Décision attendue", type: "texte", aide: "La question à trancher : oui ou non, A ou B." },
@@ -43,7 +43,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
     alertes: [
       { si: "options vide", message: "Écris 2 ou 3 options, dont « Ne rien changer » quand c'est possible." },
       { si: "nb_options = 1", message: "Une seule option : ce n'est pas un choix. Donne 2 ou 3 options." },
-      { si: "nb_options > 3", message: "Plus de 3 options : garde les 2 ou 3 meilleures." },
+      { si: "nb_options > 3", message: "Plus de 3 options : garde-en 2 ou 3, dont « Ne rien changer » quand c'est possible." },
       { si: "recommandation vide", message: "Écris ta recommandation, en une ligne, avec sa raison." },
       { si: "quand vide", message: "Donne une date limite." }
     ],

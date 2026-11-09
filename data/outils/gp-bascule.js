@@ -16,7 +16,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Écris le plan heure par heure (qui, quel contrôle, quoi faire si ça échoue) et le retour arrière. Répète-les.",
       "Le jour J, compare chaque critère à sa preuve, sans le réécrire. Puis recommande : go, go sous conditions ou no-go."
     ],
-    cours: ["cp21"],
+    cours: ["cp21", "cp20"],
     type: "document",
     rubriques: [
       { id: "bascule", titre: "Bascule", type: "texte", aide: "La date, ce qui bascule." },

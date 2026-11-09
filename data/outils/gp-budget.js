@@ -17,7 +17,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Chaque mois : l'engagé, le consommé, et le reste à faire estimé tâche par tâche.",
       "Lis l'atterrissage et l'écart. Un écart se dit tôt, avec sa cause et des options."
     ],
-    cours: ["cp12"],
+    cours: ["cp12", "cp15"],
     type: "document",
     rubriques: [
       { id: "projet", titre: "Projet", type: "texte" },
@@ -72,7 +72,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
             cause: "Avenant d'archivage (32 mois × 50 €), payé sur la réserve : décision du DAF." },
           { poste: "Intégrateur : commande de base (40 jours)", reference: 30000, engage: 30000, consomme: 18000, reste: 12000, cause: "" },
           { poste: "Intégrateur : changements n° 7 et n° 9 (7 jours)", reference: 5250, engage: 5250, consomme: 5250, reste: 0, cause: "" },
-          { poste: "Intégrateur : commande de 3 jours (29 mars)", reference: 0, engage: 2250, consomme: 0, reste: 2250,
+          { poste: "Intégrateur : commande de 3 jours (30 mars)", reference: 0, engage: 2250, consomme: 0, reste: 2250,
             cause: "Flux EDI sous-estimés : 43 jours au lieu de 40. Commande signée par le DAF." },
           { poste: "Formation et tests", reference: 4000, engage: 4000, consomme: 0, reste: 4000, cause: "" },
           { poste: "Réserve pour risques", reference: 8000, engage: 0, consomme: 0, reste: 6400, cause: "1 600 € pris pour l'archivage." }

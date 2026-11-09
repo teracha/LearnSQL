@@ -426,12 +426,12 @@ change une règle doit faire vérifier ses outils (`data/outils/gp-*.js`).
 | Note de cadrage (`gp-cadrage`) | document | cp04, cp06 |
 | Registre des risques (`gp-risques`) | tableau | cp07, cp08 |
 | Matrice RACI (`gp-raci`) | matrice | cp09 |
-| Compte rendu de réunion (`gp-compte-rendu`) | document | cp09, cp17 |
-| Rapport du COPIL et météo (`gp-rapport`) | document | cp08, cp09 |
-| Note de décision : options chiffrées (`gp-options`) | document | cp03, cp17, cp18 |
+| Compte rendu de réunion (`gp-compte-rendu`) | document | cp09, cp17, cp15 |
+| Rapport du COPIL et météo (`gp-rapport`) | document | cp08, cp09, cp05 |
+| Note de décision : options chiffrées (`gp-options`) | document | cp03, cp17, cp18, cp16, cp10 |
 | Registre des décisions (`gp-decisions`) | tableau | cp09 |
 | Registre des changements (`gp-changements`) | tableau | cp10 |
-| Suivi du budget (`gp-budget`) | document | cp12 |
+| Suivi du budget (`gp-budget`) | document | cp12, cp15 |
 | Business case : le coût sur 3 ans (`gp-business-case`) | document | cp11 |
 | Cahier de recette (`gp-recette`) | document | cp19, cp08 |
-| Go / no-go et plan de bascule (`gp-bascule`) | document | cp21 |
+| Go / no-go et plan de bascule (`gp-bascule`) | document | cp21, cp20 |
