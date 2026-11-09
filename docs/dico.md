@@ -100,6 +100,8 @@ Sans IA, sans service externe, dans le navigateur :
   (une ou deux lettres de différence, ou même squelette de consonnes : « carreceete » ≈ « caractère »), mot de la
   définition ;
 - les fiches les mieux notées s'affichent ; si aucune ne passe le seuil, les plus proches quand même, avec un message.
+- la recherche ne cherche que dans l'onglet choisi (SQL ou Divalto), avec ses propres poids ; dans l'onglet Divalto, le
+  nom d'un champ (`champs`) compte aussi, moins que le nom de la fiche (« PINO » : la fiche du champ, puis ses tables).
 
 ## Le dico Divalto
 

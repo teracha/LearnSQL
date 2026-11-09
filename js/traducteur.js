@@ -2213,11 +2213,13 @@
   function CODE(t) { return "\u0002" + court(t, 80) + "\u0003"; }
 
   var indexDicoCache = null, indexDicoTaille = -1;
+  // Seulement les fiches SQL : les fiches du dico Divalto (domaine: "divalto") sont réservées au parcours Divalto.
   function indexDico() {
     var fiches = L.dico || [];
     if (indexDicoCache && indexDicoTaille === fiches.length) return indexDicoCache;
     var ix = {};
     fiches.forEach(function (f) {
+      if (f.domaine === "divalto") return;
       [f.nom].concat(f.noms || []).forEach(function (n) {
         var k = compact(n).toUpperCase();
         (ix[k] = ix[k] || []).push(f);

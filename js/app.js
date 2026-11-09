@@ -1285,22 +1285,29 @@
   // ---------- Super dico SQL (docs/dico.md) ----------
   // Recherche sans IA, dans le navigateur : mots vides retirés, racines, fautes tolérées (distance d'édition,
   // squelette de consonnes). Ouvert à tous, sans compte.
+  // Deux onglets : « SQL » (fiches sans domaine) et « Divalto » (domaine: "divalto"), ce dernier seulement pour les
+  // comptes qui ont le parcours Divalto (masquage d'écran). La recherche ne cherche que dans l'onglet choisi.
   var DICO_MOTEUR_KEY = "learnsql-dico-moteur";
+  var DICO_DOMAINE_KEY = "learnsql-dico-domaine";
   var DICO_MOTEURS = [
     { id: "tous", nom: "Tous" },
     { id: "sqlserver", nom: "SQL Server" },
     { id: "snowflake", nom: "Snowflake" },
     { id: "mysql", nom: "MySQL" }
   ];
+  var DICO_DOMAINES = [{ id: "sql", nom: "SQL" }, { id: "divalto", nom: "Divalto" }];
+  // Les thèmes du dico Divalto, dans cet ordre (le dico SQL range les siens par ordre alphabétique).
+  var DICO_CATEGORIES_DIVALTO = ["Tables Divalto", "Champs Divalto", "Vues Divalto", "Requêtes Dataviz"];
   var DICO_MOTS_VIDES = {};
   ("je j tu il elle on nous vous veux voudrais voudrai aimerais aimerai faire fait faut peux peut dois doit comment " +
    "quel quelle quels quelles est c ce cet cette ces que qu qui quoi un une des du de d la le les l au aux a et ou " +
    "sur dans pour par avec sans mon ma mes ton ta tes son sa ses en y ne pas sql requete requetes fonction fonctions " +
    "comme moi me te se ca cela ceci svp stp").split(" ").forEach(function (m) { DICO_MOTS_VIDES[m] = true; });
   var DICO_SUFFIXES = ["ement", "ation", "able", "euse", "eur", "ent", "ez", "er", "ir", "e"];
-  var dicoIndex = null;
-  var dicoMotsConnus = {};  // les racines de tous les mots-clés : un mot connu (« valeurs ») n'est pas un nom mal tapé (« values »)
-  var dicoQuestion = "";   // la dernière recherche, gardée quand on ouvre une fiche
+  var DICO_POIDS_CHAMP = 60;   // dico Divalto : un champ de la fiche (« PINO » → les tables qui l'ont), moins fort que son nom
+  var dicoIndex = {};       // un index par domaine (« sql », « divalto ») : les deux dicos ne se mêlent pas
+  var dicoMotsConnus = {};  // par domaine, les racines de tous les mots-clés : un mot connu (« valeurs ») n'est pas un nom mal tapé (« values »)
+  var dicoQuestion = "";   // la dernière recherche, gardée quand on ouvre une fiche (et quand on change d'onglet)
 
   function sansAccents(t) {
     t = String(t).toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae");
@@ -1335,9 +1342,25 @@
     return prec[b.length];
   }
 
-  function indexDico() {
-    if (dicoIndex) return dicoIndex;
-    dicoIndex = (DATA.dico || []).map(function (f) {
+  // Le domaine d'une fiche : « divalto », ou « sql » (pas de domaine).
+  function domaineFiche(f) { return f.domaine === "divalto" ? "divalto" : "sql"; }
+  // Le nom d'un champ, pour la recherche (« ART.REF » → « art ref ») ; vide s'il n'a que des mots vides.
+  function cleChamp(nom) {
+    var mots = motsDe(nom || "");
+    return mots.some(function (m) { return !DICO_MOTS_VIDES[m]; }) ? mots.join(" ") : "";
+  }
+  function nomsChamps(f) {
+    var vus = {};
+    (f.champs || []).forEach(function (c) { var k = Array.isArray(c) ? cleChamp(c[0]) : ""; if (k) vus[k] = true; });
+    return Object.keys(vus);
+  }
+
+  // L'index d'un domaine (« sql » par défaut) : seulement ses fiches. Refait quand des fiches sont ajoutées.
+  function indexDico(domaine) {
+    domaine = domaine || "sql";
+    var toutes = DATA.dico || [];
+    if (dicoIndex[domaine] && dicoIndex[domaine].taille === toutes.length) return dicoIndex[domaine].liste;
+    var liste = toutes.filter(function (f) { return domaineFiche(f) === domaine; }).map(function (f) {
       var noms = [f.nom].concat(f.noms || []);
       var cles = {}, def = {}, motsNoms = {};
       var expressions = [], phrasesCles = [];
@@ -1364,30 +1387,35 @@
         squelettes: listeCles.map(squelette),
         expressions: expressions,
         phrasesCles: phrasesCles,
-        def: def
+        def: def,
+        champs: domaine === "divalto" ? nomsChamps(f) : []
       };
     });
     // Un mot-clé rare (« aujourd ») compte plus qu'un mot-clé que beaucoup de fiches partagent (« date »).
-    var freq = {};
-    dicoIndex.forEach(function (x) { x.cles.forEach(function (k) { freq[k] = (freq[k] || 0) + 1; dicoMotsConnus[k] = true; }); });
-    dicoIndex.forEach(function (x) {
+    var freq = {}, connus = {};
+    liste.forEach(function (x) { x.cles.forEach(function (k) { freq[k] = (freq[k] || 0) + 1; connus[k] = true; }); });
+    liste.forEach(function (x) {
       x.poids = x.cles.map(function (k) { var n = freq[k]; return n <= 2 ? 45 : n <= 5 ? 40 : n <= 10 ? 32 : 25; });
     });
-    return dicoIndex;
+    dicoIndex[domaine] = { taille: toutes.length, liste: liste };
+    dicoMotsConnus[domaine] = connus;
+    return liste;
   }
 
   // Le mot m désigne-t-il le nom de la fiche ? Le nom exact, son début (« coal »), ou une faute (« coalese »).
-  function bonusNom(m, x, seul) {
+  function bonusNom(m, x, seul, connus) {
     var b = 0;
     x.motsNoms.forEach(function (n) {
       if (n === m || ((m.length >= 4 || (seul && m.length === 3)) && n.indexOf(m) === 0)) b = Math.max(b, 120);
-      else if (m.length >= 5 && !dicoMotsConnus[racine(m)] && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) b = Math.max(b, 100);
+      else if (m.length >= 5 && !connus[racine(m)] && distance(m, n, 2) <= (m.length >= 7 ? 2 : 1)) b = Math.max(b, 100);
     });
     return b;
   }
 
-  // Note chaque fiche pour la question ; renvoie [{ fiche, score }], du plus proche au moins proche.
-  function chercherDico(question) {
+  // Note chaque fiche du domaine (« sql » par défaut) pour la question ; renvoie [{ fiche, score }], du plus proche
+  // au moins proche.
+  function chercherDico(question, domaine) {
+    domaine = domaine || "sql";
     var brut = sansAccents(question).replace(/\s+/g, " ").trim();
     if (!brut) return [];
     var mots = motsDe(brut);
@@ -1396,24 +1424,27 @@
     if (!utiles.length) utiles = mots;
     var racines = {};
     utiles.forEach(function (m) { racines[racine(m)] = true; });
-    var index = indexDico();
+    var index = indexDico(domaine), connus = dicoMotsConnus[domaine];
     // Un mot qui touche le nom de beaucoup de fiches (« date ») ne départage rien : petit bonus.
     var combien = {};
     var seul = utiles.length === 1;   // un seul mot : « coa » peut être le début d'un nom
-    utiles.forEach(function (m) { combien[m] = index.filter(function (x) { return bonusNom(m, x, seul) > 0; }).length; });
+    utiles.forEach(function (m) { combien[m] = index.filter(function (x) { return bonusNom(m, x, seul, connus) > 0; }).length; });
     return index.map(function (x) {
       var score = 0;
       if (x.brut.indexOf(brut) >= 0) score += 1000;                       // le nom tapé tel quel (%, ||, ::…)
       x.phrases.forEach(function (p) {                                     // un nom présent dans la question
         if (phrase.indexOf(" " + p + " ") < 0) return;
         // Un nom d'un seul mot qui est aussi un mot courant (« date », « case ») ne compte fort que tapé seul.
-        if (p.indexOf(" ") < 0 && utiles.length > 1 && dicoMotsConnus[racine(p)]) score += 40;
+        if (p.indexOf(" ") < 0 && utiles.length > 1 && connus[racine(p)]) score += 40;
         else score += 400 + p.length;
       });
+      // Dico Divalto : un champ de la fiche (« PINO » → les tables qui ont ce champ), moins fort que son nom.
+      var nbChamps = x.champs.filter(function (c) { return phrase.indexOf(" " + c + " ") >= 0; }).length;
+      score += Math.min(nbChamps, 2) * DICO_POIDS_CHAMP;
       utiles.forEach(function (m) {
-        var b = bonusNom(m, x, seul);
+        var b = bonusNom(m, x, seul, connus);
         // Fort si le mot désigne peu de fiches et n'est pas un mot courant noyé dans une phrase (« case vide »).
-        if (b) score += combien[m] <= 2 && (seul || !dicoMotsConnus[racine(m)]) ? b : 15;
+        if (b) score += combien[m] <= 2 && (seul || !connus[racine(m)]) ? b : 15;
         var r = racine(m), meilleur = 0;
         var tol = r.length >= 7 ? 2 : (r.length >= 4 ? 1 : 0), sq = squelette(r);
         for (var i = 0; i < x.cles.length; i++) {
@@ -1479,58 +1510,147 @@
       return '<dt>' + esc(nomMoteur(m)) + '</dt><dd>' + fmt((f.moteurs || {})[m] || "—") + '</dd>';
     }).join('') + '</dl>';
   }
-  function carteFiche(f, moteur) {
-    return '<a class="card fiche-res" href="#/dico/' + encodeURIComponent(f.id) + '"><div class="fiche-tete"><strong>' +
+  // Une requête Dataviz a un titre, pas un nom de code : police normale.
+  function classeTitre(f) { return f.type === "requête" ? " titre" : ""; }
+  function carteFiche(f, moteur, q) {
+    var dv = domaineFiche(f) === "divalto";
+    return '<a class="card fiche-res" href="#/dico/' + encodeURIComponent(f.id) + '"><div class="fiche-tete"><strong' +
+      (dv && classeTitre(f) ? ' class="titre"' : '') + '>' +
       esc(f.nom) + '</strong><span class="tag">' + esc(f.type) + '</span><span class="tag">' + esc(f.categorie) +
-      '</span></div><p>' + fmt(f.definition) + '</p>' + syntaxeFiche(f, moteur) + '</a>';
+      '</span></div><p>' + fmt(f.definition) + '</p>' + (dv ? champsCites(f, q) : syntaxeFiche(f, moteur)) + '</a>';
+  }
+  // Fiche Divalto trouvée par un de ses champs : la carte montre ce champ (« PINO : le numéro de la pièce »).
+  function champsCites(f, q) {
+    var phrase = " " + motsDe(q || "").join(" ") + " ";
+    return (f.champs || []).filter(function (c) {
+      var k = Array.isArray(c) ? cleChamp(c[0]) : "";
+      return k && phrase.indexOf(" " + k + " ") >= 0;
+    }).slice(0, 3).map(function (c) {
+      return '<p class="muted">Champ <code>' + esc(c[0]) + '</code> : ' + fmt(c[1] || "") + '</p>';
+    }).join('');
   }
   function parNom(a, b) { return a.nom.localeCompare(b.nom); }
+  // Les thèmes à parcourir : SQL par ordre alphabétique, Divalto dans l'ordre de DICO_CATEGORIES_DIVALTO.
+  function ordreCategories(cats, dv) {
+    if (!dv) return cats.sort();
+    var rang = function (c) { var i = DICO_CATEGORIES_DIVALTO.indexOf(c); return i < 0 ? 99 : i; };
+    return cats.sort(function (a, b) { return rang(a) - rang(b) || a.localeCompare(b); });
+  }
 
-  function resultatsDico(q, moteur) {
-    var fiches = DATA.dico || [];
+  function resultatsDico(q, moteur, domaine) {
+    var dv = domaine === "divalto";
+    var fiches = (DATA.dico || []).filter(function (f) { return domaineFiche(f) === (dv ? "divalto" : "sql"); });
     q = String(q).trim();
+    if (dv && !fiches.length) return '<p class="muted">Le dico Divalto n\'a pas encore de fiche.</p>';
     if (!q) {
       var cats = {};
       fiches.forEach(function (f) { (cats[f.categorie] = cats[f.categorie] || []).push(f); });
-      return '<p class="muted">' + fiches.length + ' fiches. Tape une question ou un nom, ou parcours par thème :</p>' +
-        Object.keys(cats).sort().map(function (c) {
+      return '<p class="muted">' + fiches.length + (fiches.length > 1 ? ' fiches' : ' fiche') +
+        '. Tape une question ou un nom, ou parcours par thème :</p>' +
+        ordreCategories(Object.keys(cats), dv).map(function (c) {
           return '<h2>' + esc(c) + '</h2><div class="puces">' + cats[c].sort(parNom).map(function (f) {
-            return '<a class="puce" href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a>';
+            return '<a class="puce' + (dv ? classeTitre(f) : '') + '" href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a>';
           }).join('') + '</div>';
         }).join('');
     }
-    var r = chercherDico(q);
+    var r = chercherDico(q, dv ? "divalto" : "sql");
     var bons = r.filter(function (x) { return x.score >= 25; }).slice(0, 8);
-    if (bons.length) return bons.map(function (x) { return carteFiche(x.fiche, moteur); }).join('');
+    if (bons.length) return bons.map(function (x) { return carteFiche(x.fiche, moteur, q); }).join('');
     if (r.length) return '<p>Pas de fiche sûre pour « ' + esc(q) + ' ». Les plus proches :</p>' +
-      r.slice(0, 5).map(function (x) { return carteFiche(x.fiche, moteur); }).join('');
-    return '<p>Aucune fiche ne correspond à « ' + esc(q) + ' ». Essaie un autre mot : un verbe (chercher, enlever, ' +
-      'arrondir…) ou un nom de fonction.</p>';
+      r.slice(0, 5).map(function (x) { return carteFiche(x.fiche, moteur, q); }).join('');
+    return '<p>Aucune fiche ne correspond à « ' + esc(q) + ' ». Essaie un autre mot : ' + (dv ?
+      'un nom de table ou de champ (MOUV, PINO…), ou ce que tu cherches (lignes de commande…).' :
+      'un verbe (chercher, enlever, arrondir…) ou un nom de fonction.') + '</p>';
+  }
+
+  // L'onglet Divalto et les fiches Divalto suivent la règle du parcours Divalto (masquage d'écran, comme les parcours).
+  function accesDivalto() { return accesOK(["divalto"]); }
+  // L'onglet choisi, gardé dans le navigateur : « divalto » seulement si le compte a le parcours, sinon « sql ».
+  function dicoDomaine() {
+    var d = "sql";
+    try { d = localStorage.getItem(DICO_DOMAINE_KEY) || "sql"; } catch (e) { /* stockage indisponible */ }
+    return d === "divalto" && accesDivalto() ? "divalto" : "sql";
+  }
+  function ecrireDomaine(d) {
+    try { localStorage.setItem(DICO_DOMAINE_KEY, d); } catch (e) { /* ignoré */ }
+  }
+  function ongletsDico(actif) {
+    return '<div class="onglets" role="tablist" aria-label="Domaine du dico">' + DICO_DOMAINES.map(function (d) {
+      var oui = d.id === actif;
+      return '<button type="button" role="tab" class="onglet' + (oui ? ' actif' : '') + '" id="onglet-' + d.id +
+        '" data-domaine="' + d.id + '" aria-selected="' + oui + '" aria-controls="dico-panneau" tabindex="' + (oui ? '0' : '-1') +
+        '">' + esc(d.nom) + '</button>';
+    }).join('') + '</div>';
+  }
+  // Clic, ou flèches gauche / droite, Début, Fin (comme des onglets) : la page est refaite sur l'autre onglet.
+  function brancherOnglets() {
+    var boutons = Array.prototype.slice.call(app.querySelectorAll(".onglet"));
+    boutons.forEach(function (b, i) {
+      b.addEventListener("click", function () { choisirDomaine(b.getAttribute("data-domaine")); });
+      b.addEventListener("keydown", function (e) {
+        var n = boutons.length, j = e.key === "ArrowRight" ? (i + 1) % n : e.key === "ArrowLeft" ? (i + n - 1) % n :
+          e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+        if (j < 0) return;
+        e.preventDefault();
+        choisirDomaine(boutons[j].getAttribute("data-domaine"));
+      });
+    });
+  }
+  function choisirDomaine(d) {
+    ecrireDomaine(d);
+    afficherDico(true);
+  }
+  // Sur une fiche, « Super dico » et « Nouvelle recherche » ramènent à l'onglet de la fiche.
+  function retourOnglet(domaine) {
+    if (!accesDivalto()) return;
+    Array.prototype.forEach.call(app.querySelectorAll('a[href="#/dico"]'), function (a) {
+      a.addEventListener("click", function () { ecrireDomaine(domaine); });
+    });
   }
 
   function pageDico(id) {
     if (id) { pageFiche(decodeURIComponent(id)); return; }
-    app.innerHTML = '<h1>Super dico SQL</h1>' +
+    afficherDico(false);
+  }
+  // Sans le parcours Divalto, la page n'a pas d'onglets : le dico SQL seul.
+  function afficherDico(focusOnglet) {
+    var onglets = accesDivalto(), domaine = dicoDomaine(), dv = domaine === "divalto";
+    var contenu = (dv ? '<h1>Super dico Divalto</h1>' +
+      '<p class="muted">Tables, champs, vues SQL et requêtes Dataviz de Divalto 10.13. Pose ta question en mots simples ' +
+      '(« lignes de commande »), ou tape un nom (« MOUV », « PINO »). Les fautes de frappe sont tolérées.</p>' :
+      '<h1>Super dico SQL</h1>' +
       '<p class="muted">Pose ta question en mots simples (« enlever les espaces »), ou tape un nom (« COALESCE »). ' +
-      'Les fautes de frappe sont tolérées. Une requête entière à comprendre ? <a href="#/traduire">Traduire une requête</a>.</p>' +
+      'Les fautes de frappe sont tolérées. Une requête entière à comprendre ? <a href="#/traduire">Traduire une requête</a>.</p>') +
       '<div class="dico-recherche"><input type="search" id="dico-q" autocomplete="off" spellcheck="false" ' +
-      'placeholder="Ex. : chercher un caractère, COALESCE…" aria-label="Rechercher dans le dico"></div>' +
-      selecteurMoteurs(dicoMoteur()) + '<div id="dico-res"></div>';
+      (dv ? 'placeholder="Ex. : lignes de commande, MOUV, PINO…" aria-label="Rechercher dans le dico Divalto">' :
+      'placeholder="Ex. : chercher un caractère, COALESCE…" aria-label="Rechercher dans le dico">') + '</div>' +
+      (dv ? '' : selecteurMoteurs(dicoMoteur())) + '<div id="dico-res"></div>';
+    app.innerHTML = onglets ? ongletsDico(domaine) + '<div id="dico-panneau" role="tabpanel" aria-labelledby="onglet-' +
+      domaine + '">' + contenu + '</div>' : contenu;
     var champ = document.getElementById("dico-q"), zone = document.getElementById("dico-res");
     champ.value = dicoQuestion;
-    var maj = function () { dicoQuestion = champ.value; zone.innerHTML = resultatsDico(champ.value, dicoMoteur()); };
+    var maj = function () { dicoQuestion = champ.value; zone.innerHTML = resultatsDico(champ.value, dicoMoteur(), domaine); };
     champ.addEventListener("input", maj);
     brancherMoteurs(maj);
+    brancherOnglets();
     maj();
-    champ.focus();
+    if (focusOnglet) document.getElementById("onglet-" + domaine).focus();
+    else champ.focus();
+  }
+
+  // « Voir aussi » : les fiches qui existent, sans les fiches Divalto pour qui n'a pas le parcours.
+  function voirAussi(f, parId) {
+    var dv = accesDivalto();
+    return (f.voirAussi || []).filter(function (v) { return parId[v] && (dv || domaineFiche(parId[v]) !== "divalto"); });
   }
 
   function pageFiche(id) {
     var f = (DATA.dico || []).filter(function (x) { return x.id === id; })[0];
     if (!f) { location.hash = "#/dico"; return; }
+    if (domaineFiche(f) === "divalto") { pageFicheDivalto(f); return; }
     var parId = {};
     (DATA.dico || []).forEach(function (x) { parId[x.id] = x; });
-    var voir = (f.voirAussi || []).filter(function (v) { return parId[v]; });
+    var voir = voirAussi(f, parId);
     var mod = f.module && module(f.module) && moduleVisible(f.module) ? module(f.module) : null;
     app.innerHTML = '<p class="muted"><a href="#/dico">Super dico</a> › ' + esc(f.categorie) + '</p>' +
       '<h1 class="fiche-nom">' + esc(f.nom) + '</h1>' +
@@ -1561,6 +1681,68 @@
     };
     brancherMoteurs(rendre);
     rendre();
+    retourOnglet("sql");
+  }
+
+  // Une fiche du dico Divalto (docs/dico.md) : chaque bloc seulement si la fiche a le champ ; pas de moteurs.
+  // Sans le parcours Divalto : un message court, pas le contenu.
+  function pageFicheDivalto(f) {
+    if (!accesDivalto()) {
+      app.innerHTML = '<p class="muted"><a href="#/dico">Super dico</a></p><h1>Fiche réservée</h1>' +
+        '<p>Cette fiche fait partie du dico Divalto, réservé aux comptes qui ont le parcours Divalto.</p>' +
+        '<div class="actions">' + (lireSession() ? '' : '<a class="btn" href="#/compte">Se connecter</a>') +
+        '<a class="btn ghost" href="#/dico">Retour au dico</a></div>';
+      return;
+    }
+    var parId = {};
+    (DATA.dico || []).forEach(function (x) { parId[x.id] = x; });
+    var voir = voirAussi(f, parId);
+    var corps = (f.champs && f.champs.length ? tableChamps(f) : '') +
+      listeFiche("Les liens", f.liens) + listeFiche("Indicateurs", f.indicateurs) + listeFiche("Règles de gestion", f.regles) +
+      (f.exemple ? '<p class="label">Exemple</p><pre class="code">' + esc(f.exemple) + '</pre>' : '') +
+      (f.piege ? '<div class="feedback ko"><p><strong>Le piège :</strong> ' + fmt(f.piege) + '</p></div>' : '') +
+      (f.pratique ? '<div class="feedback pratique"><p><strong>En pratique :</strong> ' + fmt(f.pratique) + '</p></div>' : '');
+    app.innerHTML = '<p class="muted"><a href="#/dico">Super dico</a> › ' + esc(f.categorie) + '</p>' +
+      '<h1 class="fiche-nom' + classeTitre(f) + '">' + esc(f.nom) + '</h1>' +
+      '<div class="tags"><span class="tag">' + esc(f.type) + '</span><span class="tag">' + esc(f.categorie) + '</span></div>' +
+      '<p class="definition">' + fmt(f.definition) + '</p>' +
+      (corps ? '<div class="card fiche-dv" id="fiche-corps">' + corps + '</div>' : '') +
+      (voir.length ? '<h2>Voir aussi</h2><div class="puces">' + voir.map(function (v) {
+        return '<a class="puce' + (domaineFiche(parId[v]) === "divalto" ? classeTitre(parId[v]) : '') + '" href="#/dico/' +
+          encodeURIComponent(v) + '">' + esc(parId[v].nom) + '</a>';
+      }).join('') + '</div>' : '') +
+      (f.version ? '<p class="muted"><strong>Version :</strong> ' + fmt(f.version) + '</p>' : '') +
+      sourcesFiche(f) +
+      '<div class="actions"><a class="btn ghost" href="#/dico">Nouvelle recherche</a></div>';
+    retourOnglet("divalto");
+  }
+  // Le tableau « Les champs » (champ | sens) ; un champ qui a sa propre fiche Divalto devient un lien vers elle.
+  function tableChamps(f) {
+    var fiches = {};
+    (DATA.dico || []).forEach(function (x) {
+      if (x !== f && domaineFiche(x) === "divalto" && x.type === "champ") fiches[sansAccents(x.nom)] = x.id;
+    });
+    return '<p class="label">Les champs</p><table class="champs"><thead><tr><th>Champ</th><th>Sens</th></tr></thead><tbody>' +
+      f.champs.map(function (c) {
+        c = Array.isArray(c) ? c : [String(c), ""];
+        var nom = '<code>' + esc(c[0]) + '</code>', id = fiches[sansAccents(c[0])];
+        return '<tr><td>' + (id ? '<a href="#/dico/' + encodeURIComponent(id) + '">' + nom + '</a>' : nom) + '</td><td>' +
+          fmt(c[1] || "") + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+  function listeFiche(titre, l) {
+    if (!l || !l.length) return '';
+    return '<p class="label">' + esc(titre) + '</p><ul class="points">' + l.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul>';
+  }
+  // La source (comme les questions Divalto) : `source`, ou `sources` (1 à 3 pages). Un lien seulement en https.
+  function sourcesFiche(f) {
+    var l = (Array.isArray(f.sources) && f.sources.length ? f.sources : f.source ? [f.source] : []).filter(function (s) { return s && s.titre; });
+    var lien = function (s) {
+      return /^https:\/\//.test(s.url || "") ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.titre) + '</a>' : esc(s.titre);
+    };
+    if (!l.length) return '';
+    if (l.length === 1) return '<p class="muted">Source : ' + lien(l[0]) + '</p>';
+    return '<p class="muted">Sources :</p><ul class="points">' + l.map(function (s) { return '<li>' + lien(s) + '</li>'; }).join('') + '</ul>';
   }
 
   // ---------- Traduire une requête (docs/traducteur.md) ----------

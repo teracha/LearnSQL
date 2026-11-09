@@ -135,6 +135,9 @@ Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. S
 - Champ `pratique` : le conseil pratique (règle 9), affiché sous le piège dans un encadré « En pratique ».
   `outils/verifier.js` le contrôle (non vide, 40 mots au plus, différent du piège) ; constante `PRATIQUE_OBLIGATOIRE`.
 - `node outils/verifier.js` contrôle aussi le dico ; test navigateur : `outils/tests/dico.js`.
+- Onglet « Divalto » (fiches `domaine: "divalto"`, ids `dv-…`, dans `data/dico/divalto.js`) : seulement si `accesOK(["divalto"])`,
+  sinon pas d'onglet et une fiche `dv-…` affiche un message. Onglet gardé (`learnsql-dico-domaine`) ; la recherche ne
+  cherche que dans l'onglet choisi ; Traduire ne renvoie que vers des fiches SQL. Test : `outils/tests/dico-divalto.js`.
 - Étape 3 (à venir) : fiches perso de l'élève, privées, dans son compte.
 
 ## Traduire une requête
