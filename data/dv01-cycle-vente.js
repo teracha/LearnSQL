@@ -50,7 +50,7 @@ LEARNSQL.questions.dv01 = [
   {
     "id": "dv01-q03",
     "dialecte": "Divalto 10.13",
-    "q": "Pendant la transformation d'une commande en BL, tu supprimes une ligne. Sur quelle(s) pièce(s) est-elle supprimée ?",
+    "q": "Le dossier autorise la suppression de ligne en validation. Tu transformes une commande en BL et tu supprimes une ligne. Sur quelle(s) pièce(s) est-elle supprimée ?",
     "choix": [
       "Sur la commande et sur le BL",
       "Seulement sur le BL créé",
@@ -62,9 +62,9 @@ LEARNSQL.questions.dv01 = [
       "Oui. En transformation, la suppression d'une ligne vaut pour les deux pièces. Divalto demande une confirmation.",
       "Non. C'est l'ajout d'une ligne qui ne touche que la nouvelle pièce, pas la suppression.",
       "Non. La suppression touche aussi la pièce créée.",
-      "Non. C'est possible, après un message de confirmation."
+      "Non. Ici, le dossier l'autorise. Sans ce réglage (cas par défaut), la suppression est interdite : on met la quantité à 0 (page V10.5)."
     ],
-    "retenir": "En transformation, supprimer une ligne la supprime sur la pièce d'origine ET sur la nouvelle.",
+    "retenir": "En transformation, une ligne supprimée l'est sur les deux pièces, si le dossier l'autorise (par défaut, non).",
     "source": {
       "titre": "Création d'une commande de vente",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704712833/Cr+ation+d+une+commande+de+vente"

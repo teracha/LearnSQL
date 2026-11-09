@@ -30,15 +30,15 @@ LEARNSQL.questions.dv02 = [
     "q": "Une demande d'achat a déjà été transformée en commande. Peux-tu encore en faire un appel d'offre ?",
     "choix": [
       "Oui, la demande reste active",
-      "Non, elle est « périmée »",
-      "Oui, une demande sert plusieurs fois",
+      "Non, elle est passée « périmée »",
+      "Non, seul le responsable le peut",
       "Oui, par « Valider en appel d'offre »"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. Après transformation, la demande n'est plus active : elle passe « périmée ».",
       "Oui. Une demande transformée (devis, commande ou appel d'offre) est « périmée ». Elle n'est plus modifiable et ne peut plus faire l'objet d'un appel d'offre.",
-      "Non. Une demande transformée n'est plus exploitable : elle ne sert qu'une fois.",
+      "Non. Ce n'est pas une question de droits : une demande transformée n'est plus exploitable, même par son responsable.",
       "Non. Ce bouton ne s'applique pas à une demande déjà périmée."
     ],
     "retenir": "Demande d'achat transformée = « périmée » : plus de modification, plus d'appel d'offre.",
@@ -96,9 +96,9 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q05",
     "dialecte": "Divalto 10.13",
-    "q": "Appel d'offre sur 3 articles : le fournisseur A est retenu pour 2 articles, B pour le dernier. Que génère la validation en commande ?",
+    "q": "Appel d'offre sur 3 articles : le fournisseur A est choisi pour 2 articles, B pour le dernier. Que génère la validation en commande ?",
     "choix": [
-      "Une commande pour chaque fournisseur retenu",
+      "Une commande par fournisseur retenu",
       "Une commande par article de l'appel",
       "Une seule commande pour tout l'appel",
       "Une commande par fournisseur consulté"
@@ -144,17 +144,17 @@ LEARNSQL.questions.dv02 = [
     "dialecte": "Divalto 10.13",
     "q": "Ton article est référencé chez le fournisseur, avec SA référence à lui. Quelle référence est imprimée sur la commande qu'il reçoit ?",
     "choix": [
-      "Ta référence interne",
+      "Ta référence, à la place de la sienne",
       "Le code EAN de l'article",
-      "Les deux, l'une sous l'autre",
+      "Aucune : juste la désignation",
       "La référence du fournisseur"
     ],
     "bonne": 3,
     "pourquoi": [
-      "Non. En saisie, tu vois ton libellé interne. Mais à l'impression, ce sont les références du fournisseur.",
+      "Non. À l'impression, ce sont les références du fournisseur. Dans l'exemple de la doc, ta référence n'est qu'à côté, en colonne « Référence interne ».",
       "Non. Le référencement imprime la référence du fournisseur, pas le code EAN.",
-      "Non. La doc parle des références du fournisseur à l'impression, pas des deux.",
-      "Oui. En saisie, tu travailles avec tes références. La commande imprimée porte la référence du fournisseur."
+      "Non. La doc dit qu'à l'impression, ce sont les références du fournisseur qui sont affichées.",
+      "Oui. En saisie, tu vois ton libellé interne. Sur la commande imprimée, c'est la référence du fournisseur."
     ],
     "retenir": "Référencement fournisseur : saisie avec tes références, impression avec celles du fournisseur.",
     "source": {
@@ -259,8 +259,8 @@ LEARNSQL.questions.dv02 = [
     "dialecte": "Divalto 10.13",
     "q": "Dans le cas général, quelle mécanique porte le prix d'achat d'un article chez un fournisseur ?",
     "choix": [
-      "Un prix particulier du couple article/fournisseur",
-      "Le tarif de vente PU de l'article",
+      "Le prix particulier article/fournisseur",
+      "Le prix de vente PU de l'article",
       "Le seuil tarifaire en HT du fournisseur",
       "Le dernier coût de revient de l'article"
     ],
@@ -307,7 +307,7 @@ LEARNSQL.questions.dv02 = [
     "choix": [
       "Le taux du jour de la facture",
       "Le taux du BL, recalculé à la date du BL",
-      "Celui de la commande (modifiable)",
+      "Le taux de la commande, modifiable",
       "Le taux moyen du mois en cours"
     ],
     "bonne": 2,
@@ -352,9 +352,9 @@ LEARNSQL.questions.dv02 = [
     "q": "Une commande fournisseur est arrivée par EDI, une autre vient du CBN. Où voir d'où vient chaque commande ?",
     "choix": [
       "Le code opération de chaque ligne",
-      "Le statut ARC, onglet Livraison",
+      "Le « Statut ARC », onglet Livraison",
       "Le préfixe du numéro de la pièce",
-      "Champ « Origine », onglet Identifiant"
+      "Le champ « Origine » de l'en-tête"
     ],
     "bonne": 3,
     "pourquoi": [
@@ -375,7 +375,7 @@ LEARNSQL.questions.dv02 = [
     "q": "Le fournisseur confirme seulement une partie de ta commande. Comment le noter sur la commande d'achat ?",
     "choix": [
       "Cocher « Pièce confirmée » dans l'en-tête",
-      "Statut ARC « AR partiel » (en-tête et lignes)",
+      "Mettre le Statut ARC à « AR partiel »",
       "Supprimer les lignes qu'il ne confirme pas",
       "Mettre un délai reporté sur les lignes"
     ],
@@ -395,7 +395,7 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q18",
     "dialecte": "Divalto 10.13",
-    "q": "Tu lances la relance ARC des commandes fournisseur sans changer les filtres. Quelles lignes sont proposées ?",
+    "q": "Tu lances la relance ARC des commandes fournisseur sans changer les filtres. Côté statut ARC, quelles lignes sont proposées ?",
     "choix": [
       "AR reçu ou non demandé",
       "Toutes, même l'AR reçu",
@@ -468,7 +468,7 @@ LEARNSQL.questions.dv02 = [
     "choix": [
       "Dans la fiche article de chaque produit",
       "Dans le dossier, une seule fois pour tout",
-      "Dossier, fiche fournisseur et commande",
+      "Dans le dossier, sa fiche et la commande",
       "Dans le mode de règlement du fournisseur"
     ],
     "bonne": 2,
@@ -512,9 +512,9 @@ LEARNSQL.questions.dv02 = [
     "dialecte": "Divalto 10.13",
     "q": "Le fournisseur ne livrera jamais les 5 pièces restantes d'une ligne. Comment fermer ce reliquat en validant la commande en BL ?",
     "choix": [
-      "Rien : il se ferme seul en fin de mois",
+      "Rien : il se ferme tout seul en fin de mois",
       "Supprimer la commande d'achat entière",
-      "Passer le reliquat en ligne gratuite",
+      "Passer le reliquat en ligne « gratuite »",
       "Cocher « solde du reliquat » sur la ligne"
     ],
     "bonne": 3,
@@ -560,7 +560,7 @@ LEARNSQL.questions.dv02 = [
     "choix": [
       "40 sont arrivés et pré-réceptionnés au quai",
       "40 sont entrés en stock et déjà rangés",
-      "40 sont en transit (avis d'expédition saisi)",
+      "40 sont en transit, avis d'expédition saisi",
       "40 sont commandés, sans nouvelle du fournisseur"
     ],
     "bonne": 2,
@@ -628,14 +628,14 @@ LEARNSQL.questions.dv02 = [
     "q": "Tu reçois 10 articles gérés par n° de série. La génération automatique est active. Tu saisis « AAA1 » comme premier numéro. Résultat ?",
     "choix": [
       "Il crée AAA1 à AAA10 sans souci",
-      "Message bloquant : il faut AAA01",
+      "Il bloque avec un message d'erreur",
       "Il crée AAA1 à AAA9 et s'arrête",
       "Il corrige seul en AAA01"
     ],
     "bonne": 1,
     "pourquoi": [
       "Non. La partie numérique « 1 » n'a qu'un chiffre : elle ne peut pas aller jusqu'à 10.",
-      "Oui. Divalto vérifie que la partie numérique a assez de chiffres pour toute la quantité. Sinon : « l'incrémentation automatique de la quantité demandée n'est pas possible ».",
+      "Oui. Un seul chiffre ne suffit pas pour 10 numéros : message bloquant « l'incrémentation automatique de la quantité demandée n'est pas possible ». Il faut saisir AAA01.",
       "Non. Divalto ne génère pas une partie des numéros : il bloque avant.",
       "Non. Divalto ne corrige pas le format : c'est à toi de saisir AAA01."
     ],
@@ -680,7 +680,7 @@ LEARNSQL.questions.dv02 = [
     ],
     "bonne": 3,
     "pourquoi": [
-      "Non. Le dépôt n'entre pas dans ce paramétrage.",
+      "Non. La doc cite trois niveaux : le dossier, la fiche fournisseur et le référencement de l'article. Le dépôt n'en fait pas partie.",
       "Non. La fiche fournisseur ne suffit pas : il faut aussi le dossier et le référencement de l'article.",
       "Non. Le dossier active la fonction, mais le fournisseur et le référencement doivent aussi être cochés.",
       "Oui. Il faut la coche dans le dossier (onglet Options), sur la fiche fournisseur et sur le référencement fournisseur de l'article. Les trois."
@@ -786,19 +786,19 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q35",
     "dialecte": "Divalto 10.13",
-    "q": "Une ligne du contrôle facture est déclarée « en rejet » (différence de prix). Peux-tu générer la facture ?",
+    "q": "Une ligne du contrôle facture est déclarée « en rejet » (différence de prix). Que se passe-t-il si tu génères la facture ?",
     "choix": [
-      "Oui, en ignorant la ligne rejetée",
-      "Oui, avec un avoir créé automatiquement",
-      "Non : la génération est impossible",
-      "Oui, une fois le visa du manager obtenu"
+      "Elle est créée sans la ligne rejetée",
+      "Un avoir est créé automatiquement",
+      "Divalto refuse : génération impossible",
+      "Elle attend d'abord le visa du manager"
     ],
     "bonne": 2,
     "pourquoi": [
-      "Non. La ligne en rejet n'est pas prise en compte, et elle bloque la génération.",
+      "Non. La ligne en rejet n'est pas prise en compte, mais elle bloque toute la génération.",
       "Non. Le rejet ne crée pas d'avoir. Pour un avoir, on utilise la colonne « Génération code ».",
       "Oui. Divalto affiche « Génération de facture impossible » tant qu'une ligne est en rejet.",
-      "Non. Le visa ne lève pas un rejet de ligne."
+      "Non. Ce n'est pas une question de visa : tant qu'une ligne est en rejet, la génération est impossible."
     ],
     "retenir": "Ligne en rejet = pas de facture. Traite l'écart d'abord.",
     "source": {
@@ -809,7 +809,7 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q36",
     "dialecte": "Divalto 10.13",
-    "q": "Commandé à 9 €, facturé 10 €. La marchandise est conforme et tu la gardes. Que générer dans le contrôle facture ?",
+    "q": "Commandé à 9 €, facturé 10 €. Tu gardes la marchandise, mais tu veux récupérer l'euro en trop. Que générer dans le contrôle facture ?",
     "choix": [
       "Un avoir avec retour",
       "Un avoir financier",
@@ -915,7 +915,7 @@ LEARNSQL.questions.dv02 = [
       "Oui. La tolérance d'acceptation peut être propre au fournisseur. Elle doit être plus grande que celle du dossier, et elle prime.",
       "Non. Les tolérances ne s'additionnent pas."
     ],
-    "retenir": "Tolérances : d'abord la tolérance de rapprochement, puis celle d'acceptation. Celle de la fiche fournisseur prime.",
+    "retenir": "Contrôle facture : la tolérance d'acceptation de la fiche fournisseur prime sur celle du dossier.",
     "source": {
       "titre": "Traitement de Contrôle factures fournisseurs",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704720520/Traitement+de+Contr+le+factures+fournisseurs"
@@ -982,7 +982,7 @@ LEARNSQL.questions.dv02 = [
       "Non. La doc le dit : on ne s'auto-génère pas un avoir fournisseur.",
       "Non. La RFA est facturée au fournisseur, pas déduite d'une commande.",
       "Oui. Une facture du montant de la RFA est générée et envoyée au fournisseur. Il doit être relié à un compte client (« Client à facturer » du contrat).",
-      "Non. Le calcul génère une pièce commerciale : une facture."
+      "Non. Après le calcul, le bouton Facturation crée une pièce commerciale : une facture."
     ],
     "retenir": "RFA (côté fournisseur) = on facture le fournisseur. BFA (côté client) = avoir au client.",
     "source": {
@@ -996,7 +996,7 @@ LEARNSQL.questions.dv02 = [
     "q": "Une facture d'abonnement téléphonique, sans commande, arrive par la dématérialisation. Où va-t-elle ?",
     "choix": [
       "En contrôle facture, avec les BL",
-      "En écriture en attente (pré-compta)",
+      "En écriture en attente, avant la compta",
       "Directement au journal des achats, validée",
       "En commande fournisseur provisoire"
     ],
@@ -1064,10 +1064,10 @@ LEARNSQL.questions.dv02 = [
     "dialecte": "Divalto 10.13",
     "q": "Tu déposes une facture Factur-X AVEC un fichier pivot .dhub dans le Data Hub. Comment est-elle traitée ?",
     "choix": [
-      "Comme un PDF classique (pivot)",
+      "Comme un PDF classique, en mode natif",
       "Par lecture du XML embarqué dans le PDF",
       "Elle est rejetée en doublon",
-      "Avec les deux, fusionnés"
+      "Avec le pivot et le XML, fusionnés"
     ],
     "bonne": 0,
     "pourquoi": [
@@ -1154,7 +1154,7 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q51",
     "dialecte": "Divalto 10.13",
-    "q": "Ton fournisseur envoie un avis d'expédition sous forme de fichier. Que peut-il créer dans Divalto par le Data Hub ?",
+    "q": "Ton fournisseur envoie un avis d'expédition sous forme de fichier. Que peut créer ce fichier dans Divalto, via le Data Hub ?",
     "choix": [
       "Un BL validé, avec l'entrée en stock",
       "Une facture fournisseur",
@@ -1246,7 +1246,7 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q55",
     "dialecte": "Divalto 10.13",
-    "q": "Un article cher, vendu beaucoup et régulièrement, que tu gardes en stock (classe A). Quelle méthode de réappro la doc conseille-t-elle ?",
+    "q": "Article de classe A : cher, très vendu, géré en stock. Ses commandes clients sont connues à l'avance. Quelle méthode de réappro la doc conseille-t-elle ?",
     "choix": [
       "Approvisionnement global",
       "Contremarque directe",
@@ -1257,8 +1257,8 @@ LEARNSQL.questions.dv02 = [
     "pourquoi": [
       "Non. La méthode globale convient aux articles peu consommés et peu chers (classe C). Elle n'évite pas les ruptures.",
       "Non. En contremarque directe, le fournisseur livre le client : il n'y a pas de stock.",
-      "Non. Elle se base sur les 12 derniers mois. Elle vise les articles saisonniers ou vendus sur stock, sans vue portefeuille.",
-      "Oui. Elle calcule un stock virtuel jour par jour, en juste à temps. La doc la conseille pour les articles A et B, et pour ceux de forte valeur."
+      "Non. Elle se base sur les 12 derniers mois. Elle vise les articles vendus sur stock, sans vue sur les commandes clients.",
+      "Oui. Elle calcule un stock virtuel jour par jour, avec les commandes clients et fournisseurs. La doc la conseille pour les articles A et B, et ceux de forte valeur."
     ],
     "retenir": "Article A ou cher : « à date sur portefeuille ». Article C peu cher : « global ».",
     "source": {
@@ -1303,10 +1303,10 @@ LEARNSQL.questions.dv02 = [
     "pourquoi": [
       "Non. Sans réglage, le CBN ne travaille pas au jour le jour : il applique une valeur par défaut.",
       "Non. La valeur par défaut donnée par la doc est 30 jours.",
-      "Oui. Par défaut, le CBN prend 30 jours. Il regroupe donc les besoins d'un mois en une seule proposition.",
+      "Oui. Par défaut, le CBN prend 30 jours. Il regroupe les besoins de cette période en une seule proposition.",
       "Non. Le délai du fournisseur sert à dater la commande, pas à regrouper les besoins."
     ],
-    "retenir": "Délai entre deux commandes vide = 30 jours. Règle-le, sinon le CBN regroupe sur un mois.",
+    "retenir": "Délai entre deux commandes vide = 30 jours par défaut. Règle-le, sinon le CBN regroupe les besoins sur 30 jours.",
     "source": {
       "titre": "Utiliser le CBN (Calcul des Besoins Nets) - Réapprovisionnement",
       "url": "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705849126/Utiliser+le+CBN+Calcul+des+Besoins+Nets+-+R+approvisionnement"
@@ -1338,12 +1338,12 @@ LEARNSQL.questions.dv02 = [
   {
     "id": "dv02-q59",
     "dialecte": "Divalto 10.13",
-    "q": "Tu valides des propositions CBN « au statut provisoire ». Comment les commandes deviennent-elles actives ?",
+    "q": "Tu valides des propositions CBN « au statut provisoire ». Les commandes créées sont « préparées ». Que faut-il faire ensuite ?",
     "choix": [
-      "Par la relance de pièce fournisseur",
-      "Seules, au prochain lancement du CBN",
-      "En imprimant chaque commande",
-      "Par l'activation des commandes"
+      "Lancer la relance de pièce fournisseur",
+      "Rien : le prochain CBN s'en charge",
+      "Imprimer chaque commande",
+      "Lancer l'activation des commandes"
     ],
     "bonne": 3,
     "pourquoi": [
@@ -1365,7 +1365,7 @@ LEARNSQL.questions.dv02 = [
     "choix": [
       "Le transporteur du client",
       "Toi, après réception chez toi",
-      "Le fournisseur, directement",
+      "Le fournisseur, chez ton client",
       "Le dépôt le plus proche"
     ],
     "bonne": 2,
