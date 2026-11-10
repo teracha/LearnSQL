@@ -157,7 +157,10 @@ const { chromium } = require('playwright'); const path = require('path').join(__
   await p.uncheck('input[data-acces="divalto"][value="1"]'); await attendre();
   verifier((await barre()).texte === '6 changements à enregistrer', 'avant « Valider » : ' + (await barre()).texte);
   n = ecritures.length; let avant = chargements;
+  // Au moins 700 ms, puis la fin de « Enregistrement… » (la grille des droits des outils grandit avec les outils)
   await p.click('#eq-valider'); await attendre(700);
+  await p.waitForFunction(() => !/Enregistrement/.test((document.getElementById('eq-compte') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
+  await attendre(100);
   const lot = ecritures.slice(n);
   const ajoutAcces = lot.filter(x => /^POST acces /.test(x)), ajoutMembre = lot.filter(x => /^POST membre /.test(x));
   verifier(lot.length === 4 && ajoutAcces.length === 1 && ajoutMembre.length === 1, 'le lot envoyé : ' + lot.join(' | '));
@@ -342,12 +345,15 @@ const { chromium } = require('playwright'); const path = require('path').join(__
   await aller('#/equipe');
   const grille = await p.$$eval('#droits-outils tr', trs => trs.map(tr => [tr.querySelector('td').innerText.replace(/\s+/g, ' ').trim(),
     (tr.querySelector('input[data-acces]') || {}).getAttribute ? tr.querySelector('input[data-acces]').getAttribute('data-acces') : '', tr.querySelectorAll('input').length]));
-  const ids = grille.map(x => x[1]).join(' ');
-  verifier(ids === 'outils outils-sql dico traduire gestion-projet gp-cadrage gp-business-case gp-raci gp-risques gp-rapport gp-budget gp-compte-rendu gp-options ' +
-    'gp-decisions gp-changements gp-recette gp-bascule', 'lignes des droits des outils : ' + ids);
+  // Les lignes attendues viennent des données (data/outils/sujets.js) : « outils », puis chaque sujet et ses outils.
+  const ids = grille.map(x => x[1]).join(' '), idsAttendus = await p.evaluate(() => LEARNSQL.outilsSujets.reduce((l, s) => l.concat([s.id],
+    (s.groupes ? s.groupes.reduce((m, g) => m.concat(g.outils), []) : s.outils).map(o => typeof o === 'string' ? o : o.id)), ['outils']).join(' '));
+  verifier(ids === idsAttendus && grille.length >= 17, 'lignes des droits des outils : ' + ids);
   verifier(grille.every(x => x[2] === 2), 'une case par groupe : ' + JSON.stringify(grille.map(x => x[2])));
+  const ligneDe = id => (grille.filter(x => x[1] === id)[0] || [''])[0];
   verifier(grille[0][0] === 'Outils (toute la section) Réservé' && grille[1][0] === 'SQL Ouvert à tous' && grille[2][0] === '↳ Super dico SQL Réservé' &&
-    grille[8][0] === '↳ Registre des risques Réservé', 'textes de la grille : ' + JSON.stringify(grille.slice(0, 9).map(x => x[0])));
+    ligneDe('gp-risques') === '↳ Registre des risques Réservé' && ligneDe('gp-cadrage') === '↳ Note de cadrage Ouvert à tous',
+    'textes de la grille : ' + JSON.stringify(grille.slice(0, 9).map(x => x[0])));
   const nbParcours = await p.evaluate(() => LEARNSQL.parcours.reduce((k, x) => k + 1 + (x.sous || []).length, 0));
   verifier(/Droits des parcours/.test(await txt()) && (await p.$$('#droits-parcours tr')).length === nbParcours && nbParcours > 5, 'la grille des parcours');
   await p.check('input[data-acces="gestion-projet"][value="1"]'); await p.check('input[data-acces="traduire"][value="2"]'); await attendre(80);

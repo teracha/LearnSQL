@@ -192,19 +192,31 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   const modules = new Set((LEARNSQL.modules || []).map(m => m.id)), idsOutils = new Set(), parType = {};
   const CHAMPS_OUTIL = ['id', 'sujet', 'titre', 'resume', 'quand', 'etapes', 'cours', 'type', 'colonnes', 'alertes', 'totaux', 'aideTotaux',
     'modele', 'ligne', 'colonne', 'valeurs', 'libelles', 'aides', 'rubriques', 'exemple', 'export'];
-  const CHAMPS_COLONNE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'couleurs', 'formule', 'niveaux', 'defaut', 'largeur'];
+  const CHAMPS_COLONNE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'couleurs', 'formule', 'niveaux', 'defaut', 'largeur',
+    'resultat', 'facultatif'];
   const CHAMPS_RUBRIQUE = ['id', 'titre', 'type', 'aide', 'valeurs', 'libelles', 'couleurs', 'defaut', 'colonnes', 'alertes', 'totaux',
     'aideTotaux', 'modele', 'ligne'];
-  const CHAMPS_TOTAL = ['id', 'libelle', 'calcul', 'colonne', 'si', 'niveaux'];
+  const CHAMPS_TOTAL = ['id', 'libelle', 'calcul', 'colonne', 'si', 'niveaux', 'formule'];
   // Le genre d'une colonne dans une formule : nombre (nombre, date, calcul, choix de nombres), texte, liste ou tableau.
   const genre = c => c.type === 'texte' || c.type === 'texte-long' ? 'texte' : c.type === 'liste' || c.type === 'tableau' ? c.type :
     c.type === 'choix' ? ((c.valeurs || []).every(v => typeof v === 'number') ? 'nombre' : 'texte') : 'nombre';
-  const formule = (ou, f, env, voulu) => {
+  // Une date : saisie (type date), ou calculée (resultat: "date"). Pour les formules, c'est un nombre de jours ; natureDate
+  // contrôle ce qu'on en fait (une date ± des jours, une date moins une date, mois(date, n)).
+  const estDate = c => c.type === 'date' || (c.type === 'calcul' && c.resultat === 'date');
+  const entree = c => ({ type: genre(c), valeurs: c.type === 'choix' ? c.valeurs : undefined, date: estDate(c) });
+  // resultat : pour un nombre, ce que la formule doit donner : "date" (une date calculée), "nombre", ou "total".
+  const formule = (ou, f, env, voulu, resultat) => {
     let a = null;
     try { a = OM.lire(f); } catch (e) { err(ou, ':', e.message); return null; }
     try {
       const t = OM.typer(a, env, f);
       if (t !== voulu) err(ou, ': « ' + f + ' » donne ' + (t === 'condition' ? 'une condition' : 'un ' + t) + ', il faut ' + (voulu === 'condition' ? 'une condition' : 'un nombre'));
+      const nature = OM.natureDate(a, nom => !!(env.colonnes[nom] && env.colonnes[nom].date), f);
+      if (t === 'nombre' && voulu === 'nombre') {
+        if (resultat === 'date' && nature !== 'date') err(ou, ': « ' + f + ' » ne donne pas une date (une date ± des jours, ou mois(date, n))');
+        else if (resultat === 'total' && nature === 'date') err(ou, ': « ' + f + ' » donne une date ; un total calculé donne un nombre');
+        else if (resultat !== 'date' && resultat !== 'total' && nature === 'date') err(ou, ': « ' + f + ' » donne une date : écris resultat: "date" (affichée JJ/MM/AAAA)');
+      }
     } catch (e) { err(ou, ':', e.message); }
     return a;
   };
@@ -267,15 +279,22 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       if (c.type === 'choix') verifierChoix(lieu, c);
       if (c.type === 'calcul' && !texte(c.formule)) err(lieu, ': formule manquante');
       if (c.type !== 'calcul' && c.formule !== undefined) err(lieu, ': formule seulement pour une colonne calculée');
+      // resultat: "date" : une date calculée (JJ/MM/AAAA), sans niveaux (un niveau se lit sur un nombre).
+      if (c.resultat !== undefined && (c.type !== 'calcul' || OM.RESULTATS.indexOf(c.resultat) < 0)) err(lieu, ': resultat ("nombre" ou "date") seulement pour une colonne calculée');
+      if (c.resultat === 'date' && c.niveaux !== undefined) err(lieu, ': pas de niveaux sur une date calculée');
+      // facultatif: true : une colonne saisie qu'on peut laisser vide partout (l'offre C), sans valeur par défaut.
+      if (c.facultatif !== undefined && (c.facultatif !== true || c.type === 'calcul' || c.defaut !== undefined)) {
+        err(lieu, ': facultatif: true, seulement pour une colonne saisie sans valeur par défaut');
+      }
       if (c.largeur !== undefined && !(typeof c.largeur === 'number' && c.largeur > 0 && c.largeur <= 120)) err(lieu, ': largeur (Excel) de 1 à 120');
       Object.keys(c).filter(x => CHAMPS_COLONNE.indexOf(x) < 0).forEach(x => alerte(lieu, ': champ inconnu (ignoré)', x));
-      env.colonnes[c.id] = { type: genre(c), valeurs: c.type === 'choix' ? c.valeurs : undefined };
+      env.colonnes[c.id] = entree(c);
     });
     t.colonnes.forEach(c => {
       if (!c) return;
       const lieu = ou + ' colonne ' + c.id;
       if (c.type === 'calcul' && texte(c.formule)) {
-        const a = formule(lieu, c.formule, env, 'nombre');
+        const a = formule(lieu, c.formule, env, 'nombre', c.resultat === 'date' ? 'date' : 'nombre');
         if (a && OM.citees(a).indexOf(c.id) >= 0) err(lieu, ': la formule se cite elle-même');
         if (a) deps[c.id] = OM.citees(a).filter(x => t.colonnes.some(y => y && y.id === x && y.type === 'calcul'));
       }
@@ -298,6 +317,8 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       catch (e) { /* formule fausse : déjà signalée */ }
     }
     if (t.totaux !== undefined && !Array.isArray(t.totaux)) err(ou, ': totaux, une liste');
+    // Un total calculé (calcul: "formule") lit les totaux qui ont un id, placés avant lui, et les rubriques simples du document.
+    const totauxAvant = { colonnes: Object.assign({}, rubriques || {}) }, idsTotaux = new Set();
     (Array.isArray(t.totaux) ? t.totaux : []).forEach((x, k) => {
       const lieu = ou + ' total ' + (k + 1);
       if (!x || !texte(x.libelle)) err(lieu, ': libellé manquant');
@@ -306,12 +327,28 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       if (x) Object.keys(x).filter(y => CHAMPS_TOTAL.indexOf(y) < 0).forEach(y => alerte(lieu, ': champ inconnu (ignoré)', y));
       if (!x || OM.CALCULS_TOTAL.indexOf(x.calcul) < 0) { err(lieu, ': calcul (' + OM.CALCULS_TOTAL.join(', ') + ')'); return; }
       if (x.calcul === 'nombre' && x.colonne !== undefined) err(lieu, ': « nombre » compte des lignes, sans colonne (une condition va dans si)');
-      if (x.calcul !== 'nombre') {
-        const c = env.colonnes[x.colonne];
-        if (!c) err(lieu, ': colonne inconnue', x.colonne);
-        else if (c.type !== 'nombre') err(lieu, ': la colonne', x.colonne, 'n\'est pas un nombre');
+      if (x.calcul === 'formule') {
+        if (x.colonne !== undefined || x.si !== undefined) err(lieu, ': un total calculé (formule) n\'a ni colonne ni si : il lit d\'autres totaux');
+        if (!texte(x.formule)) err(lieu, ': formule manquante (ex. effort_doit / effort_prevu * 100)');
+        else formule(lieu, x.formule, totauxAvant, 'nombre', 'total');
+      } else {
+        if (x.formule !== undefined) err(lieu, ': formule seulement pour calcul: "formule"');
+        if (x.calcul !== 'nombre') {
+          const c = env.colonnes[x.colonne];
+          if (!c) err(lieu, ': colonne inconnue', x.colonne);
+          else if (c.type !== 'nombre') err(lieu, ': la colonne', x.colonne, 'n\'est pas un nombre');
+          else if (c.date) err(lieu, ': la colonne', x.colonne, 'est une date : un total (somme, moyenne, min, max) se calcule sur des nombres');
+        }
+        if (x.si !== undefined) {
+          const a = formule(lieu, x.si, env, 'condition');
+          if (a && OM.aMois(a)) err(lieu, ': mois() ne va pas dans le si d\'un total (Excel le refuse sur une plage) : passe par une colonne calculée');
+        }
       }
-      if (x.si !== undefined) formule(lieu, x.si, env, 'condition');
+      if (x.id !== undefined) {
+        if (idsTotaux.has(x.id)) err(lieu, ': id en double', x.id);
+        idsTotaux.add(x.id);
+        totauxAvant.colonnes[x.id] = { type: 'nombre' };
+      }
     });
     if (t.ligne !== undefined && !(t.ligne && texte(t.ligne.titre))) err(ou, ': ligne, { titre }');
     if (t.aideTotaux !== undefined && (!texte(t.aideTotaux) || !Array.isArray(t.totaux) || !t.totaux.length)) err(ou, ': aideTotaux, un texte sous des totaux');
@@ -355,7 +392,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       // Les rubriques simples d'abord : les formules des tableaux du document peuvent les lire.
       (def.rubriques || []).forEach(r => {
         if (r && /^[a-z][a-z0-9_]*$/.test(r.id || '') && ['texte', 'texte-long', 'nombre', 'date', 'choix'].indexOf(r.type) >= 0) {
-          simples[r.id] = { type: genre(r), valeurs: r.type === 'choix' ? r.valeurs : undefined };
+          simples[r.id] = entree(r);
         }
       });
       (def.rubriques || []).forEach((r, k) => {
@@ -374,7 +411,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
         if ((r.type === 'tableau' || r.type === 'liste') && r.ligne !== undefined && !(r.ligne && texte(r.ligne.titre))) err(lieu, ': ligne, { titre }');
         Object.keys(r).filter(x => CHAMPS_RUBRIQUE.indexOf(x) < 0).forEach(x => alerte(lieu, ': champ inconnu (ignoré)', x));
         verifierDefaut(lieu, r);
-        env.colonnes[r.id] = { type: genre(r), valeurs: r.type === 'choix' ? r.valeurs : undefined };
+        env.colonnes[r.id] = entree(r);
       });
       // Un total qui a un id se lit dans les alertes du document (« total_atterrissage > plafond »).
       (def.rubriques || []).forEach(r => (r && r.type === 'tableau' && Array.isArray(r.totaux) ? r.totaux : []).forEach(x => {

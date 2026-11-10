@@ -2721,9 +2721,10 @@
         (c.niveaux ? '<span class="o-calc" data-c="' + esc(c.id) + '">' + badge(calc.niveaux[c.id]) + '</span>' : '') + '</td>';
     }).join('') + '</tr>';
   }
+  // Une valeur calculée : un nombre (2,5), ou une date (15/03/2027) pour un calcul qui donne une date ; vide : « — ».
   function htmlCalcul(c, calc) {
     var v = calc.valeurs[c.id];
-    return v === null || v === undefined ? '<span class="muted">—</span>' : esc(OM.fmtNombre(v)) + badge(calc.niveaux[c.id]);
+    return v === null || v === undefined ? '<span class="muted">—</span>' : esc(OM.texteResultat(c, v)) + badge(calc.niveaux[c.id]);
   }
   // Un niveau : toujours un mot, avec sa couleur.
   function badge(nv) {
@@ -2823,7 +2824,7 @@
   function largeurMin(cols) {
     return cols.reduce(function (t, c) {
       if (c.type === "choix") return t + 34 + 8.5 * Math.max.apply(null, c.valeurs.map(function (v, k) { return OM.texteChoix(c, k).length; }));
-      return t + ({ "texte-long": 150, texte: 110, date: 140, nombre: 80, calcul: c.niveaux ? 120 : 70 }[c.type] || 110);
+      return t + ({ "texte-long": 150, texte: 110, date: 140, nombre: 80, calcul: c.niveaux ? 120 : OM.estDateCalculee(c) ? 90 : 70 }[c.type] || 110);
     }, 70);
   }
   function modeZones() {

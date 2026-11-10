@@ -3,23 +3,35 @@
 // sans débordement, un tableau sur PC), les ajouts du moteur (rubrique lue par un tableau, total lu par le document,
 // niveau d'un total, lignes du modèle, couleur d'un choix), les documents (nouveau, partir de l'exemple, renommer,
 // dupliquer, supprimer, recharger la page), Enregistrer et Ouvrir un fichier (dont des fichiers faux), Excel (un vrai
-// zip, pour les 12 outils), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
+// zip, pour chaque outil), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
 // d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le sujet gestion-projet (droit outil) est
 // réservé au groupe 1, le parcours Chef de projet est ouvert. Les droits des outils (24) : sans compte, compte non limité,
 // hors du groupe, dans le groupe, le dico réservé, toute la section réservée, aucun outil visible (pas de lien
 // « Outils » dans le menu), admin, la page Équipe à 390 px.
 // L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
-// Corrections de novembre 2026 (24) : les 4 étapes, les cases vides (budget et business case du testeur), la tolérance
+// Corrections de novembre 2026 (23) : les étapes, les cases vides (budget et business case du testeur), la tolérance
 // avec une virgule, la note du rapport, les limites, les messages d'un fichier ouvert, « Sans nom », 320 px sans
 // débordement, les cibles tactiles de 44 px, le stockage refusé (un seul message), l'impression, « Effacer tous mes
-// documents ».
-const { chromium } = require('playwright'); const fs = require('fs'), path = require('path'), zlib = require('zlib');
+// documents ». 2e vague (23 bis) : la date calculée (échéancier), le total calculé (MoSCoW), la colonne facultative (choix).
+const { chromium } = require('playwright'); const fs = require('fs'), path = require('path'), zlib = require('zlib'), vm = require('vm');
 const lireZip = require('./lire-zip.js');
 const racine = path.join(__dirname, '..', '..');
-// Les 12 outils, dans l'ordre de la page : 1. Cadrer, 2. Piloter, 3. Décider, 4. Livrer (data/outils/sujets.js).
-const ETAPES = [['Cadrer', ['gp-cadrage', 'gp-business-case', 'gp-raci']], ['Piloter', ['gp-risques', 'gp-rapport', 'gp-budget', 'gp-compte-rendu']],
-  ['Décider', ['gp-options', 'gp-decisions', 'gp-changements']], ['Livrer', ['gp-recette', 'gp-bascule']]];
+// Les nombres attendus viennent des données (data/outils/sujets.js et les définitions), pas d'une liste écrite ici :
+// les étapes de la gestion de projet, dans l'ordre de la page (aujourd'hui 5 : Cadrer, Piloter, Décider, Prestataires,
+// Livrer), leurs outils, et le nombre de cartes de la page Outils (les liens du sujet SQL compris).
+const DONNEES = (() => {
+  const c = { LEARNSQL: {} }; c.window = c; vm.createContext(c);
+  fs.readdirSync(path.join(racine, 'data/outils')).filter(f => f.endsWith('.js')).sort()
+    .forEach(f => vm.runInContext(fs.readFileSync(path.join(racine, 'data/outils', f), 'utf8'), c, { filename: f }));
+  return c.LEARNSQL;
+})();
+const GESTION = DONNEES.outilsSujets.filter(s => s.id === 'gestion-projet')[0];
+const ETAPES = GESTION.groupes.map(g => [g.titre, g.outils.slice()]);
 const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
+const NB_CARTES = DONNEES.outilsSujets.reduce((n, s) => n + (s.groupes ? s.groupes.reduce((m, g) => m + g.outils.length, 0) : s.outils.length), 0);
+const definition = id => DONNEES.outils.filter(o => o.id === id)[0];
+// « Les outils de ce cours » : les outils dont le champ cours contient ce module, dans l'ordre de la page.
+const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definition(id).cours || []).indexOf(m) >= 0).map(id => '#/outils/' + id);
 (async () => {
   const b = await chromium.launch(process.env.CHR ? { executablePath: process.env.CHR } : {});
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'fr-FR', acceptDownloads: true });
@@ -27,6 +39,9 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   await p.clock.setFixedTime(new Date('2027-01-15T10:00:00'));
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   const verifier = (ok, msg) => { if (!ok) errs.push(msg); };
+  // Chaque définition est rangée une fois dans une étape (sinon les nombres calculés plus bas seraient faux)
+  verifier(OUTILS.slice().sort().join() === DONNEES.outils.map(o => o.id).sort().join() && ETAPES.length >= 1,
+    'données : ' + OUTILS.length + ' outils rangés, ' + DONNEES.outils.length + ' définitions');
   let refuser = false;   // true : la prochaine question (confirm) reçoit « Annuler »
   const dialogues = []; p.on('dialog', d => { dialogues.push(d.message()); if (refuser) d.dismiss(); else d.accept(); });
   // Impression et presse-papiers simulés : on garde ce qui est imprimé ou copié.
@@ -134,7 +149,7 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   verifier(await texte('h1') !== 'Tes parcours' && /Faire le QCM/.test(await texte('#app')) && !/Les outils de ce cours/.test(await texte('#app')),
     'compte hors du groupe : le cours cp07 montre ses outils réservés (ou n\'est pas ouvert)');
 
-  // 4. Dans le groupe 1 : le sujet « Gestion de projet » et ses 12 outils, dans l'ordre
+  // 4. Dans le groupe 1 : le sujet « Gestion de projet » et tous ses outils, dans l'ordre
   db.membre.push({ groupe_id: 1, user_id: 'u2' });
   await aller('#/compte'); await p.click('#sync'); await attendre(800);
   await aller('#/outils');
@@ -142,10 +157,10 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   verifier(sujets.join('|') === 'SQL|Gestion de projet', 'dans le groupe : sujets ' + sujets.join('|'));
   const cartesGp = await p.$$eval('#sujet-gestion-projet .o-carte', xs => xs.map(x => x.getAttribute('href').replace('#/outils/', '')));
   verifier(cartesGp.join(' ') === OUTILS.join(' '), 'cartes de la gestion de projet : ' + cartesGp.join(' '));
-  // Les 4 étapes, numérotées, chacune avec ses outils (titres des cartes en h4, sous le h3 de l'étape)
+  // Les étapes, numérotées, chacune avec ses outils (titres des cartes en h4, sous le h3 de l'étape)
   const etapes = await p.$$eval('#sujet-gestion-projet .o-groupe', gs => gs.map(g => [g.querySelector('h3').textContent.replace(/\s+/g, ' ').trim(),
     Array.from(g.querySelectorAll('.o-carte')).map(a => a.getAttribute('href').replace('#/outils/', '')), g.querySelectorAll('.o-carte h4').length]));
-  verifier(JSON.stringify(etapes) === JSON.stringify(ETAPES.map((e, k) => [(k + 1) + '. ' + e[0], e[1], e[1].length])), 'les 4 étapes : ' + JSON.stringify(etapes));
+  verifier(JSON.stringify(etapes) === JSON.stringify(ETAPES.map((e, k) => [(k + 1) + '. ' + e[0], e[1], e[1].length])), 'les ' + ETAPES.length + ' étapes : ' + JSON.stringify(etapes));
   await largeur('page Outils (dans le groupe)');
 
   // 5. La page d'un outil : à quoi il sert, quand, « Comment faire » (3 étapes), « Voir l'exemple », ses cours
@@ -421,7 +436,7 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   await p.fill('#o-r-plafond', '85000'); await attendre(80);
   verifier(/L'atterrissage dépasse le plafond/.test(await alertes()), 'atterrissage au-dessus du plafond : pas d\'alerte du document');
 
-  // 19. Les 12 outils : la page, l'exemple (sans débordement à 390 px) et son fichier Excel (un zip, avec des formules)
+  // 19. Tous les outils : la page, l'exemple (sans débordement à 390 px) et son fichier Excel (un zip, avec des formules)
   for (const id of OUTILS) {
     await aller('#/outils/' + id + '/exemple');
     verifier(await p.$('#o-editeur') && !(await p.$('#o-editeur input, #o-editeur textarea, #o-editeur select')), id + ' : exemple en lecture');
@@ -609,6 +624,56 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   await aller('#/outils');
   verifier(!(await p.$('#o-effacer')), 'sans document, la page propose d\'effacer');
 
+  // 23 bis. La 2e vague : a. l'échéancier, la date limite = fin − préavis (en mois), calculée et affichée JJ/MM/AAAA, les
+  // jours qui restent ; b. MoSCoW, la part du « doit » (un total calculé, son niveau, l'alerte au-delà de 60 %) ;
+  // c. la grille de choix, l'offre C facultative : avec 2 offres, aucune alerte et « — » pour C.
+  const calcsLigne = (r, l, ids) => p.evaluate(([r, l, ids]) => ids.map(c => {
+    const s = document.querySelector('#o-editeur tr[data-r="' + r + '"][data-l="' + l + '"] .o-calc[data-c="' + c + '"]');
+    return s ? s.textContent.replace(/\s+/g, ' ').trim() : '?';
+  }), [r, l, ids]);
+  await aller('#/outils/gp-echeancier/exemple');
+  const ech = [await calcsLigne('contrats', 0, ['date_limite', 'jours']), await calcsLigne('contrats', 1, ['date_limite', 'jours'])];
+  verifier(JSON.stringify(ech) === JSON.stringify([['30/05/2029', '240'], ['31/12/2028', '90']]), 'échéancier : la date limite calculée et les jours (au 02/10/2028) ' + JSON.stringify(ech));
+  verifier((await alertes()).split('La date limite tombe avant la prochaine relecture').length - 1 === 2 && /À décider avant la prochaine relecture : 2/.test(await texte('.o-totaux')),
+    'échéancier : les 2 alertes et le total de l\'exemple');
+  await largeur('échéancier (exemple)');
+  await p.click('#o-depuis-exemple'); await attendre();
+  verifier(!(await p.$('#o-contrats-0-date_limite')) && await p.$('#o-contrats-0-preavis'), 'échéancier : la date limite ne se saisit plus');
+  await p.fill('#o-contrats-1-preavis', ''); await attendre(80);
+  al = await alertes();
+  verifier(/Contrat 2 \(« Les liens télécoms des 3 dépôts… »\) : « Préavis \(mois\) » est vide, donc pas de « Date limite pour résilier » ni de « Jours avant la date limite » sur cette ligne, ni dans les totaux\./.test(al) &&
+    (await calcsLigne('contrats', 1, ['date_limite', 'jours'])).join() === '—,—', 'échéancier : un préavis vide, pas de date limite, et c\'est dit : ' + al);
+  await p.fill('#o-contrats-1-preavis', '15'); await attendre(80);   // 31/03/2029 moins 15 mois : 31/12/2027 ; au 15/01/2027 : 350 jours
+  verifier((await calcsLigne('contrats', 1, ['date_limite', 'jours'])).join() === '31/12/2027,350', 'échéancier : préavis de 15 mois ' + (await calcsLigne('contrats', 1, ['date_limite', 'jours'])).join());
+  await largeur('échéancier (document)');
+  f = await telecharger('#o-excel'); z = lireZip(f.octets);
+  const xEch = z['xl/worksheets/sheet2.xml'].data.toString('utf8');
+  verifier(xEch.indexOf('<c r="D2" s="3"><f>IF(OR(B2="",C2=""),"",IFERROR(EDATE(B2,-C2),""))</f><v>47268</v></c>') >= 0 &&
+    xEch.indexOf('<c r="D3" s="3"><f>IF(OR(B3="",C3=""),"",IFERROR(EDATE(B3,-C3),""))</f><v>46752</v></c>') >= 0, 'échéancier en Excel : la formule (EDATE) et le format date');
+  await aller('#/outils/gp-moscow/exemple');
+  tot = await p.evaluate(() => { const z = document.querySelector('.o-totaux[data-totaux="demandes"]'); return { t: z.textContent.replace(/\s+/g, ' '), ok: !!z.querySelector('.o-niveau.o-ok') }; });
+  verifier(/Effort prévu \(jours\) : doit, devrait, pourrait : 10/.test(tot.t) && /Part du « doit » \(%\) : 50 Dans le repère/.test(tot.t) && tot.ok && /Aucune alerte/.test(await alertes()),
+    'MoSCoW : la part du « doit » de l\'exemple ' + JSON.stringify(tot));
+  await p.click('#o-depuis-exemple'); await attendre();
+  await p.selectOption('#o-demandes-2-classe', 'Doit'); await attendre(80);   // 8 jours sur 10
+  tot = await p.evaluate(() => { const z = document.querySelector('.o-totaux[data-totaux="demandes"]'); return { t: z.textContent.replace(/\s+/g, ' '), ko: !!z.querySelector('.o-niveau.o-ko') }; });
+  verifier(/Part du « doit » \(%\) : 80 Au-delà du repère/.test(tot.t) && tot.ko && /Plus de 60 % de l'effort en « doit »/.test(await alertes()), 'MoSCoW : 80 % en « doit » ' + JSON.stringify(tot));
+  await largeur('MoSCoW (document)');
+  f = await telecharger('#o-excel'); z = lireZip(f.octets);
+  verifier(z['xl/worksheets/sheet2.xml'].data.toString('utf8').indexOf('<c r="B36"><f>IF(OR(B35="",B34=""),"",IFERROR(B35/B34*100,""))</f><v>80</v></c>') >= 0,
+    'MoSCoW en Excel : la part renvoie aux cellules des deux totaux');
+  await aller('#/outils/gp-choix-prestataire'); await p.click('#o-depuis-exemple'); await attendre();
+  for (let k = 0; k < 7; k++) await p.selectOption('#o-grille-' + k + '-note_c', '');
+  for (let k = 0; k < 3; k++) await p.selectOption('#o-eliminatoires-' + k + '-c', '');
+  await attendre(80);
+  tot = await texte('.o-totaux[data-totaux="grille"]');
+  verifier(/Aucune alerte/.test(await alertes()) && /Offre A, sur 100 : 78/.test(tot) && /Offre C, sur 100 : —/.test(tot), 'choix avec 2 offres : ' + tot + ' / ' + await alertes());
+  await p.selectOption('#o-grille-0-note_c', '3'); await attendre(80);
+  al = await p.$$eval('#o-alertes li', xs => xs.map(x => x.textContent));
+  verifier(al.length === 6 && al.every(x => /« Note C » est vide, donc pas de « Points C »/.test(x)) && /Offre C, sur 100 : 12/.test(await texte('.o-totaux[data-totaux="grille"]')),
+    'choix, l\'offre C commencée : chaque note C qui manque est dite ' + al.length);
+  await largeur('choix d\'un prestataire (document)');
+
   // 24. Les droits des outils (page Équipe, « Droits des outils ») : la chaîne « outils » → sujet → outil, dans la table
   // acces, comme les parcours ; sans compte, les sujets publics (outilsPublics).
   const sujetsVus = () => p.$$eval('.o-sujet h2', xs => xs.map(x => x.textContent).join('|'));
@@ -625,24 +690,24 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   // a. Compte non limité (aucune ligne pour les outils) : tout est ouvert
   db.acces = []; db.membre = [{ groupe_id: 2, user_id: 'u2' }]; await synchro();
   await aller('#/outils');
-  verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === 14, 'compte non limité : ' + await sujetsVus() + ' · ' + (await cartes()).join(' '));
+  verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === NB_CARTES, 'compte non limité : ' + await sujetsVus() + ' · ' + (await cartes()).join(' '));
   // b. Un outil réservé au groupe 1, julie hors du groupe : ni carte, ni page, ni exemple, ni document, ni dans les cours
   db.acces = [{ element: 'gp-risques', groupe_id: 1 }]; await synchro();
   await aller('#/outils');
   let vues = await cartes();
-  verifier(vues.length === 13 && vues.indexOf('gp-risques') < 0 && /2\. Piloter/.test(await texte('#sujet-gestion-projet')), 'outil réservé, hors du groupe : ' + vues.join(' '));
+  verifier(vues.length === NB_CARTES - 1 && vues.indexOf('gp-risques') < 0 && /2\. Piloter/.test(await texte('#sujet-gestion-projet')), 'outil réservé, hors du groupe : ' + vues.join(' '));
   await reserve('#/outils/gp-risques', 'outil réservé'); await reserve('#/outils/gp-risques/exemple', 'exemple d\'un outil réservé');
   await reserve(docRisques, 'document d\'un outil réservé');
   verifier(/Ton compte n'a pas accès/.test(await texte('#app')) && !(await p.$('#app .actions a[href="#/compte"]')), 'outil réservé : le message d\'un compte connecté');
   await aller('#/cours/cp08');
   vues = await p.$$eval('#app a.o-carte', xs => xs.map(x => x.getAttribute('href')));
-  verifier(vues.join(' ') === '#/outils/gp-rapport #/outils/gp-recette', '« Les outils de ce cours » (cp08) : ' + vues.join(' '));
+  verifier(vues.join(' ') === outilsDuCours('cp08', 'gp-risques').join(' ') && vues.length >= 2, '« Les outils de ce cours » (cp08) : ' + vues.join(' '));
   await aller('#/cours/cp07');
   verifier(!/Les outils de ce cours/.test(await texte('#app')), 'cp07 : l\'outil réservé reste dans « Les outils de ce cours »');
   // c. Julie entre dans le groupe 1 : l'outil revient partout
   db.membre.push({ groupe_id: 1, user_id: 'u2' }); await synchro();
   await aller('#/outils');
-  verifier((await cartes()).length === 14, 'dans le groupe : ' + (await cartes()).join(' '));
+  verifier((await cartes()).length === NB_CARTES, 'dans le groupe : ' + (await cartes()).join(' '));
   await aller('#/outils/gp-risques');
   verifier(await texte('h1') === 'Registre des risques', 'dans le groupe : la page de l\'outil');
   await aller('#/cours/cp07');
@@ -691,7 +756,7 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   // g. Admin, dans aucun groupe : tout
   await connecter({ id: 'u1', email: 'moi@x.fr' });
   await aller('#/outils');
-  verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === 14 && await p.isVisible('#lien-outils'), 'admin : ' + await sujetsVus());
+  verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === NB_CARTES && await p.isVisible('#lien-outils'), 'admin : ' + await sujetsVus());
   await aller('#/dico'); verifier(await texte('h1') === 'Super dico SQL', 'admin : le dico');
   await aller('#/outils/gp-raci'); verifier(await texte('h1') === 'Matrice RACI', 'admin : un outil');
   // h. La page Équipe de l'admin, à 390 px : la grille « Droits des outils » et la barre, sans débordement
@@ -706,7 +771,8 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   // 25. Rien n'est envoyé : aucun document dans les envois à Supabase
   verifier(envois.length > 0 && !envois.some(x => /Mon registre|Format de facture|learnsql-outil|seule Julie connaît/.test(x)), 'un document est parti vers Supabase');
 
-  console.log('outils : menu, sujets et étapes, 3 types, ajouts du moteur, documents, fichiers, Excel des 12 outils, copie, impression, cours, ' +
-    'téléphone et PC, cases vides, limites, 320 px, tactile, stockage refusé, effacement, droits des outils');
+  console.log('outils : menu, sujets et ' + ETAPES.length + ' étapes, 3 types, ajouts du moteur, documents, fichiers, Excel des ' + OUTILS.length +
+    ' outils, copie, impression, cours, téléphone et PC, cases vides, limites, 320 px, tactile, stockage refusé, effacement, ' +
+    'date calculée, total calculé, colonne facultative, droits des outils');
   console.log('errors', errs); await b.close();
 })();

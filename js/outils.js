@@ -1,8 +1,10 @@
 // Moteur des outils (docs/outils.md) : sans DOM, sans eval ni new Function, sans bibliothèque.
 // - lire(formule) : un petit lecteur d'expressions (+ − × ÷, parenthèses, comparaisons, et, ou, non, noms de colonnes,
-//   nombres, textes entre guillemets, vide, aujourdhui, nb("A")). evaluer(arbre, contexte) le calcule ; excel(arbre,
-//   refs) écrit la formule Excel qui calcule la même chose ; typer(arbre, env) contrôle les types (vérificateur).
-// - Les calculs d'un document : colonnes calculées, niveaux, alertes, totaux (suivi).
+//   nombres, textes entre guillemets, vide, aujourdhui, nb("A"), abs(x), mois(date, n)). evaluer(arbre, contexte) le
+//   calcule ; excel(arbre, refs) écrit la formule Excel qui calcule la même chose ; typer(arbre, env) contrôle les types
+//   et natureDate(arbre, estDate) les dates (vérificateur).
+// - Les calculs d'un document : colonnes calculées (un nombre, ou une date : resultat: "date"), niveaux, alertes, totaux
+//   (dont les totaux calculés à partir d'autres totaux : calcul: "formule"), colonnes facultatives (suivi).
 // - Le contrôle d'un document (fichier ouvert, exemple d'une définition) : examiner, lireFichier.
 // - Les sorties : texte simple et HTML mis en forme (Copier, Imprimer), classeur Excel (.xlsx : le XML minimal d'un
 //   classeur, dans un zip « stocké » avec CRC32).
@@ -22,7 +24,8 @@
   var COULEURS = ["ok", "attention", "ko", "neutre"];
   var TYPES_CHAMP = ["texte", "texte-long", "nombre", "date", "choix", "calcul"];
   var TYPES_RUBRIQUE = ["texte", "texte-long", "nombre", "date", "choix", "liste", "tableau"];
-  var CALCULS_TOTAL = ["nombre", "somme", "moyenne", "min", "max"];
+  var CALCULS_TOTAL = ["nombre", "somme", "moyenne", "min", "max", "formule"];
+  var RESULTATS = ["nombre", "date"];   // ce que donne une colonne calculée (resultat: "date" : affichée JJ/MM/AAAA)
 
   // ---------- Valeurs : vide, nombres, dates ----------
   var EPOQUE = Date.UTC(1899, 11, 30);   // le jour 0 d'Excel : une date = un nombre de jours depuis le 30/12/1899
@@ -80,6 +83,21 @@
   function dateFr(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(typeof iso === "string" ? iso : "");
     return m ? m[3] + "/" + m[2] + "/" + m[1] : "";
+  }
+  // mois(date, n) : la date décalée de n mois (n < 0 : avant), comme MOIS.DECALER (EDATE) d'Excel. Le jour reste le même,
+  // sauf s'il n'existe pas dans le mois d'arrivée : alors le dernier jour (31 mars moins 1 mois = 28 ou 29 février).
+  // n est coupé à l'entier, la date aussi (comme Excel). Hors des dates d'Excel (avant le 01/03/1900, après le
+  // 31/12/9999) : vide (Excel : une erreur, que la formule rend vide).
+  var PREMIER_JOUR = 61, DERNIER_JOUR = 2958465;   // 01/03/1900 et 31/12/9999
+  function moisDecale(d, n) {
+    if (typeof d !== "number" || typeof n !== "number" || !isFinite(d) || !isFinite(n)) return null;
+    d = Math.floor(d);
+    if (d < PREMIER_JOUR || d > DERNIER_JOUR) return null;
+    var t = new Date(EPOQUE + d * 864e5), k = n < 0 ? Math.ceil(n) : Math.floor(n);
+    var a = t.getUTCFullYear(), m = t.getUTCMonth() + k;
+    var dernier = new Date(Date.UTC(a, m + 1, 0)).getUTCDate();   // le dernier jour du mois d'arrivée
+    var r = Math.round((Date.UTC(a, m, Math.min(t.getUTCDate(), dernier)) - EPOQUE) / 864e5);
+    return isFinite(r) && r >= PREMIER_JOUR && r <= DERNIER_JOUR ? r : null;
   }
 
   // La position d'une valeur dans une liste de choix (3 ou "3", « ouvert » ou « Ouvert »), ou -1.
@@ -140,7 +158,8 @@
 
   // Grammaire (de la priorité la plus faible à la plus forte) :
   // ou → et → non → comparaison (a = b, a vide, a non vide) → + − → × ÷ → − unaire → nombre, "texte", nom, ( … ),
-  // nb("A") (matrice : les cases de la ligne qui valent A), abs(x) (la valeur sans son signe : un écart de ± 14 jours)
+  // nb("A") (matrice : les cases de la ligne qui valent A), abs(x) (la valeur sans son signe : un écart de ± 14 jours),
+  // mois(date, n) (la date décalée de n mois : mois(fin, -preavis), la fin moins le préavis en mois)
   function lire(texte) {
     var jetons = decouper(texte), k = 0;
     if (!jetons.length) throw erreur("Formule vide", texte, -1);
@@ -186,14 +205,15 @@
       if (j.t === "nom") {
         k++;
         if (voir().t !== "(") return { t: "col", nom: j.v };
-        var fn = j.v.toLowerCase();
-        if (fn !== "nb" && fn !== "abs") throw erreur("Fonction inconnue « " + j.v + " » (seules nb et abs existent)", texte, j.pos);
+        var fn = j.v.toLowerCase(), arite = fn === "mois" ? 2 : fn === "nb" || fn === "abs" ? 1 : 0;
+        if (!arite) throw erreur("Fonction inconnue « " + j.v + " » (seules nb, abs et mois existent)", texte, j.pos);
         k++;
         var args = [];
         if (voir().t !== ")") { args.push(ou()); while (voir().t === ",") { k++; args.push(ou()); } }
         if (voir().t !== ")") throw erreur("Parenthèse fermante manquante après " + fn + "(", texte, voir().pos);
         k++;
-        if (args.length !== 1) throw erreur(fn + "(…) prend une seule valeur", texte, j.pos);
+        if (args.length !== arite) throw erreur(arite === 1 ? fn + "(…) prend une seule valeur" :
+          "mois(…) prend deux valeurs : une date et un nombre de mois, par exemple mois(fin, -preavis)", texte, j.pos);
         if (fn === "nb" && args[0].t !== "texte" && args[0].t !== "nombre") throw erreur("nb(…) prend une seule valeur, par exemple nb(\"A\")", texte, j.pos);
         return { t: "fn", nom: fn, args: args };
       }
@@ -223,9 +243,14 @@
     return liste;
   }
   function aCalcul(n) {
-    return !!n && (n.t === "op" || n.t === "neg" || (n.t === "fn" && n.nom === "abs") || aCalcul(n.a) || aCalcul(n.b) || (n.args || []).some(aCalcul));
+    return !!n && (n.t === "op" || n.t === "neg" || (n.t === "fn" && n.nom !== "nb") || aCalcul(n.a) || aCalcul(n.b) || (n.args || []).some(aCalcul));
   }
-  function aDivision(n) { return !!n && ((n.t === "op" && n.op === "/") || aDivision(n.a) || aDivision(n.b)); }
+  // Une formule qui peut donner une erreur dans Excel : une division (par zéro), ou mois() (EDATE hors des dates d'Excel).
+  // Dans Excel, SIERREUR la rend vide (ou une comparaison fausse), comme sur le site.
+  function peutEchouer(n) {
+    return !!n && ((n.t === "op" && n.op === "/") || (n.t === "fn" && n.nom === "mois") || peutEchouer(n.a) || peutEchouer(n.b) || (n.args || []).some(peutEchouer));
+  }
+  function aMois(n) { return !!n && ((n.t === "fn" && n.nom === "mois") || aMois(n.a) || aMois(n.b) || (n.args || []).some(aMois)); }
   function aplatir(n, t) { return n.t === t ? aplatir(n.a, t).concat(aplatir(n.b, t)) : [n]; }
 
   // ---------- Calculer une expression ----------
@@ -247,6 +272,7 @@
       case "vide": x = n.a.t === "col" ? ctx.valeur(n.a.nom) : evaluer(n.a, ctx); return n.non ? !estVide(x) : estVide(x);
       case "fn":
         if (n.nom === "abs") { x = evaluer(n.args[0], ctx); return typeof x === "number" ? Math.abs(x) : null; }
+        if (n.nom === "mois") return moisDecale(evaluer(n.args[0], ctx), evaluer(n.args[1], ctx));
         return ctx.nb ? ctx.nb(n.args[0].v) : 0;
     }
     return null;
@@ -275,7 +301,9 @@
       case "col": if (!(terme_ && souple(n.nom)) && liste.indexOf(n.nom) < 0) liste.push(n.nom); return liste;
       case "neg": return strictes(n.a, souple, terme_, liste);
       case "op": var t = n.op === "+" || n.op === "-"; strictes(n.a, souple, t, liste); return strictes(n.b, souple, t, liste);
-      case "fn": if (n.nom === "abs") strictes(n.args[0], souple, false, liste); return liste;
+      case "fn":   // abs(x), mois(date, n) : une case vide rend le calcul vide (nb() ne lit pas de case)
+        if (n.nom !== "nb") n.args.forEach(function (x) { strictes(x, souple, false, liste); });
+        return liste;
       case "cmp": strictes(n.a, souple, false, liste); return strictes(n.b, souple, false, liste);
     }
     return liste;
@@ -339,6 +367,11 @@
         return "condition";
       case "fn":
         if (n.nom === "abs") { attendre(typer(n.args[0], env, texte), "nombre", "abs(…) prend un nombre"); return "nombre"; }
+        if (n.nom === "mois") {
+          attendre(typer(n.args[0], env, texte), "nombre", "mois(date, n) prend une date et un nombre de mois");
+          attendre(typer(n.args[1], env, texte), "nombre", "mois(date, n) prend une date et un nombre de mois");
+          return "nombre";
+        }
         if (!env.nb) throw erreur("nb(…) s'emploie seulement dans une matrice", texte);
         if (indexValeur(env.nb, n.args[0].v) < 0) throw erreur("nb(" + JSON.stringify(n.args[0].v) + ") : la valeur n'est pas dans la liste (" + env.nb.join(", ") + ")", texte);
         return "nombre";
@@ -352,6 +385,52 @@
     if (c && c.valeurs && indexValeur(c.valeurs, lit.v) < 0) {
       throw erreur("« " + lit.v + " » n'est pas une valeur de " + col.nom + " (" + c.valeurs.join(", ") + ")", texte);
     }
+  }
+  // Une date ou un nombre ? (vérificateur ; typer voit une date comme un nombre de jours). estDate(nom) : la colonne ou la
+  // rubrique est une date (saisie, ou calculée avec resultat: "date"). Une date ± des jours donne une date, une date moins
+  // une date des jours, mois(date, n) une date ; une date se compare à une date. Le reste lève une erreur en français.
+  // Renvoie "date", "nombre", "texte" ou "condition".
+  function natureDate(n, estDate, texte) {
+    var a, b;
+    function pasDate(x, quoi) { if (x === "date") throw erreur(quoi, texte); return x; }
+    switch (n.t) {
+      case "nombre": return "nombre";
+      case "texte": return "texte";
+      case "aujourdhui": return "date";
+      case "col": return estDate(n.nom) ? "date" : "nombre";
+      case "neg": pasDate(natureDate(n.a, estDate, texte), "Un signe moins devant une date"); return "nombre";
+      case "op":
+        a = natureDate(n.a, estDate, texte); b = natureDate(n.b, estDate, texte);
+        if (n.op === "*" || n.op === "/") {
+          pasDate(a, "Une date ne se multiplie ni ne se divise"); pasDate(b, "Une date ne se multiplie ni ne se divise");
+          return "nombre";
+        }
+        if (n.op === "+") {
+          if (a === "date" && b === "date") throw erreur("On n'additionne pas deux dates (une date moins une date donne des jours)", texte);
+          return a === "date" || b === "date" ? "date" : "nombre";
+        }
+        if (b === "date") {
+          if (a !== "date") throw erreur("Un nombre moins une date (une date moins une date donne des jours)", texte);
+          return "nombre";   // une date moins une date : des jours
+        }
+        return a;            // une date moins des jours : une date
+      case "fn":
+        if (n.nom === "mois") {
+          if (natureDate(n.args[0], estDate, texte) !== "date") throw erreur("mois(date, n) : la première valeur est une date", texte);
+          pasDate(natureDate(n.args[1], estDate, texte), "mois(date, n) : n est un nombre de mois, pas une date");
+          return "date";
+        }
+        if (n.nom === "abs") pasDate(natureDate(n.args[0], estDate, texte), "abs(…) d'une date (abs(fin - debut) : des jours)");
+        return "nombre";
+      case "cmp":
+        a = natureDate(n.a, estDate, texte); b = natureDate(n.b, estDate, texte);
+        if ((a === "date") !== (b === "date")) throw erreur("Comparaison entre une date et un nombre (une date se compare à une date)", texte);
+        return "condition";
+      case "et": case "ou": natureDate(n.a, estDate, texte); natureDate(n.b, estDate, texte); return "condition";
+      case "non": natureDate(n.a, estDate, texte); return "condition";
+      case "vide": return "condition";
+    }
+    return "nombre";
   }
 
   // ---------- Écrire la formule Excel ----------
@@ -381,7 +460,11 @@
       case "texte": return { f: texteFormule(n.v), p: 9 };
       case "aujourdhui": return { f: "TODAY()", p: 9 };
       case "col": return { f: refs.cellule(n.nom), p: 9 };
-      case "fn": return { f: n.nom === "abs" ? "ABS(" + ecrireX(n.args[0], refs).f + ")" : refs.nb(n.args[0].v), p: 9 };
+      case "fn":
+        if (n.nom === "abs") return { f: "ABS(" + ecrireX(n.args[0], refs).f + ")", p: 9 };
+        // MOIS.DECALER (EDATE) : une plage (formule matricielle d'un total) n'y est pas permise (vérificateur).
+        if (n.nom === "mois") return { f: "EDATE(" + ecrireX(n.args[0], refs).f + "," + ecrireX(n.args[1], refs).f + ")", p: 9 };
+        return { f: refs.nb(n.args[0].v), p: 9 };
       case "neg": a = ecrireX(n.a, refs); return { f: "-" + (a.p < 9 ? "(" + a.f + ")" : a.f), p: 6 };
       case "op":
         pr = n.op === "+" || n.op === "-" ? 3 : 4;
@@ -389,10 +472,10 @@
         return { f: (a.p < pr ? "(" + a.f + ")" : a.f) + n.op +
           (b.p < pr || b.p === 6 || (b.p === pr && (n.op === "-" || n.op === "/")) ? "(" + b.f + ")" : b.f), p: pr };
       case "cmp":
-        var g = gardes(n, refs), expr = ecrireX(n.a, refs).f + n.op + ecrireX(n.b, refs).f;
-        if (aDivision(n)) expr = "IFERROR(" + expr + ",FALSE)";   // une division par zéro : la comparaison est fausse
+        var g = gardes(n, refs), expr = ecrireX(n.a, refs).f + n.op + ecrireX(n.b, refs).f, err = peutEchouer(n);
+        if (err) expr = "IFERROR(" + expr + ",FALSE)";   // une division par zéro (ou mois() hors des dates) : faux
         // SI(case vide ; FAUX ; comparaison) : SI ne calcule que la branche choisie (pas d'erreur #VALEUR!).
-        return g.length ? { f: "IF(" + siVide(g, refs) + ",FALSE," + expr + ")", p: 9 } : { f: expr, p: aDivision(n) ? 9 : 1 };
+        return g.length ? { f: "IF(" + siVide(g, refs) + ",FALSE," + expr + ")", p: 9 } : { f: expr, p: err ? 9 : 1 };
       case "et": case "ou":
         return { f: (n.t === "et" ? "AND(" : "OR(") + aplatir(n, n.t).map(function (x) { return ecrireX(x, refs).f; }).join(",") + ")", p: 9 };
       case "non": return { f: "NOT(" + ecrireX(n.a, refs).f + ")", p: 9 };
@@ -403,7 +486,9 @@
   function excel(n, refs) { return ecrireX(n, refs).f; }
 
   // La même condition, sur toutes les lignes d'un coup (dans une formule matricielle) : chaque ligne donne 0 ou 1.
+  // mois() n'y va pas (EDATE refuse une plage) : le vérificateur le dit, il faut passer par une colonne calculée.
   function excelPlage(n, refs) {
+    if (aMois(n)) throw new Error("mois() dans le si d'un total : passe par une colonne calculée");
     switch (n.t) {
       case "et": return "(" + aplatir(n, "et").map(function (x) { return excelPlage(x, refs); }).join("*") + ")";
       case "ou": return "((" + aplatir(n, "ou").map(function (x) { return excelPlage(x, refs); }).join("+") + ")>0)";
@@ -513,9 +598,11 @@
   }
   // « « Quantité » est vide, donc pas de « Total (€) » sur cette ligne, ni dans les totaux. » : les cases qui, vides,
   // rendent un calcul vide (un produit, un quotient, une date, un autre calcul vide), réunies en un seul message par
-  // ligne. Une case n'y est pas quand une alerte du tableau qui teste « case vide » le dit déjà (sauf).
-  // { cases: [{ nom, sauf: [conditions] }] (colonnes, puis rubriques du document : 5 au plus, vérificateur),
-  //   messages: [texte] } : messages[m], le message des cases vides m (m = la somme des 2^k des cases k vides).
+  // ligne. Une case n'y est pas quand une alerte du tableau qui teste « case vide » le dit déjà (sauf), ni une case d'une
+  // colonne facultative tant que cette colonne est vide sur toutes les lignes (l'offre C absente : rien à dire).
+  // { cases: [{ nom, sauf: [conditions], facultatif }] (colonnes, puis rubriques du document : 5 au plus, vérificateur),
+  //   messages: [texte] } : messages[m], le message des cases vides m (m = la somme des 2^k des cases k vides) ;
+  //   fac : { colonne: [colonnes facultatives] }, celles dont elle dépend (elle-même, ou les cases qui vident ce calcul).
   var MAX_CASES_VIDES = 5;
   var cacheIncompletes = [];
   function incompletes(t, rubriques) {
@@ -545,8 +632,11 @@
     });
     t.colonnes.map(function (c) { return c.id; }).concat(rubriques.map(function (r) { return r.id; })).forEach(function (m) {
       if (parSaisie[m] && (parId[m] || rubId[m])) cases.push({ nom: m, titre: (parId[m] || rubId[m]).titre, calculs: parSaisie[m],
-        sauf: (t.alertes || []).filter(function (a) { return testeVide(arbre(a.si), m); }).map(function (a) { return a.si; }) });
+        sauf: (t.alertes || []).filter(function (a) { return testeVide(arbre(a.si), m); }).map(function (a) { return a.si; }),
+        facultatif: !!(parId[m] && parId[m].facultatif) });
     });
+    var fac = {}, estFac = function (m) { return Object.prototype.hasOwnProperty.call(parId, m) && parId[m].facultatif === true; };
+    t.colonnes.forEach(function (c) { fac[c.id] = c.type === "calcul" ? bloquantes(c.id, {}).filter(estFac) : estFac(c.id) ? [c.id] : []; });
     var trop = cases.length > MAX_CASES_VIDES;   // refusé par le vérificateur
     if (trop) cases = cases.slice(0, MAX_CASES_VIDES);
     for (var masque = 1; masque < 1 << cases.length; masque++) {
@@ -560,9 +650,17 @@
       messages.push(listeEt(vides.map(function (x) { return "« " + x.titre + " »"; })) + (vides.length > 1 ? " sont vides" : " est vide") +
         ", donc pas " + listeDe(calcs.map(function (k) { return parId[k].titre; })) + " sur cette ligne" + (compte ? ", ni dans les totaux." : "."));
     }
-    var v = { cases: cases, messages: messages, trop: trop };
+    var v = { cases: cases, messages: messages, trop: trop, fac: fac };
     cacheIncompletes.push({ t: t, r: rubriques, v: v });
     return v;
+  }
+  // Les colonnes facultatives vides sur toutes les lignes du tableau : { id: true } (une liste vide : toutes).
+  function facultativesVides(t, lignes) {
+    var vides = {};
+    t.colonnes.forEach(function (c) {
+      if (c.facultatif === true && c.type !== "calcul" && (lignes || []).every(function (l) { return !l || estVide(l[c.id]); })) vides[c.id] = true;
+    });
+    return vides;
   }
   // La condition teste-t-elle « nom vide » ?
   function testeVide(n, nom) {
@@ -577,24 +675,35 @@
     return l.length > 1 ? l.slice(0, -1).join(", ") + " ni " + l[l.length - 1] : l[0];
   }
   function listeEt(l) { return l.length > 1 ? l.slice(0, -1).join(", ") + " et " + l[l.length - 1] : l[0]; }
-  // Le message des cases vides d'une ligne remplie, ou "".
-  function messageIncomplet(t, ctx, parent) {
+  // Le message des cases vides d'une ligne remplie, ou "". vides : les colonnes facultatives vides partout (rien à dire).
+  function messageIncomplet(t, ctx, parent, vides) {
     var inc = incompletes(t, parent && parent.rubriques), masque = 0;
     inc.cases.forEach(function (x, k) {
+      if (x.facultatif && vides && vides[x.nom] === true) return;
       if (ctx.valeur(x.nom) === null && !x.sauf.some(function (si) { return condition(si, ctx); })) masque += 1 << k;
     });
     return inc.messages[masque];
   }
   // Les messages d'alerte d'une ligne de tableau (une ligne vide n'a pas d'alerte) : ceux du tableau, puis les cases vides.
-  function alertesLigne(t, ligne, parent) {
+  // vides : facultativesVides(t, toutes les lignes du tableau).
+  function alertesLigne(t, ligne, parent, vides) {
     if (!ligneRemplie(t.colonnes, ligne)) return [];
     var ctx = contexteLigne(t.colonnes, ligne, parent);
     var res = (t.alertes || []).filter(function (a) { return condition(a.si, ctx); }).map(function (a) { return a.message; });
-    var m = messageIncomplet(t, ctx, parent);
+    var m = messageIncomplet(t, ctx, parent, vides);
     if (m) res.push(m);
     return res;
   }
+  // Un total : nombre de lignes, somme, moyenne, min ou max d'une colonne (seulement les lignes où « si » est vraie), ou
+  // un total calculé (calcul: "formule"). Le total d'une colonne facultative, ou d'un calcul qui en dépend, reste vide
+  // (« — ») tant que cette colonne est vide sur toutes les lignes : l'offre C absente n'a pas 0 sur 100.
   function totalTableau(t, tot, lignes, parent) {
+    if (tot.calcul === "formule") return totalFormule(t, tot, lignes, parent);
+    if (tot.colonne && tot.calcul !== "nombre") {
+      var dep = incompletes(t, parent && parent.rubriques).fac, vides = facultativesVides(t, lignes);
+      var fac = Object.prototype.hasOwnProperty.call(dep, tot.colonne) ? dep[tot.colonne] : [];
+      if (fac.some(function (id) { return vides[id] === true; })) return null;
+    }
     var vals = [], nb = 0;
     lignes.forEach(function (l) {
       if (!ligneRemplie(t.colonnes, l)) return;
@@ -609,11 +718,36 @@
     if (tot.calcul === "moyenne") return arrondi(vals.reduce(function (s, v) { return s + v; }, 0) / vals.length);
     return tot.calcul === "min" ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
   }
+  // Un total calculé à partir d'autres totaux : « effort_doit / effort_prevu * 100 ». Il lit les totaux du même tableau
+  // qui ont un id et sont placés AVANT lui (pas de boucle), et les rubriques simples du document. Un total vide rend le
+  // calcul vide (un total n'est pas un nombre saisi) ; une division par zéro aussi, sans alerte.
+  function avantDe(t, tot) {
+    var avant = {}, l = t.totaux || [];
+    for (var k = 0; k < l.length && l[k] !== tot; k++) if (l[k].id) avant[l[k].id] = l[k];
+    return avant;
+  }
+  function rubriquesSimples(parent) {
+    var r = {};
+    ((parent && parent.rubriques) || AUCUNE).forEach(function (x) { if (x.type !== "liste" && x.type !== "tableau") r[x.id] = true; });
+    return r;
+  }
+  function totalFormule(t, tot, lignes, parent) {
+    var avant = avantDe(t, tot), rub = rubriquesSimples(parent), a = Object.prototype.hasOwnProperty;
+    var ctx = { aujourdhui: parent ? parent.aujourdhui : undefined,
+      souple: function (nom) { return !a.call(avant, nom) && a.call(rub, nom) && !!parent.souple && parent.souple(nom); },
+      valeur: function (nom) {
+        if (a.call(avant, nom)) return totalTableau(t, avant[nom], lignes, parent);
+        return a.call(rub, nom) ? parent.valeur(nom) : null;
+      } };
+    var r = null;
+    try { r = evaluer(arbre(tot.formule), ctx); } catch (e) { r = null; }
+    return typeof r === "number" && isFinite(r) ? r : null;
+  }
   // t : une définition de type tableau, ou une rubrique « tableau » (colonnes, alertes, totaux, ligne).
   function suiviTableau(t, lignes, rubrique, res, parent) {
-    var nomL = ligneDef(t).titre;
+    var nomL = ligneDef(t).titre, vides = facultativesVides(t, lignes);
     lignes.forEach(function (l, i) {
-      alertesLigne(t, l, parent).forEach(function (m) {
+      alertesLigne(t, l, parent, vides).forEach(function (m) {
         res.alertes.push({ rubrique: rubrique, ligne: i, message: m, texte: nomL + " " + (i + 1) + extrait(premierTexte(t.colonnes, l)) + " : " + m });
       });
     });
@@ -871,9 +1005,15 @@
     }
     return String(v);
   }
+  // Le texte d'une valeur calculée : une date (15/03/2027) pour un calcul qui donne une date, sinon le nombre (2,5).
+  function estDateCalculee(c) { return !!c && c.type === "calcul" && c.resultat === "date"; }
+  function texteResultat(c, v) {
+    if (typeof v !== "number" || !isFinite(v)) return "";
+    return estDateCalculee(c) ? dateFr(isoDuJour(Math.floor(v))) : fmtNombre(v);
+  }
   function texteCalcul(c, calc) {
     var v = calc.valeurs[c.id], nv = calc.niveaux[c.id];
-    return v === null || v === undefined ? "" : fmtNombre(v) + (nv ? " · " + nv.libelle : "");
+    return v === null || v === undefined ? "" : texteResultat(c, v) + (nv ? " · " + nv.libelle : "");
   }
   function texteCellule(c, ligne, calc) {
     if (c.type === "calcul") return texteCalcul(c, calc);
@@ -971,7 +1111,7 @@
       if (!ligneRemplie(cols, l)) return;
       var calc = calculerLigne(cols, l, parent);
       h += '<tr><td style="' + H.td + '">' + (i + 1) + "</td>" + cols.map(function (c) {
-        if (c.type === "calcul") { var v = calc.valeurs[c.id]; return '<td style="' + H.td + '">' + (v === null ? "" : escH(fmtNombre(v)) + badgeH(calc.niveaux[c.id])) + "</td>"; }
+        if (c.type === "calcul") { var v = calc.valeurs[c.id]; return '<td style="' + H.td + '">' + (v === null ? "" : escH(texteResultat(c, v)) + badgeH(calc.niveaux[c.id])) + "</td>"; }
         return '<td style="' + H.td + '">' + choixH(texteValeur(c, l[c.id]), calc.couleurs[c.id]) + badgeH(calc.niveaux[c.id]) + "</td>";
       }).join("") + "</tr>";
     });
@@ -1029,7 +1169,8 @@
       case "texte-long": return 45;
       case "texte": return 22;
       case "date": return 13;
-      case "nombre": case "calcul": return 11;
+      case "nombre": return 11;
+      case "calcul": return estDateCalculee(c) ? 13 : 11;
       case "choix": return Math.max(11, Math.min(30, 3 + Math.max.apply(null, c.valeurs.map(function (v, k) { return texteChoix(c, k).length; }))));
     }
     return 16;
@@ -1058,7 +1199,7 @@
   // ne vaut alors "" que si la ligne est vide (existe = 0), comme sur le site. refs.ligne(nom) : la colonne de la ligne.
   function excelCalcul(c, refs, existe) {
     var n = arbre(c.formule), f = excel(n, refs), s = strictes(n, refs.souple || jamais, false);
-    if (aDivision(n)) f = "IFERROR(" + f + ',"")';
+    if (peutEchouer(n)) f = "IFERROR(" + f + ',"")';
     if (s.length) f = "IF(" + siVide(s, refs) + ',"",' + f + ")";
     // Une case stricte de la ligne, sans valeur par défaut, est vide quand la ligne est vide : la garde suffit alors.
     var garde = s.some(function (m) { var x = refs.ligne ? refs.ligne(m) : null; return !!x && (x.type === "calcul" || x.defaut === undefined); });
@@ -1066,13 +1207,15 @@
   }
   // Les messages d'alerte d'une ligne, réunis : SUPPRESPACE(SI(…;"Message 1 ";"")&SI(…;"Message 2 ";"")), puis celui
   // des cases vides : CHOISIR(1 + (B2="")*1 + (C2="")*2 ; "" ; "« B » est vide…" ; "« C » est vide…" ; "« B » et « C »…").
+  // Une colonne facultative ne compte que si elle sert : ET(E2="" ; NBVAL($E$2:$E$41)>0) (refs.plage : toute la colonne).
   function excelAlertes(alertes, refs, existe, inc) {
     var plus = alertes.length + (inc && inc.cases.length ? 1 : 0) > 1, fin = plus ? " " : "";
     var morceaux = alertes.map(function (a) { return "IF(" + excel(arbre(a.si), refs) + "," + texteFormule(a.message + fin) + ',"")'; });
     if (inc && inc.cases.length) morceaux.push("CHOOSE(1+" + inc.cases.map(function (x, k) {
-      var si = refs.cellule(x.nom) + '=""';
-      if (x.sauf.length) si = "AND(" + [si].concat(x.sauf.map(function (c) { return "NOT(" + excel(arbre(c), refs) + ")"; })).join(",") + ")";
-      return "(" + si + ")*" + (1 << k);
+      var l = [refs.cellule(x.nom) + '=""'];
+      if (x.facultatif && refs.plage) l.push("COUNTA(" + refs.plage(x.nom) + ")>0");
+      l = l.concat(x.sauf.map(function (c) { return "NOT(" + excel(arbre(c), refs) + ")"; }));
+      return "(" + (l.length > 1 ? "AND(" + l.join(",") + ")" : l[0]) + ")*" + (1 << k);
     }).join("+") + "," + inc.messages.map(function (m) { return texteFormule(m ? m + fin : ""); }).join(",") + ")");
     return "IF(" + existe + '=0,"",' + (morceaux.length > 1 ? "TRIM(" + morceaux.join("&") + ")" : morceaux[0]) + ")";
   }
@@ -1093,12 +1236,16 @@
     if (modele) lignes = (t.modele || []).slice();
     var nb = modele ? Math.max(LIGNES_MODELE, lignes.length + LIGNES_EN_PLUS) : Math.max(LIGNES_MODELE - LIGNES_EN_PLUS, lignes.length) + LIGNES_EN_PLUS;
     var prem = 2, der = prem + nb - 1, entrees = saisies(cols);
+    // zone.plage(nom) : toute la colonne, en références fixes (« $E$2:$E$41 ») ; zone.vides : les colonnes facultatives vides.
+    var zone = { vides: facultativesVides(t, lignes), plage: function (nom) {
+      return lettreDe[nom] ? "$" + lettreDe[nom] + "$" + prem + ":$" + lettreDe[nom] + "$" + der : nom;
+    } };
     var f = { nom: nom, figer: 1, paysage: true, lignes: [], listes: [], aides: [], couleurs: [],
       largeurs: sortie.map(function (s) { return s.sorte === "col" ? largeurExcel(s.col) : s.sorte === "niveau" ? 16 : 40; }) };
     f.lignes.push(sortie.map(function (s) {
       return { t: "texte", s: "entete", v: s.sorte === "col" ? s.col.titre : s.sorte === "niveau" ? "Niveau : " + s.col.titre : "Alertes" };
     }));
-    for (var r = prem; r <= der; r++) f.lignes.push(ligneTableau(t, sortie, lettreDe, entrees, r, lignes[r - prem] || null, parent, ext, inc));
+    for (var r = prem; r <= der; r++) f.lignes.push(ligneTableau(t, sortie, lettreDe, entrees, r, lignes[r - prem] || null, parent, ext, inc, zone));
     sortie.forEach(function (s) {
       var plage = s.l + prem + ":" + s.l + der;
       if (s.sorte === "niveau") f.couleurs.push({ plage: plage, regles: s.col.niveaux.map(function (nv) { return { egal: nv.libelle, couleur: nv.couleur }; }) });
@@ -1108,12 +1255,19 @@
       else if (s.col.aide && s.col.type !== "calcul") f.aides.push({ plage: plage, titre: s.col.titre, aide: s.col.aide });
     });
     if ((t.totaux || []).length) {
-      var res = { alertes: [], totaux: [] };
+      var res = { alertes: [], totaux: [] }, celluleTotal = {};   // l'id d'un total → sa cellule (« B38 »)
       suiviTableau(t, lignes, "", res, parent);
       f.lignes.push([]);
       f.lignes.push([{ t: "texte", v: "Totaux", s: "gras" }]);
       t.totaux.forEach(function (tot, k) {
-        var x = excelTotal(tot, lettreDe, entrees, prem, der, ext, soupleDe(t, parent)), v = res.totaux[k].valeur, n = f.lignes.length + 1;
+        var v = res.totaux[k].valeur, n = f.lignes.length + 1;
+        var x = tot.calcul === "formule" ? excelTotalFormule(tot, celluleTotal, ext, soupleDe(t, parent)) :
+          excelTotal(tot, lettreDe, entrees, prem, der, ext, soupleDe(t, parent));
+        // Le total d'une colonne facultative (ou d'un calcul qui en dépend) : vide tant qu'elle est vide partout.
+        var fac = tot.colonne && tot.calcul !== "nombre" && Object.prototype.hasOwnProperty.call(inc.fac, tot.colonne) ? inc.fac[tot.colonne] : [];
+        if (fac.length) x.f = "IF(" + (fac.length > 1 ? "OR(" : "") + fac.map(function (id) { return "COUNTA(" + zone.plage(id) + ")=0"; }).join(",") +
+          (fac.length > 1 ? ")" : "") + ',"",' + x.f + ")";
+        if (tot.id) celluleTotal[tot.id] = "B" + n;
         var cellules = [{ t: "texte", v: tot.libelle, s: "gras" }, { t: "formule", f: x.f, tableau: x.tableau, v: v === null ? "" : v }];
         if (tot.niveaux) {
           cellules.push({ t: "formule", s: "haut", f: excelNiveau(tot, "B" + n), v: res.totaux[k].niveau ? res.totaux[k].niveau.libelle : "" });
@@ -1135,21 +1289,35 @@
       return c ? estSouple(c) : !!(parent && parent.souple && parent.souple(nom));
     };
   }
-  function ligneTableau(t, sortie, lettreDe, entrees, r, ligne, parent, ext, inc) {
+  function ligneTableau(t, sortie, lettreDe, entrees, r, ligne, parent, ext, inc, zone) {
     var refs = { cellule: function (nom) { return lettreDe[nom] ? lettreDe[nom] + r : (ext || {})[nom] || nom; }, souple: soupleDe(t, parent),
-      ligne: function (nom) { return t.colonnes.filter(function (x) { return x.id === nom; })[0] || null; } };
+      ligne: function (nom) { return t.colonnes.filter(function (x) { return x.id === nom; })[0] || null; }, plage: zone.plage };
     var existe = existeX(entrees, function (c) { return lettreDe[c.id] + r; }, false);
     var calc = ligne ? calculerLigne(t.colonnes, ligne, parent) : { valeurs: {}, niveaux: {}, couleurs: {} };
     return sortie.map(function (s) {
-      if (s.sorte === "alertes") return { t: "formule", s: "long", f: excelAlertes(t.alertes || [], refs, existe, inc), v: ligne ? alertesLigne(t, ligne, parent).join(" ") : "" };
+      if (s.sorte === "alertes") return { t: "formule", s: "long", f: excelAlertes(t.alertes || [], refs, existe, inc), v: ligne ? alertesLigne(t, ligne, parent, zone.vides).join(" ") : "" };
       var c = s.col;
       if (s.sorte === "niveau") {
         var nv = calc.niveaux[c.id];
         return { t: "formule", s: "haut", f: excelNiveau(c, lettreDe[c.id] + r), v: nv ? nv.libelle : "" };
       }
-      if (c.type === "calcul") { var v = calc.valeurs[c.id]; return { t: "formule", s: "haut", f: excelCalcul(c, refs, existe), v: v === null || v === undefined ? "" : v }; }
+      if (c.type === "calcul") {   // une date calculée : le format date d'Excel (JJ/MM/AAAA en français)
+        var v = calc.valeurs[c.id];
+        return { t: "formule", s: estDateCalculee(c) ? "date" : "haut", f: excelCalcul(c, refs, existe), v: v === null || v === undefined ? "" : v };
+      }
       return ligne ? celluleSaisie(c, ligne[c.id]) : null;
     });
+  }
+  // Un total calculé : la même formule, qui renvoie aux cellules des totaux (placés avant lui) et des rubriques du
+  // document (1re feuille). SI(total vide ; "" ; …), SIERREUR(…/0 ; "").
+  function excelTotalFormule(tot, cellules, ext, souple) {
+    var a = Object.prototype.hasOwnProperty;
+    var refs = { cellule: function (nom) { return a.call(cellules, nom) ? cellules[nom] : (ext || {})[nom] || nom; },
+      souple: function (nom) { return !a.call(cellules, nom) && souple(nom); } };
+    var n = arbre(tot.formule), f = excel(n, refs), s = strictes(n, refs.souple, false);
+    if (peutEchouer(n)) f = "IFERROR(" + f + ',"")';
+    if (s.length) f = "IF(" + siVide(s, refs) + ',"",' + f + ")";
+    return { f: f };
   }
   function excelTotal(tot, lettreDe, entrees, prem, der, ext, souple) {
     var plage = function (nom) { return lettreDe[nom] ? lettreDe[nom] + prem + ":" + lettreDe[nom] + der : (ext || {})[nom] || nom; };
@@ -1451,18 +1619,20 @@
 
   L.outilsMoteur = {
     FORMAT_FICHIER: FORMAT_FICHIER, MAX: MAX, MOTS_RESERVES: MOTS_RESERVES, COULEURS: COULEURS, TYPES_CHAMP: TYPES_CHAMP,
-    TYPES_RUBRIQUE: TYPES_RUBRIQUE, CALCULS_TOTAL: CALCULS_TOTAL,
+    TYPES_RUBRIQUE: TYPES_RUBRIQUE, CALCULS_TOTAL: CALCULS_TOTAL, RESULTATS: RESULTATS,
     // valeurs
     estVide: estVide, lireNombre: lireNombre, fmtNombre: fmtNombre, jour: jour, isoDuJour: isoDuJour, dateFr: dateFr,
-    indexValeur: indexValeur, texteChoix: texteChoix, texteValeur: texteValeur, texteCalcul: texteCalcul,
+    moisDecale: moisDecale, indexValeur: indexValeur, texteChoix: texteChoix, texteValeur: texteValeur, texteCalcul: texteCalcul,
+    texteResultat: texteResultat, estDateCalculee: estDateCalculee,
     fixerAujourdhui: function (n) { jourFixe = n === undefined ? null : n; },
     // expressions
-    lire: lire, evaluer: evaluer, excel: excel, excelPlage: excelPlage, typer: typer, citees: citees,
+    lire: lire, evaluer: evaluer, excel: excel, excelPlage: excelPlage, typer: typer, natureDate: natureDate, citees: citees, aMois: aMois,
     // documents
     calculerLigne: calculerLigne, ligneRemplie: ligneRemplie, ligneVide: ligneVide, suivi: suivi, aDesAlertes: aDesAlertes,
     contexteDocument: contexteDocument, contexteBase: contexteBase, parentDe: parentDe, couleurChoix: couleurChoix,
     contenuVide: contenuVide, contenuExemple: contenuExemple, examiner: examiner, fichier: fichier, lireFichier: lireFichier,
     resumeDocument: resumeDocument, annonceOuverture: annonceOuverture, incompletes: incompletes, strictes: strictes, estSouple: estSouple, MAX_CASES_VIDES: MAX_CASES_VIDES, pluriel: pluriel, ligneDef: ligneDef,
+    facultativesVides: facultativesVides,
     // sorties
     texteDocument: texteDocument, htmlDocument: htmlDocument, classeur: classeur, xlsx: xlsx, zip: zip, crc32: crc32, utf8: utf8,
     lettre: lettre

@@ -1,6 +1,7 @@
 // Moteur des outils (js/outils.js, docs/outils.md), sans navigateur : le lecteur d'expressions (calculs, erreurs, types,
-// formules Excel), les valeurs (dates, nombres), les calculs d'un document (niveaux, alertes, totaux), le contrôle d'un
-// document ou d'un fichier, le texte et le HTML, l'écrivain zip (CRC32) et xlsx.
+// dates, formules Excel), les valeurs (dates, mois(), nombres), les calculs d'un document (niveaux, alertes, totaux,
+// dates calculées, totaux calculés, colonnes facultatives), les exemples de chaque outil, le contrôle d'un document ou
+// d'un fichier, le texte et le HTML, l'écrivain zip (CRC32) et xlsx.
 // Usage : node outils/tests/outils-moteur.js
 // En plus, quand c'est possible : « unzip -t » contrôle les zip ; python3 + openpyxl ouvre chaque classeur et compare
 // cellule par cellule (en-têtes, valeurs, formules, valeurs calculées). Avec OUTILS_LIBREOFFICE=1, LibreOffice recalcule
@@ -217,7 +218,7 @@ st = OM.suivi(raci, { colonnes: ['DAF', 'Toi', 'Julie'], lignes: [{ nom: 'A', ca
 egal(st.alertes.map(a => a.ligne + ' ' + a.message.split(' :')[0]), ['0 Deux A, c\'est aucun', '1 Personne n\'approuve ce livrable'],
   'matrice : alertes par ligne (un « a » minuscule compte comme un A)');
 
-// Les exemples des 12 outils, lus à leur date (exemple.date) : les totaux et les alertes annoncés par l'expert
+// Les exemples des outils, lus à leur date (exemple.date) : les totaux et les alertes annoncés par l'expert
 const suiviEx = id => { const d = outil(id); return OM.suivi(d, OM.contenuExemple(d), d.exemple.date ? OM.jour(d.exemple.date) : undefined); };
 const ATTENDU = {
   'gp-cadrage': { totaux: [3], alertes: [] },
@@ -231,9 +232,20 @@ const ATTENDU = {
   'gp-budget': { totaux: [85250, 81100, 30350, 57150, 87500, 2250], alertes: [] },
   'gp-business-case': { totaux: [2, 80000, 100, 3000], alertes: ['options 1 Gain en temps'] },
   'gp-recette': { totaux: [8, 7, 2, 2, 2, 1, 4], alertes: [0, 3, 4, 5].map(k => 'cas ' + k + ' Pas de PV tant que cette anomalie est ouverte') },
-  'gp-bascule': { totaux: [6, 6], alertes: [] }
+  'gp-bascule': { totaux: [6, 6], alertes: [] },
+  // La 2e vague (novembre 2026), lignes de l'expert. MoSCoW : la part du « doit » (50 %) est un total calculé.
+  'gp-lundi': { totaux: [10, 12, 120], alertes: [] },
+  'gp-choix-prestataire': { totaux: [100, 78, 74, 64], alertes: [] },
+  'gp-conduite-changement': { totaux: [6, 1, 10, 9, 1], alertes: [] },
+  'gp-reprise': { totaux: [3, 50, 0], alertes: [] },
+  'gp-bilan': { totaux: [4, 3], alertes: [] },
+  'gp-echeancier': { totaux: [2, 2], alertes: ['contrats 0 La date limite tombe avant la prochaine relecture', 'contrats 1 La date limite tombe avant la prochaine relecture'] },
+  'gp-contrat': { totaux: [0, 0, 2, 1], alertes: [] },
+  'gp-tableau-bord': { totaux: [6, 2, 1], alertes: ['2 Seuil franchi'] },
+  'gp-moscow': { totaux: [10, 5, 50, 1], alertes: [] },
+  'gp-estimation': { totaux: [13], alertes: [] }
 };
-egal(OUTILS.map(o => o.id).sort(), Object.keys(ATTENDU).sort(), 'les 12 outils');
+egal(OUTILS.map(o => o.id).sort(), Object.keys(ATTENDU).sort(), 'les ' + OUTILS.length + ' outils ont chacun leurs résultats attendus');
 Object.keys(ATTENDU).forEach(id => {
   const s = suiviEx(id);
   egal(s.totaux.map(t => t.valeur), ATTENDU[id].totaux, id + ' : totaux de l\'exemple');
@@ -367,7 +379,7 @@ egal([noteRap.type, noteRap.valeurs], ['choix', [1, 2, 3, 4, 6, 9]], 'rapport : 
 const exNote = OM.examiner(rap, { rubriques: { risques: [{ risque: 'x', note: 12 }, { risque: 'y', note: 5 }, { risque: 'z', note: 6 }] } });
 egal(exNote.contenu.rubriques.risques.map(l => l.note), ['', '', 6], 'rapport : une note hors liste (12, 5) est vidée à l\'ouverture');
 ok(exNote.problemes.some(p => /« 12 » n'est pas une valeur permise \(1, 2, 3, 4, 6, 9\)/.test(p)), 'rapport : la note 12 est signalée');
-ok(Object.keys(ATTENDU).every(id => suiviEx(id).alertes.every(a => !/ (est|sont) vides?, donc pas /.test(a.message))), 'les 12 exemples : aucune case vide');
+ok(Object.keys(ATTENDU).every(id => suiviEx(id).alertes.every(a => !/ (est|sont) vides?, donc pas /.test(a.message))), 'les ' + Object.keys(ATTENDU).length + ' exemples : aucune case vide');
 // Limites et messages d'un fichier ouvert
 let rf2 = OM.lireFichier(JSON.stringify({ format: 'learnsql-outil', version: 1, outil: 'gp-risques', nom: 'Gros',
   contenu: { lignes: Array.from({ length: 305 }, (v, k) => ({ risque: 'R' + k })) } }), reg, OUTILS);
@@ -396,6 +408,160 @@ OM.fixerAujourdhui();
 // Un nom fait d'espaces
 ok(/^Registre des risques\n/.test(OM.texteDocument(reg, { nom: '   ', contenu: { lignes: [] } })) &&
   OM.htmlDocument(reg, { nom: ' ', contenu: { lignes: [] } }).indexOf('color:#444444">') < 0, 'un nom fait d\'espaces : rien d\'écrit après le titre');
+
+// ---------- 7 quater. Les ajouts de la 2e vague (novembre 2026) : une date calculée (mois(), une date ± des jours), un
+// total calculé à partir d'autres totaux, une colonne facultative ; et leurs 3 outils (échéancier, MoSCoW, choix) ----------
+const iso = n => n === null || n === undefined ? null : OM.isoDuJour(n);
+const decale = (d, n) => iso(OM.moisDecale(OM.jour(d), n));
+// a. mois(date, n) : comme MOIS.DECALER (EDATE) d'Excel ; la fin de mois juste ; n coupé à l'entier ; hors des dates : vide
+[['2029-11-30', -6, '2029-05-30'], ['2029-03-31', -3, '2028-12-31'], ['2027-03-31', -1, '2027-02-28'], ['2028-03-31', -1, '2028-02-29'],
+  ['2027-01-31', 1, '2027-02-28'], ['2028-02-29', 12, '2029-02-28'], ['2027-12-31', 2, '2028-02-29'], ['2027-03-15', 0, '2027-03-15'],
+  ['2027-03-15', 1.9, '2027-04-15'], ['2027-03-15', -1.5, '2027-02-15'], ['2027-05-31', -15, '2026-02-28'], ['9999-12-31', 1, null],
+  ['1901-01-01', -10, '1900-03-01'], ['1901-01-01', -11, null]]
+  .forEach(([d, n, attendu]) => egal(decale(d, n), attendu, 'mois(' + d + ', ' + n + ')'));
+egal([OM.moisDecale(null, 1), OM.moisDecale(46461, null), OM.moisDecale(46461.75, 1)], [null, null, OM.jour('2027-04-15')], 'mois() : une case vide, une date avec des heures');
+egal(OM.evaluer(OM.lire('mois(fin, -preavis)'), ctx({ fin: OM.jour('2029-11-30'), preavis: 6 })), OM.jour('2029-05-30'), 'calcul « mois(fin, -preavis) »');
+egal(OM.evaluer(OM.lire('mois(fin, -preavis)'), ctxS({ fin: OM.jour('2029-11-30'), preavis: null }, ['preavis'])), null, 'mois() : un préavis vide rend le calcul vide (pas 0)');
+egal(OM.evaluer(OM.lire('fin - 15'), ctx({ fin: OM.jour('2029-05-30') })), OM.jour('2029-05-15'), 'une date moins des jours');
+egal(OM.strictes(OM.lire('mois(fin, -preavis) - delai'), so => so === 'preavis' || so === 'delai', false), ['fin', 'preavis'], 'mois() : ses deux valeurs rendent le calcul vide');
+egal(OM.excel(OM.lire('mois(fin, -preavis)'), { cellule: n => ({ fin: 'B2', preavis: 'C2' })[n] }), 'EDATE(B2,-C2)', 'Excel de mois()');
+egal(OM.excel(OM.lire('mois(fin, -1) < aujourdhui'), { cellule: n => ({ fin: 'B2' })[n] }), 'IF(B2="",FALSE,IFERROR(EDATE(B2,-1)<TODAY(),FALSE))', 'Excel : une comparaison avec mois() (erreur : faux)');
+ok(/mois\(\) dans le si/.test(erreurDe(() => OM.excelPlage(OM.lire('mois(fin, 1) > aujourdhui'), plage))), 'Excel : mois() refusé dans une formule de plage (EDATE)');
+egal(OM.typer(OM.lire('mois(fin, -preavis)'), { colonnes: { fin: { type: 'nombre' }, preavis: { type: 'nombre' } } }), 'nombre', 'type de mois()');
+[['mois(fin)', /deux valeurs/], ['mois(fin, 1, 2)', /deux valeurs/], ['moins(fin, 1)', /seules nb, abs et mois/]]
+  .forEach(([f, re]) => { const m = erreurDe(() => OM.lire(f)); ok(re.test(m) && /formule/.test(m), 'erreur pour « ' + f + ' » : ' + m); });
+ok(/mois\(date, n\)/.test(erreurDe(() => OM.typer(OM.lire('mois(nom, 1)'), { colonnes: { nom: { type: 'texte' } } }))), 'mois() d\'un texte refusé');
+// b. Une date ou un nombre (vérificateur) : une date ± des jours = une date ; une date − une date = des jours
+const estD = n => ['fin', 'debut', 'limite'].indexOf(n) >= 0;
+[['fin - debut', 'nombre'], ['fin - 30', 'date'], ['30 + fin', 'date'], ['mois(fin, -preavis)', 'date'], ['mois(fin, -1) - 15', 'date'],
+  ['limite - aujourdhui', 'nombre'], ['(fin - debut) / 7', 'nombre'], ['preavis * 2', 'nombre'], ['fin < aujourdhui - 7', 'condition'],
+  ['statut = "Ouvert" et fin vide', 'condition'], ['abs(fin - debut) > 14', 'condition']]
+  .forEach(([f, n]) => egal(OM.natureDate(OM.lire(f), estD, f), n, 'nature de « ' + f + ' »'));
+[['fin + debut', /deux dates/], ['30 - fin', /nombre moins une date/], ['fin * 2', /multiplie/], ['-fin', /signe moins/], ['abs(fin)', /abs/],
+  ['mois(preavis, 1)', /première valeur est une date/], ['mois(fin, debut)', /pas une date/], ['fin > 30', /date et un nombre/],
+  ['limite - aujourdhui < fin', /date et un nombre/]]
+  .forEach(([f, re]) => { const m = erreurDe(() => OM.natureDate(OM.lire(f), estD, f)); ok(re.test(m), 'nature refusée pour « ' + f + ' » : ' + m); });
+// c. Un document de test sans rubrique texte : une date calculée (mois), une date − des jours, des jours ; une colonne
+// facultative et son calcul ; des totaux, dont un total calculé (avec une rubrique et un niveau), lu par le document.
+const ECHEANCES = { id: 'test-echeances', titre: 'Échéances de test', type: 'document',
+  rubriques: [
+    { id: 'jour', titre: 'Jour', type: 'date' }, { id: 'place', titre: 'Place', type: 'nombre' },
+    { id: 'lignes', titre: 'Contrats', type: 'tableau', ligne: { titre: 'Contrat' },
+      colonnes: [
+        { id: 'quoi', titre: 'Contrat', type: 'texte' }, { id: 'fin', titre: 'Fin', type: 'date' },
+        { id: 'preavis', titre: 'Préavis (mois)', type: 'nombre' },
+        { id: 'limite', titre: 'Date limite', type: 'calcul', formule: 'mois(fin, -preavis)', resultat: 'date' },
+        { id: 'relance', titre: 'Relance', type: 'calcul', formule: 'limite - 15', resultat: 'date' },
+        { id: 'jours', titre: 'Jours', type: 'calcul', formule: 'limite - aujourdhui' },
+        { id: 'option', titre: 'Option', type: 'nombre', facultatif: true },
+        { id: 'double', titre: 'Option × 2', type: 'calcul', formule: 'option * 2' }
+      ],
+      alertes: [{ si: 'limite < jour', message: 'Date limite avant le jour.' }],
+      totaux: [
+        { id: 'nb_lignes', libelle: 'Contrats', calcul: 'nombre' },
+        { id: 'total_preavis', libelle: 'Préavis (mois)', calcul: 'somme', colonne: 'preavis' },
+        { libelle: 'Options', calcul: 'somme', colonne: 'option' }, { libelle: 'Option × 2, au plus', calcul: 'max', colonne: 'double' },
+        { id: 'part', libelle: 'Préavis moyen, en % de la place', calcul: 'formule', formule: 'total_preavis / nb_lignes / place * 100',
+          niveaux: [{ max: 50, libelle: 'Court', couleur: 'ok' }, { libelle: 'Long', couleur: 'ko' }] }
+      ] }
+  ],
+  alertes: [{ si: 'part > 50', message: 'Préavis longs.' }],
+  exemple: { nom: 'Test', date: '2027-01-15', rubriques: { jour: '2027-01-15', place: 12, lignes: [] } } };
+const contratsTest = () => ({ rubriques: { jour: '2029-01-15', place: 12, lignes: [
+  { quoi: 'PA', fin: '2029-11-30', preavis: 6, option: '' }, { quoi: 'Télécoms', fin: '2029-03-31', preavis: 3, option: '' },
+  { quoi: 'Sans préavis', fin: '2029-08-31', preavis: '', option: '' }] } });
+const tabEch = ECHEANCES.rubriques[2], auj15 = OM.jour('2029-01-15');
+let cEch = contratsTest();
+let calcsEch = cEch.rubriques.lignes.map(l => OM.calculerLigne(tabEch.colonnes, l, OM.contexteDocument(ECHEANCES, cEch, auj15)).valeurs);
+egal(calcsEch.map(v => [iso(v.limite), iso(v.relance), v.jours, v.double]), [['2029-05-30', '2029-05-15', 135, null], ['2028-12-31', '2028-12-16', -15, null],
+  [null, null, null, null]], 'date calculée (mois), une date − 15 jours, les jours ; le préavis vide : rien');
+st = OM.suivi(ECHEANCES, cEch, auj15);
+egal(st.totaux.map(t => t.texte + (t.niveau ? ' ' + t.niveau.libelle : '')), ['3', '9', '—', '—', '25 Court'],
+  'totaux : la colonne facultative vide partout et son calcul restent vides (« — ») ; le total calculé (9 ÷ 3 ÷ 12 × 100) et son niveau');
+egal(st.alertes.map(a => a.texte), ['Contrat 2 (« Télécoms ») : Date limite avant le jour.',
+  'Contrat 3 (« Sans préavis ») : « Préavis (mois) » est vide, donc pas de « Date limite », de « Relance » ni de « Jours » sur cette ligne.'],
+  'alertes : rien pour la colonne facultative vide partout ; le préavis vide est dit');
+cEch.rubriques.lignes[0].option = 4;   // l'option sert : les autres lignes ont un trou, c'est dit
+st = OM.suivi(ECHEANCES, cEch, auj15);
+egal(st.totaux.map(t => t.texte), ['3', '9', '4', '8', '25'], 'colonne facultative remplie une fois : ses totaux comptent');
+egal(st.alertes.filter(a => /Option/.test(a.message)).map(a => a.ligne + ' ' + a.message), [
+  '1 « Option » est vide, donc pas d\'« Option × 2 » sur cette ligne, ni dans les totaux.',
+  '2 « Préavis (mois) » et « Option » sont vides, donc pas de « Date limite », de « Relance », de « Jours » ni d\'« Option × 2 » sur cette ligne, ni dans les totaux.'],
+  'colonne facultative qui sert : une case vide est dite, comme une autre');
+egal(OM.facultativesVides(tabEch, contratsTest().rubriques.lignes), { option: true }, 'facultativesVides');
+// Le total calculé : vide quand un total qu'il lit est vide (place vide, division par zéro), et lu par le document
+const partAvec = (place, lignes) => { const c = contratsTest(); c.rubriques.place = place; if (lignes) c.rubriques.lignes = lignes; return OM.suivi(ECHEANCES, c, auj15); };
+egal([partAvec(12).totaux[4].valeur, partAvec('').totaux[4].valeur, partAvec(0).totaux[4].valeur, partAvec(12, []).totaux[4].valeur, partAvec(4).totaux[4].valeur],
+  [25, null, null, null, 75], 'total calculé : place vide, place 0, aucune ligne (0 ÷ 0) : vide ; place 4 : 75');
+egal([partAvec(12).alertes.some(a => a.message === 'Préavis longs.'), partAvec(4).alertes.some(a => a.message === 'Préavis longs.'), partAvec(4).totaux[4].niveau.libelle],
+  [false, true, 'Long'], 'le document lit le total calculé : le niveau et l\'alerte suivent la même condition');
+// Un total calculé ne lit que les totaux placés AVANT lui (pas de boucle), et les rubriques simples
+const BOUCLE = { type: 'tableau', colonnes: [{ id: 'x', titre: 'X', type: 'nombre' }], totaux: [
+  { id: 'a', libelle: 'A', calcul: 'formule', formule: 'b + 1' }, { id: 'b', libelle: 'B', calcul: 'formule', formule: 'a + 1' },
+  { id: 's', libelle: 'S', calcul: 'somme', colonne: 'x' }, { libelle: 'S × 2', calcul: 'formule', formule: 's * 2' }], exemple: { nom: 'x', lignes: [] } };
+egal(OM.suivi(BOUCLE, { lignes: [{ x: 3 }, { x: 4 }] }).totaux.map(t => t.valeur), [null, null, 7, 14], 'total calculé : un total placé après lui est vide (jamais de boucle)');
+// Texte, HTML : la date calculée en JJ/MM/AAAA ; « — » pour un total vide
+const docEch = { nom: 'Test', contenu: contratsTest(), aujourdhui: auj15 };
+const txtEch = OM.texteDocument(ECHEANCES, docEch), htmlEch = OM.htmlDocument(ECHEANCES, docEch);
+ok(/- Date limite : 30\/05\/2029\n- Relance : 15\/05\/2029\n- Jours : 135/.test(txtEch) && /- Options : —/.test(txtEch) && /- Préavis moyen, en % de la place : 25 · Court/.test(txtEch),
+  'texte : la date calculée, le total vide, le total calculé : ' + txtEch.slice(0, 400));
+ok(htmlEch.indexOf('>30/05/2029</td>') >= 0 && htmlEch.indexOf('>31/12/2028</td>') >= 0 && htmlEch.indexOf('Options : <strong>—</strong>') >= 0, 'HTML : la date calculée, le total vide');
+egal([OM.texteResultat(tabEch.colonnes[3], OM.jour('2029-05-30')), OM.texteResultat(tabEch.colonnes[5], 2.5), OM.texteResultat(tabEch.colonnes[3], null)],
+  ['30/05/2029', '2,5', ''], 'texteResultat : une date, un nombre, rien');
+// Excel : la formule (EDATE) et le format date ; le total calculé renvoie aux cellules des totaux et de la rubrique ;
+// la colonne facultative : NBVAL dans le message des cases vides et dans ses totaux
+OM.fixerAujourdhui(auj15);
+let clEch = OM.classeur(ECHEANCES, docEch), fEch = clEch.feuilles[1];
+const cel = (f, ref) => { const m = /^([A-Z]+)(\d+)$/.exec(ref), k = m[1].split('').reduce((s, c) => s * 26 + c.charCodeAt(0) - 64, 0) - 1; return (f.lignes[+m[2] - 1] || [])[k]; };
+egal([cel(fEch, 'D2').f, cel(fEch, 'D2').s, cel(fEch, 'D2').v, cel(fEch, 'E2').f, cel(fEch, 'E2').s, cel(fEch, 'F2').f, cel(fEch, 'F2').s],
+  ['IF(OR(B2="",C2=""),"",IFERROR(EDATE(B2,-C2),""))', 'date', OM.jour('2029-05-30'), 'IF(D2="","",D2-15)', 'date', 'IF(D2="","",D2-TODAY())', 'haut'],
+  'Excel : la date calculée (EDATE, format date), une date − 15 jours, les jours');
+const alerteI2 = cel(fEch, 'I2').f;
+ok(alerteI2.indexOf('IF(COUNTA(A2,B2,C2,G2)=0,"",TRIM(IF(IF(OR(D2="",\'Échéances de test\'!$B$4=""),FALSE,D2<\'Échéances de test\'!$B$4),"Date limite avant le jour. ","")&' +
+  'CHOOSE(1+(B2="")*1+(C2="")*2+(AND(G2="",COUNTA($G$2:$G$31)>0))*4,"",') === 0, 'Excel : la colonne facultative ne compte que si elle sert (NBVAL) : ' + alerteI2.slice(0, 300));
+const totEch = fEch.lignes.slice(33).map(l => l[1] && l[1].f);
+egal(totEch, ['SUM(((A2:A31<>"")+(B2:B31<>"")+(C2:C31<>"")+(G2:G31<>"")>0)*1)', 'SUM(C2:C31)', 'IF(COUNTA($G$2:$G$31)=0,"",SUM(G2:G31))',
+  'IF(COUNTA($G$2:$G$31)=0,"",IF(COUNT(H2:H31)=0,"",MAX(H2:H31)))', 'IF(OR(B35="",B34="",\'Échéances de test\'!$B$5=""),"",IFERROR(B35/B34/\'Échéances de test\'!$B$5*100,""))'],
+  'Excel : les totaux (le total calculé renvoie aux cellules B34, B35 et à la place)');
+egal(fEch.lignes.slice(33).map(l => l[1] && l[1].v), [3, 9, '', '', 25], 'Excel : les valeurs des totaux (lisibles sans recalcul)');
+OM.fixerAujourdhui();
+// d. L'échéancier des contrats : la date limite = fin − préavis (en mois), calculée ; les jours qui restent ; les alertes
+const ech = outil('gp-echeancier'), contrats = ech.rubriques.filter(r => r.id === 'contrats')[0], cEx = OM.contenuExemple(ech);
+const ctxEch = c => OM.contexteDocument(ech, c, OM.jour(ech.exemple.date));
+egal(cEx.rubriques.contrats.map(l => { const v = OM.calculerLigne(contrats.colonnes, l, ctxEch(cEx)).valeurs; return [iso(v.date_limite), v.jours]; }),
+  [['2029-05-30', 240], ['2028-12-31', 90]], 'échéancier : la date limite calculée (30/11/2029 − 6 mois, 31/03/2029 − 3 mois) et les jours, au 02/10/2028');
+ok(/- Date limite pour résilier : 30\/05\/2029\n- Jours avant la date limite : 240/.test(OM.texteDocument(ech, { nom: 'x', contenu: cEx, aujourdhui: OM.jour(ech.exemple.date) })),
+  'échéancier : la date limite en JJ/MM/AAAA dans le texte');
+const casEch = () => { const c = OM.contenuExemple(ech); c.rubriques.contrats[1].preavis = ''; return c; };
+egal(OM.suivi(ech, casEch(), OM.jour(ech.exemple.date)).alertes.map(a => a.ligne + ' ' + a.message), [
+  '0 La date limite tombe avant la prochaine relecture : prépare le choix du DAF, sortie chiffrée, et prévois-le au budget.',
+  '1 « Préavis (mois) » est vide, donc pas de « Date limite pour résilier » ni de « Jours avant la date limite » sur cette ligne, ni dans les totaux.'],
+  'échéancier : un préavis vide, pas de date limite, et c\'est dit une fois');
+egal(OM.suivi(ech, OM.contenuExemple(ech), OM.jour('2029-06-15')).alertes.map(a => a.ligne + ' ' + a.message.split(' :')[0]),
+  ['0 Date limite passée', '1 Date limite passée'], 'échéancier lu le 15/06/2029 : les dates limites sont passées');
+// e. MoSCoW : la part du « doit », en %, avec son niveau et l'alerte au-delà de 60 % (même condition)
+const mos = outil('gp-moscow'), partMos = modif => { const c = OM.contenuExemple(mos); modif(c.rubriques.demandes); return OM.suivi(mos, c); };
+let sMos = partMos(() => {});
+egal([sMos.totaux[2].libelle, sMos.totaux[2].texte, sMos.totaux[2].niveau.libelle], ['Part du « doit » (%)', '50', 'Dans le repère'], 'MoSCoW : la part du « doit » de l\'exemple');
+sMos = partMos(d => { d[2].classe = 'Doit'; });   // 8 jours sur 10
+egal([sMos.totaux[2].valeur, sMos.totaux[2].niveau.libelle, sMos.alertes.map(a => a.message.split(' :')[0])],
+  [80, 'Au-delà du repère', ['Plus de 60 % de l\'effort en « doit »']], 'MoSCoW : 80 % en « doit », le niveau et l\'alerte');
+sMos = partMos(d => { d[1].effort = 1; d[4].effort = 3; });   // 3 jours sur 10 : 30 % (0,3 × 100, sans reste de calcul)
+egal([sMos.totaux[2].valeur, sMos.totaux[2].niveau.libelle, sMos.alertes.length], [30, 'Dans le repère', 0], 'MoSCoW : 30 % en « doit »');
+sMos = partMos(d => { d.forEach(x => { x.classe = 'Pas cette fois'; x.quand = '2027-07-01'; }); });
+egal([sMos.totaux[0].valeur, sMos.totaux[2].texte, sMos.totaux[2].niveau, sMos.alertes.length], [0, '—', null, 0], 'MoSCoW : rien de prévu, la part est vide (pas de division par zéro)');
+sMos = partMos(d => { d[3].classe = 'Doit'; });   // 6 jours sur 10 : 60 %, la borne comprise
+egal([sMos.totaux[2].valeur, sMos.totaux[2].niveau.libelle, sMos.alertes.length], [60, 'Dans le repère', 0], 'MoSCoW : 60 % pile, dans le repère, pas d\'alerte');
+// f. La grille de choix : l'offre C facultative ; avec 2 offres, aucune alerte inutile, et C n'a pas 0 sur 100
+const gri = outil('gp-choix-prestataire');
+const deuxOffres = () => { const c = OM.contenuExemple(gri); c.rubriques.grille.forEach(l => { l.note_c = ''; }); c.rubriques.eliminatoires.forEach(l => { l.c = ''; }); return c; };
+let sGri = OM.suivi(gri, deuxOffres());
+egal([sGri.totaux.map(x => x.texte), sGri.alertes.map(a => a.texte)], [['100', '78', '74', '—'], []], 'choix : 2 offres, aucune alerte, l\'offre C à « — »');
+const troisTrous = deuxOffres();
+troisTrous.rubriques.grille[0].note_c = 3;   // l'offre C sert : les notes C qui manquent sont dites
+sGri = OM.suivi(gri, troisTrous);
+egal([sGri.totaux[3].valeur, sGri.alertes.length, sGri.alertes[0].message], [12, 6, '« Note C » est vide, donc pas de « Points C » sur cette ligne, ni dans les totaux.'],
+  'choix : l\'offre C commencée, chaque note C qui manque est dite');
 
 // ---------- 8. Contrôle d'un document et d'un fichier : jamais d'erreur ----------
 const risques = outil('gp-risques');
@@ -481,16 +647,38 @@ const PARTIES = ['[Content_Types].xml', '_rels/.rels', 'xl/workbook.xml', 'xl/_r
 // Des textes difficiles : &, <, guillemets, espaces au début, retours à la ligne, caractères de contrôle, demi-caractère.
 const PIEGE = ' Début & fin <b>"ici"</b>' + String.fromCharCode(1) + String.fromCharCode(0xD800) + '\r\nligne 2 ';
 const classeurs = [];
-for (const def of OUTILS.concat([TACHES, REUNION])) {
+// Le texte difficile va dans le premier champ texte : une rubrique simple du document, sinon une colonne texte d'un de
+// ses tableaux (1re ligne), ou du tableau. Un outil sans aucun champ texte garde seulement le nom piégé (pas de plantage).
+const estTexte = c => c.type === 'texte' || c.type === 'texte-long';
+const pieger = (t, lignes) => {
+  const col = (t.colonnes || []).filter(estTexte)[0];
+  if (!col || !Array.isArray(lignes)) return false;
+  if (!lignes.length) lignes.push({});
+  lignes[0][col.id] = PIEGE;
+  return true;
+};
+for (const def of OUTILS.concat([TACHES, REUNION, ECHEANCES])) {
   const exemple = def === TACHES ? { nom: 'Test', contenu: { lignes: LIGNES } } : def === REUNION ? { nom: 'Test', contenu: reunion } :
-    { nom: def.exemple.nom, contenu: OM.contenuExemple(def) };
+    def === ECHEANCES ? { nom: 'Test', contenu: contratsTest() } : { nom: def.exemple.nom, contenu: OM.contenuExemple(def) };
   const piege = { nom: PIEGE, contenu: JSON.parse(JSON.stringify(exemple.contenu)) };
-  if (piege.contenu.lignes && piege.contenu.lignes[0] && def.type === 'tableau') piege.contenu.lignes[0][def.colonnes[0].id] = PIEGE;
+  if (def.type === 'tableau') pieger(def, piege.contenu.lignes);
   if (def.type === 'matrice') { piege.contenu.colonnes[0] = PIEGE; piege.contenu.lignes[0].nom = PIEGE; }
-  if (def.type === 'document') piege.contenu.rubriques[def.rubriques.filter(r => r.type === 'texte' || r.type === 'texte-long')[0].id] = PIEGE;
+  if (def.type === 'document') {
+    const r = def.rubriques.filter(estTexte)[0];
+    if (r) piege.contenu.rubriques[r.id] = PIEGE;
+    else def.rubriques.filter(x => x.type === 'tableau').some(x => pieger(x, piege.contenu.rubriques[x.id]));
+  }
   for (const [quoi, doc] of [['modele', null], ['exemple', exemple], ['piege', piege]]) ajouterClasseur(def, quoi, doc);
 }
+ok(!ECHEANCES.rubriques.some(estTexte) && classeurs.some(c => c.def === ECHEANCES && c.quoi === 'piege' &&
+  JSON.stringify(c.doc.contenu.rubriques.lignes[0].quoi) === JSON.stringify(PIEGE)), 'un document sans rubrique texte : le texte difficile va dans son tableau');
 // Les cas des cases vides : mêmes contrôles (openpyxl), et LibreOffice doit trouver les mêmes résultats que le site.
+ajouterClasseur(ECHEANCES, 'vides', { nom: 'Option remplie une fois', contenu: (() => { const c = contratsTest(); c.rubriques.lignes[0].option = 4; c.rubriques.place = 0; return c; })() });
+ajouterClasseur(ech, 'vides', { nom: 'Préavis vide', contenu: casEch() });
+ajouterClasseur(mos, 'vides', { nom: '80 %', contenu: (() => { const c = OM.contenuExemple(mos); c.rubriques.demandes[2].classe = 'Doit'; return c; })() });
+ajouterClasseur(mos, 'rien', { nom: 'Rien de prévu', contenu: (() => { const c = OM.contenuExemple(mos); c.rubriques.demandes.forEach(x => { x.classe = 'Pas cette fois'; }); return c; })() });
+ajouterClasseur(gri, 'vides', { nom: '2 offres', contenu: deuxOffres() });
+ajouterClasseur(gri, 'trous', { nom: 'C commencée', contenu: troisTrous });
 ajouterClasseur(bud, 'vides', { nom: 'Cas du testeur', contenu: casBudget() });
 ajouterClasseur(bc, 'vides', { nom: 'Cas du testeur', contenu: casBc });
 ajouterClasseur(rap, 'vides', { nom: 'Jalons', contenu: casRap });
@@ -585,7 +773,9 @@ if (py) {
         cellules++;
         const ref = OM.lettre(k + 1) + (r + 1), p = lues[ref];
         if (!p) { ecarts.push(ref + ' absente'); return; }
-        let attendu = m.t === 'date' ? OM.isoDuJour(m.v) : m.t === 'formule' ? m.v : m.t === 'texte' ? propre(m.v) : m.v;
+        // Une date (saisie, ou calculée : une formule au format date) : openpyxl la lit comme une date.
+        let attendu = m.t === 'date' || (m.t === 'formule' && m.s === 'date' && typeof m.v === 'number') ? OM.isoDuJour(m.v) :
+          m.t === 'formule' ? m.v : m.t === 'texte' ? propre(m.v) : m.v;
         let lu = p.v;
         if (m.t === 'formule' && p.f !== '=' + m.f) ecarts.push(ref + ' formule ' + p.f);
         if (attendu === '' || attendu === null) attendu = null;
@@ -635,7 +825,9 @@ if (process.env.OUTILS_LIBREOFFICE) {
         if (!m || m.t !== 'formule') return;
         formules++;
         const lu = ((t[r] || [])[k] || ''), attendu = m.v === null || m.v === undefined ? '' : m.v;
-        const pareil = typeof attendu === 'number' ? Math.abs(Number(lu) - attendu) < 1e-9 && lu !== '' : lu === String(attendu);
+        // Une date calculée (format date) : LibreOffice l'écrit « 05/30/2029 » (LANG=C), ou en nombre de jours.
+        const us = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(lu), dateOk = m.s === 'date' && typeof attendu === 'number' && !!us && us[3] + '-' + us[1] + '-' + us[2] === OM.isoDuJour(attendu);
+        const pareil = dateOk || (typeof attendu === 'number' ? Math.abs(Number(lu) - attendu) < 1e-9 && lu !== '' : lu === String(attendu));
         if (!pareil) ecarts.push(OM.lettre(k + 1) + (r + 1) + ' : ' + JSON.stringify(lu) + ' au lieu de ' + JSON.stringify(attendu));
       }));
       ok(!ecarts.length, 'LibreOffice ' + c.def.id + ' ' + c.quoi + ' « ' + f.nom + ' » : ' + ecarts.slice(0, 4).join(' | '));

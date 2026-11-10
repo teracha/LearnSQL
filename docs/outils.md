@@ -11,7 +11,8 @@ D'autres sujets viendront (EDI, Divalto…) : ajouter un sujet ou un outil = ajo
 - Dans le menu, un seul lien « Outils » remplace « Dico » et « Traduire ». Les adresses `#/dico` et `#/traduire`
   ne changent pas.
 - `#/outils` : une section par sujet, une carte par outil (nom, à quoi il sert en une phrase, lien). Un sujet peut
-  ranger ses outils par étapes (Gestion de projet : 1. Cadrer, 2. Piloter, 3. Décider, 4. Livrer), dans les données.
+  ranger ses outils par étapes (Gestion de projet : 1. Cadrer, 2. Piloter, 3. Décider, 4. Prestataires, 5. Livrer : 22
+  outils), dans les données.
 - En bas de `#/outils`, quand il y a des documents : « Effacer tous mes documents » (avec confirmation), pour un
   ordinateur partagé.
 - `#/outils/<id>` : la page d'un outil ; `#/outils/<id>/<doc>` : un document de cet outil.
@@ -164,8 +165,22 @@ Un champ inconnu donne une alerte du vérificateur (une faute de frappe ne passe
 
 Options : `aide` (l'indication : texte d'attente dans le site, message de saisie dans Excel) ; `defaut` (valeur d'une
 ligne neuve, permise ; pas pour un calcul) ; `largeur` (largeur Excel, 1 à 120) ; pour un choix : `libelles` (« 3 ·
-Forte ») et `couleurs` (une par valeur : `ok`, `attention`, `ko`, `neutre`, ou `""`) ; pour un calcul : `formule` ;
-pour un calcul ou un nombre : `niveaux`.
+Forte ») et `couleurs` (une par valeur : `ok`, `attention`, `ko`, `neutre`, ou `""`) ; pour un calcul : `formule` et
+`resultat` ; pour un calcul ou un nombre : `niveaux` ; pour une colonne saisie d'un tableau : `facultatif`.
+
+**Une date calculée** (`resultat: "date"`, novembre 2026) : un calcul dont le résultat est une date, affichée
+JJ/MM/AAAA (site, copie, impression) et au format date dans Excel. La formule donne une date : une date plus ou moins
+des jours (`limite - 15`), ou `mois(date, n)` (voir « Les expressions »). Ex. l'échéancier des contrats :
+`{ id: "date_limite", type: "calcul", formule: "mois(fin, -preavis)", resultat: "date" }` (la fin moins le préavis, en
+mois). Pas de niveaux sur une date ; pas de total (somme, moyenne, min, max) sur une colonne date. Le vérificateur
+contrôle que la formule donne bien une date, et qu'un calcul qui donne une date le dit.
+
+**Une colonne facultative** (`facultatif: true`, novembre 2026) : une colonne saisie qu'on peut laisser vide sur
+toutes les lignes (l'offre C d'une grille de choix, quand il n'y a que 2 offres). Tant qu'elle est vide partout : aucune
+alerte « case vide » pour elle ; ses calculs restent vides, et le total d'elle-même ou d'un calcul qui en dépend aussi
+(« — », pas 0) ; le reste est inchangé. Dès qu'une de ses cases est remplie, elle compte comme une autre colonne : une
+case vide est dite. Dans Excel, la même règle, qui suit la saisie : `ET(E2="" ; NBVAL($E$2:$E$41)>0)` dans le message
+des cases vides, `SI(NBVAL($E$2:$E$41)=0 ; "" ; …)` pour ses totaux. Pas de valeur par défaut (vérificateur).
 
 **Niveaux** : `[{ max: 2, libelle: "On surveille", couleur: "ok" }, …]`, bornes croissantes ; le dernier peut être
 sans borne (tout le reste). `max: 2` : jusqu'à 2 compris ; `sous: 0` : en dessous de 0, strictement (le reste de
@@ -182,24 +197,33 @@ même sujet suivent **exactement la même condition** : jamais deux messages con
 - `x vide`, `x non vide` : seulement après un nom (une liste ou un tableau d'un document : seulement ainsi).
 - `aujourdhui` (ou `aujourd'hui`) : la date du jour ; pour un exemple, `exemple.date`.
 - `abs(x)` : sans signe (un écart de ± 14 jours) ; `nb("A")` : dans une matrice, les cases de la ligne égales à A.
-- Une date est un nombre de jours : `prevision - prevu` donne des jours.
+- `mois(date, n)` : la date décalée de n mois (n négatif : avant), comme MOIS.DECALER (`EDATE`) d'Excel : le même jour,
+  ou le dernier jour du mois quand il n'existe pas (31 mars moins 1 mois = 28 ou 29 février ; 30/11/2029 moins 6 mois =
+  30/05/2029). n est coupé à l'entier, comme dans Excel. Une case vide (la date ou n) rend le calcul vide ; une date
+  hors d'Excel (avant mars 1900, après 9999) aussi. Pas dans le `si` d'un total (Excel refuse `EDATE` sur une plage) :
+  passer par une colonne calculée.
+- Une date est un nombre de jours : `prevision - prevu` donne des jours ; une date plus ou moins des jours donne une
+  date (`fin - 30`). Contrôlé par le vérificateur : on n'additionne pas deux dates, on ne multiplie ni ne divise une
+  date, un nombre moins une date est refusé, une date se compare à une date (pas à un nombre de jours).
 - **Les cases vides** (même règle sur le site et dans Excel, rien ne disparaît sans message) :
   - dans une **somme ou une différence**, un nombre saisi vide (nombre, ou choix de nombres) **compte pour 0** :
     `consomme + reste`, consommé vide → le reste ; `atterrissage - reference`, référence vide → l'atterrissage ;
-  - dans un **produit ou un quotient** (et `abs`), une case vide donne un **calcul vide** ; de même une date vide, un
+  - dans un **produit ou un quotient** (et `abs`, `mois`), une case vide donne un **calcul vide** ; de même une date vide, un
     autre calcul vide, ou un total vide. La ligne a alors une alerte qui dit quelle case manque :
     « Poste 2 (« Mise en service ») : « Quantité » est vide, donc pas de « Total (€) » sur cette ligne, ni dans les
     totaux. » (un seul message par ligne pour toutes ses cases vides ; pas de message quand une alerte du tableau
     teste déjà cette case avec `vide` et s'affiche) ;
   - une **division par zéro** est vide, sans alerte (le délai de retour d'une option sans gain) ;
   - une **comparaison avec une case vide est fausse** (sauf le terme vide d'une somme, qui vaut 0) ;
-  - une **ligne vide** (rien de saisi, ou seulement les valeurs par défaut) n'a ni calcul, ni alerte, ni total.
+  - une **ligne vide** (rien de saisi, ou seulement les valeurs par défaut) n'a ni calcul, ni alerte, ni total ;
+  - une **colonne facultative** vide sur toutes les lignes n'a pas de message (voir « Les colonnes »).
 - Les textes se comparent sans tenir compte des majuscules (comme Excel).
-- Types contrôlés : un calcul donne un nombre ; une alerte ou un `si` donne une condition ; pas de calcul sur un
-  texte ; pas de comparaison nombre / texte ; `statut = "Ouvrt"` est refusé (pas une valeur de `statut`).
+- Types contrôlés : un calcul donne un nombre (ou une date, avec `resultat: "date"`) ; une alerte ou un `si` donne une
+  condition ; pas de calcul sur un texte ; pas de comparaison nombre / texte ; `statut = "Ouvrt"` est refusé (pas une
+  valeur de `statut`).
 - Ce qu'une expression peut lire : les colonnes de sa ligne ; dans un tableau d'un document, aussi les rubriques
   simples du document (texte, nombre, date, choix ; un même nom est refusé) ; dans une alerte du document, les
-  rubriques et les totaux qui ont un `id`.
+  rubriques et les totaux qui ont un `id` ; dans un total calculé, les totaux placés avant lui et les rubriques simples.
 - Excel : le lecteur écrit la même formule, en anglais avec des virgules (Excel en français l'affiche en français).
   Une comparaison devient `SI(case vide ; FAUX ; comparaison)`, un calcul `SI(case vide ; "" ; calcul)` (seulement
   les cases qui rendent le calcul vide ; un terme d'une somme vide vaut 0 dans Excel aussi), et `SI(ligne vide ; "" ;
@@ -215,10 +239,17 @@ même sujet suivent **exactement la même condition** : jamais deux messages con
   et un message le dit sous le bouton (« Limite atteinte : 300 risques au plus. »).
 - **Alertes** : `{ si, message }`, par ligne ; elles s'affichent sous le document : « Risque 3 (« Le début du texte… ») :
   message », et la ligne porte la marque « Alerte ». Message de 30 mots au plus.
-- **Totaux** : `{ libelle, calcul, colonne?, si?, id?, niveaux? }`. `calcul` : `nombre` (les lignes qui comptent, sans
-  colonne), `somme`, `moyenne`, `min`, `max` (avec une colonne de nombres). `si` : seulement les lignes où la condition
-  est vraie. `id` : le total se lit dans les alertes du document. `niveaux` : un mot et une couleur (la météo globale :
-  « 2 · Orange »).
+- **Totaux** : `{ libelle, calcul, colonne?, si?, id?, niveaux?, formule? }`. `calcul` : `nombre` (les lignes qui
+  comptent, sans colonne), `somme`, `moyenne`, `min`, `max` (avec une colonne de nombres, pas une date). `si` : seulement
+  les lignes où la condition est vraie. `id` : le total se lit dans les alertes du document. `niveaux` : un mot et une
+  couleur (la météo globale : « 2 · Orange »).
+- **Un total calculé à partir d'autres totaux** (`calcul: "formule"`, novembre 2026) : `formule` lit les totaux du
+  même tableau qui ont un `id` et sont placés **avant** lui (jamais de boucle), et les rubriques simples du document ;
+  ni `colonne` ni `si`. Ex. MoSCoW : `{ id: "part_doit", libelle: "Part du « doit » (%)", calcul: "formule",
+  formule: "effort_doit / effort_prevu * 100", niveaux: [{ max: 60, … }, { … }] }`, et l'alerte du document
+  `part_doit > 60` (la même condition que le niveau). Un total vide rend le calcul vide (« — ») ; une division par zéro
+  aussi, sans alerte. Dans Excel : une formule qui renvoie aux cellules des totaux (`SI(OU(B35="" ; B34="") ; "" ;
+  SIERREUR(B35/B34*100 ; ""))`) et de la rubrique sur la 1re feuille.
 - Écran : un tableau sur PC ; une carte par ligne quand la place manque (téléphone, 390 px), sans défilement de côté.
 
 ### Le type `document`
@@ -277,14 +308,19 @@ temps. Les exemples sont tirés de DEMAT 2027 (`docs/plan-chef-de-projet.md`).
 
 - `node outils/verifier.js` : ids et fichiers (un id de sujet ou d'outil n'est pas celui d'un parcours, d'un
   sous-parcours ou d'un module), sujets publics, types, colonnes, choix, niveaux, valeurs par défaut, lignes du
-  modèle, formules lues et typées (colonnes existantes, pas de boucle), alertes, totaux, cours qui existent, exemple
-  conforme, sorties faites sans erreur.
-- `node outils/tests/outils-moteur.js` : le lecteur (calculs, erreurs, types, formules Excel), les valeurs, les calculs
-  des 12 exemples (totaux et alertes attendus), le contrôle des fichiers (400 fichiers au hasard), le zip et les
+  modèle, formules lues et typées (colonnes existantes, pas de boucle ; les dates : `natureDate`), dates calculées,
+  colonnes facultatives, alertes, totaux (dont les totaux calculés), cours qui existent, exemple conforme, sorties
+  faites sans erreur.
+- `node outils/tests/outils-moteur.js` : le lecteur (calculs, erreurs, types, dates, formules Excel), les valeurs
+  (`mois()` et la fin de mois), les calculs des exemples de chaque outil (totaux et alertes attendus), les dates
+  calculées, les totaux calculés, les colonnes facultatives (un document de test sans rubrique texte, et les cas de
+  l'échéancier, de MoSCoW et de la grille de choix), le contrôle des fichiers (400 fichiers au hasard), le zip et les
   classeurs ; avec python3 et openpyxl, chaque cellule de chaque classeur est relue ; avec `OUTILS_LIBREOFFICE=1`,
   LibreOffice recalcule toutes les formules et doit trouver les mêmes résultats que le site.
-- `outils/tests/outils.js` (navigateur) : menu, droits, étapes, les 3 types, documents, fichiers, Excel des 12 outils,
+- `outils/tests/outils.js` (navigateur) : menu, droits, étapes, les 3 types, documents, fichiers, Excel de chaque outil,
   copie, impression, cours, téléphone et PC, cases vides, limites, 320 px sans débordement, cibles tactiles de 44 px,
-  stockage refusé, « Effacer tous mes documents », les droits des outils (sans compte, compte non limité, hors du
-  groupe, dans le groupe, le dico réservé, `outils` réservé, admin). La page Équipe (cocher puis valider, grille des
-  droits des outils, 390 px) : `outils/tests/equipe.js`.
+  stockage refusé, « Effacer tous mes documents », la date calculée, le total calculé et la colonne facultative (23 bis),
+  les droits des outils (sans compte, compte non limité, hors du groupe, dans le groupe, le dico réservé, `outils`
+  réservé, admin). Les étapes, les outils et le nombre de cartes attendus sont lus dans les données
+  (`data/outils/sujets.js` et les définitions), pas écrits dans le test. La page Équipe (cocher puis valider, grille
+  des droits des outils, 390 px) : `outils/tests/equipe.js`.

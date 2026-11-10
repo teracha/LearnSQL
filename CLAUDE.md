@@ -165,7 +165,7 @@ Spécification : `docs/traducteur.md`.
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
 - Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico et Traduire, ouvert sans compte ; Gestion de
-  projet : ses outils rangés en 4 étapes, `groupes` : Cadrer, Piloter, Décider, Livrer).
+  projet : ses outils rangés en 5 étapes, `groupes` : Cadrer, Piloter, Décider, Prestataires, Livrer).
 - Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
   `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
   sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).
@@ -174,10 +174,13 @@ Spécification et format figé : `docs/outils.md`.
 - La Gestion de projet ne dépend plus du parcours Chef de projet. Pour lui garder la même restriction, l'élève peut
   lancer une fois `outils/supabase-outils.sql` (facultatif : recopie les groupes de `chef-projet` sur `gestion-projet`).
 - Un outil = un fichier `data/outils/<id>.js` (`LEARNSQL.outils = (LEARNSQL.outils || []).concat([...])`), chargé dans
-  `index.html`. Trois types : `tableau`, `document`, `matrice`. 12 outils de gestion de projet (définis par l'expert
-  chef de projet ; règles et mots des cours cp03 à cp21, exemples DEMAT 2027).
+  `index.html`. Trois types : `tableau`, `document`, `matrice`. 22 outils de gestion de projet (définis par l'expert
+  chef de projet ; règles et mots des cours cp02 à cp27, exemples DEMAT 2027).
 - Moteur sans `eval` : `js/outils.js` (`LEARNSQL.outilsMoteur` : expressions et formules Excel, calculs, alertes,
   totaux, contrôle d'un fichier, texte, HTML, `.xlsx` fait sans bibliothèque). Écran : bloc « Outils » de `js/app.js`.
+  Ajouts de novembre 2026 (`docs/outils.md`) : la date calculée (`resultat: "date"`, JJ/MM/AAAA ; `mois(date, n)` comme
+  MOIS.DECALER, ou une date ± des jours), le total calculé à partir d'autres totaux (`calcul: "formule"`), la colonne
+  facultative (`facultatif: true` : vide partout, ni alerte ni total).
 - Cases vides (site et Excel, même résultat) : vide = 0 dans une somme ou une différence ; dans un produit ou un
   quotient, calcul vide et une alerte qui dit quelle case manque (`docs/outils.md`, « Les expressions »).
 - Documents de l'élève : dans le navigateur seulement (`learnsql-outils`), jamais envoyés, pas effacés à la

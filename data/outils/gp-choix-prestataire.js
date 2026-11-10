@@ -37,7 +37,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           { id: "critere", titre: "Critère éliminatoire", type: "texte" },
           { id: "a", titre: "Offre A", type: "choix", valeurs: ["Oui", "Non"], couleurs: ["ok", "ko"] },
           { id: "b", titre: "Offre B", type: "choix", valeurs: ["Oui", "Non"], couleurs: ["ok", "ko"] },
-          { id: "c", titre: "Offre C", type: "choix", valeurs: ["Oui", "Non"], couleurs: ["ok", "ko"] }
+          { id: "c", titre: "Offre C", type: "choix", valeurs: ["Oui", "Non"], couleurs: ["ok", "ko"], facultatif: true }
         ],
         alertes: [
           { si: "a = \"Non\" ou b = \"Non\" ou c = \"Non\"",
@@ -53,7 +53,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           { id: "note_b", titre: "Note B", type: "choix", valeurs: [0, 1, 2, 3, 4, 5], largeur: 16,
             libelles: ["Pas d'information", "Insuffisant", "Partiellement suffisant", "Satisfaisant", "Bon et avantageux", "Très intéressant"],
             couleurs: ["ko", "ko", "attention", "neutre", "ok", "ok"], aide: "De 0 à 5, sur des faits." },
-          { id: "note_c", titre: "Note C", type: "choix", valeurs: [0, 1, 2, 3, 4, 5], largeur: 16,
+          { id: "note_c", titre: "Note C", type: "choix", valeurs: [0, 1, 2, 3, 4, 5], largeur: 16, facultatif: true,
             libelles: ["Pas d'information", "Insuffisant", "Partiellement suffisant", "Satisfaisant", "Bon et avantageux", "Très intéressant"],
             couleurs: ["ko", "ko", "attention", "neutre", "ok", "ok"], aide: "De 0 à 5, sur des faits." },
           { id: "points_a", titre: "Points A", type: "calcul", formule: "poids * note_a / 5" },

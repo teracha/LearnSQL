@@ -48,13 +48,15 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           { id: "effort_prevu", libelle: "Effort prévu (jours) : doit, devrait, pourrait", calcul: "somme", colonne: "effort",
             si: "classe <> \"Pas cette fois\"" },
           { id: "effort_doit", libelle: "dont « doit » (jours)", calcul: "somme", colonne: "effort", si: "classe = \"Doit\"" },
+          { id: "part_doit", libelle: "Part du « doit » (%)", calcul: "formule", formule: "effort_doit / effort_prevu * 100",
+            niveaux: [{ max: 60, libelle: "Dans le repère", couleur: "ok" }, { libelle: "Au-delà du repère", couleur: "ko" }] },
           { libelle: "Pas cette fois", calcul: "nombre", si: "classe = \"Pas cette fois\"" }
         ],
         aideTotaux: "Repère DSDM : pas plus d'environ 60 % de l'effort prévu en « doit ». Sinon, rien ne protège la date." },
       { id: "valide", titre: "Validé par", type: "texte", aide: "Tu proposes le classement, avec les métiers. Le sponsor valide les « doit », et tranche en cas de désaccord." }
     ],
     alertes: [
-      { si: "effort_doit > effort_prevu * 0.6",
+      { si: "part_doit > 60",
         message: "Plus de 60 % de l'effort en « doit » : rien ne protège la date. Refais le tri avec le métier : « sans elle, la bascule échoue-t-elle ? »" },
       { si: "effort_prevu > place",
         message: "L'effort prévu dépasse la place : quelque chose doit sortir. Contesté ? Le sponsor tranche, sur tes critères." },

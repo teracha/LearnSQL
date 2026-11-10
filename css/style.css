@@ -433,6 +433,8 @@ main.large { max-width: 1600px; }
 
 /* Un niveau : toujours un mot et sa couleur. Les alertes : des phrases sous le document. */
 .o-niveau { display: inline-block; padding: 0 9px; border-radius: 99px; font-weight: 700; font-size: 15px; white-space: nowrap; }
+/* Sur une carte (téléphone), un mot long (« 2 · Partiellement suffisant ») passe à la ligne au lieu de déborder. */
+.o-cartes .o-niveau { white-space: normal; max-width: 100%; border-radius: 12px; }
 .o-ok { background: var(--ok-soft); color: var(--ok); }
 .o-attention { background: var(--warn-soft); color: var(--warn); }
 .o-ko { background: var(--ko-soft); color: var(--ko); }
