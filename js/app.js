@@ -67,6 +67,7 @@
         if (!r.ok) {
           var err = new Error((d && (d.msg || d.error_description || d.message || d.error)) || ("Erreur " + r.status));
           err.status = r.status;
+          err.code = d && typeof d === "object" ? d.code : undefined;   // ex. « 23505 » : la ligne existe déjà
           throw err;
         }
         return d;
