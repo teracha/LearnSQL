@@ -30,8 +30,9 @@ Demandé par l'élève (novembre 2026) : une gestion de droits aussi au niveau d
 - **La règle** : sans ligne = ouvert à tous les connectés ; avec des lignes = réservé à ces groupes ; il faut aussi
   l'accès aux niveaux au-dessus (`outils` → sujet → outil). L'admin voit tout. Sans compte : seulement les sujets de
   `LEARNSQL.outilsPublics` (le sujet SQL), avec tous leurs outils (comme `parcoursPublics`).
-- **Partout** : `#/outils` (sujets, étapes, cartes : une étape ou un sujet sans outil visible disparaît ; `outils`
-  réservé : aucun sujet, un message, et pas de lien « Outils » dans le menu) ; la page d'un outil, son exemple et ses
+- **Partout** : `#/outils` (sujets, étapes, cartes : une étape ou un sujet sans outil visible disparaît ; aucun outil
+  visible : un message court) ; le lien « Outils » du menu, caché quand le compte ne voit aucun outil (`outils` réservé,
+  ou chaque sujet ou outil réservé à d'autres groupes) ; la page d'un outil, son exemple et ses
   documents (message court « Outil réservé ») ; « Les outils de ce cours » ; `#/dico` (fiches comprises) et
   `#/traduire` pour un compte connecté qui n'y a pas droit (même message ; sans compte, ils restent publics). Le lien
   vers Traduire dans le dico, et « Dans le dico » dans Traduire, suivent aussi le droit. L'onglet Divalto du dico
@@ -44,7 +45,7 @@ Demandé par l'élève (novembre 2026) : une gestion de droits aussi au niveau d
   groupes du parcours `chef-projet` sur l'élément `gestion-projet`. Sans ce script, elle est ouverte à tous les
   connectés.
 - C'est un masquage d'écran, comme les parcours : le contenu reste public sur GitHub Pages. Code : `accesOutils`,
-  `outilVisible`, `outilOuvert` (bloc « Outils » de `js/app.js`), sur `droitsCompte`, la règle commune aux parcours.
+  `outilVisible`, `outilOuvert`, `unOutilVisible` (bloc « Outils » de `js/app.js`), sur `droitsCompte`, la règle commune aux parcours.
 
 ## Les fichiers
 

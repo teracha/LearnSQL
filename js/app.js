@@ -10,6 +10,14 @@
   var app = document.getElementById("app");
   var quiz = null;        // quiz en cours
   var dernierResultat = null;
+  var numeroPage = 0;     // augmente à chaque changement de page (route)
+
+  // Une page qui charge depuis Supabase ne s'affiche que si l'élève est resté sur cette page : une réponse lente ne
+  // remplace jamais la page suivante. Usage : var encore = pageActuelle(); … .then(function () { if (encore()) … }).
+  function pageActuelle() {
+    var n = numeroPage;
+    return function () { return n === numeroPage; };
+  }
 
   // ---------- Sauvegarde locale ----------
   function videStore() { return { version: 1, tentatives: [], questions: {} }; }
@@ -219,9 +227,9 @@
     if (lien) lien.textContent = s ? "Compte ✓" : "Connexion";
     var lienEquipe = document.getElementById("lien-equipe");
     if (lienEquipe) lienEquipe.hidden = !(s && (s.role === "admin" || s.role === "formateur"));
-    // Toute la section Outils réservée à d'autres groupes : pas de lien « Outils » (droit « outils », page Équipe).
+    // Aucun outil visible pour ce compte (droits des outils, page Équipe) : pas de lien « Outils ».
     var lienOutils = document.getElementById("lien-outils");
-    if (lienOutils) lienOutils.hidden = !accesOutils(["outils"]);
+    if (lienOutils) lienOutils.hidden = !unOutilVisible();
     var pied = document.getElementById("pied-compte");
     if (pied) pied.innerHTML = s ? "Tes notes sont enregistrées dans ton compte." :
       'Sans compte, tes notes restent dans ce navigateur. <a href="#/compte">Se connecter</a> pour les retrouver partout.';
@@ -952,7 +960,8 @@
           nouveauMdp = false;
           messageCompte = "";
           msgMdp.textContent = "Mot de passe changé.";
-          document.getElementById("form-mdp").reset();
+          var f = document.getElementById("form-mdp");
+          if (f) f.reset();   // (l'élève a pu changer de page entre-temps)
         }, function (err) {
           msgMdp.textContent = /different|same/i.test(err.message)
             ? "Choisis un mot de passe différent de l'ancien."
@@ -967,6 +976,7 @@
         var msgS = document.getElementById("msg-suppr");
         if (prompt("Pour confirmer, tape SUPPRIMER") !== "SUPPRIMER") { msgS.textContent = "Rien n'a été supprimé."; return; }
         msgS.textContent = "Suppression…";
+        var encore = pageActuelle();
         sessionValide().then(function (sv) {
           return appelSupa("/rest/v1/rpc/supprimer_mon_compte", { methode: "POST", corps: {} }, sv.access_token);
         }).then(function () {
@@ -978,7 +988,7 @@
           }
           messageCompte = "Ton compte a été supprimé.";
           majNav();
-          pageCompte();
+          if (encore()) pageCompte();
         }, function (err) {
           msgS.textContent = "Suppression impossible : " + err.message;
         });
@@ -1016,9 +1026,10 @@
       return { email: email, password: mdp };
     }
     function connecte() {
+      var encore = pageActuelle();
       majNav();
       messageCompte = "Connecté. Ta progression de cet appareil est ajoutée à ton compte.";
-      synchroniser().then(pageCompte);
+      synchroniser().then(function () { if (encore()) pageCompte(); });
     }
 
     document.getElementById("form-compte").addEventListener("submit", function (e) {
@@ -1113,14 +1124,19 @@
   }
 
   function pageEquipe(cible) {
-    var s = lireSession();
+    var s = lireSession(), encore = pageActuelle();
     if (!s || (s.role !== "admin" && s.role !== "formateur")) { location.hash = "#/compte"; return; }
     app.innerHTML = '<h1>Équipe</h1><p class="muted">Chargement…</p>';
     chargerEquipe(s).then(function (eq) {
-      if (cible) afficherPersonne(eq, cible);
-      else afficherEquipe(eq, s);
+      if (!encore()) return;   // l'élève est déjà sur une autre page
+      if (cible) { afficherPersonne(eq, cible); return; }
+      // Des changements ratés pendant que l'élève était parti (« Valider », puis une autre page) : ils reviennent.
+      var r = equipeReprise;
+      equipeReprise = null;
+      afficherEquipe(eq, s, r && r.attente);
+      if (r && equipe) { equipe.message = r.message; majAttente(); }
     }, function (e) {
-      app.innerHTML = '<h1>Équipe</h1><p>Chargement impossible : ' + esc(e.message) + '</p>';
+      if (encore()) app.innerHTML = '<h1>Équipe</h1><p>Chargement impossible : ' + esc(raisonErreur(e)) + '.</p>';
     });
   }
 
@@ -1130,6 +1146,8 @@
   // remet tout comme avant, sans requête. Un changement : { type: "role", user_id, valeur } (le rôle choisi),
   // { type: "membre", groupe_id, user_id, valeur } ou { type: "acces", element, groupe_id, valeur } (vrai : case cochée).
   var equipe = null;   // la page Équipe de l'admin : { eq, s, attente: { clé: changement }, message, envoi }
+  // L'élève a quitté la page pendant l'envoi et des changements ont raté : { attente, message }, repris à son retour.
+  var equipeReprise = null;
 
   function nbAttente() { return equipe ? Object.keys(equipe.attente).length : 0; }
   function pluriel(n, un, plusieurs) { return n + " " + (n > 1 ? plusieurs : un); }
@@ -1180,9 +1198,55 @@
     });
     if (c.valeur) eq[k].push(c.type === "membre" ? { groupe_id: c.groupe_id, user_id: c.user_id } : { element: c.element, groupe_id: c.groupe_id });
   }
-  function texteQuitter(n) {
+  function texteQuitter() {
+    var n = nbAttente();
+    if (equipe && equipe.envoi) return "L'enregistrement n'est pas fini. Quitter la page quand même ?";
     return n > 1 ? n + " changements ne sont pas enregistrés. Quitter la page sans les enregistrer ?" :
       "1 changement n'est pas enregistré. Quitter la page sans l'enregistrer ?";
+  }
+  // Une erreur du serveur, en mots simples : jamais le message technique (en anglais), qui va dans la console.
+  function raisonErreur(err) {
+    try { console.warn("LearnSQL, erreur du serveur :", err && err.status, err && err.code, err && err.message); } catch (e) { /* ignoré */ }
+    if (!err || !err.status) return "pas de connexion au serveur";
+    if (err.status === 401 || err.status === 403) return "ta session a expiré, reconnecte-toi";
+    if (err.code === "23503") return "le groupe ou le compte n'existe plus";
+    return "le serveur a refusé";
+  }
+  // Un changement a sa case sur la page : son groupe, son compte et sa ligne de droits existent encore.
+  function aSaCase(eq, c) {
+    if (c.type !== "role" && !eq.groupes.some(function (g) { return g.id === c.groupe_id; })) return false;
+    if (c.type !== "acces" && !eq.profils.some(function (p) { return p.user_id === c.user_id; })) return false;
+    return c.type !== "acces" || lignesParcours().concat(lignesOutils()).some(function (l) { return l.id === c.element; });
+  }
+  // Le groupe ou le compte d'un changement a été supprimé ailleurs : la phrase, avec son nom (pris avant le rechargement).
+  function disparu(eq, avant, c) {
+    var x;
+    if (c.type !== "role" && !eq.groupes.some(function (g) { return g.id === c.groupe_id; })) {
+      x = avant.groupes.filter(function (g) { return g.id === c.groupe_id; })[0];
+      return x ? "Le groupe " + guillemets(x.nom) + " n'existe plus" : "Un groupe n'existe plus";
+    }
+    if (c.type !== "acces" && !eq.profils.some(function (p) { return p.user_id === c.user_id; })) {
+      x = avant.profils.filter(function (p) { return p.user_id === c.user_id; })[0];
+      return x ? "Le compte " + x.email + " n'existe plus" : "Un compte n'existe plus";
+    }
+    return "";
+  }
+  // Le message après « Valider » (élève dyslexique) : une seule phrase en tête, puis la liste de ce qui a raté ; les
+  // autres phrases (groupe disparu, rechargement) à part, après la liste.
+  function messageValidation(total, rates, disparus, recharge) {
+    var retires = 0, notes = Object.keys(disparus).map(function (k) {
+      retires += disparus[k];
+      return k + " : " + pluriel(disparus[k], "changement retiré.", "changements retirés.");
+    });
+    if (!recharge) notes.push("La page n'a pas pu se recharger : recharge-la plus tard.");
+    if (rates.length) {
+      return { genre: "ko", details: rates, notes: notes, texte: rates.length === total ?
+        (total > 1 ? "Les " + total + " changements n'ont pas pu être enregistrés :" : "Le changement n'a pas pu être enregistré :") :
+        rates.length + (rates.length > 1 ? " changements sur " + total + " n'ont pas pu être enregistrés :" : " changement sur " + total + " n'a pas pu être enregistré :") };
+    }
+    var faits = total - retires;
+    return { genre: faits ? "ok" : "info", notes: notes,
+      texte: faits ? pluriel(faits, "changement enregistré.", "changements enregistrés.") : "Rien n'a été enregistré." };
   }
 
   // Les lignes des grilles de droits : { id, titre, sous } (sous : en retrait, sous la ligne du dessus).
@@ -1215,18 +1279,32 @@
     return html + '</tbody></table></div>';
   }
   // La barre des changements en attente : fixe en bas de l'écran, dès le 1er changement (ou pour un message).
+  // En haut, le message (sa liste défile si elle est longue) ; en bas, le compte et les boutons, toujours visibles.
   function barreEquipe() {
     return '<div class="barre-attente" id="eq-barre" hidden><div class="barre-corps">' +
-      '<p class="barre-texte" id="eq-compte"></p>' +
+      '<div class="barre-msg" id="eq-msg" role="status"></div>' +
+      '<div class="barre-ligne"><p class="barre-texte" id="eq-compte"></p>' +
       '<div class="barre-boutons" id="eq-boutons"><button type="button" class="btn" id="eq-valider">Valider</button>' +
-      '<button type="button" class="btn ghost" id="eq-annuler">Annuler</button></div>' +
-      '<div class="barre-msg" id="eq-msg" role="status"></div></div></div>';
+      '<button type="button" class="btn ghost" id="eq-annuler">Annuler</button></div></div></div></div>';
   }
+  // La barre ne cache jamais le bas de la page, ni la case qui a le focus (Tab) : la marge du bas et le
+  // scroll-padding suivent sa hauteur, aussi quand la fenêtre change de taille ou tourne.
+  function margeBarre() {
+    var barre = document.getElementById("eq-barre"), h = equipe && barre && !barre.hidden ? barre.offsetHeight + 16 : 0;
+    document.body.style.paddingBottom = h ? h + "px" : "";
+    document.documentElement.style.scrollPaddingBottom = h ? h + "px" : "";
+  }
+  window.addEventListener("resize", margeBarre);
 
-  // La page de l'admin : attente = les changements encore à valider (après un échec), sinon rien.
+  // La page de l'admin : attente = les changements encore à valider (après un échec), sinon rien. Seuls restent ceux qui
+  // ont leur case sur la page et changent encore quelque chose : le compteur de la barre = les cases marquées.
   function afficherEquipe(eq, s, attente) {
-    var admin = s.role === "admin";
-    equipe = admin ? { eq: eq, s: s, attente: attente || {}, message: null, envoi: false } : null;
+    var admin = s.role === "admin", garde = {};
+    Object.keys(attente || {}).forEach(function (k) {
+      var c = attente[k];
+      if (aSaCase(eq, c) && valeurBase(eq, c) !== c.valeur) garde[k] = c;
+    });
+    equipe = admin ? { eq: eq, s: s, attente: garde, message: null, envoi: false } : null;
     var parId = {};
     eq.profils.forEach(function (p) { parId[p.user_id] = p; });
     var html = '<h1>Équipe</h1><p class="muted">' + (admin
@@ -1320,9 +1398,10 @@
     document.getElementById("eq-valider").disabled = e.envoi;
     document.getElementById("eq-annuler").disabled = e.envoi;
     zone.className = "barre-msg" + (m ? " " + m.genre : "");
-    zone.innerHTML = m ? esc(m.texte) + (m.details ? '<ul>' + m.details.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>' : '') : '';
-    // La barre ne cache jamais le bas de la page.
-    document.body.style.paddingBottom = barre.hidden ? "" : (barre.offsetHeight + 16) + "px";
+    zone.innerHTML = m ? '<p class="barre-tete">' + esc(m.texte) + '</p>' +
+      (m.details && m.details.length ? '<ul>' + m.details.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>' : '') +
+      (m.notes || []).map(function (t) { return '<p class="barre-note">' + esc(t) + '</p>'; }).join('') : '';
+    margeBarre();
   }
 
   // Une case cochée ou décochée, un rôle choisi : en attente, rien n'est envoyé.
@@ -1354,18 +1433,36 @@
   }
 
   // « Valider » : tout part ensemble (les ajouts en un seul envoi par table, avec un tableau), puis la page se
-  // recharge UNE fois. Ce qui a échoué reste en attente, et le message le dit. Mon propre rôle part en dernier, et
-  // seulement si tout le reste est passé : sans les droits d'admin, la base refuserait les autres envois.
+  // recharge UNE fois. Un lot d'ajouts refusé en entier (une ligne déjà là, un groupe supprimé ailleurs…) repart ligne
+  // par ligne, pour que les bonnes passent ; une ligne déjà dans la base compte comme enregistrée. Ce qui a raté reste
+  // en attente. Mon propre rôle part en dernier, et seulement si tout le reste est passé : sans les droits d'admin, la
+  // base refuserait les autres envois.
   function validerEquipe() {
     var e = equipe;
     if (!e || e.envoi || !nbAttente()) return;
-    var envois = [], ajouts = { membre: [], acces: [] }, moi = null, sv = null;
+    var envois = [], ajouts = { membre: [], acces: [] }, moi = null, sv = null, encore = pageActuelle();
     function envoiRole(c) {
       return { changements: [c], methode: "PATCH", chemin: "profil?user_id=eq." + encodeURIComponent(c.user_id), corps: { role: c.valeur } };
     }
+    function envoiAjouts(type, liste) {
+      return { changements: liste, methode: "POST", chemin: type, corps: liste.map(function (c) {
+        return type === "membre" ? { groupe_id: c.groupe_id, user_id: c.user_id } : { element: c.element, groupe_id: c.groupe_id };
+      }) };
+    }
     function envoyer(x) {
       return appelSupa("/rest/v1/" + x.chemin, { methode: x.methode, corps: x.corps, entetes: { Prefer: "return=minimal" } }, sv.access_token)
-        .then(function () { x.ok = true; }, function (err) { x.erreur = err.message; });
+        .then(function () { x.ok = true; }, function (err) {
+          if (err.code === "23505" && x.changements.length === 1) x.ok = true;   // la ligne est déjà dans la base : c'est fait
+          else x.erreur = err;
+        });
+    }
+    // Un lot refusé en entier : ses lignes repartent une par une.
+    function envoyerLot(x) {
+      return envoyer(x).then(function () {
+        if (x.ok || x.methode !== "POST" || x.changements.length < 2) return;
+        x.lignes = x.changements.map(function (c) { return envoiAjouts(x.chemin, [c]); });
+        return Promise.all(x.lignes.map(envoyer));
+      });
     }
     Object.keys(e.attente).forEach(function (k) {
       var c = e.attente[k];
@@ -1375,59 +1472,77 @@
         "membre?groupe_id=eq." + c.groupe_id + "&user_id=eq." + encodeURIComponent(c.user_id) :
         "acces?element=eq." + encodeURIComponent(c.element) + "&groupe_id=eq." + c.groupe_id });
     });
-    if (ajouts.membre.length) envois.push({ changements: ajouts.membre, methode: "POST", chemin: "membre",
-      corps: ajouts.membre.map(function (c) { return { groupe_id: c.groupe_id, user_id: c.user_id }; }) });
-    if (ajouts.acces.length) envois.push({ changements: ajouts.acces, methode: "POST", chemin: "acces",
-      corps: ajouts.acces.map(function (c) { return { element: c.element, groupe_id: c.groupe_id }; }) });
+    if (ajouts.membre.length) envois.push(envoiAjouts("membre", ajouts.membre));
+    if (ajouts.acces.length) envois.push(envoiAjouts("acces", ajouts.acces));
     e.envoi = true;
     e.message = null;
     majAttente();
     sessionValide().then(function (s) {
-      if (!s) throw new Error("tu n'es plus connecté");
+      if (!s) { var x = new Error("pas de session"); x.status = 401; throw x; }
       sv = s;
-      return Promise.all(envois.map(envoyer));
     }).then(function () {
-      if (!moi) return;
-      var x = envoiRole(moi);
-      envois.push(x);
-      if (envois.some(function (y) { return y !== x && !y.ok; })) { x.erreur = "pas envoyé, car un autre changement a échoué"; return; }
-      return envoyer(x).then(function () {
-        var cur = lireSession();   // le menu et la page le savent tout de suite
-        if (x.ok && cur) { cur.role = moi.valeur; ecrireSession(cur); majNav(); }
-      });
-    }).then(function () {
-      return chargerEquipe(sv).then(null, function () { return null; });
-    }).then(function (eq) { finirValidation(e, envois, eq); }, function (err) {
+      return Promise.all(envois.map(envoyerLot)).then(function () {
+        envois = [].concat.apply([], envois.map(function (x) { return x.lignes || [x]; }));
+        if (!moi) return;
+        var x = envoiRole(moi);
+        envois.push(x);
+        if (envois.some(function (y) { return y !== x && !y.ok; })) { x.raison = "pas encore envoyé : il part après les autres"; return; }
+        return envoyer(x).then(function () {
+          var cur = lireSession();   // le menu et la page le savent tout de suite (le reste des droits suit, par la synchro)
+          if (x.ok && cur) { cur.role = moi.valeur; ecrireSession(cur); majNav(); }
+        });
+      }).then(function () {
+        return chargerEquipe(sv).then(null, function (err) { raisonErreur(err); return null; });
+      }).then(function (eq) { finirValidation(e, envois, eq, encore); });
+    }, function (err) {
+      // Pas de session valide : rien n'est parti.
       e.envoi = false;
-      e.message = { genre: "ko", texte: "Envoi impossible : " + err.message + ". Rien n'a été enregistré." };
+      e.message = { genre: "ko", texte: "Rien n'a été envoyé : " + (err.status === 400 || err.status === 401 ?
+        "ta session a expiré, reconnecte-toi." : raisonErreur(err) + ".") };
+      majNav();
       if (equipe === e) majAttente();
     });
   }
 
-  // Après « Valider » : la page refaite au même endroit, avec ce qui reste à enregistrer, et le message.
-  function finirValidation(e, envois, eq) {
-    var faits = 0, rates = [], reste = {}, recharge = !!eq;
-    if (!eq) {
-      eq = e.eq;
+  // Après « Valider » : chaque changement est fait, raté (il reste à valider) ou retiré (son groupe ou son compte n'existe
+  // plus). La page est refaite au même endroit, avec le message. Si l'élève est parti pendant l'envoi, ce qui a raté
+  // n'est pas perdu : un message le dit, et la page Équipe le reprend à son retour.
+  function finirValidation(e, envois, eq, encore) {
+    var total = 0, rates = [], disparus = {}, reste = {}, recharge = !!eq, avant = e.eq;
+    if (!eq) {   // rechargement impossible : on applique à la main ce qui est passé
+      eq = avant;
       envois.forEach(function (x) { if (x.ok) x.changements.forEach(function (c) { appliquerChangement(eq, c); }); });
     }
     envois.forEach(function (x) {
       x.changements.forEach(function (c) {
-        // Échec, mais la base a déjà cette valeur (faite ailleurs entre-temps) : c'est fait.
-        if (x.ok || valeurBase(eq, c) === c.valeur) { faits++; return; }
-        rates.push(libelleChangement(eq, c) + " : " + x.erreur);
+        total++;
+        if (x.ok) return;
+        var parti = recharge ? disparu(eq, avant, c) : "";
+        if (parti) { disparus[parti] = (disparus[parti] || 0) + 1; return; }
+        if (valeurBase(eq, c) === c.valeur) return;   // la base a déjà cette valeur (faite ailleurs) : c'est fait
+        rates.push(libelleChangement(eq, c) + " (" + (x.raison || raisonErreur(x.erreur)) + ")");
         reste[cleChangement(c)] = c;
       });
     });
-    if (equipe !== e) return;   // l'admin a quitté la page pendant l'envoi
+    var message = messageValidation(total, rates, disparus, recharge);
+    if (equipe !== e) {   // l'élève a quitté la page pendant l'envoi
+      if (!rates.length && !Object.keys(disparus).length) return;
+      if (rates.length) equipeReprise = { attente: reste, message: message };
+      if (location.hash === "#/equipe" && equipe && !nbAttente() && !equipe.envoi) { pageEquipe(); return; }   // déjà revenu
+      var dits = [message.texte.replace(/ :$/, ".")].concat(message.notes.slice(0, Object.keys(disparus).length));
+      alert("Page Équipe : " + dits.join(" ") + (rates.length ? " Ouvre la page Équipe pour les revoir." : ""));
+      return;
+    }
     var s = lireSession();
-    if (!s || s.role !== "admin") { equipe = null; document.body.style.paddingBottom = ""; pageEquipe(); return; }   // je ne suis plus admin
+    if (!s || s.role !== "admin") {   // je ne suis plus admin : la session recharge mes droits (groupes, acces), puis la page
+      equipe = null;
+      margeBarre();
+      synchroniser().then(function () { majNav(); if (encore()) pageEquipe(); });
+      return;
+    }
     var y = window.pageYOffset;
     afficherEquipe(eq, s, reste);
-    var texte = faits ? pluriel(faits, "changement enregistré.", "changements enregistrés.") : "";
-    equipe.message = rates.length ? { genre: "ko", texte: (texte ? texte + " " : "") + "Pas enregistré (toujours à valider) :", details: rates } :
-      { genre: "ok", texte: texte };
-    if (!recharge) equipe.message.texte += " La page n'a pas pu se recharger : recharge-la plus tard.";
+    equipe.message = message;
     majAttente();
     window.scrollTo(0, y);
   }
@@ -1443,12 +1558,14 @@
 
   function brancherGestion(s) {
     var msg = document.getElementById("msg-equipe");
+    // Une action immédiate, puis la page se recharge, si l'élève est encore dessus. Une erreur : en mots simples.
     function ecrireBase(chemin, methode, corps) {
+      var encore = pageActuelle();
       msg.textContent = "Enregistrement…";
       return appelSupa("/rest/v1/" + chemin, {
         methode: methode, corps: corps, entetes: { Prefer: "return=minimal" }
-      }, s.access_token).then(function () { pageEquipe(); }, function (e) {
-        msg.textContent = "Impossible : " + e.message;
+      }, s.access_token).then(function () { if (encore()) pageEquipe(); }, function (e) {
+        msg.textContent = e.code === "23505" && chemin === "groupe" ? "Ce groupe existe déjà." : "Impossible : " + raisonErreur(e) + ".";
       });
     }
     document.getElementById("form-groupe").addEventListener("submit", function (e) {
@@ -1466,8 +1583,9 @@
         var email = b.getAttribute("data-email");
         if (prompt("Supprimer définitivement le compte " + email + " ?\nTape son adresse e-mail pour confirmer.") !== email) return;
         msg.textContent = "Suppression…";
+        var encore = pageActuelle();
         appelSupa("/rest/v1/rpc/supprimer_compte", { methode: "POST", corps: { cible: b.getAttribute("data-suppr-compte") } }, s.access_token)
-          .then(function () { pageEquipe(); }, function (e) { msg.textContent = "Impossible : " + e.message; });
+          .then(function () { if (encore()) pageEquipe(); }, function (e) { msg.textContent = "Impossible : " + raisonErreur(e) + "."; });
       });
     });
     app.querySelectorAll("[data-suppr]").forEach(function (b) {
@@ -2217,6 +2335,12 @@
   }
   function sujetVisible(s) { return accesOutils(["outils", s.id]); }
   function outilVisible(s, o) { return accesOutils(["outils", s.id, o.id]); }
+  // Au moins un outil visible pour ce compte (sinon, pas de lien « Outils » dans le menu).
+  function unOutilVisible() {
+    return (DATA.outilsSujets || []).some(function (s) {
+      return outilsDuSujet(s).some(function (o) { return outilVisible(s, o); });
+    });
+  }
   // Le dico et Traduire : publics sans compte ; pour un compte, le droit de leur outil (« dico », « traduire »).
   function outilOuvert(id) {
     var s = sujetDe(id);
@@ -2900,15 +3024,27 @@
   window.addEventListener("resize", modeZones);
 
   // ---------- Routeur ----------
+  // Chaque entrée de l'historique garde sa place (history.state.place) : on sait si l'élève recule, avance, ou ouvre une
+  // nouvelle page. Page Équipe avec des changements pas encore validés (ou en cours d'envoi) : une question avant de
+  // partir ; « Annuler » ramène sur l'entrée de la page Équipe, sans étape en plus ni en moins dans l'historique.
+  var placeHisto = 0;
   function route() {
-    var h = location.hash.replace(/^#\/?/, "");
-    // Page Équipe avec des changements pas encore validés (ou en cours d'envoi).
+    var h = location.hash.replace(/^#\/?/, ""), st = history.state;
+    var place = st && typeof st.place === "number" ? st.place : null, nouvelle = place === null;
+    if (nouvelle) place = placeHisto + 1;
     if (equipe && (nbAttente() || equipe.envoi)) {
-      if (h === "equipe") return;   // la même page (après une synchro) : on garde les changements
-      if (!equipe.envoi && !confirm(texteQuitter(nbAttente()))) { history.replaceState(null, "", "#/equipe"); return; }
+      if (h === "equipe") return;   // toujours la page Équipe (retour après « Annuler », synchro) : on garde tout
+      if (!confirm(texteQuitter())) {
+        try { history.go(nouvelle ? -1 : placeHisto - place); } catch (e) { /* ignoré */ }
+        return;
+      }
     }
+    if (nouvelle) { try { history.replaceState({ place: place }, ""); } catch (e) { /* ignoré */ } }
+    placeHisto = place;
+    numeroPage++;
     equipe = null;
     document.body.style.paddingBottom = "";   // (la barre de la page Équipe)
+    document.documentElement.style.scrollPaddingBottom = "";
     var parts = h.split("/");
     window.scrollTo(0, 0);
     outilCourant = null;
@@ -2936,10 +3072,11 @@
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);
-  // Recharger ou fermer la page avec des changements de la page Équipe pas encore validés : le navigateur demande.
+  // Recharger ou fermer la page avec des changements de la page Équipe pas encore validés (ou en cours d'envoi) : le
+  // navigateur demande.
   window.addEventListener("beforeunload", function (e) {
-    if (!nbAttente()) return;
-    var t = texteQuitter(nbAttente());
+    if (!nbAttente() && !(equipe && equipe.envoi)) return;
+    var t = texteQuitter();
     e.preventDefault();
     e.returnValue = t;
     return t;
