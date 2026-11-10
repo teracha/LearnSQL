@@ -13,6 +13,8 @@
 // tard, dans la marge de recette (q02) ; la demande n° 17, ouverte par erreur au registre (q10) ; la demande n° 18, pas
 // encore chiffrée (q12) ; un tri à 7 jours de « doit » sur 10 (q13) ; l'export Excel des factures bloquées demandé par
 // Julie (q14). Aucune affirmation juridique hors de la fiche.
+// q07 : la trace écrite d'une décision prise au téléphone est le mail de confirmation, le jour même (cp09 §6, cp17 §7,
+// gp-decisions : « Écrit (mail) ») ; la commande, signée le jour même (fiche), engage la dépense et ne la remplace pas.
 // Déjà publiées ailleurs, avec un autre angle (la règle, pas l'outil) : cp09-q35, q36, q39 ; cp10-q05, q11, q13 ;
 // cp18-q20, q21. Ici, la question part de l'écran de l'outil : une alerte, un total, une rubrique, un bouton.
 // Anti-devinette (calcul sans connaître le sujet, script de l'expert) : la bonne réponse est un extrême dans 3 questions
@@ -28,8 +30,8 @@ LEARNSQL.questions.ot03 = [
     choix: [
       "Tu supprimes l'option A : personne ne choisira de ne rien faire",
       "Tu écris son prix : aucun délai, 0 €, et le risque de ne rien faire",
-      "Rien : ne rien changer ne coûte rien, l'alerte ne vaut pas ici",
-      "Tu ajoutes une option C, chiffrée : l'alerte en demande trois"
+      "Rien : ne rien changer est sans risque, l'alerte ne vaut pas ici",
+      "Tu ajoutes une option C, avec son prix : l'alerte en demande trois"
     ],
     bonne: 1,
     pourquoi: [
@@ -72,7 +74,7 @@ LEARNSQL.questions.ot03 = [
     bonne: 0,
     pourquoi: [
       "Oui. La question et sa date, les faits, l'impact, 3 options avec leur prix, ta recommandation : la note est prête. Le DAF choisit.",
-      "Non. 2 ou 3 options : au-delà, le décideur se perd. L'outil le dirait : « Plus de 3 options : garde-en 2 ou 3 ».",
+      "Non. 2 ou 3 options : au-delà, le décideur se perd. L'outil le dirait : « Plus de 3 options : garde-en 2 ou 3… ».",
       "Non. Ta recommandation fait partie de la note : le DAF choisit en la connaissant. Sans elle, il te demandera « tu ferais quoi ? ».",
       "Non. L'historique noie la décision : la 1re ligne doit suffire. Les faits utiles sont déjà dans la note."
     ],
@@ -84,7 +86,7 @@ LEARNSQL.questions.ot03 = [
     q: "Ta note de décision est prête. Le DAF la veut dans le corps de ton e-mail, pas en pièce jointe. Que fais-tu sur le site ?",
     choix: [
       "« Copier », puis tu colles la note dans ton e-mail",
-      "« Enregistrer dans un fichier », puis tu joins le fichier",
+      "« Enregistrer dans un fichier », puis tu le joins à l'e-mail",
       "« Télécharger le modèle vide (Excel) », puis tu le remplis",
       "« Dupliquer », puis tu lui envoies l'adresse de la copie"
     ],
@@ -149,7 +151,7 @@ LEARNSQL.questions.ot03 = [
     pourquoi: [
       "Non. « Où » dit comment la décision a été prise, pas qu'elle est écrite. Sans écrit, elle sera contestée.",
       "Non. Presque : tu notes, mais pour toi seul. Deux semaines sans écrit partagé : les souvenirs changent. L'écrit au DAF se fait le jour même.",
-      "Oui. Une décision orale se confirme par écrit le jour même. Puis « Trace écrite » passe à « Écrit (mail) », et l'alerte s'éteint.",
+      "Oui. Une décision orale se confirme par écrit le jour même : « Trace écrite » passe à « Écrit (mail) », et l'alerte s'éteint. La commande signée, elle, engage la dépense : elle ne remplace pas ce mail.",
       "Non. Une décision prise ne se refait pas en séance. Un mail, le jour même, suffit à la tracer."
     ],
     retenir: "Une décision prise au téléphone ou dans un couloir se confirme par écrit le jour même : « Comme convenu ce matin : … »."
@@ -162,14 +164,14 @@ LEARNSQL.questions.ot03 = [
       "Tu ouvres le débat : un critère de go doit faire consensus",
       "Tu montres leur ligne au registre : décidé, sauf fait nouveau",
       "Tu proposes au DAF un seuil à 3 %, pour éviter un no-go",
-      "Tu notes son avis ; vous en reparlerez au go / no-go du 11"
+      "Tu notes son avis au registre, pour le go / no-go du 11"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Les critères sont fixés avant, par celui qui décidera. Les rouvrir 3 jours avant, sans fait nouveau, c'est les réécrire pour qu'ils passent.",
       "Oui. Une décision écrite ne se refait pas au COPIL suivant, sauf fait nouveau. Le 11 juin, on comparera les preuves aux critères du 11 mai.",
       "Non. Baisser un seuil pour qu'il passe, c'est réécrire un critère. Un écart, s'il y en a un, se montre au DAF le 11 juin.",
-      "Non. Le 11 juin, on compare les preuves aux critères ; on ne les rediscute pas. Les rouvrir ce jour-là, c'est décider sous la pression."
+      "Non. Le registre garde les décisions, pas les avis. Et le 11 juin, on compare les preuves aux critères : les rouvrir ce jour-là, c'est décider sous la pression."
     ],
     retenir: "Une décision écrite au registre ne se refait pas au COPIL suivant, sauf fait nouveau : tu montres sa ligne."
   },
@@ -294,7 +296,7 @@ LEARNSQL.questions.ot03 = [
     choix: [
       "Tu écris « Validé par : moi » : c'est toi qui as proposé le tri",
       "Tu fais valider les « doit » par le DAF, et tu notes la date",
-      "Tu fais signer la cheffe comptable, PO, et tu notes la date",
+      "Tu fais valider par la cheffe comptable, PO, et tu notes la date",
       "Tu laisses l'alerte : le DAF verra le tri au prochain COPIL"
     ],
     bonne: 1,

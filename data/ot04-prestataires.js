@@ -10,21 +10,29 @@
 // Fil rouge DEMAT 2027 (fiche fil rouge de docs/plan-chef-de-projet.md, qui fait foi) : grille validée par le DAF avant
 // les offres, éliminatoires, critère « Connecteur Divalto et sécurité » noté par la DSI, 2 clients de référence appelés
 // par finaliste (q01, q02, q05) ; contrat de la PA, SLA de 99,5 % par mois, jour et nuit, rapport à 99,8 % et 6 h de
-// panne en avril, SLA raté en mai (q08, q09) ; contrat de la PA jusqu'au 30 novembre 2029, préavis de 6 mois, liens
-// télécoms au 31 mars 2029, préavis de 3 mois (q12, q13 ; cp27-q38). « Tu es DSI adjoint » : q11 à q15 (2028-2029).
-// Faits ajoutés (cohérents avec la fiche, à valider) : l'offre C à 81 points mais « Non » à un éliminatoire (q02) ; un
-// prix de mise en service absent de l'offre B (q04) ; des pannes du connecteur de B citées par ses références (q05) ; un
-// plafond de responsabilité très bas (q07) ; une clause de recette tacite à 5 jours dans le projet de contrat (q10) ; un
-// contrat de maintenance des imprimantes des dépôts (q14) ; le DAF qui choisit « Changer » en mai 2029 (q15).
-// Affirmations juridiques (générales, à faire vérifier) : un contrat reconduit tacitement court pour la nouvelle période ;
-// en sortir avant, c'est ce que le contrat permet, souvent avec un coût (q14). Le reste est dans la fiche (le juridique au
-// DAF, avec un avocat si besoin : q07 ; l'avenant après la signature : q10).
-// Déjà publiées ailleurs, avec un autre angle (la règle, pas l'outil) : cp13 (grille), cp14-q34, q35, cp15-q16, q19,
-// q22, cp27-q38. Ici, la question part de l'écran de l'outil : une rubrique, un calcul, une alerte, un bouton.
+// panne en avril (déjà sous le SLA d'après tes tickets : mai n'est donc pas le 1er écart), SLA raté en mai (q08, q09) ;
+// contrat de la PA jusqu'au 30 novembre 2029, préavis de 6 mois, liens télécoms au 31 mars 2029, reconduits seuls, préavis
+// de 3 mois (q12, q13 ; cp27-q38). « Tu es DSI adjoint » : q11 à q15 (2028-2029).
+// Faits ajoutés (cohérents avec la fiche, à valider) : un prix de mise en service absent de l'offre B (q04) ; des pannes
+// du connecteur de B citées par ses références, sa note passée de 4 à 3 en séance commune (q05 : B finit à 74, comme la
+// fiche et l'exemple de l'outil) ; un plafond de responsabilité très bas (q07) ; une clause de recette tacite à 5 jours
+// dans le projet de contrat (q10) ; un contrat de maintenance des imprimantes des dépôts, reconduit chaque année (q14) ;
+// le DAF qui choisit « Changer » en mai 2029 (q15).
+// Variante propre à une question (le temps d'une question, sans changer la fiche) : l'offre C à 81 points mais « Non » à
+// un éliminatoire (q02, comme cp13-q22) ; dans l'exemple de l'outil, C passe les éliminatoires et finit à 64.
+// Affirmations juridiques (générales, à faire vérifier) : par défaut (Code civil, art. 1214 et 1215), la tacite
+// reconduction crée un nouveau contrat au même contenu, à durée indéterminée, dont on sort avec le préavis du contrat ou un
+// délai raisonnable (art. 1211) ; le contrat peut fixer la durée de chaque période (« reconduit chaque année ») : il court
+// alors jusqu'à la fin de la période (art. 1212), et en sortir avant dépend du contrat ou d'un accord (q14, où la clause
+// dit « chaque année » ; le DAF, avec un avocat si besoin). Le reste est dans la fiche (le juridique au DAF, avec un avocat
+// si besoin : q07 ; l'avenant après la signature : q10).
+// Déjà publiées ailleurs, avec un autre angle (la règle, pas l'outil) : cp13 (grille, dont cp13-q22), cp14-q34 à q36
+// (q15 : la règle de cp14-q36, ici depuis l'alerte « Changer » de l'échéancier), cp15-q16, q19, q22, cp27-q38. Ici, la
+// question part de l'écran de l'outil : une rubrique, un calcul, une alerte, un bouton.
 // Anti-devinette (calcul sans connaître le sujet, script de l'expert) : la bonne réponse est un extrême dans 3 questions
 // sur 11 avec un axe d'action (la plus forte : q04, q13 ; la plus petite : q07). Règles : action moyenne 36 %, plus petite
 // action réelle 9 %, jamais / toujours le sponsor 23 / 23 %, choix à deux actions 18 %, la plus longue 22 %, extrêmes
-// écartés + chiffre 30 %, + mot de méthode 29 %, « écarter absolus, oui, DAF » 22 %. « D'accord » est la bonne réponse en
+// écartés + chiffre 30 %, + mot de méthode 32 %, « écarter absolus, oui, DAF » 22 %. « D'accord » est la bonne réponse en
 // q05 (et un choix faux en q05, q15) ; « maintenant », « tous » aussi dans des bonnes réponses.
 LEARNSQL.questions.ot04 = [
   {
@@ -106,11 +114,11 @@ LEARNSQL.questions.ot04 = [
   {
     id: "ot04-q05",
     dialecte: "Gestion de projet",
-    q: "Séance commune de notation. Les 2 clients de référence de B, appelés hier, parlent de pannes de son connecteur chaque mois. La DSI veut baisser sa note « Connecteur Divalto et sécurité » de 3 à 2. Les poids ne bougent pas. Que réponds-tu ?",
+    q: "Séance commune de notation. Les 2 clients de référence de B, appelés hier, parlent de plusieurs pannes de son connecteur l'an dernier. La DSI veut baisser sa note « Connecteur Divalto et sécurité » de 4 à 3. Les poids ne bougent pas. Que réponds-tu ?",
     choix: [
       "« D'accord : une note se corrige sur un fait, en séance commune »",
       "« Non : les notes se fixent avant les offres, comme les poids »",
-      "« D'accord, mais après un accord écrit du DAF sur la grille »",
+      "« D'accord, si le DAF valide cette note après la séance »",
       "« D'accord, et on passe le poids de ce critère de 25 à 30 »"
     ],
     bonne: 0,
@@ -165,7 +173,7 @@ LEARNSQL.questions.ot04 = [
     dialecte: "Gestion de projet",
     q: "Fiche contrat, avril : 30 jours, 6 h de panne d'après tes tickets. L'outil calcule 99,17 % de disponibilité ; son rapport dit 99,8 % ; le contrat promet 99,5 %. Que fais-tu ?",
     choix: [
-      "Tu prends son chiffre : c'est son outil qui mesure, SLA tenu",
+      "Tu prends son rapport : c'est son outil qui mesure, SLA tenu",
       "Tu montres tes tickets et son rapport côte à côte, au comité",
       "Tu demandes au DAF d'appliquer tout de suite les crédits d'avril",
       "Tu notes l'écart dans ta fiche, et tu attends mai pour voir"
@@ -182,19 +190,19 @@ LEARNSQL.questions.ot04 = [
   {
     id: "ot04-q09",
     dialecte: "Gestion de projet",
-    q: "Fiche contrat, mai : 4 h de panne en 31 jours. L'outil calcule 99,46 % ; le contrat promet 99,5 %. C'est le 1er écart. Qu'écris-tu dans « Cause, plan daté, crédits » ?",
+    q: "Fiche contrat, mai : 4 h de panne en 31 jours. L'outil calcule 99,46 % ; le contrat promet 99,5 %. Qu'écris-tu dans « Cause, plan daté, crédits » ?",
     choix: [
-      "« Écart noté » : tu le suivras s'il revient le mois prochain",
+      "« Écart noté » : un plan daté, s'il revient le mois prochain",
       "La cause, un plan daté, et le calcul des crédits pour le DAF",
       "« Crédits appliqués » sur le SLA : tu les déduis de sa facture",
-      "« Changer de PA » : tu préviens le DAF le jour même, par écrit"
+      "Changer de PA : tu préviens le DAF le jour même, par écrit"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Chaque écart, même le 1er : la cause, un plan daté, le suivi au comité. Attendre qu'il revienne, c'est le laisser devenir la règle.",
+      "Non. Chaque écart, même le 1er : sa cause et un plan daté tout de suite, suivis au comité. Attendre qu'il revienne, c'est le laisser devenir la règle.",
       "Oui. Chaque écart, même le 1er : sa cause, un plan daté, suivi au comité. Les crédits : tu apportes le calcul, le DAF décide.",
       "Non. Appliquer les crédits, c'est la décision du DAF : il a signé. Toi, tu apportes le calcul.",
-      "Non. Trop fort pour un 1er écart. Changer de prestataire vient en dernier, avant le préavis."
+      "Non. Trop fort : un écart se règle d'abord par sa cause et un plan daté. Changer de prestataire vient en dernier, avant le préavis."
     ],
     retenir: "Un écart au SLA, même le 1er : sa cause, un plan daté, le suivi au comité. Les crédits : le DAF décide, sur ton calcul."
   },
@@ -239,7 +247,7 @@ LEARNSQL.questions.ot04 = [
   {
     id: "ot04-q12",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Échéancier des contrats : les liens télécoms des 3 dépôts finissent le 31/03/2029, avec un préavis de 3 mois. Quelle date limite pour résilier l'outil calcule-t-il ?",
+    q: "Tu es DSI adjoint. Échéancier des contrats : les liens télécoms des 3 dépôts finissent le 31/03/2029 ; ils se reconduisent seuls, sauf préavis de 3 mois. Quelle date limite pour résilier l'outil calcule-t-il ?",
     choix: [
       "Le 31/12/2028",
       "Le 31/03/2029",
@@ -253,7 +261,7 @@ LEARNSQL.questions.ot04 = [
       "Non. C'est la fin plus 3 mois : le préavis se compte avant la fin, pas après.",
       "Non. C'est la fin moins 6 mois. Le préavis de ce contrat est de 3 mois (6 mois, c'est celui de la PA)."
     ],
-    retenir: "Date limite pour résilier = la fin moins le préavis. Après elle, le contrat se reconduit seul."
+    retenir: "Date limite pour résilier = la fin moins le préavis. Passé cette date, un contrat qui se reconduit seul repart pour une période."
   },
   {
     id: "ot04-q13",
@@ -282,23 +290,23 @@ LEARNSQL.questions.ot04 = [
       "Sa nouvelle fin, le 30/06/2029 : la date limite suit",
       "Tu supprimes la ligne : reconduit, il est réglé jusqu'en 2029",
       "Tu fais résilier tout de suite : il n'est jamais trop tard",
-      "Tu laisses « À décider » : le DAF tranchera au prochain budget"
+      "Tu laisses « À décider » : le DAF fixera sa nouvelle fin"
     ],
     bonne: 0,
     pourquoi: [
       "Oui. Reconduit pour un an : nouvelle fin le 30/06/2029. L'outil recalcule la date limite, le 30/03/2029 : cette fois, le choix aura son temps.",
       "Non. Le contrat continue : sans ligne, sa prochaine date limite passera aussi.",
-      "Non. Le préavis est passé : le contrat est reconduit pour la période. En sortir avant, c'est ce que le contrat permet, souvent avec un coût.",
-      "Non. Pour cette année, il n'y a plus rien à décider : la date est passée. Sans nouvelle fin, la prochaine date limite n'est pas calculée."
+      "Non. Sa clause le reconduit pour un an, jusqu'au 30/06/2029. En sortir avant dépend du contrat ou d'un accord : le DAF le voit, avec un avocat si besoin.",
+      "Non. Sa nouvelle fin vient du contrat, pas du DAF : il n'y a plus rien à décider cette année. Sans elle, la prochaine date limite n'est pas calculée."
     ],
     retenir: "Date limite passée : le contrat s'est reconduit seul. Tu notes sa nouvelle fin ; la prochaine date limite se calcule."
   },
   {
     id: "ot04-q15",
     dialecte: "Gestion de projet",
-    q: "Tu es DSI adjoint. Mai 2029 : le DAF choisit « Changer » de PA à la fin du contrat, le 30 novembre. Ton DSI propose de signer la nouvelle PA en novembre, « pour ne pas payer deux fois ». Que fais-tu ?",
+    q: "Tu es DSI adjoint. Mai 2029 : le DAF choisit « Changer » de PA à la fin du contrat, le 30 novembre. Tu le notes dans l'échéancier : une alerte s'affiche. Ton DSI propose de signer la nouvelle PA en novembre, « pour ne pas payer deux fois ». Que fais-tu ?",
     choix: [
-      "D'accord : signée fin novembre, elle prendra le relais le 1er décembre",
+      "D'accord : la nouvelle, signée fin novembre, prend le relais le 1er décembre",
       "Tu prévois la nouvelle signée, connectée, testée avant le 30/11",
       "Tu proposes de garder l'ancienne PA jusqu'en 2030, par sécurité",
       "Tu demandes au DAF de revenir sur son choix : c'est trop risqué"

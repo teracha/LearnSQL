@@ -30,7 +30,7 @@
 // Ligne « Toi et ton DSI » : point de 30 minutes chaque lundi.
 // Faits ajoutés (cohérents avec la fiche et les modules publiés, à valider) : le COPIL du mardi 9 février 2027 (2e mardi)
 // et son ordre du jour (changements n° 7 et n° 9, 7 jours, 5 250 €, comme cp10 et cp12, durées des points) ; le compte
-// rendu du mercredi 10 février et sa ligne au registre ; la décision urgente de mi-avril prise au téléphone (cp10-q25) ;
+// rendu du mercredi 10 février et sa ligne au registre ; la commande de 3 jours du mardi 30 mars, acceptée au téléphone (fiche, cp12 §5, exemple de gp-decisions) ;
 // le planning de formation de la compta, livrable sans A au départ ; le commercial informé, pas consulté, sur le format ;
 // le comité de direction, où le DAF porte le projet.
 // Frontières : ta délégation = cp18 ; l'escalade = cp16 ; le sponsor absent = cp04 ; le contenu du rapport = cp08 ; le
@@ -101,7 +101,7 @@ LEARNSQL.cours.cp09 = {
     },
     {
       titre: "Tracer : le compte rendu et le registre des décisions",
-      exemple: "Mercredi 10 février, 9 h : le compte rendu part (module cp17). Décisions, actions (qui, quoi, pour quand), points ouverts.\nAu registre des décisions : « 09/02/2027 · n° 7 et n° 9 acceptés · le DAF, au COPIL · + 7 jours d'intégrateur, 5 250 €. »\nMi-avril, au téléphone, le DAF accepte 2 jours d'intégrateur en urgence (module cp10). Tu lui écris : « Comme convenu ce matin : … » Et une ligne au registre.",
+      exemple: "Mercredi 10 février, 9 h : le compte rendu part (module cp17). Décisions, actions (qui, quoi, pour quand), points ouverts.\nAu registre des décisions : « 09/02/2027 · n° 7 et n° 9 acceptés · le DAF, au COPIL · + 7 jours d'intégrateur, 5 250 €. »\nMardi 30 mars, au téléphone, le DAF accepte 3 jours d'intégrateur de plus (module cp12), pour les flux EDI (échange de données informatisé). Tu lui écris : « Comme convenu ce matin : … » Et une ligne au registre.",
       points: [
         "Compte rendu sous 24 h : décisions, actions, points ouverts. Contesté ? Tu vérifies, et tu corriges pour tous. Un « peut-être » est un point ouvert, pas une décision.",
         "Le registre des décisions, tenu par toi : une ligne par décision. La date, la décision, qui l'a prise, l'impact.",

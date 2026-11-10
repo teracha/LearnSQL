@@ -83,7 +83,7 @@ LEARNSQL.cours.cp10 = {
     },
     {
       titre: "Urgence et gel des changements",
-      exemple: "Mardi 20 avril. Un client EDI de la grande distribution exige un nouveau code dans ses factures dès juin : 2 jours d'intégrateur. Le COPIL est dans 3 semaines.\nCircuit court : l'impact le jour même, la décision du DAF au téléphone, une ligne au registre le soir, la commande signée vendredi.\nMai : le pilote démarre, et le gel avec lui. Le commercial veut un tri de plus dans un état : « 2 heures. » Noté, pour après la bascule.",
+      exemple: "Mardi 20 avril. Un client EDI de la grande distribution demande un nouveau code dans ses factures, dès juin : 2 jours d'intégrateur. Le COPIL est dans 3 semaines.\nCircuit court : l'impact le jour même, la décision du DAF au téléphone, une ligne au registre le soir. Il dit non : trop de risque juste avant le pilote. Le commercial l'explique au client.\nMai : le pilote démarre, et le gel avec lui. Le commercial veut un tri de plus dans un état : « 2 heures. » Noté, pour après la bascule.",
       points: [
         "Exigé avant une date proche ? Au circuit, vite. Utile, sans échéance ? « Pas maintenant », avec une date (module cp18).",
         "Urgent ne veut pas dire sans circuit : l'impact en quelques heures, la décision le jour même, la trace écrite, la commande signée avant de commencer.",

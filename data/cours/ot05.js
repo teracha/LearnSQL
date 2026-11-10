@@ -14,7 +14,7 @@ LEARNSQL.cours.ot05 = {
   sections: [
     {
       titre: "Cahier de recette",
-      exemple: "Mercredi 14 avril 2027, en pleine recette (les tests de validation par le métier) de DEMAT 2027.\nSous le cahier : 7 cas joués sur 8, 2 OK, 2 bloquantes et 2 majeures ouvertes.\nLe cas F-17 (un avoir fournisseur) a cassé après la livraison du mardi 13.\nQuatre alertes : « Pas de PV tant que cette anomalie est ouverte. »",
+      exemple: "Mercredi 14 avril 2027, en pleine recette (les tests de validation par le métier) de DEMAT 2027.\nSous le cahier : 7 cas joués sur 8, 2 OK, 2 bloquantes et 2 majeures ouvertes.\nLe cas F-17 (un avoir fournisseur) a cassé après la livraison du mardi 13.\nQuatre alertes : « Pas de PV tant que cette anomalie est ouverte : corrige, puis rejoue OK. »",
       points: [
         "À quoi il sert : suivre les cas de test du métier, leurs résultats et les anomalies, jusqu'au PV (procès-verbal de recette). Quand : les cas avant la recette ; puis chaque semaine, les totaux.",
         "Sur le site : le livrable, les critères (déjà proposés : 0 bloquante, 0 majeure), qui signe. `+ Cas` : situation, résultat attendu, testeur. Après le test : « Résultat » ; pour une anomalie, sa gravité et son ticket. « Lot de non-régression » : « Oui » pour 15 à 20 cas clés.",

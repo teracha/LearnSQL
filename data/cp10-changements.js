@@ -10,6 +10,7 @@
 // comptable. Intégrateur en régie : des jours en plus = une nouvelle commande signée par le DAF avant de commencer.
 // Plan B (portail de la PA, prévu au contrat) : il part seul si le connecteur n'est pas livré au 15 mars (pas de demande de
 // changement). Gel : seuls passent les anomalies bloquantes et les obligations légales ; le lever = décision du DAF. Aucun montant d'amende.
+// Variantes (le temps d'une question, sans changer la fiche) : une demande urgente de 2 jours à la mi-avril (q25, issue non dite) ; un nouveau code EDI validé, livré après la recette des flux EDI (q16).
 // Frontières : cp18 = faut-il dire oui (déjà traité : le texte ambigu relu ensemble, cp18-q33) ; cp17 = les mots ; cp14 = le contrat.
 // Anti-devinette : la bonne réponse est un extrême dans 10 questions sur 41 : le oui simple (q08, q32, q40, q41), la plus petite
 // action (q22), le non net (q20, q38), le DAF ou le sponsor quand il le faut (q02, q15, q37). « Ne rien changer » est juste en q30.

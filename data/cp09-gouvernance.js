@@ -29,7 +29,7 @@
 // pas d'accord avec ta recommandation sur le changement n° 7 (q28) ; Marc veut signer le PV clients (q13) ; Marc,
 // 3 après-midi de tests par semaine en avril, « accord » contesté (q37) ; crédits du SLA de mai appliqués par le DAF
 // dans un couloir, début juin (q36, comme cp12-q19 ; cp15-q19 : il renonce à ceux d'avril) ; la décision urgente de
-// mi-avril (2 jours d'intégrateur, comme cp10-q25 ; Julie consultée, sa cheffe en congé) contestée au COPIL de mai par
+// mi-avril (variante, sans changer la fiche ; 2 jours d'intégrateur, comme cp10-q25 ; Julie consultée, sa cheffe en congé) contestée au COPIL de mai par
 // la cheffe comptable rentrée (q35) ; vécu : démat fiscale à 15 personnes au comité (q06), migration Divalto avec
 // une décision contestée (q38) ;
 // projets hors DEMAT pour les questions « Tu es DSI adjoint » (q40 à q44).

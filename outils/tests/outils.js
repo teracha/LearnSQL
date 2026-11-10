@@ -169,7 +169,9 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
     etapes: document.querySelectorAll('.o-etapes li').length, exemple: !!document.querySelector('#o-voir-exemple'),
     cours: Array.from(document.querySelectorAll('#app a[href^="#/cours/"]')).map(a => a.getAttribute('href')), t: document.querySelector('#app').textContent }));
   verifier(page.h1 === 'Registre des risques' && page.resume && page.etapes === 3 && page.exemple && /Quand s'en servir/.test(page.t), 'page de l\'outil : ' + JSON.stringify(page).slice(0, 200));
-  verifier(page.cours.join() === '#/cours/cp07,#/cours/cp08', 'liens vers les cours : ' + page.cours.join());
+  // Les cours de l'outil : ceux de sa définition (champ « cours »), lus dans les données.
+  const coursAttendus = await p.evaluate(() => LEARNSQL.outils.filter(o => o.id === 'gp-risques')[0].cours.map(c => '#/cours/' + c).join());
+  verifier(page.cours.join() === coursAttendus, 'liens vers les cours : ' + page.cours.join() + ' au lieu de ' + coursAttendus);
   verifier(/restent dans ce navigateur : rien n'est envoyé/.test(page.t), 'la page ne dit pas que les documents restent dans le navigateur');
   await largeur('page de l\'outil');
 

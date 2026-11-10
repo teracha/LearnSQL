@@ -24,7 +24,7 @@ LEARNSQL.cours.ot03 = {
     },
     {
       titre: "Registre des décisions",
-      exemple: "Mardi 30 mars 2027, 10 h. Le DAF, au téléphone : « D'accord pour 3 jours d'intégrateur de plus, pour les flux EDI (échange de données informatisé). »\nLe soir, tu lui écris : « Comme convenu ce matin : 3 jours de plus pour les flux EDI. »\nPuis une ligne au registre : 30/03/2027 · commande de 3 jours · le DAF · Téléphone · + 2 250 € · Écrit (mail).",
+      exemple: "Mardi 30 mars 2027, 10 h. Le DAF, au téléphone : « D'accord pour 3 jours d'intégrateur de plus, pour les flux EDI (échange de données informatisé). »\nL'après-midi, il signe la commande des 3 jours.\nLe soir, tu lui écris : « Comme convenu ce matin : 3 jours de plus pour les flux EDI. »\nPuis une ligne au registre : 30/03/2027 · commande de 3 jours · le DAF · Téléphone · + 2 250 € · Écrit (mail).",
       points: [
         "À quoi il sert : garder une trace de chaque décision. La date, la décision, qui l'a prise, l'impact. Quand : après chaque COPIL, et après chaque décision prise au téléphone, dans un couloir ou par mail.",
         "Sur le site : un registre par projet, avec `Nouveau`. Une ligne par décision, avec `+ Décision`. « Où » : COPIL, séance courte, téléphone, couloir, mail. « Trace écrite » : compte rendu, écrit (mail), ou à faire. Sous le tableau, le total « Trace écrite à faire ».",

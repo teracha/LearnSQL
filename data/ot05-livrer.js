@@ -13,9 +13,12 @@
 // avant 12 h (q10 à q12) ; bilan au COPIL du 13 juillet, référence de 85 250 €, intégrateur à 42 jours au lieu de 40,
 // REX du 30 juin (q13 à q15).
 // Faits ajoutés (cohérents avec la fiche et les exemples des outils, à valider) : 115 cas OK sur 120 et une bloquante fin
-// avril (q01) ; 3 gravités pas encore fixées (q02) ; 598 fiches fournisseurs chargées à l'essai 2 (q04) ; 19 rejets
-// clients expliqués sur 20 (q05) ; une majeure encore ouverte le 11 juin (q10) ; 7 % de rejets à 9 h 30 le lundi 14
-// (q12) ; 9 actions au REX (q14) ; le consultant qui accuse Marc (q15). Aucune affirmation juridique hors de la fiche.
+// avril, corrigée avant le PV du 30 (q01) ; 3 gravités pas encore fixées (q02) ; 598 fiches fournisseurs comptées
+// chargées à l'essai 2, avant le rapprochement (q04) ; 19 rejets clients expliqués sur 20 le samedi 15 mai, signature le
+// dimanche 16 (q05) ; 9 actions au REX avant le tri (q14) ; le consultant qui accuse Marc (q15).
+// Variantes propres à une question (le temps d'une question, sans changer la fiche) : une majeure encore ouverte le
+// 11 juin (q10 ; dans la fiche et l'exemple de gp-bascule, les 6 critères sont atteints) ; 7 % de rejets à 9 h 30 le
+// lundi 14 (q12). Aucune affirmation juridique hors de la fiche.
 // Déjà publiées ailleurs, avec un autre angle (la règle, pas l'outil) : cp19-q18, q19, q25, q29 ; cp20-q40, q43, q45 ;
 // cp21-q06, q13, q18, q23 ; cp22-q29 à q33 ; cp23. Ici, la question part de l'écran de l'outil : un total, un niveau,
 // une alerte, une rubrique.
@@ -23,7 +26,7 @@
 // sur 11 avec un axe d'action (la plus forte : q05, q10 ; la plus petite : q11, le « D'accord » simple). Règles : action
 // moyenne 36 %, plus petite action réelle 18 %, la plus forte si urgence 0 % (q12), jamais / toujours le sponsor 24 / 25 %,
 // choix à deux actions 32 %, la plus longue 20 %, extrêmes écartés + chiffre 43 %, + mot de méthode 35 %, « écarter
-// absolus, oui, DAF » 38 %. « « Non : » », « tout de suite », « D'accord » aussi dans des bonnes réponses.
+// absolus, oui, DAF » 35 %. « « Non : » », « tout de suite », « D'accord » aussi dans des bonnes réponses.
 LEARNSQL.questions.ot05 = [
   {
     id: "ot05-q01",
@@ -52,7 +55,7 @@ LEARNSQL.questions.ot05 = [
       "« D'accord : tu corriges, tu sais ce qui est long »",
       "« Non : le métier la fixe, avec moi, d'après les définitions »",
       "« D'accord, et le DAF tranchera les gravités contestées »",
-      "« Non : je la fixe seul, d'après les définitions écrites »"
+      "« Non : je la fixe pour le métier, d'après les définitions »"
     ],
     bonne: 1,
     pourquoi: [
@@ -104,9 +107,9 @@ LEARNSQL.questions.ot05 = [
   {
     id: "ot05-q05",
     dialecte: "Gestion de projet",
-    q: "Essai 2, fiches clients : 2 000 extraites = 1 980 chargées + 20 rejetées. « Rejets expliqués » : 19. Le responsable ADV doit signer ce soir. L'outil affiche une alerte. Que fais-tu ?",
+    q: "Samedi 15 mai, essai 2, fiches clients : 2 000 extraites = 1 980 chargées + 20 rejetées. « Rejets expliqués » : 19. Le responsable ADV doit signer ce soir. L'outil affiche une alerte. Que fais-tu ?",
     choix: [
-      "Il signe : l'écart est juste, et 19 sur 20, c'est 95 %",
+      "Il signe ce soir : l'écart est juste, et 19 sur 20, c'est 95 %",
       "Il signe, avec le 20e rejet en réserve, daté à lundi",
       "Pas ce soir : on trouve d'abord la cause du 20e rejet",
       "L'intégrateur signe à sa place : c'est son chargement"
@@ -299,7 +302,7 @@ LEARNSQL.questions.ot05 = [
       "« Marc a donné ses règles EDI en retard, d'où les 2 jours de plus »",
       "« Intégrateur : 42 jours au lieu de 40, à cause des flux EDI »",
       "Rien : ce point tourne au conflit, tu le sors du REX",
-      "« Retard EDI : faute partagée de l'ADV et de l'intégrateur »"
+      "« Retard des flux EDI : faute partagée de l'ADV et de l'intégrateur »"
     ],
     bonne: 1,
     pourquoi: [

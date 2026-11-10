@@ -23,7 +23,8 @@ L'utilisateur est **l'élève**.
 
 ## Les parcours
 
-- Parcours, sous-parcours et leur liste de modules : `data/parcours.js` (SQL, Chef de projet SI, EDI, Divalto).
+- Parcours, sous-parcours et leur liste de modules : `data/parcours.js` (SQL, Chef de projet SI, Maîtriser les outils du
+  chef de projet, EDI, Divalto).
   Un parcours peut avoir des sous-parcours (`sous`) et / ou des modules. Chaque id est unique dans tout le site.
 - Sans compte : seulement les parcours de `parcoursPublics` (SQL).
 - Droits : table `acces` (`outils/supabase-parcours.sql`), réglée par l'admin sur la page Équipe (« Droits des
@@ -125,6 +126,18 @@ puis ajouter la ligne `<script src="data/mXX-nom.js"></script>` dans `index.html
 
 Plan, fil rouge « DEMAT 2027 » et règles propres (modules courts, mises en situation, 30 à 50 cas par module) :
 `docs/plan-chef-de-projet.md`. Modules `cp01` à `cp27`.
+
+## Parcours « Maîtriser les outils du chef de projet »
+
+Parcours à part (`maitrise-outils`), demandé par l'élève : apprendre à SE SERVIR des 22 outils de gestion de projet
+de la section Outils. Un module par étape des outils : `ot01` Cadrer, `ot02` Piloter, `ot03` Décider, `ot04`
+Prestataires, `ot05` Livrer (`data/otXX-<étape>.js`, `data/cours/otXX.js`).
+- Cours : une section par outil (exemple DEMAT 2027, puis à quoi il sert, comment faire sur le site avec les vrais
+  noms des boutons, la règle clé, le piège, le bon réflexe). Les outils citent leur module (champ `cours`), donc la
+  page du cours montre « Les outils de ce cours ».
+- Petit QCM : 12 à 15 questions par module, `dialecte: "Gestion de projet"`, règles anti-devinette de
+  `expert-chef-projet`. Tout ce qui est dit d'un outil est vérifié dans son moteur (`js/outils.js`).
+- Un outil qui change (règle, alerte, bouton) : vérifier son module `otXX`, comme ses cours `cpXX`.
 
 ## Le super dico SQL
 
