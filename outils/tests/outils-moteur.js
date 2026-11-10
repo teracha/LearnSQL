@@ -394,6 +394,10 @@ ok(rf2.ok && rf2.doc.nom.length === 120 && rf2.annonce.details.length === 6 && r
 const exListe = OM.examiner(REUNION, { rubriques: { points: Array.from({ length: 103 }, (v, k) => 'x' + k) } });
 ok(exListe.contenu.rubriques.points.length === 100 && exListe.problemes.indexOf('Points ouverts : plus de 100 lignes, la fin est coupée') >= 0,
   'liste de 103 lignes : coupée à 100, et dit');
+// Une rubrique « liste » absente du fichier ouvert : une liste vide, jamais une exception (bug vu par l'expert B).
+let exSansListe; try { exSansListe = OM.examiner(REUNION, { rubriques: {} }); } catch (e) { exSansListe = e; }
+ok(!(exSansListe instanceof Error) && (!exSansListe.contenu || exSansListe.contenu.rubriques.points.length === 0),
+  'rubrique liste absente du fichier : aucune exception (' + exSansListe + ')');
 // Les alertes du document dans Excel : du texte, avec la date de l'export (et celle de la situation, pour un exemple)
 OM.fixerAujourdhui(OM.jour('2026-11-09'));
 const lignesF1 = cl => cl.feuilles[0].lignes.map(l => l.map(c => c && c.v).join(' | '));

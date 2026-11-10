@@ -944,7 +944,7 @@
       } else if (r.type === "liste") {
         if (v !== undefined && !Array.isArray(v)) { pb.push(r.titre + " : une liste de textes est attendue"); v = []; }
         if ((v || []).length > MAX.items) { pb.push(r.titre + " : plus de " + MAX.items + " lignes, la fin est coupée"); v = v.slice(0, MAX.items); }
-        res[r.id] = v.map(function (x, k) { return examinerTexte(x, r.titre + " " + (k + 1), pb, MAX.texte); });
+        res[r.id] = (v || []).map(function (x, k) { return examinerTexte(x, r.titre + " " + (k + 1), pb, MAX.texte); });
       } else res[r.id] = nettoyerValeur(r, v, r.titre, pb);
     });
     return { contenu: casse ? null : { rubriques: res }, problemes: pb };
