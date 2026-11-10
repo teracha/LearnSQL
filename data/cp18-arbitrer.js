@@ -354,7 +354,7 @@ LEARNSQL.questions.cp18 = [
   {
     id: "cp18-q19",
     dialecte: "Gestion de projet",
-    q: "Il reste 5 jours d'intégrateur avant le pilote. Trois demandes : corriger des rejets EDI (8 % des factures d'un client, 4 jours), un libellé du PDF pour Sophie (1 jour), un rapport du commercial (3 jours). Que fais-tu ?",
+    q: "Il reste 7 jours d'intégrateur avant le pilote. Trois demandes : corriger des rejets EDI (8 % des factures d'un client, 4 jours), un libellé du PDF pour Sophie (1 jour), un rapport du commercial (3 jours). Que fais-tu ?",
     choix: [
       "Le rapport du commercial d'abord : c'est lui qui insiste le plus",
       "Rejets, libellé et rapport : on serre les tests du pilote",
@@ -364,7 +364,7 @@ LEARNSQL.questions.cp18 = [
     bonne: 2,
     pourquoi: [
       "Non. Insister n'est pas un critère. Le rapport n'aide pas la bascule, et les rejets EDI resteraient.",
-      "Non. 8 jours de travail dans 5 jours de place : la qualité paie en silence, et les rejets sortent pendant le pilote.",
+      "Non. 8 jours de travail dans 7 jours de place : la qualité paie en silence, et les rejets sortent pendant le pilote.",
       "Oui. Les rejets touchent un critère de succès (moins de 2 %) : « doit ». Le libellé tient dans le reste. Le rapport : « pas cette fois », écrit pour juillet.",
       "Non. Ce tri tient dans ta capacité : c'est à toi de le faire. Le DAF ne tranche que si un demandeur le conteste."
     ],

@@ -15,7 +15,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
     sujet: "gestion-projet",
     titre: "Conduite du changement",
     resume: "Préparer l'adoption : qui est touché et à quel point, le message de chacun, et la formation suivie par nom.",
-    quand: "La carte des impacts au cadrage, mise à jour après la recette. Les messages et la formation, juste avant la bascule.",
+    quand: "La carte des impacts au cadrage, mise à jour après la recette. Le pourquoi et les grandes dates tôt ; le détail et la formation, juste avant.",
     etapes: [
       "Pour chaque population : ce qui change, quand, à quel point. N'oublie pas ceux qui répondent aux questions, le site pilote, le dehors.",
       "Le message passe par le manager : ce qui change pour moi, quand, qui m'aide, et ce qui ne change pas.",
@@ -103,7 +103,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           { population: "Dehors : les 600 fournisseurs", change: "La facture électronique : ce qui change pour eux, et quand.",
             quand: "Avant la bascule", impact: "Faible", porte_par: "La cheffe comptable",
             relais: "", action: "Informer : une lettre de la compta." },
-          { population: "Dehors : les clients EDI, dont AquaBleu", change: "Leurs factures arrivent par la PA.",
+          { population: "Dehors : les clients EDI, dont AquaBleu", change: "Leurs factures arrivent par une plateforme agréée.",
             quand: "Dès le 14 juin", impact: "Faible", porte_par: "Le commercial",
             relais: "", action: "Informer, par le commercial. Marc vérifie les 1res factures d'AquaBleu, le lundi 8 h." }
         ],
@@ -116,7 +116,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
           { pour: "Les commerciaux", message: "Dès le 14 juin, vos clients reçoivent leurs factures par une PA. Pour vous, rien à saisir. Un nouveau client ? Son SIREN. Une facture rejetée ? L'ADV.",
             ne_change_pas: "Vos prix, vos commandes.", canal: "10 minutes en réunion d'équipe, et une page",
             par: "Le directeur commercial", quand: "2027-06-01", parti: "Non" },
-          { pour: "Les clients EDI, dont AquaBleu", message: "Dès le 14 juin, vos factures arrivent par notre plateforme agréée.",
+          { pour: "Les clients EDI, dont AquaBleu", message: "Dès le 14 juin, nos factures vous arrivent par une plateforme agréée.",
             ne_change_pas: "Vos commandes EDI, vos prix.", canal: "Un appel du commercial", par: "Le commercial", quand: "2027-06-01", parti: "Non" }
         ],
         formation: [

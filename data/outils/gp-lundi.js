@@ -17,7 +17,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
     etapes: [
       "Écris ce qui avance, ce qui coince (et ce qui va coincer), ce dont tu as besoin de lui. Pas la liste de tes tâches.",
       "Compte ta semaine en demi-journées : projet, run, formation. Une journée = 2 demi-journées. Note aussi la semaine passée.",
-      "Plus de 11 sur 10 : dis-le à ton DSI, avec ce qui ne glisse pas et ce qui peut glisser. Il choisit."
+      "Au-delà d'un pic court (11 sur 10, puis 9, sans échéance menacée) : dis-le à ton DSI, avec ce qui glisse ou pas. Il choisit."
     ],
     cours: ["cp02", "cp03"],
     type: "document",

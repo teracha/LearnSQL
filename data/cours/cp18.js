@@ -64,7 +64,7 @@ LEARNSQL.cours.cp18 = {
     },
     {
       titre: "Deux demandes, une place : des critères, puis MoSCoW",
-      exemple: "Avril. Il reste 8 jours d'intégrateur avant le pilote. Deux demandes de 6 jours.\nLe responsable ADV : le numéro de commande dans les factures EDI (échange de données informatisé) d'AquaBleu. Sans lui, AquaBleu (20 % du chiffre d'affaires) les rejette.\nLa cheffe comptable : l'imputation analytique automatique des factures fournisseurs. Un gain de temps, sans échéance.\nAquaBleu : « doit ». L'analytique : « pas cette fois », écrite pour juillet. Contesté ? Le DAF tranche, sur tes critères.",
+      exemple: "Avril. Il reste 10 jours d'intégrateur avant le pilote. Deux demandes de 6 jours.\nLe responsable ADV : le numéro de commande dans les factures EDI (échange de données informatisé) d'AquaBleu. Sans lui, AquaBleu (20 % du chiffre d'affaires) les rejette.\nLa cheffe comptable : l'imputation analytique automatique des factures fournisseurs. Un gain de temps, sans échéance.\nAquaBleu : « doit ». L'analytique : « pas cette fois », écrite pour juillet. Contesté ? Le DAF tranche, sur tes critères.",
       points: [
         "Des critères écrits AVANT de comparer : loi, valeur, urgence (une date), risque si on ne fait rien, effort (en jours). Le rang du demandeur n'en est pas un.",
         "La loi n'est pas un critère qu'on pèse : c'est un filtre. Ce qui est obligatoire passe d'abord.",
