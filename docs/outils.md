@@ -245,11 +245,12 @@ même sujet suivent **exactement la même condition** : jamais deux messages con
   couleur (la météo globale : « 2 · Orange »).
 - **Un total calculé à partir d'autres totaux** (`calcul: "formule"`, novembre 2026) : `formule` lit les totaux du
   même tableau qui ont un `id` et sont placés **avant** lui (jamais de boucle), et les rubriques simples du document ;
-  ni `colonne` ni `si`. Ex. MoSCoW : `{ id: "part_doit", libelle: "Part du « doit » (%)", calcul: "formule",
-  formule: "effort_doit / effort_prevu * 100", niveaux: [{ max: 60, … }, { … }] }`, et l'alerte du document
-  `part_doit > 60` (la même condition que le niveau). Un total vide rend le calcul vide (« — ») ; une division par zéro
-  aussi, sans alerte. Dans Excel : une formule qui renvoie aux cellules des totaux (`SI(OU(B35="" ; B34="") ; "" ;
-  SIERREUR(B35/B34*100 ; ""))`) et de la rubrique sur la 1re feuille.
+  ni `colonne` ni `si`. Ex. MoSCoW, la part du « doit » comptée sur la place (les jours disponibles, cp18 §4) :
+  `{ id: "part_doit", libelle: "Part du « doit » dans la place (%)", calcul: "formule", formule: "effort_doit / place * 100",
+  niveaux: [{ max: 60, … }, { … }] }`, et l'alerte du document `part_doit > 60` (la même condition que le niveau). Un
+  total vide (ou une rubrique vide) rend le calcul vide (« — ») ; une division par zéro aussi, sans alerte. Dans Excel :
+  une formule qui renvoie aux cellules des totaux et des rubriques (1re feuille) : `SI(OU(B35="" ; 'MoSCoW trier les
+  demandes'!$B$5="") ; "" ; SIERREUR(B35/'MoSCoW trier les demandes'!$B$5*100 ; ""))`.
 - Écran : un tableau sur PC ; une carte par ligne quand la place manque (téléphone, 390 px), sans défilement de côté.
 
 ### Le type `document`

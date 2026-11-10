@@ -652,16 +652,20 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
     xEch.indexOf('<c r="D3" s="3"><f>IF(OR(B3="",C3=""),"",IFERROR(EDATE(B3,-C3),""))</f><v>46752</v></c>') >= 0, 'échéancier en Excel : la formule (EDATE) et le format date');
   await aller('#/outils/gp-moscow/exemple');
   tot = await p.evaluate(() => { const z = document.querySelector('.o-totaux[data-totaux="demandes"]'); return { t: z.textContent.replace(/\s+/g, ' '), ok: !!z.querySelector('.o-niveau.o-ok') }; });
-  verifier(/Effort prévu \(jours\) : doit, devrait, pourrait : 10/.test(tot.t) && /Part du « doit » \(%\) : 50 Dans le repère/.test(tot.t) && tot.ok && /Aucune alerte/.test(await alertes()),
-    'MoSCoW : la part du « doit » de l\'exemple ' + JSON.stringify(tot));
+  verifier(/Effort prévu \(jours\) : doit, devrait, pourrait : 10/.test(tot.t) && /Part du « doit » dans la place \(%\) : 50 Dans le repère/.test(tot.t) && tot.ok &&
+    /Aucune alerte/.test(await alertes()), 'MoSCoW : la part du « doit » de l\'exemple (5 jours sur 10 de place) ' + JSON.stringify(tot));
   await p.click('#o-depuis-exemple'); await attendre();
-  await p.selectOption('#o-demandes-2-classe', 'Doit'); await attendre(80);   // 8 jours sur 10
+  await p.selectOption('#o-demandes-2-classe', 'Doit'); await attendre(80);   // 8 jours sur 10 de place
   tot = await p.evaluate(() => { const z = document.querySelector('.o-totaux[data-totaux="demandes"]'); return { t: z.textContent.replace(/\s+/g, ' '), ko: !!z.querySelector('.o-niveau.o-ko') }; });
-  verifier(/Part du « doit » \(%\) : 80 Au-delà du repère/.test(tot.t) && tot.ko && /Plus de 60 % de l'effort en « doit »/.test(await alertes()), 'MoSCoW : 80 % en « doit » ' + JSON.stringify(tot));
+  verifier(/Part du « doit » dans la place \(%\) : 80 Au-delà du repère/.test(tot.t) && tot.ko && /Plus de 60 % de la place en « doit »/.test(await alertes()),
+    'MoSCoW : 8 jours sur 10 en « doit » ' + JSON.stringify(tot));
   await largeur('MoSCoW (document)');
   f = await telecharger('#o-excel'); z = lireZip(f.octets);
-  verifier(z['xl/worksheets/sheet2.xml'].data.toString('utf8').indexOf('<c r="B36"><f>IF(OR(B35="",B34=""),"",IFERROR(B35/B34*100,""))</f><v>80</v></c>') >= 0,
-    'MoSCoW en Excel : la part renvoie aux cellules des deux totaux');
+  verifier(z['xl/worksheets/sheet2.xml'].data.toString('utf8').indexOf('<c r="B36"><f>IF(OR(B35="",\'MoSCoW trier les demandes\'!$B$5=""),"",' +
+    'IFERROR(B35/\'MoSCoW trier les demandes\'!$B$5*100,""))</f><v>80</v></c>') >= 0, 'MoSCoW en Excel : la part renvoie au total « doit » et à la place');
+  await p.fill('#o-r-place', ''); await attendre(80);   // sans place : pas de part, et c'est dit
+  verifier(/Part du « doit » dans la place \(%\) : —/.test((await texte('.o-totaux[data-totaux="demandes"]')).replace(/\s+/g, ' ')) &&
+    /Écris la place : les jours disponibles/.test(await alertes()), 'MoSCoW sans place : ' + await alertes());
   await aller('#/outils/gp-choix-prestataire'); await p.click('#o-depuis-exemple'); await attendre();
   for (let k = 0; k < 7; k++) await p.selectOption('#o-grille-' + k + '-note_c', '');
   for (let k = 0; k < 3; k++) await p.selectOption('#o-eliminatoires-' + k + '-c', '');

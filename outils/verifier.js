@@ -329,7 +329,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       if (x.calcul === 'nombre' && x.colonne !== undefined) err(lieu, ': « nombre » compte des lignes, sans colonne (une condition va dans si)');
       if (x.calcul === 'formule') {
         if (x.colonne !== undefined || x.si !== undefined) err(lieu, ': un total calculé (formule) n\'a ni colonne ni si : il lit d\'autres totaux');
-        if (!texte(x.formule)) err(lieu, ': formule manquante (ex. effort_doit / effort_prevu * 100)');
+        if (!texte(x.formule)) err(lieu, ': formule manquante (ex. effort_doit / place * 100)');
         else formule(lieu, x.formule, totauxAvant, 'nombre', 'total');
       } else {
         if (x.formule !== undefined) err(lieu, ': formule seulement pour calcul: "formule"');

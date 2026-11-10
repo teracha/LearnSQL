@@ -62,7 +62,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
         ],
         alertes: [
           { si: "note_a = 0 ou note_b = 0 ou note_c = 0",
-            message: "Note 0 : l'information manque ? Demande le même chiffre aux 3, par écrit, avec le même délai." }
+            message: "Note 0 : l'information manque ? Demande le même chiffre à chaque offre, par écrit, avec le même délai." }
         ],
         totaux: [
           { id: "total_poids", libelle: "Poids (100 en tout)", calcul: "somme", colonne: "poids" },

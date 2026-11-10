@@ -233,7 +233,7 @@ const ATTENDU = {
   'gp-business-case': { totaux: [2, 80000, 100, 3000], alertes: ['options 1 Gain en temps'] },
   'gp-recette': { totaux: [8, 7, 2, 2, 2, 1, 4], alertes: [0, 3, 4, 5].map(k => 'cas ' + k + ' Pas de PV tant que cette anomalie est ouverte') },
   'gp-bascule': { totaux: [6, 6], alertes: [] },
-  // La 2e vague (novembre 2026), lignes de l'expert. MoSCoW : la part du « doit » (50 %) est un total calculé.
+  // La 2e vague (novembre 2026), lignes de l'expert. MoSCoW : la part du « doit » dans la place (50 %) est un total calculé.
   'gp-lundi': { totaux: [10, 12, 120], alertes: [] },
   'gp-choix-prestataire': { totaux: [100, 78, 74, 64], alertes: [] },
   'gp-conduite-changement': { totaux: [6, 1, 10, 9, 1], alertes: [] },
@@ -539,19 +539,33 @@ egal(OM.suivi(ech, casEch(), OM.jour(ech.exemple.date)).alertes.map(a => a.ligne
   'échéancier : un préavis vide, pas de date limite, et c\'est dit une fois');
 egal(OM.suivi(ech, OM.contenuExemple(ech), OM.jour('2029-06-15')).alertes.map(a => a.ligne + ' ' + a.message.split(' :')[0]),
   ['0 Date limite passée', '1 Date limite passée'], 'échéancier lu le 15/06/2029 : les dates limites sont passées');
-// e. MoSCoW : la part du « doit », en %, avec son niveau et l'alerte au-delà de 60 % (même condition)
-const mos = outil('gp-moscow'), partMos = modif => { const c = OM.contenuExemple(mos); modif(c.rubriques.demandes); return OM.suivi(mos, c); };
+// e. MoSCoW : la part du « doit », comptée sur la PLACE (les jours disponibles : le repère DSDM de cp18 §4, décision du
+// relecteur), en %, avec son niveau et l'alerte au-delà de 60 % (même condition) ; sans place, pas de part, et c'est dit
+const mos = outil('gp-moscow'), partMos = modif => { const c = OM.contenuExemple(mos); modif(c.rubriques.demandes, c.rubriques); return OM.suivi(mos, c); };
+const partDe = s => s.totaux.filter(x => x.id === 'part_doit')[0];
+const pasCetteFois = x => { x.classe = 'Pas cette fois'; x.quand = '2027-07-01'; };
 let sMos = partMos(() => {});
-egal([sMos.totaux[2].libelle, sMos.totaux[2].texte, sMos.totaux[2].niveau.libelle], ['Part du « doit » (%)', '50', 'Dans le repère'], 'MoSCoW : la part du « doit » de l\'exemple');
+egal([partDe(sMos).libelle, partDe(sMos).texte, partDe(sMos).niveau.libelle, sMos.alertes.length], ['Part du « doit » dans la place (%)', '50', 'Dans le repère', 0],
+  'MoSCoW : l\'exemple, 5 jours de « doit » dans 10 jours de place');
 sMos = partMos(d => { d[2].classe = 'Doit'; });   // 8 jours sur 10
-egal([sMos.totaux[2].valeur, sMos.totaux[2].niveau.libelle, sMos.alertes.map(a => a.message.split(' :')[0])],
-  [80, 'Au-delà du repère', ['Plus de 60 % de l\'effort en « doit »']], 'MoSCoW : 80 % en « doit », le niveau et l\'alerte');
-sMos = partMos(d => { d[1].effort = 1; d[4].effort = 3; });   // 3 jours sur 10 : 30 % (0,3 × 100, sans reste de calcul)
-egal([sMos.totaux[2].valeur, sMos.totaux[2].niveau.libelle, sMos.alertes.length], [30, 'Dans le repère', 0], 'MoSCoW : 30 % en « doit »');
-sMos = partMos(d => { d.forEach(x => { x.classe = 'Pas cette fois'; x.quand = '2027-07-01'; }); });
-egal([sMos.totaux[0].valeur, sMos.totaux[2].texte, sMos.totaux[2].niveau, sMos.alertes.length], [0, '—', null, 0], 'MoSCoW : rien de prévu, la part est vide (pas de division par zéro)');
-sMos = partMos(d => { d[3].classe = 'Doit'; });   // 6 jours sur 10 : 60 %, la borne comprise
-egal([sMos.totaux[2].valeur, sMos.totaux[2].niveau.libelle, sMos.alertes.length], [60, 'Dans le repère', 0], 'MoSCoW : 60 % pile, dans le repère, pas d\'alerte');
+egal([partDe(sMos).valeur, partDe(sMos).niveau.libelle, sMos.alertes.map(a => a.message.split(' :')[0])],
+  [80, 'Au-delà du repère', ['Plus de 60 % de la place en « doit »']], 'MoSCoW : 8 jours sur 10, le niveau et l\'alerte');
+sMos = partMos(d => { d[3].classe = 'Doit'; });   // 6 jours sur 10 : 60 %, la borne comprise (cp18 §4 : 6 jours sur 10)
+egal([partDe(sMos).valeur, partDe(sMos).niveau.libelle, sMos.alertes.length], [60, 'Dans le repère', 0], 'MoSCoW : 60 % pile, dans le repère, pas d\'alerte');
+sMos = partMos((d, r) => { r.place = 7; d[1].effort = 2; pasCetteFois(d[2]); });   // cp18-q19 : 4 jours de « doit » sur 7
+egal([partDe(sMos).texte, partDe(sMos).niveau.libelle, sMos.alertes.length], ['57,14', 'Dans le repère', 0], 'MoSCoW : 4 jours sur 7 (cp18-q19), 57 %');
+sMos = partMos(d => { d.slice(1).forEach(pasCetteFois); });   // un seul « doit » de 2 jours : 20 % de la place (pas 100 %)
+egal([partDe(sMos).valeur, sMos.totaux[0].valeur, sMos.alertes.length], [20, 2, 0], 'MoSCoW : un seul « doit » de 2 jours dans 10 jours, 20 %');
+sMos = partMos(d => { d.forEach(pasCetteFois); });
+egal([partDe(sMos).texte, partDe(sMos).niveau.libelle, sMos.alertes.length], ['0', 'Dans le repère', 0], 'MoSCoW : rien en « doit », 0 %');
+sMos = partMos((d, r) => { r.place = ''; });
+egal([partDe(sMos).texte, partDe(sMos).niveau, sMos.alertes.map(a => a.message.split(' :')[0])], ['—', null, ['Écris la place']],
+  'MoSCoW : sans place, pas de part (« — »), et l\'alerte le dit');
+sMos = partMos((d, r) => { r.place = 0; });
+egal([partDe(sMos).texte, sMos.alertes.map(a => a.message.split(' :')[0])], ['—', ['L\'effort prévu dépasse la place']], 'MoSCoW : une place de 0, pas de part (division par zéro)');
+egal(cel(OM.classeur(mos, { nom: 'x', contenu: OM.contenuExemple(mos) }).feuilles[1], 'B36').f,
+  'IF(OR(B35="",\'MoSCoW trier les demandes\'!$B$5=""),"",IFERROR(B35/\'MoSCoW trier les demandes\'!$B$5*100,""))',
+  'MoSCoW en Excel : la part renvoie à la cellule du total « doit » et à celle de la place (1re feuille)');
 // f. La grille de choix : l'offre C facultative ; avec 2 offres, aucune alerte inutile, et C n'a pas 0 sur 100
 const gri = outil('gp-choix-prestataire');
 const deuxOffres = () => { const c = OM.contenuExemple(gri); c.rubriques.grille.forEach(l => { l.note_c = ''; }); c.rubriques.eliminatoires.forEach(l => { l.c = ''; }); return c; };
@@ -677,6 +691,7 @@ ajouterClasseur(ECHEANCES, 'vides', { nom: 'Option remplie une fois', contenu: (
 ajouterClasseur(ech, 'vides', { nom: 'Préavis vide', contenu: casEch() });
 ajouterClasseur(mos, 'vides', { nom: '80 %', contenu: (() => { const c = OM.contenuExemple(mos); c.rubriques.demandes[2].classe = 'Doit'; return c; })() });
 ajouterClasseur(mos, 'rien', { nom: 'Rien de prévu', contenu: (() => { const c = OM.contenuExemple(mos); c.rubriques.demandes.forEach(x => { x.classe = 'Pas cette fois'; }); return c; })() });
+ajouterClasseur(mos, 'sans-place', { nom: 'Place vide', contenu: (() => { const c = OM.contenuExemple(mos); c.rubriques.place = ''; return c; })() });
 ajouterClasseur(gri, 'vides', { nom: '2 offres', contenu: deuxOffres() });
 ajouterClasseur(gri, 'trous', { nom: 'C commencée', contenu: troisTrous });
 ajouterClasseur(bud, 'vides', { nom: 'Cas du testeur', contenu: casBudget() });

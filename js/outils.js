@@ -718,9 +718,9 @@
     if (tot.calcul === "moyenne") return arrondi(vals.reduce(function (s, v) { return s + v; }, 0) / vals.length);
     return tot.calcul === "min" ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
   }
-  // Un total calculé à partir d'autres totaux : « effort_doit / effort_prevu * 100 ». Il lit les totaux du même tableau
-  // qui ont un id et sont placés AVANT lui (pas de boucle), et les rubriques simples du document. Un total vide rend le
-  // calcul vide (un total n'est pas un nombre saisi) ; une division par zéro aussi, sans alerte.
+  // Un total calculé à partir d'autres totaux : « effort_doit / place * 100 » (MoSCoW). Il lit les totaux du même
+  // tableau qui ont un id et sont placés AVANT lui (pas de boucle), et les rubriques simples du document. Un total vide
+  // rend le calcul vide (un total n'est pas un nombre saisi) ; une division par zéro aussi, sans alerte.
   function avantDe(t, tot) {
     var avant = {}, l = t.totaux || [];
     for (var k = 0; k < l.length && l[k] !== tot; k++) if (l[k].id) avant[l[k].id] = l[k];
