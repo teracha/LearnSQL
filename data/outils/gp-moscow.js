@@ -23,7 +23,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Classe avec les métiers. « Doit » : sans lui, la bascule échoue. Pas plus d'environ 60 % de l'effort en « doit ».",
       "« Pas cette fois » s'écrit avec une date, et se dit au demandeur. Le sponsor valide les « doit »."
     ],
-    cours: ["cp18"],
+    cours: ["cp18", "ot03"],
     type: "document",
     rubriques: [
       { id: "objet", titre: "Ce qu'on trie", type: "texte", aide: "La place : une itération, une enveloppe de jours, les jours avant la bascule." },

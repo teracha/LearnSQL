@@ -16,7 +16,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Note la probabilité et l'impact de 1 à 3. Choisis la plus petite action qui réduit assez le risque.",
       "Donne un propriétaire et une date. Action faite et vérifiée : ferme le risque."
     ],
-    cours: ["cp07", "cp08"],
+    cours: ["cp07", "cp08", "ot02"],
     type: "tableau",
     ligne: { titre: "Risque" },
     colonnes: [

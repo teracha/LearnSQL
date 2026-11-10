@@ -19,7 +19,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Compte ta semaine en demi-journées : projet, run, formation. Une journée = 2 demi-journées. Note aussi la semaine passée.",
       "Au-delà d'un pic court (11 sur 10, puis 9, sans échéance menacée) : dis-le à ton DSI, avec ce qui glisse ou pas. Il choisit."
     ],
-    cours: ["cp02", "cp03"],
+    cours: ["cp02", "cp03", "ot02"],
     type: "document",
     rubriques: [
       { id: "lundi", titre: "Point du lundi", type: "date" },

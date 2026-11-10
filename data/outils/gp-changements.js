@@ -15,7 +15,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Écris la demande (qui, quoi, pourquoi, pour quand) et chiffre son impact sur tout le projet.",
       "Fais décider la bonne personne. Puis la commande ou l'avenant signé, et seulement après, le travail."
     ],
-    cours: ["cp10"],
+    cours: ["cp10", "ot03"],
     type: "tableau",
     ligne: { titre: "Demande" },
     colonnes: [

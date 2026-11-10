@@ -23,6 +23,11 @@ LEARNSQL.parcours = [
       { id: "cp-dsi", titre: "E. Vers DSI adjoint", resume: "Conformité, portefeuille, management et budget SI.", modules: ["cp24", "cp25", "cp26", "cp27"] }
     ]
   },
+  {
+    id: "maitrise-outils", titre: "Maîtriser les outils du chef de projet",
+    resume: "Les 22 outils de la section Outils, étape par étape : à quoi ils servent, quand et comment s'en servir. Fil rouge : DEMAT 2027.",
+    modules: ["ot01", "ot02", "ot03", "ot04", "ot05"]
+  },
   { id: "edi", titre: "EDI / EDIFACT", resume: "Messages, flux, partenaires et supervision.", modules: [] },
   {
     id: "divalto", titre: "Divalto", resume: "L'ERP Divalto Infinity 10.13, par domaine.", modules: [],

@@ -47,5 +47,10 @@ window.LEARNSQL = { modules: [
   { id: "cp24", titre: "Conformité dans un projet SI", resume: "Règles vérifiées à la source, rôles du RGPD et registre, durées et effacement, violation de données et 72 h, accès, charte et licences.", niveau: "Avancé" },
   { id: "cp25", titre: "Portefeuille et priorisation", resume: "Une seule porte, des critères écrits, la capacité d'abord : classer, dire « pas maintenant », arrêter.", niveau: "Avancé" },
   { id: "cp26", titre: "Manager une équipe", resume: "Prendre son poste, déléguer sans reprendre la main, objectifs et entretiens, feedback et recadrage, situations difficiles, recruter et transmettre.", niveau: "Avancé" },
-  { id: "cp27", titre: "Budget SI annuel et direction générale", resume: "Construire le budget de la DSI (run, projets, masse salariale), CAPEX ou OPEX, le défendre devant le DG, couper avec des options, suivre, réviser.", niveau: "Expert" }
+  { id: "cp27", titre: "Budget SI annuel et direction générale", resume: "Construire le budget de la DSI (run, projets, masse salariale), CAPEX ou OPEX, le défendre devant le DG, couper avec des options, suivre, réviser.", niveau: "Expert" },
+  { id: "ot01", titre: "Outils pour cadrer", resume: "Note de cadrage, business case, matrice RACI et calculette d'estimation : à quoi ils servent, quand et comment.", niveau: "Intermédiaire" },
+  { id: "ot02", titre: "Outils pour piloter", resume: "Registre des risques, tableau de bord, rapport du COPIL, suivi du budget, compte rendu et fiche du lundi.", niveau: "Intermédiaire" },
+  { id: "ot03", titre: "Outils pour décider", resume: "Note de décision, registre des décisions, registre des changements et MoSCoW.", niveau: "Intermédiaire" },
+  { id: "ot04", titre: "Outils pour les prestataires", resume: "Grille de choix d'un prestataire, fiche contrat et SLA, échéancier des contrats.", niveau: "Intermédiaire" },
+  { id: "ot05", titre: "Outils pour livrer", resume: "Cahier de recette, reprise de données, conduite du changement, go / no-go et bascule, bilan de fin.", niveau: "Intermédiaire" }
 ], questions: {}, cours: {} };

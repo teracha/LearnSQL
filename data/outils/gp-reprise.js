@@ -22,7 +22,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Mesure la qualité avant, en chiffres, par propriétaire. Le temps à prévoir : fiches × minutes. On corrige à la source, par le métier.",
       "À chaque essai : extraites = chargées + rejetées, chaque rejet expliqué. Puis le propriétaire signe, chiffres en main."
     ],
-    cours: ["cp20"],
+    cours: ["cp20", "ot05"],
     type: "document",
     rubriques: [
       { id: "projet", titre: "Projet", type: "texte", aide: "Le projet, et ce qu'on reprend, vers où." },

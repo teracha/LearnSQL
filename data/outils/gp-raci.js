@@ -16,7 +16,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Mets R, A, C ou I. Un seul A par livrable ; pour un livrable du métier, l'A vient du métier.",
       "Relis-le avec chaque A, puis fais-le valider par le sponsor."
     ],
-    cours: ["cp09"],
+    cours: ["cp09", "ot01"],
     type: "matrice",
     ligne: { titre: "Livrable", pluriel: "Livrables", aide: "Une chose qu'on remet et qu'on valide." },
     colonne: { titre: "Personne", pluriel: "Personnes et rôles", aide: "Une personne ou un rôle : le DAF, la cheffe comptable…" },

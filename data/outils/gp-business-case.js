@@ -16,7 +16,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Compte tout, sur la durée : dépenses externes, run, réserve, et le temps interne en jours.",
       "Chiffre les gains avec leurs hypothèses : en argent, ou en temps. Puis recommande."
     ],
-    cours: ["cp11"],
+    cours: ["cp11", "ot01"],
     type: "document",
     rubriques: [
       { id: "probleme", titre: "Le problème ou l'obligation", type: "texte-long" },

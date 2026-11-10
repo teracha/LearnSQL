@@ -15,7 +15,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Décision orale : fais-la confirmer par écrit le jour même (« Comme convenu ce matin : … »).",
       "Une décision écrite ne se refait pas au COPIL suivant, sauf fait nouveau."
     ],
-    cours: ["cp09"],
+    cours: ["cp09", "ot03"],
     type: "tableau",
     ligne: { titre: "Décision" },
     colonnes: [

@@ -21,7 +21,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Ferme ce qui doit l'être : commandes, réserves du PV, accès, réserve. Ce qui reste ouvert reçoit un nom.",
       "REX sans coupable : ce qu'on garde, avec sa raison, et 3 à 5 actions nommées. Bilan de chaque fournisseur, sa réponse à côté."
     ],
-    cours: ["cp22", "cp15"],
+    cours: ["cp22", "cp15", "ot05"],
     type: "document",
     rubriques: [
       { id: "projet", titre: "Projet", type: "texte" },

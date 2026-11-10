@@ -17,7 +17,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Chaque anomalie : un ticket, et une gravité fixée par le métier sur les définitions.",
       "Pas de PV tant qu'une bloquante ou une majeure est ouverte. Les mineures deviennent des réserves datées."
     ],
-    cours: ["cp19", "cp08"],
+    cours: ["cp19", "cp08", "ot05"],
     type: "document",
     rubriques: [
       { id: "livrable", titre: "Ce qui est recetté", type: "texte", aide: "Le livrable et sa version." },

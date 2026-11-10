@@ -15,7 +15,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Donne les faits, puis 2 ou 3 options, dont « Ne rien changer » quand c'est possible, chacune avec son prix.",
       "Recommande une option, en une ligne, avec sa raison. Le décideur choisit."
     ],
-    cours: ["cp03", "cp17", "cp18", "cp16", "cp10"],
+    cours: ["cp03", "cp17", "cp18", "cp16", "cp10", "ot03"],
     type: "document",
     rubriques: [
       { id: "decision", titre: "Décision attendue", type: "texte", aide: "La question à trancher : oui ou non, A ou B." },

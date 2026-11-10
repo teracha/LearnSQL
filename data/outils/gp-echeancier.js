@@ -23,7 +23,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Date limite pour résilier = la fin moins le préavis. Ex. : fin le 30/11/2029, préavis de 6 mois : le 30/05/2029.",
       "Avant la date limite, le DAF choisit : rester, renégocier ou changer, coût de sortie compris."
     ],
-    cours: ["cp27", "cp14"],
+    cours: ["cp27", "cp14", "ot04"],
     type: "document",
     rubriques: [
       { id: "relu_par", titre: "Relu par", type: "texte", aide: "À chaque budget : le DSI et son adjoint, avec le contrôleur de gestion." },

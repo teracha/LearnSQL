@@ -15,7 +15,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Écris le hors périmètre élément par élément, et des critères de succès chiffrés.",
       "Fais valider la note par écrit par le sponsor : 20 minutes sur 3 points clés."
     ],
-    cours: ["cp04", "cp06"],
+    cours: ["cp04", "cp06", "ot01"],
     type: "document",
     rubriques: [
       { id: "projet", titre: "Projet", type: "texte", aide: "Le nom court du projet." },

@@ -17,7 +17,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Donne une couleur à chacun des 4 axes, d'après les seuils, pas d'après l'humeur.",
       "Reporte les jalons, les 5 plus gros risques et la ligne budget, puis envoie. Duplique le rapport le mois suivant."
     ],
-    cours: ["cp08", "cp09", "cp05"],
+    cours: ["cp08", "cp09", "cp05", "ot02"],
     type: "document",
     rubriques: [
       { id: "copil", titre: "COPIL du", type: "date" },

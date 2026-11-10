@@ -23,7 +23,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Chacun note son domaine, de 0 à 5, sur des faits : tes cas en démo, des références. Une séance commune règle les gros écarts.",
       "Négocie, l'autre finaliste en réserve. Puis une page au décideur : notes, coût sur 3 ans, risques, ta recommandation."
     ],
-    cours: ["cp13"],
+    cours: ["cp13", "ot04"],
     type: "document",
     rubriques: [
       { id: "achat", titre: "Ce qu'on achète", type: "texte", aide: "Le besoin, en une ligne. Le détail : le cahier des charges." },

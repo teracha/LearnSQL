@@ -20,7 +20,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Pour chacun : une définition écrite, une source, un seuil fixé à l'avance, un responsable. Une impression n'est pas un indicateur.",
       "Chaque vendredi, chacun met à jour ses lignes, avec la date des données. Deux sources diffèrent ? Vérifie, puis un seul chiffre."
     ],
-    cours: ["cp08"],
+    cours: ["cp08", "ot02"],
     type: "tableau",
     ligne: { titre: "Indicateur" },
     colonnes: [

@@ -20,7 +20,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Incertain ? Trois chiffres : optimiste, probable, pessimiste. Charge = (O + 4 × P + Pe) ÷ 6. Sûr ? Le même chiffre 3 fois.",
       "Durée = charge ÷ disponibilité. Personne n'est à 100 % : congés, clôture, run. Au planning, on met la durée."
     ],
-    cours: ["cp05"],
+    cours: ["cp05", "ot01"],
     type: "tableau",
     ligne: { titre: "Tâche" },
     colonnes: [

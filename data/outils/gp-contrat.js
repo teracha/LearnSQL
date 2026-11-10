@@ -25,7 +25,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Signé : une fiche d'une page pour l'équipe, avec les dates, les livrables, la recette, le SLA, les pénalités, le préavis, les contacts.",
       "Chaque mois, tes mesures contre le contrat. Un écart : sa cause, un plan daté, le suivi au comité. Les crédits : le DAF décide."
     ],
-    cours: ["cp14", "cp15"],
+    cours: ["cp14", "cp15", "ot04"],
     type: "document",
     rubriques: [
       { id: "fournisseur", titre: "Fournisseur et contrat", type: "texte", aide: "Qui, quoi, signé quand et par qui." },

@@ -21,7 +21,7 @@ LEARNSQL.outils = (LEARNSQL.outils || []).concat([
       "Le message passe par le manager : ce qui change pour moi, quand, qui m'aide, et ce qui ne change pas.",
       "Forme juste avant, sur les vrais cas. Suis la formation par nom : un pourcentage cache qui manque."
     ],
-    cours: ["cp23"],
+    cours: ["cp23", "ot05"],
     type: "document",
     rubriques: [
       { id: "pourquoi", titre: "Pourquoi on change", type: "texte-long",
