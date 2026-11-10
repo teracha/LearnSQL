@@ -22,10 +22,11 @@ LEARNSQL.outilsSujets = [
     id: "gestion-projet", titre: "Gestion de projet",
     resume: "Des modèles simples à remplir, tirés des cours du parcours Chef de projet SI.",
     groupes: [
-      { titre: "Cadrer", outils: ["gp-cadrage", "gp-business-case", "gp-raci"] },
-      { titre: "Piloter", outils: ["gp-risques", "gp-rapport", "gp-budget", "gp-compte-rendu"] },
-      { titre: "Décider", outils: ["gp-options", "gp-decisions", "gp-changements"] },
-      { titre: "Livrer", outils: ["gp-recette", "gp-bascule"] }
+      { titre: "Cadrer", outils: ["gp-cadrage", "gp-business-case", "gp-raci", "gp-estimation"] },
+      { titre: "Piloter", outils: ["gp-risques", "gp-tableau-bord", "gp-rapport", "gp-budget", "gp-compte-rendu", "gp-lundi"] },
+      { titre: "Décider", outils: ["gp-options", "gp-decisions", "gp-changements", "gp-moscow"] },
+      { titre: "Prestataires", outils: ["gp-choix-prestataire", "gp-contrat", "gp-echeancier"] },
+      { titre: "Livrer", outils: ["gp-recette", "gp-reprise", "gp-conduite-changement", "gp-bascule", "gp-bilan"] }
     ]
   }
 ];

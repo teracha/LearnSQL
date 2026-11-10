@@ -435,3 +435,13 @@ change une règle doit faire vérifier ses outils (`data/outils/gp-*.js`).
 | Business case : le coût sur 3 ans (`gp-business-case`) | document | cp11 |
 | Cahier de recette (`gp-recette`) | document | cp19, cp08 |
 | Go / no-go et plan de bascule (`gp-bascule`) | document | cp21, cp20 |
+| Fiche du lundi et charge (`gp-lundi`) | document | cp02, cp03 |
+| Grille de choix d'un prestataire (`gp-choix-prestataire`) | document | cp13 |
+| Conduite du changement (`gp-conduite-changement`) | document | cp23 |
+| Reprise de données (`gp-reprise`) | document | cp20 |
+| Bilan de fin et REX (`gp-bilan`) | document | cp22, cp15 |
+| Échéancier des contrats (`gp-echeancier`) | document | cp27, cp14 |
+| Fiche contrat et SLA (`gp-contrat`) | document | cp14, cp15 |
+| Tableau de bord de l'équipe (`gp-tableau-bord`) | tableau | cp08 |
+| MoSCoW : trier les demandes (`gp-moscow`) | document | cp18 |
+| Calculette d'estimation (`gp-estimation`) | tableau | cp05 |
