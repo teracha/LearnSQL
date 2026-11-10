@@ -37,7 +37,7 @@ LEARNSQL.cours.ot01 = {
     },
     {
       titre: "Matrice RACI",
-      exemple: "Mars 2027. Nouveau livrable : le planning de formation de la compta.\nTu l'ajoutes à la matrice RACI de DEMAT avec `+ Livrable`, et tu te mets R.\nUne alerte s'affiche : « Personne n'approuve ce livrable : mets un A. »\nTu proposes la cheffe comptable, qui accepte. Son A fait disparaître l'alerte.",
+      exemple: "Mars 2027. Ta matrice RACI de DEMAT a une colonne par personne :\ntoi, le DAF, la cheffe comptable, Julie, ton DSI (directeur des systèmes d'information), le DG (directeur général)…\nNouveau livrable : le planning de formation de la compta.\nTu l'ajoutes avec `+ Livrable`, et tu te mets R.\nUne alerte s'affiche : « Personne n'approuve ce livrable : mets un A. »\nTu proposes la cheffe comptable, qui accepte. Son A fait disparaître l'alerte.",
       points: [
         "À quoi elle sert : dire, pour chaque livrable, qui réalise (R), qui approuve (A), qui est consulté (C) et qui est informé (I). Quand : au cadrage, validée par le sponsor ; puis à chaque nouveau livrable, départ ou congé.",
         "Sur le site : `+ Personne` ajoute une colonne (une personne ou un rôle), `+ Livrable` une ligne. Dans chaque case : R, A, C ou I. La légende rappelle le sens : C donne son avis AVANT la décision, I l'apprend APRÈS.",

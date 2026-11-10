@@ -48,7 +48,7 @@ LEARNSQL.questions.ot02 = [
     choix: [
       "Tu écris « à voir » et la date du jour : les 5 alertes disparaissent",
       "Tu supprimes ces 5 lignes : sans action, elles encombrent",
-      "Tu leur donnes, en revue, une action ou « accepté », et une date",
+      "Tu leur donnes, en revue, une action ou « accepté », avec une date",
       "Tu les gardes pour le COPIL : le DAF choisira les actions"
     ],
     bonne: 2,
@@ -113,7 +113,7 @@ LEARNSQL.questions.ot02 = [
       "Non. C'est maquiller : la source de la ligne est le portail. Un chiffre choisi parce qu'il arrange n'est plus un indicateur.",
       "Non. Deux chiffres, c'est chacun le sien. Et le tableau sert à l'équipe ; au DAF, le rapport et les alertes.",
       "Oui. Deux sources diffèrent : tu vérifies avant de publier, puis un seul chiffre. La source écrite sur la ligne fait foi, avec la date de ses données.",
-      "Non. Tu publies avant de comprendre l'écart. Et la 1re semaine du pilote, rien n'est hors tolérance : un plan daté au point du lundi suffit."
+      "Non. Tu publies avant de comprendre l'écart. Et une 1re semaine de pilote ne juge pas encore le critère : un plan daté au point du lundi suffit."
     ],
     retenir: "Deux sources diffèrent : tu vérifies, puis un seul chiffre, celui de la source qui fait foi."
   },
@@ -139,7 +139,7 @@ LEARNSQL.questions.ot02 = [
   {
     id: "ot02-q07",
     dialecte: "Gestion de projet",
-    q: "Rapport d'avril : délai orange, les 3 autres axes verts. L'outil affiche « Météo globale : Orange ». Le DAF : « 3 verts sur 4, mets vert. » Que fais-tu ?",
+    q: "Rapport d'avril : délai orange, les 3 autres axes verts. L'outil affiche une météo globale « Orange ». Le DAF : « 3 verts sur 4, mets vert. » Que fais-tu ?",
     choix: [
       "Rien ne change : la globale reste l'axe le plus mauvais",
       "Délai passé en vert : la globale suivra",
@@ -220,7 +220,7 @@ LEARNSQL.questions.ot02 = [
       "30 000 € : toute la commande est signée",
       "9 750 € : le travail fait, facturé ou pas",
       "3 750 € : seules les factures reçues font foi",
-      "2 250 € : seul l'argent sorti compte"
+      "2 250 € : l'argent sorti, c'est le vrai coût"
     ],
     bonne: 1,
     pourquoi: [
@@ -244,7 +244,7 @@ LEARNSQL.questions.ot02 = [
     bonne: 3,
     pourquoi: [
       "Non. Un « peut-être » n'est pas une décision. L'écrire « accordé » engage le DAF sur ce qu'il n'a pas dit.",
-      "Non. « Renforcer l'équipe » n'est pas une action précise : ni qui, ni quoi, ni quand. Et rien n'est encore décidé.",
+      "Non. « Renforcer l'équipe » n'est pas une action précise : qui vient, pour faire quoi ? Et rien n'est encore décidé.",
       "Non. Rien n'est décidé, mais une question reste ouverte : sans trace, elle revient en pleine recette, sans les chiffres.",
       "Oui. Un « peut-être » est un point ouvert : ce qui manque (la charge, en heures), qui l'apporte (la cheffe comptable), pour quand (le 4 mars)."
     ],
@@ -265,7 +265,7 @@ LEARNSQL.questions.ot02 = [
       "Non. L'outil se tait, mais personne n'a rien décidé. Une nouvelle date se fixe avec celui qui fait, et on dit pourquoi.",
       "Oui. Au point suivant : fait, ou pas ? Faite : « Fait ? » passe à « Oui ». Sinon : pourquoi, et une nouvelle date avec son responsable.",
       "Non. Une action supprimée ne se fait pas pour autant : le retard sort du suivi, pas du projet.",
-      "Non. 2 actions en retard d'une semaine, sans jalon menacé : c'est le travail du point projet, pas une alerte au DAF."
+      "Non. Une action en retard se revoit d'abord au point projet. Le DAF le jour même, c'est pour un jalon hors tolérance ou une décision qui n'attend pas."
     ],
     retenir: "Au point suivant, chaque action : faite, ou pas ? Sinon : pourquoi, et une nouvelle date."
   },

@@ -29,7 +29,7 @@ LEARNSQL.questions.ot01 = [
     bonne: 0,
     pourquoi: [
       "Oui. Chacun a son projet en tête. La note de cadrage écrit le périmètre et le hors périmètre, avec les métiers, avant de dépenser.",
-      "Non. Le business case chiffre des options. Sans périmètre partagé, tu chiffrerais un seul des 3 projets qu'ils ont en tête.",
+      "Non. Le business case chiffre des options. Sans périmètre partagé, tu ne sais pas encore quoi chiffrer : fournisseurs, clients, ou les deux ?",
       "Non. Le RACI dit qui réalise et qui approuve chaque livrable. Le périmètre, lui, s'écrit dans la note de cadrage.",
       "Non. On estime des tâches connues. Ici, on ne sait même pas encore ce que le projet doit livrer."
     ],
@@ -69,7 +69,7 @@ LEARNSQL.questions.ot01 = [
       "Non. « Améliorer » ne se mesure pas : au bilan, chacun dira oui ou non selon son humeur. L'alerte demande un seuil, et comment on le mesure.",
       "Oui. Un critère de succès = un chiffre, un seuil ou une date, et comment on le mesure. Tu traduis son souhait en critère de qualité ; il valide.",
       "Non. Bloquer la note retarde tout, pour un détail que tu règles en 5 minutes avec lui. Proposer un chiffre mesurable, c'est ton travail.",
-      "Non. C'est un critère de délai : utile, mais il remplace la qualité qu'il demandait. Un projet peut être à l'heure et raté."
+      "Non. Tu changes son critère sans lui, et « Comment on mesure » reste vide : l'alerte reste. Passer par la PA, c'est la loi : ça ne dit rien du traitement."
     ],
     retenir: "Un critère de succès : un chiffre, un seuil ou une date, et comment on le mesure."
   },
@@ -80,14 +80,14 @@ LEARNSQL.questions.ot01 = [
     choix: [
       "Tu écris « Le DAF, à l'oral, le 12 octobre » dans « Validée par »",
       "Tu lui envoies la note en PDF, et tu lances les commandes",
-      "Tu fais valider la note par ton DSI, qui l'a lue, lui",
+      "Tu demandes l'accord écrit de ton DSI, qui l'a lue, lui",
       "Tu lui demandes 20 minutes sur 3 points, puis son accord écrit"
     ],
     bonne: 3,
     pourquoi: [
       "Non. Un oui sans lecture n'engage rien : au premier désaccord, il dira qu'il n'a jamais validé ce périmètre.",
       "Non. Le PDF est utile, mais sans validation écrite, pas de mandat, donc pas de commande. Et il n'a toujours rien lu.",
-      "Non. Ton DSI n'est pas le sponsor : il ne décide ni du périmètre, ni du budget. Sa lecture ne vaut pas mandat.",
+      "Non. Ton DSI n'est pas le sponsor : il ne décide ni du périmètre, ni du budget. Son accord, même écrit, ne vaut pas mandat.",
       "Oui. 20 minutes sur 3 points clés (périmètre, budget, tolérances), avec tes options. Puis sa validation écrite : elle te permet de dire non ensuite."
     ],
     retenir: "Sans validation écrite du sponsor, pas de mandat : 20 minutes sur 3 points clés, puis son accord écrit."
@@ -157,7 +157,7 @@ LEARNSQL.questions.ot01 = [
       "Tu ajoutes 21 000 € aux dépenses externes : 100 jours à 210 €",
       "Tu laisses vide : leur temps est déjà payé par l'entreprise",
       "Tu prends ce temps interne sur la réserve pour risques",
-      "Tu notes 100 jours dans « Temps interne », hors du budget"
+      "Tu notes 100 jours en « Temps interne », hors budget"
     ],
     bonne: 3,
     pourquoi: [
@@ -193,8 +193,8 @@ LEARNSQL.questions.ot01 = [
     q: "Matrice RACI, ligne « Format de facture » : tu as mis A au DAF et A à la cheffe comptable. L'outil affiche « Deux A, c'est aucun ». Que fais-tu ?",
     choix: [
       "Tu gardes les 2 A : ils signeront ensemble, c'est plus sûr",
-      "Tu enlèves les 2 A ; le COPIL approuvera le format",
-      "Le DAF reste seul A ; elle passe en C",
+      "Tu enlèves les 2 A ; le comité de pilotage approuvera",
+      "Le DAF reste seul A ; elle passe en C, pour son avis",
       "Tu demandes au DG de choisir l'A de chaque livrable"
     ],
     bonne: 2,

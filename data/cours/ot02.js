@@ -17,7 +17,7 @@ LEARNSQL.cours.ot02 = {
       points: [
         "À quoi il sert : lister les risques, les noter de 1 à 9, suivre leur action. Quand : dès le cadrage, puis 15 minutes chaque semaine au point projet.",
         "Sur le site : `Nouveau` ou `Partir de l'exemple`, puis une ligne par risque : « Parce que [cause], il peut arriver que [risque], ce qui entraînerait [conséquence]. » Note = probabilité × impact : 1 ou 2 « On surveille », 3 ou 4 « Action simple », 6 ou 9 « Priorité ».",
-        "La règle : chaque ligne a une réponse (éviter, réduire, transférer, accepter, ou escalader : la remettre à son porteur, hors du projet), une date et un propriétaire nommé. Sinon, l'alerte : c'est une liste d'inquiétudes.",
+        "La règle : chaque ligne a une réponse, une date et un propriétaire nommé. Les réponses : éviter, réduire, transférer, accepter, ou escalader (la remettre à son porteur, hors du projet). Sans action ni date, l'alerte : c'est une liste d'inquiétudes.",
         "Le piège : la plus grosse solution. La bonne est la plus petite action qui réduit assez le risque. Repère : 10 à 20 risques ouverts.",
         "Le bon réflexe : le déclencheur daté décide pour toi. Atteint : statut « Arrivé », plan B lancé, sponsor prévenu le jour même. Action faite et vérifiée : « Fermé ». `Télécharger en Excel` garde la note en formule."
       ],
