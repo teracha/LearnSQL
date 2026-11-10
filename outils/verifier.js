@@ -143,16 +143,29 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   }
   if (index.indexOf('<script src="js/outils.js"></script>') < 0) err('js/outils.js absent de index.html');
   const sujets = LEARNSQL.outilsSujets || [], outils = LEARNSQL.outils || [];
-  const noeuds = new Set();
-  (LEARNSQL.parcours || []).forEach(p => { noeuds.add(p.id); (p.sous || []).forEach(s => noeuds.add(s.id)); });
-  const idsSujets = new Set(), range = {};
+  // Les droits (table « acces », page Équipe) : un id ne nomme qu'une chose dans tout le site. Un sujet ou un outil n'a
+  // pas l'id d'un parcours, d'un sous-parcours ou d'un module ; « outils » est la ligne de toute la section.
+  const idsSite = new Map();
+  (LEARNSQL.parcours || []).forEach(p => { idsSite.set(p.id, 'le parcours'); (p.sous || []).forEach(s => idsSite.set(s.id, 'le sous-parcours')); });
+  (LEARNSQL.modules || []).forEach(m => { if (!idsSite.has(m.id)) idsSite.set(m.id, 'le module'); });
+  idsSite.set('outils', 'la ligne « Outils » des droits');
+  const nommer = (id, quoi) => {
+    if (idsSite.has(id)) err(quoi, id, ': même id que', idsSite.get(id), '(les droits se mêleraient)');
+    else idsSite.set(id, quoi + ' ' + id);
+  };
+  const idOK = id => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(id || '');
+  const idsSujets = new Set(), idsLiens = new Set(), range = {};
   if (!Array.isArray(LEARNSQL.outilsSujets) || !sujets.length) err('data/outils/sujets.js : LEARNSQL.outilsSujets manquant');
   sujets.forEach(s => {
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(s.id || '')) err('sujet : id', s.id);
+    if (!idOK(s.id)) err('sujet : id', s.id);
     if (idsSujets.has(s.id)) err('sujet en double', s.id);
+    else if (idOK(s.id)) nommer(s.id, 'le sujet');
     idsSujets.add(s.id);
     if (!texte(s.titre) || !texte(s.resume)) err('sujet', s.id, ': titre et résumé');
-    if (s.parcours !== undefined && !noeuds.has(s.parcours)) err('sujet', s.id, ': parcours inconnu', s.parcours);
+    // Le lien avec un parcours n'existe plus : un sujet a ses propres droits (page Équipe, « Droits des outils »).
+    if (s.parcours !== undefined) err('sujet', s.id, ': « parcours » n\'existe plus, ses droits se règlent sur la page Équipe (Droits des outils)');
+    Object.keys(s).filter(k => ['id', 'titre', 'resume', 'outils', 'groupes', 'parcours'].indexOf(k) < 0)
+      .forEach(k => alerte('sujet', s.id, ': champ inconnu (ignoré)', k));
     // outils (une liste), ou groupes (des étapes : [{ titre, outils }]), pas les deux.
     if ((s.outils === undefined) === (s.groupes === undefined)) err('sujet', s.id, ': outils ou groupes (l\'un des deux)');
     if (s.groupes !== undefined) {
@@ -167,10 +180,15 @@ if (!filtre && fs.existsSync(dossierOutils)) {
       if (!Array.isArray(l) || !l.length) { err('sujet', s.id, ': outils, une liste non vide'); return; }
       l.forEach(o => {
         if (typeof o === 'string') { if (range[o]) err('outil rangé deux fois', o); range[o] = s.id; }
-        else if (!o || !texte(o.titre) || !texte(o.resume) || !/^#\/[a-z]/.test(o.lien || '')) err('sujet', s.id, ': un lien = { titre, resume, lien: "#/…" }');
+        else if (!o || !idOK(o.id) || !texte(o.titre) || !texte(o.resume) || !/^#\/[a-z]/.test(o.lien || '')) err('sujet', s.id, ': un lien = { id, titre, resume, lien: "#/…" }');
+        else { nommer(o.id, "l'outil"); idsLiens.add(o.id); }
       });
     });
   });
+  // Sans compte : les sujets publics. Le dico et Traduire suivent le droit de leur lien (js/app.js, outilOuvert).
+  if (!Array.isArray(LEARNSQL.outilsPublics)) err('data/outils/sujets.js : LEARNSQL.outilsPublics manquant (les sujets ouverts sans compte)');
+  else LEARNSQL.outilsPublics.forEach(id => { if (!idsSujets.has(id)) err('outilsPublics : sujet inconnu', id); });
+  ['dico', 'traduire'].forEach(id => { if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')'); });
   const modules = new Set((LEARNSQL.modules || []).map(m => m.id)), idsOutils = new Set(), parType = {};
   const CHAMPS_OUTIL = ['id', 'sujet', 'titre', 'resume', 'quand', 'etapes', 'cours', 'type', 'colonnes', 'alertes', 'totaux', 'aideTotaux',
     'modele', 'ligne', 'colonne', 'valeurs', 'libelles', 'aides', 'rubriques', 'exemple', 'export'];
@@ -307,6 +325,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     const id = def && def.id;
     if (!def || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id || '')) { err('outil : id', id); return; }
     if (idsOutils.has(id)) err('outil en double', id);
+    else nommer(id, "l'outil");
     idsOutils.add(id);
     parType[def.type] = (parType[def.type] || 0) + 1;
     if (!idsSujets.has(def.sujet)) err(id, ': sujet inconnu', def.sujet);

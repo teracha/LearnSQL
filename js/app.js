@@ -159,7 +159,9 @@
           });
         }).then(function () {
           etatSync = "Synchronisé à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
-          return change || droits() !== avant;
+          var nouveauxDroits = droits() !== avant;
+          if (nouveauxDroits) majNav();   // le lien « Outils » suit les droits
+          return change || nouveauxDroits;
         });
       });
     }).catch(function (e) {
@@ -214,8 +216,11 @@
     var lien = document.getElementById("lien-compte");
     var s = lireSession();
     if (lien) lien.textContent = s ? "Compte ✓" : "Connexion";
-    var equipe = document.getElementById("lien-equipe");
-    if (equipe) equipe.hidden = !(s && (s.role === "admin" || s.role === "formateur"));
+    var lienEquipe = document.getElementById("lien-equipe");
+    if (lienEquipe) lienEquipe.hidden = !(s && (s.role === "admin" || s.role === "formateur"));
+    // Toute la section Outils réservée à d'autres groupes : pas de lien « Outils » (droit « outils », page Équipe).
+    var lienOutils = document.getElementById("lien-outils");
+    if (lienOutils) lienOutils.hidden = !accesOutils(["outils"]);
     var pied = document.getElementById("pied-compte");
     if (pied) pied.innerHTML = s ? "Tes notes sont enregistrées dans ton compte." :
       'Sans compte, tes notes restent dans ce navigateur. <a href="#/compte">Se connecter</a> pour les retrouver partout.';
@@ -278,17 +283,22 @@
     return x.n.modules.indexOf(mid) + 1;
   }
 
-  // Règle : sans compte, seulement les parcours publics. Admin : tout.
-  // Sinon, chaque niveau de la chaîne doit être ouvert à tous, ou à un de mes groupes.
-  function accesOK(chaine) {
-    var s = lireSession();
-    if (!s) return (DATA.parcoursPublics || []).indexOf(chaine[0]) >= 0;
+  // Règle d'un compte (parcours et outils, même table « acces ») : admin, tout. Sinon, chaque niveau de la chaîne
+  // doit être ouvert à tous (aucune ligne), ou à un de mes groupes.
+  function droitsCompte(s, chaine) {
     if (s.role === "admin") return true;
     var regles = s.acces || [], mes = s.groupeIds || [];
     return chaine.every(function (el) {
       var r = regles.filter(function (x) { return x.element === el; });
       return !r.length || r.some(function (x) { return mes.indexOf(x.groupe_id) >= 0; });
     });
+  }
+
+  // Parcours : sans compte, seulement les parcours publics ; avec un compte, la règle ci-dessus.
+  function accesOK(chaine) {
+    var s = lireSession();
+    if (!s) return (DATA.parcoursPublics || []).indexOf(chaine[0]) >= 0;
+    return droitsCompte(s, chaine);
   }
 
   function moduleVisible(mid) {
@@ -1084,17 +1094,19 @@
     return { nb: t.length, moy: moy, der: t[t.length - 1] };
   }
 
+  // Les tableaux de la page Équipe ont la classe « empile » : sur téléphone, une ligne devient un bloc et chaque case
+  // dit ce qu'elle contient (data-titre), sans défilement de côté.
   function tableauPersonnes(liste, eq) {
     if (!liste.length) return '<p class="muted">Personne dans ce groupe.</p>';
-    var html = '<div class="card"><table><thead><tr><th>Personne</th><th>QCM</th><th>Moyenne</th><th>Dernier QCM</th></tr></thead><tbody>';
+    var html = '<div class="card"><table class="empile"><thead><tr><th>Personne</th><th>QCM</th><th>Moyenne</th><th>Dernier QCM</th></tr></thead><tbody>';
     liste.forEach(function (p) {
       var r = resumePersonne(eq.prog[p.user_id] || videStore());
       html += '<tr><td><a href="#/equipe/' + esc(p.user_id) + '">' + esc(p.email) + '</a>' +
         (p.role !== "agent" ? ' <span class="tag">' + esc(p.role) + '</span>' : '') +
         (estInactif(p) ? ' <span class="tag inactif">Inactif depuis plus de 2 ans</span>' : '') + '</td>' +
-        '<td>' + r.nb + '</td>' +
-        '<td>' + (r.nb ? '<strong class="' + classeNote(r.moy) + '">' + fmtNote(r.moy) + '</strong>' : '—') + '</td>' +
-        '<td>' + (r.nb ? esc(r.der.titre) + ' · <span class="' + classeNote(r.der.note) + '">' + fmtNote(r.der.note) + '</span><br><small class="muted">' + fmtDate(r.der.date) + '</small>' : '—') + '</td></tr>';
+        '<td data-titre="QCM">' + r.nb + '</td>' +
+        '<td data-titre="Moyenne">' + (r.nb ? '<strong class="' + classeNote(r.moy) + '">' + fmtNote(r.moy) + '</strong>' : '—') + '</td>' +
+        '<td data-titre="Dernier QCM">' + (r.nb ? esc(r.der.titre) + ' · <span class="' + classeNote(r.der.note) + '">' + fmtNote(r.der.note) + '</span><br><small class="muted">' + fmtDate(r.der.date) + '</small>' : '—') + '</td></tr>';
     });
     return html + '</tbody></table></div>';
   }
@@ -1111,8 +1123,109 @@
     });
   }
 
-  function afficherEquipe(eq, s) {
+  // ---------- Équipe : cocher, puis valider (admin) ----------
+  // Les changements de l'admin (rôle, groupes, droits des parcours et des outils) restent en attente sur la page. Une
+  // barre fixe en bas de l'écran les compte : « Valider » envoie tout (puis la page se recharge une fois), « Annuler »
+  // remet tout comme avant, sans requête. Un changement : { type: "role", user_id, valeur } (le rôle choisi),
+  // { type: "membre", groupe_id, user_id, valeur } ou { type: "acces", element, groupe_id, valeur } (vrai : case cochée).
+  var equipe = null;   // la page Équipe de l'admin : { eq, s, attente: { clé: changement }, message, envoi }
+
+  function nbAttente() { return equipe ? Object.keys(equipe.attente).length : 0; }
+  function pluriel(n, un, plusieurs) { return n + " " + (n > 1 ? plusieurs : un); }
+  function cleChangement(c) {
+    return c.type === "role" ? "role|" + c.user_id : c.type === "membre" ? "membre|" + c.groupe_id + "|" + c.user_id :
+      "acces|" + c.element + "|" + c.groupe_id;
+  }
+  // Ce que dit la base : un rôle, ou vrai / faux (dans le groupe, case de droit cochée).
+  function valeurBase(eq, c) {
+    if (c.type === "role") {
+      var p = eq.profils.filter(function (x) { return x.user_id === c.user_id; })[0];
+      return p ? p.role : "agent";
+    }
+    if (c.type === "membre") return eq.membres.some(function (m) { return m.groupe_id === c.groupe_id && m.user_id === c.user_id; });
+    return eq.acces.some(function (a) { return a.element === c.element && a.groupe_id === c.groupe_id; });
+  }
+  // Ce que la page affiche : le changement en attente, sinon la base.
+  function valeurVoulue(eq, c) {
+    var a = equipe && equipe.attente[cleChangement(c)];
+    return a ? a.valeur : valeurBase(eq, c);
+  }
+  // Le changement que porte une case (ou une liste de rôles), avec ce qu'elle montre.
+  function changementDe(el) {
+    var u = el.getAttribute("data-role");
+    if (u !== null) return { type: "role", user_id: u, valeur: el.value };
+    u = el.getAttribute("data-membre");
+    if (u !== null) return { type: "membre", groupe_id: Number(el.value), user_id: u, valeur: el.checked };
+    return { type: "acces", element: el.getAttribute("data-acces"), groupe_id: Number(el.value), valeur: el.checked };
+  }
+  function controlesEquipe() { return Array.prototype.slice.call(app.querySelectorAll("[data-role], [data-membre], [data-acces]")); }
+  // Pour les messages : « julie@x.fr : groupe « Invité » ajouté », « Droit « SQL » : groupe « Invité » retiré ».
+  function guillemets(t) { return "«\u00a0" + t + "\u00a0»"; }   // (espaces insécables : « et » restent collés au mot)
+  function libelleChangement(eq, c) {
+    var p = eq.profils.filter(function (x) { return x.user_id === c.user_id; })[0];
+    if (c.type === "role") return (p ? p.email : c.user_id) + " : rôle " + guillemets(c.valeur);
+    var g = eq.groupes.filter(function (x) { return x.id === c.groupe_id; })[0];
+    var groupe = "groupe " + guillemets(g ? g.nom : c.groupe_id) + " " + (c.valeur ? "ajouté" : "retiré");
+    if (c.type === "membre") return (p ? p.email : c.user_id) + " : " + groupe;
+    var l = lignesParcours().concat(lignesOutils()).filter(function (x) { return x.id === c.element; })[0];
+    return "Droit " + guillemets(l ? l.titre : c.element) + " : " + groupe;
+  }
+  // Rechargement impossible après « Valider » : on applique à la main ce qui est passé.
+  function appliquerChangement(eq, c) {
+    if (c.type === "role") { eq.profils.forEach(function (p) { if (p.user_id === c.user_id) p.role = c.valeur; }); return; }
+    var k = c.type === "membre" ? "membres" : "acces";
+    eq[k] = eq[k].filter(function (x) {
+      return x.groupe_id !== c.groupe_id || (c.type === "membre" ? x.user_id !== c.user_id : x.element !== c.element);
+    });
+    if (c.valeur) eq[k].push(c.type === "membre" ? { groupe_id: c.groupe_id, user_id: c.user_id } : { element: c.element, groupe_id: c.groupe_id });
+  }
+  function texteQuitter(n) {
+    return n > 1 ? n + " changements ne sont pas enregistrés. Quitter la page sans les enregistrer ?" :
+      "1 changement n'est pas enregistré. Quitter la page sans l'enregistrer ?";
+  }
+
+  // Les lignes des grilles de droits : { id, titre, sous } (sous : en retrait, sous la ligne du dessus).
+  function lignesParcours() {
+    return noeuds().map(function (x) { return { id: x.n.id, titre: x.n.titre, sous: x.chaine.length > 1 }; });
+  }
+  // Droits des outils : la ligne « Outils » (toute la section), puis chaque sujet, puis ses outils.
+  function lignesOutils() {
+    var l = [{ id: "outils", titre: "Outils (toute la section)" }];
+    (DATA.outilsSujets || []).forEach(function (s) {
+      l.push({ id: s.id, titre: s.titre });
+      outilsDuSujet(s).forEach(function (o) { if (o.id) l.push({ id: o.id, titre: o.titre, sous: true }); });
+    });
+    return l;
+  }
+  // Une grille de droits : une ligne par élément, une case par groupe (table « acces »).
+  function grilleDroits(id, titre, aide, lignes, eq) {
+    var html = '<h2>' + titre + '</h2><p class="muted">' + aide + '</p><div class="card" id="' + id + '"><table class="empile droits"><tbody>';
+    lignes.forEach(function (x) {
+      var reserve = false, cases = eq.groupes.map(function (g) {
+        var coche = valeurVoulue(eq, { type: "acces", element: x.id, groupe_id: g.id });
+        if (coche) reserve = true;
+        return '<label class="case"><input type="checkbox" data-acces="' + esc(x.id) + '" value="' + g.id + '"' +
+          (coche ? ' checked' : '') + '> ' + esc(g.nom) + '</label>';
+      }).join('');
+      html += '<tr><td>' + (x.sous ? '<span class="muted">↳ </span>' + esc(x.titre) : '<strong>' + esc(x.titre) + '</strong>') +
+        '<br><small class="muted" data-etat="' + esc(x.id) + '">' + (reserve ? 'Réservé' : 'Ouvert à tous') + '</small></td>' +
+        '<td>' + cases + '</td></tr>';
+    });
+    return html + '</tbody></table></div>';
+  }
+  // La barre des changements en attente : fixe en bas de l'écran, dès le 1er changement (ou pour un message).
+  function barreEquipe() {
+    return '<div class="barre-attente" id="eq-barre" hidden><div class="barre-corps">' +
+      '<p class="barre-texte" id="eq-compte"></p>' +
+      '<div class="barre-boutons" id="eq-boutons"><button type="button" class="btn" id="eq-valider">Valider</button>' +
+      '<button type="button" class="btn ghost" id="eq-annuler">Annuler</button></div>' +
+      '<div class="barre-msg" id="eq-msg" role="status"></div></div></div>';
+  }
+
+  // La page de l'admin : attente = les changements encore à valider (après un échec), sinon rien.
+  function afficherEquipe(eq, s, attente) {
     var admin = s.role === "admin";
+    equipe = admin ? { eq: eq, s: s, attente: attente || {}, message: null, envoi: false } : null;
     var parId = {};
     eq.profils.forEach(function (p) { parId[p.user_id] = p; });
     var html = '<h1>Équipe</h1><p class="muted">' + (admin
@@ -1131,10 +1244,13 @@
       eq.membres.forEach(function (m) { rangees[m.user_id] = true; });
       var seuls = eq.profils.filter(function (p) { return !rangees[p.user_id]; });
       if (seuls.length) html += '<h2>Sans groupe</h2>' + tableauPersonnes(seuls, eq);
-      html += gestionAdmin(eq, s);
+      html += gestionAdmin(eq, s) + barreEquipe();
     }
     app.innerHTML = html;
-    if (admin) brancherGestion(s);
+    if (admin) {
+      brancherGestion(s);
+      majAttente();
+    }
   }
 
   function gestionAdmin(eq, s) {
@@ -1142,39 +1258,35 @@
       '<form id="form-groupe" class="card form"><label for="nom-groupe">Nouveau groupe</label>' +
       '<input id="nom-groupe" required maxlength="60" placeholder="Ex. : Compta">' +
       '<div class="actions"><button type="submit" class="btn">Créer le groupe</button></div></form>' +
-      '<div class="card"><table><thead><tr><th>Personne</th><th>Rôle</th><th>Groupes</th><th>Dernière activité</th></tr></thead><tbody>';
+      '<p class="muted">Rôles, groupes et droits : coche, puis «&nbsp;Valider&nbsp;» en bas de l\'écran.</p>' +
+      '<div class="card"><table class="empile"><thead><tr><th>Personne</th><th>Rôle</th><th>Groupes</th><th>Dernière activité</th></tr></thead><tbody>';
     eq.profils.forEach(function (p) {
-      html += '<tr><td>' + esc(p.email) + '</td><td><select data-role="' + esc(p.user_id) + '">' +
-        ["agent", "formateur", "admin"].map(function (r) {
-          return '<option' + (r === p.role ? ' selected' : '') + '>' + r + '</option>';
-        }).join('') + '</select></td><td>';
+      var role = valeurVoulue(eq, { type: "role", user_id: p.user_id });
+      html += '<tr><td>' + esc(p.email) + '</td><td data-titre="Rôle"><select data-role="' + esc(p.user_id) + '" aria-label="Rôle de ' +
+        esc(p.email) + '">' + ["agent", "formateur", "admin"].map(function (r) {
+          return '<option' + (r === role ? ' selected' : '') + '>' + r + '</option>';
+        }).join('') + '</select></td><td data-titre="Groupes">';
       eq.groupes.forEach(function (g) {
-        var dedans = eq.membres.some(function (m) { return m.groupe_id === g.id && m.user_id === p.user_id; });
+        var dedans = valeurVoulue(eq, { type: "membre", groupe_id: g.id, user_id: p.user_id });
         html += '<label class="case"><input type="checkbox" data-membre="' + esc(p.user_id) + '" value="' + g.id + '"' +
           (dedans ? ' checked' : '') + '> ' + esc(g.nom) + '</label>';
       });
       html += (eq.groupes.length ? '' : '<small class="muted">Crée d\'abord un groupe.</small>') + '</td>' +
-        '<td>' + (p.activite ? fmtDate(p.activite) : '—') +
+        '<td data-titre="Dernière activité">' + (p.activite ? fmtDate(p.activite) : '—') +
         (estInactif(p) ? '<br><span class="tag inactif">Inactif + 2 ans</span>' : '') +
         (p.user_id !== s.id ? '<br><button type="button" class="lien danger" data-suppr-compte="' + esc(p.user_id) +
           '" data-email="' + esc(p.email) + '">Supprimer le compte</button>' : '') + '</td></tr>';
     });
     html += '</tbody></table></div><p id="msg-equipe" class="muted"></p>';
-    html += '<h2>Droits des parcours</h2><p class="muted">Aucune case cochée = ouvert à tous les connectés. ' +
-      'Pour un sous-parcours, il faut aussi avoir accès au parcours au-dessus.</p><div class="card"><table><tbody>';
-    noeuds().forEach(function (x) {
-      var regles = eq.acces.filter(function (a) { return a.element === x.n.id; });
-      html += '<tr><td>' + (x.chaine.length > 1 ? '<span class="muted">↳ </span>' : '<strong>') + esc(x.n.titre) +
-        (x.chaine.length > 1 ? '' : '</strong>') + '<br><small class="muted">' +
-        (regles.length ? 'Réservé' : 'Ouvert à tous') + '</small></td><td>';
-      eq.groupes.forEach(function (g) {
-        var coche = regles.some(function (a) { return a.groupe_id === g.id; });
-        html += '<label class="case"><input type="checkbox" data-acces="' + esc(x.n.id) + '" value="' + g.id + '"' +
-          (coche ? ' checked' : '') + '> ' + esc(g.nom) + '</label>';
-      });
-      html += '</td></tr>';
-    });
-    html += '</tbody></table></div>';
+    html += grilleDroits("droits-parcours", "Droits des parcours", "Aucune case cochée = ouvert à tous les connectés. " +
+      "Pour un sous-parcours, il faut aussi avoir accès au parcours au-dessus.", lignesParcours(), eq);
+    // Sans compte : les sujets publics (outilsPublics), en entier.
+    var publics = (DATA.outilsSujets || []).filter(function (x) { return (DATA.outilsPublics || []).indexOf(x.id) >= 0; })
+      .map(function (x) { return "«&nbsp;" + esc(x.titre) + "&nbsp;»"; });
+    html += grilleDroits("droits-outils", "Droits des outils", "Aucune case cochée = ouvert à tous les connectés. " +
+      "Pour un outil, il faut aussi avoir accès à son sujet et à la ligne «&nbsp;Outils&nbsp;». " + (publics.length ?
+        "Sans compte : seulement " + (publics.length > 1 ? "les sujets " : "le sujet ") + publics.join(", ") + ", en entier." :
+        "Sans compte : aucun outil."), lignesOutils(), eq);
     if (eq.groupes.length) {
       html += '<p class="muted">Supprimer un groupe (les personnes restent, seul le groupe disparaît) :</p><div class="actions">' +
         eq.groupes.map(function (g) {
@@ -1182,6 +1294,150 @@
         }).join('') + '</div>';
     }
     return html;
+  }
+
+  // Les marques des cases changées, « Réservé » / « Ouvert à tous » de chaque ligne de droits, et la barre.
+  function majAttente() {
+    var e = equipe;
+    if (!e) return;
+    var n = nbAttente(), reserve = {};
+    controlesEquipe().forEach(function (el) {
+      var c = changementDe(el);
+      (el.type === "checkbox" ? el.parentNode : el).classList.toggle("change", !!e.attente[cleChangement(c)]);
+      el.disabled = e.envoi;
+      if (c.type === "acces") reserve[c.element] = reserve[c.element] || c.valeur;
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-etat]"), function (t) {
+      t.textContent = reserve[t.getAttribute("data-etat")] ? "Réservé" : "Ouvert à tous";
+    });
+    var barre = document.getElementById("eq-barre"), m = e.message, zone = document.getElementById("eq-msg");
+    if (!barre) return;
+    barre.hidden = !n && !m;
+    document.getElementById("eq-compte").textContent = e.envoi ? "Enregistrement…" :
+      n ? pluriel(n, "changement", "changements") + " à enregistrer" : "";
+    document.getElementById("eq-boutons").hidden = !n;
+    document.getElementById("eq-valider").disabled = e.envoi;
+    document.getElementById("eq-annuler").disabled = e.envoi;
+    zone.className = "barre-msg" + (m ? " " + m.genre : "");
+    zone.innerHTML = m ? esc(m.texte) + (m.details ? '<ul>' + m.details.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>' : '') : '';
+    // La barre ne cache jamais le bas de la page.
+    document.body.style.paddingBottom = barre.hidden ? "" : (barre.offsetHeight + 16) + "px";
+  }
+
+  // Une case cochée ou décochée, un rôle choisi : en attente, rien n'est envoyé.
+  function surChangement(el) {
+    var e = equipe, c = changementDe(el), cle = cleChangement(c), base = valeurBase(e.eq, c);
+    // Mon propre rôle : la question reste au moment du choix.
+    if (c.type === "role" && c.user_id === e.s.id) {
+      var avant = e.attente[cle] ? e.attente[cle].valeur : base;
+      if (avant === "admin" && c.valeur !== "admin" && !confirm("Tu vas perdre tes droits d'admin. Continuer ?")) { el.value = avant; return; }
+    }
+    if (c.valeur === base) delete e.attente[cle];
+    else e.attente[cle] = c;
+    e.message = null;
+    majAttente();
+  }
+
+  // « Annuler » : tout redevient comme dans la base, sans requête.
+  function annulerEquipe() {
+    var e = equipe;
+    if (!e || e.envoi) return;
+    e.attente = {};
+    e.message = null;
+    controlesEquipe().forEach(function (el) {
+      var b = valeurBase(e.eq, changementDe(el));
+      if (el.type === "checkbox") el.checked = b;
+      else el.value = b;
+    });
+    majAttente();
+  }
+
+  // « Valider » : tout part ensemble (les ajouts en un seul envoi par table, avec un tableau), puis la page se
+  // recharge UNE fois. Ce qui a échoué reste en attente, et le message le dit. Mon propre rôle part en dernier, et
+  // seulement si tout le reste est passé : sans les droits d'admin, la base refuserait les autres envois.
+  function validerEquipe() {
+    var e = equipe;
+    if (!e || e.envoi || !nbAttente()) return;
+    var envois = [], ajouts = { membre: [], acces: [] }, moi = null, sv = null;
+    function envoiRole(c) {
+      return { changements: [c], methode: "PATCH", chemin: "profil?user_id=eq." + encodeURIComponent(c.user_id), corps: { role: c.valeur } };
+    }
+    function envoyer(x) {
+      return appelSupa("/rest/v1/" + x.chemin, { methode: x.methode, corps: x.corps, entetes: { Prefer: "return=minimal" } }, sv.access_token)
+        .then(function () { x.ok = true; }, function (err) { x.erreur = err.message; });
+    }
+    Object.keys(e.attente).forEach(function (k) {
+      var c = e.attente[k];
+      if (c.type === "role") { if (c.user_id === e.s.id) moi = c; else envois.push(envoiRole(c)); }
+      else if (c.valeur) ajouts[c.type].push(c);
+      else envois.push({ changements: [c], methode: "DELETE", chemin: c.type === "membre" ?
+        "membre?groupe_id=eq." + c.groupe_id + "&user_id=eq." + encodeURIComponent(c.user_id) :
+        "acces?element=eq." + encodeURIComponent(c.element) + "&groupe_id=eq." + c.groupe_id });
+    });
+    if (ajouts.membre.length) envois.push({ changements: ajouts.membre, methode: "POST", chemin: "membre",
+      corps: ajouts.membre.map(function (c) { return { groupe_id: c.groupe_id, user_id: c.user_id }; }) });
+    if (ajouts.acces.length) envois.push({ changements: ajouts.acces, methode: "POST", chemin: "acces",
+      corps: ajouts.acces.map(function (c) { return { element: c.element, groupe_id: c.groupe_id }; }) });
+    e.envoi = true;
+    e.message = null;
+    majAttente();
+    sessionValide().then(function (s) {
+      if (!s) throw new Error("tu n'es plus connecté");
+      sv = s;
+      return Promise.all(envois.map(envoyer));
+    }).then(function () {
+      if (!moi) return;
+      var x = envoiRole(moi);
+      envois.push(x);
+      if (envois.some(function (y) { return y !== x && !y.ok; })) { x.erreur = "pas envoyé, car un autre changement a échoué"; return; }
+      return envoyer(x).then(function () {
+        var cur = lireSession();   // le menu et la page le savent tout de suite
+        if (x.ok && cur) { cur.role = moi.valeur; ecrireSession(cur); majNav(); }
+      });
+    }).then(function () {
+      return chargerEquipe(sv).then(null, function () { return null; });
+    }).then(function (eq) { finirValidation(e, envois, eq); }, function (err) {
+      e.envoi = false;
+      e.message = { genre: "ko", texte: "Envoi impossible : " + err.message + ". Rien n'a été enregistré." };
+      if (equipe === e) majAttente();
+    });
+  }
+
+  // Après « Valider » : la page refaite au même endroit, avec ce qui reste à enregistrer, et le message.
+  function finirValidation(e, envois, eq) {
+    var faits = 0, rates = [], reste = {}, recharge = !!eq;
+    if (!eq) {
+      eq = e.eq;
+      envois.forEach(function (x) { if (x.ok) x.changements.forEach(function (c) { appliquerChangement(eq, c); }); });
+    }
+    envois.forEach(function (x) {
+      x.changements.forEach(function (c) {
+        // Échec, mais la base a déjà cette valeur (faite ailleurs entre-temps) : c'est fait.
+        if (x.ok || valeurBase(eq, c) === c.valeur) { faits++; return; }
+        rates.push(libelleChangement(eq, c) + " : " + x.erreur);
+        reste[cleChangement(c)] = c;
+      });
+    });
+    if (equipe !== e) return;   // l'admin a quitté la page pendant l'envoi
+    var s = lireSession();
+    if (!s || s.role !== "admin") { equipe = null; document.body.style.paddingBottom = ""; pageEquipe(); return; }   // je ne suis plus admin
+    var y = window.pageYOffset;
+    afficherEquipe(eq, s, reste);
+    var texte = faits ? pluriel(faits, "changement enregistré.", "changements enregistrés.") : "";
+    equipe.message = rates.length ? { genre: "ko", texte: (texte ? texte + " " : "") + "Pas enregistré (toujours à valider) :", details: rates } :
+      { genre: "ok", texte: texte };
+    if (!recharge) equipe.message.texte += " La page n'a pas pu se recharger : recharge-la plus tard.";
+    majAttente();
+    window.scrollTo(0, y);
+  }
+
+  // Créer ou supprimer un groupe, supprimer un compte : tout de suite (avec confirmation), mais pas avec des
+  // changements en attente : d'abord « Valider » ou « Annuler ».
+  function attenteBloque() {
+    if (!nbAttente()) return false;
+    equipe.message = { genre: "info", texte: "D'abord, valide ou annule tes changements." };
+    majAttente();
+    return true;
   }
 
   function brancherGestion(s) {
@@ -1196,33 +1452,16 @@
     }
     document.getElementById("form-groupe").addEventListener("submit", function (e) {
       e.preventDefault();
+      if (attenteBloque()) return;
       var nom = document.getElementById("nom-groupe").value.trim();
       if (nom) ecrireBase("groupe", "POST", { nom: nom });
     });
-    app.querySelectorAll("[data-role]").forEach(function (sel) {
-      sel.addEventListener("change", function () {
-        var id = sel.getAttribute("data-role");
-        if (id === s.id && sel.value !== "admin" &&
-            !confirm("Tu vas perdre tes droits d'admin. Continuer ?")) { sel.value = "admin"; return; }
-        ecrireBase("profil?user_id=eq." + id, "PATCH", { role: sel.value });
-      });
-    });
-    app.querySelectorAll("[data-membre]").forEach(function (c) {
-      c.addEventListener("change", function () {
-        var u = c.getAttribute("data-membre");
-        if (c.checked) ecrireBase("membre", "POST", { groupe_id: Number(c.value), user_id: u });
-        else ecrireBase("membre?groupe_id=eq." + c.value + "&user_id=eq." + u, "DELETE");
-      });
-    });
-    app.querySelectorAll("[data-acces]").forEach(function (c) {
-      c.addEventListener("change", function () {
-        var el = c.getAttribute("data-acces");
-        if (c.checked) ecrireBase("acces", "POST", { element: el, groupe_id: Number(c.value) });
-        else ecrireBase("acces?element=eq." + encodeURIComponent(el) + "&groupe_id=eq." + c.value, "DELETE");
-      });
+    controlesEquipe().forEach(function (el) {
+      el.addEventListener("change", function () { surChangement(el); });
     });
     app.querySelectorAll("[data-suppr-compte]").forEach(function (b) {
       b.addEventListener("click", function () {
+        if (attenteBloque()) return;
         var email = b.getAttribute("data-email");
         if (prompt("Supprimer définitivement le compte " + email + " ?\nTape son adresse e-mail pour confirmer.") !== email) return;
         msg.textContent = "Suppression…";
@@ -1232,16 +1471,19 @@
     });
     app.querySelectorAll("[data-suppr]").forEach(function (b) {
       b.addEventListener("click", function () {
+        if (attenteBloque()) return;
         if (confirm("Supprimer ce groupe ?")) ecrireBase("groupe?id=eq." + b.getAttribute("data-suppr"), "DELETE");
       });
     });
+    surClic("eq-valider", validerEquipe);
+    surClic("eq-annuler", annulerEquipe);
   }
 
   function afficherPersonne(eq, id) {
     var p = eq.profils.filter(function (x) { return x.user_id === id; })[0];
     if (!p) { app.innerHTML = '<h1>Équipe</h1><p>Personne introuvable.</p><a class="btn ghost" href="#/equipe">Retour</a>'; return; }
     var store = eq.prog[id] || videStore();
-    var html = '<h1>' + esc(p.email) + '</h1>';
+    var html = '<h1 class="personne-titre">' + esc(p.email) + '</h1>';
     var r = resumePersonne(store);
     if (!r.nb) {
       app.innerHTML = html + '<p>Pas encore de QCM.</p><a class="btn ghost" href="#/equipe">Retour</a>';
@@ -1249,17 +1491,17 @@
     }
     html += '<p>Moyenne : <strong class="' + classeNote(r.moy) + '">' + fmtNote(r.moy) + '</strong> sur ' + r.nb +
       ' QCM · ' + idsEnErreur(store).length + ' question(s) à revoir.</p>' +
-      '<h2>Par module</h2><div class="card"><table><thead><tr><th>Module</th><th>Essais</th><th>Meilleure</th><th>Dernière</th></tr></thead><tbody>';
+      '<h2>Par module</h2><div class="card"><table class="empile"><thead><tr><th>Module</th><th>Essais</th><th>Meilleure</th><th>Dernière</th></tr></thead><tbody>';
     DATA.modules.forEach(function (m, i) {
       var st = statsModule(store, m.id);
-      if (st) html += '<tr><td>' + (i + 1) + '. ' + esc(m.titre) + '</td><td>' + st.nb + '</td>' +
-        '<td class="' + classeNote(st.meilleure) + '"><strong>' + fmtNote(st.meilleure) + '</strong></td>' +
-        '<td class="' + classeNote(st.derniere) + '">' + fmtNote(st.derniere) + '</td></tr>';
+      if (st) html += '<tr><td>' + (i + 1) + '. ' + esc(m.titre) + '</td><td data-titre="Essais">' + st.nb + '</td>' +
+        '<td data-titre="Meilleure" class="' + classeNote(st.meilleure) + '"><strong>' + fmtNote(st.meilleure) + '</strong></td>' +
+        '<td data-titre="Dernière" class="' + classeNote(st.derniere) + '">' + fmtNote(st.derniere) + '</td></tr>';
     });
-    html += '</tbody></table></div><h2>Tous les QCM</h2><div class="card"><table><thead><tr><th>Date</th><th>QCM</th><th>Note</th></tr></thead><tbody>';
+    html += '</tbody></table></div><h2>Tous les QCM</h2><div class="card"><table class="empile"><thead><tr><th>Date</th><th>QCM</th><th>Note</th></tr></thead><tbody>';
     store.tentatives.slice().reverse().forEach(function (t) {
-      html += '<tr><td>' + fmtDate(t.date) + '</td><td>' + esc(t.titre) + '</td>' +
-        '<td class="' + classeNote(t.note) + '"><strong>' + fmtNote(t.note) + '</strong></td></tr>';
+      html += '<tr><td>' + fmtDate(t.date) + '</td><td data-titre="QCM">' + esc(t.titre) + '</td>' +
+        '<td data-titre="Note" class="' + classeNote(t.note) + '"><strong>' + fmtNote(t.note) + '</strong></td></tr>';
     });
     app.innerHTML = html + '</tbody></table></div><div class="actions"><a class="btn ghost" href="#/equipe">Retour à l\'équipe</a></div>';
   }
@@ -1674,7 +1916,9 @@
     });
   }
 
+  // Le dico (et ses fiches) : public sans compte ; un compte connecté suit le droit de l'outil « dico » (section Outils).
   function pageDico(id) {
+    if (!outilOuvert("dico")) { pageOutilReserve(); return; }
     if (id) { pageFiche(decodeURIComponent(id)); return; }
     afficherDico(false);
   }
@@ -1686,7 +1930,7 @@
       '(« lignes de commande »), ou tape un nom (« MOUV », « PINO »). Les fautes de frappe sont tolérées.</p>' :
       '<h1>Super dico SQL</h1>' +
       '<p class="muted">Pose ta question en mots simples (« enlever les espaces »), ou tape un nom (« COALESCE »). ' +
-      'Les fautes de frappe sont tolérées. Une requête entière à comprendre ? <a href="#/traduire">Traduire une requête</a>.</p>') +
+      'Les fautes de frappe sont tolérées.' + (outilOuvert("traduire") ? ' Une requête entière à comprendre ? <a href="#/traduire">Traduire une requête</a>.' : '') + '</p>') +
       '<div class="dico-recherche"><input type="search" id="dico-q" autocomplete="off" spellcheck="false" ' +
       (dv ? 'placeholder="Ex. : lignes de commande, MOUV, PINO…" aria-label="Rechercher dans le dico Divalto">' :
       'placeholder="Ex. : chercher un caractère, COALESCE…" aria-label="Rechercher dans le dico">') + '</div>' +
@@ -1843,7 +2087,7 @@
     if (r.notes.length) html += '<h2>À savoir</h2><ul class="tr-notes">' + r.notes.map(function (n) {
       return '<li>' + n.morceaux.map(function (m) { return m.code ? '<code>' + esc(m.t) + '</code>' : esc(m.t); }).join('') + '</li>';
     }).join('') + '</ul>';
-    if (r.fiches.length) html += '<h2>Dans le dico</h2><div class="puces">' + r.fiches.map(function (f) {
+    if (r.fiches.length && outilOuvert("dico")) html += '<h2>Dans le dico</h2><div class="puces">' + r.fiches.map(function (f) {
       return '<a class="puce" href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a>';
     }).join('') + '</div>';
     return html;
@@ -1863,7 +2107,9 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { fini(true); }, repli);
     else repli();
   }
+  // Public sans compte ; un compte connecté suit le droit de l'outil « traduire » (section Outils).
   function pageTraduire() {
+    if (!outilOuvert("traduire")) { pageOutilReserve(); return; }
     app.innerHTML = '<h1>Traduire une requête</h1>' +
       '<p class="muted">Colle une requête SQL. Le site l\'explique en pseudo-code, dans l\'ordre où SQL la calcule. ' +
       'Rien n\'est envoyé : tout reste dans ton navigateur.</p>' +
@@ -1927,9 +2173,10 @@
   }
 
   // ---------- Outils (docs/outils.md) ----------
-  // #/outils : une section par sujet (data/outils/sujets.js), une carte par outil. Un sujet lié à un parcours
-  // (parcours: "chef-projet") n'apparaît qu'avec ce parcours (accesOK, comme l'onglet Divalto du dico) ; sinon ses pages
-  // affichent un message court. #/outils/<id> : l'outil et les documents de l'élève ; #/outils/<id>/<doc> : un document ;
+  // #/outils : une section par sujet (data/outils/sujets.js), une carte par outil. Droits (page Équipe, « Droits des
+  // outils ») : même règle que les parcours, sur la chaîne « outils » (toute la section) → sujet → outil ; sans compte,
+  // les sujets publics (outilsPublics). Sans le droit : pas de carte, et la page de l'outil donne un message court (le dico
+  // et Traduire aussi, pour un compte connecté). #/outils/<id> : l'outil et les documents de l'élève ; #/outils/<id>/<doc> : un document ;
   // #/outils/<id>/exemple : l'exemple, en lecture. Le moteur (calculs, alertes, contrôle d'un fichier, Excel, copie) est
   // dans js/outils.js (LEARNSQL.outilsMoteur) : ici, seulement l'écran, sans code propre à un outil.
   // Les documents restent dans ce navigateur (localStorage, clé learnsql-outils) : jamais envoyés, jamais synchronisés.
@@ -1954,13 +2201,27 @@
   function sujetOutil(def) {
     return (DATA.outilsSujets || []).filter(function (s) { return s.id === def.sujet && entreesSujet(s).indexOf(def.id) >= 0; })[0] || null;
   }
-  // Un sujet lié à un parcours suit la règle de ce parcours (masquage d'écran, comme les parcours).
-  function sujetVisible(s) {
-    if (!s.parcours) return true;
-    var n = noeud(s.parcours);
-    return accesOK(n ? n.chaine : [s.parcours]);
+  // Le sujet qui range cet id d'outil (une définition, ou un lien comme le dico).
+  function sujetDe(id) {
+    return (DATA.outilsSujets || []).filter(function (s) {
+      return entreesSujet(s).some(function (o) { return (typeof o === "string" ? o : o && o.id) === id; });
+    })[0] || null;
   }
-  // Des outils, dans l'ordre : une définition, ou un lien vers une page du site ({ titre, resume, lien }).
+  // Droits des outils (table « acces », comme les parcours ; masquage d'écran) : la chaîne « outils » → sujet → outil.
+  // Sans compte : les sujets publics (outilsPublics), en entier. Avec un compte : droitsCompte (admin : tout).
+  function accesOutils(chaine) {
+    var s = lireSession();
+    if (!s) return chaine.length < 2 || (DATA.outilsPublics || []).indexOf(chaine[1]) >= 0;
+    return droitsCompte(s, chaine);
+  }
+  function sujetVisible(s) { return accesOutils(["outils", s.id]); }
+  function outilVisible(s, o) { return accesOutils(["outils", s.id, o.id]); }
+  // Le dico et Traduire : publics sans compte ; pour un compte, le droit de leur outil (« dico », « traduire »).
+  function outilOuvert(id) {
+    var s = sujetDe(id);
+    return !lireSession() || accesOutils(s ? ["outils", s.id, id] : ["outils", id]);
+  }
+  // Des outils, dans l'ordre : une définition, ou un lien vers une page du site ({ id, titre, resume, lien }).
   function outilsDe(liste) {
     return (liste || []).map(function (o) { return typeof o === "string" ? definitionOutil(o) : o; }).filter(Boolean);
   }
@@ -1971,11 +2232,11 @@
     return '<a class="card parcours o-carte" href="' + esc(o.lien || "#/outils/" + o.id) + '"><div><' + h + '>' + esc(o.titre) + '</' + h + '>' +
       '<p>' + fmt(o.resume) + '</p></div><span class="fleche" aria-hidden="true">›</span></a>';
   }
-  // « Les outils de ce cours » : les outils visibles dont le champ cours contient ce module, dans l'ordre des sujets.
+  // « Les outils de ce cours » : les outils visibles (droits) dont le champ cours contient ce module, dans l'ordre des sujets.
   function outilsDuCours(mid) {
     var l = [];
-    (DATA.outilsSujets || []).filter(sujetVisible).forEach(function (s) {
-      outilsDuSujet(s).forEach(function (o) { if (!o.lien && (o.cours || []).indexOf(mid) >= 0) l.push(o); });
+    (DATA.outilsSujets || []).forEach(function (s) {
+      outilsDuSujet(s).forEach(function (o) { if (!o.lien && (o.cours || []).indexOf(mid) >= 0 && outilVisible(s, o)) l.push(o); });
     });
     return l;
   }
@@ -2097,19 +2358,23 @@
     else parEvenement();
   }
 
-  // Un sujet : ses outils ; ou ses étapes (groupes), numérotées, chacune avec ses outils.
+  // Un sujet : ses outils ; ou ses étapes (groupes), numérotées, chacune avec ses outils. Seulement ce que les droits
+  // laissent voir (une étape ou un sujet sans outil visible disparaît) ; « outils » réservé : aucun sujet.
   function pageOutils() {
-    var sujets = DATA.outilsSujets || [], visibles = sujets.filter(sujetVisible), nbDocs = lireOutils().docs.length;
-    var html = '<h1>Outils</h1><p class="muted">Des outils pour ton travail, rangés par sujet.</p>';
+    var sujets = DATA.outilsSujets || [], nbDocs = lireOutils().docs.length;
+    var visibles = accesOutils(["outils"]) ? sujets.filter(sujetVisible) : [], sections = '';
     visibles.forEach(function (s) {
+      var garder = function (o) { return outilVisible(s, o); };
       var corps = s.groupes ? s.groupes.map(function (g, k) {
-        var l = outilsDe(g.outils);
+        var l = outilsDe(g.outils).filter(garder);
         return l.length ? '<div class="o-groupe"><h3 class="o-etape"><span class="o-etape-n">' + (k + 1) + '.</span> ' + esc(g.titre) + '</h3>' +
           l.map(function (o) { return carteOutil(o, "h4"); }).join('') + '</div>' : '';
-      }).join('') : outilsDuSujet(s).map(function (o) { return carteOutil(o); }).join('');
-      if (corps) html += '<section class="o-sujet" id="sujet-' + esc(s.id) + '"><h2>' + esc(s.titre) + '</h2>' +
+      }).join('') : outilsDuSujet(s).filter(garder).map(function (o) { return carteOutil(o); }).join('');
+      if (corps) sections += '<section class="o-sujet" id="sujet-' + esc(s.id) + '"><h2>' + esc(s.titre) + '</h2>' +
         (s.resume ? '<p class="muted">' + fmt(s.resume) + '</p>' : '') + corps + '</section>';
     });
+    var html = '<h1>Outils</h1>' + (sections ? '<p class="muted">Des outils pour ton travail, rangés par sujet.</p>' + sections :
+      '<p id="o-aucun">Aucun outil n\'est ouvert à ton compte pour l\'instant.</p>');
     if (visibles.length < sujets.length && !lireSession()) {
       html += '<p class="muted"><a href="#/compte">Connecte-toi</a> pour voir les autres outils.</p>';
     }
@@ -2133,17 +2398,18 @@
   function pageOutil(id, docId) {
     var def = OM ? definitionOutil(id) : null, s = def ? sujetOutil(def) : null;
     if (!def || !s) { location.hash = "#/outils"; return; }
-    if (!sujetVisible(s)) { pageOutilReserve(s); return; }
+    if (!outilVisible(s, def)) { pageOutilReserve(); return; }
     if (docId) pageOutilDoc(def, docId);
     else pageOutilAccueil(def, s);
   }
-  // Sans le parcours du sujet : un message court, pas le contenu (même règle que les fiches Divalto du dico).
-  function pageOutilReserve(s) {
-    var n = noeud(s.parcours);
-    app.innerHTML = '<p class="muted"><a href="#/outils">Outils</a></p><h1>Outil réservé</h1>' +
-      '<p>Cet outil fait partie du parcours « ' + esc(n ? n.n.titre : s.titre) + ' ». Il est réservé aux comptes qui ont ce parcours.</p>' +
-      '<div class="actions">' + (lireSession() ? '' : '<a class="btn" href="#/compte">Se connecter</a>') +
-      '<a class="btn ghost" href="#/outils">Retour aux outils</a></div>';
+  // Sans le droit : un message court, pas le contenu (même règle que les fiches Divalto du dico). Aussi pour le dico
+  // et Traduire (compte connecté sans le droit).
+  function pageOutilReserve() {
+    var compte = !!lireSession(), section = accesOutils(["outils"]);
+    app.innerHTML = (section ? '<p class="muted"><a href="#/outils">Outils</a></p>' : '') + '<h1>Outil réservé</h1>' +
+      '<p>' + (compte ? 'Ton compte n\'a pas accès à cet outil.' : 'Cet outil est réservé à certains comptes.') + '</p>' +
+      '<div class="actions">' + (compte ? '' : '<a class="btn" href="#/compte">Se connecter</a>') +
+      (section ? '<a class="btn ghost" href="#/outils">Retour aux outils</a>' : '<a class="btn ghost" href="#/">Retour aux parcours</a>') + '</div>';
   }
 
   function pageOutilAccueil(def, s) {
@@ -2635,6 +2901,13 @@
   // ---------- Routeur ----------
   function route() {
     var h = location.hash.replace(/^#\/?/, "");
+    // Page Équipe avec des changements pas encore validés (ou en cours d'envoi).
+    if (equipe && (nbAttente() || equipe.envoi)) {
+      if (h === "equipe") return;   // la même page (après une synchro) : on garde les changements
+      if (!equipe.envoi && !confirm(texteQuitter(nbAttente()))) { history.replaceState(null, "", "#/equipe"); return; }
+    }
+    equipe = null;
+    document.body.style.paddingBottom = "";   // (la barre de la page Équipe)
     var parts = h.split("/");
     window.scrollTo(0, 0);
     outilCourant = null;
@@ -2662,6 +2935,14 @@
     else pageAccueil();
   }
   window.addEventListener("hashchange", route);
+  // Recharger ou fermer la page avec des changements de la page Équipe pas encore validés : le navigateur demande.
+  window.addEventListener("beforeunload", function (e) {
+    if (!nbAttente()) return;
+    var t = texteQuitter(nbAttente());
+    e.preventDefault();
+    e.returnValue = t;
+    return t;
+  });
   // Revenir sur l'onglet = récupérer ce qui a été fait sur un autre appareil.
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible" && lireSession()) synchroniserPuisAfficher();

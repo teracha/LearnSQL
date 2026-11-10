@@ -117,6 +117,8 @@ Demandé par l'élève : un second domaine du dico, sur l'ERP Divalto 10.13 (tab
   choisi est gardé dans le navigateur (`learnsql-dico-domaine`).
 - **Droits** : l'onglet Divalto suit la règle du parcours Divalto (`accesOK(["divalto"])` dans `js/app.js`) : pas
   d'onglet sans compte, ni pour un compte qui n'a pas le parcours. C'est un masquage d'écran, comme pour les parcours.
+  Le dico lui-même (fiches comprises) suit le droit outil `dico` pour un compte connecté (`docs/outils.md`, « Les
+  droits des outils ») ; sans compte, il reste public.
 - **Source unique** : la base documentaire `/home/user/divalto_10` (dépôt `teracha/Divalto_10`), en **lecture
   seule**. Pas de page = pas de fiche. Chaque fiche a sa source (titre et lien « Page source » du fichier .md).
 - Fichier : `data/dico/divalto.js`, même enveloppe que les autres (`LEARNSQL.dico = (LEARNSQL.dico || []).concat([…])`).

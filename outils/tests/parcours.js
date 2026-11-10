@@ -20,7 +20,7 @@ const { chromium } = require('playwright'); const path = require('path').join(__
     if (m === 'GET' && tab === 'membre' && /groupe\(nom\)/.test(u.searchParams.get('select'))) return json(rows.filter(match).map(x => ({ groupe_id: x.groupe_id, groupe: { nom: db.groupe.find(g => g.id === x.groupe_id).nom } })));
     if (m === 'GET') return json(rows.filter(match));
     const body = r.request().postData() ? JSON.parse(r.request().postData()) : null;
-    if (m === 'POST') { if (tab === 'progression') db.progression = rows.filter(x => x.user_id !== body.user_id); db[tab].push(body); return r.fulfill({ status: 201, body: '' }); }
+    if (m === 'POST') { if (tab === 'progression') db.progression = rows.filter(x => x.user_id !== body.user_id); [].concat(body).forEach(x => db[tab].push(x)); return r.fulfill({ status: 201, body: '' }); }
     if (m === 'PATCH') { rows.filter(match).forEach(x => Object.assign(x, body)); return r.fulfill({ status: 204, body: '' }); }
     if (m === 'DELETE') { db[tab] = rows.filter(x => !match(x)); return r.fulfill({ status: 204, body: '' }); }
   });
@@ -42,9 +42,13 @@ const { chromium } = require('playwright'); const path = require('path').join(__
   await p.goto(url + '#/compte'); await p.click('#deconnexion'); me = { id: 'u1', email: 'moi@x.fr' };
   await p.fill('#email', 'moi@x.fr'); await p.fill('#mdp', 'motdepasse1'); await p.click('button[type=submit]'); await p.waitForTimeout(800);
   await p.goto(url + '#/'); console.log('admin:', await titres());
+  // Page Équipe : les droits des parcours se cochent, puis partent avec « Valider »
   await p.goto(url + '#/equipe'); await p.waitForTimeout(600);
-  await p.check('input[data-acces="chef-projet"][value="1"]'); await p.waitForTimeout(500);
-  await p.uncheck('input[data-acces="edi"][value="2"]'); await p.waitForTimeout(500);
+  await p.check('input[data-acces="chef-projet"][value="1"]'); await p.uncheck('input[data-acces="edi"][value="2"]'); await p.waitForTimeout(200);
+  const aDroit = (el, g) => db.acces.some(a => a.element === el && a.groupe_id === g);
+  if (aDroit('chef-projet', 1) || !aDroit('edi', 2)) errs.push('droits enregistrés avant « Valider » : ' + JSON.stringify(db.acces));
+  await p.click('#eq-valider'); await p.waitForTimeout(600);
+  if (!aDroit('chef-projet', 1) || aDroit('edi', 2)) errs.push('droits après « Valider » : ' + JSON.stringify(db.acces));
   console.log('acces:', JSON.stringify(db.acces));
   await p.goto(url + '#/quiz/m01'); console.log('quiz m01 ok:', !!(await p.$('.choice')));
   await p.goto(url + '#/revision'); console.log('révision thèmes:', await p.$$eval('.theme', l => l.length));

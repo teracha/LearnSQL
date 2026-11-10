@@ -228,6 +228,41 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
 .lien.danger { color: var(--ko); font-size: 14px; }
 .tag.inactif { background: var(--ko-soft); color: var(--ko); }
 
+/* Page Équipe : « cocher, puis valider ». Une case changée, pas encore validée, a une marque discrète ;
+   la barre des changements reste fixe en bas de l'écran (téléphone et PC). */
+.case.change { background: var(--warn-soft); border-radius: 6px; box-shadow: 0 0 0 3px var(--warn-soft); }
+.case.change::after { content: "•"; color: var(--warn); font-weight: 700; }
+select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
+.barre-attente {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: var(--card); border-top: 3px solid var(--accent); box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.15);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.barre-attente[hidden], .barre-boutons[hidden] { display: none; }
+.barre-corps { max-width: 760px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.barre-texte { margin: 0; flex: 1 1 200px; font-weight: 700; }
+.barre-texte:empty { display: none; }
+.barre-boutons { display: flex; flex-wrap: wrap; gap: 10px; }
+.barre-msg { flex: 1 1 100%; font-weight: 700; overflow-wrap: anywhere; }
+.barre-msg:empty { display: none; }
+.barre-msg.ok { color: var(--ok); }
+.barre-msg.ko { color: var(--ko); }
+.barre-msg.info { color: var(--warn); }
+.barre-msg ul { margin: 4px 0 0; padding-left: 20px; font-weight: 400; color: var(--text); max-height: 30vh; overflow-y: auto; }
+.personne-titre { overflow-wrap: anywhere; }
+/* Sur téléphone, un tableau « empile » (page Équipe) devient une suite de blocs : chaque case dit ce qu'elle contient
+   (data-titre), et rien ne dépasse à droite. */
+@media (max-width: 600px) {
+  .card table.empile { display: block; overflow: visible; }
+  table.empile thead { display: none; }
+  table.empile tbody, table.empile tr, table.empile td { display: block; }
+  table.empile tr { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  table.empile tr:last-child { border-bottom: 0; }
+  table.empile td { border: 0; padding: 2px 0; overflow-wrap: anywhere; }
+  table.empile td[data-titre]::before { content: attr(data-titre) " : "; font-weight: 700; font-size: 15px; color: var(--muted); }
+  table.empile .case { white-space: normal; }
+}
+
 /* Résultat d'un exemple de cours (petit tableau) */
 .resultat table { font-size: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .resultat th, .resultat td { padding: 5px 8px; white-space: nowrap; }

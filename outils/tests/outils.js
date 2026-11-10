@@ -1,10 +1,12 @@
-// Outils (docs/outils.md) : le menu, la page Outils (sans compte, sans le parcours, avec le parcours Chef de projet),
+// Outils (docs/outils.md) : le menu, la page Outils (sans compte, hors du groupe, dans le groupe de la gestion de projet),
 // les trois types d'outils (tableau, matrice, document : saisie, calcul, niveau, alerte, une carte par ligne à 390 px
 // sans débordement, un tableau sur PC), les ajouts du moteur (rubrique lue par un tableau, total lu par le document,
 // niveau d'un total, lignes du modèle, couleur d'un choix), les documents (nouveau, partir de l'exemple, renommer,
 // dupliquer, supprimer, recharger la page), Enregistrer et Ouvrir un fichier (dont des fichiers faux), Excel (un vrai
 // zip, pour les 12 outils), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
-// d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le parcours chef-projet est réservé au groupe 1.
+// d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le sujet gestion-projet (droit outil) est
+// réservé au groupe 1, le parcours Chef de projet est ouvert. Les droits des outils (24) : sans compte, compte non limité,
+// hors du groupe, dans le groupe, le dico réservé, toute la section réservée, admin, la page Équipe à 390 px.
 // L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
 // Corrections de novembre 2026 (24) : les 4 étapes, les cases vides (budget et business case du testeur), la tolérance
 // avec une virgule, la note du rapport, les limites, les messages d'un fichier ouvert, « Sans nom », 320 px sans
@@ -40,18 +42,20 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   });
   // Supabase simulé ; chaque envoi est gardé, pour vérifier qu'aucun document ne part.
   const envois = [];
-  const db = { profil: [{ user_id: 'u2', role: 'agent' }], groupe: [{ id: 1, nom: 'Pôle projet' }, { id: 2, nom: 'Invité' }],
-    membre: [{ groupe_id: 2, user_id: 'u2' }], progression: [], acces: [{ element: 'chef-projet', groupe_id: 1 }] };
+  let moi = { id: 'u2', email: 'julie@x.fr' };
+  const db = { profil: [{ user_id: 'u2', email: 'julie@x.fr', role: 'agent' }, { user_id: 'u1', email: 'moi@x.fr', role: 'admin' }],
+    groupe: [{ id: 1, nom: 'Pôle projet' }, { id: 2, nom: 'Invité' }],
+    membre: [{ groupe_id: 2, user_id: 'u2' }], progression: [], acces: [{ element: 'gestion-projet', groupe_id: 1 }] };
   const supa = async r => {
     const u = new URL(r.request().url()), m = r.request().method();
     const json = (o, s) => r.fulfill({ status: s || 200, contentType: 'application/json', body: JSON.stringify(o) });
     if (r.request().postData()) envois.push(r.request().postData());
     if (u.pathname === '/auth/v1/token') return json({ access_token: 'T', refresh_token: 'R', expires_in: 3600 });
-    if (u.pathname === '/auth/v1/user') return json({ id: 'u2', email: 'julie@x.fr' });
+    if (u.pathname === '/auth/v1/user') return json(moi);
     const tab = u.pathname.replace('/rest/v1/', ''), rows = db[tab]; if (!rows) return json({}, 404);
     const filt = []; for (const [k, v] of u.searchParams) if (v.startsWith('eq.')) filt.push([k, v.slice(3)]);
     const match = x => filt.every(([k, v]) => String(x[k]) === v);
-    if (m === 'GET' && tab === 'membre') return json(rows.filter(match).map(x => ({ groupe_id: x.groupe_id, groupe: { nom: db.groupe.find(g => g.id === x.groupe_id).nom } })));
+    if (m === 'GET' && tab === 'membre') return json(rows.filter(match).map(x => ({ groupe_id: x.groupe_id, user_id: x.user_id, groupe: { nom: db.groupe.find(g => g.id === x.groupe_id).nom } })));
     if (m === 'GET') return json(rows.filter(match));
     return r.fulfill({ status: m === 'POST' ? 201 : 204, body: '' });
   };
@@ -109,34 +113,39 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   for (const h of ['#/outils/gp-risques', '#/outils/gp-risques/exemple', '#/outils/gp-raci/exemple', '#/outils/gp-cadrage/d123']) {
     await aller(h);
     const t = await texte('#app');
-    verifier(/Outil réservé/.test(t) && /Chef de projet SI/.test(t) && !(await p.$('.o-table')) && !/DEMAT|Registre/.test(t), h + ' sans compte : ' + t.slice(0, 120));
+    verifier(/Outil réservé/.test(t) && /réservé à certains comptes/.test(t) && !(await p.$('.o-table')) && !/DEMAT|Registre/.test(t), h + ' sans compte : ' + t.slice(0, 120));
     verifier(await p.$('#app .actions a[href="#/compte"]'), h + ' sans compte : pas de bouton « Se connecter »');
   }
   await aller('#/outils/inconnu');
   verifier(await hash() === '#/outils', 'un outil inconnu ne ramène pas à #/outils');
 
-  // 3. Avec un compte, sans le parcours : toujours pas de gestion de projet
+  // 3. Avec un compte, hors du groupe 1 : toujours pas de gestion de projet (le droit outil seul compte : le parcours
+  // Chef de projet est ouvert, ses cours aussi, mais « Les outils de ce cours » n'y montre pas les outils réservés)
   await aller('#/compte'); await p.fill('#email', 'julie@x.fr'); await p.fill('#mdp', 'motdepasse1');
   await p.click('button[type=submit]'); await attendre(800);
   await aller('#/outils');
   sujets = await p.$$eval('.o-sujet h2', xs => xs.map(x => x.textContent));
-  verifier(sujets.join('|') === 'SQL', 'compte sans le parcours : sujets ' + sujets.join('|'));
+  verifier(sujets.join('|') === 'SQL', 'compte hors du groupe : sujets ' + sujets.join('|'));
   await aller('#/outils/gp-raci');
-  verifier(/Outil réservé/.test(await texte('#app')) && !(await p.$('#app .actions a[href="#/compte"]')), 'compte sans le parcours : message court, sans « Se connecter »');
+  verifier(/Outil réservé/.test(await texte('#app')) && /Ton compte n'a pas accès/.test(await texte('#app')) && !(await p.$('#app .actions a[href="#/compte"]')),
+    'compte hors du groupe : message court, sans « Se connecter »');
+  await aller('#/cours/cp07');
+  verifier(await texte('h1') !== 'Tes parcours' && /Faire le QCM/.test(await texte('#app')) && !/Les outils de ce cours/.test(await texte('#app')),
+    'compte hors du groupe : le cours cp07 montre ses outils réservés (ou n\'est pas ouvert)');
 
-  // 4. Avec le parcours (groupe 1) : le sujet « Gestion de projet » et ses 12 outils, dans l'ordre
+  // 4. Dans le groupe 1 : le sujet « Gestion de projet » et ses 12 outils, dans l'ordre
   db.membre.push({ groupe_id: 1, user_id: 'u2' });
   await aller('#/compte'); await p.click('#sync'); await attendre(800);
   await aller('#/outils');
   sujets = await p.$$eval('.o-sujet h2', xs => xs.map(x => x.textContent));
-  verifier(sujets.join('|') === 'SQL|Gestion de projet', 'avec le parcours : sujets ' + sujets.join('|'));
+  verifier(sujets.join('|') === 'SQL|Gestion de projet', 'dans le groupe : sujets ' + sujets.join('|'));
   const cartesGp = await p.$$eval('#sujet-gestion-projet .o-carte', xs => xs.map(x => x.getAttribute('href').replace('#/outils/', '')));
   verifier(cartesGp.join(' ') === OUTILS.join(' '), 'cartes de la gestion de projet : ' + cartesGp.join(' '));
   // Les 4 étapes, numérotées, chacune avec ses outils (titres des cartes en h4, sous le h3 de l'étape)
   const etapes = await p.$$eval('#sujet-gestion-projet .o-groupe', gs => gs.map(g => [g.querySelector('h3').textContent.replace(/\s+/g, ' ').trim(),
     Array.from(g.querySelectorAll('.o-carte')).map(a => a.getAttribute('href').replace('#/outils/', '')), g.querySelectorAll('.o-carte h4').length]));
   verifier(JSON.stringify(etapes) === JSON.stringify(ETAPES.map((e, k) => [(k + 1) + '. ' + e[0], e[1], e[1].length])), 'les 4 étapes : ' + JSON.stringify(etapes));
-  await largeur('page Outils (avec le parcours)');
+  await largeur('page Outils (dans le groupe)');
 
   // 5. La page d'un outil : à quoi il sert, quand, « Comment faire » (3 étapes), « Voir l'exemple », ses cours
   await p.click('.o-carte[href="#/outils/gp-risques"]'); await attendre();
@@ -599,10 +608,95 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   await aller('#/outils');
   verifier(!(await p.$('#o-effacer')), 'sans document, la page propose d\'effacer');
 
-  // 24. Rien n'est envoyé : aucun document dans les envois à Supabase
+  // 24. Les droits des outils (page Équipe, « Droits des outils ») : la chaîne « outils » → sujet → outil, dans la table
+  // acces, comme les parcours ; sans compte, les sujets publics (outilsPublics).
+  const sujetsVus = () => p.$$eval('.o-sujet h2', xs => xs.map(x => x.textContent).join('|'));
+  const cartes = () => p.$$eval('.o-sujet .o-carte', xs => xs.map(x => x.getAttribute('href').replace(/^#\/(outils\/)?/, '')));
+  const synchro = async () => { await aller('#/compte'); await p.click('#sync'); await attendre(800); };
+  const connecter = async qui => {
+    await aller('#/compte'); if (await p.$('#deconnexion')) { await p.click('#deconnexion'); await attendre(); }
+    moi = qui; await p.fill('#email', qui.email); await p.fill('#mdp', 'motdepasse1'); await p.click('button[type=submit]'); await attendre(800);
+  };
+  const reserve = async (h, ou) => {
+    await aller(h);
+    verifier(await texte('h1') === 'Outil réservé' && !/DEMAT|Registre|COALESCE|La traduction/.test(await texte('#app')), ou + ' (' + h + ') : ' + (await texte('#app')).slice(0, 100));
+  };
+  // a. Compte non limité (aucune ligne pour les outils) : tout est ouvert
+  db.acces = []; db.membre = [{ groupe_id: 2, user_id: 'u2' }]; await synchro();
+  await aller('#/outils');
+  verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === 14, 'compte non limité : ' + await sujetsVus() + ' · ' + (await cartes()).join(' '));
+  // b. Un outil réservé au groupe 1, julie hors du groupe : ni carte, ni page, ni exemple, ni document, ni dans les cours
+  db.acces = [{ element: 'gp-risques', groupe_id: 1 }]; await synchro();
+  await aller('#/outils');
+  let vues = await cartes();
+  verifier(vues.length === 13 && vues.indexOf('gp-risques') < 0 && /2\. Piloter/.test(await texte('#sujet-gestion-projet')), 'outil réservé, hors du groupe : ' + vues.join(' '));
+  await reserve('#/outils/gp-risques', 'outil réservé'); await reserve('#/outils/gp-risques/exemple', 'exemple d\'un outil réservé');
+  await reserve(docRisques, 'document d\'un outil réservé');
+  verifier(/Ton compte n'a pas accès/.test(await texte('#app')) && !(await p.$('#app .actions a[href="#/compte"]')), 'outil réservé : le message d\'un compte connecté');
+  await aller('#/cours/cp08');
+  vues = await p.$$eval('#app a.o-carte', xs => xs.map(x => x.getAttribute('href')));
+  verifier(vues.join(' ') === '#/outils/gp-rapport #/outils/gp-recette', '« Les outils de ce cours » (cp08) : ' + vues.join(' '));
+  await aller('#/cours/cp07');
+  verifier(!/Les outils de ce cours/.test(await texte('#app')), 'cp07 : l\'outil réservé reste dans « Les outils de ce cours »');
+  // c. Julie entre dans le groupe 1 : l'outil revient partout
+  db.membre.push({ groupe_id: 1, user_id: 'u2' }); await synchro();
+  await aller('#/outils');
+  verifier((await cartes()).length === 14, 'dans le groupe : ' + (await cartes()).join(' '));
+  await aller('#/outils/gp-risques');
+  verifier(await texte('h1') === 'Registre des risques', 'dans le groupe : la page de l\'outil');
+  await aller('#/cours/cp07');
+  verifier(await p.$('#app a.o-carte[href="#/outils/gp-risques"]'), 'dans le groupe : cp07 sans son outil');
+  // d. Le dico réservé au groupe 1, julie hors du groupe : le dico et ses fiches donnent « Outil réservé » ; Traduire
+  // marche, sans liens vers le dico ; l'onglet Divalto garde aussi sa règle (parcours Divalto, ouvert ici)
+  db.membre = [{ groupe_id: 2, user_id: 'u2' }]; db.acces = [{ element: 'dico', groupe_id: 1 }]; await synchro();
+  await aller('#/outils');
+  verifier((await cartes()).join(' ').indexOf('dico') < 0 && (await cartes()).indexOf('traduire') >= 0, 'dico réservé : cartes ' + (await cartes()).join(' '));
+  await reserve('#/dico', 'dico réservé'); await reserve('#/dico/coalesce', 'fiche du dico réservé');
+  await aller('#/traduire'); await p.fill('#tr-sql', 'SELECT COALESCE(a, b) FROM t'); await p.click('#tr-go'); await attendre();
+  verifier(await texte('h1') === 'Traduire une requête' && /La traduction/.test(await texte('#tr-res')) && !/Dans le dico/.test(await texte('#tr-res')) &&
+    !(await p.$('#tr-res a[href^="#/dico"]')), 'Traduire, dico réservé : ' + (await texte('#tr-res')).slice(0, 80));
+  db.acces = [{ element: 'traduire', groupe_id: 1 }]; await synchro();
+  await aller('#/dico');
+  verifier(await texte('h1') === 'Super dico SQL' && !(await p.$('#app a[href="#/traduire"]')) && await p.$('#onglet-divalto'), 'dico, Traduire réservé : lien vers Traduire, ou pas d\'onglet Divalto');
+  await reserve('#/traduire', 'Traduire réservé');
+  // e. Sans compte : le dico et Traduire restent publics, seulement le sujet SQL
+  await aller('#/compte'); await p.click('#deconnexion'); await attendre();
+  await aller('#/dico');
+  verifier(await texte('h1') === 'Super dico SQL' && !(await p.$('#onglet-divalto')), 'sans compte : le dico n\'est pas public');
+  await aller('#/traduire');
+  verifier(await texte('h1') === 'Traduire une requête', 'sans compte : Traduire n\'est pas public');
+  await aller('#/outils');
+  verifier(await sujetsVus() === 'SQL' && (await cartes()).join(' ') === 'dico traduire' && await p.isVisible('#lien-outils'), 'sans compte : ' + await sujetsVus());
+  // f. Toute la section réservée (élément « outils ») : tout est caché, le lien du menu aussi
+  db.acces = [{ element: 'outils', groupe_id: 1 }];
+  await connecter({ id: 'u2', email: 'julie@x.fr' });
+  await aller('#/outils');
+  verifier(!(await p.$('.o-sujet')) && /Aucun outil n'est ouvert à ton compte/.test(await texte('#app')), 'section réservée : #/outils ' + (await texte('#app')).slice(0, 80));
+  verifier(await p.isHidden('#lien-outils'), 'section réservée : le lien « Outils » reste dans le menu');
+  await reserve('#/outils/gp-raci', 'section réservée'); await reserve('#/dico', 'section réservée'); await reserve('#/traduire', 'section réservée');
+  verifier(!(await p.$('#app a[href="#/outils"]')), 'section réservée : un lien « Retour aux outils »');
+  await aller('#/cours/cp07');
+  verifier(/Faire le QCM/.test(await texte('#app')) && !/Les outils de ce cours/.test(await texte('#app')), 'section réservée : « Les outils de ce cours »');
+  await largeur('message « Outil réservé »');
+  // g. Admin, dans aucun groupe : tout
+  await connecter({ id: 'u1', email: 'moi@x.fr' });
+  await aller('#/outils');
+  verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === 14 && await p.isVisible('#lien-outils'), 'admin : ' + await sujetsVus());
+  await aller('#/dico'); verifier(await texte('h1') === 'Super dico SQL', 'admin : le dico');
+  await aller('#/outils/gp-raci'); verifier(await texte('h1') === 'Matrice RACI', 'admin : un outil');
+  // h. La page Équipe de l'admin, à 390 px : la grille « Droits des outils » et la barre, sans débordement
+  await aller('#/equipe'); await attendre(500);
+  verifier(await p.$('#droits-outils input[data-acces="outils"][value="1"]:checked') && !(await p.$('#droits-outils input[data-acces="gp-raci"]:checked')), 'page Équipe : la grille des droits des outils');
+  await p.check('#droits-outils input[data-acces="gp-raci"][value="2"]'); await p.check('#droits-outils input[data-acces="outils-sql"][value="1"]'); await attendre(80);
+  verifier(/2 changements à enregistrer/.test(await texte('#eq-barre')) && await p.isVisible('#eq-valider'), 'page Équipe : la barre ' + await texte('#eq-barre'));
+  await largeur('page Équipe (barre comprise)');
+  await p.click('#eq-annuler'); await attendre();
+  await connecter({ id: 'u2', email: 'julie@x.fr' });
+
+  // 25. Rien n'est envoyé : aucun document dans les envois à Supabase
   verifier(envois.length > 0 && !envois.some(x => /Mon registre|Format de facture|learnsql-outil|seule Julie connaît/.test(x)), 'un document est parti vers Supabase');
 
   console.log('outils : menu, sujets et étapes, 3 types, ajouts du moteur, documents, fichiers, Excel des 12 outils, copie, impression, cours, ' +
-    'téléphone et PC, cases vides, limites, 320 px, tactile, stockage refusé, effacement');
+    'téléphone et PC, cases vides, limites, 320 px, tactile, stockage refusé, effacement, droits des outils');
   console.log('errors', errs); await b.close();
 })();

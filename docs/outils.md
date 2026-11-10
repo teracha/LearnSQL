@@ -15,11 +15,36 @@ D'autres sujets viendront (EDI, Divalto…) : ajouter un sujet ou un outil = ajo
 - En bas de `#/outils`, quand il y a des documents : « Effacer tous mes documents » (avec confirmation), pour un
   ordinateur partagé.
 - `#/outils/<id>` : la page d'un outil ; `#/outils/<id>/<doc>` : un document de cet outil.
-- **Droits** : un sujet peut être lié à un parcours (`parcours: "chef-projet"`). Il n'apparaît alors que si
-  `accesOK([parcours])` (comme l'onglet Divalto du dico) ; sinon, ses pages affichent un message court. Le sujet SQL
-  est ouvert à tous.
+- **Droits** : voir « Les droits des outils » plus bas.
 - **Cours liés** : la page d'un outil a un lien vers ses cours ; la page d'un cours (`#/cours/cpXX`) affiche en bas
   « Les outils de ce cours », calculé à partir des outils (champ `cours`).
+
+## Les droits des outils (« le droit outil »)
+
+Demandé par l'élève (novembre 2026) : une gestion de droits aussi au niveau des outils.
+- **Même règle que les parcours, dans la même table `acces`** (`element`, `groupe_id` ; aucune table en plus).
+  L'admin la règle sur la page Équipe, section « Droits des outils », sous « Droits des parcours » : une ligne par
+  élément, une case par groupe, « Ouvert à tous » / « Réservé ». On coche, puis « Valider » (barre en bas de l'écran).
+- **Les éléments**, dans l'ordre de la grille : `outils` (toute la section), puis chaque sujet (`outils-sql`,
+  `gestion-projet`), puis chaque outil du sujet, en retrait (`dico`, `traduire`, `gp-cadrage`…).
+- **La règle** : sans ligne = ouvert à tous les connectés ; avec des lignes = réservé à ces groupes ; il faut aussi
+  l'accès aux niveaux au-dessus (`outils` → sujet → outil). L'admin voit tout. Sans compte : seulement les sujets de
+  `LEARNSQL.outilsPublics` (le sujet SQL), avec tous leurs outils (comme `parcoursPublics`).
+- **Partout** : `#/outils` (sujets, étapes, cartes : une étape ou un sujet sans outil visible disparaît ; `outils`
+  réservé : aucun sujet, un message, et pas de lien « Outils » dans le menu) ; la page d'un outil, son exemple et ses
+  documents (message court « Outil réservé ») ; « Les outils de ce cours » ; `#/dico` (fiches comprises) et
+  `#/traduire` pour un compte connecté qui n'y a pas droit (même message ; sans compte, ils restent publics). Le lien
+  vers Traduire dans le dico, et « Dans le dico » dans Traduire, suivent aussi le droit. L'onglet Divalto du dico
+  garde sa règle (parcours Divalto) en plus du droit sur le dico.
+- **Ids uniques dans tout le site** : ils vont dans `acces.element`. Un sujet ou un outil n'a jamais l'id d'un
+  parcours, d'un sous-parcours ou d'un module (d'où `outils-sql`, pas `sql`, qui est le parcours SQL). Le
+  vérificateur le contrôle.
+- **La Gestion de projet ne dépend plus du parcours Chef de projet** : seul le droit outil compte. Pour garder la
+  même restriction qu'avant, l'élève peut lancer une fois `outils/supabase-outils.sql` (facultatif) : il recopie les
+  groupes du parcours `chef-projet` sur l'élément `gestion-projet`. Sans ce script, elle est ouverte à tous les
+  connectés.
+- C'est un masquage d'écran, comme les parcours : le contenu reste public sur GitHub Pages. Code : `accesOutils`,
+  `outilVisible`, `outilOuvert` (bloc « Outils » de `js/app.js`), sur `droitsCompte`, la règle commune aux parcours.
 
 ## Les fichiers
 
@@ -104,15 +129,18 @@ Contrôle : `node outils/verifier.js` (section « Outils »). Tests : `outils/te
 
 ### Les fichiers
 
-- `data/outils/sujets.js` : `LEARNSQL.outilsSujets = [{ id, titre, resume, parcours?, outils: [...] }]`.
-  `outils` : dans l'ordre, l'id d'une définition, ou un lien `{ titre, resume, lien: "#/dico" }`. À la place de
+- `data/outils/sujets.js` : `LEARNSQL.outilsPublics = ["outils-sql"]` (les sujets ouverts sans compte) et
+  `LEARNSQL.outilsSujets = [{ id, titre, resume, outils: [...] }]`.
+  `outils` : dans l'ordre, l'id d'une définition, ou un lien `{ id, titre, resume, lien: "#/dico" }` (l'id sert aux
+  droits ; le dico et Traduire ont les ids `dico` et `traduire`). À la place de
   `outils`, `groupes: [{ titre: "Cadrer", outils: [...] }, …]` : des étapes, dans l'ordre, numérotées sur la page.
   Un outil est rangé une seule fois.
-  `parcours` : un id de `data/parcours.js` (parcours ou sous-parcours) ; le sujet suit `accesOK`.
+  Plus de champ `parcours` (le vérificateur le refuse) : les droits se règlent sur la page Équipe.
 - `data/outils/<id>.js` : **un outil par fichier**, nommé comme son id, chargé dans `index.html` (le vérificateur le
   contrôle). L'outil doit être rangé par son sujet (`sujet` = l'id du sujet, et l'id dans sa liste `outils` ou dans
   un de ses `groupes`).
-- Ids : outil `gp-risques` (a-z, 0-9, tirets) ; colonne, rubrique et total `prochaine_revue` (a-z, 0-9, `_`). Mots
+- Ids : sujet `outils-sql`, outil `gp-risques` (a-z, 0-9, tirets ; uniques dans tout le site, voir « Les droits des
+  outils ») ; colonne, rubrique et total `prochaine_revue` (a-z, 0-9, `_`). Mots
   réservés, interdits comme id : `et`, `ou`, `non`, `vide`, `aujourdhui`, `nb` (d'où `lieu` pour une colonne « Où »).
 
 ### Les champs communs d'un outil
@@ -246,7 +274,8 @@ temps. Les exemples sont tirés de DEMAT 2027 (`docs/plan-chef-de-projet.md`).
 
 ### Contrôles et tests
 
-- `node outils/verifier.js` : ids et fichiers, sujets, types, colonnes, choix, niveaux, valeurs par défaut, lignes du
+- `node outils/verifier.js` : ids et fichiers (un id de sujet ou d'outil n'est pas celui d'un parcours, d'un
+  sous-parcours ou d'un module), sujets publics, types, colonnes, choix, niveaux, valeurs par défaut, lignes du
   modèle, formules lues et typées (colonnes existantes, pas de boucle), alertes, totaux, cours qui existent, exemple
   conforme, sorties faites sans erreur.
 - `node outils/tests/outils-moteur.js` : le lecteur (calculs, erreurs, types, formules Excel), les valeurs, les calculs
@@ -255,4 +284,6 @@ temps. Les exemples sont tirés de DEMAT 2027 (`docs/plan-chef-de-projet.md`).
   LibreOffice recalcule toutes les formules et doit trouver les mêmes résultats que le site.
 - `outils/tests/outils.js` (navigateur) : menu, droits, étapes, les 3 types, documents, fichiers, Excel des 12 outils,
   copie, impression, cours, téléphone et PC, cases vides, limites, 320 px sans débordement, cibles tactiles de 44 px,
-  stockage refusé, « Effacer tous mes documents ».
+  stockage refusé, « Effacer tous mes documents », les droits des outils (sans compte, compte non limité, hors du
+  groupe, dans le groupe, le dico réservé, `outils` réservé, admin). La page Équipe (cocher puis valider, grille des
+  droits des outils, 390 px) : `outils/tests/equipe.js`.

@@ -53,7 +53,7 @@ a donc pas de phrase de répétition sous RELIER (voir « Les jointures » plus 
 ## La page
 
 - `#/traduire`, ouverte à tous, sans compte. Lien « Traduire » dans le menu, après « Dico ». Lien aussi depuis la page
-  du dico.
+  du dico. Un compte connecté suit le droit outil `traduire` (`docs/outils.md`, « Les droits des outils »).
 - Une phrase d'explication : « Colle une requête SQL. Le site l'explique en pseudo-code, dans l'ordre où SQL la
   calcule. Rien n'est envoyé : tout reste dans ton navigateur. »
 - Une zone de texte (police code), un bouton « Traduire », un bouton « Copier » (le pseudo-code en texte simple, pour

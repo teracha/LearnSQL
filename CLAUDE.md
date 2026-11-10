@@ -26,7 +26,9 @@ L'utilisateur est **l'élève**.
 - Parcours, sous-parcours et leur liste de modules : `data/parcours.js` (SQL, Chef de projet SI, EDI, Divalto).
   Un parcours peut avoir des sous-parcours (`sous`) et / ou des modules. Chaque id est unique dans tout le site.
 - Sans compte : seulement les parcours de `parcoursPublics` (SQL).
-- Droits : table `acces` (`outils/supabase-parcours.sql`), réglée par l'admin sur la page Équipe.
+- Droits : table `acces` (`outils/supabase-parcours.sql`), réglée par l'admin sur la page Équipe (« Droits des
+  parcours ») : rôles, groupes et droits se cochent, puis partent ensemble avec « Valider » (barre en bas de l'écran ;
+  « Annuler » remet tout comme avant). La même table règle les outils (voir « Outils »).
   Sans ligne = ouvert à tous les connectés. Pour un sous-parcours, il faut aussi l'accès au parcours.
   C'est un masquage d'écran, pas une protection : le contenu reste public sur GitHub Pages.
 - Liste des modules : `data/modules.js`. Un module appartient à un seul parcours.
@@ -126,7 +128,8 @@ Plan, fil rouge « DEMAT 2027 » et règles propres (modules courts, mises en si
 
 ## Le super dico SQL
 
-Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. Spécification et format : `docs/dico.md`.
+Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte (un compte connecté suit le droit outil
+`dico`, voir « Outils »). Spécification et format : `docs/dico.md`.
 - Fiches dans `data/dico/<catégorie>.js` (`LEARNSQL.dico = (LEARNSQL.dico || []).concat([...])`), chargées dans `index.html`.
 - Une fiche = une fonction, un mot-clé ou une erreur, pour 3 moteurs : SQL Server, Snowflake, MySQL 8.
   Exemple sur la base d'exemple (`docs/base-exemple.sql`, tables sans schéma), résultat vérifié avec SQLite.
@@ -135,7 +138,7 @@ Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. S
 - Champ `pratique` : le conseil pratique (règle 9), affiché sous le piège dans un encadré « En pratique ».
   `outils/verifier.js` le contrôle (non vide, 40 mots au plus, différent du piège) ; constante `PRATIQUE_OBLIGATOIRE`.
 - `node outils/verifier.js` contrôle aussi le dico ; test navigateur : `outils/tests/dico.js`.
-- Onglet « Divalto » (fiches `domaine: "divalto"`, ids `dv-…`, dans `data/dico/divalto.js`) : seulement si `accesOK(["divalto"])`,
+- Onglet « Divalto » (fiches `domaine: "divalto"`, ids `dv-…`, dans `data/dico/divalto.js`) : seulement si `accesOK(["divalto"])` (en plus du droit sur le dico),
   sinon pas d'onglet et une fiche `dv-…` affiche un message. Onglet gardé (`learnsql-dico-domaine`) ; la recherche ne
   cherche que dans l'onglet choisi ; Traduire ne renvoie que vers des fiches SQL. Test : `outils/tests/dico-divalto.js`.
   Recherche Divalto : réglages en plus (`DICO_REGLAGES`) ; test `node outils/tests/recherche-divalto.js` (123 questions
@@ -144,7 +147,8 @@ Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte. S
 
 ## Traduire une requête
 
-Page `#/traduire`, ouverte à tous, sans compte. Spécification : `docs/traducteur.md`.
+Page `#/traduire`, ouverte à tous, sans compte (un compte connecté suit le droit outil `traduire`, voir « Outils »).
+Spécification : `docs/traducteur.md`.
 - L'élève colle une requête (SQL Server, Snowflake, MySQL) ; le site l'explique en pseudo-code français, dans l'ordre
   où SQL la calcule, avec des notes « À savoir » et des liens vers le dico. Sans IA, tout dans le navigateur :
   la requête n'est enregistrée nulle part (ni localStorage, ni URL).
@@ -160,9 +164,15 @@ Page `#/traduire`, ouverte à tous, sans compte. Spécification : `docs/traducte
 
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
-- Sujets : `data/outils/sujets.js` (SQL : le dico et Traduire, ouverts à tous ; Gestion de projet : `parcours:
-  "chef-projet"`, visible seulement si `accesOK`, sinon ses pages donnent un message court ; ses outils rangés en 4
-  étapes, `groupes` : Cadrer, Piloter, Décider, Livrer).
+- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico et Traduire, ouvert sans compte ; Gestion de
+  projet : ses outils rangés en 4 étapes, `groupes` : Cadrer, Piloter, Décider, Livrer).
+- Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
+  `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
+  sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).
+  Appliqué partout : `#/outils`, pages d'outil et documents (« Outil réservé »), « Les outils de ce cours », `#/dico`
+  et `#/traduire` (ids `dico`, `traduire`) pour un compte connecté. Ids uniques dans tout le site (vérificateur).
+- La Gestion de projet ne dépend plus du parcours Chef de projet. Pour lui garder la même restriction, l'élève peut
+  lancer une fois `outils/supabase-outils.sql` (facultatif : recopie les groupes de `chef-projet` sur `gestion-projet`).
 - Un outil = un fichier `data/outils/<id>.js` (`LEARNSQL.outils = (LEARNSQL.outils || []).concat([...])`), chargé dans
   `index.html`. Trois types : `tableau`, `document`, `matrice`. 12 outils de gestion de projet (définis par l'expert
   chef de projet ; règles et mots des cours cp03 à cp21, exemples DEMAT 2027).
