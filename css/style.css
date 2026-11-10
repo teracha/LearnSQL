@@ -233,9 +233,9 @@ pre.code.texte { font-family: inherit; white-space: pre-wrap; overflow-wrap: any
 .case.change { background: var(--warn-soft); border-radius: 6px; box-shadow: 0 0 0 3px var(--warn-soft); }
 .case.change::after { content: "•"; color: var(--warn); font-weight: 700; }
 select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
-/* La barre : au plus un tiers de l'écran environ (150 px au moins, pour garder les boutons). En haut le message, dont la
-   liste défile si elle est longue ; en bas le compte et les boutons, toujours visibles. La marge du bas de la page et
-   le scroll-padding (Tab) suivent sa hauteur (margeBarre dans js/app.js). */
+/* La barre : au plus un tiers de l'écran environ (150 px au moins, pour garder les boutons). En haut le message, dans
+   une boîte qui défile si la liste des échecs est longue ; en bas le compte et les boutons, toujours visibles. La marge
+   du bas de la page et le scroll-padding (Tab) suivent sa hauteur (margeBarre dans js/app.js). */
 .barre-attente {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
   display: flex; flex-direction: column; max-height: 34vh; max-height: max(34vh, 150px);
@@ -248,14 +248,15 @@ select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
 .barre-texte { margin: 0; flex: 1 1 200px; font-weight: 700; }
 .barre-texte:empty { display: none; }
 .barre-boutons { display: flex; flex-wrap: wrap; gap: 10px; }
-.barre-msg { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; overflow-wrap: anywhere; }
+.barre-msg { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; overflow-wrap: anywhere;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 6px 10px; }
 .barre-msg:empty { display: none; }
-.barre-tete { margin: 0; flex: none; font-weight: 700; }
+.barre-tete { margin: 0; font-weight: 700; }
 .barre-msg.ok .barre-tete { color: var(--ok); }
 .barre-msg.ko .barre-tete { color: var(--ko); }
 .barre-msg.info .barre-tete { color: var(--warn); }
-.barre-msg ul { margin: 4px 0 0; padding-left: 20px; min-height: 0; overflow-y: auto; flex: 0 1 auto; }
-.barre-note { margin: 6px 0 0; flex: none; }
+.barre-msg ul { margin: 4px 0 0; padding-left: 20px; }
+.barre-note { margin: 6px 0 0; }
 .personne-titre { overflow-wrap: anywhere; }
 /* Sur téléphone, un tableau « empile » (page Équipe) devient une suite de blocs : chaque case dit ce qu'elle contient
    (data-titre), et rien ne dépasse à droite. */

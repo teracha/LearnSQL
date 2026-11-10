@@ -6,7 +6,8 @@
 // zip, pour les 12 outils), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
 // d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le sujet gestion-projet (droit outil) est
 // réservé au groupe 1, le parcours Chef de projet est ouvert. Les droits des outils (24) : sans compte, compte non limité,
-// hors du groupe, dans le groupe, le dico réservé, toute la section réservée, admin, la page Équipe à 390 px.
+// hors du groupe, dans le groupe, le dico réservé, toute la section réservée, aucun outil visible (pas de lien
+// « Outils » dans le menu), admin, la page Équipe à 390 px.
 // L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
 // Corrections de novembre 2026 (24) : les 4 étapes, les cases vides (budget et business case du testeur), la tolérance
 // avec une virgule, la note du rapport, les limites, les messages d'un fichier ouvert, « Sans nom », 320 px sans
@@ -678,6 +679,15 @@ const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
   await aller('#/cours/cp07');
   verifier(/Faire le QCM/.test(await texte('#app')) && !/Les outils de ce cours/.test(await texte('#app')), 'section réservée : « Les outils de ce cours »');
   await largeur('message « Outil réservé »');
+  // f2. « Outils » ouvert, mais chaque sujet réservé à un autre groupe : aucun outil visible, donc pas de lien « Outils »
+  db.acces = [{ element: 'outils-sql', groupe_id: 1 }, { element: 'gestion-projet', groupe_id: 1 }]; await synchro();
+  await aller('#/outils');
+  verifier(await p.isHidden('#lien-outils') && !(await p.$('.o-sujet')) && /Aucun outil n'est ouvert à ton compte/.test(await texte('#app')), 'aucun outil visible : le lien « Outils » reste');
+  // Un seul outil visible (Traduire) : le lien revient
+  db.acces = [{ element: 'gestion-projet', groupe_id: 1 }, { element: 'dico', groupe_id: 1 }]; await synchro();
+  await aller('#/outils');
+  verifier(await p.isVisible('#lien-outils') && (await cartes()).join(' ') === 'traduire', 'un seul outil visible : ' + (await cartes()).join(' '));
+  db.acces = [{ element: 'outils', groupe_id: 1 }];
   // g. Admin, dans aucun groupe : tout
   await connecter({ id: 'u1', email: 'moi@x.fr' });
   await aller('#/outils');

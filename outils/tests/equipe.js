@@ -293,6 +293,9 @@ const { chromium } = require('playwright'); const path = require('path').join(__
   await p.uncheck('input[data-acces="gp-budget"][value="2"]'); await attendre(80);
   await p.click('#eq-valider'); await attendre(150);
   verifier((await barre()).texte === 'Enregistrement…', 'pendant l\'envoi : ' + (await barre()).texte);
+  n = ecritures.length;
+  await p.fill('#nom-groupe', 'Pendant'); await p.click('#form-groupe button'); await attendre(80);
+  verifier((await barre()).msg === 'Attends la fin de l\'enregistrement.' && ecritures.length === n, 'créer un groupe pendant l\'envoi : ' + (await barre()).msg);
   nd = dialogues.length; refuser = true;
   await p.click('nav a[href="#/"]'); await attendre(200); refuser = false;
   verifier(dialogues[nd] === 'confirm L\'enregistrement n\'est pas fini. Quitter la page quand même ?' && await hash() === '#/equipe', 'quitter pendant l\'envoi, « Annuler » : ' + dialogues.slice(nd));
@@ -380,8 +383,9 @@ const { chromium } = require('playwright'); const path = require('path').join(__
   for (const el of ['edi', 'gp-cadrage', 'gp-business-case', 'gp-raci', 'gp-rapport', 'gp-compte-rendu', 'gp-options', 'gp-decisions']) await p.check(`input[data-acces="${el}"][value="2"]`);
   await p.click('#eq-valider'); await attendre(900);
   const bas = await p.evaluate(() => {
-    const b = document.getElementById('eq-barre'), ul = document.querySelector('#eq-msg ul'), v = document.getElementById('eq-valider').getBoundingClientRect();
-    return { h: b.getBoundingClientRect().height, ecran: innerHeight, defile: ul.scrollHeight > ul.clientHeight + 2, valider: v.bottom <= innerHeight && v.top >= b.getBoundingClientRect().top };
+    const b = document.getElementById('eq-barre'), m = document.getElementById('eq-msg'), v = document.getElementById('eq-valider').getBoundingClientRect();
+    return { h: b.getBoundingClientRect().height, ecran: innerHeight, defile: m.scrollHeight > m.clientHeight + 2 && getComputedStyle(m).overflowY === 'auto',
+      valider: v.bottom <= innerHeight && v.top >= b.getBoundingClientRect().top };
   });
   verifier(bas.h <= Math.max(bas.ecran * 0.34, 150) + 1 && bas.defile && bas.valider, 'écran bas : la barre ' + JSON.stringify(bas));
   await basVisible('844 × 390, liste des échecs');

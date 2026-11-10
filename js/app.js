@@ -1551,7 +1551,7 @@
   // changements en attente : d'abord « Valider » ou « Annuler ».
   function attenteBloque() {
     if (!nbAttente()) return false;
-    equipe.message = { genre: "info", texte: "D'abord, valide ou annule tes changements." };
+    equipe.message = { genre: "info", texte: equipe.envoi ? "Attends la fin de l'enregistrement." : "D'abord, valide ou annule tes changements." };
     majAttente();
     return true;
   }
