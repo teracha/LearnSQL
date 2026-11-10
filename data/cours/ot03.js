@@ -8,7 +8,7 @@
 // changements acceptés 7 jours et 5 250 € au 8 avril 2027 ; MoSCoW 5 jours de « doit » sur 10, 50 %, « Dans le repère ».
 // Fil rouge : DEMAT 2027 (fiche fil rouge de docs/plan-chef-de-projet.md, qui fait foi).
 LEARNSQL.cours.ot03 = {
-  intro: "Le plus souvent, ce n'est pas toi qui décides : tu prépares la décision, tu la traces, et tu la fais respecter. Ici, tu apprends à te servir des 4 outils de l'étape « Décider » du menu Outils : la note de décision, le registre des décisions, le registre des changements et MoSCoW. Sur ta démat fiscale à 15 personnes, ou ta migration Divalto, où étaient écrites les décisions, et qui pouvait les retrouver 3 mois après ?",
+  intro: "Le plus souvent, ce n'est pas toi qui décides : tu prépares la décision, tu la traces, et tu la fais respecter. Ici, tu apprends à te servir des 4 outils de l'étape « Décider » du menu Outils : la note de décision, le registre des décisions, le registre des changements et MoSCoW (le tri en « doit », « devrait », « pourrait », « pas cette fois »). Sur ta démat fiscale à 15 personnes, ou ta migration Divalto, où étaient écrites les décisions, et qui pouvait les retrouver 3 mois après ?",
   sections: [
     {
       titre: "Note de décision : options chiffrées",

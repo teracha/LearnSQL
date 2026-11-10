@@ -21,7 +21,11 @@
 // DAF, avec un avocat si besoin : q07 ; l'avenant après la signature : q10).
 // Déjà publiées ailleurs, avec un autre angle (la règle, pas l'outil) : cp13 (grille), cp14-q34, q35, cp15-q16, q19,
 // q22, cp27-q38. Ici, la question part de l'écran de l'outil : une rubrique, un calcul, une alerte, un bouton.
-// Anti-devinette : voir le rapport de l'expert (scores calculés sans connaître le sujet, tous sous 60 %).
+// Anti-devinette (calcul sans connaître le sujet, script de l'expert) : la bonne réponse est un extrême dans 3 questions
+// sur 11 avec un axe d'action (la plus forte : q04, q13 ; la plus petite : q07). Règles : action moyenne 36 %, plus petite
+// action réelle 9 %, jamais / toujours le sponsor 23 / 23 %, choix à deux actions 18 %, la plus longue 22 %, extrêmes
+// écartés + chiffre 30 %, + mot de méthode 29 %, « écarter absolus, oui, DAF » 22 %. « D'accord » est la bonne réponse en
+// q05 (et un choix faux en q05, q15) ; « maintenant », « tous » aussi dans des bonnes réponses.
 LEARNSQL.questions.ot04 = [
   {
     id: "ot04-q01",
@@ -83,7 +87,7 @@ LEARNSQL.questions.ot04 = [
   {
     id: "ot04-q04",
     dialecte: "Gestion de projet",
-    q: "Dépouillement. L'offre B ne donne pas son prix de mise en service. Tu mets 0 sur « Prix sur 3 ans » ; l'outil affiche « Note 0 : l'information manque ? … ». Que fais-tu ?",
+    q: "Lecture des offres. L'offre B ne donne pas son prix de mise en service. Tu mets 0 sur « Prix sur 3 ans » ; l'outil affiche « Note 0 : l'information manque ? … ». Que fais-tu ?",
     choix: [
       "Tu laisses 0 : l'offre est incomplète, tant pis pour elle",
       "Tu estimes ce prix d'après les 2 autres offres, puis tu notes",

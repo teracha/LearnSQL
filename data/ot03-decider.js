@@ -15,7 +15,11 @@
 // Julie (q14). Aucune affirmation juridique hors de la fiche.
 // Déjà publiées ailleurs, avec un autre angle (la règle, pas l'outil) : cp09-q35, q36, q39 ; cp10-q05, q11, q13 ;
 // cp18-q20, q21. Ici, la question part de l'écran de l'outil : une alerte, un total, une rubrique, un bouton.
-// Anti-devinette : voir le rapport de l'expert (scores calculés sans connaître le sujet, tous sous 60 %).
+// Anti-devinette (calcul sans connaître le sujet, script de l'expert) : la bonne réponse est un extrême dans 3 questions
+// sur 10 avec un axe d'action (la plus petite : q02, q03 ; la plus forte : q15). Règles : action moyenne 35 %, plus petite
+// action réelle 20 %, jamais / toujours le sponsor 26 / 17 %, choix à deux actions 35 %, la plus longue 27 %, extrêmes
+// écartés + chiffre 39 %, + mot de méthode 31 %, « écarter absolus, oui, DAF » 24 %. Absolus, « Oui », mots d'urgence et
+// chiffres aussi dans des bonnes réponses ; point-virgule et forme sans « Tu » : jamais une marque de la bonne réponse.
 LEARNSQL.questions.ot03 = [
   {
     id: "ot03-q01",
@@ -23,14 +27,14 @@ LEARNSQL.questions.ot03 = [
     q: "Ta note de décision a 2 options. Une alerte reste sous le document : « Option 1 (« A. Ne rien changer ») : Chaque option a son prix : délai, coût, risque. » Que fais-tu ?",
     choix: [
       "Tu supprimes l'option A : personne ne choisira de ne rien faire",
-      "Tu écris son prix : délai aucun, 0 €, et le risque : les litiges",
+      "Tu écris son prix : aucun délai, 0 €, et le risque de ne rien faire",
       "Rien : ne rien changer ne coûte rien, l'alerte ne vaut pas ici",
       "Tu ajoutes une option C, chiffrée : l'alerte en demande trois"
     ],
     bonne: 1,
     pourquoi: [
       "Non. « Ne rien changer » est une vraie option : sans elle, le décideur ne voit pas le prix de l'inaction.",
-      "Oui. Ne rien changer a aussi un prix : ici 0 €, mais les litiges continuent. Écrit, ce prix se compare à celui des autres options.",
+      "Oui. Ne rien changer a aussi un prix : 0 € peut-être, mais le problème continue. Écrit, ce prix se compare à celui des autres options.",
       "Non. Ne rien changer coûte souvent : un risque, un retard, des litiges. L'alerte demande ce prix, pour que le décideur compare.",
       "Non. L'alerte vise la ligne A, sans délai ni coût : elle ne compte pas les options. 2 options suffisent."
     ],
@@ -191,7 +195,7 @@ LEARNSQL.questions.ot03 = [
   {
     id: "ot03-q10",
     dialecte: "Gestion de projet",
-    q: "Recette. Le cahier de recette prévoit le n° de commande dans les factures EDI d'AquaBleu ; il n'y est pas. Le consultant ouvre la demande n° 17 au registre des changements : 2 jours. Que fais-tu ?",
+    q: "Recette. Le cahier de recette prévoit le n° de commande dans les factures EDI d'AquaBleu ; il n'y est pas. Le consultant veut en faire la demande n° 17 au registre des changements : 2 jours. Que fais-tu ?",
     choix: [
       "Tu la gardes « À décider », chiffrée, pour le prochain COPIL",
       "Tu la passes « Pas maintenant » : pour juillet, après la bascule",
@@ -201,7 +205,7 @@ LEARNSQL.questions.ot03 = [
     bonne: 2,
     pourquoi: [
       "Non. Ce n'est pas un besoin nouveau : le cahier de recette le prévoyait. Au registre, l'anomalie passerait pour un changement, décidé et payé comme tel.",
-      "Non. Une anomalie ne se reporte pas comme une demande : elle se corrige selon sa gravité. Une majeure ouverte, et pas de PV.",
+      "Non. Une anomalie ne se reporte pas comme une demande : elle se corrige selon sa gravité. Bloquante ou majeure, elle empêche le PV.",
       "Oui. Non conforme à l'écrit : une anomalie, pas un changement. Elle va dans l'outil de tickets, avec sa gravité. Qui paie la correction : le contrat le dit.",
       "Non. Trier, c'est ton travail : le cahier de recette dit ce qui était attendu. Le DAF n'a pas à arbitrer un texte clair."
     ],
@@ -269,7 +273,7 @@ LEARNSQL.questions.ot03 = [
     dialecte: "Gestion de projet",
     q: "Ton tri MoSCoW classe « pas cette fois » l'export Excel des factures bloquées, demandé par Julie. Une alerte s'affiche sur sa ligne. Que fais-tu ?",
     choix: [
-      "La date de reprise, le 1er juillet, et tu le dis à Julie",
+      "Une date de reprise, le 1er juillet, dite à Julie",
       "Tu la passes en « pourrait » pour 2 jours : l'alerte part",
       "Tu supprimes sa ligne, et tu dis à Julie : pas cette fois",
       "Tu laisses la date vide : c'est au DAF de la fixer plus tard"

@@ -9,7 +9,7 @@
 // avril 2027, 6 h de panne en 30 jours = 99,17 % ; fin le 30/11/2029, préavis 6 mois = date limite le 30/05/2029.
 // Fil rouge : DEMAT 2027 (fiche fil rouge de docs/plan-chef-de-projet.md, qui fait foi).
 LEARNSQL.cours.ot04 = {
-  intro: "Un prestataire se choisit sur une grille, se pilote avec son contrat, et se quitte à une date qu'on prépare. Ici, tu apprends à te servir des 3 outils de l'étape « Prestataires » du menu Outils : la grille de choix, la fiche contrat et SLA, et l'échéancier des contrats. Sur ta démat fiscale ou ta migration Divalto, le prestataire avait-il été choisi sur une grille, et qui suivait la date de fin de son contrat ?",
+  intro: "Un prestataire se choisit sur une grille, se pilote avec son contrat, et se quitte à une date qu'on prépare. Ici, tu apprends à te servir des 3 outils de l'étape « Prestataires » du menu Outils : la grille de choix, la fiche contrat et SLA (le niveau de service promis), et l'échéancier des contrats. Sur ta démat fiscale ou ta migration Divalto, le prestataire avait-il été choisi sur une grille, et qui suivait la date de fin de son contrat ?",
   sections: [
     {
       titre: "Grille de choix d'un prestataire",
