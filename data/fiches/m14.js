@@ -1,5 +1,7 @@
 // Fiche de révision du module m14 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m14.js.
+// Relue le 12/11/2026 : alignée sur le cours complet et ses questions (q08, q79) : multi-cluster = édition Enterprise ;
+// colonne montant_ht de la base d'exemple.
 LEARNSQL.fiches.m14 = {
   intro: "Snowflake n'est pas un SQL Server dans le cloud. Le stockage et le calcul sont séparés, les micro-partitions font l'essentiel du travail des index, et on paie le temps de calcul. Comprendre ça change la façon d'écrire et d'optimiser.",
   sections: [
@@ -22,13 +24,13 @@ LEARNSQL.fiches.m14 = {
         "Facturation à la seconde, avec 60 secondes minimum à chaque démarrage.",
         "AUTO_SUSPEND court = pas de crédits gaspillés.",
         "Requête lourde et lente : augmenter la taille (scale up).",
-        "Beaucoup d'utilisateurs en même temps : multi-cluster (scale out)."
+        "Beaucoup d'utilisateurs en même temps : multi-cluster (scale out, édition Enterprise)."
       ],
       retenir: "Gros calcul = taille plus grande. Beaucoup d'utilisateurs = plus de clusters."
     },
     {
       titre: "Micro-partitions et pruning",
-      exemple: "-- Snowflake lit seulement les micro-partitions qui peuvent contenir 2026\nSELECT SUM(montant)\nFROM commande\nWHERE date_cde >= '2026-01-01';",
+      exemple: "-- Snowflake lit seulement les micro-partitions qui peuvent contenir 2026\nSELECT SUM(montant_ht)\nFROM commande\nWHERE date_cde >= '2026-01-01';",
       points: [
         "Les tables sont découpées automatiquement en micro-partitions (50 à 500 Mo non compressés).",
         "Pour chaque partition, Snowflake connaît le min et le max de chaque colonne.",

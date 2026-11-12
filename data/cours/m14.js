@@ -14,7 +14,7 @@
 // (3 EN_COURS ; l'UPDATE sans WHERE touche 8 lignes) ; le JSON du flux 1 (CDE-1001 : CHL-5 100, CHL-25 10, comme les
 // lignes 1 et 2 de ligne_cde ; clé « Lignes » : 0 ligne) ; 8 commandes dans le fichier du jour. À la main, deux fois :
 // 60 s de travail + 600 s d'attente = 11 minutes payées par rafraîchissement ; OFFSET -300 = 5 minutes ; 90 jours de
-// rétention et une réécriture par nuit = 90 versions.
+// rétention et une réécriture par nuit = 90 versions (relecture : + 7 jours de Fail-safe = 97 versions payées).
 // Couverture des 100 « retenir » : scratchpad cours-complets/m14/couverture.txt. Laissées à l'explication de leur question
 // (une seule question chacune, règle 6) : débordement sur disque (q22, vu en m05 et m08), opérateur le plus coûteux (q23),
 // @~ et @% (q35), export par COPY INTO @stage (q41), rôles rattachés à SYSADMIN et rôles d'accès (q54, q55), IP autorisées
@@ -55,31 +55,36 @@
 // - learn.microsoft.com : power-bi/connect-data/desktop-directquery-about (DirectQuery : chaque visuel et chaque
 //   interaction relancent des requêtes ; Import par défaut), sql/t-sql/statements/set-result-set-caching-transact-sql (le
 //   cache de résultat existe sur Azure Synapse, pas sur SQL Server).
+// Relu le 12/11/2026 (testeur, pages lues en .md) : XSMALL = 1 crédit/h en Gen1 seulement ; créé sans GENERATION, un
+// warehouse est Gen2 (sql/create-warehouse ; release-notes/bcr-bundles/2026_03/bcr-2250, bundle généralisé en juin 2026),
+// tarif dans la table de consommation (PDF bloqué ici). Fail-safe facturé : 97 versions (user-guide/data-cdp-storage-costs).
+// LIMIT : top-K pruning (user-guide/querying-top-k-pruning-optimization). Un stream garde un repère, pas les données
+// (user-guide/streams-intro). JSON : type json de SQL Server 2025 (learn.microsoft.com, json-data-type), comme m10.
 LEARNSQL.cours.m14 = {
   intro: "Après la migration, la facture Snowflake grimpe et un rapport Power BI rame : faut-il réécrire la requête, ou changer un réglage ? Snowflake n'est pas un SQL Server dans le cloud : le calcul se loue à la seconde, les tables se rangent en blocs, le passé se relit. Ce module montre ce qui change, pour ne plus payer de vieux réflexes SQL Server.",
   sections: [
     {
       titre: "Le warehouse : du calcul loué à la seconde",
-      exemple: "-- Pour les rafraîchissements Power BI (Import, toutes les 30 min)\nCREATE WAREHOUSE WH_REFRESH\n  WAREHOUSE_SIZE = XSMALL   -- la plus petite : 1 crédit par heure\n  AUTO_SUSPEND = 60         -- arrêt après 60 s sans requête (défaut : 600)\n  AUTO_RESUME = TRUE;       -- repart seul à la requête suivante\nUSE WAREHOUSE WH_REFRESH;\nSELECT statut, COUNT(*) AS nb, SUM(montant_ht) AS ca\nFROM VENTES.COMMANDE GROUP BY statut ORDER BY statut;",
+      exemple: "-- Pour les rafraîchissements Power BI (Import, toutes les 30 min)\nCREATE WAREHOUSE WH_REFRESH\n  WAREHOUSE_SIZE = XSMALL   -- la plus petite : 1 crédit/h (1re génération)\n  AUTO_SUSPEND = 60         -- arrêt après 60 s sans requête (défaut : 600)\n  AUTO_RESUME = TRUE;       -- repart seul à la requête suivante\nUSE WAREHOUSE WH_REFRESH;\nSELECT statut, COUNT(*) AS nb, SUM(montant_ht) AS ca\nFROM VENTES.COMMANDE GROUP BY statut ORDER BY statut;",
       resultat: [["STATUT", "NB", "CA"], ["ANNULEE", 1, "549.00"], ["EN_COURS", 3, "9558.00"], ["LIVREE", 4, "8534.80"]],
       points: [
-        "Ce qui se passe : `WH_REFRESH` calcule ; les commandes restent dans le stockage. Un warehouse (un groupe de serveurs de calcul) ne garde aucune donnée : `WH_ETL` charge la même table sans gêner le rapport.",
+        "Ce qui se passe : `WH_REFRESH` calcule ; les commandes restent dans le stockage. Un warehouse (un groupe de serveurs de calcul) ne stocke aucune table : `WH_ETL` charge la même table sans gêner le rapport.",
         "Pourquoi : trois couches séparées. Le stockage se paie au volume ; le calcul, en crédits (l'unité de facture), à la seconde quand un warehouse tourne, 60 s minimum par démarrage ; les services cloud gèrent connexions et droits.",
         "Le piège : la facture qui grimpe. Avec le défaut (600 s), un rafraîchissement d'une minute toutes les 30 minutes paie environ 11 minutes : 1 de travail, 10 d'attente. En DirectQuery, chaque clic Power BI relance des requêtes.",
         "Le bon réflexe : un warehouse par usage (chargements, rafraîchissements, analystes), avec sa taille et son arrêt ; tu vois qui consomme. Un resource monitor (un quota mensuel de crédits) alerte, puis suspend.",
-        "Et aussi : pour une requête trop lente, la taille au-dessus (scale up) double puissance et crédits. Pour des requêtes en attente (« queued ») à 9 h : plusieurs clusters, des copies du warehouse (multi-cluster, édition Enterprise)."
+        "Et aussi : pour une requête trop lente, la taille au-dessus (scale up) double puissance et crédits. Pour des requêtes en attente (« queued ») à 9 h : plusieurs clusters, des copies du warehouse (multi-cluster, édition Enterprise). Gen2 (2e génération, par défaut) : autre tarif."
       ],
       retenir: "Calcul payé à la seconde, 60 s minimum par démarrage : un warehouse par usage, un arrêt automatique réglé sur l'usage."
     },
     {
       titre: "Les micro-partitions : lire moins de blocs",
-      exemple: "-- Rapport Power BI : les commandes d'avril\nSELECT num_cde, date_cde, montant_ht      -- 3 colonnes lues, pas toutes\nFROM VENTES.COMMANDE\nWHERE date_cde >= '2026-04-01'            -- une valeur : les blocs de mars sont sautés\nORDER BY date_cde;\n-- Piège : même résultat, mais aucun bloc sauté :\n-- WHERE date_cde >= (SELECT MIN(date_cde) FROM VENTES.COMMANDE\n--                    WHERE statut = 'EN_COURS')",
+      exemple: "-- Rapport Power BI : commandes depuis avril\nSELECT num_cde, date_cde, montant_ht      -- 3 colonnes lues, pas toutes\nFROM VENTES.COMMANDE\nWHERE date_cde >= '2026-04-01'            -- une valeur : les blocs de mars sont sautés\nORDER BY date_cde;\n-- Piège : même résultat, mais aucun bloc sauté :\n-- WHERE date_cde >= (SELECT MIN(date_cde) FROM VENTES.COMMANDE\n--                    WHERE statut = 'EN_COURS')",
       resultat: [["NUM_CDE", "DATE_CDE", "MONTANT_HT"], ["CDE-1005", "2026-04-01", "318.00"], ["CDE-1006", "2026-04-03", "1290.00"], ["CDE-1007", "2026-04-07", "7950.00"], ["CDE-1008", "2026-04-10", "79.80"]],
       points: [
-        "Ce qui se passe : les 4 commandes d'avril. Sur une vraie table, Snowflake ne lit que les micro-partitions (blocs de 50 à 500 Mo avant compression, rangés par colonne) qui peuvent contenir avril.",
+        "Ce qui se passe : les 4 commandes depuis avril. Sur une vraie table, Snowflake ne lit que les micro-partitions (blocs de 50 à 500 Mo avant compression, rangés par colonne) qui peuvent contenir avril.",
         "Pourquoi : pour chaque bloc, Snowflake note le minimum et le maximum de chaque colonne. Un bloc dont le maximum est en mars est sauté sans être lu : c'est l'élagage (pruning).",
         "Le piège : le rapport Power BI lent. Le Query Profile (le plan détaillé) affiche « Partitions scanned 9 800 / total 10 000 » : presque tout est lu. Causes : un filtre sur une colonne éparpillée, ou une sous-requête dans le filtre.",
-        "Le bon réflexe : filtre avec une valeur écrite, ou calculée avant, sur la colonne qui suit l'ordre de chargement (souvent la date). Liste tes colonnes : Snowflake ne lit que celles-là. `LIMIT` après `ORDER BY` lit souvent tout.",
+        "Le bon réflexe : filtre avec une valeur écrite, ou calculée avant, sur la colonne qui suit l'ordre de chargement (souvent la date). Liste tes colonnes : Snowflake ne lit que celles-là. `LIMIT` ne garantit pas de lire moins.",
         "SQL Server / Snowflake : ni index cluster à créer, ni statistiques à recalculer : Snowflake range dans l'ordre d'arrivée et tient seul ses métadonnées. `SELECT COUNT(*)` sans filtre s'y lit, sans passer par un warehouse."
       ],
       retenir: "Snowflake saute les blocs que le filtre exclut : une valeur fixe, sur la colonne de chargement, et les seules colonnes utiles."
@@ -103,7 +108,7 @@ LEARNSQL.cours.m14 = {
       resultat: "9 h 05 : réponse quasi instantanée, sans calcul. 9 h 06 : calcul complet, pour la même question.",
       points: [
         "Ce qui se passe : à 9 h 05, Snowflake reprend le résultat de 9 h 00 : c'est le cache de résultat (une réponse gardée). À 9 h 06, le texte diffère : autre requête.",
-        "Pourquoi : un résultat est gardé 24 h (chaque réutilisation relance 24 h, 31 jours au plus). Il resert si le texte est identique, les données inchangées, le rôle autorisé ; jamais avec `RANDOM` ou `CURRENT_TIMESTAMP`.",
+        "Pourquoi : un résultat est gardé 24 h (chaque réutilisation relance 24 h, 31 jours au plus). Il peut resservir si le texte est identique, les données inchangées, le rôle autorisé ; jamais avec `RANDOM` ou `CURRENT_TIMESTAMP`.",
         "Le piège : « J'ai optimisé : de 40 s à 1 s. » C'était le cache. À l'inverse, le rapport rapide hier rame à 8 h : le chargement de la nuit a changé les données.",
         "Le bon réflexe : pour mesurer, coupe le cache de résultat (`USE_CACHED_RESULT = FALSE`) et compare les partitions lues, plus fiables que le temps.",
         "Et aussi : le warehouse garde en cache les données déjà lues, tant qu'il tourne ; l'arrêter le vide. Snowflake conseille 10 minutes au moins avant l'arrêt pour des analystes Power BI, l'arrêt immédiat pour une tâche planifiée."
@@ -117,7 +122,7 @@ LEARNSQL.cours.m14 = {
       points: [
         "Ce qui se passe : la table relue juste avant l'UPDATE : les 3 commandes en cours réapparaissent. C'est le Time Travel (relire le passé) ; `AT (OFFSET => -300)` lit la table d'il y a 5 minutes.",
         "Pourquoi : un UPDATE n'écrase pas un bloc : il en écrit un nouveau et garde l'ancien. Rétention (durée de garde) : 1 jour par défaut, 90 au plus en Enterprise ; puis 7 jours de Fail-safe (un filet de secours), via le support.",
-        "Le piège : `CREATE OR REPLACE TABLE` (m10) écrase la table, et `UNDROP TABLE` (qui rend une table supprimée) échoue : le nom est pris. Et 90 jours de rétention sur une table rechargée chaque nuit : 90 versions payées.",
+        "Le piège : `CREATE OR REPLACE TABLE` (m10) écrase la table, et `UNDROP TABLE` (qui rend une table supprimée) échoue : le nom est pris. Et 90 jours de rétention sur une table rechargée chaque nuit : 97 versions payées, Fail-safe compris.",
         "Le bon réflexe : renomme la nouvelle table, puis `UNDROP TABLE VENTES.COMMANDE`. Pour réparer, clone l'avant : `CREATE TABLE VENTES.COMMANDE_AVANT CLONE VENTES.COMMANDE BEFORE (STATEMENT => '01bf3c4e-…')`. Table rechargée : rétention courte, ou TRANSIENT (sans Fail-safe).",
         "SQL Server / Snowflake : SQL Server repart d'une sauvegarde, longue à restaurer. CLONE copie une table ou une base sans dupliquer les données (« zéro copie ») : bac à sable idéal, mais sans l'historique de chargement (COPY INTO y recharge les fichiers)."
       ],
@@ -132,7 +137,7 @@ LEARNSQL.cours.m14 = {
         "Pourquoi : VARIANT est le type qui garde un JSON tel quel, et `:` rend toujours du VARIANT. Sans `::STRING`, Power BI reçoit \"CDE-1001\", entre guillemets : convertis tout ce que tu extrais.",
         "Le piège : les clés comptent la casse, à l'inverse des noms de colonnes. Un partenaire envoie \"Lignes\" au lieu de \"lignes\" : FLATTEN ne trouve rien et la commande sort du résultat, sans erreur : une commande EDI perdue.",
         "Le bon réflexe : `OUTER => TRUE` dans FLATTEN garde la commande, avec des cases vides à contrôler. PARSE_JSON change un texte en VARIANT ; `TRY_PARSE_JSON` rend NULL au lieu de planter sur un texte mal formé.",
-        "SQL Server / Snowflake : SQL Server lit un JSON rangé en texte : `JSON_VALUE(doc, '$.num_cde')`, et `CROSS APPLY OPENJSON` pour un tableau. Snowflake fabrique aussi du JSON : `OBJECT_CONSTRUCT`, `ARRAY_AGG`."
+        "SQL Server / Snowflake : SQL Server lit le JSON avec `JSON_VALUE(doc, '$.num_cde')`, et `CROSS APPLY OPENJSON` pour un tableau. Snowflake fabrique aussi du JSON : `OBJECT_CONSTRUCT`, `ARRAY_AGG`."
       ],
       retenir: "JSON : col:chemin::TYPE, LATERAL FLATTEN pour un tableau, des clés sensibles à la casse : contrôle les commandes sans ligne."
     },
@@ -158,7 +163,7 @@ LEARNSQL.cours.m14 = {
         "Facture : `SNOWFLAKE.ACCOUNT_USAGE` garde 1 an (environ 2 h de retard) : `QUERY_HISTORY`, `WAREHOUSE_METERING_HISTORY`. `ALTER SESSION SET QUERY_TAG = 'rapport_ventes'` étiquette les requêtes d'un rapport.",
         "Une requête sans fin tourne jusqu'à 2 jours (`STATEMENT_TIMEOUT_IN_SECONDS`) : mets 1 heure sur le warehouse des analystes. Sans warehouse : « No active warehouse selected ».",
         "Noms : sans guillemets, Snowflake les met en MAJUSCULES (Power BI voit `NUM_CDE`) ; créé entre guillemets par un outil, `\"num_cde\"` s'écrit ensuite toujours ainsi (m01).",
-        "Automatiser : un STREAM garde les changements d'une table jusqu'à ce qu'un DML validé (INSERT, MERGE) les consomme ; une TASK planifie une requête, comme l'Agent SQL Server ; une dynamic table se rafraîchit seule.",
+        "Automatiser : un STREAM donne les changements d'une table jusqu'à ce qu'un DML validé (INSERT, MERGE) les consomme ; une TASK planifie une requête, comme l'Agent SQL Server ; une dynamic table se rafraîchit seule.",
         "Partager : le Secure Data Sharing ouvre tes données à un distributeur, sans copie ; sans compte Snowflake, un reader account, dont tu paies le calcul."
       ],
       retenir: "Droits par rôles, facture suivie dans ACCOUNT_USAGE, requêtes bornées par un délai."

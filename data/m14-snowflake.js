@@ -101,7 +101,7 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. C'est permis.",
-      "Oui. Chaque redémarrage coûte au moins 60 s et vide le cache local : pour des requêtes fréquentes, ça peut coûter plus et ralentir. Trouver le bon équilibre selon l'usage (souvent 60 à 300 s).",
+      "Oui. Chaque redémarrage coûte au moins 60 s et vide le cache local : pour des requêtes fréquentes, ça peut coûter plus et ralentir. Snowflake conseille l'arrêt immédiat pour les tâches planifiées, et au moins 10 minutes pour les analystes (BI).",
       "Non. Le stockage ne dépend pas du warehouse.",
       "Non. Un warehouse arrêté ne bloque pas les tables."
     ],
@@ -208,7 +208,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. UPPER ou ROUND n'empêchent pas le cache ; seul ce qui dépend du moment.",
+      "Non. UPPER ou ROUND rendent toujours le même résultat : ils n'empêchent pas le cache, contrairement à l'heure ou à RANDOM.",
       "Oui. Snowflake ne peut pas réutiliser un ancien résultat. Les fonctions non déterministes empêchent la réutilisation. Remplace par une date fixe si possible.",
       "Non. La taille n'est pas la raison.",
       "Non. La raison est le moment, pas le warehouse."
@@ -371,7 +371,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. N'existe pas sur Snowflake.",
+      "Non. Une table Snowflake standard n'a pas d'index B-tree ; son index secondaire (Enterprise, depuis octobre 2026) fait justement partie de la Search Optimization.",
       "Oui. Fait pour les recherches ponctuelles très sélectives : il maintient des structures pour retrouver vite quelques lignes (coût de maintenance, édition Enterprise).",
       "Non. Cher et inefficace.",
       "Non. Chaque numéro est différent."
@@ -444,7 +444,7 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. Pas avec un tri ou un agrégat.",
-      "Oui. Avec un ORDER BY ou un agrégat, Snowflake doit souvent tout lire avant de garder 10 lignes. Pour explorer à moindre coût : SAMPLE, ou filtrer sur une date.",
+      "Oui. Avec un ORDER BY ou un agrégat, Snowflake lit en principe tout avant de garder 10 lignes. Il ne s'arrête plus tôt (top-K pruning) que si le tri porte sur une colonne simple : entier, date ou texte. Pour explorer : SAMPLE, ou un filtre sur la date.",
       "Non. Sans tri, il peut s'arrêter tôt.",
       "Non. Les vues n'ont rien à voir."
     ],
@@ -869,7 +869,7 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. Ça, c'est Snowpipe ; un STREAM suit les changements d'une table.",
-      "Oui. Il enregistre les changements (insertions, modifications, suppressions) d'une table depuis la dernière lecture. Capture de changements (CDC) : idéal pour des traitements incrémentaux.",
+      "Oui. Il donne les changements (insertions, modifications, suppressions) d'une table depuis sa dernière consommation par un DML validé ; un SELECT seul ne le fait pas avancer. Capture de changements (CDC) : idéal pour des traitements incrémentaux.",
       "Non. Ce n'est pas un warehouse.",
       "Non. Il ne copie pas les données, il garde un repère."
     ],
@@ -913,7 +913,7 @@ LEARNSQL.questions.m14 = [
   },
   {
     id: "m14-q51", dialecte: "Snowflake",
-    q: "Sur Snowflake, à qui donne-t-on les droits (SELECT, INSERT…) ?",
+    q: "Sur Snowflake, à qui donne-t-on normalement les droits (SELECT, INSERT…) ?",
     choix: [
       "Directement aux utilisateurs",
       "À des rôles",
@@ -922,7 +922,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Ce n'est pas le modèle Snowflake.",
+      "Non. Snowflake le permet (GRANT … TO USER), mais c'est l'exception : des droits à gérer personne par personne.",
       "Oui. Puis on attribue les rôles aux utilisateurs : contrôle d'accès par rôles (RBAC). Un nouvel arrivant reçoit simplement le bon rôle.",
       "Non. Un warehouse ne reçoit pas de droits sur les données.",
       "Non. Les droits portent sur les tables, mais sont donnés à des rôles."
@@ -1633,7 +1633,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Un seul gros fichier = un seul fil de chargement.",
+      "Non. Un gros fichier se charge mal en parallèle (sauf un CSV non compressé, sous conditions) : Snowflake conseille de le découper.",
       "Oui. Environ 100 à 250 Mo compressés : Snowflake les charge en parallèle. Le parallélisme du warehouse est alors pleinement utilisé.",
       "Non. Snowflake ne lit pas le ZIP ; et même en GZIP, un seul gros fichier reste lent.",
       "Non. Un petit warehouse charge moins en parallèle."
