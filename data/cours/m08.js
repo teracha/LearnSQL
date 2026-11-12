@@ -42,6 +42,12 @@
 // « retenir » : scratchpad cours-complets/m08/couverture.txt.
 // Questions à corriger, signalées au superviseur : q51, q52, q85 (Snowflake accepte COUNT(DISTINCT x) OVER (… ORDER BY …)
 // sur une seule colonne : docs.snowflake.com functions/count).
+// Relecture testeur (12/11/2026, scratchpad cours-complets/relecture-m08 : outils/recalcul.py, outils/points.py,
+// changements.txt) : 7 exemples (30 lignes) et 42 requêtes SQLite, 0 écart. Corrigés : S2 NTILE « presque égaux en
+// lignes » (3, 3, 2, 2 ; ntile-transact-sql) ; S3 m04 « une ligne par SIREN » ; S5 cumuls « peuvent changer » (q99) ;
+// S6 `RANGE BETWEEN 6 PRECEDING` (colonne DATE : n = jours ; TIMESTAMP : INTERVAL obligatoire ; window-syntax,
+// data-types-datetime) ; DU astuce « DENSE_RANK croissant + décroissant - 1 ». NULL d'un PARTITION BY = une partition :
+// OVER exemple C (SQL Server), functions/max et functions/min (Snowflake). MEDIAN et QUALIFY T-SQL : Fabric seulement.
 LEARNSQL.cours.m08 = {
   intro: "Ton rapport Power BI doit montrer chaque commande avec le total de son client, son rang et l'écart avec la précédente : combien de requêtes ? Une seule. Une fonction de fenêtrage (`OVER`) calcule sur un groupe de lignes sans les fusionner, au contraire de `GROUP BY`. Ce module montre ses pièges silencieux : ex aequo tirés au sort, cumul qui saute, « dernière » valeur fausse.",
   sections: [
@@ -67,7 +73,7 @@ LEARNSQL.cours.m08 = {
         "Pourquoi : les trois suivent l'ORDER BY de la fenêtre. ROW_NUMBER donne un numéro unique ; RANK, le même rang aux ex aequo (à égalité), puis il saute les places prises ; DENSE_RANK compte les valeurs différentes.",
         "Le piège : sans départage, ROW_NUMBER tire au sort entre ex aequo : CDE-1002 est n° 1 un jour, n° 2 le lendemain. Et `rang = 1` rend 2 lignes : le total de « la meilleure commande » double.",
         "Le bon réflexe : une seule ligne : ROW_NUMBER, avec un départage unique (l'id). Tous les ex aequo : RANK. Les 3 plus gros montants différents, ex aequo compris : `DENSE_RANK() <= 3`.",
-        "Et aussi : `NTILE(4) OVER (ORDER BY …)` découpe en 4 groupes de même nombre de lignes (quartiles) : 10 lignes donnent 3, 3, 2, 2. L'ORDER BY de la fenêtre ne trie pas l'affichage : garde un ORDER BY final."
+        "Et aussi : `NTILE(4) OVER (ORDER BY …)` découpe en 4 groupes presque égaux en lignes (quartiles) : 10 lignes donnent 3, 3, 2, 2. L'ORDER BY de la fenêtre ne trie pas l'affichage : garde un ORDER BY final."
       ],
       retenir: "ROW_NUMBER : unique, avec un départage. RANK : ex aequo, puis un trou. DENSE_RANK : ex aequo, sans trou."
     },
@@ -76,7 +82,7 @@ LEARNSQL.cours.m08 = {
       exemple: "-- Piège : WHERE COUNT(*) OVER (…) > 1 plante (erreur 4108)\n-- Juste : les doublons, avec leur détail\nWITH c AS (SELECT code, nom, ville, COUNT(*) OVER (PARTITION BY siren) AS nb\n           FROM dbo.client\n           WHERE siren IS NOT NULL)   -- sinon, les 2 SIREN NULL font une paire\nSELECT code, nom, ville, nb FROM c WHERE nb > 1 ORDER BY code;",
       resultat: [["code", "nom", "ville", "nb"], ["C002", "Piscines Dumont", "Grenoble", 2], ["C006", "Piscines Dumont", "Lyon", 2]],
       points: [
-        "Ce qui se passe : la fenêtre dans le WHERE plante. La CTE compte les fiches de chaque SIREN (`nb`) : les 2 Piscines Dumont sortent, avec leur ville. Le GROUP BY de m04 ne donnait que le SIREN.",
+        "Ce qui se passe : la fenêtre dans le WHERE plante. La CTE compte les fiches de chaque SIREN (`nb`) : les 2 Piscines Dumont sortent, avec leur ville. Le GROUP BY de m04 rendait une ligne par SIREN.",
         "Pourquoi : les fenêtres se calculent au SELECT, après FROM, WHERE, GROUP BY et HAVING (m01). Quand le WHERE tourne, la fenêtre n'est pas encore calculée ; la CTE (m06), une étape au-dessus, lit `nb` comme une colonne.",
         "Le piège : une fenêtre ne voit que les lignes gardées par le WHERE de sa requête. Une vue numérote les 8 commandes par date ; filtrée ensuite sur AquaBleu, elle rend 1, 3, 7, pas 1, 2, 3.",
         "Le bon réflexe : « la dernière commande de chaque client » : `ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC, id DESC)`, puis `rn = 1` au-dessus (m06). Le top 3 : `rn <= 3` ; avec les ex aequo : RANK.",
@@ -104,7 +110,7 @@ LEARNSQL.cours.m08 = {
       points: [
         "Ce qui se passe : dans `cumul_defaut`, CDE-1006 affiche déjà 2 580 € : les deux ex aequo sont cumulés d'un coup. `cumul_rows` monte ligne par ligne : 1 290, puis 2 580.",
         "Pourquoi : un ORDER BY dans OVER fait un cumul, du début de la fenêtre à la ligne. Sans cadre écrit (les lignes du calcul), le moteur prend `RANGE … CURRENT ROW` : la ligne et ses ex aequo.",
-        "Le piège : un solde de stock cumulé par date, avec deux mouvements le même jour : les deux lignes affichent le solde du soir. Avec ROWS sans départage, les cumuls entre ex aequo changent d'une exécution à l'autre.",
+        "Le piège : un solde de stock cumulé par date, avec deux mouvements le même jour : les deux lignes affichent le solde du soir. Avec ROWS sans départage, les cumuls entre ex aequo peuvent changer d'une exécution à l'autre.",
         "Le bon réflexe : `ROWS UNBOUNDED PRECEDING` (du début à la ligne courante), avec un ORDER BY unique (`date_mvt, id`). Un cumul qui repart à zéro chaque année, ou par article : ajoute `PARTITION BY`.",
         "Et aussi : même défaut (RANGE) sur SQL Server et Snowflake. Analyse ABC : ce cumul × 100.0 / `SUM(montant_ht) OVER ()` donne le % cumulé ; classe A jusqu'à 80 %."
       ],
@@ -119,7 +125,7 @@ LEARNSQL.cours.m08 = {
         "Pourquoi : le cadre choisit les lignes du calcul : ici, les 2 d'avant et la ligne courante. Sans cadre écrit, SQL Server s'arrête à la ligne courante (et ses ex aequo) : la « dernière », c'est elle.",
         "Le piège : migrée sur Snowflake, la même requête rend CDE-1008 partout, sans erreur : sans cadre, Snowflake prend toute la fenêtre pour FIRST_VALUE et LAST_VALUE. Deux moteurs, deux résultats.",
         "Le bon réflexe : écris toujours le cadre. Dernière valeur : `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`, ou FIRST_VALUE avec `ORDER BY date_cde DESC`. Moyenne sur 7 jours : `6 PRECEDING`, sur un calendrier complet (un jour sans vente n'a pas de ligne).",
-        "Et aussi : `ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING` prend les lignes d'après (un reste à payer). Un cadre en jours, pas en lignes : `RANGE BETWEEN 7 PRECEDING …` marche sur Snowflake ; SQL Server le refuse."
+        "Et aussi : `ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING` prend les lignes d'après (un reste à payer). Un cadre en jours, pas en lignes : `RANGE BETWEEN 6 PRECEDING …` marche sur Snowflake (colonne DATE) ; SQL Server le refuse."
       ],
       retenir: "Écris toujours le cadre. LAST_VALUE sans cadre : la ligne courante sur SQL Server, toute la fenêtre sur Snowflake."
     },
@@ -143,7 +149,7 @@ LEARNSQL.cours.m08 = {
         "Des séries de même statut : deux ROW_NUMBER soustraits (`ORDER BY heure`, et `PARTITION BY statut ORDER BY heure`). Des sessions (une pause de plus de 30 min en ouvre une) : un drapeau 1 / 0 avec LAG, puis son SUM cumulé. Snowflake : `CONDITIONAL_CHANGE_EVENT`, `CONDITIONAL_TRUE_EVENT`.",
         "Le dernier prix connu, pour les jours vides : `COALESCE(prix, LAG(prix) IGNORE NULLS OVER (…))` (Snowflake, SQL Server 2022). Avant 2022 : `COUNT(prix)` cumulé fait un groupe par prix connu, puis `MAX(prix)` par groupe.",
         "Médiane par client : `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY montant_ht) OVER (PARTITION BY client_id)` sur SQL Server, `MEDIAN(montant_ht) OVER (…)` sur Snowflake. `PERCENT_RANK` : la position, de 0 à 1 ; `CUME_DIST` : la part des lignes ≤ la ligne.",
-        "Refusés dans OVER sur SQL Server, acceptés sur Snowflake : `COUNT(DISTINCT x)` (astuce SQL Server : deux DENSE_RANK, croissant et décroissant, - 1) et la concaténation, `LISTAGG … OVER` (SQL Server : GROUP BY, puis jointure).",
+        "Refusés dans OVER sur SQL Server, acceptés sur Snowflake : `COUNT(DISTINCT x)` (astuce SQL Server : DENSE_RANK croissant + décroissant - 1) et la concaténation, `LISTAGG … OVER` (SQL Server : GROUP BY, puis jointure).",
         "Vitesse (SQL Server) : un index sur (colonnes du PARTITION BY, puis de l'ORDER BY) INCLUDE (colonnes lues) évite souvent le tri du plan. Snowflake qui déborde sur disque : filtre avant, ou un warehouse plus grand."
       ],
       retenir: "Îlots, sessions, dernière valeur connue : une fenêtre par étape, puis GROUP BY ou filtre au-dessus."

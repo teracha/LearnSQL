@@ -1,5 +1,8 @@
 // Fiche de révision du module m08 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m08.js.
+// Relecture testeur (12/11/2026) : OVER () = tout le résultat, après le WHERE (q2, q41) ; données de l'exemple S2 ;
+// départage unique (id) en S2 et S3 ; défaut RANGE sur SQL Server ET Snowflake ; « toute la fenêtre » = LAST_VALUE ;
+// moyenne 7 jours en ROWS seulement si aucun jour ne manque (q29).
 LEARNSQL.fiches.m08 = {
   intro: "Les fonctions de fenêtrage calculent sur un groupe de lignes, sans les fusionner. Classement, cumul, comparaison avec la ligne d'avant : c'est l'outil le plus puissant du SQL moderne.",
   sections: [
@@ -7,7 +10,7 @@ LEARNSQL.fiches.m08 = {
       titre: "OVER : calculer sans perdre le détail",
       exemple: "SELECT num_cde, client_id, montant,\n  SUM(montant) OVER (PARTITION BY client_id) AS total_client,\n  montant * 100.0 / SUM(montant) OVER ()      AS pct_du_total\nFROM dbo.commande;",
       points: [
-        "`OVER ()` : la fenêtre est toute la table.",
+        "`OVER ()` : la fenêtre est tout le résultat (après le WHERE).",
         "`PARTITION BY` : une fenêtre par groupe (comme GROUP BY, mais sans fusionner).",
         "Chaque ligne garde son détail ET reçoit le calcul.",
         "Les fonctions de fenêtrage sont calculées au moment du SELECT, après WHERE et GROUP BY."
@@ -16,19 +19,19 @@ LEARNSQL.fiches.m08 = {
     },
     {
       titre: "Numéroter et classer",
-      exemple: "SELECT nom, ca,\n  ROW_NUMBER() OVER (ORDER BY ca DESC) AS rn,     -- 1, 2, 3, 4\n  RANK()       OVER (ORDER BY ca DESC) AS rk,     -- 1, 2, 2, 4\n  DENSE_RANK() OVER (ORDER BY ca DESC) AS drk     -- 1, 2, 2, 3\nFROM dbo.commercial;",
+      exemple: "-- CA triés : 500, 300, 300, 100\nSELECT nom, ca,\n  ROW_NUMBER() OVER (ORDER BY ca DESC) AS rn,     -- 1, 2, 3, 4\n  RANK()       OVER (ORDER BY ca DESC) AS rk,     -- 1, 2, 2, 4\n  DENSE_RANK() OVER (ORDER BY ca DESC) AS drk     -- 1, 2, 2, 3\nFROM dbo.commercial;",
       points: [
         "`ROW_NUMBER` : numéro unique, même en cas d'égalité (ordre arbitraire entre ex aequo).",
         "`RANK` : ex aequo au même rang, puis un trou.",
         "`DENSE_RANK` : ex aequo au même rang, sans trou.",
         "`NTILE(4)` : découpe en 4 groupes (quartiles).",
-        "Ajoute une colonne au ORDER BY pour départager et rendre ROW_NUMBER stable."
+        "Ajoute une colonne unique (l'id) au ORDER BY pour départager et rendre ROW_NUMBER stable."
       ],
       retenir: "ROW_NUMBER unique, RANK avec trous, DENSE_RANK sans trous."
     },
     {
       titre: "La dernière ligne de chaque groupe",
-      exemple: "WITH x AS (\n  SELECT *, ROW_NUMBER() OVER (\n           PARTITION BY client_id ORDER BY date_cde DESC) AS rn\n  FROM dbo.commande\n)\nSELECT * FROM x WHERE rn = 1;\n\n-- Snowflake : directement\nSELECT * FROM commande\nQUALIFY ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC) = 1;",
+      exemple: "WITH x AS (\n  SELECT *, ROW_NUMBER() OVER (\n           PARTITION BY client_id ORDER BY date_cde DESC, id DESC) AS rn\n  FROM dbo.commande\n)\nSELECT * FROM x WHERE rn = 1;\n\n-- Snowflake : directement\nSELECT * FROM commande\nQUALIFY ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC, id DESC) = 1;",
       points: [
         "On numérote dans chaque groupe, puis on garde le n° 1.",
         "Impossible de filtrer une fenêtre dans WHERE (elle est calculée après).",
@@ -55,9 +58,9 @@ LEARNSQL.fiches.m08 = {
       points: [
         "ORDER BY dans OVER + un agrégat = un calcul « courant » (cumul).",
         "Le cadre dit quelles lignes prendre : `ROWS BETWEEN … AND …`.",
-        "Sans cadre précisé, SQL Server utilise `RANGE` : les ex aequo sont additionnés ensemble. Précise `ROWS`.",
-        "Moyenne mobile 7 jours : 6 lignes avant + la ligne courante.",
-        "SQL Server : `LAST_VALUE` avec ORDER BY renvoie souvent la ligne courante (cadre par défaut). Précise `… AND UNBOUNDED FOLLOWING`. Snowflake prend toute la fenêtre par défaut : écris quand même le cadre."
+        "Sans cadre précisé, SQL Server et Snowflake utilisent `RANGE` : les ex aequo sont additionnés ensemble. Précise `ROWS`.",
+        "Moyenne mobile 7 jours : 6 lignes avant + la ligne courante (si aucun jour ne manque).",
+        "SQL Server : `LAST_VALUE` avec ORDER BY renvoie souvent la ligne courante (cadre par défaut). Précise `… AND UNBOUNDED FOLLOWING`. Sur Snowflake, LAST_VALUE prend toute la fenêtre par défaut : écris quand même le cadre."
       ],
       retenir: "Cumul : précise toujours ROWS BETWEEN … pour éviter les surprises."
     }

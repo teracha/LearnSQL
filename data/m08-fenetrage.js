@@ -670,7 +670,7 @@ LEARNSQL.questions.m08 = [
     bonne: 1,
     pourquoi: [
       "Non. HAVING refuse les fenêtres, comme WHERE.",
-      "Oui, c'est interdit. Même règle que WHERE : passe par un niveau au-dessus.",
+      "Oui. C'est interdit, comme dans WHERE : passe par un niveau au-dessus.",
       "Non. Aucune fenêtre n'est permise dans HAVING.",
       "Non. GROUP BY ne change pas la règle."
     ],
@@ -928,7 +928,7 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non sur SQL Server. (Snowflake l'accepte, sans ORDER BY dans la fenêtre.)",
+      "Non. Sur SQL Server, DISTINCT est refusé avec OVER. (Snowflake, lui, l'accepte.)",
       "Oui. Astuce : DENSE_RANK() OVER (PARTITION BY client_id ORDER BY article_id) + DENSE_RANK() OVER (… ORDER BY article_id DESC) - 1.",
       "Non. La requête ne s'exécute pas.",
       "Non. C'est une erreur, pas NULL."
@@ -946,9 +946,9 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Snowflake l'accepte tant que la fenêtre n'a pas d'ORDER BY.",
-      "Non. Snowflake l'accepte, sans ORDER BY dans la fenêtre.",
-      "Non. C'est justement sans ORDER BY.",
+      "Oui. Snowflake l'accepte, et même avec un ORDER BY dans la fenêtre (compte cumulé) si DISTINCT porte sur une seule colonne.",
+      "Non. Snowflake l'accepte ; c'est SQL Server qui refuse DISTINCT avec OVER.",
+      "Non. L'ORDER BY est permis, pas obligatoire : sans lui, le compte porte sur toute la partition.",
       "Non. QUALIFY n'est pas nécessaire."
     ],
     retenir: "Snowflake : COUNT(DISTINCT) OVER (PARTITION BY …) possible."
@@ -1545,8 +1545,8 @@ LEARNSQL.questions.m08 = [
     retenir: "Comptage cumulatif ligne à ligne = ROW_NUMBER."
   },
   {
-    id: "m08-q85", dialecte: "Standard",
-    q: "Comment afficher, mois par mois, le nombre CUMULÉ de clients différents depuis le début ?",
+    id: "m08-q85", dialecte: "SQL Server",
+    q: "Sur SQL Server, comment afficher, mois par mois, le nombre CUMULÉ de clients différents depuis le début ?",
     choix: [
       "COUNT(DISTINCT client_id) OVER (ORDER BY mois)",
       "Compter les 1res commandes, puis cumuler",
@@ -1555,15 +1555,15 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. DISTINCT avec ORDER BY dans OVER n'est pas permis.",
+      "Non. SQL Server refuse DISTINCT avec OVER. (Snowflake, lui, accepte COUNT(DISTINCT client_id) OVER (ORDER BY mois) : DISTINCT sur une seule colonne.)",
       "Oui. Marque la 1re commande de chaque client (ROW_NUMBER par client = 1), puis fais la somme cumulée de ces marques par mois. Chaque client est compté une fois, le mois de son arrivée.",
       "Non. Compte les commandes.",
       "Non. Numérote les clients, sans lien avec les mois."
     ],
-    retenir: "Cumul de distincts : compter les « premières fois », puis cumuler."
+    retenir: "Cumul de distincts sur SQL Server : compter les « premières fois », puis cumuler."
   },
   {
-    id: "m08-q86", dialecte: "Standard",
+    id: "m08-q86", dialecte: "SQL Server",
     q: "Sur SQL Server, peut-on écrire STRING_AGG(code, ',') OVER (PARTITION BY cde_id) ?",
     choix: [
       "Oui, comme LISTAGG sur Snowflake",
