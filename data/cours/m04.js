@@ -4,17 +4,18 @@
 // passe » → « Pourquoi » → « Le piège » (l'erreur vue en entreprise) → « Le bon réflexe » → « SQL Server / Snowflake »
 // ou « Et aussi » → À retenir. Chaque mot technique est expliqué à sa première apparition.
 // Résultats recalculés avec SQLite sur docs/base-exemple.sql (script : scratchpad cours-complets/m04/verif.py) :
-// COUNT sur client (7, 6, 5, 4) ; mois sans commande (0, NULL) ; CA par mois hors annulées (3 / 8455.00, 4 / 9637.80) ;
+// COUNT sur client (7, 5, 4) ; mois sans commande (0, NULL) ; CA par mois hors annulées (3 / 8455.00, 4 / 9637.80) ;
 // SIREN en double sans WHERE (NULL : 2 / C003, 423456789 : 2 / C002) ; agrégation conditionnelle (4 clients, nb_edi_faux
-// = 2 pour le client 2) ; PMP de CHL-5 (37.18 en moyenne simple, 36.02 pondéré : 9293.00 / 258) ; jointure commande ×
-// ligne_cde (AquaBleu 30230.00 au lieu de 15115.00 ; SUM(DISTINCT) : 1290.00 au client 2) ; LEFT JOIN (Pool & Garden :
-// COUNT(*) = 1, COUNT(co.id) = 0) ; ROLLUP (statut, motif) des flux ORDERS (5 lignes, émulé par UNION ALL, GROUPING
-// calculé à la main). Calculés à la main, deux fois : AVG(10, 20, NULL) = 15 ; moyenne des moyennes 75 / 60 ;
-// PERCENTILE_CONT(0.5) de 10, 20, 30, 40 = 25, PERCENTILE_DISC = 20 ; 3 × ROUND(0.333, 2) = 0.99, ROUND(0.999, 2) = 1.00.
+// = 2 pour le client 2) ; prix moyen de CHL-5 (37.18 en moyenne simple, 36.02 pondéré : 9293.00 / 258) ; jointure
+// commande × ligne_cde (AquaBleu 30230.00 au lieu de 15115.00 ; SUM(DISTINCT) : 1290.00 au client 2) ; LEFT JOIN
+// (Pool & Garden : COUNT(*) = 1, COUNT(co.id) = 0) ; ROLLUP (statut, motif) des flux ORDERS (5 lignes, émulé par
+// UNION ALL, GROUPING calculé à la main). Calculés à la main, deux fois : AVG(10, 20, NULL) = 15 ; moyenne des moyennes
+// 75 / 60 ; PERCENTILE_CONT(0.5) de 10, 20, 30, 40 = 25, PERCENTILE_DISC = 20 ; 3 × ROUND(0.333, 2) = 0.99,
+// ROUND(0.999, 2) = 1.00.
 // Notions testées par une seule question, laissées à leur explication (règle 6 de docs/plan-sql.md) : COUNT(DISTINCT a, b)
 // (q46), UNPIVOT et CROSS APPLY (q62), MODE (q63), signe des avoirs (q75), SUM d'un TIME (q87), DATEPART(hour) (q88),
 // COUNT(*) instantané sur Snowflake (q94), tranches FLOOR (q95), index columnstore (q100), HAVING sans GROUP BY (q34),
-// ordre des colonnes du GROUP BY (q40), SUM(a + b) et NULL (q38).
+// ordre des colonnes du GROUP BY (q40), SUM(a + b) et NULL (q38), WHERE ou HAVING sur des avoirs (q74).
 // Sources (vérifiées le 12/11/2026) : learn.microsoft.com/sql/t-sql : functions/aggregate-functions-transact-sql (NULL
 // ignorés sauf COUNT(*)), functions/count-transact-sql (int, Msg 8115, COUNT_BIG, une seule expression après DISTINCT),
 // functions/sum-transact-sql et functions/avg-transact-sql (int -> int ; bit refusé ; AVG decimal -> decimal(38, max(s,6))),
@@ -26,59 +27,59 @@
 // functions/approx-count-distinct-transact-sql (2019+), functions/datetrunc-transact-sql (2022+).
 // docs.snowflake.com/en/sql-reference (par extraits de recherche, le site n'est pas joignable) : functions/avg (entier ->
 // décimales), functions/count_if, functions/booland_agg, functions/any_value, functions/median, constructs/group-by
-// (GROUP BY ALL, alias), constructs/having (alias), constructs/pivot (IN (ANY) depuis 2024), functions/listagg.
+// (GROUP BY ALL, alias), constructs/having (alias), functions/listagg.
 LEARNSQL.cours.m04 = {
-  intro: "Ton rapport Power BI donne 30 230 € de CA à AquaBleu, la compta 15 115 € : qui a raison ? Un agrégat (une fonction qui résume plusieurs lignes en une valeur : SUM, COUNT, AVG…) calcule un total par client, par mois ou par dépôt. Il ne plante presque jamais : il saute les cases vides, additionne deux fois une ligne copiée, ou fait la moyenne de moyennes, sans rien dire. Ce module montre comment le moteur regroupe les lignes, et les réflexes qui gardent tes totaux justes.",
+  intro: "Ton rapport Power BI donne 30 230 € de CA à AquaBleu, la compta 15 115 € : qui a raison ? Un agrégat (une fonction qui résume des lignes en une valeur : SUM, COUNT, AVG) calcule un total par client ou par mois. Il ne plante presque jamais : il saute les cases vides, ou additionne deux fois une ligne copiée, sans rien dire. Ce module montre ces pièges, et comment les éviter.",
   sections: [
     {
       titre: "COUNT, SUM, AVG : les cases vides ne comptent pas",
-      exemple: "SELECT COUNT(*)              AS nb_fiches,\n       COUNT(ville)          AS avec_ville,\n       COUNT(siren)          AS avec_siren,\n       COUNT(DISTINCT siren) AS societes\nFROM dbo.client;\n\n-- Piège : le 1er mai, aucune commande du mois → 0 et NULL\nSELECT COUNT(*) AS nb_cdes, SUM(montant_ht) AS ca\nFROM dbo.commande WHERE date_cde >= '20260501';   -- Snowflake : '2026-05-01'",
-      resultat: [["nb_fiches", "avec_ville", "avec_siren", "societes"], [7, 6, 5, 4]],
+      exemple: "SELECT COUNT(*)              AS nb_fiches,\n       COUNT(siren)          AS avec_siren,\n       COUNT(DISTINCT siren) AS societes\nFROM dbo.client;\n\n-- Piège : le 1er mai, aucune commande du mois → 0 et NULL\nSELECT COUNT(*) AS nb_cdes, SUM(montant_ht) AS ca\nFROM dbo.commande WHERE date_cde >= '20260501';   -- Snowflake : '2026-05-01'",
+      resultat: [["nb_fiches", "avec_siren", "societes"], [7, 5, 4]],
       points: [
-        "Ce qui se passe : 7 fiches, 6 villes renseignées, 5 SIREN, mais 4 sociétés : les 2 agences Piscines Dumont ont le même SIREN. La 2e requête, sur un mois encore vide, rend 0 commande et un CA NULL (une case vide).",
+        "Ce qui se passe : 7 fiches, 5 SIREN, mais 4 sociétés : les 2 agences Piscines Dumont ont le même SIREN. Sur un mois encore vide, la 2e requête rend 0 et NULL (une case vide).",
         "Pourquoi : un agrégat saute les NULL. `COUNT(*)` compte les lignes, `COUNT(siren)` les valeurs renseignées, `COUNT(DISTINCT siren)` les valeurs différentes. SUM, AVG, MIN et MAX sautent aussi les NULL ; sans aucune valeur, ils rendent NULL.",
-        "Le piège : le 1er du mois, le rapport affiche un CA vide, et `ca - SUM(avoirs)` devient NULL. Autre surprise : la moyenne de 10, 20 et NULL vaut 15, pas 10. Le NULL n'est pas un zéro.",
+        "Le piège : le 1er du mois, le rapport affiche un CA vide, et `ca - SUM(avoirs)` devient NULL. Et la moyenne de 10, 20 et NULL vaut 15, pas 10 : le NULL n'est pas un zéro.",
         "Le bon réflexe : `COALESCE(SUM(montant_ht), 0)` dans les rapports (COALESCE remplace un NULL, m02). `AVG(COALESCE(note, 0))` seulement si une absence vaut vraiment 0 : c'est un choix métier. COUNT ne rend jamais NULL : 0 sur du vide.",
-        "Et aussi : « clients actifs du mois » = `COUNT(DISTINCT client_id)` ; COUNT(*) compterait les commandes. `COUNT(1)` vaut `COUNT(*)`, à la même vitesse. MIN et MAX marchent aussi sur les textes et les dates : `MAX(date_cde)` donne la date de la dernière commande."
+        "Et aussi : clients actifs = `COUNT(DISTINCT client_id)`. `COUNT(1)` vaut `COUNT(*)`, même vitesse. MIN et MAX marchent aussi sur les textes et les dates : `MAX(date_cde)`, c'est la date de la dernière commande."
       ],
-      retenir: "COUNT(*) compte les lignes, COUNT(col) les valeurs renseignées. Les agrégats sautent les NULL ; sur du vide, SUM rend NULL : écris COALESCE(SUM(x), 0)."
+      retenir: "COUNT(*) compte les lignes, COUNT(col) les valeurs renseignées. Les agrégats sautent les NULL ; SUM de rien = NULL : COALESCE(SUM(x), 0)."
     },
     {
       titre: "GROUP BY : une ligne par groupe",
-      exemple: "-- CA par mois, sans les commandes annulées\n-- Piège : GROUP BY MONTH(date_cde) seul mélangerait mars 2025 et mars 2026\nSELECT YEAR(date_cde) AS annee, MONTH(date_cde) AS mois,\n       COUNT(*) AS nb_cdes, SUM(montant_ht) AS ca\nFROM dbo.commande\nWHERE statut <> 'ANNULEE'\nGROUP BY YEAR(date_cde), MONTH(date_cde)\nORDER BY annee, mois;",
+      exemple: "-- Piège : GROUP BY MONTH(date_cde) seul mêlerait mars 2025 et mars 2026\nSELECT YEAR(date_cde) AS annee, MONTH(date_cde) AS mois,\n       COUNT(*) AS nb_cdes, SUM(montant_ht) AS ca\nFROM dbo.commande\nWHERE statut <> 'ANNULEE'\nGROUP BY YEAR(date_cde), MONTH(date_cde)\nORDER BY annee, mois;",
       resultat: [["annee", "mois", "nb_cdes", "ca"], [2026, 3, 3, "8455.00"], [2026, 4, 4, "9637.80"]],
       points: [
-        "Ce qui se passe : les 7 commandes non annulées deviennent 2 lignes, une par mois. COUNT compte les commandes du mois, SUM additionne leurs montants. ORDER BY trie : GROUP BY seul ne garantit aucun ordre.",
-        "Pourquoi : GROUP BY range les lignes en groupes, puis chaque agrégat rend une valeur par groupe. Une colonne du SELECT est donc groupée, ou dans un agrégat. `SELECT client_id, canal … GROUP BY client_id` plante : le client 2 a deux canaux, lequel afficher ?",
+        "Ce qui se passe : les 7 commandes non annulées donnent 2 lignes, une par mois. COUNT compte les commandes du mois, SUM additionne leurs montants. ORDER BY trie : GROUP BY seul ne garantit aucun ordre.",
+        "Pourquoi : GROUP BY range les lignes en groupes ; chaque agrégat rend une valeur par groupe. Une colonne du SELECT est donc groupée ou agrégée : `SELECT client_id, canal … GROUP BY client_id` plante, car le client 2 a deux canaux.",
         "Le piège : `GROUP BY MONTH(date_cde)` seul. Sur deux ans d'historique, mars 2025 et mars 2026 tombent dans le même groupe « 3 » : le rapport mensuel additionne deux années, sans erreur.",
-        "Le bon réflexe : groupe par année et mois, ou par le 1er du mois : `DATETRUNC(month, date_cde)` (SQL Server 2022), `DATE_TRUNC('month', date_cde)` (Snowflake). Sur un DATETIME (date + heure), `CAST(date_cde AS date)` groupe par jour ; sans lui, un groupe par seconde.",
-        "SQL Server / Snowflake : SQL Server lit GROUP BY avant le SELECT : l'alias `annee` y est inconnu, répète l'expression. Snowflake accepte l'alias, `GROUP BY ALL` (toutes les colonnes non agrégées) et `ANY_VALUE(nom)` ; sur SQL Server, `MAX(nom)` ou nom dans le GROUP BY."
+        "Le bon réflexe : groupe par année et mois, ou par le 1er du mois : `DATETRUNC(month, date_cde)` (SQL Server 2022), `DATE_TRUNC('month', date_cde)` (Snowflake). Par jour, sur un DATETIME (date + heure) : `CAST(date_cde AS date)`.",
+        "SQL Server / Snowflake : SQL Server lit GROUP BY avant SELECT : l'alias `annee` y est inconnu, répète l'expression. Snowflake accepte l'alias, `GROUP BY ALL` (toutes les colonnes non agrégées) et `ANY_VALUE(nom)` ; SQL Server : `MAX(nom)`, ou nom dans le GROUP BY."
       ],
-      retenir: "Chaque colonne du SELECT est groupée ou agrégée. Par mois = par année ET par mois ; sur SQL Server, l'expression entière dans le GROUP BY, pas l'alias."
+      retenir: "Chaque colonne du SELECT est groupée ou agrégée. Par mois = par année ET mois ; sur SQL Server, l'expression entière, pas l'alias."
     },
     {
       titre: "WHERE ou HAVING : avant ou après les groupes",
-      exemple: "-- Les SIREN en double : une société, plusieurs fiches clients\n-- Piège : il manque WHERE siren IS NOT NULL\nSELECT siren, COUNT(*) AS nb_fiches, MIN(code) AS code_garde\nFROM dbo.client\nGROUP BY siren\nHAVING COUNT(*) > 1\nORDER BY siren;",
+      exemple: "-- SIREN en double : une société, plusieurs fiches\n-- Piège : il manque WHERE siren IS NOT NULL\nSELECT siren, COUNT(*) AS nb_fiches, MIN(code) AS code_garde\nFROM dbo.client\nGROUP BY siren\nHAVING COUNT(*) > 1\nORDER BY siren;",
       resultat: [["siren", "nb_fiches", "code_garde"], [null, 2, "C003"], ["423456789", 2, "C002"]],
       points: [
-        "Ce qui se passe : 2 groupes ont plus d'une fiche. 423456789, ce sont les 2 agences Piscines Dumont : un vrai doublon. Le groupe NULL réunit Bleu Lagon et Pool & Garden, deux clients sans SIREN : pas un doublon.",
+        "Ce qui se passe : 2 groupes ont plus d'une fiche. 423456789 : les 2 agences Piscines Dumont, un vrai doublon. Le groupe NULL : Bleu Lagon et Pool & Garden, deux clients sans SIREN, pas un doublon.",
         "Pourquoi : WHERE juge chaque ligne, avant que les groupes existent. HAVING juge chaque groupe, une fois COUNT calculé. Et GROUP BY met tous les NULL dans un seul groupe : pour lui, deux cases vides sont pareilles.",
         "Le piège : la liste part à l'ADV, qui fusionne Bleu Lagon et Pool & Garden, deux clients différents. Autre erreur : un agrégat dans WHERE (`WHERE COUNT(*) > 1`) plante, car WHERE passe avant le comptage.",
-        "Le bon réflexe : `WHERE siren IS NOT NULL`, avant de grouper. Une condition sur les lignes (statut, date, client) va dans WHERE : moins de lignes à grouper. HAVING sert aux conditions sur un agrégat. `MIN(code)` désigne la fiche à garder.",
+        "Le bon réflexe : `WHERE siren IS NOT NULL`, avant de grouper. Une condition sur les lignes (statut, date) va dans WHERE : moins de lignes à grouper. HAVING sert aux conditions sur un agrégat. `MIN(code)` désigne la fiche à garder.",
         "Et aussi : WHERE et HAVING ne donnent pas le même résultat. Nouveaux clients 2026 : `HAVING MIN(date_cde) >= '20260101'`, sur tout l'historique ; un WHERE sur 2026 cacherait les commandes d'avant. Clients des 2 années : `HAVING COUNT(DISTINCT YEAR(date_cde)) = 2`."
       ],
-      retenir: "WHERE filtre les lignes, avant le regroupement ; HAVING filtre les groupes, après le calcul. Tous les NULL forment un seul groupe : écarte-les si besoin."
+      retenir: "WHERE filtre les lignes avant le regroupement, HAVING filtre les groupes après. Les NULL forment un seul groupe : écarte-les si besoin."
     },
     {
       titre: "L'agrégation conditionnelle : un CASE dans l'agrégat",
       exemple: "SELECT client_id,\n       SUM(CASE WHEN statut = 'LIVREE'   THEN montant_ht ELSE 0 END) AS ca_livre,\n       SUM(CASE WHEN statut = 'EN_COURS' THEN montant_ht ELSE 0 END) AS ca_en_cours,\n       COUNT(CASE WHEN canal = 'EDI' THEN 1 END)                     AS nb_edi,\n       COUNT(CASE WHEN canal = 'EDI' THEN 1 ELSE 0 END)              AS nb_edi_faux\nFROM dbo.commande\nWHERE statut <> 'ANNULEE'\nGROUP BY client_id\nORDER BY client_id;",
       resultat: [["client_id", "ca_livre", "ca_en_cours", "nb_edi", "nb_edi_faux"], [1, "7165.00", "7950.00", 3, 3], [2, "1290.00", "1290.00", 0, 2], [4, "0.00", "318.00", 0, 1], [6, "79.80", "0.00", 0, 1]],
       points: [
-        "Ce qui se passe : une ligne par client, et le CA rangé en colonnes selon le statut : AquaBleu (client 1) a 7 165 € livrés et 7 950 € en cours. `nb_edi` compte ses 3 commandes EDI ; `nb_edi_faux` en donne 2 au client 2, qui n'en a aucune.",
-        "Pourquoi : le CASE (le « si… alors », m03) est calculé sur chaque ligne, avant l'agrégat. Il rend le montant si la condition est vraie, sinon 0, et SUM additionne. COUNT compte toute valeur non NULL : le 0 du ELSE est compté.",
-        "Le piège : `COUNT(CASE … THEN 1 ELSE 0 END)` compte toutes les lignes. Ton indicateur « commandes EDI » vaut alors le nombre total de commandes, sans erreur, et chaque rapport qui le reprend se trompe.",
-        "Le bon réflexe : avec COUNT, pas de ELSE (le NULL n'est pas compté) ; avec SUM, `ELSE 0`. Une part : `AVG(CASE WHEN canal = 'EDI' THEN 1.0 ELSE 0 END)` donne la proportion de commandes EDI ; le 1.0 évite la division entière.",
-        "SQL Server / Snowflake : Snowflake écrit aussi `COUNT_IF(canal = 'EDI')`. « Toutes les lignes livrées ? » : `MIN(CASE … THEN 1 ELSE 0 END) = 1` ; « au moins une » : MAX. Sur une colonne BOOLEAN (vrai / faux), Snowflake a `BOOLAND_AGG` et `BOOLOR_AGG`."
+        "Ce qui se passe : une ligne par client, une colonne par statut : AquaBleu a 7 165 € livrés et 7 950 € en cours. `nb_edi` compte ses 3 commandes EDI ; `nb_edi_faux` en donne 2 au client 2, qui n'en a aucune.",
+        "Pourquoi : le CASE (le « si… alors », m03) tourne sur chaque ligne, avant l'agrégat : le montant si la condition est vraie, sinon 0, puis SUM additionne. COUNT compte toute valeur non NULL : le 0 du ELSE compte.",
+        "Le piège : `COUNT(CASE … THEN 1 ELSE 0 END)` compte toutes les lignes. Ton indicateur « commandes EDI » vaut le nombre total de commandes, sans erreur, dans chaque rapport qui le reprend.",
+        "Le bon réflexe : avec COUNT, pas de ELSE (le NULL n'est pas compté) ; avec SUM, `ELSE 0`. La part de commandes EDI : `AVG(CASE WHEN canal = 'EDI' THEN 1.0 ELSE 0 END)` ; le 1.0 évite la division entière.",
+        "SQL Server / Snowflake : Snowflake a aussi `COUNT_IF(canal = 'EDI')`. « Toutes les lignes livrées ? » : `MIN(CASE … THEN 1 ELSE 0 END) = 1` ; « au moins une » : MAX. Snowflake : `BOOLAND_AGG`, `BOOLOR_AGG` sur un BOOLEAN (vrai / faux)."
       ],
       retenir: "SUM(CASE WHEN … THEN x ELSE 0 END) : une colonne par condition, en une seule lecture. Avec COUNT : THEN 1, sans ELSE."
     },
@@ -88,23 +89,23 @@ LEARNSQL.cours.m04 = {
       resultat: [["prix_moyen_faux", "prix_moyen_pondere"], ["37.18", "36.02"]],
       points: [
         "Ce qui se passe : la moyenne des 3 prix donne 37,18 € ; le vrai prix moyen, pondéré par les quantités, 36,02 €. Dans AVG, les 8 seaux à 39,75 € pèsent autant que les 150 seaux à 35,90 €.",
-        "Pourquoi : AVG fait la moyenne des lignes : chaque ligne compte pour 1, quelle que soit sa quantité. Un prix moyen pondéré (comme le PMP du stock), c'est le montant total divisé par la quantité totale. Un taux de marge : `SUM(marge) / SUM(ca)`.",
-        "Le piège : la moyenne des moyennes. Région A : 2 commandes à 100 € de moyenne ; région B : 8 à 50 €. (100 + 50) / 2 = 75 €, mais le vrai panier moyen vaut 600 / 10 = 60 €. Power BI affiche 75, sans erreur.",
-        "Le bon réflexe : garde les sommes et les nombres (SUM, COUNT) jusqu'au bout, et divise à la fin. `NULLIF(SUM(qte), 0)` (NULLIF fabrique un NULL, m02) évite la division par zéro. Avec des valeurs extrêmes, regarde aussi la médiane (la valeur du milieu).",
+        "Pourquoi : dans AVG, chaque ligne compte pour 1, quelle que soit sa quantité. Un prix moyen pondéré (comme le PMP du stock) = montant total / quantité totale. Un taux de marge = `SUM(marge) / SUM(ca)`.",
+        "Le piège : la moyenne des moyennes. Région A : 2 commandes de 100 € en moyenne ; région B : 8 de 50 €. (100 + 50) / 2 = 75 €, mais le vrai panier moyen vaut 600 / 10 = 60 €. Power BI affiche 75, sans erreur.",
+        "Le bon réflexe : garde les sommes (SUM, COUNT) jusqu'au bout, et divise à la fin. `NULLIF(SUM(qte), 0)` (NULLIF fabrique un NULL, m02) évite la division par zéro. Valeurs extrêmes : regarde aussi la médiane (la valeur du milieu).",
         "SQL Server / Snowflake : sur SQL Server, AVG d'un entier rend un entier : la moyenne de 1 et 2 donne 1. Écris `AVG(qte * 1.0)`, et `COUNT(*) * 1.0 / COUNT(DISTINCT cde_id)` pour les lignes par commande. Snowflake garde les décimales : 1.5."
       ],
-      retenir: "Une moyenne ou un taux se calcule somme / somme, à la fin. Jamais la moyenne des moyennes ; sur SQL Server, × 1.0 contre la division entière."
+      retenir: "Moyenne ou taux = somme / somme, à la fin. Jamais la moyenne des moyennes ; sur SQL Server, × 1.0 contre la division entière."
     },
     {
       titre: "Après une jointure : les lignes copiées gonflent les sommes",
       exemple: "-- Piège : le montant de la commande est répété sur chacune de ses lignes\nSELECT co.client_id, COUNT(*) AS nb_lignes, COUNT(DISTINCT co.id) AS nb_cdes,\n       SUM(co.montant_ht)         AS ca_faux,\n       SUM(li.qte * li.prix_unit) AS ca_juste\nFROM dbo.commande AS co\nJOIN dbo.ligne_cde AS li ON li.cde_id = co.id\nWHERE co.statut <> 'ANNULEE'\nGROUP BY co.client_id\nORDER BY co.client_id;",
       resultat: [["client_id", "nb_lignes", "nb_cdes", "ca_faux", "ca_juste"], [1, 6, 3, "30230.00", "15115.00"], [2, 2, 2, "2580.00", "2580.00"], [4, 1, 1, "318.00", "318.00"], [6, 1, 1, "79.80", "79.80"]],
       points: [
-        "Ce qui se passe : AquaBleu affiche 30 230 € au lieu de 15 115 €. Ses 3 commandes ont 2 lignes chacune, et la jointure (le lien entre deux tables, module m05) répète le montant de la commande sur chaque ligne. Les autres clients tombent juste : une ligne par commande.",
-        "Pourquoi : une jointure 1-N (une commande, N lignes de détail) copie la commande autant de fois qu'elle a de lignes. SUM additionne toutes les copies ; COUNT(*) compte les lignes de détail, pas les commandes.",
-        "Le piège : réparer avec DISTINCT. `SUM(DISTINCT co.montant_ht)` donne bien 15 115 € à AquaBleu, mais 1 290 € au client 2 : ses deux commandes valent 1 290 €, DISTINCT en efface une. L'erreur change juste de client.",
-        "Le bon réflexe : additionne au bon grain (le niveau de détail d'une ligne) : le montant de la ligne, `SUM(li.qte * li.prix_unit)`, ou le total de la commande, sans jointure. Pour compter les commandes : `COUNT(DISTINCT co.id)`.",
-        "Et aussi : un LEFT JOIN (qui garde les clients sans commande) leur donne une ligne de NULL. Pool & Garden compte alors 1 avec `COUNT(*)`, 0 avec `COUNT(co.id)`. Pour afficher les zéros, pars de la table client."
+        "Ce qui se passe : AquaBleu affiche 30 230 € au lieu de 15 115 €. Ses 3 commandes ont 2 lignes chacune : la jointure (le lien entre deux tables, m05) répète leur montant sur chaque ligne. Les autres clients, une ligne par commande, tombent juste.",
+        "Pourquoi : une jointure 1-N (une commande, N lignes de détail) copie la commande sur chacune de ses lignes. SUM additionne toutes les copies ; COUNT(*) compte les lignes, pas les commandes.",
+        "Le piège : réparer avec DISTINCT. `SUM(DISTINCT co.montant_ht)` rend bien 15 115 € à AquaBleu, mais 1 290 € au client 2 : ses deux commandes valent 1 290 €, DISTINCT en efface une.",
+        "Le bon réflexe : additionne au bon grain (le niveau de détail d'une ligne) : `SUM(li.qte * li.prix_unit)` pour les lignes, ou le montant des commandes sans jointure. Compte les commandes avec `COUNT(DISTINCT co.id)`.",
+        "Et aussi : un LEFT JOIN (qui garde les clients sans commande) leur donne une ligne de NULL : Pool & Garden compte 1 avec `COUNT(*)`, 0 avec `COUNT(co.id)`. Pour afficher les zéros, pars de la table client."
       ],
       retenir: "Une jointure 1-N copie le côté 1 : additionne au bon grain, compte avec COUNT(DISTINCT clé), et ne répare jamais avec SUM(DISTINCT)."
     },
@@ -113,10 +114,10 @@ LEARNSQL.cours.m04 = {
       exemple: "-- Les flux ORDERS par statut et motif, avec sous-totaux et total\nSELECT statut, motif, GROUPING(motif) AS est_total, COUNT(*) AS nb_flux\nFROM dbo.flux_edi\nWHERE type = 'ORDERS'\nGROUP BY ROLLUP (statut, motif)\nORDER BY GROUPING(statut), statut, GROUPING(motif), motif;",
       resultat: [["statut", "motif", "est_total", "nb_flux"], ["OK", null, 0, 3], ["OK", null, 1, 3], ["REJET", "EAN inconnu", 0, 1], ["REJET", null, 1, 1], [null, null, 1, 4]],
       points: [
-        "Ce qui se passe : le détail, un sous-total par statut, et le total des 4 flux. Les 2 premières lignes se ressemblent : OK, NULL, 3. La 1re, ce sont les 3 flux OK sans motif ; la 2e, le sous-total des flux OK.",
-        "Pourquoi : `ROLLUP (statut, motif)` calcule le détail, puis remonte d'un cran : un total par statut, puis le total général. Sur une ligne de total, la colonne totalisée vaut NULL. `GROUPING(motif)` vaut 1 sur ces lignes, 0 sur le détail.",
+        "Ce qui se passe : le détail, un sous-total par statut, puis le total des 4 flux. Les 2 premières lignes se ressemblent : la 1re compte les 3 flux OK sans motif, la 2e est le sous-total des flux OK.",
+        "Pourquoi : `ROLLUP (statut, motif)` calcule le détail, puis remonte d'un cran : un total par statut, puis le total général. Sur une ligne de total, la colonne totalisée vaut NULL ; `GROUPING(motif)` y vaut 1, et 0 sur le détail.",
         "Le piège : avec ROLLUP, `COALESCE(motif, 'Sous-total')` pour l'affichage. Les 3 flux OK sans motif deviennent eux aussi « Sous-total » : dans le rapport, le détail disparaît et les flux OK semblent comptés deux fois.",
-        "Le bon réflexe : le libellé avec GROUPING, `CASE WHEN GROUPING(motif) = 1 THEN 'Sous-total' ELSE motif END`. Pour ranger chaque total après son détail : `ORDER BY GROUPING(statut), statut, GROUPING(motif), motif`, comme dans l'exemple.",
+        "Le bon réflexe : le libellé avec GROUPING, `CASE WHEN GROUPING(motif) = 1 THEN 'Sous-total' ELSE motif END`. Pour ranger chaque total après son détail, trie sur GROUPING, comme dans l'exemple.",
         "Et aussi : `GROUPING SETS ((statut), (type))` calcule seulement les regroupements listés, par statut puis par type, en une requête. `CUBE (statut, type)` calcule toutes les combinaisons, plus le total. Même écriture sur SQL Server et Snowflake."
       ],
       retenir: "ROLLUP = détail + sous-totaux + total général. Une ligne de total a des NULL : repère-la avec GROUPING(col) = 1, jamais avec IS NULL."
@@ -124,14 +125,14 @@ LEARNSQL.cours.m04 = {
     {
       titre: "Détails utiles",
       points: [
-        "Une liste dans une case : `STRING_AGG(num_cde, ', ') WITHIN GROUP (ORDER BY num_cde)` sur SQL Server 2017+, `LISTAGG` sur Snowflake. STRING_AGG refuse DISTINCT (LISTAGG l'accepte) et plante au-delà de 8 000 octets : `CAST(num_cde AS varchar(max))`.",
-        "Le détail et le total côte à côte : `SUM(montant_ht) OVER (PARTITION BY client_id)` garde chaque ligne (une fonction de fenêtrage, module m08). « La dernière commande de chaque client », « le top 3 par région » : ROW_NUMBER, pas GROUP BY.",
-        "Le meilleur client : GROUP BY, `ORDER BY SUM(montant_ht) DESC`, puis `TOP (1) WITH TIES`. ORDER BY accepte un agrégat, même absent du SELECT. Un agrégat d'agrégat, `MAX(SUM(…))`, plante : calcule d'abord les sommes dans une sous-requête (une requête dans la requête).",
-        "GROUP BY sans agrégat fait comme DISTINCT : garde DISTINCT pour dédoublonner, GROUP BY pour calculer. DISTINCT sur un GROUP BY ne retire rien. On peut grouper sur une colonne sans l'afficher, et afficher une constante sans la grouper.",
-        "Médiane : `MEDIAN(x)` sur Snowflake ; sur SQL Server, `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY x) OVER (PARTITION BY …)`, qui exige OVER. Sur 10, 20, 30, 40 : CONT calcule 25 ; PERCENTILE_DISC prend une vraie valeur, 20. Écart-type : `STDEV`, `STDDEV` sur Snowflake.",
-        "SQL Server : SUM d'un INT plante au-delà de 2,1 milliards (`SUM(CAST(qte AS bigint))`, et `COUNT_BIG(*)` pour compter). SUM, AVG, MIN et MAX refusent le type BIT : `SUM(CAST(actif AS int))`. `APPROX_COUNT_DISTINCT` estime vite (2019+, Snowflake aussi).",
-        "Un stock ou un solde ne s'additionne pas dans le temps : 12 fins de mois ne font pas un stock. Prends le dernier mois, ou la moyenne. Un import Excel avec ses lignes « Total » double le CA : filtre-les avant d'agréger.",
-        "Arrondir chaque ligne puis sommer ne donne pas l'arrondi de la somme : 3 × 0,333 font 0,99 ou 1,00. Suis la règle de ta compta. `PIVOT` (SQL Server) exige la liste des colonnes écrite en dur ; si elle change, pivote dans Power BI."
+        "Une liste dans une case : `STRING_AGG(num_cde, ', ') WITHIN GROUP (ORDER BY num_cde)` (SQL Server 2017+), `LISTAGG` sur Snowflake. STRING_AGG refuse DISTINCT (LISTAGG l'accepte), et plante au-delà de 8 000 octets : passe en `varchar(max)`.",
+        "Le détail et le total côte à côte : `SUM(montant_ht) OVER (PARTITION BY client_id)` (une fonction de fenêtrage, m08). « La dernière commande de chaque client », « le top 3 par région » : ROW_NUMBER, pas GROUP BY.",
+        "Le meilleur client : `ORDER BY SUM(montant_ht) DESC` puis `TOP (1) WITH TIES` ; ORDER BY accepte un agrégat, même absent du SELECT. `MAX(SUM(…))` plante : fais d'abord les sommes dans une sous-requête (une requête dans la requête).",
+        "Sans agrégat, GROUP BY fait comme DISTINCT : DISTINCT pour dédoublonner, GROUP BY pour calculer. On peut grouper sur une colonne sans l'afficher, et afficher une constante sans la grouper.",
+        "Médiane : `MEDIAN(x)` sur Snowflake ; sur SQL Server, `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY x) OVER (…)`, qui exige OVER. Sur 10, 20, 30, 40 : CONT donne 25, PERCENTILE_DISC une vraie valeur, 20. Écart-type : STDEV, STDDEV sur Snowflake.",
+        "SQL Server : SUM d'un INT plante au-delà de 2,1 milliards (`CAST(qte AS bigint)`, `COUNT_BIG(*)`) ; SUM, AVG, MIN et MAX refusent le BIT (`CAST(actif AS int)`). `APPROX_COUNT_DISTINCT` estime vite (2019+, Snowflake aussi).",
+        "Un stock ou un solde ne s'additionne pas dans le temps : prends le dernier mois, ou la moyenne. Des lignes « Total » importées d'Excel doublent le CA : filtre-les avant d'agréger.",
+        "Arrondir chaque ligne puis sommer, ou arrondir la somme : 3 × 0,333 donne 0,99 ou 1,00 ; suis la règle de ta compta. `PIVOT` (SQL Server) exige une liste de colonnes écrite en dur : sinon, pivote dans Power BI."
       ],
       retenir: "Une liste : STRING_AGG ou LISTAGG. Le détail avec le total : OVER. Une valeur typique malgré les extrêmes : la médiane."
     }
