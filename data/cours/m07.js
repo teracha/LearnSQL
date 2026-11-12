@@ -30,7 +30,7 @@ LEARNSQL.cours.m07 = {
       exemple: "-- Les pièces d'AquaBleu (client 1) : commandes et factures, par date\nSELECT 'Commande' AS piece, num_cde AS numero, date_cde AS date_piece, montant_ht\nFROM dbo.commande\nWHERE client_id = 1\nUNION ALL\nSELECT 'Facture', f.num_fact, f.date_fact, f.montant_ht\nFROM dbo.facture AS f JOIN dbo.commande AS c ON c.id = f.cde_id\nWHERE c.client_id = 1\nORDER BY date_piece;",
       resultat: [["piece", "numero", "date_piece", "montant_ht"], ["Commande", "CDE-1001", "2026-03-02", "4780.00"], ["Facture", "FA-2026-0301", "2026-03-03", "4780.00"], ["Commande", "CDE-1003", "2026-03-09", "2385.00"], ["Facture", "FA-2026-0303", "2026-03-10", "2385.00"], ["Commande", "CDE-1007", "2026-04-07", "7950.00"]],
       points: [
-        "Ce qui se passe : les 3 commandes d'AquaBleu et ses 2 factures, dans les mêmes colonnes, triées par date. `piece` est une constante (le même texte sur chaque ligne d'une partie) : elle dit d'où vient la ligne.",
+        "Ce qui se passe : les 3 commandes d'AquaBleu et ses 2 factures, dans les mêmes colonnes, par date. `piece` est une constante (le même texte sur chaque ligne d'une partie) : elle dit d'où vient la ligne.",
         "Pourquoi : `UNION ALL` pose les lignes de la 2e requête sous celles de la 1re, sans rien retirer. Les noms du résultat viennent de la 1re requête ; les alias de la 2e sont ignorés.",
         "Le piège : empiler deux sociétés (deux dossiers Divalto) sans colonne source. Un même code client existe des deux côtés : le rapport Power BI additionne deux clients différents.",
         "Le bon réflexe : une constante par partie : `'Commande'` et `'Facture'`, ou `'SOC1'` et `'SOC2'`. C'est la base d'une vue qui réunit une table et son archive, ou les sociétés d'un groupe.",
@@ -66,13 +66,13 @@ LEARNSQL.cours.m07 = {
     },
     {
       titre: "ORDER BY et TOP : un seul tri, à la fin",
-      exemple: "-- Piège : TOP (2) directement dans chaque partie = 2 lignes quelconques\n-- Juste : le top 2 des commandes livrées + le top 2 des en cours\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'LIVREE' ORDER BY montant_ht DESC) AS l\nUNION ALL\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'EN_COURS' ORDER BY montant_ht DESC) AS e\nORDER BY montant_ht DESC;",
+      exemple: "-- Piège : TOP (2) directement dans chaque partie = 2 lignes quelconques\n-- Juste : top 2 des livrées + top 2 des en cours\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'LIVREE' ORDER BY montant_ht DESC) AS l\nUNION ALL\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'EN_COURS' ORDER BY montant_ht DESC) AS e\nORDER BY montant_ht DESC;",
       resultat: [["num_cde", "statut", "montant_ht"], ["CDE-1007", "EN_COURS", "7950.00"], ["CDE-1001", "LIVREE", "4780.00"], ["CDE-1003", "LIVREE", "2385.00"], ["CDE-1006", "EN_COURS", "1290.00"]],
       points: [
         "Ce qui se passe : les 2 plus grosses commandes de chaque statut, puis un tri sur les 4 lignes. Chaque `TOP` vit dans une table dérivée (une requête dans le `FROM`), avec son `ORDER BY`.",
         "Pourquoi : dans une union, `ORDER BY` trie le résultat complet : une seule fois, à la fin, avec les noms de la 1re partie. Placé avant `UNION ALL` : erreur de syntaxe.",
         "Le piège : `TOP (2)` directement dans chaque partie, `ORDER BY` à la fin. Pas d'erreur, mais les `TOP` passent avant le tri : 2 commandes quelconques. De même, un `WHERE` ne filtre que sa partie.",
-        "Le bon réflexe : une table dérivée par `TOP`, un `WHERE` dans chaque partie (ou un seul autour de l'union). Sans `ORDER BY`, A ne sort pas forcément avant B : ajoute `1 AS ordre` dans A, `2` dans B.",
+        "Le bon réflexe : une table dérivée par `TOP`, un `WHERE` dans chaque partie (ou un seul autour). Sans `ORDER BY`, A ne sort pas forcément avant B : ajoute `1 AS ordre` dans A, `2` dans B.",
         "SQL Server / Snowflake : limiter tout le résultat : `OFFSET 0 ROWS FETCH NEXT 3 ROWS ONLY` après l'`ORDER BY` final (SQL Server), `LIMIT 3` (Snowflake). Un top par partie : même sous-requête, avec `LIMIT`."
       ],
       retenir: "Un seul ORDER BY, à la fin, avec les noms de la 1re partie. Un TOP par partie : une table dérivée chacune."
@@ -82,7 +82,7 @@ LEARNSQL.cours.m07 = {
       exemple: "-- Réassort : les articles stockés à Lyon (dépôt 1), absents de Nantes (dépôt 3)\nSELECT article_id FROM dbo.stock_depot WHERE depot_id = 1\nEXCEPT\nSELECT article_id FROM dbo.stock_depot WHERE depot_id = 3\nORDER BY article_id;\n-- Dans l'autre sens (dépôt 3 EXCEPT dépôt 1) : 0 ligne",
       resultat: [["article_id"], [2], [4], [6]],
       points: [
-        "Ce qui se passe : 3 articles sont à Lyon et pas à Nantes : CHL-25, FIL-14 et ROB-X. `EXCEPT` garde les lignes de la 1re requête absentes de la 2e ; `INTERSECT`, celles des deux côtés (1, 3, 7, 8).",
+        "Ce qui se passe : CHL-25, FIL-14 et ROB-X sont à Lyon, pas à Nantes. `EXCEPT` garde les lignes de la 1re requête absentes de la 2e ; `INTERSECT`, celles des deux côtés (1, 3, 7, 8).",
         "Pourquoi : les deux comparent des lignes entières et rendent un résultat sans doublon : `A INTERSECT A` revient à un `DISTINCT`, et `A EXCEPT A` est toujours vide.",
         "Le piège : le sens compte. Nantes `EXCEPT` Lyon renvoie 0 ligne : tout ce qui est à Nantes est aussi à Lyon. Un contrôle écrit à l'envers dit « rien à signaler ».",
         "Le bon réflexe : dis la question d'abord : « dans A, pas dans B » s'écrit `A EXCEPT B`. Ne mets que les colonnes qui doivent être égales : avec `qte` en plus, plus rien n'est commun.",
@@ -114,13 +114,13 @@ LEARNSQL.cours.m07 = {
         "Le bon réflexe : des parenthèses, et une colonne qui dit le sens (`'sans facture' AS ecart`), la même des deux côtés de l'`EXCEPT`. Compter : `SELECT COUNT(*) FROM (… EXCEPT …) AS d`.",
         "SQL Server / Snowflake : SQL Server compare selon la collation : en French_CI_AS, 'LYON' = 'Lyon', espaces de fin ignorés. Snowflake compare exactement : le même contrôle y trouve des écarts (m02)."
       ],
-      retenir: "Comparer deux tables : EXCEPT dans les deux sens, entre parenthèses, puis les COUNT(*) des deux tables."
+      retenir: "Deux tables identiques ? EXCEPT dans les deux sens, entre parenthèses, plus les COUNT(*)."
     },
     {
       titre: "Détails utiles",
       points: [
         "`FULL OUTER JOIN` simulé : `A LEFT JOIN B`, puis `UNION ALL` des lignes de B sans correspondance (`NOT EXISTS`). Avec `UNION`, de vraies lignes égales fusionneraient.",
-        "Codes d'un seul côté (ERP ou EDI) : `(A UNION B) EXCEPT (A INTERSECT B)`. Un statut par code (« ERP seul », « EDI seul », « Les deux ») : `FULL OUTER JOIN` + `CASE` (m05).",
+        "Codes d'un seul côté (ERP ou EDI) : `(A UNION B) EXCEPT (A INTERSECT B)`. Statut par code (« ERP seul », « EDI seul », « Les deux ») : `FULL OUTER JOIN` + `CASE` (m05).",
         "Chargement incrémental : `stg EXCEPT cible` donne les lignes nouvelles ou modifiées. Très grosse table : compare la clé et une empreinte (hash) calculée au chargement : `HASHBYTES` (SQL Server), `HASH` (Snowflake).",
         "CTE récursive (m06) : ancre et partie récursive se relient par `UNION ALL`. Snowflake exige la liste des colonnes : `WITH RECURSIVE arbre (id, parent_id) AS (…)`.",
         "`GROUPING SETS ((famille), (depot_id))` : deux `GROUP BY` empilés comme par `UNION ALL`, en une seule lecture (m04).",
