@@ -510,6 +510,8 @@
       html += '<h2>' + (i + 1) + '. ' + esc(sec.titre) + '</h2><div class="card">' +
         (sec.exemple ? '<p class="label">Exemple</p>' + balise + (sql ? esc(sec.exemple) : fmt(sec.exemple)) + '</pre>' : '') +
         (sec.resultat ? resultatCours(sec.resultat) : '') +
+        // La règle générale (champ facultatif « regle ») : le sens de la notion, en phrases simples, après l'exemple.
+        (sec.regle ? '<div class="feedback pratique regle"><p class="label">La règle générale</p><p>' + fmt(sec.regle) + '</p></div>' : '') +
         '<ul class="points">' + sec.points.map(function (p) { return '<li>' + fmt(p) + '</li>'; }).join('') + '</ul>' +
         (sec.retenir ? '<div class="feedback ok"><p><strong>À retenir :</strong> ' + fmt(sec.retenir) + '</p></div>' : '') +
         (sec.source ? '<p class="muted">Source : <a href="' + esc(sec.source.url) + '" target="_blank" rel="noopener">' +

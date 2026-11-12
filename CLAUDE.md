@@ -67,13 +67,15 @@ Chaque module a un **cours**. Il peut avoir aussi une **fiche de révision** : l
 LEARNSQL.cours.mXX = {          // une fiche : LEARNSQL.fiches.mXX, même format
   intro: "Pourquoi ce thème compte, en 2 phrases.",
   sections: [
-    { titre: "...", exemple: "code SQL", resultat: "optionnel", points: ["..."], retenir: "..." }
+    { titre: "...", exemple: "code SQL", resultat: "optionnel", regle: "optionnel", points: ["..."], retenir: "..." }
   ],
   differences: [["Sujet", "SQL Server", "Snowflake"]]   // optionnel
 };
 ```
 
-Toujours l'exemple d'abord. Texte entre accents graves = affiché en police code. `resultat` : une phrase, ou un tableau
+Toujours l'exemple d'abord. `regle` (facultatif) : « La règle générale », affichée après l'exemple et le résultat, avant
+les points : le sens de la notion en quelques phrases simples, sans dépendre de l'exemple (demande de l'élève, novembre
+2026 ; en test sur m05). Texte entre accents graves = affiché en police code. `resultat` : une phrase, ou un tableau
 (1re ligne = les en-têtes).
 
 ## Mode révision

@@ -452,7 +452,7 @@ if (!filtre) {
   const err = (...m) => { console.log('ERREUR', ...m); erreurs++; };
   const alerte = (...m) => { console.log('ALERTE', ...m); alertes++; };
   const texte = t => typeof t === 'string' && t.trim() !== '';
-  const CHAMPS = ['intro', 'sections', 'differences'], CHAMPS_SECTION = ['titre', 'exemple', 'resultat', 'points', 'retenir', 'source'];
+  const CHAMPS = ['intro', 'sections', 'differences'], CHAMPS_SECTION = ['titre', 'exemple', 'resultat', 'regle', 'points', 'retenir', 'source'];
   const cellule = v => v === null || typeof v === 'string' || typeof v === 'number';
   // Résultat : une phrase, ou un tableau (en-têtes, puis au moins une ligne de même longueur).
   const resultatOK = r => texte(r) || (Array.isArray(r) && r.length >= 2 &&
@@ -469,6 +469,7 @@ if (!filtre) {
       if (s.exemple !== undefined && !texte(s.exemple)) err(lieu, ': exemple (un texte)');
       if (s.resultat !== undefined && !resultatOK(s.resultat)) err(lieu, ': résultat (une phrase, ou un tableau : en-têtes puis lignes de même longueur)');
       if (s.retenir !== undefined && !texte(s.retenir)) err(lieu, ': retenir (un texte)');
+      if (s.regle !== undefined && !texte(s.regle)) err(lieu, ': regle (un texte : la règle générale)');
       if (s.source !== undefined && !(s.source && texte(s.source.titre) && /^https:\/\//.test(s.source.url || ''))) err(lieu, ': source { titre, url }');
       Object.keys(s).filter(k => CHAMPS_SECTION.indexOf(k) < 0).forEach(k => alerte(lieu, ': champ inconnu (non affiché)', k));
     });

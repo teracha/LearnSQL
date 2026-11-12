@@ -50,6 +50,7 @@ LEARNSQL.cours.m05 = {
       titre: "INNER JOIN : seulement ce qui correspond des deux côtés",
       exemple: "-- Suivi EDI : chaque flux et sa commande\nSELECT f.id, f.type, f.statut, co.num_cde\nFROM dbo.flux_edi AS f\nINNER JOIN dbo.commande AS co ON co.id = f.cde_id\nORDER BY f.id;",
       resultat: [["id", "type", "statut", "num_cde"], [1, "ORDERS", "OK", "CDE-1001"], [2, "ORDERS", "OK", "CDE-1003"], [4, "INVOIC", "OK", "CDE-1001"], [5, "ORDERS", "OK", "CDE-1007"], [6, "DESADV", "REJET", "CDE-1007"]],
+      regle: "Une jointure relie deux tables par une condition, écrite après `ON`. L'INNER JOIN garde seulement les couples de lignes où cette condition est vraie. Une ligne sans partenaire de l'autre côté disparaît, sans message. Une clé vide (NULL) n'est égale à rien : sa ligne disparaît aussi. On le choisit pour ce qui existe des deux côtés.",
       points: [
         "Ce qui se passe : 5 flux sur 6. Le flux 3, une commande AquaBleu rejetée, a disparu : son `cde_id` est NULL (une case vide), il ne pointe vers aucune commande.",
         "Pourquoi : `cde_id` est une clé étrangère : elle pointe vers l'`id` d'une autre table. Le moteur garde les couples (flux, commande) où le ON est vrai ; or NULL n'est égal à rien.",
@@ -63,6 +64,7 @@ LEARNSQL.cours.m05 = {
       titre: "LEFT JOIN : garder toute la table de gauche",
       exemple: "-- Tous les piscinistes français, et leurs commandes en cours\nSELECT cl.code, cl.nom, co.num_cde\nFROM dbo.client AS cl\nLEFT JOIN dbo.commande AS co\n       ON co.client_id = cl.id\n      AND co.statut = 'EN_COURS'      -- filtre de droite\nWHERE cl.type = 'PRO' AND cl.pays = 'FR'\nORDER BY cl.code;\n-- Piège : le filtre de droite dans le WHERE → 2 lignes",
       resultat: [["code", "nom", "num_cde"], ["C002", "Piscines Dumont", "CDE-1006"], ["C003", "Bleu Lagon", null], ["C004", "Hydro Sud", "CDE-1005"], ["C006", "Piscines Dumont", null], ["C007", "Camping Les Flots", null]],
+      regle: "Le LEFT JOIN garde toutes les lignes de la table de gauche, celle du FROM. Pour chacune, il cherche ses partenaires à droite ; s'il n'en trouve pas, la ligne reste, et les colonnes de droite valent NULL. Le RIGHT JOIN fait pareil dans l'autre sens. La règle : un filtre sur la table de droite va dans le ON. Dans le WHERE, il retire les lignes NULL, et le LEFT redevient un INNER.",
       points: [
         "Ce qui se passe : les 5 piscinistes français restent ; 3 n'ont pas de commande en cours, d'où NULL. Avec le filtre dans le WHERE, seuls C002 et C004 restent.",
         "Pourquoi : LEFT JOIN garde chaque ligne de gauche (la table du FROM) ; sans partenaire, les colonnes de droite valent NULL. Le WHERE passe après : `NULL = 'EN_COURS'` est inconnu, la ligne sort, le LEFT redevient un INNER.",
@@ -76,6 +78,7 @@ LEARNSQL.cours.m05 = {
       titre: "Trouver ce qui manque : l'anti-jointure",
       exemple: "-- Les clients qui n'ont jamais commandé\nSELECT cl.code, cl.nom\nFROM dbo.client AS cl\nLEFT JOIN dbo.commande AS co ON co.client_id = cl.id\nWHERE co.id IS NULL;\n\n-- Même résultat, plus direct\nSELECT cl.code, cl.nom\nFROM dbo.client AS cl\nWHERE NOT EXISTS (SELECT 1 FROM dbo.commande AS co\n                  WHERE co.client_id = cl.id);",
       resultat: [["code", "nom"], ["C005", "Pool & Garden"], ["C007", "Camping Les Flots"]],
+      regle: "Une anti-jointure répond à la question « qu'est-ce qui manque ? » : les clients sans commande, les commandes sans facture. Elle garde les lignes d'une table qui n'ont aucun partenaire dans l'autre. Deux écritures donnent le même résultat : un LEFT JOIN suivi de `IS NULL` sur la clé de droite, ou `NOT EXISTS`, qui se lit comme la question : « il n'existe aucune commande ».",
       points: [
         "Ce qui se passe : les 2 clients sans commande. Les deux requêtes donnent la même liste : c'est une anti-jointure, qui garde les lignes sans partenaire.",
         "Pourquoi : le LEFT JOIN garde tous les clients ; sans commande, `co.id` vaut NULL, et `IS NULL` ne garde qu'eux. NOT EXISTS garde le client quand aucune commande ne pointe vers lui (une sous-requête, une requête dans la requête : m06).",
@@ -89,9 +92,10 @@ LEARNSQL.cours.m05 = {
       titre: "FULL OUTER JOIN : rapprocher l'ERP et l'EDI",
       exemple: "-- Commandes EDI de l'ERP ↔ flux ORDERS reçus\nWITH erp AS (SELECT id, num_cde FROM dbo.commande WHERE canal = 'EDI'),\n     edi AS (SELECT id, cde_id FROM dbo.flux_edi WHERE type = 'ORDERS')\nSELECT e.num_cde, d.id AS flux,\n       CASE WHEN e.id IS NULL THEN 'Manque ERP'\n            WHEN d.id IS NULL THEN 'Manque EDI'\n            ELSE 'OK' END AS etat\nFROM erp AS e\nFULL OUTER JOIN edi AS d ON d.cde_id = e.id\nORDER BY flux;",
       resultat: [["num_cde", "flux", "etat"], ["CDE-1001", 1, "OK"], ["CDE-1003", 2, "OK"], [null, 3, "Manque ERP"], ["CDE-1007", 5, "OK"]],
+      regle: "Le FULL OUTER JOIN, c'est un LEFT JOIN et un RIGHT JOIN en même temps. Il garde les lignes qui correspondent, plus celles de gauche seules, plus celles de droite seules ; le côté qui manque vaut NULL. Il sert à comparer deux sources qui devraient être égales, comme l'ERP et l'EDI. Attention aux filtres. Dans le ON, un filtre ne retire aucune ligne : il empêche seulement des couples de se former. Dans le WHERE, il retire les lignes NULL d'un côté : le FULL redevient un LEFT, un RIGHT ou un INNER, sans message. Le bon endroit : chaque table filtrée avant la jointure.",
       points: [
         "Ce qui se passe : 3 commandes ont leur flux. Le flux 3, rejeté, n'a pas de commande : « Manque ERP ». Une commande EDI sans flux sortirait « Manque EDI ».",
-        "Pourquoi : FULL OUTER JOIN garde les lignes des deux côtés ; le côté absent vaut NULL. ERP 100, EDI 98, 95 communes : 95 + 5 + 3 = 103 lignes, dont 5 absentes de l'EDI et 3 de l'ERP.",
+        "Pourquoi : chaque ligne sort une fois, avec ou sans partenaire. ERP 100, EDI 98, 95 communes : 95 + 5 + 3 = 103 lignes, dont 5 absentes de l'EDI et 3 de l'ERP.",
         "Le piège : filtrer un seul côté après la jointure. Joins toute la table commande, puis `WHERE co.canal = 'EDI'` : le flux 3, sans commande, disparaît. Le rapprochement dit « tout va bien ».",
         "Le bon réflexe : filtre chaque côté avant de joindre, ici avec `WITH` (une CTE, une requête nommée, m06). Pour une clé toujours remplie : `COALESCE(e.num, d.num)`, la première valeur non vide.",
         "Et aussi : les écarts de montant s'ajoutent aux manquants : `OR e.montant <> d.montant`. Stock d'hier contre aujourd'hui : `COALESCE(auj.qte, 0) - COALESCE(hier.qte, 0)`, sinon un article nouveau donne NULL."
@@ -102,6 +106,7 @@ LEARNSQL.cours.m05 = {
       titre: "Les doublons qui gonflent les sommes",
       exemple: "-- Par commande EDI : montant des lignes et nombre de flux\nSELECT co.num_cde,\n       SUM(li.qte * li.prix_unit) AS montant,\n       COUNT(f.id)                AS nb_flux\nFROM dbo.commande AS co\nJOIN dbo.ligne_cde AS li ON li.cde_id = co.id\nJOIN dbo.flux_edi  AS f  ON f.cde_id = co.id\nWHERE co.canal = 'EDI'\nGROUP BY co.num_cde\nORDER BY co.num_cde;",
       resultat: [["num_cde", "montant", "nb_flux"], ["CDE-1001", "9560.00", 4], ["CDE-1003", "2385.00", 2], ["CDE-1007", "15900.00", 4]],
+      regle: "Une jointure peut multiplier les lignes : une ligne qui a trois partenaires en face sort trois fois. C'est normal pour une relation « un à plusieurs », comme une commande et ses lignes. Le danger vient quand on joint deux tables « filles » de la même table, comme les lignes et les flux d'une commande : elles se combinent entre elles, et chaque somme gonfle. La règle : un total par table fille avant de joindre, et un comptage des lignes après chaque jointure.",
       points: [
         "Ce qui se passe : CDE-1001 affiche 9 560 € et 4 flux, pour 4 780 € et 2 flux réels. CDE-1003 a le bon montant, mais 2 flux au lieu d'un. Aucune erreur.",
         "Pourquoi : une jointure 1-N (une commande, N lignes) répète la commande N fois. Lignes et flux, deux tables filles, pointent vers la commande : la jointure forme tous les couples (ligne, flux), 2 × 2 = 4 pour CDE-1001.",
@@ -115,6 +120,7 @@ LEARNSQL.cours.m05 = {
       titre: "CROSS JOIN : toutes les combinaisons, voulues ou non",
       exemple: "-- Le chlore 25 kg dans chaque dépôt, zéros compris\nSELECT a.code, d.nom AS depot, COALESCE(s.qte, 0) AS qte\nFROM dbo.article AS a\nCROSS JOIN dbo.depot AS d\nLEFT JOIN dbo.stock_depot AS s\n       ON s.article_id = a.id AND s.depot_id = d.id\nWHERE a.code = 'CHL-25'\nORDER BY d.id;",
       resultat: [["code", "depot", "qte"], ["CHL-25", "Lyon", 25], ["CHL-25", "Toulouse", 15], ["CHL-25", "Nantes", 0]],
+      regle: "Le CROSS JOIN associe chaque ligne de la première table à chaque ligne de la seconde, sans condition : c'est le « tout avec tout » (le produit cartésien). Voulu, il construit une grille complète : chaque article dans chaque dépôt, chaque jour du mois. Un LEFT JOIN y accroche ensuite les vraies données, et les trous deviennent visibles. Involontaire, quand on oublie la condition d'une jointure, il fait exploser le nombre de lignes.",
       points: [
         "Ce qui se passe : les 3 dépôts sortent, Nantes à 0. Le stock n'a aucune ligne pour ce chlore à Nantes : en partant de la table stock_depot, Nantes disparaîtrait.",
         "Pourquoi : CROSS JOIN associe chaque article à chaque dépôt, sans condition : 8 × 3 = 24 couples. Le LEFT JOIN y accroche le stock quand il existe ; COALESCE remplace le NULL par 0.",
@@ -128,6 +134,7 @@ LEARNSQL.cours.m05 = {
       titre: "Le ON accepte toute condition : tranches et auto-jointure",
       exemple: "-- Remise par tranche, bornes [mini ; maxi[\nSELECT co.num_cde, co.montant_ht, t.remise\nFROM dbo.commande AS co\nJOIN (VALUES (0, 1000, 0), (1000, 5000, 5), (5000, 100000, 10))\n       AS t(mini, maxi, remise)\n  ON co.montant_ht >= t.mini AND co.montant_ht < t.maxi\nWHERE co.client_id = 1\nORDER BY co.id;",
       resultat: [["num_cde", "montant_ht", "remise"], ["CDE-1001", "4780.00", 5], ["CDE-1003", "2385.00", 5], ["CDE-1007", "7950.00", 10]],
+      regle: "Le ON n'est pas limité à l'égalité de deux clés : il accepte toute condition, avec `<`, `>=`, `BETWEEN` ou plusieurs tests reliés par AND. Le moteur garde chaque couple de lignes où la condition est vraie. On relie ainsi un montant à sa tranche de remise, ou une date à la période d'un tarif. Une table peut aussi être jointe à elle-même, avec deux alias, par exemple pour trouver des doublons.",
       points: [
         "Ce qui se passe : chaque commande d'AquaBleu trouve sa tranche : 5 % pour 4 780 € et 2 385 €, 10 % pour 7 950 €. `VALUES` écrit une petite table dans la requête.",
         "Pourquoi : le ON est une condition comme une autre (`=`, `<`, `BETWEEN`…). Le moteur garde chaque couple (commande, tranche) où elle est vraie : une jointure « non-équi », sans égalité.",
