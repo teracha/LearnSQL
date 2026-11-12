@@ -59,10 +59,11 @@ Règles :
 4. **Le résultat est juste** : il est calculé sur la base d'exemple et vérifié (SQLite). Les `NULL` s'écrivent `null`
    dans le tableau (JavaScript), le site les affiche en italique. Les montants gardent 2 décimales (`"4780.00"` en texte,
    pour l'affichage).
-4 bis. **La règle générale** (champ `regle`, en test sur m05 depuis le 12/11/2026, demande de l'élève) : après l'exemple et
+4 bis. **La règle générale** (champ `regle`, demande de l'élève, testée sur m05 puis étendue aux 16 cours le 12/11/2026) : après l'exemple et
    le résultat, avant les points, quelques phrases simples qui disent le sens de la notion, sans dépendre de l'exemple : ce
    qu'elle fait, à quoi elle sert, la règle qui évite le piège (ex. « Le FULL OUTER JOIN, c'est un LEFT et un RIGHT en même
-   temps »). Pas une liste : un petit cours. Le cours peut alors dépasser 2 100 mots (m05 : environ 2 600).
+   temps »). Pas une liste : un petit cours, 50 à 90 mots. Pas de fait nouveau : la règle dit en général ce que la partie
+   enseigne. Un point qui la répète mot pour mot est raccourci. Les cours font alors 2 250 à 2 650 mots.
 5. **1 600 à 2 100 mots** au total (intro, titres, exemples, résultats, points, retenir), 6 à 8 sections, 4 ou 5
    points par section. La dernière section peut être « Détails utiles » : jusqu'à 8 points courts, un par notion rare, sans
    exemple ni résultat ; c'est là que vont les notions qu'on ne veut pas enseigner en profondeur.
