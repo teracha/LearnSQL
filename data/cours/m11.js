@@ -44,7 +44,7 @@
 // LCK_M_* (q69), blocked process report (q70), clé étrangère sans index (q74), ROWLOCK / PAGLOCK (q75), LOCK_ESCALATION
 // (q76, q77), pessimiste ou optimiste (q79), MSDTC (q82), réplica lisible (q91), NOLOCK sur la cible d'un UPDATE (q92).
 LEARNSQL.cours.m11 = {
-  intro: "Ton intégration EDI de la nuit plante au milieu d'une commande : que reste-t-il dans Divalto ? Et pourquoi la saisie « tourne » quand le recalcul des tarifs déborde sur la matinée ? Tout tient dans la transaction (un bloc d'instructions validé ou annulé en entier) et ses verrous (ses réservations de lignes). Ce module t'évite la commande à moitié enregistrée, le traitement qui bloque les saisies et le rapport `NOLOCK` aux chiffres faux.",
+  intro: "Ton intégration EDI de la nuit plante au milieu d'une commande : que reste-t-il dans Divalto ? Et pourquoi la saisie « tourne » quand le recalcul des tarifs déborde le matin ? Tout tient dans la transaction (un bloc d'instructions validé ou annulé en entier) et ses verrous (ses réservations de lignes). Ce module t'évite la commande à moitié enregistrée, le traitement qui bloque les saisies et le rapport `NOLOCK` aux chiffres faux.",
   sections: [
     {
       titre: "Tout ou rien : BEGIN TRAN, COMMIT, ROLLBACK",
@@ -54,7 +54,7 @@ LEARNSQL.cours.m11 = {
         "Ce qui se passe : pendant la transaction, la session voit son transfert, 40 sacs partout. Après `ROLLBACK`, tout revient comme avant. Un `COMMIT` aurait validé les deux UPDATE ensemble.",
         "Pourquoi : sans `BEGIN TRAN`, SQL Server est en autocommit : chaque instruction est validée seule, dès qu'elle finit. La transaction fait des deux UPDATE un seul bloc : le A d'ACID (Atomicité, Cohérence, Isolation, Durabilité).",
         "Le piège : le transfert sans transaction. Le traitement s'arrête entre les deux UPDATE : 20 sacs quittent Lyon sans arriver à Nantes. Même chose pour une commande EDI enregistrée sans ses lignes.",
-        "Le bon réflexe : `BEGIN TRAN` … `COMMIT` autour de ce qui va ensemble, rien de plus. Un COMMIT confirmé est durable (le D) : écrit dans le journal (log) avant la réponse, il survit à une panne.",
+        "Le bon réflexe : `BEGIN TRAN` … `COMMIT` autour de ce qui va ensemble, rien de plus. Un COMMIT confirmé est durable (le D) : écrit dans le journal des modifications (log) avant la réponse, il survit à une panne.",
         "SQL Server / Snowflake : Snowflake écrit `BEGIN` ou `START TRANSACTION`, puis `COMMIT` ou `ROLLBACK`, lui aussi en autocommit. Sans autocommit (`IMPLICIT_TRANSACTIONS ON` sur SQL Server, `AUTOCOMMIT = FALSE` sur Snowflake), tout attend ton COMMIT."
       ],
       retenir: "Une transaction, c'est tout ou rien : COMMIT valide, ROLLBACK annule. Sans BEGIN TRAN, chaque instruction est validée seule."
@@ -83,11 +83,11 @@ LEARNSQL.cours.m11 = {
         "Le bon réflexe : pour n'annuler qu'une partie, un point de sauvegarde : `SAVE TRANSACTION p1;`, puis `ROLLBACK TRANSACTION p1;` ; la transaction reste ouverte. Une procédure appelée pose son point au lieu d'ouvrir sa transaction.",
         "SQL Server / Snowflake : SQL Server annule aussi un `CREATE TABLE` fait dans la transaction (un DDL, un ordre de structure). Snowflake valide la transaction à chaque DDL, ignore un 2e `BEGIN`, sans point de sauvegarde."
       ],
-      retenir: "Seul le dernier COMMIT valide, ROLLBACK annule tout ; SAVE TRANSACTION annule une partie. Snowflake : un DDL valide la transaction."
+      retenir: "Seul le dernier COMMIT valide ; ROLLBACK annule tout, SAVE TRANSACTION une partie. Snowflake : un DDL valide la transaction."
     },
     {
       titre: "Les verrous : une écriture fait attendre les autres",
-      exemple: "-- Session 1, 7 h 50 : recalcul des tarifs, pas encore validé\nBEGIN TRAN;\nUPDATE dbo.article SET prix_tarif = prix_tarif * 1.03;   -- 8 lignes ici, 40 000 chez toi\n\n-- Session 2, 8 h 05 : la saisie d'une commande lit le tarif\nSELECT code, prix_tarif FROM dbo.article WHERE code = 'CHL-5';",
+      exemple: "-- Session 1, 7 h 50 : recalcul des tarifs, pas encore validé\nBEGIN TRAN;\nUPDATE dbo.article SET prix_tarif = prix_tarif * 1.03;   -- 8 lignes ici, 40 000 chez toi\n\n-- Session 2, 8 h 05 : la saisie lit le tarif\nSELECT code, prix_tarif FROM dbo.article WHERE code = 'CHL-5';",
       resultat: "Session 2 : rien ne s'affiche ; elle attend la fin de la session 1. Snowflake lirait tout de suite 39.90, le prix validé.",
       points: [
         "Ce qui se passe : la saisie « tourne », sans message, jusqu'à la fin de la session 1. SQL Server attend sans limite par défaut ; `SET LOCK_TIMEOUT 5000` coupe l'attente après 5 secondes (erreur 1222).",
@@ -107,13 +107,13 @@ LEARNSQL.cours.m11 = {
         "Pourquoi : un blocage finit quand l'autre valide ; un deadlock, jamais. SQL Server cherche ces cycles toutes les 5 secondes et annule la transaction la moins coûteuse à défaire.",
         "Le piège : la victime est peut-être l'intégration EDI. Si le programme ignore l'erreur 1205, la commande n'est jamais intégrée, et personne ne le voit avant la relance du client.",
         "Le bon réflexe : le même ordre partout (l'article, puis le stock), des transactions courtes, de bons index (moins de lignes verrouillées). Dans le CATCH, si `ERROR_NUMBER() = 1205`, attendre un peu et relancer, trois fois au plus.",
-        "SQL Server / Snowflake : `SET DEADLOCK_PRIORITY LOW` désigne le traitement de nuit comme victime ; le journal `system_health` garde le graphe des deadlocks. Snowflake n'annule que l'instruction victime : la transaction reste ouverte."
+        "SQL Server / Snowflake : `SET DEADLOCK_PRIORITY LOW` désigne le traitement de nuit comme victime ; le journal `system_health` garde le schéma des derniers deadlocks. Snowflake n'annule que l'instruction victime : la transaction reste ouverte."
       ],
       retenir: "Deadlock : deux sessions s'attendent, l'une est annulée (erreur 1205). Même ordre d'accès, transactions courtes, relance sur 1205."
     },
     {
       titre: "Lire pendant une écriture : NOLOCK ou RCSI",
-      exemple: "-- Session 1 : le transfert de la section 1, entre ses deux UPDATE\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20 WHERE article_id = 1 AND depot_id = 1;\n\n-- Session 2 : le rapport de stock, avec NOLOCK « pour aller vite »\nSELECT SUM(qte) AS stock_chl5\nFROM dbo.stock_depot WITH (NOLOCK)\nWHERE article_id = 1;",
+      exemple: "-- Session 1 : le transfert de la section 1, à mi-chemin\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20 WHERE article_id = 1 AND depot_id = 1;\n\n-- Session 2 : le rapport de stock, en NOLOCK\nSELECT SUM(qte) AS stock_chl5\nFROM dbo.stock_depot WITH (NOLOCK)\nWHERE article_id = 1;",
       resultat: [["la session 2 lit en…", "stock_chl5"], ["READ COMMITTED (défaut)", "attend"], ["NOLOCK", 100], ["RCSI", 120], ["Snowflake", 120]],
       points: [
         "Ce qui se passe : le vrai stock est de 120 sacs, dont 20 « en route ». Selon le niveau d'isolation (ce qu'une lecture voit des écritures en cours), le rapport attend, lit 100 ou 120.",
@@ -133,7 +133,7 @@ LEARNSQL.cours.m11 = {
         "Pourquoi : entre le SELECT et l'UPDATE, l'autre session lit la même valeur : le verrou de lecture est déjà rendu. C'est la mise à jour perdue. Un seul UPDATE garde la ligne verrouillée du test à l'écriture.",
         "Le piège : le même schéma pour un numéro de facture (`MAX(num) + 1` : deux factures au même numéro), ou « IF NOT EXISTS, puis INSERT » contre les doublons : deux sessions passent le test ensemble.",
         "Le bon réflexe : un compteur, `UPDATE … SET n = n + 1 OUTPUT inserted.n` ; un doublon, une contrainte UNIQUE. Lire pour modifier ensuite : `WITH (UPDLOCK)` réserve la ligne dès la lecture, jusqu'au COMMIT, et évite aussi un deadlock.",
-        "SQL Server / Snowflake : les deux ont des SEQUENCE (des générateurs de numéros) : uniques, mais un ROLLBACK laisse un trou. Factures sans trou : une table compteur, mise à jour dans la transaction de la facture."
+        "SQL Server / Snowflake : les deux ont des SEQUENCE (des générateurs de numéros) : uniques, mais avec des trous possibles, après un ROLLBACK par exemple. Factures sans trou : une table compteur, mise à jour dans la transaction de la facture."
       ],
       retenir: "Lire puis écrire en deux fois perd des mises à jour : test et calcul dans l'UPDATE, ou UPDLOCK."
     },
