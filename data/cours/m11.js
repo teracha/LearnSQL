@@ -49,7 +49,7 @@ LEARNSQL.cours.m11 = {
   sections: [
     {
       titre: "Tout ou rien : BEGIN TRAN, COMMIT, ROLLBACK",
-      exemple: "-- 20 sacs CHL-5 de Lyon (dépôt 1) vers Nantes (dépôt 3)\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20 WHERE article_id = 1 AND depot_id = 1;\nUPDATE dbo.stock_depot SET qte = qte + 20 WHERE article_id = 1 AND depot_id = 3;\nSELECT depot_id, qte FROM dbo.stock_depot\nWHERE article_id = 1 ORDER BY depot_id;\nROLLBACK;   -- annule tout ; COMMIT aurait tout validé",
+      exemple: "-- 20 sacs CHL-5 de Lyon (dépôt 1) vers Nantes (dépôt 3)\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20\nWHERE article_id = 1 AND depot_id = 1;\nUPDATE dbo.stock_depot SET qte = qte + 20\nWHERE article_id = 1 AND depot_id = 3;\nSELECT depot_id, qte FROM dbo.stock_depot\nWHERE article_id = 1 ORDER BY depot_id;\nROLLBACK;   -- annule tout ; COMMIT aurait tout validé",
       resultat: [["depot_id", "qte pendant", "qte après ROLLBACK"], [1, 40, 60], [2, 40, 40], [3, 40, 20]],
       points: [
         "Ce qui se passe : pendant la transaction, la session voit son transfert, 40 sacs partout. Après `ROLLBACK`, tout revient comme avant. Un `COMMIT` aurait validé les deux UPDATE ensemble.",
@@ -62,7 +62,7 @@ LEARNSQL.cours.m11 = {
     },
     {
       titre: "Une erreur au milieu : la transaction continue",
-      exemple: "SET XACT_ABORT ON;   -- sans lui ni TRY : l'en-tête serait validé seul\nBEGIN TRY\n  BEGIN TRAN;\n    INSERT INTO dbo.commande (id, num_cde, client_id, date_cde, statut, canal, montant_ht)\n    VALUES (9, 'CDE-1009', 1, '20260414', 'EN_COURS', 'EDI', 289.00);\n    INSERT INTO dbo.ligne_cde (id, cde_id, article_id, qte, prix_unit)\n    VALUES (12, 9, 99, 2, 144.50);   -- l'article 99 n'existe pas\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  IF @@TRANCOUNT > 0 ROLLBACK;\n  THROW;   -- l'erreur remonte\nEND CATCH;",
+      exemple: "SET XACT_ABORT ON;   -- sans lui ni TRY : l'en-tête serait validé seul\nBEGIN TRY\n  BEGIN TRAN;\n  INSERT INTO dbo.commande (id, num_cde, client_id, date_cde,\n                            statut, canal, montant_ht)\n  VALUES (9, 'CDE-1009', 1, '20260414', 'EN_COURS', 'EDI', 289.00);\n  INSERT INTO dbo.ligne_cde (id, cde_id, article_id, qte, prix_unit)\n  VALUES (12, 9, 99, 2, 144.50);   -- l'article 99 n'existe pas\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  IF @@TRANCOUNT > 0 ROLLBACK;\n  THROW;   -- l'erreur remonte\nEND CATCH;",
       resultat: "Sans protection : erreur 547, puis COMMIT de l'en-tête seul. Avec ce modèle : tout est annulé, et l'erreur remonte.",
       points: [
         "Ce qui se passe : la clé étrangère (le lien obligatoire vers `article`) refuse la ligne : erreur 547. Le moteur saute dans le CATCH, le bloc de secours du TRY : il annule tout, puis `THROW` renvoie l'erreur.",
@@ -88,7 +88,7 @@ LEARNSQL.cours.m11 = {
     },
     {
       titre: "Les verrous : une écriture fait attendre les autres",
-      exemple: "-- Session 1, 7 h 50 : recalcul des tarifs, pas encore validé\nBEGIN TRAN;\nUPDATE dbo.article SET prix_tarif = prix_tarif * 1.03;   -- 8 lignes ici, des milliers chez toi\n\n-- Session 2, 8 h 05 : la saisie lit le tarif\nSELECT code, prix_tarif FROM dbo.article WHERE code = 'CHL-5';",
+      exemple: "-- Session 1, 7 h 50 : recalcul des tarifs, pas encore validé\nBEGIN TRAN;\nUPDATE dbo.article SET prix_tarif = prix_tarif * 1.03;\n-- 8 lignes ici, des milliers chez toi\n\n-- Session 2, 8 h 05 : la saisie lit le tarif\nSELECT code, prix_tarif FROM dbo.article WHERE code = 'CHL-5';",
       resultat: "Session 2 : rien ne s'affiche ; elle attend la fin de la session 1. Snowflake lirait tout de suite 39.90, le prix validé.",
       points: [
         "Ce qui se passe : la saisie « tourne », sans message, jusqu'à la fin de la session 1. SQL Server attend sans limite par défaut ; `SET LOCK_TIMEOUT 5000` coupe l'attente après 5 secondes (erreur 1222).",
@@ -101,7 +101,7 @@ LEARNSQL.cours.m11 = {
     },
     {
       titre: "Le deadlock : deux sessions qui s'attendent",
-      exemple: "-- Session 1 (EDI) : l'article, puis son stock\nBEGIN TRAN;\nUPDATE dbo.article     SET stock = stock - 1 WHERE id = 6;\nUPDATE dbo.stock_depot SET qte = qte - 1 WHERE article_id = 6 AND depot_id = 1;\n-- Session 2, en même temps : l'ordre inverse\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte + 1 WHERE article_id = 6 AND depot_id = 1;\nUPDATE dbo.article     SET stock = stock + 1 WHERE id = 6;",
+      exemple: "-- Session 1 (EDI) : l'article, puis son stock\nBEGIN TRAN;\nUPDATE dbo.article SET stock = stock - 1 WHERE id = 6;\nUPDATE dbo.stock_depot SET qte = qte - 1\nWHERE article_id = 6 AND depot_id = 1;\n-- Session 2, en même temps : l'ordre inverse\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte + 1\nWHERE article_id = 6 AND depot_id = 1;\nUPDATE dbo.article SET stock = stock + 1 WHERE id = 6;",
       resultat: "Chacune attend l'autre. Après quelques secondes, SQL Server annule l'une, la victime (erreur 1205) ; l'autre finit normalement.",
       points: [
         "Ce qui se passe : la session 1 tient l'article ROB-X, la session 2 son stock à Lyon ; chacune attend ce que l'autre tient. Aucune ne peut finir : c'est un interblocage (deadlock).",
@@ -114,7 +114,7 @@ LEARNSQL.cours.m11 = {
     },
     {
       titre: "Lire pendant une écriture : NOLOCK ou RCSI",
-      exemple: "-- Session 1 : le transfert de la section 1, à mi-chemin\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20 WHERE article_id = 1 AND depot_id = 1;\n\n-- Session 2 : le rapport de stock, en NOLOCK\nSELECT SUM(qte) AS stock_chl5\nFROM dbo.stock_depot WITH (NOLOCK)\nWHERE article_id = 1;",
+      exemple: "-- Session 1 : le transfert de la section 1, à mi-chemin\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20\nWHERE article_id = 1 AND depot_id = 1;\n\n-- Session 2 : le rapport de stock, en NOLOCK\nSELECT SUM(qte) AS stock_chl5\nFROM dbo.stock_depot WITH (NOLOCK)\nWHERE article_id = 1;",
       resultat: [["la session 2 lit en…", "stock_chl5"], ["READ COMMITTED (défaut)", "attend"], ["NOLOCK", 100], ["RCSI", 120], ["Snowflake", 120]],
       points: [
         "Ce qui se passe : le vrai stock est de 120 sacs, dont 20 « en route ». Selon le niveau d'isolation (ce qu'une lecture voit des écritures en cours), le rapport attend, lit 100 ou 120.",
@@ -127,7 +127,7 @@ LEARNSQL.cours.m11 = {
     },
     {
       titre: "Lire, puis écrire : la mise à jour perdue",
-      exemple: "-- 2 sessions à la fois : réserver 5 ROB-X (stock 5)\nDECLARE @stock int = (SELECT stock FROM dbo.article WHERE code = 'ROB-X');\nIF @stock >= 5   -- les deux lisent 5…\n  UPDATE dbo.article SET stock = @stock - 5 WHERE code = 'ROB-X';   -- …et écrivent 0\n\n-- Juste :\nUPDATE dbo.article SET stock = stock - 5\nWHERE code = 'ROB-X' AND stock >= 5;   -- 2e session : 0 ligne",
+      exemple: "-- 2 sessions à la fois : réserver 5 ROB-X (stock 5)\nDECLARE @stock int = (SELECT stock FROM dbo.article WHERE code = 'ROB-X');\nIF @stock >= 5   -- les deux lisent 5…\n  UPDATE dbo.article SET stock = @stock - 5   -- …et écrivent 0\n  WHERE code = 'ROB-X';\n\n-- Juste :\nUPDATE dbo.article SET stock = stock - 5\nWHERE code = 'ROB-X' AND stock >= 5;   -- 2e session : 0 ligne",
       resultat: "Piège : stock 0, mais 10 robots promis pour 5. Juste : la 2e session trouve 0 et ne modifie rien.",
       points: [
         "Ce qui se passe : en deux temps, les deux sessions lisent 5 et écrivent 0. En une instruction, la 2e trouve 0 : `@@ROWCOUNT` (les lignes touchées) vaut 0, réservation refusée.",
