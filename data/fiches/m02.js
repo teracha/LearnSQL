@@ -1,5 +1,7 @@
 // Fiche de révision du module m02 : la version courte du cours (l'ancien cours d'octobre 2026, avant la réécriture).
 // Le cours complet est dans data/cours/m02.js.
+// Relue le 12/11/2026 : alignée sur le cours complet, ses questions (q06, q34, q35, q52) et les corrections du testeur
+// (git ec11983 : la forme '20260101' est propre à SQL Server, Snowflake attend '2026-01-01').
 LEARNSQL.fiches.m02 = {
   intro: "WHERE garde seulement les lignes qui t'intéressent. Ça paraît simple. Mais NULL et les priorités entre AND et OR créent beaucoup de bugs silencieux.",
   sections: [
@@ -24,13 +26,13 @@ LEARNSQL.fiches.m02 = {
         "Piège : `statut <> 'X'` élimine aussi les lignes où statut est NULL.",
         "`NOT` n'inverse pas « inconnu » : il reste inconnu."
       ],
-      retenir: "NULL se teste avec IS NULL. Tout filtre <>, NOT, IN… exclut les NULL."
+      retenir: "NULL se teste avec IS NULL. Sur une colonne NULL, <>, IN, NOT IN, LIKE… ne sont jamais vrais."
     },
     {
       titre: "Le piège NOT IN + NULL",
       exemple: "-- Si la sous-requête contient un seul NULL → 0 ligne !\nWHERE id NOT IN (SELECT client_id FROM commande)\n\n-- Sûr :\nWHERE NOT EXISTS (\n  SELECT 1 FROM commande co WHERE co.client_id = c.id\n)",
       points: [
-        "`NOT IN (1, 2, NULL)` = `<> 1 AND <> 2 AND <> NULL` → toujours inconnu.",
+        "`NOT IN (1, 2, NULL)` = `<> 1 AND <> 2 AND <> NULL` → jamais vrai.",
         "Résultat : aucune ligne, et aucune erreur pour te prévenir.",
         "`NOT EXISTS` n'a pas ce problème."
       ],
@@ -49,7 +51,7 @@ LEARNSQL.fiches.m02 = {
     },
     {
       titre: "IN, BETWEEN et les dates",
-      exemple: "WHERE pays IN ('FR', 'BE', 'CH')\n\n-- Dates avec heure : la bonne méthode\nWHERE date_cde >= '20260101'\n  AND date_cde <  '20260201'",
+      exemple: "WHERE pays IN ('FR', 'BE', 'CH')\n\n-- Dates avec heure : la bonne méthode\n-- '20260101' : forme sûre sur SQL Server ; Snowflake attend '2026-01-01'\nWHERE date_cde >= '20260101'\n  AND date_cde <  '20260201'",
       points: [
         "`IN (a, b, c)` = plusieurs OR sur la même colonne.",
         "`BETWEEN a AND b` inclut les deux bornes. Petite borne d'abord.",
@@ -68,13 +70,13 @@ LEARNSQL.fiches.m02 = {
         "Snowflake : pas de crochets. `ILIKE` ignore la casse.",
         "`LIKE 'DUP%'` peut utiliser un index. `LIKE '%DUP'` lit toute la table."
       ],
-      retenir: "% = plusieurs caractères, _ = un seul. Le % au début empêche l'index."
+      retenir: "% = 0 à n caractères, _ = un seul. Le % au début empêche l'index."
     },
     {
       titre: "Filtres rapides (SARGable)",
       exemple: "-- Lent : fonction autour de la colonne\nWHERE YEAR(date_cde) = 2026\n\n-- Rapide : la colonne reste « nue »\nWHERE date_cde >= '20260101' AND date_cde < '20270101'",
       points: [
-        "Une fonction autour d'une colonne empêche la recherche dans l'index.",
+        "Une fonction autour d'une colonne empêche, en général, la recherche dans l'index.",
         "Transforme la valeur, pas la colonne.",
         "Compare des types identiques : `code_postal = '69110'`, pas `= 69110`."
       ],
@@ -99,6 +101,7 @@ LEARNSQL.fiches.m02 = {
     ["LIKE sans casse", "Selon la collation", "`ILIKE`"],
     ["Classes [AB] dans LIKE", "Oui", "Non (RLIKE / REGEXP)"],
     ["Booléen", "`BIT` : `actif = 1`", "`BOOLEAN` : `WHERE actif`"],
+    ["Date en texte", "`'20260101'` (AAAAMMJJ)", "`'2026-01-01'`"],
     ["Date du jour", "`CAST(GETDATE() AS date)`", "`CURRENT_DATE`"]
   ]
 };

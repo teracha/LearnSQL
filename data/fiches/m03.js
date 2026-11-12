@@ -1,5 +1,7 @@
 // Fiche de révision du module m03 : la version courte du cours (l'ancien cours d'octobre 2026, avant la réécriture).
 // Le cours complet est dans data/cours/m03.js.
+// Relue le 12/11/2026 : alignée sur le cours complet et la correction du testeur (git 9ebe11f : 'AAAAMMJJ' est propre à
+// SQL Server, Snowflake attend '2026-03-12') ; carte : CAST en texte avant RIGHT, sinon '000' + 42 additionne.
 LEARNSQL.fiches.m03 = {
   intro: "Les fonctions transforment une valeur sur chaque ligne : couper un texte, calculer une échéance, convertir un montant. C'est là que SQL Server et Snowflake diffèrent le plus.",
   sections: [
@@ -46,7 +48,7 @@ LEARNSQL.fiches.m03 = {
         "Écris les dates en `'AAAAMMJJ'` sur SQL Server : fiable quelle que soit la langue.",
         "Jour de la semaine : dépend de `SET DATEFIRST`. Ne le code pas en dur."
       ],
-      retenir: "Dates en 'AAAAMMJJ'. DATEDIFF compte des frontières, pas des durées."
+      retenir: "Dates en 'AAAAMMJJ' sur SQL Server, 'AAAA-MM-JJ' sur Snowflake. DATEDIFF compte des frontières, pas des durées."
     },
     {
       titre: "Convertir : CAST, CONVERT, TRY_CAST",
@@ -79,7 +81,7 @@ LEARNSQL.fiches.m03 = {
     ["Si… alors court", "`IIF`", "`IFF`"],
     ["Texte → date", "`CONVERT(date, x, 103)`", "`TO_DATE(x, 'DD/MM/YYYY')`"],
     ["Fin de mois", "`EOMONTH`", "`LAST_DAY`"],
-    ["Compléter à gauche", "`RIGHT('000' + x, 3)`", "`LPAD(x, 3, '0')`"],
+    ["Compléter à gauche", "`RIGHT('000' + CAST(x AS varchar(3)), 3)`", "`LPAD(x, 3, '0')`"],
     ["CAST(12.7 AS INT)", "12 (tronque)", "13 (arrondit)"]
   ]
 };

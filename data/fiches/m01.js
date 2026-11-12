@@ -1,5 +1,7 @@
 // Fiche de révision du module m01 : la version courte du cours (l'ancien cours d'octobre 2026, avant la réécriture).
 // Le cours complet est dans data/cours/m01.js.
+// Relue le 12/11/2026 : alignée sur le cours complet, ses questions et les corrections du testeur (git 83d34d4) :
+// ordre logique, NULL Snowflake « par défaut », DISTINCT + ORDER BY attribué à SQL Server, « alias du SELECT ».
 LEARNSQL.fiches.m01 = {
   intro: "Une requête SELECT lit des données sans rien modifier. C'est la base de tout. Ici, on apprend à bien l'écrire, et surtout à comprendre dans quel ordre le moteur la lit.",
   sections: [
@@ -20,7 +22,7 @@ LEARNSQL.fiches.m01 = {
       exemple: "/*5*/ SELECT client_id, SUM(montant) AS total\n/*1*/ FROM commande\n/*2*/ WHERE statut <> 'ANNULEE'\n/*3*/ GROUP BY client_id\n/*4*/ HAVING SUM(montant) > 10000\n/*6*/ ORDER BY total DESC;",
       points: [
         "On écrit dans un ordre, le moteur lit dans un autre.",
-        "Ordre du moteur : FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → TOP / LIMIT.",
+        "Ordre logique (le sens de la requête) : FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → TOP / LIMIT.",
         "Un alias créé dans SELECT n'existe qu'après SELECT.",
         "Sur SQL Server, l'alias n'est donc utilisable que dans `ORDER BY`.",
         "Snowflake est plus souple : il accepte l'alias dans WHERE, GROUP BY et HAVING."
@@ -34,7 +36,7 @@ LEARNSQL.fiches.m01 = {
         "Alias de colonne : renomme une colonne dans le résultat (`AS client`).",
         "Alias de table : un nom court pour la table (`AS c`).",
         "Une fois l'alias de table posé, il faut l'utiliser partout : `c.nom`, pas `client.nom`.",
-        "Une colonne calculée doit avoir un alias. Dans une vue, c'est obligatoire."
+        "Donne toujours un alias à une colonne calculée. Dans une vue, c'est obligatoire."
       ],
       retenir: "Alias de table posé = alias obligatoire partout dans la requête."
     },
@@ -46,8 +48,8 @@ LEARNSQL.fiches.m01 = {
         "Par défaut, le tri est croissant (`ASC`).",
         "Le 2e critère sert seulement à départager les égalités du 1er.",
         "Sans `ORDER BY`, l'ordre n'est JAMAIS garanti. Même s'il « a l'air » correct.",
-        "Les NULL : en tête sur SQL Server (ASC), en fin sur Snowflake.",
-        "Avec `DISTINCT`, on ne trie que sur des colonnes du SELECT."
+        "En tri croissant (ASC), les NULL sont en tête sur SQL Server, en fin sur Snowflake (par défaut).",
+        "Sur SQL Server, avec `DISTINCT`, on ne trie que sur des colonnes du SELECT."
       ],
       retenir: "Pas de ORDER BY = pas d'ordre garanti."
     },
@@ -91,7 +93,7 @@ LEARNSQL.fiches.m01 = {
   ],
   differences: [
     ["Limiter les lignes", "`TOP (n)`", "`LIMIT n` (TOP accepté)"],
-    ["Alias dans WHERE / GROUP BY", "Interdit", "Accepté"],
+    ["Alias du SELECT dans WHERE", "Interdit", "Accepté"],
     ["NULL dans ORDER BY ASC", "En premier", "En dernier"],
     ["Nom spécial", "`[Mon Nom]`", "`\"Mon Nom\"`"],
     ["Casse des noms", "Selon la collation", "MAJUSCULES si sans guillemets"],
