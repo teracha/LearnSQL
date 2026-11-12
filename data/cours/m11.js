@@ -44,7 +44,7 @@
 // LCK_M_* (q69), blocked process report (q70), clé étrangère sans index (q74), ROWLOCK / PAGLOCK (q75), LOCK_ESCALATION
 // (q76, q77), pessimiste ou optimiste (q79), MSDTC (q82), réplica lisible (q91), NOLOCK sur la cible d'un UPDATE (q92).
 LEARNSQL.cours.m11 = {
-  intro: "Ton intégration EDI de la nuit plante au milieu d'une commande : que reste-t-il dans Divalto ? Et pourquoi la saisie « tourne » quand le recalcul des tarifs déborde sur la matinée ? Tout tient dans la transaction (un bloc d'instructions validé ou annulé en entier) et ses verrous. Ce module t'évite la commande à moitié enregistrée, le traitement qui bloque les saisies et le rapport `NOLOCK` aux chiffres faux.",
+  intro: "Ton intégration EDI de la nuit plante au milieu d'une commande : que reste-t-il dans Divalto ? Et pourquoi la saisie « tourne » quand le recalcul des tarifs déborde sur la matinée ? Tout tient dans la transaction (un bloc d'instructions validé ou annulé en entier) et ses verrous (ses réservations de lignes). Ce module t'évite la commande à moitié enregistrée, le traitement qui bloque les saisies et le rapport `NOLOCK` aux chiffres faux.",
   sections: [
     {
       titre: "Tout ou rien : BEGIN TRAN, COMMIT, ROLLBACK",
@@ -52,19 +52,19 @@ LEARNSQL.cours.m11 = {
       resultat: [["depot_id", "qte pendant", "qte après ROLLBACK"], [1, 40, 60], [2, 40, 40], [3, 40, 20]],
       points: [
         "Ce qui se passe : pendant la transaction, la session voit son transfert, 40 sacs partout. Après `ROLLBACK`, tout revient comme avant. Un `COMMIT` aurait validé les deux UPDATE ensemble.",
-        "Pourquoi : sans `BEGIN TRAN`, SQL Server est en autocommit : chaque instruction est validée seule, dès qu'elle finit. La transaction fait des deux UPDATE un tout ou rien : le A d'ACID (Atomicité, Cohérence, Isolation, Durabilité).",
+        "Pourquoi : sans `BEGIN TRAN`, SQL Server est en autocommit : chaque instruction est validée seule, dès qu'elle finit. La transaction fait des deux UPDATE un seul bloc : le A d'ACID (Atomicité, Cohérence, Isolation, Durabilité).",
         "Le piège : le transfert sans transaction. Le traitement s'arrête entre les deux UPDATE : 20 sacs quittent Lyon sans arriver à Nantes. Même chose pour une commande EDI enregistrée sans ses lignes.",
-        "Le bon réflexe : `BEGIN TRAN` … `COMMIT` autour de ce qui va ensemble, et rien d'autre. Un COMMIT confirmé est durable (le D) : il est écrit dans le journal (log) avant la réponse, et survit à une panne.",
-        "SQL Server / Snowflake : Snowflake écrit `BEGIN` ou `START TRANSACTION`, puis `COMMIT` ou `ROLLBACK`, en autocommit aussi. Sans autocommit (`SET IMPLICIT_TRANSACTIONS ON`, `AUTOCOMMIT = FALSE`), tout attend ton COMMIT."
+        "Le bon réflexe : `BEGIN TRAN` … `COMMIT` autour de ce qui va ensemble, rien de plus. Un COMMIT confirmé est durable (le D) : écrit dans le journal (log) avant la réponse, il survit à une panne.",
+        "SQL Server / Snowflake : Snowflake écrit `BEGIN` ou `START TRANSACTION`, puis `COMMIT` ou `ROLLBACK`, lui aussi en autocommit. Sans autocommit (`IMPLICIT_TRANSACTIONS ON` sur SQL Server, `AUTOCOMMIT = FALSE` sur Snowflake), tout attend ton COMMIT."
       ],
       retenir: "Une transaction, c'est tout ou rien : COMMIT valide, ROLLBACK annule. Sans BEGIN TRAN, chaque instruction est validée seule."
     },
     {
       titre: "Une erreur au milieu : la transaction continue",
       exemple: "SET XACT_ABORT ON;   -- sans lui ni TRY : l'en-tête serait validé seul\nBEGIN TRY\n  BEGIN TRAN;\n    INSERT INTO dbo.commande (id, num_cde, client_id, date_cde, statut, canal, montant_ht)\n    VALUES (9, 'CDE-1009', 1, '20260414', 'EN_COURS', 'EDI', 289.00);\n    INSERT INTO dbo.ligne_cde (id, cde_id, article_id, qte, prix_unit)\n    VALUES (12, 9, 99, 2, 144.50);   -- l'article 99 n'existe pas\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  IF @@TRANCOUNT > 0 ROLLBACK;\n  THROW;   -- l'erreur remonte\nEND CATCH;",
-      resultat: "Sans protection : erreur 547, puis COMMIT : CDE-1009 est validée sans sa ligne. Avec ce modèle : tout est annulé, et l'erreur 547 remonte.",
+      resultat: "Sans protection : erreur 547, puis COMMIT de l'en-tête seul. Avec ce modèle : tout est annulé, et l'erreur remonte.",
       points: [
-        "Ce qui se passe : la clé étrangère (le lien obligatoire vers la table `article`) refuse la ligne : erreur 547. Le CATCH annule alors toute la commande, puis `THROW` renvoie l'erreur au traitement EDI.",
+        "Ce qui se passe : la clé étrangère (le lien obligatoire vers `article`) refuse la ligne : erreur 547. Le moteur saute dans le CATCH, le bloc de secours du TRY : il annule tout, puis `THROW` renvoie l'erreur.",
         "Pourquoi : par défaut, une erreur de contrainte (doublon, clé étrangère) n'annule que l'instruction fautive ; la suite s'exécute, COMMIT compris. `SET XACT_ABORT ON` change la règle : une erreur annule toute la transaction.",
         "Le piège : un CATCH sans `THROW` « avale » l'erreur : le traitement EDI croit l'intégration réussie, et le flux n'est jamais rejeté. Pire : un `COMMIT` dans le CATCH valide la commande à moitié.",
         "Le bon réflexe : ce modèle dans chaque procédure qui modifie. `@@TRANCOUNT` (le nombre de transactions ouvertes) évite un ROLLBACK sans transaction. Dans le CATCH, `XACT_STATE() = -1` signale une transaction condamnée : seul ROLLBACK passe.",
@@ -77,31 +77,31 @@ LEARNSQL.cours.m11 = {
       exemple: "BEGIN TRAN;                             -- @@TRANCOUNT = 1\nUPDATE dbo.commande SET statut = 'LIVREE' WHERE id = 7;\n  BEGIN TRAN;                           -- 2 : une procédure appelée\n  UPDATE dbo.flux_edi SET statut = 'OK', motif = NULL WHERE id = 6;\n  COMMIT;                               -- 1 : ne valide rien\nROLLBACK;                               -- 0 : tout est annulé\nSELECT c.statut AS statut_cde, f.statut AS statut_flux\nFROM dbo.commande AS c JOIN dbo.flux_edi AS f ON f.cde_id = c.id\nWHERE f.id = 6;",
       resultat: [["statut_cde", "statut_flux"], ["EN_COURS", "REJET"]],
       points: [
-        "Ce qui se passe : CDE-1007 reste EN_COURS et son avis d'expédition (flux 6) reste REJET. Le COMMIT intérieur n'a rien validé : il a juste fait passer `@@TRANCOUNT`, le compteur de transactions, de 2 à 1.",
-        "Pourquoi : SQL Server n'a pas de transaction dans la transaction. `BEGIN TRAN` ajoute 1, `COMMIT` retire 1, et seul le dernier COMMIT (de 1 à 0) valide. `ROLLBACK` annule tout d'un coup et remet le compteur à 0.",
+        "Ce qui se passe : CDE-1007 reste EN_COURS et son avis d'expédition (flux 6) reste REJET. Le COMMIT intérieur n'a rien validé : il a fait passer `@@TRANCOUNT`, le compteur de transactions, de 2 à 1.",
+        "Pourquoi : SQL Server n'a pas de transaction dans la transaction. `BEGIN TRAN` ajoute 1, `COMMIT` retire 1 : seul le dernier COMMIT, de 1 à 0, valide. `ROLLBACK` annule tout et remet le compteur à 0.",
         "Le piège : une procédure appelée dans une transaction fait son propre ROLLBACK. Elle annule aussi le travail de l'appelant, qui reçoit l'erreur 266 : le compteur a changé pendant l'appel.",
         "Le bon réflexe : pour n'annuler qu'une partie, un point de sauvegarde : `SAVE TRANSACTION p1;`, puis `ROLLBACK TRANSACTION p1;` ; la transaction reste ouverte. Une procédure appelée pose son point au lieu d'ouvrir sa transaction.",
-        "SQL Server / Snowflake : SQL Server annule aussi un `CREATE TABLE` fait dans la transaction (le DDL, les ordres de structure). Snowflake valide la transaction en cours à chaque DDL, ignore un 2e `BEGIN`, et n'a pas de point de sauvegarde."
+        "SQL Server / Snowflake : SQL Server annule aussi un `CREATE TABLE` fait dans la transaction (un DDL, un ordre de structure). Snowflake valide la transaction à chaque DDL, ignore un 2e `BEGIN`, sans point de sauvegarde."
       ],
-      retenir: "Seul le dernier COMMIT valide ; ROLLBACK annule tout. Annuler une partie : SAVE TRANSACTION. Sur Snowflake, un DDL valide la transaction."
+      retenir: "Seul le dernier COMMIT valide, ROLLBACK annule tout ; SAVE TRANSACTION annule une partie. Snowflake : un DDL valide la transaction."
     },
     {
       titre: "Les verrous : une écriture fait attendre les autres",
       exemple: "-- Session 1, 7 h 50 : recalcul des tarifs, pas encore validé\nBEGIN TRAN;\nUPDATE dbo.article SET prix_tarif = prix_tarif * 1.03;   -- 8 lignes ici, 40 000 chez toi\n\n-- Session 2, 8 h 05 : la saisie d'une commande lit le tarif\nSELECT code, prix_tarif FROM dbo.article WHERE code = 'CHL-5';",
-      resultat: "Session 2 : rien ne s'affiche. Elle attend, sans erreur ni limite, la fin de la session 1. Sur Snowflake, elle lirait tout de suite 39.90, le prix validé.",
+      resultat: "Session 2 : rien ne s'affiche ; elle attend la fin de la session 1. Snowflake lirait tout de suite 39.90, le prix validé.",
       points: [
-        "Ce qui se passe : la saisie « tourne », sans message, jusqu'au COMMIT ou au ROLLBACK de la session 1. Par défaut, SQL Server attend sans limite ; `SET LOCK_TIMEOUT 5000` arrête après 5 secondes (erreur 1222).",
-        "Pourquoi : écrire pose un verrou exclusif (X, une réservation), gardé jusqu'à la fin de la transaction ; lire demande un verrou partagé (S), incompatible avec X. Au-delà de 5 000 verrous dans une instruction, toute la table est verrouillée (l'escalade).",
+        "Ce qui se passe : la saisie « tourne », sans message, jusqu'à la fin de la session 1. SQL Server attend sans limite par défaut ; `SET LOCK_TIMEOUT 5000` coupe l'attente après 5 secondes (erreur 1222).",
+        "Pourquoi : écrire pose un verrou exclusif (X, une réservation) jusqu'à la fin de la transaction ; lire demande un verrou partagé (S), incompatible avec X. Au-delà de 5 000 verrous, une instruction verrouille toute la table (l'escalade).",
         "Le piège : la transaction qui dure. Un `BEGIN TRAN` oublié dans SSMS, un écran qui attend un clic « Valider », un traitement de nuit qui déborde sur 8 h : les saisies se figent.",
         "Le bon réflexe : transactions courtes, gros traitements par lots (m09) hors des heures de saisie. Qui bloque ? La colonne `blocking_session_id` de `sys.dm_exec_requests` ; `DBCC OPENTRAN` donne la plus vieille transaction ouverte.",
         "SQL Server / Snowflake : Snowflake ne bloque jamais une lecture, mais deux UPDATE, DELETE ou MERGE sur une même table s'attendent en général, jusqu'à `LOCK_TIMEOUT` (12 heures par défaut). `SHOW LOCKS` montre qui bloque."
       ],
-      retenir: "Une écriture bloque jusqu'au COMMIT : transactions courtes, sans attente humaine, gros traitements par lots hors des heures de saisie."
+      retenir: "Une écriture bloque jusqu'au COMMIT : transactions courtes, gros traitements par lots hors des heures de saisie."
     },
     {
       titre: "Le deadlock : deux sessions qui s'attendent",
-      exemple: "-- Session 1 (EDI) : l'article, puis son stock à Lyon\nBEGIN TRAN;\nUPDATE dbo.article     SET stock = stock - 1 WHERE id = 6;\nUPDATE dbo.stock_depot SET qte = qte - 1 WHERE article_id = 6 AND depot_id = 1;\n-- Session 2 (inventaire), en même temps : l'ordre inverse\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte + 1 WHERE article_id = 6 AND depot_id = 1;\nUPDATE dbo.article     SET stock = stock + 1 WHERE id = 6;",
-      resultat: "Chacune attend l'autre pour sa 2e ligne. Après quelques secondes, SQL Server en annule une, la victime : erreur 1205. L'autre finit normalement.",
+      exemple: "-- Session 1 (EDI) : l'article, puis son stock\nBEGIN TRAN;\nUPDATE dbo.article     SET stock = stock - 1 WHERE id = 6;\nUPDATE dbo.stock_depot SET qte = qte - 1 WHERE article_id = 6 AND depot_id = 1;\n-- Session 2, en même temps : l'ordre inverse\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte + 1 WHERE article_id = 6 AND depot_id = 1;\nUPDATE dbo.article     SET stock = stock + 1 WHERE id = 6;",
+      resultat: "Chacune attend l'autre. Après quelques secondes, SQL Server annule l'une, la victime (erreur 1205) ; l'autre finit normalement.",
       points: [
         "Ce qui se passe : la session 1 tient l'article ROB-X, la session 2 son stock à Lyon ; chacune attend ce que l'autre tient. Aucune ne peut finir : c'est un interblocage (deadlock).",
         "Pourquoi : un blocage finit quand l'autre valide ; un deadlock, jamais. SQL Server cherche ces cycles toutes les 5 secondes et annule la transaction la moins coûteuse à défaire.",
@@ -116,36 +116,36 @@ LEARNSQL.cours.m11 = {
       exemple: "-- Session 1 : le transfert de la section 1, entre ses deux UPDATE\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte - 20 WHERE article_id = 1 AND depot_id = 1;\n\n-- Session 2 : le rapport de stock, avec NOLOCK « pour aller vite »\nSELECT SUM(qte) AS stock_chl5\nFROM dbo.stock_depot WITH (NOLOCK)\nWHERE article_id = 1;",
       resultat: [["la session 2 lit en…", "stock_chl5"], ["READ COMMITTED (défaut)", "attend"], ["NOLOCK", 100], ["RCSI", 120], ["Snowflake", 120]],
       points: [
-        "Ce qui se passe : le vrai stock est de 120 sacs, dont 20 « en route ». Selon le niveau d'isolation (ce qu'une lecture voit des écritures en cours), le rapport attend, lit 100 ou lit 120.",
-        "Pourquoi : READ COMMITTED, le défaut, ne lit que du validé : il attend le verrou. `NOLOCK` lit sans verrou le non validé : une lecture sale. RCSI, une option de la base, lit la dernière version validée, sans attendre.",
+        "Ce qui se passe : le vrai stock est de 120 sacs, dont 20 « en route ». Selon le niveau d'isolation (ce qu'une lecture voit des écritures en cours), le rapport attend, lit 100 ou 120.",
+        "Pourquoi : READ COMMITTED, le défaut, ne lit que du validé : il attend le verrou. `NOLOCK` lit le non validé, sans verrou : une lecture sale. RCSI, une option de la base, lit la dernière version validée.",
         "Le piège : `NOLOCK` partout dans les rapports, « pour aller vite ». Ici, 20 sacs disparaissent ; si la session 1 annule, ce chiffre n'a jamais existé. `NOLOCK` peut aussi sauter ou doubler une ligne qui bouge.",
         "Le bon réflexe : RCSI (`ALTER DATABASE … SET READ_COMMITTED_SNAPSHOT ON`) plutôt que `NOLOCK`, à tester avec l'éditeur de l'ERP. Un rapport en plusieurs SELECT : le niveau `SNAPSHOT` garde la même photo toute la transaction.",
         "SQL Server / Snowflake : Snowflake n'a qu'un niveau, READ COMMITTED : chaque requête lit ce qui était validé à son départ, sans attendre. Pas de lecture sale. Azure SQL Database active RCSI par défaut."
       ],
-      retenir: "NOLOCK lit du non validé : des chiffres faux. Pour ne plus attendre, RCSI ; Snowflake lit déjà ainsi."
+      retenir: "NOLOCK lit du non validé : jamais pour des chiffres qui comptent. Pour ne plus attendre : RCSI, comme Snowflake."
     },
     {
       titre: "Lire, puis écrire : la mise à jour perdue",
-      exemple: "-- 2 sessions à la fois : réserver 5 ROB-X (stock 5)\nDECLARE @stock int = (SELECT stock FROM dbo.article WHERE code = 'ROB-X');\nIF @stock >= 5   -- les deux lisent 5…\n  UPDATE dbo.article SET stock = @stock - 5 WHERE code = 'ROB-X';   -- …et écrivent 0\n\n-- Juste : test et calcul dans l'UPDATE\nUPDATE dbo.article SET stock = stock - 5\nWHERE code = 'ROB-X' AND stock >= 5;   -- 2e session : 0 ligne",
-      resultat: "Piège : les deux réservations passent, le stock tombe à 0 : 10 robots promis pour 5. Juste : la 2e session attend le verrou, trouve 0 et ne modifie rien.",
+      exemple: "-- 2 sessions à la fois : réserver 5 ROB-X (stock 5)\nDECLARE @stock int = (SELECT stock FROM dbo.article WHERE code = 'ROB-X');\nIF @stock >= 5   -- les deux lisent 5…\n  UPDATE dbo.article SET stock = @stock - 5 WHERE code = 'ROB-X';   -- …et écrivent 0\n\n-- Juste :\nUPDATE dbo.article SET stock = stock - 5\nWHERE code = 'ROB-X' AND stock >= 5;   -- 2e session : 0 ligne",
+      resultat: "Piège : stock 0, mais 10 robots promis pour 5. Juste : la 2e session trouve 0 et ne modifie rien.",
       points: [
-        "Ce qui se passe : en deux temps, les deux sessions lisent 5, passent le test et écrivent 0. En une instruction, la 2e trouve 0 : `@@ROWCOUNT` (le nombre de lignes touchées) vaut 0, réservation refusée.",
-        "Pourquoi : entre le SELECT et l'UPDATE, l'autre session lit la même valeur, car le verrou de lecture est déjà rendu. C'est la mise à jour perdue. Dans un seul UPDATE, la ligne reste verrouillée du test à l'écriture.",
-        "Le piège : le même schéma ailleurs : un numéro de facture par `MAX(num) + 1` (deux factures au même numéro), ou « IF NOT EXISTS, puis INSERT » contre les doublons : deux sessions passent le test ensemble.",
-        "Le bon réflexe : un compteur, `UPDATE … SET n = n + 1 OUTPUT inserted.n` ; un doublon, une contrainte UNIQUE. Lire pour modifier ensuite : `WITH (UPDLOCK)` dans la transaction, qui évite aussi un deadlock.",
-        "SQL Server / Snowflake : les deux ont des SEQUENCE (des générateurs de numéros) : uniques, mais un ROLLBACK laisse un trou. Des factures sans trou : une table compteur, mise à jour dans la transaction de la facture."
+        "Ce qui se passe : en deux temps, les deux sessions lisent 5 et écrivent 0. En une instruction, la 2e trouve 0 : `@@ROWCOUNT` (les lignes touchées) vaut 0, réservation refusée.",
+        "Pourquoi : entre le SELECT et l'UPDATE, l'autre session lit la même valeur : le verrou de lecture est déjà rendu. C'est la mise à jour perdue. Un seul UPDATE garde la ligne verrouillée du test à l'écriture.",
+        "Le piège : le même schéma pour un numéro de facture (`MAX(num) + 1` : deux factures au même numéro), ou « IF NOT EXISTS, puis INSERT » contre les doublons : deux sessions passent le test ensemble.",
+        "Le bon réflexe : un compteur, `UPDATE … SET n = n + 1 OUTPUT inserted.n` ; un doublon, une contrainte UNIQUE. Lire pour modifier ensuite : `WITH (UPDLOCK)` réserve la ligne dès la lecture, jusqu'au COMMIT, et évite aussi un deadlock.",
+        "SQL Server / Snowflake : les deux ont des SEQUENCE (des générateurs de numéros) : uniques, mais un ROLLBACK laisse un trou. Factures sans trou : une table compteur, mise à jour dans la transaction de la facture."
       ],
       retenir: "Lire puis écrire en deux fois perd des mises à jour : test et calcul dans l'UPDATE, ou UPDLOCK."
     },
     {
       titre: "Détails utiles",
       points: [
-        "Gros volumes : purge ou chargement par lots de moins de 5 000 lignes (m09), un COMMIT par lot, et le dernier lot noté dans la même transaction, pour reprendre après une panne.",
-        "Relire une ligne dans une transaction peut donner une autre valeur (lecture non répétable), ou de nouvelles lignes (fantômes). `REPEATABLE READ` garde les verrous de lecture ; `SERIALIZABLE` (ou `HOLDLOCK`) verrouille aussi la plage lue : plus de blocages.",
+        "Gros volumes : par lots de moins de 5 000 lignes (m09), un COMMIT par lot, et le dernier lot noté dans la même transaction, pour reprendre après une panne.",
+        "Relire une ligne dans une transaction peut rendre une autre valeur (lecture non répétable) ou de nouvelles lignes (fantômes). `REPEATABLE READ` garde les verrous de lecture ; `SERIALIZABLE` (ou `HOLDLOCK`) verrouille aussi la plage lue.",
         "`SNAPSHOT` : `ALLOW_SNAPSHOT_ISOLATION ON` sur la base, puis `SET TRANSACTION ISOLATION LEVEL SNAPSHOT`. Deux sessions modifient la même ligne : la 2e reçoit l'erreur 3960, à relancer.",
-        "Une transaction ouverte des heures fait grossir le journal. `KILL 87` l'annule, mais le ROLLBACK peut durer autant que le travail fait. Snowflake : `SYSTEM$ABORT_TRANSACTION(id)`, l'id venant de `SHOW TRANSACTIONS`.",
-        "`TRUNCATE TABLE` et `ALTER TABLE` demandent un verrou de structure (Sch-M), qui attend même une simple lecture. Reconstruire un index en journée : `WITH (ONLINE = ON)`, en édition Enterprise ou sur Azure.",
-        "Un trigger (un code lancé à chaque modification de la table) tourne dans la même transaction : son erreur annule l'instruction, et sa lenteur rallonge les verrous.",
+        "Une transaction ouverte des heures fait grossir le journal. `KILL 87` coupe sa session et l'annule : ROLLBACK parfois aussi long que le travail fait. Snowflake : `SYSTEM$ABORT_TRANSACTION(id)`, l'id venant de `SHOW TRANSACTIONS`.",
+        "`TRUNCATE TABLE` et `ALTER TABLE` demandent un verrou de structure (Sch-M) : une simple lecture les fait attendre. Index reconstruit en journée : `WITH (ONLINE = ON)`, en édition Enterprise ou sur Azure.",
+        "Un trigger (un code lancé à chaque modification de la table) tourne dans la même transaction : son erreur annule l'instruction, sa lenteur rallonge les verrous.",
         "Après le COMMIT, plus de ROLLBACK : SQL Server repart d'une sauvegarde ; Snowflake relit l'avant avec Time Travel, 1 jour par défaut (m14)."
       ],
       retenir: "Gros traitements : lots courts, hors des heures de saisie. Après COMMIT : sauvegarde ou Time Travel."
