@@ -61,6 +61,11 @@
 //   sql/truncate-table, sql/drop-table et sql/undrop-table (Time Travel), user-guide/tables-temp-transient,
 //   user-guide/search-optimization/secondary-indexes et release-notes/2026/other/2026-10-26-secondary-indexes-ga (index
 //   secondaires : tables standard, Enterprise, payants, recherches très sélectives ; pas de CREATE UNIQUE INDEX).
+// Relecture testeur (12/11/2026) : résultats refaits avec SQLite (base neuve à chaque essai) : tous conformes.
+// Corrigé : factures et avoirs, « suite chronologique et continue » (CGI, annexe II, art. 242 nonies A, I-7°) ; CHECK
+// « ne voit que sa ligne » (q87) ; TRANSIENT reste après la session (q46) ; SELECT INTO : pas les contraintes (q43) ;
+// Snowflake : agrandir un texte, pas changer de type (q96) ; « sans erreur », « sans alerte » (Snowflake répond) ;
+// DEFAULT : un UPDATE « ne le recalcule pas » (UPDATE … SET col = DEFAULT existe) ; « le total de ligne_cde ».
 LEARNSQL.cours.m10 = {
   intro: "Dans ta base, un camping n'a pas de ville et deux fiches Piscines Dumont ont le même SIREN : erreur de saisie, ou cas normal ? Une table bien construite refuse seule les erreurs : un type juste par colonne, des clés, des contraintes (des règles vérifiées à chaque écriture). Encore faut-il poser les bonnes ; et Snowflake ne vérifie pas tout : un flux EDI peut s'y charger deux fois.",
   sections: [
@@ -84,7 +89,7 @@ LEARNSQL.cours.m10 = {
       points: [
         "Ce qui se passe : le 1er ordre échoue, une ligne a déjà une ville vide. Le 2e marche : `DEFAULT` (la valeur mise quand l'INSERT n'en donne pas) remplit aussi les 8 commandes déjà là.",
         "Pourquoi : `NOT NULL` interdit la case vide, à chaque INSERT et UPDATE. Une colonne `NOT NULL` ajoutée à une table pleine doit remplir les lignes existantes : sans DEFAULT, SQL Server refuse.",
-        "Le piège : DEFAULT ne joue qu'à l'INSERT, quand la colonne est absente. Un `NULL` écrit en toutes lettres n'est pas remplacé, et un UPDATE ne le recalcule jamais : `modifie_le DEFAULT SYSDATETIME()` reste figé.",
+        "Le piège : DEFAULT ne joue qu'à l'INSERT, quand la colonne est absente. Un `NULL` écrit en toutes lettres n'est pas remplacé, et un UPDATE ne le recalcule pas : `modifie_le DEFAULT SYSDATETIME()` reste figé.",
         "Le bon réflexe : `NOT NULL` dès que le métier exige la valeur, et toujours `NULL` ou `NOT NULL` écrit (sinon, la connexion décide). Avant de durcir, corrige les vides : `UPDATE … WHERE ville IS NULL`.",
         "SQL Server / Snowflake : Snowflake vérifie NOT NULL aussi : `ALTER COLUMN ville SET NOT NULL`, refusé s'il reste des NULL. Sur SQL Server, `ALTER COLUMN ville VARCHAR(80)` sans `NOT NULL` rend la colonne facultative : réécris la définition complète."
       ],
@@ -97,7 +102,7 @@ LEARNSQL.cours.m10 = {
       points: [
         "Ce qui se passe : le 2e avoir est refusé (erreur 2627), son numéro existe déjà. Mais il a consommé l'id 2 : l'avoir suivant reçoit 3. `IDENTITY(1,1)` (départ 1, pas de 1) numérote seul.",
         "Pourquoi : la clé primaire (PRIMARY KEY) identifie chaque ligne : unique, jamais NULL. Une clé technique (un numéro sans sens métier) ne change jamais ; un code client ou un SIRET peut changer. Le numéro métier reste à côté, sous `UNIQUE`.",
-        "Le piège : compter sur IDENTITY pour une suite sans trou. Un INSERT refusé ou annulé (ROLLBACK) perd son numéro ; un redémarrage peut sauter un bloc. Or factures et avoirs exigent une numérotation continue.",
+        "Le piège : compter sur IDENTITY pour une suite sans trou. Un INSERT refusé ou annulé (ROLLBACK) perd son numéro ; un redémarrage peut sauter un bloc. Or factures et avoirs exigent une suite chronologique et continue.",
         "Le bon réflexe : une clé technique en PRIMARY KEY, `UNIQUE` sur la clé métier. Clé sur deux colonnes : `PRIMARY KEY (article_id, depot_id)`, comme `stock_depot`. Nomme chaque contrainte (`pk_`, `uq_`, `fk_`, `ck_`, `df_`) : l'erreur cite ce nom.",
         "SQL Server / Snowflake : Snowflake écrit `AUTOINCREMENT` (ou `IDENTITY`), ou une séquence (un compteur à part, `seq.NEXTVAL`) : numéros uniques, pas forcément dans l'ordre. Et il ne vérifie ni la clé primaire ni `UNIQUE` : le 2e AV-2026-001 entrerait."
       ],
@@ -123,7 +128,7 @@ LEARNSQL.cours.m10 = {
       points: [
         "Ce qui se passe : `cde_id` est une clé étrangère (une colonne qui pointe vers la clé d'une autre table) : la commande 99 n'existe pas, refusé. Le flux EDI 3, à `cde_id` NULL, est accepté : NULL passe.",
         "Pourquoi : la clé étrangère pointe vers une PRIMARY KEY ou une colonne UNIQUE du parent, et joue dans les deux sens : supprimer la commande 1, qui a des lignes, est refusé aussi (`NO ACTION`, réglage par défaut).",
-        "Le piège : sur Snowflake, l'orpheline entre sans message. La somme des lignes donne alors 19 000,80 €, la même somme en `INNER JOIN` sur commande 18 641,80 € : deux rapports Power BI qui ne collent plus.",
+        "Le piège : sur Snowflake, l'orpheline entre sans erreur. Le total de `ligne_cde` donne alors 19 000,80 €, le même total en `INNER JOIN` sur `commande`, 18 641,80 € : deux rapports Power BI qui ne collent plus.",
         "Le bon réflexe : sur Snowflake, cherche les orphelins après chaque chargement avec `NOT EXISTS` (m06). Sur SQL Server, cherche-les avant d'ajouter une clé étrangère : sinon l'`ALTER TABLE` échoue. Référence obligatoire : clé étrangère et `NOT NULL`.",
         "Et aussi : `ON DELETE CASCADE` supprime les lignes avec leur commande, `ON DELETE SET NULL` vide la référence. À réserver aux cas voulus : une cascade efface de l'historique."
       ],
@@ -137,7 +142,7 @@ LEARNSQL.cours.m10 = {
         "Ce qui se passe : le moteur vérifie d'abord les 6 flux déjà là, puis chaque INSERT et UPDATE : le flux 5 en REJET sans motif est refusé. Ce CHECK compare deux colonnes de la ligne.",
         "Pourquoi : un CHECK refuse seulement quand sa condition est fausse. Avec NULL, elle est « inconnue » (m02) : la ligne passe. `CHECK (qte > 0)` accepte donc une quantité vide ; ajoute `NOT NULL`.",
         "Le piège : des statuts saisis à la main. 'LIVREE', 'Livrée' et 'LIVRE' cohabitent, et le rapport par statut se coupe en trois. `CHECK (statut IN ('LIVREE', 'EN_COURS', 'ANNULEE'))` l'aurait empêché.",
-        "Le bon réflexe : un CHECK pour les valeurs permises et la cohérence de la ligne (`date_echeance >= date_fact`). Il ne lit jamais une autre table : « ce client existe-t-il ? » relève d'une clé étrangère, « est-il actif ? » d'une requête.",
+        "Le bon réflexe : un CHECK pour les valeurs permises et la cohérence de la ligne (`date_echeance >= date_fact`). Il ne voit que sa ligne : « ce client existe-t-il ? » relève d'une clé étrangère, « est-il actif ? » d'une requête.",
         "SQL Server / Snowflake : Snowflake vérifie CHECK depuis avril 2026 ; ajouté à une table existante, il s'écrit `ENABLE NOVALIDATE` (l'existant n'est pas vérifié). Pour l'instant, `COPY INTO` et Snowpipe échouent sur une table qui a un CHECK."
       ],
       retenir: "CHECK refuse seulement le faux : NULL passe. Snowflake le vérifie, mais COPY INTO échoue sur une table qui en a un."
@@ -149,19 +154,19 @@ LEARNSQL.cours.m10 = {
       points: [
         "Ce qui se passe : `SELECT … INTO` crée la table et la remplit : colonnes, types, NOT NULL et IDENTITY suivent. Mais ni clé primaire, ni index, ni contrainte : le doublon entre.",
         "Pourquoi : SELECT INTO copie un résultat de requête, pas une définition de table. Bien pour une sauvegarde datée avant un UPDATE de masse (m09) ; une vraie table : `CREATE TABLE` complet, puis `INSERT … SELECT`.",
-        "Le piège : sur Snowflake, `CREATE OR REPLACE TABLE` fait un DROP puis un CREATE. Relancé en production, le script de déploiement recrée la table vide, sans message ni erreur.",
+        "Le piège : sur Snowflake, `CREATE OR REPLACE TABLE` fait un DROP puis un CREATE. Relancé en production, le script de déploiement recrée la table vide, sans alerte ni erreur.",
         "Le bon réflexe : des scripts relançables sans perte. `DROP TABLE IF EXISTS` pour une table de travail ; sinon `CREATE TABLE IF NOT EXISTS` (Snowflake) ou `IF OBJECT_ID('dbo.t') IS NULL` (SQL Server), puis `ALTER TABLE` pour la suite.",
         "SQL Server / Snowflake : `TRUNCATE TABLE` vide tout, sans WHERE ; `DROP TABLE` supprime aussi la structure. SQL Server refuse les deux si une clé étrangère pointe vers la table, et TRUNCATE y remet IDENTITY au départ. Snowflake a `UNDROP TABLE` (Time Travel)."
       ],
-      retenir: "SELECT INTO copie les lignes, pas les règles. TRUNCATE vide, DROP supprime, CREATE OR REPLACE recrée vide : scripts avec IF (NOT) EXISTS."
+      retenir: "SELECT INTO copie les lignes, pas les contraintes. TRUNCATE vide, DROP supprime, CREATE OR REPLACE recrée vide : scripts avec IF (NOT) EXISTS."
     },
     {
       titre: "Détails utiles",
       points: [
-        "Tables temporaires : `#t` vit le temps de ta session, `##t` est partagée (à éviter). Snowflake : `TEMPORARY` (session) ou `TRANSIENT`, sans Fail-safe (les 7 jours de secours) : moins chère, pour un chargement.",
+        "Tables temporaires : `#t` vit le temps de ta session, `##t` est partagée (à éviter). Snowflake : `TEMPORARY` (session) ; `TRANSIENT` reste, sans Fail-safe (les 7 jours de secours) : moins chère, pour un chargement.",
         "Une vue (une requête enregistrée sous un nom) ne stocke rien et peut cacher une colonne (salaire). Créée avec `SELECT *`, elle garde ses colonnes de départ (rafraîchir : `sp_refreshview`). Vue indexée ou matérialisée : résultat stocké.",
         "Index : module m12. SQL Server en crée pour la clé primaire (cluster par défaut) et UNIQUE, pas pour une clé étrangère. Snowflake : index secondaires depuis octobre 2026 (Enterprise, payants), jamais uniques, pour les recherches très sélectives.",
-        "Renommer : `sp_rename` (SQL Server), `RENAME COLUMN … TO …` (Snowflake) ; les vues et rapports qui citent l'ancien nom cassent. Réduire `VARCHAR(100)` en `VARCHAR(20)` : vérifie `MAX(LEN(col))` avant. Snowflake agrandit un texte, sans en changer le type.",
+        "Renommer : `sp_rename` (SQL Server), `RENAME COLUMN … TO …` (Snowflake) ; les vues et rapports qui citent l'ancien nom cassent. Réduire `VARCHAR(100)` en `VARCHAR(20)` : vérifie `MAX(LEN(col))` avant. Snowflake peut agrandir un texte, pas changer son type.",
         "Gros chargement : `NOCHECK CONSTRAINT ALL`, ou `BULK INSERT` sans `CHECK_CONSTRAINTS`, ignore clés étrangères et CHECK. Revalide par `WITH CHECK CHECK CONSTRAINT ALL`, sinon elles restent « non fiables » (l'existant n'est pas vérifié).",
         "Une valeur par case : une liste 'A12;B45' ou des colonnes `adresse_2`, `adresse_3` cachent une table enfant. Du JSON : type `json` sur SQL Server 2025, sinon `NVARCHAR(MAX)` avec `CHECK (ISJSON(doc) = 1)` ; `VARIANT` sur Snowflake (m14)."
       ],

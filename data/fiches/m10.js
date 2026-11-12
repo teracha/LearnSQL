@@ -1,5 +1,7 @@
 // Fiche de révision du module m10 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m10.js.
+// Relue le 12/11/2026 : alignée sur le cours complet et ses questions (q12, q25, q26, q40, q46) : NULL passe une clé
+// étrangère et un CHECK, COPY INTO / Snowpipe et CHECK, DATETIME2 (précision au choix), réduire une colonne, TRANSIENT.
 LEARNSQL.fiches.m10 = {
   intro: "Une bonne table protège les données toute seule : types justes, clés, contraintes. Une mauvaise table laisse entrer des erreurs que tu devras nettoyer pendant des années.",
   sections: [
@@ -19,16 +21,16 @@ LEARNSQL.fiches.m10 = {
       points: [
         "`PRIMARY KEY` : identifie chaque ligne. Unique et non NULL.",
         "`UNIQUE` : pas de doublon (ex. numéro de facture). Une seule ligne NULL autorisée sur SQL Server.",
-        "`FOREIGN KEY` : la valeur doit exister dans la table référencée.",
-        "`CHECK` : une règle (montant >= 0, statut dans une liste).",
+        "`FOREIGN KEY` : la valeur doit exister dans la table référencée. NULL passe.",
+        "`CHECK` : une règle (montant >= 0, statut dans une liste). Il refuse seulement le faux : NULL passe.",
         "`DEFAULT` : valeur si rien n'est fourni.",
-        "Snowflake : NOT NULL et CHECK sont appliqués (CHECK depuis avril 2026). PK, UNIQUE et FK sont documentaires : ils ne bloquent rien !"
+        "Snowflake : NOT NULL et CHECK sont appliqués (CHECK depuis avril 2026). PK, UNIQUE et FK sont documentaires : ils ne bloquent rien ! Pour l'instant, `COPY INTO` et Snowpipe échouent sur une table qui a un CHECK."
       ],
       retenir: "SQL Server applique toutes les contraintes. Snowflake applique seulement NOT NULL et CHECK."
     },
     {
       titre: "Choisir les bons types",
-      exemple: "date_cde     DATE            -- pas VARCHAR !\nhorodatage   DATETIME2(0)    -- pas DATETIME (plus précis, plus moderne)\nmontant      DECIMAL(18,2)   -- pas FLOAT\nquantite     DECIMAL(12,3)   -- si on vend au mètre ou au kg\nlibelle      NVARCHAR(100)   -- si caractères étrangers\nactif        BIT             -- BOOLEAN sur Snowflake",
+      exemple: "date_cde     DATE            -- pas VARCHAR !\nhorodatage   DATETIME2(0)    -- pas DATETIME (précision au choix, plus moderne)\nmontant      DECIMAL(18,2)   -- pas FLOAT\nquantite     DECIMAL(12,3)   -- si on vend au mètre ou au kg\nlibelle      NVARCHAR(100)   -- si caractères étrangers\nactif        BIT             -- BOOLEAN sur Snowflake",
       points: [
         "Une date stockée en texte : pas de tri fiable, pas de contrôle, conversions partout.",
         "Argent : DECIMAL. FLOAT donne des valeurs approchées.",
@@ -43,7 +45,7 @@ LEARNSQL.fiches.m10 = {
       exemple: "ALTER TABLE dbo.facture ADD devise CHAR(3) NOT NULL\n  CONSTRAINT df_facture_devise DEFAULT 'EUR';\n\nALTER TABLE dbo.facture ALTER COLUMN num_facture VARCHAR(30) NOT NULL;\n\nDROP TABLE IF EXISTS stg.tmp_import;",
       points: [
         "Ajouter une colonne NOT NULL à une table pleine : il faut un DEFAULT.",
-        "Agrandir une colonne : facile. La réduire : risque de troncature.",
+        "Agrandir une colonne : facile. La réduire : SQL Server refuse si une valeur est trop longue (vérifie `MAX(LEN(col))` avant).",
         "`DROP TABLE IF EXISTS` (SQL Server 2016+, Snowflake) : script relançable.",
         "En production : teste d'abord sur une copie."
       ],
@@ -56,7 +58,7 @@ LEARNSQL.fiches.m10 = {
         "`#table` : visible dans ta session, supprimée à la fin.",
         "`##table` : visible par toutes les sessions (rare).",
         "`@table` (variable table) : petite, mauvaises estimations sur de gros volumes.",
-        "Snowflake : `TEMPORARY` (session) ou `TRANSIENT` (sans Fail-safe)."
+        "Snowflake : `TEMPORARY` (session) ; `TRANSIENT` reste après la session, sans Fail-safe."
       ],
       retenir: "Résultat intermédiaire volumineux : #table plutôt que @table."
     },
@@ -77,6 +79,6 @@ LEARNSQL.fiches.m10 = {
     ["Booléen", "`BIT`", "`BOOLEAN`"],
     ["Auto-incrément", "`IDENTITY(1,1)`", "`AUTOINCREMENT` / `SEQUENCE`"],
     ["Texte Unicode", "`NVARCHAR`", "`VARCHAR` (toujours Unicode)"],
-    ["Table temporaire", "`#t`, `@t`", "`TEMPORARY`, `TRANSIENT`"]
+    ["Table de travail", "`#t`, `@t`", "`TEMPORARY`, `TRANSIENT`"]
   ]
 };

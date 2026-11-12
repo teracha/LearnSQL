@@ -217,7 +217,7 @@ LEARNSQL.questions.m10 = [
   },
   {
     id: "m10-q13", dialecte: "SQL Server",
-    q: "Une colonne DATETIME reçoit '2026-10-31 23:59:59.999'. Que contient-elle ?",
+    q: "Une colonne DATETIME reçoit '20261031 23:59:59.999'. Que contient-elle ?",
     choix: [
       "2026-10-31 23:59:59.999",
       "2026-11-01 00:00:00.000",
@@ -229,7 +229,7 @@ LEARNSQL.questions.m10 = [
       "Non. DATETIME n'a pas cette précision.",
       "Oui. DATETIME arrondit à 1/300 s : .999 devient la seconde suivante… donc le lendemain ! Raison de plus pour filtrer avec < lendemain.",
       "Non. DATETIME arrondit .999 vers le haut.",
-      "Non. La valeur est acceptée et arrondie."
+      "Non. Écrite en AAAAMMJJ, la valeur est lue pareil dans toutes les langues : elle est acceptée, puis arrondie."
     ],
     retenir: "DATETIME arrondit : '23:59:59.999' = jour suivant."
   },
@@ -706,7 +706,7 @@ LEARNSQL.questions.m10 = [
     bonne: 1,
     pourquoi: [
       "Non. L'ALTER échoue avant l'UPDATE : les lignes existantes n'ont pas de valeur.",
-      "Oui. La valeur par défaut remplit les lignes existantes. (Opération rapide sur les versions récentes.)",
+      "Oui. La valeur par défaut remplit les lignes existantes. (Quasi instantané en édition Enterprise, si la valeur par défaut est une constante.)",
       "Non. Colonne NULL : les lignes existantes restent à NULL (le DEFAULT ne sert qu'aux nouvelles).",
       "Non. ALTER COLUMN modifie une colonne existante, et n'accepte pas DEFAULT."
     ],
@@ -1168,7 +1168,7 @@ LEARNSQL.questions.m10 = [
   },
   {
     id: "m10-q65", dialecte: "SQL Server",
-    q: "Tu dois stocker du JSON dans SQL Server. Quelle approche ?",
+    q: "Tu dois stocker du JSON dans SQL Server 2022. Quelle approche ?",
     choix: [
       "NVARCHAR(MAX) avec CHECK (ISJSON(doc) = 1)",
       "VARIANT avec CHECK (IS_OBJECT(doc))",
@@ -1177,12 +1177,12 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Le CHECK refuse le JSON mal formé ; on lit ensuite avec JSON_VALUE / OPENJSON. (Snowflake : type VARIANT.)",
+      "Oui. Le CHECK refuse le JSON mal formé ; on lit avec JSON_VALUE / OPENJSON. SQL Server 2025 a un type json natif (Snowflake : VARIANT).",
       "Non. VARIANT est un type Snowflake, pas SQL Server.",
       "Non. JSON n'est pas du XML.",
       "Non. Trop court, et le LIKE ne vérifie pas que le JSON est valide."
     ],
-    retenir: "JSON SQL Server : NVARCHAR(MAX) + ISJSON. Snowflake : VARIANT."
+    retenir: "JSON SQL Server : NVARCHAR(MAX) + ISJSON, ou le type json (2025). Snowflake : VARIANT."
   },
   {
     id: "m10-q66", dialecte: "Snowflake",
