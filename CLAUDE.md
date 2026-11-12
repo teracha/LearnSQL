@@ -46,12 +46,25 @@ L'export commence par `# LearnSQL — export pour le prof`. Dans ce cas :
 3. Pour chaque point faible : un exemple concret, puis l'explication, puis une petite question pour vérifier.
 4. Dire quoi faire ensuite : refaire un module, passer au suivant, ou demander un QCM ciblé.
 
-## Fiches de cours
+## Cours et fiches de révision
 
-Une fiche par module : `data/cours/mXX.js` (chargée dans `index.html`).
+Chaque module a un **cours**. Il peut avoir aussi une **fiche de révision** : la version courte, à relire avant un QCM
+(pour le SQL : l'ancien cours court, devenu fiche quand le cours complet l'a remplacé).
+- Cours : `data/cours/mXX.js` (`LEARNSQL.cours.mXX`), page `#/cours/mXX`. Les cours SQL complets : `docs/plan-sql.md`.
+- Fiche : `data/fiches/mXX.js` (`LEARNSQL.fiches.mXX`), page `#/fiche/mXX`, titre « Fiche de révision · <titre du module> ».
+- Les deux sont chargés dans `index.html`. Même format (ci-dessous), même page (`pageCours` de `js/app.js`), mêmes droits
+  que le module. Un cours ou une fiche qui n'existe pas : un message court.
+- **Une fiche seulement quand le cours complet du module existe** (les modules arrivent par lots).
+- Liens vers la fiche, seulement si elle existe : en haut du cours (« La fiche de révision » ; la fiche renvoie au « cours
+  complet »), bouton « Fiche » à côté de « Cours » (page du parcours), page de résultat d'un QCM, page `#/revision` (sous
+  le bouton, les fiches des modules choisis ; ces modules restent dans l'adresse, `#/revision/m04,m05`, pour les
+  retrouver en revenant d'une fiche).
+- `node outils/verifier.js` : format des cours et des fiches ; une fiche = un module existant, qui a son cours, chargée
+  dans `index.html` (alerte si elle est identique au cours). La ligne « total » dit combien de fiches. Test navigateur :
+  `outils/tests/fiches.js`.
 
 ```js
-LEARNSQL.cours.mXX = {
+LEARNSQL.cours.mXX = {          // une fiche : LEARNSQL.fiches.mXX, même format
   intro: "Pourquoi ce thème compte, en 2 phrases.",
   sections: [
     { titre: "...", exemple: "code SQL", resultat: "optionnel", points: ["..."], retenir: "..." }
@@ -60,7 +73,8 @@ LEARNSQL.cours.mXX = {
 };
 ```
 
-Toujours l'exemple d'abord. Texte entre accents graves = affiché en police code.
+Toujours l'exemple d'abord. Texte entre accents graves = affiché en police code. `resultat` : une phrase, ou un tableau
+(1re ligne = les en-têtes).
 
 ## Mode révision
 

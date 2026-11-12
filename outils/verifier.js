@@ -374,7 +374,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
     if (!Array.isArray(def.cours)) err(id, ': cours, une liste de modules (vide si aucun)');
     (def.cours || []).forEach(m => {
       if (!modules.has(m)) err(id, ': cours inconnu', m);
-      else if (!fs.existsSync(path.join(racine, 'data/cours', m + '.js'))) err(id, ': pas de fiche de cours pour', m);
+      else if (!fs.existsSync(path.join(racine, 'data/cours', m + '.js'))) err(id, ': pas de cours pour', m);
     });
     if (def.export !== undefined && !(Array.isArray(def.export) && def.export.every(x => ['excel', 'copier', 'imprimer'].indexOf(x) >= 0))) err(id, ': export, parmi excel, copier, imprimer');
     Object.keys(def).filter(x => CHAMPS_OUTIL.indexOf(x) < 0).forEach(x => alerte(id, ': champ inconnu (ignoré)', x));
@@ -441,5 +441,65 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   Object.keys(range).forEach(o => { if (!idsOutils.has(o)) err('sujet', range[o], ': outil inconnu', o); });
   console.log(`outils ${outils.length} (${Object.keys(parType).map(t => t + ' ' + parType[t]).join(', ')}) · ${sujets.length} sujets`);
 }
-console.log(`total ${ids.size} questions · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
+// ---------- Cours et fiches de révision (CLAUDE.md, « Cours et fiches de révision ») ----------
+// Un cours : data/cours/<id>.js (LEARNSQL.cours.<id>). Une fiche de révision : data/fiches/<id>.js (LEARNSQL.fiches.<id>),
+// au même format qu'un cours (ce que pageCours de js/app.js affiche), chargée dans index.html, pour un module existant
+// qui a son cours : une fiche seulement quand le cours complet existe.
+let nbFiches = 0;
+if (!filtre) {
+  const index = fs.readFileSync(path.join(racine, 'index.html'), 'utf8');
+  const modules = new Set((LEARNSQL.modules || []).map(m => m.id));
+  const err = (...m) => { console.log('ERREUR', ...m); erreurs++; };
+  const alerte = (...m) => { console.log('ALERTE', ...m); alertes++; };
+  const texte = t => typeof t === 'string' && t.trim() !== '';
+  const CHAMPS = ['intro', 'sections', 'differences'], CHAMPS_SECTION = ['titre', 'exemple', 'resultat', 'points', 'retenir', 'source'];
+  const cellule = v => v === null || typeof v === 'string' || typeof v === 'number';
+  // Résultat : une phrase, ou un tableau (en-têtes, puis au moins une ligne de même longueur).
+  const resultatOK = r => texte(r) || (Array.isArray(r) && r.length >= 2 &&
+    r.every(l => Array.isArray(l) && l.length && l.length === r[0].length && l.every(cellule)));
+  const verifierFormat = (ou, c) => {
+    if (!c || typeof c !== 'object') return err(ou, ': vide');
+    if (!texte(c.intro)) err(ou, ': intro (un texte)');
+    if (!Array.isArray(c.sections) || !c.sections.length) err(ou, ': sections (au moins une)');
+    (Array.isArray(c.sections) ? c.sections : []).forEach((s, i) => {
+      const lieu = ou + ' section ' + (i + 1);
+      if (!s || typeof s !== 'object') return err(lieu, ': vide');
+      if (!texte(s.titre)) err(lieu, ': titre (un texte)');
+      if (!Array.isArray(s.points) || !s.points.length || !s.points.every(texte)) err(lieu, ': points (une liste de textes)');
+      if (s.exemple !== undefined && !texte(s.exemple)) err(lieu, ': exemple (un texte)');
+      if (s.resultat !== undefined && !resultatOK(s.resultat)) err(lieu, ': résultat (une phrase, ou un tableau : en-têtes puis lignes de même longueur)');
+      if (s.retenir !== undefined && !texte(s.retenir)) err(lieu, ': retenir (un texte)');
+      if (s.source !== undefined && !(s.source && texte(s.source.titre) && /^https:\/\//.test(s.source.url || ''))) err(lieu, ': source { titre, url }');
+      Object.keys(s).filter(k => CHAMPS_SECTION.indexOf(k) < 0).forEach(k => alerte(lieu, ': champ inconnu (non affiché)', k));
+    });
+    if (c.differences !== undefined && !(Array.isArray(c.differences) && c.differences.every(d => Array.isArray(d) && d.length === 3 && d.every(texte))))
+      err(ou, ': differences (des lignes de 3 textes : sujet, SQL Server, Snowflake)');
+    Object.keys(c).filter(k => CHAMPS.indexOf(k) < 0).forEach(k => alerte(ou, ': champ inconnu (non affiché)', k));
+  };
+  // Un fichier = un cours (ou une fiche), nommé <id>.js.
+  const charger = (dossier, cle, unSeul) => {
+    if (!fs.existsSync(path.join(racine, dossier))) return;
+    for (const f of fs.readdirSync(path.join(racine, dossier)).filter(f => f.endsWith('.js')).sort()) {
+      const avant = Object.keys(LEARNSQL[cle]);
+      try { require(path.join(racine, dossier, f)); } catch (e) { err(dossier + '/' + f, ': fichier illisible,', e.message); continue; }
+      const nouveaux = Object.keys(LEARNSQL[cle]).filter(k => avant.indexOf(k) < 0);
+      if (nouveaux.length !== 1 || nouveaux[0] + '.js' !== f) err(dossier + '/' + f, ': un fichier = ' + unSeul + ', LEARNSQL.' + cle + '.<id> dans <id>.js');
+    }
+  };
+  LEARNSQL.fiches = LEARNSQL.fiches || {};
+  charger('data/cours', 'cours', 'un cours');
+  charger('data/fiches', 'fiches', 'une fiche');
+  Object.keys(LEARNSQL.cours).forEach(id => verifierFormat('cours ' + id, LEARNSQL.cours[id]));
+  Object.keys(LEARNSQL.fiches).forEach(id => {
+    const ou = 'fiche ' + id, f = LEARNSQL.fiches[id], c = LEARNSQL.cours[id];
+    verifierFormat(ou, f);
+    if (!modules.has(id)) err(ou, ': module inconnu (data/modules.js)');
+    if (!c) err(ou, ': pas de cours (une fiche seulement quand le cours complet existe)');
+    else if (JSON.stringify(c) === JSON.stringify(f)) alerte(ou, ': identique au cours (le cours complet n\'est pas encore écrit ?)');
+    if (index.indexOf('<script src="data/fiches/' + id + '.js"></script>') < 0) err(ou, ': absente de index.html');
+  });
+  nbFiches = Object.keys(LEARNSQL.fiches).length;
+  console.log(`cours ${Object.keys(LEARNSQL.cours).length} · fiches de révision ${nbFiches}`);
+}
+console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
 process.exitCode = erreurs ? 1 : 0;

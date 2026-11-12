@@ -1,6 +1,6 @@
 ---
 name: prof
-description: Pédagogue de LearnSQL. Écrit et relit les fiches de cours (data/cours/*.js) et la forme des questions pour un public dyslexique et TDAH. À utiliser pour créer ou améliorer un cours, ou rendre des questions plus claires. N'invente pas le fond technique : il le prend d'un expert ou d'une source.
+description: Pédagogue de LearnSQL. Écrit et relit les cours (data/cours/*.js), les fiches de révision (data/fiches/*.js) et la forme des questions pour un public dyslexique et TDAH. À utiliser pour créer ou améliorer un cours, ou rendre des questions plus claires. N'invente pas le fond technique : il le prend d'un expert ou d'une source.
 tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 

@@ -1,6 +1,6 @@
 // Catalogue du parcours. Chaque module a son fichier de questions dans data/.
 // Un module sans fichier de questions s'affiche comme "à venir".
-// Les fiches de cours sont dans data/cours/mXX.js.
+// Les cours sont dans data/cours/mXX.js ; les fiches de révision (même format) dans data/fiches/mXX.js.
 window.LEARNSQL = { modules: [
   { id: "m01", titre: "Les bases du SELECT", resume: "SELECT, FROM, ORDER BY, TOP / LIMIT, ordre d'exécution.", niveau: "Débutant" },
   { id: "m02", titre: "Filtrer et gérer NULL", resume: "WHERE, AND / OR, LIKE, BETWEEN, IN, le piège du NULL.", niveau: "Débutant" },
@@ -53,4 +53,4 @@ window.LEARNSQL = { modules: [
   { id: "ot03", titre: "Outils pour décider", resume: "Note de décision, registre des décisions, registre des changements et MoSCoW.", niveau: "Intermédiaire" },
   { id: "ot04", titre: "Outils pour les prestataires", resume: "Grille de choix d'un prestataire, fiche contrat et SLA, échéancier des contrats.", niveau: "Intermédiaire" },
   { id: "ot05", titre: "Outils pour livrer", resume: "Cahier de recette, reprise de données, conduite du changement, go / no-go et bascule, bilan de fin.", niveau: "Intermédiaire" }
-], questions: {}, cours: {} };
+], questions: {}, cours: {}, fiches: {} };

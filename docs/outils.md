@@ -148,7 +148,7 @@ Contrôle : `node outils/verifier.js` (section « Outils »). Tests : `outils/te
 ### Les champs communs d'un outil
 
 `id`, `sujet`, `titre`, `resume` (une phrase, 25 mots au plus), `quand`, `etapes` (1 à 3, 25 mots au plus chacune),
-`cours` (ids de modules qui ont une fiche de cours ; liste vide permise), `type` (`tableau`, `document`, `matrice`),
+`cours` (ids de modules qui ont un cours ; liste vide permise), `type` (`tableau`, `document`, `matrice`),
 `exemple` (obligatoire), `export` (facultatif, parmi `excel`, `copier`, `imprimer` ; par défaut les trois).
 Un champ inconnu donne une alerte du vérificateur (une faute de frappe ne passe pas en silence).
 

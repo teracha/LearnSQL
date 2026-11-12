@@ -399,6 +399,7 @@
              '<small>meilleure · ' + st.nb + ' essai(s)</small></div>'
       : '<div class="note"><small>' + Math.min(TAILLE_QCM, qs.length) + ' questions</small></div>';
     var boutons = (DATA.cours[m.id] ? '<a class="btn small ghost" href="#/cours/' + m.id + '">Cours</a>' : '') +
+      (DATA.fiches[m.id] ? '<a class="btn small ghost" href="#/fiche/' + m.id + '">Fiche</a>' : '') +
       (qs ? '<a class="btn small" href="#/quiz/' + m.id + '">QCM</a>' : '');
     return '<div class="card module' + (qs || DATA.cours[m.id] ? '' : ' locked') + '">' +
       '<div class="num">' + num + '</div>' +
@@ -481,13 +482,27 @@
       '</tbody></table></div>';
   }
 
-  function pageCours(id) {
+  // Page d'un cours (#/cours/mXX) ou de sa fiche de révision (#/fiche/mXX, fiche = true) : même format, même rendu,
+  // mêmes droits que le module. En haut, le lien vers l'autre (s'il existe). Un cours ou une fiche absent : un message.
+  function pageCours(id, fiche) {
     var m = module(id);
-    var c = DATA.cours[id];
-    if (!m || !c || !moduleVisible(id)) { location.hash = "#/"; return; }
-    var html = '<p class="muted">Cours · Module ' + numeroModule(id) + '</p>' +
-      '<h1>' + esc(m.titre) + '</h1>' +
-      '<p>' + fmt(c.intro) + '</p>';
+    if (!m || !moduleVisible(id)) { location.hash = "#/"; return; }
+    var c = (fiche ? DATA.fiches : DATA.cours)[id];
+    var autre = fiche ? (DATA.cours[id] ? '<a href="#/cours/' + id + '">Le cours complet</a>' : '')
+      : (DATA.fiches[id] ? '<a href="#/fiche/' + id + '">La fiche de révision</a>' : '');
+    var html = '<p class="muted">' + (fiche ? '' : 'Cours · ') + 'Module ' + numeroModule(id) + (autre ? ' · ' + autre : '') + '</p>' +
+      '<h1>' + (fiche ? 'Fiche de révision · ' : '') + esc(m.titre) + '</h1>';
+    if (c) html += contenuCours(id, c);
+    else html += '<p>' + (fiche ? 'Pas encore de fiche de révision' : 'Pas encore de cours') + ' pour ce module.</p>';
+    html += '<div class="actions">' +
+      (DATA.questions[id] ? '<a class="btn" href="#/quiz/' + id + '">Faire le QCM</a>' : '') +
+      '<a class="btn ghost" href="#/p/' + chaineModule(id).join('/') + '">Retour au parcours</a></div>';
+    app.innerHTML = html;
+  }
+
+  // Le contenu d'un cours ou d'une fiche : intro, sections, écarts SQL Server / Snowflake, outils du cours.
+  function contenuCours(id, c) {
+    var html = '<p>' + fmt(c.intro) + '</p>';
     // Hors SQL, l'exemple est une situation en texte : police normale, retour à la ligne.
     var sql = chaineModule(id)[0] === "sql";
     var balise = sql ? '<pre class="code">' : '<pre class="code texte">';
@@ -511,10 +526,16 @@
     // Les outils qui mettent ce cours en pratique (champ « cours » des outils, docs/outils.md).
     var outils = outilsDuCours(id);
     if (outils.length) html += '<h2>Les outils de ce cours</h2>' + outils.map(function (o) { return carteOutil(o); }).join('');
-    html += '<div class="actions">' +
-      (DATA.questions[id] ? '<a class="btn" href="#/quiz/' + id + '">Faire le QCM</a>' : '') +
-      '<a class="btn ghost" href="#/p/' + chaineModule(id).join('/') + '">Retour au parcours</a></div>';
-    app.innerHTML = html;
+    return html;
+  }
+
+  // Les fiches de révision de ces modules (seulement celles qui existent, modules visibles), dans l'ordre des modules :
+  // un titre et des liens, ou rien.
+  function liensFiches(ids) {
+    var l = DATA.modules.filter(function (m) { return ids.indexOf(m.id) >= 0 && DATA.fiches[m.id] && moduleVisible(m.id); });
+    if (!l.length) return '';
+    return '<h2>' + (l.length > 1 ? 'Fiches de révision' : 'Fiche de révision') + '</h2><ul class="recap">' +
+      l.map(function (m) { return '<li><a href="#/fiche/' + m.id + '">' + esc(m.titre) + '</a></li>'; }).join('') + '</ul>';
   }
 
   // Arbre de révision : thème (parcours) > sous-thème (sous-parcours) > modules.
@@ -563,7 +584,8 @@
     html += '<div class="card arbre">' + arbreRevision(store, choisis) + '</div>' +
       '<p><label>Nombre de questions : <select id="nb"></select></label></p>' +
       '<p id="info" class="muted"></p>' +
-      '<div class="actions"><button type="button" class="btn" id="lancer">Lancer la révision</button></div>';
+      '<div class="actions"><button type="button" class="btn" id="lancer">Lancer la révision</button></div>' +
+      '<div id="fiches-choisies"></div>';   // (sous le bouton : il ne bouge pas quand on coche)
     app.innerHTML = html;
 
     var nb = document.getElementById("nb");
@@ -595,6 +617,9 @@
       document.getElementById("info").textContent = ok
         ? ids.length + " modules choisis."
         : "Choisis encore " + (REVISION_MIN_THEMES - ids.length) + " module(s).";
+      document.getElementById("fiches-choisies").innerHTML = liensFiches(ids);
+      // Les modules choisis restent dans l'adresse : en revenant d'une fiche (ou du QCM), ils sont encore cochés.
+      try { history.replaceState(history.state, "", "#/revision" + (ids.length ? "/" + ids.join(",") : "")); } catch (e) { /* ignoré */ }
     }
     function selection() {
       return cases.filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
@@ -797,7 +822,9 @@
       });
       html += '</ul>';
     }
-    html += '<div class="actions">' +
+    // Les fiches de révision des modules de ce QCM (un module, ou plusieurs pour une révision ou « Mes erreurs »).
+    html += liensFiches(themes) +
+      '<div class="actions">' +
       '<a class="btn" href="' + esc(t.lien || "#/quiz/" + t.module) + '">Refaire</a>' +
       '<a class="btn ghost" href="#/">Parcours</a>' +
       '<a class="btn ghost" href="#/export">Exporter pour le prof</a></div>';
@@ -3054,6 +3081,7 @@
     if (parts[0] !== "compte") messageCompte = "";
     if (parts[0] === "quiz" && parts[1]) demarrerQuiz(parts[1], parts[2], parts[3]);
     else if (parts[0] === "cours" && parts[1]) pageCours(parts[1]);
+    else if (parts[0] === "fiche" && parts[1]) pageCours(parts[1], true);
     else if (parts[0] === "revision") pageRevision(parts[1]);
     else if (parts[0] === "resultat") pageResultat();
     else if (parts[0] === "erreurs") pageErreurs();
