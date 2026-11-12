@@ -4,6 +4,9 @@ Les 16 modules SQL (m01 à m16) ont chacun 100 questions, validées. Leurs cours
 des fiches mémo : 400 à 750 mots, des points télégraphiques, souvent sans le résultat de la requête, sans lien avec le
 métier de l'élève. Ils sont réécrits un par un, dans le format ci-dessous. Modèle : m02 (version 2, squelette « Ce qui se passe / Pourquoi / Le piège / Le bon réflexe »).
 Le cours court remplacé devient la fiche de révision du module (`data/fiches/mXX.js`, même format, page `#/fiche/mXX`).
+**État (12/11/2026)** : les 16 cours sont complets (m01 à m03 en novembre, m04 à m16 le 12/11/2026, en 3 lots), chacun
+relu par un testeur avec sa fiche ; m07 a 60 questions. Compte des mots : les mots qui contiennent une lettre ou un
+chiffre (intro, titres, exemples, résultats, points, retenir ; carte exclue).
 
 ## La base d'exemple (`docs/base-exemple.sql`)
 
