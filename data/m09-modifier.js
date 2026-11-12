@@ -214,7 +214,7 @@ LEARNSQL.questions.m09 = [
     bonne: 1,
     pourquoi: [
       "Non. Une table n'a pas d'ordre de lecture garanti.",
-      "Oui. Une table n'a pas d'ordre : seul un ORDER BY à la lecture garantit l'ordre. (L'ORDER BY de l'INSERT peut seulement influencer l'ordre d'attribution des IDENTITY.)",
+      "Oui. Une table n'a pas d'ordre : seul un ORDER BY à la lecture garantit l'ordre. (L'ORDER BY de l'INSERT fixe seulement l'ordre d'attribution des IDENTITY, sur SQL Server.)",
       "Non. L'ordre de lecture n'est toujours pas garanti.",
       "Non. Même règle sur Snowflake."
     ],
@@ -484,14 +484,14 @@ LEARNSQL.questions.m09 = [
     q: "Un UPDATE qui remet la même valeur (SET ville = ville) a-t-il un coût ?",
     choix: [
       "Aucun : SQL Server ne fait rien du tout",
-      "Oui : écriture, journal et triggers",
+      "Oui : les triggers se déclenchent",
       "Il est refusé par SQL Server",
       "Il supprime puis recrée la ligne"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. La ligne est quand même écrite et journalisée.",
-      "Oui. La ligne est écrite, journalisée, et les triggers se déclenchent quand même. D'où l'intérêt de filtrer les lignes qui changent vraiment.",
+      "Non. La ligne est traitée quand même : triggers déclenchés, @@ROWCOUNT, parfois écriture et journal.",
+      "Oui. Les triggers se déclenchent quand même et la ligne compte dans @@ROWCOUNT ; selon les cas, elle est aussi réécrite et journalisée. D'où l'intérêt de filtrer les lignes qui changent vraiment.",
       "Non. SQL Server l'accepte.",
       "Non. La ligne est modifiée sur place."
     ],
@@ -656,11 +656,11 @@ LEARNSQL.questions.m09 = [
     bonne: 1,
     pourquoi: [
       "Non. Ils diffèrent : WHERE, triggers, IDENTITY, vitesse.",
-      "Oui. TRUNCATE vide tout très vite (pas de WHERE), remet l'IDENTITY à zéro et ne déclenche pas les triggers DELETE. DELETE supprime ligne par ligne (journalisé, triggers, WHERE possible).",
+      "Oui. TRUNCATE vide tout très vite (pas de WHERE), remet l'IDENTITY à sa valeur de départ et ne déclenche pas les triggers DELETE. DELETE supprime ligne par ligne (journalisé, triggers, WHERE possible).",
       "Non. C'est DROP.",
       "Non. TRUNCATE est bien plus rapide pour tout vider."
     ],
-    retenir: "DELETE = lignes choisies. TRUNCATE = tout, vite, compteur remis à zéro."
+    retenir: "DELETE = lignes choisies. TRUNCATE = tout, vite, compteur IDENTITY remis au départ."
   },
   {
     id: "m09-q37", dialecte: "SQL Server",
@@ -1175,7 +1175,7 @@ LEARNSQL.questions.m09 = [
   },
   {
     id: "m09-q65", dialecte: "SQL Server",
-    q: "Tu fais un INSERT dans une vue qui joint client et commande. Que se passe-t-il ?",
+    q: "Tu fais un INSERT dans une vue qui joint client et commande, avec des colonnes des deux tables. Que se passe-t-il ?",
     choix: [
       "Les deux tables sont remplies",
       "Erreur : plusieurs tables touchées",
@@ -1185,7 +1185,7 @@ LEARNSQL.questions.m09 = [
     bonne: 1,
     pourquoi: [
       "Non. SQL Server refuse.",
-      "Oui. Une modification via une vue ne doit toucher qu'une table de base (sauf trigger INSTEAD OF).",
+      "Oui. Une modification via une vue ne doit toucher qu'une table de base (sauf trigger INSTEAD OF). Avec les colonnes d'une seule table, l'INSERT passe.",
       "Non. SQL Server refuse tout l'INSERT.",
       "Non. Une vue n'est jamais recréée toute seule."
     ],
@@ -1338,8 +1338,8 @@ LEARNSQL.questions.m09 = [
     retenir: "Une clé primaire ne devrait jamais changer."
   },
   {
-    id: "m09-q74", dialecte: "Standard",
-    q: "Quelle requête supprime les doublons en gardant la ligne de plus grand id ?",
+    id: "m09-q74", dialecte: "SQL Server",
+    q: "Sur SQL Server, quelle requête supprime les doublons en gardant la ligne de plus grand id ?",
     choixCode: true,
     choix: [
       "DELETE a FROM t a WHERE EXISTS (SELECT 1 FROM t b WHERE b.cle = a.cle AND b.id < a.id)",
@@ -1613,10 +1613,10 @@ LEARNSQL.questions.m09 = [
     id: "m09-q89", dialecte: "SQL Server",
     q: "INSERT INTO t (…) SELECT … ORDER BY date_cde, sur une table avec IDENTITY. Qu'est-ce qui est garanti ?",
     choix: [
-      "Rien",
-      "Les valeurs IDENTITY sont attribuées dans l'ordre du ORDER BY",
+      "Rien : l'ORDER BY est ignoré",
+      "L'ordre d'attribution des IDENTITY",
       "Les lignes seront relues dans cet ordre",
-      "Les lignes sont stockées physiquement dans cet ordre"
+      "Les lignes sont stockées dans cet ordre"
     ],
     bonne: 1,
     pourquoi: [
@@ -1738,18 +1738,18 @@ LEARNSQL.questions.m09 = [
     retenir: "Dates dans les INSERT : toujours 'AAAAMMJJ'."
   },
   {
-    id: "m09-q96", dialecte: "Standard",
-    q: "Une table de chargement est vidée puis rechargée chaque nuit. DELETE ou TRUNCATE ?",
+    id: "m09-q96", dialecte: "SQL Server",
+    q: "Sur SQL Server, une table de chargement est vidée puis rechargée chaque nuit. DELETE ou TRUNCATE ?",
     choix: [
       "DELETE, pour garder une trace dans le journal",
-      "TRUNCATE : rapide, compteurs à zéro",
+      "TRUNCATE : rapide, compteur remis au départ",
       "DROP TABLE, puis CREATE TABLE",
       "UPDATE de toutes les lignes"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Plus lent, sans avantage ici.",
-      "Oui. Plus rapide, moins de journal. Idéal pour les tables de chargement (sans clé étrangère entrante).",
+      "Oui. Plus rapide, moins de journal, et le compteur IDENTITY repart à sa valeur de départ. Idéal pour les tables de chargement (sans clé étrangère entrante).",
       "Non. La structure, les droits et les index seraient perdus.",
       "Non. UPDATE modifie, il ne vide pas la table."
     ],

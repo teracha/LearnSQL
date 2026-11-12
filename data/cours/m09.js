@@ -49,6 +49,11 @@
 // (q67), DEFAULT VALUES (q68), violation de clé primaire (q69), IGNORE_DUP_KEY (q70), « quirky update » (q72), ON UPDATE
 // CASCADE (q73), dédoublonnage par EXISTS (q74), SEQUENCE (q90), = NULL (q94), dates AAAAMMJJ (q95) ; transactions et
 // verrous (autocommit q58, XACT_ABORT q60, transaction ouverte q61, UPDLOCK q86, verrouillage optimiste q87) : module m11.
+// Relecture testeur (12/11/2026, scratchpad cours-complets/relecture-m09) : résultats recalculés à part (40 contrôles
+// SQLite, 0 écart) ; 6 corrections (changements.txt) : « partenaire » -> « tarif » (S3), « oublie le lien » -> « sans le
+// lien » (S4), Snowflake sans verrou par ligne (S5, sources sql-reference/transactions et user-guide/tables-hybrid),
+// « ancien statut » (S7), « (SQL Server) » sur l'ordre des numéros (user-guide/querying-sequences) et sur la sous-requête
+// corrélée du SET (user-guide/querying-subqueries) dans Détails utiles.
 LEARNSQL.cours.m09 = {
   intro: "Cette nuit, le flux EDI des tarifs a mis à jour les articles de Divalto : sais-tu combien, et avec quel prix ? `INSERT`, `UPDATE`, `DELETE` et `MERGE` écrivent dans la base. Une erreur ici abîme les données, souvent sans message. Ce module montre les pièges vus en entreprise (WHERE oublié, tarif en double, purge qui bloque l'ERP) et le réflexe qui les évite : vérifier avant d'écrire.",
   sections: [
@@ -84,7 +89,7 @@ LEARNSQL.cours.m09 = {
       resultat: "Aucune erreur. PH-5 passe à 25.90 ; CHL-5 prend 41.50 ou 42.90, au hasard.",
       points: [
         "Ce qui se passe : pas d'erreur, pas d'alerte. CHL-5 trouve deux lignes de tarif et en garde une : laquelle, personne ne le sait, et cela peut changer d'une exécution à l'autre.",
-        "Pourquoi : `UPDATE a … FROM … JOIN` modifie chaque article qui trouve un partenaire, et seulement eux. Un article ne prend qu'une valeur : face à deux lignes, le moteur en garde une, sans prévenir (« résultat indéfini », dit Microsoft).",
+        "Pourquoi : `UPDATE a … FROM … JOIN` modifie chaque article qui trouve un tarif, et seulement eux. Un article ne prend qu'une valeur : face à deux lignes, le moteur en garde une, sans prévenir (« résultat indéfini », dit Microsoft).",
         "Le piège : un tarif en double dans le fichier, et le prix de vente devient une loterie. Rien ne plante : on le découvre sur une facture contestée.",
         "Le bon réflexe : avant l'UPDATE, `SELECT code … GROUP BY code HAVING COUNT(*) > 1` doit rendre 0 ligne. Sinon, garde une ligne par code (la plus récente : ROW_NUMBER, m06). Un total à recopier : agrège d'abord, puis joins.",
         "SQL Server / Snowflake : Snowflake met le lien dans le WHERE, sans alias devant la colonne du SET. Un doublon n'y plante pas non plus, sauf si le paramètre `ERROR_ON_NONDETERMINISTIC_UPDATE` vaut TRUE."
@@ -100,7 +105,7 @@ LEARNSQL.cours.m09 = {
         "Pourquoi : `ligne_cde.cde_id` est une clé étrangère (une colonne qui pointe vers une commande). Tant qu'une ligne de `ligne_cde` pointe vers CDE-1004, SQL Server refuse de supprimer la commande : erreur 547. Les enfants d'abord, puis le parent.",
         "Le piège : `ON DELETE CASCADE` sur la clé : supprimer un client efface toutes ses commandes, sans prévenir. Et Snowflake ne vérifie pas les clés étrangères : le DELETE du parent passe, et laisse des lignes orphelines (sans parent).",
         "Le bon réflexe : dans un ERP, désactive plutôt que supprimer (`actif = 0`, la suppression logique) : l'historique reste ; une vue filtre `actif = 1` pour les rapports. Orphelines à purger : `NOT EXISTS` vers le parent (m06).",
-        "SQL Server / Snowflake : avec `USING`, oublie le lien `c.id = l.cde_id` : toute la table part dès qu'une commande est annulée. Sur SQL Server, une clé étrangère sans index ralentit le DELETE du parent."
+        "SQL Server / Snowflake : avec `USING`, sans le lien `c.id = l.cde_id`, toute la table part dès qu'une commande est annulée. Sur SQL Server, une clé étrangère sans index ralentit le DELETE du parent."
       ],
       retenir: "DELETE alias FROM … JOIN (SQL Server), DELETE … USING (Snowflake). Les enfants avant le parent ; dans un ERP, désactive."
     },
@@ -113,7 +118,7 @@ LEARNSQL.cours.m09 = {
         "Pourquoi : SQL Server pose un verrou (un « occupé ») sur chaque ligne supprimée. Au-delà de 5 000 verrous sur une table, il les remplace par un seul, sur toute la table : l'escalade. Un lot de 1 000 reste dessous.",
         "Le piège : un seul DELETE de 500 000 lignes en journée : table bloquée, journal (où SQL Server note chaque modification) qui gonfle. Un UPDATE par lots doit exclure ce qui est fait (`WHERE statut <> 'X'`), sinon il tourne sans fin.",
         "Le bon réflexe : pour vider une table de chargement, `TRUNCATE TABLE` : très rapide, et la table reste (`DROP` la détruit). Le compteur IDENTITY (la numérotation automatique) repart au départ. Refusé si une clé étrangère pointe vers elle, même si la table fille est vide.",
-        "SQL Server / Snowflake : Snowflake n'a pas de TOP dans un DELETE, ni d'escalade : un seul DELETE. Son TRUNCATE efface aussi l'historique de chargement : `COPY INTO` rechargera les mêmes fichiers ; après un DELETE, non."
+        "SQL Server / Snowflake : Snowflake n'a pas de TOP dans un DELETE, ni de verrou par ligne : pas d'escalade, un seul DELETE. Son TRUNCATE efface aussi l'historique de chargement : `COPY INTO` rechargera les mêmes fichiers ; après un DELETE, non."
       ],
       retenir: "Grosse purge : lots de moins de 5 000 lignes. Tout vider : TRUNCATE, refusé si une clé étrangère pointe vers la table."
     },
@@ -137,7 +142,7 @@ LEARNSQL.cours.m09 = {
       points: [
         "Ce qui se passe : une ligne par commande modifiée, avec son statut d'avant et d'après : les 3 commandes en cours passent à LIVREE. L'ordre des lignes rendues n'est pas garanti.",
         "Pourquoi : pendant l'instruction, SQL Server tient deux tables cachées : `deleted` (les lignes avant) et `inserted` (après). Un INSERT n'a que `inserted`, un DELETE que `deleted`, un UPDATE les deux. Un trigger (code lancé à chaque modification) lit les mêmes.",
-        "Le piège : tracer après coup : l'UPDATE, puis un INSERT dans une table d'historique qui relit la table. L'ancien prix est déjà perdu. Et un trigger, lancé une fois pour 50 lignes, qui lit une seule ligne d'`inserted` en rate 49.",
+        "Le piège : tracer après coup : l'UPDATE, puis un INSERT dans une table d'historique qui relit la table. L'ancien statut est déjà perdu. Et un trigger, lancé une fois pour 50 lignes, qui lit une seule ligne d'`inserted` en rate 49.",
         "Le bon réflexe : `OUTPUT … INTO historique` garde la trace dans la même instruction (`INTO` obligatoire si la table a un trigger). `DELETE … OUTPUT deleted.* INTO archive` archive et purge d'un coup. Dans un MERGE, `OUTPUT $action` dit, pour chaque ligne, INSERT, UPDATE ou DELETE.",
         "SQL Server / Snowflake : sur Snowflake, sans OUTPUT, l'avant se lit par un SELECT avant, ou par Time Travel (relire la table dans le passé) : `FROM commande BEFORE (STATEMENT => LAST_QUERY_ID())`, la table juste avant ta dernière requête."
       ],
@@ -146,9 +151,9 @@ LEARNSQL.cours.m09 = {
     {
       titre: "Détails utiles",
       points: [
-        "L'id créé : `SCOPE_IDENTITY()`, pas `@@IDENTITY` (faussé par un trigger) ; pour 200 lignes, `OUTPUT inserted.id`. IDENTITY a des trous : jamais pour numéroter des factures. `INSERT … SELECT … ORDER BY` fixe l'ordre des numéros, pas celui de la relecture (m01).",
+        "L'id créé : `SCOPE_IDENTITY()`, pas `@@IDENTITY` (faussé par un trigger) ; pour 200 lignes, `OUTPUT inserted.id`. IDENTITY a des trous : jamais pour numéroter des factures. `INSERT … SELECT … ORDER BY` fixe l'ordre des numéros (SQL Server), pas celui de la relecture (m01).",
         "Ne réécris que ce qui change : une valeur identique entre quand même dans `@@ROWCOUNT` et déclenche les triggers. `WHERE c.ville IS DISTINCT FROM s.ville` compte NULL comme une valeur (SQL Server 2022, Snowflake) ; `<>` rate le passage de NULL à Lyon.",
-        "`SET derniere_cde = (SELECT MAX(…) …)` met NULL aux clients sans commande ; une jointure interne ne les touche pas.",
+        "`SET derniere_cde = (SELECT MAX(…) …)` met NULL aux clients sans commande (SQL Server) ; une jointure interne ne les touche pas.",
         "Upsert sans MERGE : UPDATE des lignes existantes, puis `INSERT … WHERE NOT EXISTS`, dans une transaction : relançable sans doublon (idempotent). Deux sessions, même clé : `MERGE … WITH (HOLDLOCK)`, qui garde le verrou jusqu'au bout.",
         "Flux EDI de la nuit : table de chargement, contrôles (formats, doublons, références), rejets tracés avec leur motif, puis MERGE. Une table des fichiers déjà chargés évite de charger deux fois le même.",
         "Snowflake : `INSERT OVERWRITE` vide puis remplit d'un coup ; `INSERT ALL` ou `FIRST` remplit plusieurs tables en une lecture. Écris par lots ; un UPDATE réécrit chaque micro-partition (bloc de stockage) touchée."

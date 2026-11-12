@@ -1,11 +1,13 @@
 // Fiche de révision du module m09 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m09.js.
+// Relecture testeur (12/11/2026) : 1er INSERT aligné sur la base et le cours (id et type, NOT NULL, listés) ; IDENTITY
+// remis « à sa valeur de départ » ; danger de BY SOURCE dit ; carte, cellule de 7 mots ramenée à 6.
 LEARNSQL.fiches.m09 = {
   intro: "INSERT, UPDATE, DELETE et MERGE modifient les données. Une erreur ici ne se voit pas seulement dans un rapport : elle abîme la base. Règle d'or : vérifie avant d'écrire.",
   sections: [
     {
       titre: "INSERT : ajouter des lignes",
-      exemple: "INSERT INTO dbo.client (code, nom, pays)\nVALUES ('C001', 'Piscines Dupont', 'FR'),\n       ('C002', 'Aqua Lyon', 'FR');\n\nINSERT INTO dbo.client_archive (code, nom, pays)\nSELECT code, nom, pays\nFROM dbo.client\nWHERE actif = 0;",
+      exemple: "INSERT INTO dbo.client (id, code, nom, ville, pays, type)\nVALUES (8, 'C008', 'Spa Azur', 'Toulon', 'FR', 'PRO'),\n       (9, 'C009', 'Piscinas Lopez', NULL, 'ES', 'PRO');\n\nINSERT INTO dbo.client_archive (code, nom, pays)\nSELECT code, nom, pays\nFROM dbo.client\nWHERE actif = 0;",
       points: [
         "Liste TOUJOURS les colonnes cibles. Sinon, une colonne ajoutée casse tout.",
         "`INSERT … SELECT` copie le résultat d'une requête.",
@@ -41,7 +43,7 @@ LEARNSQL.fiches.m09 = {
       points: [
         "`DELETE` supprime des lignes choisies. Il est journalisé ligne par ligne.",
         "`TRUNCATE` vide toute la table, très vite. Pas de WHERE.",
-        "SQL Server : TRUNCATE remet le compteur IDENTITY à zéro.",
+        "SQL Server : TRUNCATE remet le compteur IDENTITY à sa valeur de départ.",
         "TRUNCATE est refusé si une clé étrangère pointe vers la table.",
         "Gros DELETE : par petits lots (`DELETE TOP (1000) …` en boucle) : moins de 5 000 verrous par lot, donc pas de verrou sur toute la table."
       ],
@@ -54,7 +56,7 @@ LEARNSQL.fiches.m09 = {
         "Un seul ordre pour synchroniser une table avec une source.",
         "SQL Server : MERGE doit finir par `;`.",
         "Doublons dans la source = erreur (même ligne cible modifiée deux fois).",
-        "`NOT MATCHED BY SOURCE` (SQL Server) supprime ce qui n'est plus dans la source. Attention !",
+        "`NOT MATCHED BY SOURCE` (SQL Server) supprime ce qui n'est plus dans la source. Vérifie que la source est complète.",
         "Snowflake : MERGE existe aussi, sans `BY SOURCE`."
       ],
       retenir: "MERGE = upsert. Source sans doublon, sinon erreur."
@@ -71,7 +73,7 @@ LEARNSQL.fiches.m09 = {
     }
   ],
   differences: [
-    ["UPDATE avec jointure", "`UPDATE a SET … FROM a JOIN b`", "`UPDATE a SET … FROM b WHERE …`"],
+    ["UPDATE avec jointure", "`UPDATE a SET … FROM … JOIN b`", "`UPDATE a SET … FROM b WHERE …`"],
     ["Clause OUTPUT", "Oui", "Non"],
     ["MERGE … NOT MATCHED BY SOURCE", "Oui", "Non"],
     ["Annuler une erreur", "Transaction / sauvegarde", "Transaction ou Time Travel"]
