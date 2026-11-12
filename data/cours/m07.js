@@ -61,7 +61,7 @@ LEARNSQL.cours.m07 = {
       titre: "Les colonnes : par position, jamais par nom",
       exemple: "-- La 2e partie, copiée d'une autre requête, a nom et ville inversés\nSELECT nom, ville FROM dbo.client WHERE type = 'GD'\nUNION ALL\nSELECT ville, nom FROM dbo.client WHERE pays = 'CH'\nORDER BY nom;",
       resultat: [["nom", "ville"], ["AquaBleu", "Lyon"], ["Genève", "Pool & Garden"]],
-      regle: "Une union associe les colonnes par leur position : la 1re avec la 1re, la 2e avec la 2e. Les noms n'y jouent aucun rôle (sauf avec `BY NAME`, sur Snowflake). Le moteur ne vérifie pas non plus le sens : deux colonnes de texte inversées passent sans erreur. C'est donc à toi de garder le même ordre dans chaque partie, sans jamais écrire `SELECT *`.",
+      regle: "Une union associe les colonnes par leur position : la 1re avec la 1re, la 2e avec la 2e. Pour les associer, les noms ne comptent pas (sauf avec `BY NAME`, sur Snowflake). Le moteur ne vérifie pas non plus le sens : deux colonnes de texte inversées passent sans erreur. C'est donc à toi de garder le même ordre dans chaque partie, sans jamais écrire `SELECT *`.",
       points: [
         "Ce qui se passe : « Genève » arrive dans `nom`, « Pool & Garden » dans `ville`. Aucune erreur : ce sont deux textes, et le moteur ne lit pas les noms.",
         "Pourquoi : il faut le même nombre de colonnes et des types compatibles ; le résultat prend le plus large : `VARCHAR(50)` plutôt que `VARCHAR(5)`, `DECIMAL` plutôt qu'`INT`.",
