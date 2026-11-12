@@ -101,7 +101,7 @@ LEARNSQL.cours.m11 = {
     },
     {
       titre: "Le deadlock : deux sessions qui s'attendent",
-      exemple: "-- Session 1 (EDI) : l'article, puis son stock\nBEGIN TRAN;\nUPDATE dbo.article SET stock = stock - 1 WHERE id = 6;\nUPDATE dbo.stock_depot SET qte = qte - 1\nWHERE article_id = 6 AND depot_id = 1;\n-- Session 2, en même temps : l'ordre inverse\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte + 1\nWHERE article_id = 6 AND depot_id = 1;\nUPDATE dbo.article SET stock = stock + 1 WHERE id = 6;",
+      exemple: "-- Session 1 (EDI) : l'article, puis son stock\nBEGIN TRAN;\nUPDATE dbo.article SET stock = stock - 1 WHERE id = 6;\nUPDATE dbo.stock_depot SET qte = qte - 1\nWHERE article_id = 6 AND depot_id = 1;\n\n-- Session 2, en même temps : l'ordre inverse\nBEGIN TRAN;\nUPDATE dbo.stock_depot SET qte = qte + 1\nWHERE article_id = 6 AND depot_id = 1;\nUPDATE dbo.article SET stock = stock + 1 WHERE id = 6;",
       resultat: "Chacune attend l'autre. Après quelques secondes, SQL Server annule l'une, la victime (erreur 1205) ; l'autre finit normalement.",
       points: [
         "Ce qui se passe : la session 1 tient l'article ROB-X, la session 2 son stock à Lyon ; chacune attend ce que l'autre tient. Aucune ne peut finir : c'est un interblocage (deadlock).",
