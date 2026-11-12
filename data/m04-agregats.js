@@ -66,7 +66,7 @@ LEARNSQL.questions.m04 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Certains moteurs (MySQL) font ça. SQL Server et Snowflake refusent.",
+      "Non. L'ancien MySQL faisait ça. SQL Server et Snowflake refusent.",
       "Oui. Chaque colonne du SELECT doit être dans GROUP BY ou dans un agrégat (SUM, MAX…).",
       "Non. On groupe par client, pas par ville.",
       "Non. La requête ne s'exécute pas."
@@ -1072,8 +1072,8 @@ LEARNSQL.questions.m04 = [
     retenir: "Libellé de total fiable : GROUPING(col) = 1."
   },
   {
-    id: "m04-q59", dialecte: "SQL Server + Snowflake",
-    q: "Comment trier un ROLLUP pour avoir chaque sous-total juste après les lignes de sa région, et le total général à la fin ?",
+    id: "m04-q59", dialecte: "SQL Server",
+    q: "Sur SQL Server, comment trier un ROLLUP pour avoir chaque sous-total juste après les lignes de sa région, et le total général à la fin ?",
     choixCode: true,
     choix: [
       "ORDER BY region, pays, GROUPING(region), GROUPING(pays)",
@@ -1563,7 +1563,7 @@ LEARNSQL.questions.m04 = [
     bonne: 0,
     pourquoi: [
       "Oui. Les deux marchent. Ajouter au GROUP BY est le plus lisible.",
-      "Non. ANY_VALUE n'est pas disponible sur SQL Server (jusqu'à la version 2022 au moins).",
+      "Non. Côté Microsoft, ANY_VALUE n'existe que dans Fabric : pas sur SQL Server.",
       "Non. Erreur : colonne non groupée.",
       "Non. DISTINCT ne remplace pas le GROUP BY : erreur."
     ],

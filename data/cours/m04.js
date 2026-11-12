@@ -30,6 +30,10 @@
 // docs.snowflake.com/en/sql-reference (par extraits de recherche, le site n'est pas joignable) : functions/avg (entier ->
 // décimales), functions/count_if, functions/booland_agg, functions/any_value, functions/median, constructs/group-by
 // (GROUP BY ALL, alias), constructs/having (alias), functions/listagg.
+// Relecture testeur (12/11/2026) : 33 résultats recalculés avec SQLite, 0 écart. COUNT_IF : la doc Snowflake
+// (functions/count_if) annonce NULL quand aucune ligne ne vérifie la condition, d'où « (sa doc : NULL si zéro) » ;
+// « Toutes les lignes livrées ? » devient « Toutes les commandes livrées ? » (référence ambiguë) ; « DISTINCT ne sert à
+// rien » seulement sur les mêmes colonnes (SELECT DISTINCT COUNT(*) … GROUP BY client_id dédoublonne bien, cf. q48).
 LEARNSQL.cours.m04 = {
   intro: "Ton rapport Power BI donne 30 230 € de commandes à AquaBleu, Divalto 15 115 € : qui a raison ? Un agrégat (une fonction qui résume des lignes en une valeur : SUM, COUNT, AVG) calcule un total par client ou par mois. Il plante rarement : il saute les cases vides, ou additionne deux fois une ligne copiée, en silence. Ce module montre ces pièges, et comment les éviter.",
   sections: [
@@ -81,7 +85,7 @@ LEARNSQL.cours.m04 = {
         "Pourquoi : le CASE (le « si… alors », m03) tourne sur chaque ligne, avant l'agrégat : il rend le montant ou 0, puis SUM additionne. COUNT compte toute valeur non NULL : le 0 du ELSE compte.",
         "Le piège : `COUNT(CASE … THEN 1 ELSE 0 END)` compte toutes les lignes. Ton indicateur « commandes EDI » vaut le nombre total de commandes, sans erreur, dans chaque rapport.",
         "Le bon réflexe : avec COUNT, pas de ELSE (NULL n'est pas compté) ; avec SUM, `ELSE 0`. La part de commandes EDI : `AVG(CASE WHEN canal = 'EDI' THEN 1.0 ELSE 0 END)`, où 1.0 évite la division entière.",
-        "SQL Server / Snowflake : Snowflake a aussi `COUNT_IF(canal = 'EDI')`. « Toutes les lignes livrées ? » : `MIN(CASE … THEN 1 ELSE 0 END) = 1` ; « au moins une » : MAX. Snowflake : `BOOLAND_AGG`, `BOOLOR_AGG` sur un BOOLEAN (vrai / faux)."
+        "SQL Server / Snowflake : Snowflake a `COUNT_IF(canal = 'EDI')` (sa doc : NULL si aucune ligne ne compte). « Toutes les commandes livrées ? » : `MIN(CASE … THEN 1 ELSE 0 END) = 1` ; « au moins une » : MAX. Snowflake : `BOOLAND_AGG`, `BOOLOR_AGG` sur un BOOLEAN (vrai / faux)."
       ],
       retenir: "SUM(CASE WHEN … THEN x ELSE 0 END) : une colonne par condition, en une seule lecture. Avec COUNT : THEN 1, sans ELSE."
     },
@@ -130,7 +134,7 @@ LEARNSQL.cours.m04 = {
         "Une liste dans une case : `STRING_AGG(num_cde, ', ') WITHIN GROUP (ORDER BY num_cde)` (SQL Server 2017+), `LISTAGG` sur Snowflake. STRING_AGG refuse DISTINCT (LISTAGG l'accepte), et plante au-delà de 8 000 octets : `CAST(num_cde AS varchar(max))`.",
         "Le détail et le total côte à côte : `SUM(montant_ht) OVER (PARTITION BY client_id)` ajoute le total du client sur chaque ligne (fonction de fenêtrage, m08). « La dernière commande de chaque client », « le top 3 par région » : ROW_NUMBER, qui numérote les lignes.",
         "Le meilleur client : `ORDER BY SUM(montant_ht) DESC` puis `TOP (1) WITH TIES` ; ORDER BY accepte un agrégat absent du SELECT. SQL Server refuse `MAX(SUM(…))` : fais d'abord les sommes dans une sous-requête (une requête dans la requête).",
-        "Sans agrégat, GROUP BY fait comme DISTINCT : DISTINCT pour dédoublonner, GROUP BY pour calculer. Les deux ensemble : DISTINCT ne sert à rien.",
+        "Sans agrégat, GROUP BY fait comme DISTINCT : DISTINCT pour dédoublonner, GROUP BY pour calculer. Ensemble, sur les mêmes colonnes : DISTINCT ne sert à rien.",
         "Médiane : `MEDIAN(x)` sur Snowflake ; `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY x) OVER (…)` sur SQL Server, qui exige OVER. Sur 10, 20, 30, 40 : CONT donne 25, PERCENTILE_DISC une vraie valeur, 20. Écart-type : STDEV, STDDEV sur Snowflake.",
         "SQL Server : un total INT plante au-delà de 2,1 milliards : `SUM(CAST(qte AS bigint))`, et `COUNT_BIG(*)` pour compter. SUM, AVG, MIN et MAX refusent le BIT : `SUM(CAST(actif AS int))`. Gros volumes : `APPROX_COUNT_DISTINCT` estime vite (2019+, Snowflake).",
         "Un stock ou un solde ne s'additionne pas dans le temps : prends le dernier mois, ou la moyenne. Des lignes « Total » importées d'Excel doublent le CA : filtre-les avant d'agréger.",
