@@ -48,9 +48,10 @@ LEARNSQL.cours.m03 = {
       titre: "CASE : le « si… alors » qui s'arrête au premier vrai",
       exemple: "-- Voulu : un statut lisible ; le cas ANNULEE a été oublié\nSELECT num_cde, statut,\n       CASE statut\n            WHEN 'LIVREE'   THEN 'Livrée'\n            WHEN 'EN_COURS' THEN 'En cours'\n       END AS etat\nFROM dbo.commande\nWHERE date_cde >= '20260309' AND date_cde < '20260404';",
       resultat: [["num_cde", "statut", "etat"], ["CDE-1003", "LIVREE", "Livrée"], ["CDE-1004", "ANNULEE", null], ["CDE-1005", "EN_COURS", "En cours"], ["CDE-1006", "EN_COURS", "En cours"]],
+      regle: "`CASE` choisit une valeur selon des conditions : c'est le « si… alors… sinon » de SQL. Il lit les `WHEN` dans l'ordre et s'arrête au premier vrai ; les suivants ne comptent plus. Si aucun n'est vrai, il rend la valeur du `ELSE`, ou NULL s'il n'y a pas de `ELSE`. On range donc les cas du plus précis au plus général, et on prévoit toujours un dernier recours, le `ELSE`.",
       points: [
         "Ce qui se passe : CDE-1004 affiche NULL (une case vide, « inconnu »). Son statut ANNULEE n'est dans aucun WHEN, et sans ELSE le moteur ne choisit rien à ta place.",
-        "Pourquoi : CASE lit les WHEN dans l'ordre et s'arrête au premier vrai ; rien de vrai et pas de ELSE donne NULL. `CASE statut WHEN 'LIVREE'` compare avec un égal ; `CASE WHEN montant_ht >= 2000` accepte toute condition.",
+        "Pourquoi : `CASE statut WHEN 'LIVREE'` compare avec un égal ; `CASE WHEN montant_ht >= 2000` accepte toute condition.",
         "Le piège : dans Power BI, la commande annulée tombe dans « (vide) » et sort des totaux par état. L'ordre aussi : `WHEN montant_ht >= 500 THEN 'Moyenne' WHEN montant_ht >= 2000 THEN 'Grosse'` ne donne jamais « Grosse ».",
         "Le bon réflexe : toujours un ELSE (`ELSE 'Autre'`), et les WHEN du plus strict au plus large. Case vide : `CASE WHEN statut IS NULL`, jamais `CASE statut WHEN NULL` : un égal avec NULL n'est jamais vrai (m02).",
         "SQL Server / Snowflake : raccourci à une condition : `IIF(qte > 0, 'OK', 'KO')` sur SQL Server, `IFF` sur Snowflake ; CASE marche partout. Les branches doivent avoir un type compatible : `THEN 'N/A' ELSE stock` (un entier) plante."
@@ -61,9 +62,10 @@ LEARNSQL.cours.m03 = {
       titre: "Entier divisé par entier : les décimales disparaissent",
       exemple: "-- Voulu : des palettes de 10 cartons, commandes 5, 7 et 8\nSELECT id, qte,\n       qte / 10            AS palettes,      -- entier / entier : comme 7 / 2 = 3\n       CEILING(qte / 10.0) AS palettes_ok\nFROM dbo.ligne_cde\nWHERE cde_id IN (5, 7, 8);",
       resultat: [["id", "qte", "palettes", "palettes_ok"], [7, 8, 0, 1], [9, 150, 15, 15], [10, 5, 0, 1], [11, 4, 0, 1]],
+      regle: "Sur SQL Server, le type d'un résultat suit le type des nombres du calcul. Un entier divisé par un entier donne donc un entier. Tout ce qui suit la virgule est perdu, sans arrondi ni message. Une remise, un taux ou un nombre de palettes peuvent ainsi tomber à 0. Pour garder les décimales, il suffit qu'un des deux nombres soit décimal : `10.0`, ou un `CAST` (une conversion de type). Snowflake, lui, garde les décimales : la même division donne deux résultats différents selon le moteur.",
       points: [
         "Ce qui se passe : 8 cartons donnent 0 palette, 5 cartons aussi ; seule la ligne de 150 tombe juste. `palettes_ok` dit 1 : il faut bien une palette pour 8 cartons.",
-        "Pourquoi : `qte` est un INT (nombre entier) et 10 aussi. Entier divisé par entier donne un entier : le moteur coupe les décimales, sans arrondir. 7 / 2 = 3, 8 / 10 = 0, 15 / 100 = 0.",
+        "Pourquoi : `qte` est un INT (nombre entier) et 10 aussi. 7 / 2 = 3, 8 / 10 = 0, 15 / 100 = 0.",
         "Le piège : une remise `montant_ht * (taux / 100)` avec un taux entier vaut 0 : elle disparaît du devis. Un taux `livre / commande * 100` ne vaut que 0 ou 100.",
         "Le bon réflexe : glisse un décimal dans le calcul : `qte / 10.0`, `montant_ht * 15.0 / 100`, ou `CAST(qte AS decimal(10,2))` (CAST convertit vers un type). Puis arrondis : CEILING vers le haut, FLOOR vers le bas, `ROUND(x, 2)`.",
         "SQL Server / Snowflake : Snowflake renvoie 3.5 pour 7 / 2 : sa division garde des décimales. Une requête migrée change donc ses chiffres sans prévenir. Pour couper sur Snowflake : `TRUNC(7 / 2)`."
@@ -74,6 +76,7 @@ LEARNSQL.cours.m03 = {
       titre: "DECIMAL ou FLOAT : l'argent veut un type exact",
       exemple: "-- Piège : en FLOAT, 0,1 + 0,2 ≠ 0,3\nSELECT CASE WHEN CAST(0.1 AS float) + CAST(0.2 AS float) = 0.3\n            THEN 'égal' ELSE 'différent' END AS test;   -- différent\n\n-- Juste : TTC des commandes EDI, en DECIMAL\nSELECT num_cde, montant_ht,\n       CAST(montant_ht * 1.2 AS decimal(10,2)) AS montant_ttc\nFROM dbo.commande\nWHERE canal = 'EDI';",
       resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
+      regle: "Un nombre à virgule peut être exact ou approché. `DECIMAL` (Snowflake : `NUMBER`) est exact : il garde les chiffres écrits, avec un nombre fixe de décimales. `FLOAT` est approché : il garde une valeur très proche, mais pas toujours égale. L'écart est minuscule, mais il s'accumule dans les totaux, et un test d'égalité peut répondre « différent ». L'argent va donc en `DECIMAL`, jamais en `FLOAT`. Une conversion peut aussi changer un nombre : vers un entier, SQL Server coupe, Snowflake arrondit.",
       points: [
         "Ce qui se passe : le test répond « différent » : en FLOAT, 0,1 + 0,2 vaut 0,30000000000000004. Le TTC, lui, tombe juste : 4 780,00 × 1,2 = 5 736,00.",
         "Pourquoi : FLOAT (nombre à virgule flottante) stocke les nombres en binaire, de façon approchée, comme 1/3 s'écrit 0,333… sans fin. `DECIMAL(10,2)` (10 chiffres, 2 après la virgule) stocke exactement ce que tu écris ; CAST fixe 2 décimales.",
@@ -87,6 +90,7 @@ LEARNSQL.cours.m03 = {
       titre: "Découper un texte : LEFT, SUBSTRING, CHARINDEX et TRY_CAST",
       exemple: "-- Voulu : le préfixe avant le tiret (CHL-25 → CHL) et le numéro, en nombre\n-- Piège : LEFT(code, CHARINDEX('-', code) - 1) plante sur BACHE8\nSELECT code,\n       CHARINDEX('-', code) AS tiret,\n       LEFT(code, NULLIF(CHARINDEX('-', code), 0) - 1) AS prefixe,\n       TRY_CAST(SUBSTRING(code, CHARINDEX('-', code) + 1, 10) AS int) AS numero\nFROM dbo.article\nWHERE famille IN ('CHIMIE', 'ACCESSOIRE');",
       resultat: [["code", "tiret", "prefixe", "numero"], ["CHL-5", 4, "CHL", 5], ["CHL-25", 4, "CHL", 25], ["PH-5", 3, "PH", 5], ["EPU-F", 4, "EPU", null], ["BACHE8", 0, null, null]],
+      regle: "Pour découper un texte, il faut savoir où couper. En SQL, on compte les caractères à partir de 1, pas de 0. Si les morceaux n'ont pas toujours la même longueur, une position fixe se trompe : on cherche plutôt le séparateur (`CHARINDEX`). Restent deux cas : le séparateur absent, ou un morceau qui n'est pas un nombre. Sans précaution, une seule ligne arrête alors toute la requête. On prévoit donc ces cas, pour obtenir NULL au lieu d'une erreur (`NULLIF`, `TRY_CAST`).",
       points: [
         "Ce qui se passe : CHARINDEX donne la position du tiret : 4 pour CHL-25, 0 pour BACHE8 (aucun tiret). LEFT garde le début, SUBSTRING coupe depuis une position, TRY_CAST rend un nombre, ou NULL (F, BACHE8).",
         "Pourquoi : les positions commencent à 1 : `SUBSTRING(texte, début, longueur)` ; une longueur trop grande va jusqu'à la fin. Les positions fixes trahissent quand la longueur varie : `LEFT(code, 3)` donne 'PH-' pour PH-5 ; CHARINDEX trouve le tiret partout.",
@@ -100,6 +104,7 @@ LEARNSQL.cours.m03 = {
       titre: "Coller des textes : + ou CONCAT, et la case vide",
       exemple: "-- Voulu : « nom (ville) » sur l'étiquette des piscinistes français\nSELECT ville,\n       nom + ' (' + ville + ')'       AS avec_plus,\n       CONCAT(nom, ' (', ville, ')')  AS avec_concat\nFROM dbo.client\nWHERE pays = 'FR' AND type = 'PRO';",
       resultat: [["ville", "avec_plus", "avec_concat"], ["Grenoble", "Piscines Dumont (Grenoble)", "Piscines Dumont (Grenoble)"], ["Nice", "Bleu Lagon (Nice)", "Bleu Lagon (Nice)"], ["Montpellier", "Hydro Sud (Montpellier)", "Hydro Sud (Montpellier)"], ["Lyon", "Piscines Dumont (Lyon)", "Piscines Dumont (Lyon)"], [null, null, "Camping Les Flots ()"]],
+      regle: "Coller des textes bute sur deux obstacles : la case vide et le nombre. Une case vide (NULL) est un inconnu : collée à du texte, elle peut rendre tout le résultat vide. Un nombre n'est pas un texte : avec `+`, SQL Server veut calculer au lieu de coller. `CONCAT` règle ces deux cas sur SQL Server ; sur Snowflake, la case vide reste un piège. Le plus sûr, sur les deux moteurs : décider soi-même par quoi remplacer une case vide, avec `COALESCE`.",
       points: [
         "Ce qui se passe : quatre étiquettes correctes. Pour Camping Les Flots, ville NULL, `+` rend toute l'étiquette NULL ; CONCAT garde le nom et laisse la parenthèse vide.",
         "Pourquoi : `+` colle deux textes, mais NULL (inconnu) contamine tout : inconnu suivi de « Lyon » reste inconnu. CONCAT remplace chaque NULL par un texte vide et convertit les nombres : `CONCAT('Cde ', 42)` donne 'Cde 42'.",
@@ -113,6 +118,7 @@ LEARNSQL.cours.m03 = {
       titre: "Dates : DATEADD ajoute, DATEDIFF compte des frontières",
       exemple: "-- Piège : DATEDIFF compte des frontières, pas des durées\nSELECT DATEDIFF(year, '20251231', '20260101') AS annees;   -- 1, pour un jour d'écart\n\n-- Juste : échéance à 30 jours, âge au 30/04/2026 (date d'arrêté)\nSELECT num_fact, date_fact,\n       DATEADD(day, 30, date_fact)          AS echeance,\n       DATEDIFF(day, date_fact, '20260430') AS age_jours,\n       MONTH(date_fact)                     AS mois\nFROM dbo.facture;",
       resultat: [["num_fact", "date_fact", "echeance", "age_jours", "mois"], ["FA-2026-0301", "2026-03-03", "2026-04-02", 58, 3], ["FA-2026-0302", "2026-03-06", "2026-04-05", 55, 3], ["FA-2026-0303", "2026-03-10", "2026-04-09", 51, 3], ["FA-2026-0401", "2026-04-11", "2026-05-11", 19, 4]],
+      regle: "`DATEADD` déplace une date, vers l'avant ou vers l'arrière, d'un nombre de jours, de mois ou d'années. `DATEDIFF` ne mesure pas une durée : il compte combien de fois l'unité choisie (jour, mois, année) change entre deux dates. Avec une grande unité, le résultat trompe : un seul jour d'écart peut compter pour un an. Pour un écart juste, on compte donc en jours. Les mois n'ont pas tous 31 jours. Un mois ajouté au 31 tombe ainsi sur le dernier jour du mois suivant, s'il est plus court.",
       points: [
         "Ce qui se passe : `DATEADD(day, 30, date_fact)` donne l'échéance ; un nombre négatif retire. `DATEDIFF(day, …)` compte les jours jusqu'à l'arrêté : la facture en retard a 51 jours. MONTH extrait le mois.",
         "Pourquoi : `DATEDIFF(unité, début, fin)` compte les frontières de l'unité franchies. Du 31/12 au 01/01, l'année change une fois : 1, pour un jour d'écart. En mois, du 31/01 au 01/02 : 1 aussi.",
@@ -126,6 +132,7 @@ LEARNSQL.cours.m03 = {
       titre: "Une date en texte : le tri ment et la lecture s'inverse",
       exemple: "-- Piège : dates exportées en texte jj/mm/aaaa : le tri suit les caractères\nSELECT num_cde, statut,\n       CONVERT(varchar(10), date_cde, 103) AS date_txt\nFROM dbo.commande\nWHERE statut <> 'LIVREE'\nORDER BY date_txt;",
       resultat: [["num_cde", "statut", "date_txt"], ["CDE-1005", "EN_COURS", "01/04/2026"], ["CDE-1006", "EN_COURS", "03/04/2026"], ["CDE-1007", "EN_COURS", "07/04/2026"], ["CDE-1004", "ANNULEE", "12/03/2026"]],
+      regle: "Une date et le texte qui lui ressemble ne se comportent pas pareil. Le texte se trie caractère par caractère, donc mal dès qu'il commence par le jour. Sa lecture dépend aussi du moteur et de la langue : le jour et le mois peuvent s'inverser, sans erreur. On garde donc le vrai type date ; le texte vient au dernier moment, pour un fichier ou un affichage. Pour convertir dans un sens ou dans l'autre, on donne toujours le format.",
       points: [
         "Ce qui se passe : la commande du 12 mars arrive en dernier, après celles d'avril. Le tri compare les caractères un par un : « 0 » vient avant « 1 », donc 01/04 passe avant 12/03.",
         "Pourquoi : un texte n'est pas une date : le moteur n'y voit que des caractères. `CONVERT(varchar(10), date_cde, 103)` fabrique le texte jj/mm/aaaa (style 103, français) ; 112 donne AAAAMMJJ (fichiers EDI), 120 AAAA-MM-JJ hh:mi:ss, lisible et triable.",

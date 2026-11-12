@@ -19,9 +19,10 @@ LEARNSQL.cours.m02 = {
       titre: "WHERE, AND et OR : le moteur garde les lignes vraies",
       exemple: "-- Voulu : les piscinistes (PRO) de Lyon ou de Grenoble\nSELECT code, nom, ville, type\nFROM dbo.client\nWHERE ville = 'Lyon' OR ville = 'Grenoble' AND type = 'PRO';",
       resultat: [["code", "nom", "ville", "type"], ["C001", "AquaBleu", "Lyon", "GD"], ["C002", "Piscines Dumont", "Grenoble", "PRO"], ["C006", "Piscines Dumont", "Lyon", "PRO"]],
+      regle: "`WHERE` teste chaque ligne et ne garde que celles où la condition est vraie. Si elle est fausse, ou « inconnue » à cause d'une case vide (partie suivante), la ligne sort. On combine plusieurs tests avec `AND` (tous doivent être vrais) ou `OR` (un seul suffit). Mélangés, ils suivent une priorité : `AND` passe avant `OR`, comme la multiplication avant l'addition. Des parenthèses imposent l'ordre voulu.",
       points: [
-        "Ce qui se passe : le moteur prend les lignes une par une et garde celles où la condition est vraie. Ici, 3 lignes, dont AquaBleu : une grande distribution (GD), pas un pisciniste.",
-        "Pourquoi : AND est calculé avant OR, comme la multiplication avant l'addition. Le moteur a lu « Lyon, ou bien (Grenoble et PRO) ». AquaBleu est à Lyon : il entre.",
+        "Ce qui se passe : 3 lignes, dont AquaBleu : une grande distribution (GD), pas un pisciniste.",
+        "Pourquoi : le moteur a lu « Lyon, ou bien (Grenoble et PRO) ». AquaBleu est à Lyon : il entre.",
         "Le piège : un rapport « piscinistes de Lyon et Grenoble » qui contient une grande surface. Personne ne le voit, et les chiffres par type de client sont faux.",
         "Le bon réflexe : des parenthèses dès que tu mélanges AND et OR : `(ville = 'Lyon' OR ville = 'Grenoble') AND type = 'PRO'` donne les 2 bonnes lignes. `ville IN ('Lyon', 'Grenoble')` écrit le OR pour toi, sans piège.",
         "Et aussi : `BETWEEN 1000 AND 3000` inclut les deux bornes, petite borne d'abord. NOT ne porte que sur la condition juste après lui : `NOT (A OR B)` veut dire « ni A ni B »."
@@ -32,9 +33,10 @@ LEARNSQL.cours.m02 = {
       titre: "NULL : une case vide n'est ni vraie ni fausse",
       exemple: "-- Voulu : les clients qui ne sont pas à Lyon\nSELECT code, nom, ville\nFROM dbo.client\nWHERE ville <> 'Lyon';",
       resultat: [["code", "nom", "ville"], ["C002", "Piscines Dumont", "Grenoble"], ["C003", "Bleu Lagon", "Nice"], ["C004", "Hydro Sud", "Montpellier"], ["C005", "Pool & Garden", "Genève"]],
+      regle: "NULL veut dire « inconnu » : ce n'est ni zéro ni un texte vide. Comparer un inconnu à une valeur donne un troisième résultat : « inconnu », ni vrai ni faux. Même `NULL = NULL` reste inconnu. Comme `WHERE` ne garde que le vrai, une ligne dont le test reste inconnu est écartée, sans message. Pour voir les cases vides, il faut le test fait pour elles : `IS NULL` ou `IS NOT NULL`.",
       points: [
         "Ce qui se passe : 4 lignes. Camping Les Flots manque, alors qu'il n'est pas à Lyon. Sa ville est NULL : une case vide, non renseignée.",
-        "Pourquoi : NULL veut dire « inconnu », pas zéro ni texte vide. « Inconnu différent de Lyon ? » : le moteur répond « inconnu », ni vrai ni faux. Or WHERE ne garde que le vrai.",
+        "Pourquoi : « Inconnu différent de Lyon ? » : le moteur répond « inconnu », ni vrai ni faux.",
         "Le piège : toute comparaison avec =, <>, <, LIKE ou NOT laisse les lignes NULL dehors, sans erreur. Un contrôle « clients hors Lyon » oublie un client, et tu ne le sais pas.",
         "Le bon réflexe : `IS NULL` et `IS NOT NULL` sont les seuls tests qui voient une case vide. Pour garder les inconnus : `ville <> 'Lyon' OR ville IS NULL`.",
         "Et aussi : `siren = NULL` renvoie 0 ligne, sans erreur, parce que « inconnu égal inconnu » reste inconnu. `WHERE siren IS NULL` trouve bien les 2 fiches à nettoyer (Bleu Lagon, Pool & Garden)."
@@ -45,6 +47,7 @@ LEARNSQL.cours.m02 = {
       titre: "NOT IN et NULL : le rapport vide",
       exemple: "-- Piège : 0 ligne ! Le flux 3 (rejeté) n'a pas de commande : son cde_id est NULL\nSELECT num_cde FROM dbo.commande\nWHERE id NOT IN (SELECT cde_id FROM dbo.flux_edi);\n\n-- Juste : les 5 commandes sans flux EDI (résultat ci-dessous)\nSELECT c.num_cde, c.canal\nFROM dbo.commande AS c\nWHERE NOT EXISTS (SELECT 1 FROM dbo.flux_edi AS f\n                  WHERE f.cde_id = c.id);",
       resultat: [["num_cde", "canal"], ["CDE-1002", "TEL"], ["CDE-1004", "WEB"], ["CDE-1005", "TEL"], ["CDE-1006", "WEB"], ["CDE-1008", "TEL"]],
+      regle: "`NOT IN` garde une ligne si sa valeur n'est égale à aucune valeur de la liste. Il doit donc être sûr qu'elle diffère de chacune ; face à un NULL, il ne l'est jamais. Ainsi, une liste qui contient un NULL vide tout le résultat, sans erreur. Ce NULL vient souvent d'une sous-requête (une requête dans la requête) sur une colonne qui peut être vide. Pour trouver ce qui manque, on préfère `NOT EXISTS` : il vérifie qu'aucune ligne liée n'existe, sans liste à comparer.",
       points: [
         "Ce qui se passe : la première requête renvoie 0 ligne. La seconde renvoie les 5 commandes qui n'ont pas de flux EDI. Même question, deux réponses.",
         "Pourquoi : `NOT IN (1, 3, NULL, 7)` veut dire « différent de 1, et de 3, et de NULL, et de 7 ». « Différent de NULL » est inconnu, et une chaîne de AND avec un inconnu n'est jamais vraie. Aucune ligne ne passe.",
@@ -58,6 +61,7 @@ LEARNSQL.cours.m02 = {
       titre: "COALESCE et NULLIF : remplacer une case vide, ou en fabriquer une",
       exemple: "-- Flux ORDERS : un motif lisible, une alerte seulement sur les rejets\nSELECT id, COALESCE(motif, 'Aucun') AS motif,\n       NULLIF(statut, 'OK')        AS alerte\nFROM dbo.flux_edi\nWHERE type = 'ORDERS';",
       resultat: [["id", "motif", "alerte"], [1, "Aucun", null], [2, "Aucun", null], [3, "EAN inconnu", "REJET"], [5, "Aucun", null]],
+      regle: "Une case vide gêne parfois, et parfois elle protège. `COALESCE` la remplace par une valeur de secours : un libellé lisible, un zéro. `NULLIF` fait le geste contraire : il change en NULL une valeur qui pose problème. Son grand usage : la division. Un diviseur à zéro devenu NULL donne un résultat vide, au lieu d'arrêter la requête. Dans les deux cas, on change le sens d'une valeur : on le fait seulement si ce sens est juste.",
       points: [
         "Ce qui se passe : les motifs vides deviennent « Aucun ». Et dans la colonne alerte, le statut OK devient NULL : seule la ligne rejetée garde une valeur.",
         "Pourquoi : `COALESCE(a, b)` renvoie la première valeur non vide (a si elle est renseignée, sinon b). `NULLIF(a, b)` fait l'inverse : il renvoie NULL quand a vaut b.",
@@ -71,6 +75,7 @@ LEARNSQL.cours.m02 = {
       titre: "Les dates : une plage, et la colonne nue",
       exemple: "-- Commandes livrées en mars 2026 : du 1er mars inclus au 1er avril exclu\n-- '20260301' (AAAAMMJJ) : forme sûre sur SQL Server ; Snowflake attend '2026-03-01'\nSELECT num_cde, date_cde, montant_ht\nFROM dbo.commande\nWHERE statut = 'LIVREE'\n  AND date_cde >= '20260301'\n  AND date_cde <  '20260401';",
       resultat: [["num_cde", "date_cde", "montant_ht"], ["CDE-1001", "2026-03-02", "4780.00"], ["CDE-1002", "2026-03-05", "1290.00"], ["CDE-1003", "2026-03-09", "2385.00"]],
+      regle: "Une période se filtre avec deux bornes : `>=` le premier jour, et `<` le lendemain du dernier. Cette forme reste juste quand la colonne a une heure, là où `BETWEEN` perdrait la fin du dernier jour. Deuxième règle : la colonne filtrée reste nue, sans fonction autour. Ainsi, le moteur peut se servir de l'index (la table des matières de la table). On transforme donc la valeur cherchée, jamais la colonne.",
       points: [
         "Ce qui se passe : les 3 commandes livrées de mars. La plage va du 1er mars inclus au 1er avril exclu : le signe < sur la fin, pas <=.",
         "Pourquoi : `BETWEEN '20260301' AND '20260331'` marche sur une colonne DATE. Mais sur une colonne DATETIME (date + heure), '20260331' veut dire le 31 mars à minuit : la commande du 31 à 14 h disparaît.",
@@ -84,6 +89,7 @@ LEARNSQL.cours.m02 = {
       titre: "LIKE : chercher un motif dans un texte",
       exemple: "-- Articles dont le code commence par CHL\nSELECT code, libelle, prix_tarif\nFROM dbo.article\nWHERE code LIKE 'CHL%';",
       resultat: [["code", "libelle", "prix_tarif"], ["CHL-5", "Chlore lent 5 kg", "39.90"], ["CHL-25", "Chlore lent 25 kg", "159.00"]],
+      regle: "`LIKE` cherche un motif dans un texte : des caractères connus, et des jokers pour ceux qu'on ne connaît pas. Il sert à trouver un code qui commence par un préfixe, ou un nom qui contient un mot. Sa vitesse dépend du début du motif. Si le début est connu, le moteur peut se servir de l'index ; avec un joker en tête, il lit tout. C'est le même piège qu'une fonction autour de la colonne.",
       points: [
         "Ce qui se passe : les 2 chlores. `%` remplace n'importe quelle suite de caractères, même vide. `_` remplace exactement un caractère : `'CHL-_'` trouve CHL-5, pas CHL-25.",
         "Pourquoi ça va vite : avec un début connu (`'CHL%'`), le moteur cherche dans l'index comme dans un dictionnaire, et s'arrête aux mots qui commencent par CHL.",
@@ -97,6 +103,7 @@ LEARNSQL.cours.m02 = {
       titre: "Majuscules et espaces : chaque moteur a sa règle",
       exemple: "SELECT code, nom\nFROM dbo.client\nWHERE nom = 'aquableu';   -- en minuscules",
       resultat: "SQL Server : 1 ligne, C001 AquaBleu. Snowflake : aucune ligne.",
+      regle: "Deux textes égaux pour un moteur ne le sont pas forcément pour l'autre. SQL Server compare avec souplesse : souvent sans tenir compte des majuscules, et sans les espaces de fin dans une égalité. Snowflake, par défaut, ne fait pas ces deux exceptions : majuscules et espaces comptent. Un filtre écrit pour l'un peut donc ne rien trouver sur l'autre, sans erreur. Avant de corriger une comparaison (`UPPER`, `ILIKE`, `TRIM`), on vérifie la règle du moteur.",
       points: [
         "Ce qui se passe : la même requête trouve AquaBleu sur SQL Server et rien sur Snowflake. Ni l'un ni l'autre ne se trompe : ils n'ont pas la même règle.",
         "Pourquoi : SQL Server suit la collation de la colonne, c'est-à-dire sa règle de comparaison des textes. La plus courante en France, French_CI_AS, ignore la casse (CI) mais compte les accents (AS). Snowflake compare exactement, lettre pour lettre.",
