@@ -22,6 +22,10 @@
 // à un nombre : erreur 100038), constructs/limit (ORDER BY d'une sous-requête), constructs/with (CTE récursive : UNION ALL,
 // liste des colonnes obligatoire), functions/hash ; guides SnowConvert (ni INTERSECT ALL ni MINUS ALL).
 // Notions rares testées par une seule question : « Détails utiles » ou explication de la question (règle 6).
+// Relecture testeur (12/11/2026) : S4 « top 2 de chaque partie » (ANNULEE n'y est pas) ; S4 et carte « table
+// dérivée + LIMIT » (docs.snowflake.com constructs/order-by : sous-requête du FROM avec ORDER BY + LIMIT) ; S5 : ni SQL
+// Server ni Snowflake n'ont EXCEPT ALL / INTERSECT ALL (guides SnowConvert) ; S6 : jointure testée sur code, nom, ville
+// (sur toutes les colonnes : 3 écarts, les 2 SIREN NULL en plus ; SQLite) ; S1 « ajoute … à celles de la 1re » (q18).
 LEARNSQL.cours.m07 = {
   intro: "Après la reprise des clients dans Snowflake, on te demande : « Les deux tables sont-elles identiques ? » Quelle requête écris-tu ? `UNION ALL` empile deux résultats, `INTERSECT` garde le commun, `EXCEPT` le manquant. Ce module t'évite deux erreurs vues en entreprise : un `UNION` qui fusionne de vraies ventes, et un contrôle fait dans un seul sens qui annonce « 0 écart ».",
   sections: [
@@ -31,7 +35,7 @@ LEARNSQL.cours.m07 = {
       resultat: [["piece", "numero", "date_piece", "montant_ht"], ["Commande", "CDE-1001", "2026-03-02", "4780.00"], ["Facture", "FA-2026-0301", "2026-03-03", "4780.00"], ["Commande", "CDE-1003", "2026-03-09", "2385.00"], ["Facture", "FA-2026-0303", "2026-03-10", "2385.00"], ["Commande", "CDE-1007", "2026-04-07", "7950.00"]],
       points: [
         "Ce qui se passe : les 3 commandes d'AquaBleu et ses 2 factures, par date, dans les mêmes colonnes. La constante `piece` (le même texte sur toute la partie) dit d'où vient la ligne.",
-        "Pourquoi : `UNION ALL` pose les lignes de la 2e requête sous celles de la 1re, sans rien retirer. Les noms des colonnes viennent de la 1re ; ceux de la 2e sont ignorés.",
+        "Pourquoi : `UNION ALL` ajoute les lignes de la 2e requête à celles de la 1re, sans rien retirer. Les noms des colonnes viennent de la 1re ; ceux de la 2e sont ignorés.",
         "Le piège : empiler deux sociétés (deux dossiers Divalto) sans colonne source. Le même code client existe des deux côtés : Power BI additionne deux clients différents.",
         "Le bon réflexe : une constante par partie (`'Commande'`, `'Facture'` ou `'SOC1'`, `'SOC2'`). C'est la base d'une vue qui réunit une table et son archive, ou les sociétés d'un groupe.",
         "Et aussi : un seul `ORDER BY`, à la fin, pour toutes les lignes (section 4)."
@@ -69,11 +73,11 @@ LEARNSQL.cours.m07 = {
       exemple: "-- Piège : TOP (2) directement dans chaque partie = 2 lignes quelconques\n-- Juste : top 2 des livrées + top 2 des en cours\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'LIVREE' ORDER BY montant_ht DESC) AS l\nUNION ALL\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'EN_COURS' ORDER BY montant_ht DESC) AS e\nORDER BY montant_ht DESC;",
       resultat: [["num_cde", "statut", "montant_ht"], ["CDE-1007", "EN_COURS", "7950.00"], ["CDE-1001", "LIVREE", "4780.00"], ["CDE-1003", "LIVREE", "2385.00"], ["CDE-1006", "EN_COURS", "1290.00"]],
       points: [
-        "Ce qui se passe : le top 2 de chaque statut, puis un tri sur les 4 lignes. Chaque `TOP` vit dans une table dérivée (une requête dans le `FROM`), avec son `ORDER BY`.",
+        "Ce qui se passe : le top 2 de chaque partie, puis un tri sur les 4 lignes. Chaque `TOP` vit dans une table dérivée (une requête dans le `FROM`), avec son `ORDER BY`.",
         "Pourquoi : dans une union, `ORDER BY` trie le résultat complet : une seule fois, à la fin, avec les noms de la 1re partie. Placé avant `UNION ALL` : erreur de syntaxe.",
         "Le piège : `TOP (2)` dans chaque partie, `ORDER BY` à la fin : pas d'erreur, mais les `TOP` passent avant le tri et prennent 2 commandes quelconques. Et un `WHERE` ne filtre que sa partie.",
         "Le bon réflexe : une table dérivée par `TOP`, un `WHERE` dans chaque partie. Sans tri, A ne sort pas forcément avant B : `1 AS ordre` dans A, `2` dans B, puis `ORDER BY ordre`.",
-        "SQL Server / Snowflake : limiter tout le résultat : `OFFSET 0 ROWS FETCH NEXT 3 ROWS ONLY` après l'`ORDER BY` final (SQL Server), `LIMIT 3` (Snowflake). Un top par partie : même sous-requête, avec `LIMIT`."
+        "SQL Server / Snowflake : limiter tout le résultat : `OFFSET 0 ROWS FETCH NEXT 3 ROWS ONLY` après l'`ORDER BY` final (SQL Server), `LIMIT 3` (Snowflake). Un top par partie : table dérivée avec `LIMIT`."
       ],
       retenir: "Un seul ORDER BY, à la fin, avec les noms de la 1re partie ; un TOP par partie : une table dérivée."
     },
@@ -86,7 +90,7 @@ LEARNSQL.cours.m07 = {
         "Pourquoi : les deux comparent des lignes entières et rendent un résultat sans doublon : `A INTERSECT A` revient à un `DISTINCT`, et `A EXCEPT A` est toujours vide.",
         "Le piège : le sens compte. Nantes `EXCEPT` Lyon renvoie 0 ligne : tout ce qui est à Nantes est aussi à Lyon. Un contrôle écrit à l'envers dit « rien à signaler ».",
         "Le bon réflexe : dis d'abord la question : « dans A, pas dans B » s'écrit `A EXCEPT B`. Ne mets que les colonnes qui doivent être égales : avec `qte` en plus, plus rien n'est commun.",
-        "SQL Server / Snowflake : Snowflake accepte aussi `MINUS` (le mot d'Oracle), synonyme d'`EXCEPT`. SQL Server n'a ni `EXCEPT ALL` ni `INTERSECT ALL` : les doublons partent toujours."
+        "SQL Server / Snowflake : Snowflake accepte aussi `MINUS` (le mot d'Oracle), synonyme d'`EXCEPT`. Aucun des deux n'a `EXCEPT ALL` ni `INTERSECT ALL` : les doublons partent toujours."
       ],
       retenir: "A EXCEPT B : dans A, pas dans B. INTERSECT : des deux côtés. Sans doublon, et le sens d'EXCEPT compte."
     },
@@ -97,7 +101,7 @@ LEARNSQL.cours.m07 = {
       points: [
         "Ce qui se passe : `EXCEPT` trouve les 5 commandes sans flux EDI ; `NOT IN` renvoie 0 ligne, car un NULL dans la liste bloque tout (m02).",
         "Pourquoi : pour `UNION`, `INTERSECT` et `EXCEPT`, deux NULL sont « pareils », comme pour `DISTINCT`. Le NULL du flux 3 est une simple valeur : il ne bloque rien. Avec `=`, NULL = NULL reste inconnu.",
-        "Le piège : comparer deux tables par jointure (un `=` par colonne) : une ville NULL ne retrouve pas sa jumelle. Testée sur `client` contre elle-même, la jointure voit un écart (Camping Les Flots) ; `EXCEPT`, aucun.",
+        "Le piège : comparer deux tables par jointure (un `=` par colonne) : une ville NULL ne retrouve pas sa jumelle. Testée sur `client` contre elle-même (code, nom, ville), la jointure voit un écart (Camping Les Flots) ; `EXCEPT`, aucun.",
         "Le bon réflexe : `EXCEPT` pour comparer des lignes entières. Il ne rend que les colonnes comparées : pour afficher le client ou le montant, passe par `NOT EXISTS` (m06) ou une jointure.",
         "Et aussi : sur la clé seule (`EXCEPT` ou `NOT EXISTS`), tu trouves les absents ; sur toutes les colonnes, les absents et les modifiés."
       ],
@@ -134,7 +138,7 @@ LEARNSQL.cours.m07 = {
   differences: [
     ["A sans B", "`EXCEPT`", "`EXCEPT` ou `MINUS`"],
     ["Colonnes associées par nom", "Impossible", "`UNION ALL BY NAME`"],
-    ["Un TOP par partie", "Table dérivée + `TOP`", "Sous-requête + `LIMIT`"],
+    ["Un TOP par partie", "Table dérivée + `TOP`", "Table dérivée + `LIMIT`"],
     ["Limiter tout le résultat", "`OFFSET … FETCH` final", "`LIMIT` final"],
     ["Casse dans `EXCEPT`", "Selon la collation", "Exacte"],
     ["Copier le résultat", "`SELECT … INTO`", "`CREATE TABLE … AS`"],

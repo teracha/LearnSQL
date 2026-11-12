@@ -274,7 +274,7 @@ LEARNSQL.questions.m07 = [
   },
   {
     id: "m07-q16", dialecte: "Standard",
-    q: "SELECT code AS ref FROM a UNION ALL SELECT code FROM b ORDER BY ???. Quel nom utiliser dans le ORDER BY ?",
+    q: "SELECT code AS ref FROM a UNION ALL SELECT code AS article FROM b ORDER BY ???. Quel nom utiliser dans le ORDER BY ?",
     choixCode: true,
     choix: [
       "ref",
@@ -305,7 +305,7 @@ LEARNSQL.questions.m07 = [
     pourquoi: [
       "Non. Le 1er ORDER BY est mal placé : erreur.",
       "Oui. Chaque TOP + ORDER BY est enfermé dans une table dérivée.",
-      "Non. 10 au total, pas 5 par année.",
+      "Non. Ce TOP ne limite que la 1re partie, pas toute l'union.",
       "Non. C'est possible avec deux tables dérivées."
     ],
     retenir: "TOP + ORDER BY par partie : tables dérivées."
@@ -1073,7 +1073,7 @@ LEARNSQL.questions.m07 = [
     bonne: 1,
     pourquoi: [
       "Non. Possible, mais plus long et trois lectures.",
-      "Oui. Une seule requête : CASE WHEN e.code IS NULL THEN 'EDI seul' WHEN d.code IS NULL THEN 'ERP seul' ELSE 'Les deux' END.",
+      "Oui. Une seule requête : CASE WHEN edi.code IS NULL THEN 'ERP seul' WHEN erp.code IS NULL THEN 'EDI seul' ELSE 'Les deux' END.",
       "Non. UNION réunit les codes, sans dire d'où ils viennent.",
       "Non. CROSS JOIN combine tout, sans comparer."
     ],
