@@ -15,7 +15,7 @@ LEARNSQL.fiches.m15 = {
     },
     {
       titre: "La normalisation (pour l'ERP)",
-      exemple: "client   (id, code, nom, ville)\ncommande (id, num_cde, client_id → client, date_cde)\nligne    (id, cde_id → commande, article_id → article, qte, prix)\narticle  (id, code, libelle, famille_id → famille)",
+      exemple: "client    (id, code, nom, ville)\ncommande  (id, num_cde, client_id → client, date_cde)\nligne_cde (id, cde_id → commande, article_id → article, qte, prix_unit)\narticle   (id, code, libelle, famille_id → famille)",
       points: [
         "1re forme normale : une valeur par case (pas de liste « A1, A2, A3 » dans une colonne).",
         "2e forme normale : chaque colonne dépend de TOUTE la clé.",
@@ -39,7 +39,7 @@ LEARNSQL.fiches.m15 = {
     },
     {
       titre: "Le grain : la 1re décision",
-      exemple: "-- Grain = « une ligne par ligne de facture »\n-- Grain = « une ligne par client et par jour »\n-- Grain = « une photo du stock par article, par dépôt, par fin de mois »",
+      exemple: "-- Grain = « une ligne par article facturé »\n-- Grain = « une ligne par client et par jour »\n-- Grain = « une photo du stock par article, par dépôt, par fin de mois »",
       points: [
         "Le grain dit ce que représente UNE ligne de la table de faits.",
         "Le décider AVANT de choisir les colonnes.",
@@ -60,12 +60,12 @@ LEARNSQL.fiches.m15 = {
     },
     {
       titre: "Garder l'historique : SCD",
-      exemple: "-- SCD type 2 : le client change de commercial le 01/03/2026\n-- client_sk | code | commercial | date_debut | date_fin   | actuel\n-- 15        | C01  | Martin     | 2020-01-01 | 2026-02-28 | 0\n-- 87        | C01  | Bernard    | 2026-03-01 | 9999-12-31 | 1",
+      exemple: "-- SCD type 2 : le client change de commercial le 01/03/2026\n-- client_sk | code | commercial | date_debut | date_fin   | actuel\n-- 15        | C01  | Martin     | 2020-01-01 | 2026-03-01 | 0\n-- 87        | C01  | Bernard    | 2026-03-01 | 9999-12-31 | 1",
       points: [
         "SCD = Slowly Changing Dimension (dimension qui change lentement).",
         "Type 1 : on écrase l'ancienne valeur. Pas d'historique.",
-        "Type 2 : on ajoute une nouvelle ligne, avec des dates de validité. Historique complet.",
-        "Les ventes de 2025 restent rattachées à Martin, celles de 2026 à Bernard.",
+        "Type 2 : on ajoute une nouvelle ligne, avec des dates de validité (fin exclue). Historique complet.",
+        "Une vente prend la version valable à sa date (`>= date_debut AND < date_fin`) : avant le 1er mars 2026, Martin ; ensuite, Bernard.",
         "Il faut alors une clé technique (client_sk), différente du code métier."
       ],
       retenir: "Besoin de « l'état à l'époque » : SCD type 2."
@@ -84,6 +84,6 @@ LEARNSQL.fiches.m15 = {
   ],
   differences: [
     ["Usage typique", "ERP, OLTP (normalisé)", "Entrepôt, analyse (étoile)"],
-    ["Contraintes pour garantir le modèle", "Appliquées", "PK / FK non appliquées : contrôles à écrire"]
+    ["Contraintes pour garantir le modèle", "Appliquées", "PK / FK non appliquées : à contrôler"]
   ]
 };

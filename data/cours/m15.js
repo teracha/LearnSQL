@@ -101,7 +101,7 @@ LEARNSQL.cours.m15 = {
       points: [
         "Ce qui se passe : Piscines Dumont affiche 5 319,60 €, le double de ses 2 659,80 €. Son SIREN est deux fois dans `dim_societe`, une par agence. Bleu Lagon, sans SIREN, disparaît.",
         "Pourquoi : une relation un à plusieurs (1-N) relie une clé unique (la dimension) à une clé répétée (les faits). Ici, 423456789 se répète des deux côtés (plusieurs à plusieurs) : ses commandes comptent double. Un NULL ne trouve rien.",
-        "Le piège : Power BI refuse ce doublon dans une relation 1-N (l'actualisation échoue). En plusieurs à plusieurs, il le cache, et peut perdre des faits sans partenaire. Une clé vide tombe dans « (Vide) ».",
+        "Le piège : Power BI refuse ce doublon en relation 1-N (l'actualisation échoue) ; une clé vide y tombe dans « (Vide) ». En plusieurs à plusieurs, il cache le doublon et peut perdre des faits sans correspondance.",
         "Le bon réflexe : une ligne par clé, plus deux lignes spéciales : -1 « Inconnu » (anomalie à corriger), -2 « Non applicable ». Un fait sans correspondance prend -1, jamais NULL. Vrai plusieurs à plusieurs : une table de liaison (pont).",
         "SQL Server / Snowflake : SQL Server refuse un doublon de PRIMARY KEY ou UNIQUE, et un orphelin (une clé qui pointe vers rien). Snowflake ne les vérifie pas : contrôle après chaque chargement (`HAVING COUNT(*) > 1`, `NOT EXISTS`, m10)."
       ],
@@ -109,7 +109,7 @@ LEARNSQL.cours.m15 = {
     },
     {
       titre: "Une dimension qui change : écraser ou historiser",
-      exemple: "-- dim_client historisée : AquaBleu (C001) à Villeurbanne le 1er avril\n--   client_sk | ville        | date_debut | date_fin   | actuel\n--           1 | Lyon         | 2020-01-01 | 2026-04-01 | 0\n--           8 | Villeurbanne | 2026-04-01 | 9999-12-31 | 1\nSELECT co.num_cde, co.date_cde, d.client_sk, d.ville\nFROM dbo.commande AS co\nJOIN dbo.client AS cl ON cl.id = co.client_id\nJOIN dbo.dim_client AS d ON d.code = cl.code\n AND co.date_cde >= d.date_debut AND co.date_cde < d.date_fin  -- sans : 6 lignes\nWHERE cl.code = 'C001' ORDER BY co.num_cde;",
+      exemple: "-- Supposons : AquaBleu (C001) passe à Villeurbanne le 1er avril. dim_client :\n--   client_sk | ville        | date_debut | date_fin   | actuel\n--           1 | Lyon         | 2020-01-01 | 2026-04-01 | 0\n--           8 | Villeurbanne | 2026-04-01 | 9999-12-31 | 1\nSELECT co.num_cde, co.date_cde, d.client_sk, d.ville\nFROM dbo.commande AS co\nJOIN dbo.client AS cl ON cl.id = co.client_id\nJOIN dbo.dim_client AS d ON d.code = cl.code\n AND co.date_cde >= d.date_debut AND co.date_cde < d.date_fin  -- sans : 6 lignes\nWHERE cl.code = 'C001' ORDER BY co.num_cde;",
       resultat: [["num_cde", "date_cde", "client_sk", "ville"], ["CDE-1001", "2026-03-02", 1, "Lyon"], ["CDE-1003", "2026-03-09", 1, "Lyon"], ["CDE-1007", "2026-04-07", 8, "Villeurbanne"]],
       points: [
         "Ce qui se passe : les deux commandes de mars restent à Lyon, celle d'avril va à Villeurbanne : chacune prend la version du client valable à sa date, clé 1 ou 8.",
@@ -125,7 +125,7 @@ LEARNSQL.cours.m15 = {
       exemple: "-- dim_date : une ligne par jour, générée une fois (m06)\nSELECT d.date_jour, d.jour_semaine, d.ferie, COUNT(co.id) AS nb_cdes\nFROM dbo.dim_date AS d\nLEFT JOIN dbo.commande AS co ON co.date_cde = d.date_jour\nWHERE d.date_jour >= '20260403' AND d.date_jour < '20260408'\nGROUP BY d.date_jour, d.jour_semaine, d.ferie\nORDER BY d.date_jour;",
       resultat: [["date_jour", "jour_semaine", "ferie", "nb_cdes"], ["2026-04-03", "vendredi", "non", 1], ["2026-04-04", "samedi", "non", 0], ["2026-04-05", "dimanche", "non", 0], ["2026-04-06", "lundi", "oui", 0], ["2026-04-07", "mardi", "non", 1]],
       points: [
-        "Ce qui se passe : 5 jours, dont 3 sans commande, sortent avec 0. Le lundi 6 avril est férié (lundi de Pâques) : un jour vide normal, pas une panne de l'EDI.",
+        "Ce qui se passe : 5 jours sortent, dont 3 sans commande (0). Le lundi 6 avril est férié (lundi de Pâques) : un jour vide normal, pas une panne de l'EDI.",
         "Pourquoi : une ligne par jour, même sans fait. La table porte ce qu'on ne veut pas recalculer : semaine ISO, mois, jour ouvré, férié, saison, exercice fiscal (d'octobre à septembre).",
         "Le piège : grouper sur la date des faits. Les jours sans commande disparaissent, les moyennes par jour sont fausses, chaque rapport recode l'exercice fiscal. Les calculs de période du DAX veulent une table de dates.",
         "Le bon réflexe : une seule table, sans trou, sur des années entières, partagée par tous les faits. Commande, livraison, facture : une relation par rôle (une active, les autres par `USERELATIONSHIP`), ou une copie par rôle.",
@@ -143,13 +143,12 @@ LEARNSQL.cours.m15 = {
         "Plusieurs sociétés ou sources (ERP, CRM, EDI) : clé métier = société + code, un référentiel (fiche maître), une table de correspondance des codes. Un message EDI = un document (ORDERS → commande) : garde le brut pour le rejouer.",
         "Attributs variables (débit d'une pompe) : colonnes communes + JSON (`json` sur SQL Server 2025, `VARIANT` sur Snowflake). Pas de table entité-attribut-valeur (id, attribut, valeur en texte) : ni type, ni contrainte.",
         "Data Vault, autre méthode : hubs (clés métier), links (liens), satellites (attributs historisés). Souple pour intégrer beaucoup de sources ; l'étoile reste la couche que lit Power BI.",
-        "Concevoir dans l'ordre : le besoin (décisions, indicateurs, axes, détail, historique), puis le modèle logique (tables, clés), puis le physique (types, index, pour un moteur)."
+        "Concevoir dans l'ordre : le besoin (décisions, indicateurs, axes, détail, historique), puis les modèles conceptuel (mots du métier), logique (sans moteur), physique (types, index, pour un moteur)."
       ],
       retenir: "Un processus = une table de faits, un indicateur = une définition, un chargement = un rapprochement."
     }
   ],
   differences: [
-    ["Chez toi", "ERP Divalto (normalisé)", "Entrepôt (en étoile)"],
     ["PRIMARY KEY, UNIQUE", "Vérifiées", "Déclarées, non vérifiées"],
     ["FOREIGN KEY", "Vérifiée", "Déclarée, non vérifiée"],
     ["NOT NULL, CHECK", "Vérifiés", "Vérifiés (CHECK : avril 2026)"],

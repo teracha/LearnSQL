@@ -217,7 +217,7 @@ LEARNSQL.questions.m15 = [
   },
   {
     id: "m15-q13", dialecte: "Standard",
-    q: "Dans un schéma entité-association, que veut dire « 0,N » côté commande pour la relation client-commande ?",
+    q: "Dans un schéma entité-association (Merise), que veut dire « 0,N » côté client, pour la relation client-commande ?",
     choix: [
       "Un client a exactement une commande",
       "De zéro à N commandes par client",
@@ -227,7 +227,7 @@ LEARNSQL.questions.m15 = [
     bonne: 1,
     pourquoi: [
       "Non. 0,N veut dire de zéro à plusieurs.",
-      "Oui. Minimum 0 (prospect sans commande), maximum N.",
+      "Oui. Minimum 0 (prospect sans commande), maximum N. En Merise, la cardinalité s'écrit à côté de l'entité qu'elle décrit.",
       "Non. On parle des commandes d'un client.",
       "Non. Ce serait la relation commande-ligne."
     ],
@@ -317,7 +317,7 @@ LEARNSQL.questions.m15 = [
     bonne: 1,
     pourquoi: [
       "Non. On perd l'historique.",
-      "Oui. Une table tarif (article, prix, date_debut, date_fin) : un prix par période de validité. Prix à une date : debut <= @d AND (fin IS NULL OR fin >= @d).",
+      "Oui. Une table tarif (article, prix, date_debut, date_fin) : un prix par période de validité. Prix à une date : @d >= date_debut AND @d < date_fin (fin exclue, '9999-12-31' si en cours).",
       "Non. Pas de prix en cours d'année ; colonnes ajoutées sans fin.",
       "Non. Sans dates, on ne sait pas quel prix valait à quel moment."
     ],
@@ -479,7 +479,7 @@ LEARNSQL.questions.m15 = [
     bonne: 1,
     pourquoi: [
       "Non. 100 en janvier + 100 en février ≠ 200 en stock.",
-      "Oui. On peut le sommer par dépôt, mais pas sur plusieurs mois (on prend le dernier, ou la moyenne). Dans Power BI : LASTNONBLANK / CLOSINGBALANCE plutôt que SUM sur le temps.",
+      "Oui. On peut le sommer par dépôt, mais pas sur plusieurs mois (on prend le dernier, ou la moyenne). Dans Power BI : CLOSINGBALANCEMONTH ou LASTNONBLANK plutôt que SUM sur le temps.",
       "Non. On peut le sommer par dépôt ou par article.",
       "Non. Sur les mois, c'est justement non additif."
     ],
@@ -641,7 +641,7 @@ LEARNSQL.questions.m15 = [
     bonne: 1,
     pourquoi: [
       "Non. NULL est aussi utilisé.",
-      "Oui. Les jointures et filtres par période (date BETWEEN debut AND fin) marchent sans cas particulier pour NULL. Un choix de convention, à documenter.",
+      "Oui. Les jointures et filtres par période (date >= debut AND date < fin) marchent sans cas particulier pour NULL. Un choix de convention, à documenter.",
       "Non. La raison est la simplicité des filtres.",
       "Non. Même place."
     ],
