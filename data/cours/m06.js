@@ -3,8 +3,9 @@
 // Squelette du modèle m02 v2 : Exemple (qui MONTRE le piège) → Résultat → « Ce qui se passe » → « Pourquoi » → « Le
 // piège » (l'erreur vue en entreprise) → « Le bon réflexe » → « SQL Server / Snowflake » ou « Et aussi » → À retenir.
 // Chaque mot technique est expliqué à sa première apparition.
-// Base d'exemple : docs/base-exemple.sql. Résultats recalculés avec SQLite (scratchpad cours-complets/m06/verif.py ;
-// DATEADD → date(j, '+1 day'), CAST decimal(5,2) → ROUND(x, 2)) : commandes des 2 fiches Piscines Dumont avec IN
+// Base d'exemple : docs/base-exemple.sql. Résultats recalculés avec SQLite (scratchpad cours-complets/m06 : verif.py, et
+// verif_cours.py qui rejoue les exemples tels qu'écrits ; DATEADD → date(j, '+1 day'), CAST decimal(5,2) → ROUND(x, 2))
+// : commandes des 2 fiches Piscines Dumont avec IN
 // (3 lignes ; la sous-requête rend bien 2 id) ; dernière commande des 5 PRO français (Camping Les Flots → NULL) ;
 // colonne empruntée `code IN (SELECT code FROM ligne_cde)` → les 8 articles (7 vendus en vrai) ; clients avec une
 // commande livrée (EXISTS et IN : 3 ; JOIN : 4 lignes, AquaBleu 2 fois ; EXISTS sans lien : 7) ; articles jamais
@@ -107,7 +108,7 @@ LEARNSQL.cours.m06 = {
         "Ce qui se passe : une ligne par client. Piscines Dumont (client 2) a deux commandes à 1 290 € : le 2e critère, `id DESC`, les départage ; CDE-1006 gagne.",
         "Pourquoi : ROW_NUMBER numérote les lignes de chaque client (`PARTITION BY`) dans l'ordre demandé. Il est calculé au SELECT, après le WHERE : pour filtrer `rn = 1`, il faut une étape au-dessus.",
         "Le piège : une jointure sur `MAX(montant_ht)` garde les ex aequo (à égalité) : Piscines Dumont sort 2 fois ; RANK aussi. Sans 2e critère, ROW_NUMBER choisit au hasard : le rapport varie d'un jour à l'autre.",
-        "Le bon réflexe : CTE + ROW_NUMBER + départage, puis `rn = 1` ; `rn <= 3` pour le top 3. Pour dédoublonner un import : `WITH d AS (…) DELETE FROM d WHERE rn > 1`, après un SELECT de contrôle.",
+        "Le bon réflexe : CTE + ROW_NUMBER + départage, puis `rn = 1` ; `rn <= 3` pour le top 3. Dédoublonner un import : `WITH d AS (…) DELETE FROM d WHERE rn > 1`, après un SELECT de contrôle.",
         "SQL Server / Snowflake : Snowflake filtre sans étape, `QUALIFY ROW_NUMBER() OVER (…) = 1` (le WHERE des fenêtres). Il ne supprime pas à travers une CTE : `INSERT OVERWRITE INTO t SELECT * FROM t QUALIFY … = 1`."
       ],
       retenir: "Une ligne par groupe : CTE + ROW_NUMBER avec un départage, puis `rn = 1`. MAX et RANK gardent les ex aequo."
@@ -129,8 +130,8 @@ LEARNSQL.cours.m06 = {
       titre: "Détails utiles",
       points: [
         "Garder un résultat : `WITH … SELECT … INTO #t FROM …` crée une table temporaire, calculée une fois ; jointe souvent, indexe-la. Elle disparaît en fin de procédure ou de session. Pour quelques lignes : `DECLARE @t TABLE`.",
-        "Une vue (une requête enregistrée dans la base) est permanente et partagée ; une CTE vit le temps d'une requête. Une vue peut contenir un WITH ; un WITH, pas un autre WITH.",
-        "Le dernier prix ET sa date, en une lecture : `OUTER APPLY (SELECT TOP (1) … ORDER BY date_effet DESC)`. Une table dérivée ne peut pas lire une autre table du même FROM ; APPLY, si. Snowflake : `LATERAL`, mais sans LIMIT dedans, donc QUALIFY.",
+        "Une vue (une requête enregistrée dans la base) est permanente et partagée ; une CTE vit le temps d'une requête. Une vue peut contenir un WITH ; un WITH, pas un autre.",
+        "Le dernier prix ET sa date, en une lecture : `OUTER APPLY (SELECT TOP (1) … ORDER BY date_effet DESC)`. Une table dérivée ne peut pas lire une autre table du même FROM ; APPLY, si. Snowflake : `LATERAL`, sans LIMIT dedans, donc QUALIFY.",
         "Des lignes sans récursion : `GENERATE_SERIES(1, 100)` (SQL Server 2022, niveau de compatibilité 160) ; Snowflake : `TABLE(GENERATOR(ROWCOUNT => 365))` + `ROW_NUMBER()`. Plus simple : une table calendrier.",
         "Afficher un arbre : construis un chemin, `CAST(nom AS varchar(1000))` dans l'ancre et à chaque ajout, puis trie dessus. Même type, même longueur des deux côtés, sinon erreur.",
         "Récursion sur SQL Server : UNION ALL obligatoire ; dans la partie récursive, ni LEFT JOIN, ni GROUP BY, TOP, DISTINCT ou agrégat. Indexe la colonne parent. Snowflake a aussi `START WITH … CONNECT BY … PRIOR`.",
