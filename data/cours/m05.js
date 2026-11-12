@@ -27,8 +27,9 @@
 // parties ; ni USING ni NATURAL), relational-databases/performance/joins (Nested Loops, Merge, Hash),
 // t-sql/queries/hints-transact-sql-join (dernier recours),
 // relational-databases/tables/primary-and-foreign-key-constraints (une clé étrangère ne crée pas d'index),
-// t-sql/statements/set-showplan-all-transact-sql (avertissement MISSING JOIN PREDICATE ; le libellé « No Join
-// Predicate » du plan graphique vient de la question q98, non retrouvé tel quel sur Learn),
+// t-sql/statements/set-showplan-all-transact-sql (avertissement MISSING JOIN PREDICATE) et
+// relational-databases/event-classes/missing-join-predicate-event-class ; le plan graphique de SSMS l'affiche « No Join
+// Predicate » (attribut XML NoJoinPredicate ; SQLServerCentral, Brent Ozar : relecture du 12/11/2026),
 // t-sql/language-elements/string-comparison-assignment (espaces de fin ignorés par =),
 // t-sql/data-types/data-type-precedence-transact-sql (int passe avant varchar : le texte est converti),
 // t-sql/statements/collation-precedence-transact-sql (conflit de collation, COLLATE),
@@ -36,7 +37,10 @@
 // docs.snowflake.com (par extraits de recherche, le site n'est pas joignable) : sql-reference/constructs/join (USING et
 // sa liste de colonnes, NATURAL JOIN), sql-reference/collation (casse et espaces de fin comptés par défaut),
 // user-guide/ui-query-profile (« exploding joins », débordement sur disque), sql-reference/functions/split_to_table,
-// user-guide/tables-hybrid-index (index : tables hybrides seulement), sql-reference/identifiers (base.schéma.objet).
+// user-guide/tables-hybrid-index (index des tables hybrides, dont un par clé étrangère),
+// user-guide/search-optimization/secondary-indexes et release-notes/2026/other/2026-10-26-secondary-indexes-ga (relecture : index
+// secondaires sur les tables standard, en GA depuis le 26/10/2026, pour les recherches très sélectives : d'où S8.P8 et la
+// ligne « Accélérer une jointure » de la carte), sql-reference/identifiers (base.schéma.objet).
 // Faits déjà vérifiés (consignes de novembre 2026) : Snowflake refuse LIMIT dans une sous-requête liée (LATERAL), top N
 // avec QUALIFY.
 LEARNSQL.cours.m05 = {
@@ -62,7 +66,7 @@ LEARNSQL.cours.m05 = {
       points: [
         "Ce qui se passe : les 5 piscinistes français restent ; 3 n'ont pas de commande en cours, d'où NULL. Avec le filtre dans le WHERE, seuls C002 et C004 restent.",
         "Pourquoi : LEFT JOIN garde chaque ligne de gauche (la table du FROM) ; sans partenaire, les colonnes de droite valent NULL. Le WHERE passe après : `NULL = 'EN_COURS'` est inconnu, la ligne sort, le LEFT redevient un INNER.",
-        "Le piège : ajouter `OR co.statut IS NULL` dans le WHERE ne répare pas. Bleu Lagon a une commande, annulée : sa ligne n'est pas NULL, elle sort. Le carnet de commandes par client perd des clients.",
+        "Le piège : ajouter `OR co.statut IS NULL` dans le WHERE ne répare pas. Bleu Lagon a une commande, annulée : son statut n'est pas NULL, sa ligne sort. Le carnet de commandes par client perd des clients.",
         "Le bon réflexe : le filtre de droite dans le ON, celui de gauche (type, pays) dans le WHERE. Dans le ON, un filtre de gauche ne retire rien : un LEFT JOIN garde toute la gauche.",
         "Et aussi : `A RIGHT JOIN B` = `B LEFT JOIN A` : écris des LEFT. Pour un INNER, l'ordre des tables et ON ou WHERE ne changent rien. Après un LEFT, un INNER JOIN depuis la table de droite (commande → lignes) l'annule : enchaîne des LEFT."
       ],
@@ -76,7 +80,7 @@ LEARNSQL.cours.m05 = {
         "Ce qui se passe : les 2 clients sans commande. Les deux requêtes donnent la même liste : c'est une anti-jointure, qui garde les lignes sans partenaire.",
         "Pourquoi : le LEFT JOIN garde tous les clients ; sans commande, `co.id` vaut NULL, et `IS NULL` ne garde qu'eux. NOT EXISTS garde le client quand aucune commande ne pointe vers lui (une sous-requête, une requête dans la requête : m06).",
         "Le piège : tester une colonne qui peut être vide quand la ligne existe. « Commandes sans flux » avec `WHERE f.motif IS NULL` : le motif est vide aussi pour un flux accepté ; CDE-1001, CDE-1003 et CDE-1007 sortent à tort.",
-        "Le bon réflexe : teste la clé de droite (`co.id`), jamais vide quand la ligne existe. « Sans commande depuis le 1er avril » : la période dans le ON (`AND co.date_cde >= '20260401'`), puis `co.id IS NULL` ; Bleu Lagon, qui a commandé en mars, s'ajoute.",
+        "Le bon réflexe : teste la clé de droite (`f.id`), jamais vide quand la ligne existe. « Sans commande depuis le 1er avril » : la période dans le ON (`AND co.date_cde >= '20260401'`), puis `co.id IS NULL` ; Bleu Lagon, qui a commandé en mars, s'ajoute.",
         "Et aussi : « au moins une commande », sans doublon : `WHERE EXISTS (…)`. Un INNER JOIN sortirait AquaBleu 3 fois, une par commande."
       ],
       retenir: "Ce qui manque : LEFT JOIN + IS NULL sur la clé de droite, ou NOT EXISTS. Ce qui existe, sans doublon : EXISTS."
@@ -100,8 +104,8 @@ LEARNSQL.cours.m05 = {
       resultat: [["num_cde", "montant", "nb_flux"], ["CDE-1001", "9560.00", 4], ["CDE-1003", "2385.00", 2], ["CDE-1007", "15900.00", 4]],
       points: [
         "Ce qui se passe : CDE-1001 affiche 9 560 € et 4 flux, pour 4 780 € et 2 flux réels. CDE-1003 a le bon montant, mais 2 flux au lieu d'un. Aucune erreur.",
-        "Pourquoi : une jointure 1-N (une commande, N lignes) répète la commande N fois. Lignes et flux sont deux tables filles de la commande : la jointure forme tous les couples (ligne, flux), 2 × 2 = 4 pour CDE-1001.",
-        "Le piège : le rapport double le montant de chaque commande à plusieurs flux. Même effet avec les commandes et les paiements d'un client. DISTINCT ne répare pas : il cache.",
+        "Pourquoi : une jointure 1-N (une commande, N lignes) répète la commande N fois. Lignes et flux, deux tables filles, pointent vers la commande : la jointure forme tous les couples (ligne, flux), 2 × 2 = 4 pour CDE-1001.",
+        "Le piège : le rapport multiplie le montant de chaque commande à plusieurs flux. Même effet avec les commandes et les paiements d'un client. DISTINCT ne répare pas : il cache.",
         "Le bon réflexe : agrège chaque table fille avant de joindre : `JOIN (SELECT cde_id, COUNT(*) AS nb_flux FROM dbo.flux_edi GROUP BY cde_id) AS f`. Fais de même pour les lignes : CDE-1001 retrouve 4 780 € et 2 flux.",
         "Et aussi : sur une table de référence, `GROUP BY cle HAVING COUNT(*) > 1` doit être vide ; le ON couvre toute la clé (`societe` ET `num_cde`). Ajoute une jointure à la fois, avec un `COUNT(*)` : ici 3, 6, puis 10 lignes."
       ],
@@ -137,13 +141,13 @@ LEARNSQL.cours.m05 = {
       titre: "Détails utiles",
       points: [
         "`CROSS APPLY` (SQL Server) lance une sous-requête par ligne de gauche : avec `TOP (1) … ORDER BY date_cde DESC`, la dernière commande de chaque client. `OUTER APPLY` garde aussi les clients sans commande, comme un LEFT JOIN.",
-        "Snowflake n'a pas d'APPLY, et `LATERAL` refuse `LIMIT` dans une sous-requête liée à la ligne. La dernière commande par client : `QUALIFY ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC) = 1` (m08).",
+        "Snowflake n'a pas d'APPLY mais `LATERAL`, qui refuse `LIMIT` dans une sous-requête liée à la ligne. La dernière commande par client : `QUALIFY ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC) = 1` (m08).",
         "Une liste 'A1;B2;C3' dans une colonne : `CROSS APPLY STRING_SPLIT(codes, ';')`, puis la jointure sur `value` (Snowflake : `LATERAL SPLIT_TO_TABLE`). Un tableau JSON : `LATERAL FLATTEN` ; un champ : `doc:client_id::NUMBER`.",
         "Snowflake accepte `JOIN … USING (societe, num_cde)` (colonnes de même nom), pas SQL Server. `NATURAL JOIN` joint sur toutes les colonnes de même nom, même `date_maj` : à éviter.",
         "Des clés du même type et du même format : avec `VARCHAR = INT`, SQL Server convertit le texte, plante sur 'A12' et perd l'index (la table des matières de la table) ; '0042' n'égale pas '42'. Pas de fonction autour : `LEFT(a.code, 6)` perd aussi l'index.",
         "Autre base du même serveur : `Divalto.dbo.client` (base.schéma.table). Si les collations diffèrent : « Cannot resolve the collation conflict » ; ajoute `COLLATE French_CI_AS` dans le ON. Snowflake : `BASE.SCHEMA.TABLE`.",
         "Plans SQL Server : Nested Loops (petite entrée, index en face), Merge Join (entrées triées), Hash Match (gros volumes). Une clé étrangère ne crée pas d'index : indexe-la. `OR` ou `LIKE '%…%'` dans le ON : lent.",
-        "Snowflake n'a pas d'index sur ses tables standard : une jointure lente se lit dans le Query Profile (lignes qui explosent, débordement sur disque), et se soigne en filtrant tôt."
+        "Sur Snowflake, un index ne soigne pas une grosse jointure : il sert aux recherches très sélectives. Lis le Query Profile (le plan d'exécution détaillé) : lignes qui explosent, débordement sur disque. Puis filtre tôt."
       ],
       retenir: "Des clés du même type, du même format, sans fonction autour : la jointure reste juste et rapide."
     }
@@ -156,7 +160,7 @@ LEARNSQL.cours.m05 = {
     ["Sous-requête par ligne", "`CROSS` / `OUTER APPLY`", "`LATERAL`"],
     ["Dernière ligne par groupe", "`APPLY` + `TOP (1)`", "`QUALIFY ROW_NUMBER()`"],
     ["Liste en lignes", "`STRING_SPLIT`", "`SPLIT_TO_TABLE`"],
-    ["Index sur la clé", "À créer", "Aucun (tables standard)"],
+    ["Accélérer une jointure", "Index sur la clé", "Filtrer tôt"],
     ["Jointure lente", "Plan d'exécution", "Query Profile"]
   ]
 };

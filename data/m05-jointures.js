@@ -499,14 +499,14 @@ LEARNSQL.questions.m05 = [
       "C'est normal pour une jointure sur 1 million",
       "Une jointure qui « explose » (clé non unique)",
       "Le warehouse est trop petit pour cette jointure",
-      "Un warehouse trop petit pour la jointure"
+      "Les deux tables ne sont pas triées sur la clé"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Ce n'est pas normal.",
       "Oui. Une condition manquante ou une clé non unique multiplie les lignes : Snowflake appelle ça une « exploding join ». Vérifie le ON et l'unicité des clés.",
       "Non. La taille du warehouse change la vitesse, pas le nombre de lignes.",
-      "Non. La taille change la vitesse, pas le nombre de lignes produites."
+      "Non. Le tri change la vitesse d'une jointure, jamais le nombre de lignes produites."
     ],
     retenir: "Plus de lignes en sortie qu'en entrée = jointure qui explose. Vérifie les clés."
   },
@@ -905,7 +905,7 @@ LEARNSQL.questions.m05 = [
     bonne: 1,
     pourquoi: [
       "Non. Pour elles, edi.statut est NULL : le WHERE les retire.",
-      "Oui. Le FULL JOIN perd une partie de son intérêt. Mets la condition dans le ON, ou ajoute OR edi.num IS NULL.",
+      "Oui. Pour elles, edi.statut est NULL : le WHERE les retire. Filtre l'EDI avant la jointure : FULL OUTER JOIN (SELECT … FROM edi WHERE statut = 'RECU') AS edi.",
       "Non. Un WHERE retire des lignes, il ne les double pas.",
       "Non. La requête est valide."
     ],
@@ -1177,14 +1177,14 @@ LEARNSQL.questions.m05 = [
       "Oui, un index non cluster est créé",
       "Non, il faut le créer soi-même",
       "Oui, un index cluster est créé",
-      "Seulement sur Snowflake, pas SQL Server"
+      "Seulement si la table a une clé primaire"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Seule la clé primaire (ou UNIQUE) crée un index automatiquement.",
-      "Oui. Seule la clé primaire (et UNIQUE) crée un index. Index les colonnes de clés étrangères souvent jointes ou filtrées.",
+      "Oui. Seule la clé primaire (et UNIQUE) crée un index. Indexe les colonnes de clés étrangères souvent jointes ou filtrées.",
       "Non. Aucun index n'est créé.",
-      "Non. Snowflake n'a pas d'index."
+      "Non. La clé primaire crée un index sur ses propres colonnes, jamais sur la clé étrangère."
     ],
     retenir: "Clé étrangère ≠ index. Pense à indexer les FK."
   },
@@ -1199,7 +1199,7 @@ LEARNSQL.questions.m05 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Snowflake n'a pas d'index.",
+      "Non. Un index ne soigne pas une grosse jointure : ceux de Snowflake servent aux recherches très sélectives.",
       "Oui. Le Query Profile montre le débordement sur disque (« bytes spilled » : warehouse plus grand) ou l'explosion de lignes (vérifier les clés). Filtrer tôt réduit le volume.",
       "Non. N'existe pas sur Snowflake.",
       "Non. Aucun effet sur la vitesse."
