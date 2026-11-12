@@ -1251,7 +1251,7 @@ LEARNSQL.questions.m10 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index sur Snowflake.",
+      "Non. CLUSTER BY range les micro-partitions ; il ne crée pas d'index.",
       "Oui. CLUSTER BY définit une clé de clustering : Snowflake réorganise les micro-partitions selon date_cde pour mieux filtrer (coût en crédits). À réserver aux très grosses tables.",
       "Non. L'affichage a toujours besoin d'ORDER BY.",
       "Non. La table reste une seule table."
@@ -1260,21 +1260,21 @@ LEARNSQL.questions.m10 = [
   },
   {
     id: "m10-q70", dialecte: "Snowflake",
-    q: "Sur une table Snowflake standard, que donne CREATE INDEX ix ON commande (client_id) ?",
+    q: "Snowflake (édition Enterprise), table standard : un collègue lance CREATE INDEX ix ON commande (client_id). Qu'est-ce qui est vrai ?",
     choix: [
-      "Un index est créé sur client_id",
       "Erreur : pas d'index sur Snowflake",
-      "Une clé de clustering est créée",
-      "Rien, sans aucun message"
+      "Il aide les recherches très sélectives",
+      "Il accélère toutes les jointures sur client_id",
+      "Il crée une clé de clustering"
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index sur Snowflake.",
-      "Oui. Pas d'index sur les tables standard. L'optimisation passe par le pruning des micro-partitions et, si besoin, une clé de clustering.",
-      "Non. Ce serait CLUSTER BY.",
-      "Non. Snowflake renvoie une erreur."
+      "Non. Plus vrai depuis octobre 2026 : en édition Enterprise (ou plus), une table standard accepte des index secondaires.",
+      "Oui. C'est un index secondaire (Search Optimization) : il aide WHERE client_id = 42 à sauter des micro-partitions. Sa maintenance se paie en crédits.",
+      "Non. Une grosse jointure lit beaucoup de lignes : l'index ne sert que quand on en garde très peu.",
+      "Non. Une clé de clustering se pose avec CLUSTER BY ; CREATE INDEX crée un index secondaire."
     ],
-    retenir: "Snowflake : pas de CREATE INDEX (tables standard)."
+    retenir: "Snowflake : un index secondaire sert seulement aux recherches très sélectives."
   },
   {
     id: "m10-q71", dialecte: "SQL Server",

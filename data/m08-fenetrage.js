@@ -1796,7 +1796,7 @@ LEARNSQL.questions.m08 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index sur Snowflake.",
+      "Non. Un index ne règle pas un manque de mémoire : sur Snowflake, il sert aux recherches très sélectives.",
       "Oui. Réduis les données avant la fenêtre (filtre, colonnes utiles) ou prends un warehouse plus grand : la mémoire ne suffit pas.",
       "Non. NOLOCK n'existe pas sur Snowflake, et ORDER BY ajoute du travail.",
       "Non. Le débordement ralentit fortement."

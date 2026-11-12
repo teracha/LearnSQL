@@ -1533,7 +1533,7 @@ LEARNSQL.questions.m13 = [
       "Non. Coûteux.",
       "Oui. Le STREAM capte les changements ; la TASK le consomme quand il a des données (WHEN SYSTEM$STREAM_HAS_DATA('mon_stream')).",
       "Non. Pas de triggers sur Snowflake.",
-      "Non. Pas d'index classiques sur Snowflake."
+      "Non. Un index accélère une recherche ; il ne dit pas quelles lignes sont nouvelles."
     ],
     retenir: "Incrémental Snowflake : STREAM + TASK."
   },
@@ -1717,7 +1717,7 @@ LEARNSQL.questions.m13 = [
       "Non. Le coût fixe est plus élevé sur Snowflake.",
       "Oui. Chaque instruction a un coût fixe (compilation, coordination dans le cloud) : 10 000 instructions = beaucoup de temps et de crédits. Snowflake excelle sur quelques grosses requêtes.",
       "Non. Les boucles sont permises.",
-      "Non. Pas d'index classiques sur Snowflake."
+      "Non. Les index n'y sont pour rien : le coût fixe vient de chaque instruction."
     ],
     retenir: "Snowflake : peu de grosses requêtes, pas beaucoup de petites."
   },

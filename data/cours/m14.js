@@ -1,5 +1,5 @@
 LEARNSQL.cours.m14 = {
-  intro: "Snowflake n'est pas un SQL Server dans le cloud. Le stockage et le calcul sont séparés, il n'y a pas d'index, et on paie le temps de calcul. Comprendre ça change la façon d'écrire et d'optimiser.",
+  intro: "Snowflake n'est pas un SQL Server dans le cloud. Le stockage et le calcul sont séparés, les micro-partitions font l'essentiel du travail des index, et on paie le temps de calcul. Comprendre ça change la façon d'écrire et d'optimiser.",
   sections: [
     {
       titre: "L'architecture : stockage et calcul séparés",
@@ -31,7 +31,7 @@ LEARNSQL.cours.m14 = {
         "Les tables sont découpées automatiquement en micro-partitions (50 à 500 Mo non compressés).",
         "Pour chaque partition, Snowflake connaît le min et le max de chaque colonne.",
         "Pruning : il saute les partitions qui ne peuvent pas contenir le résultat.",
-        "Pas d'index à créer ni à maintenir.",
+        "Pas d'index cluster ou non cluster. Depuis octobre 2026, des index secondaires (édition Enterprise, payants) servent seulement aux recherches très sélectives.",
         "Très grosses tables mal triées : une clé de clustering améliore le pruning (mais coûte des crédits).",
         "Stockage en colonnes : `SELECT *` lit toutes les colonnes. Liste celles dont tu as besoin."
       ],
@@ -85,7 +85,7 @@ LEARNSQL.cours.m14 = {
     }
   ],
   differences: [
-    ["Index", "Oui", "Non (micro-partitions)"],
+    ["Index", "Oui", "Micro-partitions (+ index secondaires)"],
     ["Coût", "Licence / serveur", "Crédits à la seconde + stockage"],
     ["Revenir en arrière", "Sauvegardes", "Time Travel, UNDROP"],
     ["Copie de test", "Restauration de base", "`CLONE` (instantané)"],

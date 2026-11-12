@@ -1790,7 +1790,7 @@ LEARNSQL.questions.m16 = [
     pourquoi: [
       "Non. Il n'y a pas de telle limite.",
       "Oui. Snowflake est fait pour de gros lots : chaque petite instruction a un coût fixe (et crée de petits fichiers). Charger par fichier (`COPY INTO`) ou par lots.",
-      "Non. Pas d'index sur les tables standard.",
+      "Non. Un index n'accélère pas les INSERT : le coût fixe par instruction reste.",
       "Non. La taille n'est pas la cause."
     ],
     retenir: "Snowflake : charger par lots."

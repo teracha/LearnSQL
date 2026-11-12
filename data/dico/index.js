@@ -18,7 +18,10 @@
 //   sql/alter-table (CLUSTER BY, DROP CLUSTERING KEY, SUSPEND / RESUME RECLUSTER),
 //   functions/system_clustering_information, user-guide/tables-clustering-micropartitions (métadonnées tenues seules),
 //   sql/explain (compile sans exécuter ; TABULAR, JSON, TEXT), sql/create-index et user-guide/tables-hybrid-index
-//   (index et INCLUDE : tables hybrides seulement).
+//   (index des tables hybrides) ; user-guide/search-optimization/secondary-indexes, sql/show-indexes-standard-tables
+//   et release-notes/2026/other/2026-10-26-secondary-indexes-ga (index secondaires des tables standard : GA le
+//   26/10/2026, édition Enterprise, CREATE INDEX … INCLUDE, pas de CLUSTERED, recherches très sélectives ; pages lues
+//   le 12/11/2026, la page de référence sql/create-index ne cite encore que les tables hybrides).
 // - MySQL 8, dev.mysql.com/doc/refman/8.0/en : create-index.html, innodb-index-types.html (la clé primaire est l'index
 //   cluster ; chaque index secondaire contient la clé primaire), explain.html (EXPLAIN ANALYZE : 8.0.18+),
 //   analyze-table.html (UPDATE HISTOGRAM), innodb-persistent-stats.html (recalcul après 10 % de lignes changées).
@@ -32,17 +35,17 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Crée un index : une liste triée qui aide le moteur à trouver vite les lignes, sans tout lire.",
     moteurs: {
       sqlserver: "`CREATE [CLUSTERED | NONCLUSTERED] INDEX ix ON t (col1, col2)` ; non cluster par défaut ; un seul index cluster par table",
-      snowflake: "Pas d'index sur les tables standard : micro-partitions et pruning ; très grosse table : `CLUSTER BY` (`CREATE INDEX` : tables hybrides seulement)",
+      snowflake: "`CREATE INDEX ix ON t (col1, col2)` : index secondaire (édition Enterprise, depuis octobre 2026), seulement pour les recherches très sélectives ; pas d'index cluster : `CLUSTER BY`",
       mysql: "`CREATE INDEX ix ON t (col1, col2)` ; pas de mot CLUSTERED : la table est rangée selon sa clé primaire"
     },
     noms: ["CLUSTERED INDEX", "NONCLUSTERED INDEX", "index cluster", "CREATE UNIQUE INDEX"],
     exemple: "CREATE NONCLUSTERED INDEX ix_commande_client_date\n  ON commande (client_id, date_cde);\nSELECT num_cde, date_cde\nFROM commande\nWHERE client_id = 1 AND date_cde >= '2026-03-05';",
     exemples: {
-      snowflake: "-- Pas d'index à créer : le pruning des micro-partitions fait le travail\nSELECT num_cde, date_cde\nFROM commande\nWHERE client_id = 1 AND date_cde >= '2026-03-05';",
+      snowflake: "-- Index secondaire (édition Enterprise) : pas de NONCLUSTERED\nCREATE INDEX ix_commande_client_date\n  ON commande (client_id, date_cde);\nSELECT num_cde, date_cde\nFROM commande\nWHERE client_id = 1 AND date_cde >= '2026-03-05';",
       mysql: "CREATE INDEX ix_commande_client_date\n  ON commande (client_id, date_cde);\nSELECT num_cde, date_cde\nFROM commande\nWHERE client_id = 1 AND date_cde >= '2026-03-05';"
     },
     resultat: "Index créé. La recherche peut aller droit aux 2 commandes du client 1 depuis le 05/03 (CDE-1003, CDE-1007) ; MySQL le confirme : `key = ix_commande_client_date`, `rows = 2`.",
-    piege: "L'ordre des colonnes compte : cet index sert `WHERE client_id = …` (seul ou avec la date), pas `WHERE date_cde >= …` seul (MySQL : `type = ALL`, toute la table). Et chaque index ralentit les INSERT, UPDATE et DELETE : garde ceux qui servent vraiment.",
+    piege: "L'ordre des colonnes compte : cet index sert `WHERE client_id = …` (seul ou avec la date), pas `WHERE date_cde >= …` seul (MySQL : `type = ALL`, toute la table). Et chaque index se paie à chaque écriture (INSERT, UPDATE et DELETE plus lents ; sur Snowflake, des crédits) : garde ceux qui servent vraiment.",
     pratique: "Sur SQL Server, créer un index non cluster bloque les modifications de la table, et un index cluster bloque même les lectures. Sur une grosse table, crée-le hors heures, ou `WITH (ONLINE = ON)` si ton édition le permet.",
     motsCles: ["index", "accélérer", "performance", "rapide", "lent", "recherche", "optimiser", "cluster", "non cluster", "seek", "lenteur", "vitesse", "colonne", "trier"],
     voirAussi: ["include", "plan-execution", "statistiques", "cluster-by", "primary-key"],
@@ -56,13 +59,13 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Ajoute des colonnes en bout d'index pour qu'une requête y trouve tout, sans relire la table.",
     moteurs: {
       sqlserver: "`CREATE INDEX ix ON t (col_cherchée) INCLUDE (col_affichée, …)` : index non cluster seulement",
-      snowflake: "Pas d'index sur les tables standard, donc pas d'INCLUDE ; les tables hybrides ont `CREATE INDEX … INCLUDE (…)`",
+      snowflake: "`CREATE INDEX ix ON t (col_cherchée) INCLUDE (col_affichée, …)` : index secondaire (édition Enterprise, depuis octobre 2026), seulement pour les recherches très sélectives",
       mysql: "Pas d'INCLUDE : mets les colonnes en fin de clé, `CREATE INDEX ix ON t (client_id, date_cde, montant_ht)`"
     },
     noms: ["index couvrant", "covering index"],
     exemple: "CREATE NONCLUSTERED INDEX ix_commande_client\n  ON commande (client_id)\n  INCLUDE (date_cde, montant_ht);\nSELECT date_cde, montant_ht FROM commande WHERE client_id = 2;",
     exemples: {
-      snowflake: "-- Pas d'index sur une table standard : rien à créer\nSELECT date_cde, montant_ht FROM commande WHERE client_id = 2;",
+      snowflake: "-- Index secondaire (édition Enterprise) : pas de NONCLUSTERED\nCREATE INDEX ix_commande_client\n  ON commande (client_id)\n  INCLUDE (date_cde, montant_ht);\nSELECT date_cde, montant_ht FROM commande WHERE client_id = 2;",
       mysql: "CREATE INDEX ix_commande_client\n  ON commande (client_id, date_cde, montant_ht);\nSELECT date_cde, montant_ht FROM commande WHERE client_id = 2;"
     },
     resultat: "Index créé : les 2 commandes du client 2 (05/03 et 03/04, 1290.00 chacune) se lisent dans l'index seul, sans retour à la table (MySQL : « Using index »).",

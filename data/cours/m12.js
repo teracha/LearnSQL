@@ -77,13 +77,13 @@ LEARNSQL.cours.m12 = {
         "Chaque index ralentit INSERT, UPDATE et DELETE.",
         "Supprime les index jamais utilisés (`sys.dm_db_index_usage_stats`).",
         "Évite les index en double (même début de clé).",
-        "Snowflake n'a pas d'index : il utilise les micro-partitions (module 14)."
+        "Snowflake n'a pas d'index cluster ou non cluster : il utilise les micro-partitions (module 14). Depuis octobre 2026, ses index secondaires (édition Enterprise, payants) servent seulement aux recherches très sélectives."
       ],
       retenir: "Un index se paie à chaque écriture. Garde ceux qui servent."
     }
   ],
   differences: [
-    ["Index", "Cluster, non cluster, columnstore…", "Pas d'index (micro-partitions + pruning)"],
+    ["Index", "Cluster, non cluster, columnstore…", "Micro-partitions (+ index secondaires)"],
     ["Optimiser un filtre fréquent", "Créer un index", "Clé de clustering (très grosses tables)"],
     ["Voir le plan", "Plan d'exécution SSMS", "Query Profile"]
   ]

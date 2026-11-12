@@ -12,7 +12,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ce sont des composants matériels, pas les couches Snowflake.",
       "Oui. Stockage (les données), calcul (les warehouses), services cloud (connexion, optimisation, métadonnées, sécurité). Stockage et calcul sont séparés : on peut les faire grandir indépendamment.",
-      "Non. Il n'y a pas d'index sur Snowflake.",
+      "Non. Ce sont des éléments de SQL Server, pas les couches de Snowflake.",
       "Non. Ce n'est pas l'architecture de Snowflake."
     ],
     retenir: "Stockage / calcul / services cloud, séparés."
@@ -121,7 +121,7 @@ LEARNSQL.questions.m14 = [
       "Non. Les clusters supplémentaires aident quand il y a beaucoup de requêtes en même temps, pas une seule grosse.",
       "Oui. Plus de puissance pour UNE requête. (Mais vérifie d'abord le Query Profile : la requête est peut-être mal écrite.)",
       "Non. Ça règle l'arrêt, pas la puissance.",
-      "Non. Pas d'index."
+      "Non. Sur Snowflake, un index sert aux recherches très sélectives, pas à une grosse requête."
     ],
     retenir: "Grosse requête : plus grande taille."
   },
@@ -244,7 +244,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index.",
+      "Non. Aucun index n'est lu : les métadonnées suffisent.",
       "Oui. Snowflake connaît ces valeurs dans les métadonnées de chaque micro-partition : pas besoin de lire les données. Requêtes « métadonnées seules », souvent sans warehouse.",
       "Non. Il lit les métadonnées, pas un cache.",
       "Non. Le résultat est exact, pas estimé."
@@ -262,7 +262,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index sur Snowflake.",
+      "Non. C'est un bloc de stockage, pas un index.",
       "Oui. Un bloc de stockage immuable (environ 50 à 500 Mo non compressés), rangé par colonnes, avec des métadonnées (min, max…). Snowflake découpe automatiquement chaque table.",
       "Non. C'est un bloc de stockage permanent.",
       "Non. Le découpage est automatique."
@@ -318,7 +318,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Il ne trie pas : il range dans l'ordre d'arrivée, donc par date.",
       "Oui. Les nouvelles micro-partitions contiennent les nouvelles dates : chaque partition couvre une petite plage, le pruning marche bien. « Clustering naturel ». Un filtre sur une autre colonne (ex. client) n'en profite pas.",
-      "Non. Pas d'index sur Snowflake.",
+      "Non. Le rangement vient de l'ordre de chargement, pas d'un index.",
       "Non. C'est le cas grâce à l'ordre de chargement."
     ],
     retenir: "Ordre de chargement = rangement naturel."
@@ -354,7 +354,7 @@ LEARNSQL.questions.m14 = [
     bonne: 0,
     pourquoi: [
       "Oui. Elle donne notamment la profondeur moyenne de chevauchement des partitions.",
-      "Non. Pas d'index sur Snowflake.",
+      "Non. SHOW INDEXES liste des index ; il ne mesure pas le rangement.",
       "Non. SQL Server.",
       "Non. Cette fonction n'existe pas."
     ],
@@ -391,7 +391,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Le débordement distant est très lent.",
       "Oui. La mémoire du warehouse ne suffit pas : réduire les données traitées (filtres, colonnes) ou augmenter la taille du warehouse. Souvent, un filtre plus tôt ou une jointure mieux écrite suffit.",
-      "Non. Pas d'index sur Snowflake.",
+      "Non. Un index ne règle pas un manque de mémoire : sur Snowflake, il sert aux recherches très sélectives.",
       "Non. Ça ne règle pas le manque de mémoire."
     ],
     retenir: "Spilling = mémoire insuffisante."
@@ -1050,7 +1050,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index sur Snowflake.",
+      "Non. Un index ne donne aucun droit : le message parle d'accès.",
       "Oui. Le droit USAGE sur la base PROD et sur le schéma VENTES : pour atteindre une table, il faut pouvoir « entrer » dans la base et le schéma.",
       "Non. Lire ne demande pas DELETE.",
       "Non. Le message parle de droits."
@@ -1382,7 +1382,7 @@ LEARNSQL.questions.m14 = [
       "Non. Plus cher.",
       "Oui. Tables agrégées (ou dynamic tables) pour les visuels, modèle en étoile, mode Import ou composite, warehouse dédié avec AUTO_SUSPEND. Moins de données lues par clic = moins de crédits.",
       "Non. Le besoin reste.",
-      "Non. Pas d'index sur Snowflake."
+      "Non. Sur Snowflake, un index sert aux recherches très sélectives, pas aux agrégats d'un rapport."
     ],
     retenir: "DirectQuery : pré-agréger et bien modéliser."
   },
@@ -1398,7 +1398,7 @@ LEARNSQL.questions.m14 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Pas d'index sur Snowflake.",
+      "Non. Syntaxe inventée : un index ne change pas la casse, c'est la collation.",
       "Oui. Collation sur la colonne (ci = case insensitive). Sinon, UPPER / ILIKE au cas par cas. (Les collations peuvent avoir un coût en performance.)",
       "Non. Syntaxe inventée.",
       "Non. Ce paramètre n'existe pas."
@@ -1507,7 +1507,7 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. Index, contraintes, coûts changent.",
-      "Oui. Les index (n'existent plus), la casse et les espaces, les contraintes (PK, UNIQUE et FK non appliquées), les procédures, les fuseaux horaires, la stratégie de coûts. Une migration « copier-coller » donne souvent un système lent ou cher.",
+      "Oui. Les index (on ne recopie pas ceux de SQL Server : on pense micro-partitions), la casse et les espaces, les contraintes (PK, UNIQUE et FK non appliquées), les procédures, les fuseaux horaires, la stratégie de coûts. Une migration « copier-coller » donne souvent un système lent ou cher.",
       "Non. Bien plus que les noms.",
       "Non. Il n'y a pas de serveur à gérer."
     ],
@@ -1527,7 +1527,7 @@ LEARNSQL.questions.m14 = [
       "Non. Des tests automatiques le permettent.",
       "Oui. Tests automatiques : unicité, non NULL, références existantes (à la main ou avec un outil comme dbt). Un test qui échoue arrête le traitement avant que les rapports ne soient faux.",
       "Non. Les fichiers peuvent contenir des erreurs.",
-      "Non. Pas d'index sur Snowflake."
+      "Non. Sur une table standard, aucun index n'est unique : les doublons entrent."
     ],
     retenir: "Snowflake : qualité = tests automatiques."
   },
@@ -1765,7 +1765,7 @@ LEARNSQL.questions.m14 = [
     pourquoi: [
       "Non. Ils consomment des crédits.",
       "Oui. Ce sont des services « serverless » qui consomment des crédits, à surveiller comme les warehouses. Les coûts apparaissent dans les vues d'historique de consommation.",
-      "Non. Ils consomment des crédits partout.",
+      "Non. Partout où ils existent, ils consomment des crédits.",
       "Non. Les trois consomment des crédits."
     ],
     retenir: "Services serverless = crédits aussi."
@@ -1818,10 +1818,10 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. Le fonctionnement interne est très différent.",
-      "Oui. Un entrepôt cloud où stockage et calcul sont séparés, sans index ni maintenance, avec Time Travel, clonage et partage, facturé à l'usage.",
+      "Oui. Un entrepôt cloud où stockage et calcul sont séparés, avec peu de maintenance, Time Travel, clonage et partage, facturé à l'usage.",
       "Non. C'est un entrepôt de données.",
       "Non. C'est un entrepôt, pas un outil ETL."
     ],
-    retenir: "Snowflake : séparé, sans index, voyage dans le temps, payé à l'usage."
+    retenir: "Snowflake : séparé, micro-partitions, voyage dans le temps, payé à l'usage."
   }
 ];

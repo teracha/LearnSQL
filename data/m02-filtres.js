@@ -953,7 +953,7 @@ LEARNSQL.questions.m02 = [
     pourquoi: [
       "Non. En général oui, mais CAST de DATETIME vers DATE est un cas spécial.",
       "Oui. SQL Server transforme ce filtre en plage. Les autres fonctions (YEAR, CONVERT…) n'ont pas cette chance.",
-      "Non. Snowflake n'a pas d'index.",
+      "Non. C'est justement SQL Server qui sait optimiser ce CAST en plage.",
       "Non. NOLOCK change les verrous, pas l'usage de l'index."
     ],
     retenir: "Exception utile : CAST(datetime AS date) = … reste SARGable sur SQL Server."
@@ -1840,7 +1840,7 @@ LEARNSQL.questions.m02 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Snowflake n'a pas d'index.",
+      "Non. Le gain vient du min et du max de chaque micro-partition, pas d'un index.",
       "Oui. Snowflake connaît le min et le max de date_cde dans chaque micro-partition : c'est le pruning. Une fonction sur la colonne peut le rendre moins efficace.",
       "Non. YEAR existe.",
       "Non. Le cache de résultats ne dépend pas de l'écriture du filtre."

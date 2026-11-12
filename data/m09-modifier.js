@@ -1004,7 +1004,7 @@ LEARNSQL.questions.m09 = [
       "Non. Chaque partition touchée est réécrite en entier.",
       "Oui. Les micro-partitions ne sont pas modifiables : chaque partition touchée est réécrite entièrement. Parfois, recréer la table (CREATE TABLE … AS SELECT) est plus efficace.",
       "Non. Snowflake ne verrouille pas toute la base.",
-      "Non. Pas d'index sur Snowflake."
+      "Non. Le coût vient des partitions réécrites, pas d'un index."
     ],
     retenir: "Snowflake : UPDATE = réécriture de micro-partitions."
   },
