@@ -66,7 +66,7 @@ LEARNSQL.questions.m16 = [
     bonne: 1,
     pourquoi: [
       "Non. Rien ne relie la commande à son client.",
-      "Oui. Chaque commande combinée avec CHAQUE client : la condition de jointure a été oubliée. Avec `INNER JOIN … ON`, l'oubli de la condition provoque une erreur de syntaxe : on le voit tout de suite.",
+      "Oui. Chaque commande avec CHAQUE client : la condition de jointure manque. Sur SQL Server, un `JOIN` sans `ON` est une erreur de syntaxe : l'oubli se voit tout de suite. Snowflake, lui, l'accepte : produit cartésien aussi.",
       "Non. La virgule entre tables est une syntaxe ancienne mais valide.",
       "Non. Il n'y a aucun lien entre les deux tables."
     ],
@@ -1282,7 +1282,7 @@ LEARNSQL.questions.m16 = [
     bonne: 1,
     pourquoi: [
       "Non. TRUNCATE est permis.",
-      "Oui. La table est référencée par une clé étrangère (ex. depuis ligne_cde) : TRUNCATE est refusé dans ce cas. TRUNCATE remet aussi le compteur IDENTITY à zéro et n'accepte pas de WHERE. À réserver aux tables de chargement.",
+      "Oui. La table est référencée par une clé étrangère (ex. depuis ligne_cde) : TRUNCATE est refusé dans ce cas. TRUNCATE remet aussi le compteur IDENTITY à sa valeur de départ (souvent 1) et n'accepte pas de WHERE. À réserver aux tables de chargement.",
       "Non. TRUNCATE est justement rapide sur les grandes tables.",
       "Non. TRUNCATE n'accepte pas de WHERE."
     ],
@@ -1665,7 +1665,7 @@ LEARNSQL.questions.m16 = [
       "Non. Moins de colonnes, moins de données lues.",
       "Oui. Seules les colonnes demandées sont lues. Moins de colonnes = moins de données lues = moins de temps de warehouse.",
       "Non. Il est permis.",
-      "Non. Toute requête consomme."
+      "Non. Toute requête qui tourne sur un warehouse consomme des crédits."
     ],
     retenir: "Snowflake : ne lire que les colonnes utiles."
   },
@@ -1737,7 +1737,7 @@ LEARNSQL.questions.m16 = [
       "Non. Possible tant qu'on est dans la durée de conservation (1 jour par défaut).",
       "Oui. `INSERT INTO tarif SELECT * FROM tarif AT(OFFSET => -60*30);` (l'état d'il y a 30 minutes). Ou une copie : `CREATE TABLE tarif_svg CLONE tarif AT(OFFSET => -1800);`",
       "Non. UNDROP sert pour une table supprimée (DROP), pas vidée.",
-      "Non. Snowflake n'a pas de sauvegarde à restaurer ; le Time Travel la remplace."
+      "Non. Elle perdrait les changements du jour ; le Time Travel rend la table d'avant le DELETE."
     ],
     retenir: "Snowflake : Time Travel pour revenir en arrière."
   },
@@ -1753,9 +1753,9 @@ LEARNSQL.questions.m16 = [
     bonne: 1,
     pourquoi: [
       "Non. Trop risqué.",
-      "Oui. `CREATE DATABASE recette CLONE prod;` : copie instantanée, qui ne coûte du stockage que pour les données modifiées ensuite. Un des grands atouts de Snowflake.",
+      "Oui. `CREATE DATABASE recette CLONE prod;` : copie rapide, sans dupliquer les données, qui ne coûte du stockage que pour les données modifiées ensuite. Un des grands atouts de Snowflake.",
       "Non. Long et inutile.",
-      "Non. Un clone est instantané."
+      "Non. Un clone est rapide : il ne recopie pas les données."
     ],
     retenir: "Snowflake : CLONE pour tester."
   },
@@ -1782,15 +1782,15 @@ LEARNSQL.questions.m16 = [
     q: "Un programme insère 100 000 lignes dans Snowflake avec 100 000 INSERT d'une ligne. C'est très lent. Pourquoi ?",
     choix: [
       "Snowflake limite à 1 000 lignes par jour",
-      "Coût fixe par instruction",
+      "Snowflake est fait pour les gros lots",
       "Il faut un index",
       "Le warehouse est trop grand"
     ],
     bonne: 1,
     pourquoi: [
       "Non. Il n'y a pas de telle limite.",
-      "Oui. Snowflake est fait pour de gros lots : chaque petite instruction a un coût fixe (et crée de petits fichiers). Charger par fichier (`COPY INTO`) ou par lots.",
-      "Non. Un index n'accélère pas les INSERT : le coût fixe par instruction reste.",
+      "Oui. Les tables standard de Snowflake sont faites pour charger et lire en masse, pas ligne à ligne. Charger par fichier (`COPY INTO`, conseillé par Snowflake) ou par lots.",
+      "Non. Un index n'accélère pas les INSERT : il ajoute de l'entretien.",
       "Non. La taille n'est pas la cause."
     ],
     retenir: "Snowflake : charger par lots."

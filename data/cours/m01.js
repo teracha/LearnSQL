@@ -22,7 +22,7 @@ LEARNSQL.cours.m01 = {
       points: [
         "Ce qui se passe : les 4 factures, avec 3 colonnes choisies, dans l'ordre du `SELECT`. `AS f` donne un nom court à la table (un alias), et `f.statut` dit de quelle table vient la colonne.",
         "Pourquoi : le moteur lit `FROM` d'abord. Il doit savoir quelle table ouvrir avant de choisir les colonnes. `dbo.facture` nomme le schéma (le tiroir qui range la table) : une autre table `facture` existe peut-être dans un schéma `stg`, pour les imports.",
-        "Le piège : `SELECT *` en production. Le jour où une colonne s'ajoute, la vue, le rapport Power BI ou le flux EDI qui lisent cette requête reçoivent une colonne de plus, et se décalent ou plantent.",
+        "Le piège : `SELECT *` en production. Le jour où une colonne s'ajoute, le rapport Power BI ou le flux EDI qui lisent cette requête reçoivent une colonne de plus, et se décalent ou plantent ; une vue, elle, se fige ou plante (m16).",
         "Le bon réflexe : liste tes colonnes. Et une fois l'alias posé, utilise-le partout : `facture.statut` n'est plus reconnu, seul `f.statut` l'est.",
         "Et aussi : les colonnes sortent dans l'ordre du `SELECT`. Les lignes, elles, sortent dans un ordre que personne ne garantit sans `ORDER BY` (section 3)."
       ],

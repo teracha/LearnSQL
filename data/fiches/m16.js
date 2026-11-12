@@ -1,5 +1,7 @@
 // Fiche de révision du module m16 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m16.js.
+// Relue le 12/11/2026 (testeur) : SELECT * (vue figée ou cassée), fonction scalaire (souvent), carte (CREATE OR ALTER sur
+// Snowflake, cellule de 6 mots). Détail : relecture-m16/changements.txt.
 LEARNSQL.fiches.m16 = {
   intro: "Une requête qui marche n'est pas forcément une bonne requête. Elle doit aussi être lisible, rapide, sûre et maintenable par quelqu'un d'autre. Ici, les réflexes d'un senior.",
   sections: [
@@ -29,10 +31,10 @@ LEARNSQL.fiches.m16 = {
       titre: "Les anti-patterns de performance",
       exemple: "SELECT *                                -- ✘ colonnes inutiles\nFROM dbo.commande WITH (NOLOCK)          -- ✘ lectures fausses possibles\nWHERE YEAR(date_cde) = 2026              -- ✘ index inutilisable\n  AND dbo.f_statut(id) = 'OK'            -- ✘ fonction scalaire par ligne\n  AND code_client = 12345;               -- ✘ conversion implicite",
       points: [
-        "`SELECT *` : plus de lectures, pas d'index couvrant, casse si la table change.",
+        "`SELECT *` : plus de lectures, pas d'index couvrant, vue figée ou cassée si la table change.",
         "`NOLOCK` partout : lectures non validées, lignes ratées ou doublées.",
         "Fonction sur une colonne filtrée : scan.",
-        "Fonction scalaire dans SELECT ou WHERE : exécutée pour chaque ligne.",
+        "Fonction scalaire dans SELECT ou WHERE : souvent exécutée pour chaque ligne.",
         "Types différents : conversion implicite.",
         "`COUNT(*) > 0` pour tester l'existence : préfère `EXISTS`."
       ],
@@ -87,8 +89,8 @@ LEARNSQL.fiches.m16 = {
     }
   ],
   differences: [
-    ["Script relançable", "`CREATE OR ALTER`, `DROP … IF EXISTS`", "`CREATE OR REPLACE`, `IF NOT EXISTS`"],
+    ["Script relançable", "`CREATE OR ALTER`, `DROP … IF EXISTS`", "`CREATE OR ALTER`, `IF NOT EXISTS`"],
     ["Coût d'une requête lente", "Temps, blocages", "Crédits facturés"],
-    ["Contrôle qualité", "Contraintes + requêtes", "Requêtes de contrôle (PK, UNIQUE, FK non appliquées)"]
+    ["Contrôle qualité", "Contraintes + requêtes", "Requêtes (PK, UNIQUE, FK non vérifiées)"]
   ]
 };

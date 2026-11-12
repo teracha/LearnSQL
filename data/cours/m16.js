@@ -1,4 +1,6 @@
 // Parcours SQL — Cours complet du module m16 « Bonnes pratiques et anti-patterns », version 1 (12/11/2026).
+// Relu le 12/11/2026 (testeur) : S3 (une requête par commande), S6 (DROP sur flux_edi : client est référencée par une clé
+// étrangère), S7 (clone « vite »), S8 (le calcul se paie), carte (CLONE zéro copie). Détail : relecture-m16/changements.txt.
 // Écrit à partir de la fiche de révision (data/fiches/m16.js, l'ancien cours court) et des 100 « retenir » de
 // data/m16-bonnes-pratiques.js. Un cours de RELECTURE : chaque section part d'une requête livrée mal écrite (l'exemple
 // montre l'anti-pattern et ce qu'il produit), puis la version propre. Squelette validé par l'élève (m02 v2) : Exemple →
@@ -86,7 +88,7 @@ LEARNSQL.cours.m16 = {
         "Pourquoi : le moteur traite un ensemble de lignes d'un coup : une lecture, un plan (le chemin choisi), une écriture. Une boucle ou un curseur (qui lit ligne à ligne, m13) repaie tout à chaque tour.",
         "Le piège : la boucle cachée. `SELECT num_cde, dbo.f_nom_client(client_id) FROM dbo.commande` appelle la fonction scalaire (qui rend une valeur) à chaque ligne. Microsoft a mesuré 1,6 s sans fonction, 29 min avec. SQL Server 2019 sait en intégrer certaines à la requête, pas toutes.",
         "Le bon réflexe : décris le résultat, pas les étapes : UPDATE avec jointure (m09), `INSERT … SELECT`, cumul par `SUM() OVER` (m08). Un libellé : une jointure, ou une fonction table en ligne (une vue à paramètres, m13).",
-        "Et aussi : une boucle reste juste pour une tâche par élément, sur peu de lignes, ou une purge par lots (m09). Côté appli, même défaut : 5 000 commandes puis une requête par client, 5 001 allers-retours."
+        "Et aussi : une boucle reste juste pour une tâche par élément, sur peu de lignes, ou une purge par lots (m09). Côté appli, même défaut : 5 000 commandes puis une requête par commande pour son client, 5 001 allers-retours."
       ],
       retenir: "Pense ensemble : une instruction pour toutes les lignes. Boucle, curseur, fonction scalaire : le travail se paie à chaque ligne."
     },
@@ -123,7 +125,7 @@ LEARNSQL.cours.m16 = {
       points: [
         "Ce qui se passe : la saisie ferme l'apostrophe et ajoute `OR '1'='1'`, toujours vrai : les 7 clients sortent. En paramètre, la même saisie reste un nom bizarre : 0 ligne.",
         "Pourquoi : `EXEC (@sql)` exécute le texte tel qu'il est : ce qui est collé devient du code. Avec `sp_executesql`, la requête est fixe et la valeur voyage à part, jamais lue comme du SQL.",
-        "Le piège : avec `x'; DROP TABLE dbo.client; --`, la saisie supprime une table : c'est l'injection SQL. Doubler les apostrophes à la main n'est pas fiable (Microsoft). Un champ EDI chargé peut aussi porter l'attaque.",
+        "Le piège : avec `x'; DROP TABLE dbo.flux_edi; --`, la saisie supprime une table : c'est l'injection SQL. Doubler les apostrophes à la main n'est pas fiable (Microsoft). Un champ EDI chargé peut aussi porter l'attaque.",
         "Le bon réflexe : chaque valeur en paramètre, du type de la colonne. Un nom de table ne peut pas l'être : vérifie-le dans une liste autorisée, puis `QUOTENAME(@table)` (m13). En relecture, cherche chaque `EXEC (`.",
         "SQL Server / Snowflake : Snowflake écrit `EXECUTE IMMEDIATE :texte USING (v_nom)`, les `?` du texte recevant les valeurs, et `IDENTIFIER(:nom_table)` pour un nom d'objet. Même règle : jamais une saisie collée."
       ],
@@ -138,7 +140,7 @@ LEARNSQL.cours.m16 = {
         "Pourquoi : un UPDATE touche toutes les lignes de son WHERE, sans question ; 0 ou 3 lignes ne sont jamais une erreur (m09). Le SELECT montre le nombre et le contenu, avant tout dégât.",
         "Le piège : le script testé sur une petite recette, ou jamais hors de la production : 1 s sur 10 000 lignes, 25 min sur 40 millions. Ou un `BEGIN TRAN` oublié dans SSMS : tout le monde attend (m11).",
         "Le bon réflexe : un ticket, un script relu, le SELECT puis le même WHERE, une transaction qui compte (`IF @@ROWCOUNT <> @attendu ROLLBACK; ELSE COMMIT;`), une copie datée (`SELECT … INTO`), un test à volume réel sur une copie récente, plan lu.",
-        "SQL Server / Snowflake : Snowflake clone une base de test en secondes (`CREATE DATABASE recette CLONE prod;`) et relit le passé par Time Travel (`AT (OFFSET => -1800)`). Mais `CREATE OR REPLACE TABLE` relancé recrée la table vide (m10)."
+        "SQL Server / Snowflake : Snowflake clone vite une base de test (`CREATE DATABASE recette CLONE prod;`) et relit le passé par Time Travel (`AT (OFFSET => -1800)`). Mais `CREATE OR REPLACE TABLE` relancé recrée la table vide (m10)."
       ],
       retenir: "Avant de livrer : le SELECT du même WHERE, une transaction qui compte, une copie de sauvegarde, un test à volume réel."
     },
@@ -153,7 +155,7 @@ LEARNSQL.cours.m16 = {
         "Snowflake et les coûts : `AUTO_SUSPEND` court (le warehouse inactif s'arrête), un warehouse par usage (chargement, BI, exploration), un resource monitor (plafond de crédits : alerte, puis arrêt). Lent : le Query Profile (son plan d'exécution) avant d'agrandir (m14).",
         "Snowflake et les chargements : tables `TRANSIENT` pour ce qui se recharge (sans Fail-safe, les 7 jours de secours : moins de stockage payé) ; par fichier (`COPY INTO`) ou par lots, pas 100 000 INSERT d'une ligne ; doublons contrôlés après (m10)."
       ],
-      retenir: "Un script se relance sans dégât, vit dans Git, se teste avant la production ; sur Snowflake, chaque requête se paie."
+      retenir: "Un script se relance sans dégât, vit dans Git, se teste avant la production ; sur Snowflake, le calcul se paie."
     }
   ],
   differences: [
@@ -165,7 +167,7 @@ LEARNSQL.cours.m16 = {
     ["Nom de table dynamique", "`QUOTENAME(@t)`", "`IDENTIFIER(:t)`"],
     ["Date lue une fois", "`DECLARE @jour date`", "`SET jour = CURRENT_DATE()`"],
     ["`CREATE OR ALTER`", "Vues, procédures", "Aussi les tables"],
-    ["Copie de test", "Restaurer une sauvegarde", "`CLONE`, instantané"],
+    ["Copie de test", "Restaurer une sauvegarde", "`CLONE`, zéro copie"],
     ["Requête lente : où regarder", "Plan d'exécution", "Query Profile"]
   ]
 };
