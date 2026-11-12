@@ -3,39 +3,42 @@
 // data/m05-jointures.js. Squelette validé par l'élève (m02 v2) : Exemple (qui MONTRE le piège) → Résultat → « Ce qui se
 // passe » → « Pourquoi » → « Le piège » (l'erreur vue en entreprise) → « Le bon réflexe » → « SQL Server / Snowflake »
 // ou « Et aussi » → À retenir. Chaque mot technique est expliqué à sa première apparition.
-// Résultats recalculés avec SQLite 3.45 sur docs/base-exemple.sql (script : scratchpad cours-complets/m05/verif.py,
-// 72 requêtes, 0 écart) : INNER flux_edi → commande (5 flux sur 6, le flux 3 rejeté disparaît ; ON co.id = f.id relie le
-// flux 3 à CDE-1003) ; LEFT JOIN des 5 PRO français et de leurs commandes EN_COURS (5 lignes ; filtre dans le WHERE :
-// 2 lignes ; avec OR co.statut IS NULL : 3) ; anti-jointure (C005, C007 ; sans commande depuis le 1er avril : + C003 ;
-// test sur f.motif : 9 lignes au lieu de 5, CDE-1001, 1003 et 1007 à tort) ; FULL OUTER JOIN commandes EDI ↔ flux ORDERS
-// (4 lignes, flux 3 « Manque ERP » ; table commande entière filtrée après la jointure : 3 lignes) ; deux tables filles
-// (CDE-1001 : 9560.00 et 4 flux au lieu de 4780.00 et 2 ; CDE-1003 : 2 flux au lieu d'1 ; COUNT(*) 3 → 6 → 10) ;
+// Résultats recalculés avec SQLite 3.45 sur docs/base-exemple.sql (script : scratchpad cours-complets/m05/verif.py, 72
+// requêtes, 0 écart) : INNER flux_edi → commande (5 flux sur 6, le flux 3 rejeté disparaît ; ON co.id = f.id relie le
+// flux 3 à CDE-1003) ; LEFT JOIN des 5 PRO français et de leurs commandes EN_COURS (5 lignes ; filtre dans le WHERE : 2
+// lignes ; avec OR co.statut IS NULL : 3) ; anti-jointure (C005, C007 ; sans commande depuis le 1er avril : + C003 ;
+// test sur f.motif : 9 lignes au lieu de 5, CDE-1001, 1003 et 1007 à tort) ; FULL OUTER JOIN commandes EDI ↔ flux
+// ORDERS (4 lignes, flux 3 « Manque ERP » ; table commande entière filtrée après la jointure : 3 lignes) ; deux tables
+// filles (CDE-1001 : 9560.00 et 4 flux au lieu de 4780.00 et 2 ; CDE-1003 : 2 flux au lieu d'1 ; COUNT(*) 3 → 6 → 10) ;
 // CROSS JOIN article × dépôt (24 couples ; CHL-25 : Lyon 25, Toulouse 15, Nantes 0) ; tranches VALUES (5, 5, 10 % ;
 // BETWEEN 0-1000 / 1000-5000 : 2 tranches pour 1 000 ; 0-999 / 1000-4999 : aucune pour 999,50) ; auto-jointure SIREN
 // (C002-C006 ; avec <> : 2 lignes ; SIREN NULL : aucune paire). Calculés à la main : 10 000 × 10 000 = 100 millions ;
 // ERP 100 / EDI 98 / 95 communes : 95 + 5 + 3 = 103.
-// Couverture : chaque notion testée par plusieurs questions a sa section ou son point (carte dans le rapport de l'expert).
-// Laissées à l'explication de leur question (une seule question chacune, règle 6 de docs/plan-sql.md) : LEFT OUTER (q32),
-// chemin des clés (q33), parenthèses dans un LEFT (q38), EXCEPT (q47, module m07), LEFT + IS NOT NULL (q48), libellé par
-// langue (q52), élimination de jointure (q56), identifiant plutôt que libellé (q58), membre « Inconnu » (q60), fonction
-// table et APPLY (q67), *= (q70), filtre dans une sous-requête (q76), table de liaison (q78), sous-requête agrégée (q79),
-// CTE récursive (q80, m06), LAG et cumul (q85, q86, m08), indices de jointure (q88), OPENQUERY (q90), IS NOT DISTINCT
-// FROM (q08, vu en m02).
-// Sources (vérifiées le 12/11/2026) : learn.microsoft.com/sql : t-sql/queries/from-transact-sql (INNER par défaut, OUTER
-// facultatif, ON accepte tout prédicat, filtre ON ou WHERE : même résultat en INNER, différent en OUTER ; CROSS JOIN =
-// ancienne écriture sans WHERE ; CROSS / OUTER APPLY ; table dérivée VALUES … AS t(a, b) ; noms en 3 et 4 parties ; ni
-// USING ni NATURAL), relational-databases/performance/joins (Nested Loops, Merge, Hash), t-sql/queries/hints-transact-
-// sql-join (dernier recours), relational-databases/tables/primary-and-foreign-key-constraints (une clé étrangère ne crée
-// pas d'index), t-sql/statements/set-showplan-all-transact-sql (avertissement MISSING JOIN PREDICATE ; SSMS l'affiche
-// « No Join Predicate », comme la question q98), t-sql/language-elements/string-comparison-assignment (espaces de fin
-// ignorés par =), t-sql/data-types/data-type-precedence-transact-sql (int passe avant varchar : le texte est converti),
-// t-sql/statements/collation-precedence-transact-sql (conflit de collation, COLLATE), t-sql/functions/string-split-
-// transact-sql (colonne value), t-sql/queries/is-distinct-from-transact-sql (2022). docs.snowflake.com (par extraits de
-// recherche, le site n'est pas joignable) : sql-reference/constructs/join (USING et sa liste de colonnes, NATURAL JOIN),
-// sql-reference/collation (casse et espaces de fin comptés par défaut), user-guide/ui-query-profile (« exploding
-// joins », débordement sur disque), sql-reference/functions/split_to_table, user-guide/tables-hybrid-index (index :
-// tables hybrides seulement), sql-reference/identifiers (base.schéma.objet). Faits déjà vérifiés (consignes de novembre
-// 2026) : Snowflake refuse LIMIT dans une sous-requête liée (LATERAL), top N avec QUALIFY.
+// Couverture : chaque notion testée par plusieurs questions a sa section ou son point (carte : rapport de l'expert).
+// Laissées à l'explication de leur question (une seule question chacune, règle 6 de docs/plan-sql.md) : LEFT OUTER
+// (q32), chemin des clés (q33), parenthèses dans un LEFT (q38), EXCEPT (q47, module m07), LEFT + IS NOT NULL (q48),
+// libellé par langue (q52), élimination de jointure (q56), identifiant plutôt que libellé (q58), membre « Inconnu »
+// (q60), fonction table et APPLY (q67), *= (q70), filtre dans une sous-requête (q76), table de liaison (q78),
+// sous-requête agrégée (q79), CTE récursive (q80, m06), LAG et cumul (q85, q86, m08), indices de jointure (q88),
+// OPENQUERY (q90), IS NOT DISTINCT FROM (q08, vu en m02).
+// Sources (vérifiées le 12/11/2026) : learn.microsoft.com/sql : t-sql/queries/from-transact-sql (INNER par défaut,
+// OUTER facultatif, ON accepte tout prédicat, filtre ON ou WHERE : même résultat en INNER, différent en OUTER ; CROSS
+// JOIN = ancienne écriture sans WHERE ; CROSS / OUTER APPLY ; table dérivée VALUES … AS t(a, b) ; noms en 3 et 4
+// parties ; ni USING ni NATURAL), relational-databases/performance/joins (Nested Loops, Merge, Hash),
+// t-sql/queries/hints-transact-sql-join (dernier recours),
+// relational-databases/tables/primary-and-foreign-key-constraints (une clé étrangère ne crée pas d'index),
+// t-sql/statements/set-showplan-all-transact-sql (avertissement MISSING JOIN PREDICATE ; le libellé « No Join
+// Predicate » du plan graphique vient de la question q98, non retrouvé tel quel sur Learn),
+// t-sql/language-elements/string-comparison-assignment (espaces de fin ignorés par =),
+// t-sql/data-types/data-type-precedence-transact-sql (int passe avant varchar : le texte est converti),
+// t-sql/statements/collation-precedence-transact-sql (conflit de collation, COLLATE),
+// t-sql/functions/string-split-transact-sql (colonne value), t-sql/queries/is-distinct-from-transact-sql (2022).
+// docs.snowflake.com (par extraits de recherche, le site n'est pas joignable) : sql-reference/constructs/join (USING et
+// sa liste de colonnes, NATURAL JOIN), sql-reference/collation (casse et espaces de fin comptés par défaut),
+// user-guide/ui-query-profile (« exploding joins », débordement sur disque), sql-reference/functions/split_to_table,
+// user-guide/tables-hybrid-index (index : tables hybrides seulement), sql-reference/identifiers (base.schéma.objet).
+// Faits déjà vérifiés (consignes de novembre 2026) : Snowflake refuse LIMIT dans une sous-requête liée (LATERAL), top N
+// avec QUALIFY.
 LEARNSQL.cours.m05 = {
   intro: "Ton rapport EDI annonce 9 560 € pour CDE-1001, qui en vaut 4 780 €, et ton suivi des flux ne montre aucune commande rejetée : bug, ou jointure piégée ? Une jointure relie deux tables, comme les flux EDI et leurs commandes. Mal choisie, elle perd des lignes ou les double, sans erreur. Ce module montre ce que chaque jointure garde, et comment éviter ces pièges.",
   sections: [
@@ -153,7 +156,7 @@ LEARNSQL.cours.m05 = {
     ["Sous-requête par ligne", "`CROSS` / `OUTER APPLY`", "`LATERAL`"],
     ["Dernière ligne par groupe", "`APPLY` + `TOP (1)`", "`QUALIFY ROW_NUMBER()`"],
     ["Liste en lignes", "`STRING_SPLIT`", "`SPLIT_TO_TABLE`"],
-    ["Index de jointure", "À créer", "Aucun (tables standard)"],
+    ["Index sur la clé", "À créer", "Aucun (tables standard)"],
     ["Jointure lente", "Plan d'exécution", "Query Profile"]
   ]
 };
