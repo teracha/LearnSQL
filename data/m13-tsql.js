@@ -578,7 +578,7 @@ LEARNSQL.questions.m13 = [
     pourquoi: [
       "Non. Injection possible.",
       "Oui. La valeur est un paramètre : jamais exécutée comme du code. Et le plan est réutilisé.",
-      "Non. sp_executesql ne protège rien si la valeur est concaténée dans le texte.",
+      "Non. sp_executesql ne protège rien si la valeur est collée dans le texte (ici, le + est même refusé dans l'appel : on construit @sql avant).",
       "Non. Exécute la saisie elle-même comme du code."
     ],
     retenir: "sp_executesql + paramètres."
@@ -863,14 +863,14 @@ LEARNSQL.questions.m13 = [
     choix: [
       "Il ralentit tout le serveur",
       "Accès au système du serveur",
-      "Il ne marche pas sous Linux",
+      "Il ne marche qu'avec l'Agent SQL",
       "Il est payant en édition Standard"
     ],
     bonne: 1,
     pourquoi: [
       "Non. La raison est la sécurité.",
       "Oui. Risque de sécurité : il donne accès au système d'exploitation du serveur. Pour manipuler des fichiers : un outil ETL, PowerShell ou un job dédié.",
-      "Non. Il marche aussi sous Linux… et c'est le risque.",
+      "Non. Une fois activé, il se lance depuis n'importe quel script : la raison est la sécurité.",
       "Non. Il est inclus, pas payant."
     ],
     retenir: "xp_cmdshell : à laisser désactivé."
@@ -1660,7 +1660,7 @@ LEARNSQL.questions.m13 = [
     bonne: 1,
     pourquoi: [
       "Non. Les deux syntaxes sont très différentes.",
-      "Oui. La structure (CREATE PROCEDURE … $$), les @variables, TRY/CATCH, les fonctions propres à SQL Server (GETDATE, ISNULL, TOP…), les #tables. La logique reste. C'est l'occasion de passer en « ensembliste ».",
+      "Oui. La structure (CREATE PROCEDURE … $$), les @variables, TRY/CATCH, les #tables et ce qui est propre à SQL Server (ISNULL, IIF, + pour coller des textes…). La logique reste. C'est l'occasion de passer en « ensembliste ».",
       "Non. Le corps aussi doit être réécrit.",
       "Non. Le code lui-même doit changer."
     ],
@@ -1692,14 +1692,14 @@ LEARNSQL.questions.m13 = [
       "CREATE TABLE #travail …",
       "CREATE TEMPORARY TABLE travail …",
       "DECLARE @travail TABLE",
-      "CREATE VOLATILE travail"
+      "CREATE TRANSIENT TABLE travail …"
     ],
     bonne: 1,
     pourquoi: [
       "Non. # est SQL Server.",
       "Oui. Visible seulement dans la session.",
       "Non. SQL Server.",
-      "Non. VOLATILE n'existe pas sur Snowflake."
+      "Non. Une table TRANSIENT reste après la session, jusqu'au DROP (elle n'a juste pas de Fail-safe)."
     ],
     retenir: "Snowflake : TEMPORARY TABLE."
   },
