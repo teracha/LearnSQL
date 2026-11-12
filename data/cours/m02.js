@@ -115,7 +115,7 @@ LEARNSQL.cours.m02 = {
         "Un tarif valable à une date : `debut <= @d AND (fin IS NULL OR fin >= @d)`. Une fin NULL veut dire « encore valable » : il faut le dire au moteur.",
         "Égalité qui accepte deux NULL (deux fiches sans SIREN sont-elles « pareilles » ?) : `a IS NOT DISTINCT FROM b` (SQL Server 2022 et plus, Snowflake). Avant : `a = b OR (a IS NULL AND b IS NULL)`.",
         "`WHERE 1 = 1` est toujours vrai : pratique quand un programme ajoute des `AND …` à la suite, sans gérer le premier.",
-        "Un paramètre écrit `N'C001'` (texte Unicode) comparé à une colonne VARCHAR force SQL Server à convertir toute la colonne : l'index ne sert plus. Aligne le type du paramètre sur celui de la colonne."
+        "Un paramètre écrit `N'C001'` (texte Unicode) comparé à une colonne VARCHAR force SQL Server à convertir la colonne : l'index sert mal, ou plus du tout (selon la collation). Aligne le type du paramètre sur celui de la colonne."
       ],
       retenir: "WHERE travaille ligne par ligne : pour comparer à un total ou une moyenne, passe par une sous-requête."
     }

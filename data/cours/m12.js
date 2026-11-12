@@ -68,8 +68,13 @@
 // (q96), batch mode (q98), Adaptive Join (q99).
 // Signalé au superviseur : q77 (« ne peut-on pas » : SQL Server crée l'index avec un avertissement, puis refuse les
 // lignes trop longues ; t-sql/statements/create-index-transact-sql, « Index key size »).
+// Relecture testeur (12/11/2026, scratchpad cours-complets/relecture-m12) : 12 résultats recalculés avec SQLite (recalcul.py,
+// 16 contrôles, 0 écart) ; règles relues sur Microsoft Learn et docs.snowflake.com (.md). Corrigés : plans dits « probables,
+// pas garantis » (intro, S2, tableaux S4 et S5 : sur 8 lignes, SQL Server lirait toute la table) ; S3 « seule la table les
+// a » (l'index cluster est la table) ; élagage expliqué (S4) et micro-partitions « avant compression » (S1) ; retenir S4
+// « souvent » ; carte « Scan, pas de Seek » ; résultat S7 sans la redite du doublon. Détail : relecture-m12/changements.txt.
 LEARNSQL.cours.m12 = {
-  intro: "Ton rapport Power BI « commandes par client » met 40 secondes depuis la reprise de 5 ans d'historique Divalto. Index manquant, ou requête qui l'empêche de servir ? Un index, c'est la table des matières de la table : il évite de tout lire, mais se paie à chaque écriture. Ce module t'apprend à lire le plan d'exécution (le chemin choisi par le moteur), au lieu d'ajouter un index qui ralentit l'import EDI. Ici, `commande` a 8 lignes : pour les plans, imagine-la avec 5 millions.",
+  intro: "Ton rapport Power BI « commandes par client » met 40 secondes depuis la reprise de 5 ans d'historique Divalto. Index manquant, ou requête qui l'empêche de servir ? Un index, c'est la table des matières de la table : il évite de tout lire, mais se paie à chaque écriture. Ce module t'apprend à lire le plan d'exécution (le chemin choisi par le moteur), au lieu d'ajouter un index qui ralentit l'import EDI. Ici, `commande` a 8 lignes : imagine-la avec 5 millions. Les plans donnés sont probables, pas garantis.",
   sections: [
     {
       titre: "Cluster ou non cluster : la table, ou sa table des matières",
@@ -80,14 +85,14 @@ LEARNSQL.cours.m12 = {
         "Pourquoi : l'index cluster EST la table, rangée selon sa clé : un seul par table, comme un dictionnaire n'a qu'un ordre. Un non cluster est une liste triée à part ; chaque entrée garde la clé cluster (`id`) pour retrouver la ligne.",
         "Le piège : une clé cluster large ou aléatoire, copiée dans chaque index non cluster. Un GUID (`NEWID()`, 16 octets tirés au hasard) alourdit tout, et chaque insertion tombe au milieu : des pages coupées en deux, la fragmentation.",
         "Le bon réflexe : une clé cluster étroite, unique, stable et croissante : un `INT` `IDENTITY`. Le numéro métier (`num_cde`) prend un index `UNIQUE` non cluster. Sans index cluster, la table est un tas (heap) : bon pour un chargement.",
-        "SQL Server / Snowflake : pas d'index cluster sur Snowflake. Il range les lignes dans l'ordre du chargement, en micro-partitions (blocs de 50 à 500 Mo), avec le min et le max de chaque colonne (m14)."
+        "SQL Server / Snowflake : pas d'index cluster sur Snowflake. Il range les lignes dans l'ordre du chargement, en micro-partitions (blocs de 50 à 500 Mo avant compression), avec le min et le max de chaque colonne (m14)."
       ],
       retenir: "Cluster = la table rangée selon sa clé, un seul par table. Non cluster = une table des matières à part, qui pointe vers la clé cluster."
     },
     {
       titre: "Lire le plan : Seek, Scan et Key Lookup",
       exemple: "SET STATISTICS IO ON;          -- pages lues : onglet Messages\nSELECT num_cde, montant_ht     -- Ctrl + M : plan réel\nFROM dbo.commande\nWHERE client_id = 2;",
-      resultat: "2 lignes : CDE-1002 et CDE-1006. Plan, de droite à gauche : Index Seek sur ix_commande_client, puis un Key Lookup par ligne, dans une boucle (Nested Loops).",
+      resultat: "2 lignes : CDE-1002 et CDE-1006. Plan probable, de droite à gauche : Index Seek sur ix_commande_client, puis un Key Lookup par ligne, dans une boucle (Nested Loops).",
       points: [
         "Ce qui se passe : l'Index Seek descend droit au client 2, comme dans un dictionnaire. Mais `num_cde` et `montant_ht` ne sont pas dans l'index : pour chaque ligne trouvée, le Key Lookup va les lire dans la table.",
         "Pourquoi : l'optimiseur (le module qui choisit le plan) estime le nombre de lignes. Peu de lignes (un filtre sélectif) : Seek et quelques allers-retours. Beaucoup : les lookups coûtent plus que tout lire, il choisit un Scan, la lecture complète.",
@@ -102,7 +107,7 @@ LEARNSQL.cours.m12 = {
       exemple: "CREATE NONCLUSTERED INDEX ix_commande_client_couvrant\n  ON dbo.commande (client_id)\n  INCLUDE (num_cde, montant_ht);\n\nSELECT num_cde, montant_ht FROM dbo.commande WHERE client_id = 2;\nSELECT *                   FROM dbo.commande WHERE client_id = 2;",
       resultat: "Mêmes 2 commandes. 1re requête : Index Seek seul, l'index la couvre. 2e : le Key Lookup revient (`date_cde`, `statut`, `canal`).",
       points: [
-        "Ce qui se passe : la 1re requête trouve tout dans l'index : `client_id` pour chercher, `num_cde` et `montant_ht` en INCLUDE. Elle ne touche plus la table. `SELECT *` veut toutes les colonnes : aucun index ne les a.",
+        "Ce qui se passe : la 1re requête trouve tout dans l'index : `client_id` pour chercher, `num_cde` et `montant_ht` en INCLUDE. Elle ne touche plus la table. `SELECT *` veut toutes les colonnes : seule la table les a.",
         "Pourquoi : la clé de l'index est triée : elle sert à chercher et à trier (WHERE, JOIN, ORDER BY). INCLUDE ajoute des colonnes en bout d'index, sans tri : elles voyagent avec l'entrée.",
         "Le piège : `SELECT *` dans une vue ou un rapport Power BI : les lookups ou le Scan reviennent. L'excès inverse : 25 colonnes en INCLUDE, une copie de la table à tenir à jour à chaque écriture.",
         "Le bon réflexe : filtres et tris dans la clé, colonnes affichées en INCLUDE, et seulement celles qui servent. Un index proche existe ? Ajoute-lui une colonne en INCLUDE plutôt que d'en créer un autre.",
@@ -113,20 +118,20 @@ LEARNSQL.cours.m12 = {
     {
       titre: "SARGable : laisse la colonne nue",
       exemple: "-- Index : (date_cde) INCLUDE (num_cde) ; (siren) sur client\nSELECT num_cde FROM dbo.commande\nWHERE MONTH(date_cde) = 4 AND YEAR(date_cde) = 2026;      -- 1\nSELECT num_cde FROM dbo.commande\nWHERE date_cde >= '20260401' AND date_cde < '20260501';   -- 2\nSELECT nom FROM dbo.client WHERE siren = 512345678;       -- 3 : SIREN en texte",
-      resultat: [["requête", "lignes", "plan sur une grosse table"], ["1 : fonctions", "CDE-1005 à 1008", "Index Scan : tout l'index"], ["2 : colonne nue", "les mêmes 4", "Index Seek : avril seul"], ["3 : un nombre", "AquaBleu", "Scan, CONVERT_IMPLICIT"]],
+      resultat: [["requête", "lignes", "plan probable (grosse table)"], ["1 : fonctions", "CDE-1005 à 1008", "Index Scan : tout l'index"], ["2 : colonne nue", "les mêmes 4", "Index Seek : avril seul"], ["3 : un nombre", "AquaBleu", "Scan, CONVERT_IMPLICIT"]],
       points: [
         "Ce qui se passe : 1 et 2 rendent les 4 commandes d'avril. Sur 5 millions de lignes, la 1 lit tout l'index, la 2 va droit à avril. La 3 trouve AquaBleu en convertissant chaque SIREN en nombre.",
         "Pourquoi : l'index est trié sur `date_cde`, pas sur `MONTH(date_cde)` : pour connaître le mois, le moteur doit le calculer sur chaque ligne. Une condition qui peut suivre l'ordre de l'index est dite SARGable (utilisable pour chercher).",
         "Le piège : la fonction cachée, sans erreur : `ISNULL(statut, '') = 'OK'`, `montant_ht * 1.2 > 1000`, `LIKE '%CHL%'` (m02), ou une conversion implicite (le moteur change le type seul), comme un paramètre `NVARCHAR` contre un `VARCHAR`. Le plan avertit : `CONVERT_IMPLICIT`.",
         "Le bon réflexe : la colonne nue, le calcul du côté de la valeur : une plage de dates, `montant_ht > 1000 / 1.2`, `siren = '512345678'`, des paramètres du type de la colonne. Fonction inévitable : une colonne calculée stockée (`PERSISTED`), indexée.",
-        "SQL Server / Snowflake : même réflexe. Snowflake saute les micro-partitions grâce au min et au max de chaque colonne, et `UPPER(nom)` l'en empêche souvent. Vérifie dans le Query Profile (son plan détaillé) : partitions lues sur le total."
+        "SQL Server / Snowflake : même réflexe. Snowflake saute les micro-partitions (l'élagage) grâce au min et au max de chaque colonne, et `UPPER(nom)` l'en empêche souvent. Vérifie dans le Query Profile (son plan détaillé) : partitions lues sur le total."
       ],
-      retenir: "Colonne filtrée nue : ni fonction, ni calcul, ni conversion. Sinon le moteur lit tout l'index au lieu d'y chercher."
+      retenir: "Colonne filtrée nue : ni fonction, ni calcul, ni conversion. Sinon le moteur lit souvent tout l'index au lieu d'y chercher."
     },
     {
       titre: "Index composé : l'ordre des colonnes compte",
       exemple: "CREATE NONCLUSTERED INDEX ix_commande_statut_date\n  ON dbo.commande (statut, date_cde) INCLUDE (num_cde);\n\nSELECT num_cde FROM dbo.commande\nWHERE statut = 'EN_COURS' AND date_cde >= '20260402';   -- 1\nSELECT num_cde FROM dbo.commande\nWHERE date_cde >= '20260402';                           -- 2",
-      resultat: [["requête", "lignes", "plan (cet index seul)"], ["1 : statut et date", "CDE-1006, CDE-1007", "Index Seek : EN_COURS, puis la plage"], ["2 : date seule", "CDE-1006, 1007, 1008", "Index Scan : tout l'index"]],
+      resultat: [["requête", "lignes", "plan probable (cet index seul)"], ["1 : statut et date", "CDE-1006, CDE-1007", "Index Seek : EN_COURS, puis la plage"], ["2 : date seule", "CDE-1006, 1007, 1008", "Index Scan : tout l'index"]],
       points: [
         "Ce qui se passe : l'index est trié par statut, puis par date, comme un annuaire par nom, puis prénom. Avec le statut, le Seek saute aux EN_COURS et lit leurs dates ; sans lui, les dates sont éparpillées.",
         "Pourquoi : un index composé (sur plusieurs colonnes) sert à partir de sa 1re colonne : pour A, ou A et B, pas pour B seul. Après une plage (`>=`), les colonnes suivantes ne guident plus la recherche.",
@@ -152,7 +157,7 @@ LEARNSQL.cours.m12 = {
     {
       titre: "Chaque index se paie : garde ceux qui servent",
       exemple: "-- Les 4 index de ce cours : (client_id) ; (client_id) INCLUDE (…) ;\n-- (date_cde) INCLUDE (…) ; (statut, date_cde) INCLUDE (…)\nINSERT INTO dbo.commande (id, num_cde, client_id, date_cde, statut, canal, montant_ht)\nVALUES (9, 'CDE-1009', 4, '20260414', 'EN_COURS', 'EDI', 318.00);",
-      resultat: "1 ligne insérée, 5 structures écrites : la table (l'index cluster) et ses 4 index, dont deux ont la même clé.",
+      resultat: "1 ligne insérée, 5 structures écrites : la table (l'index cluster) et ses 4 index.",
       points: [
         "Ce qui se passe : une commande, cinq écritures ; une intégration EDI de 10 000 commandes en fait 50 000. Et `(client_id)` seul fait doublon : l'index couvrant a la même clé.",
         "Pourquoi : chaque index est une copie triée de quelques colonnes. INSERT, DELETE, et tout UPDATE d'une colonne indexée doivent la tenir à jour. Trop d'index ralentit les écritures et peut créer des blocages (m11).",
@@ -180,7 +185,7 @@ LEARNSQL.cours.m12 = {
     ["Ranger la table", "Index cluster (un seul)", "Micro-partitions, `CLUSTER BY`"],
     ["Index secondaire", "Non cluster", "Enterprise, très sélectif"],
     ["Coût d'un index", "Écritures plus lentes", "Crédits d'entretien"],
-    ["Filtre avec fonction", "Scan, index inutilisé", "Élagage souvent perdu"],
+    ["Filtre avec fonction", "Scan, pas de Seek", "Élagage souvent perdu"],
     ["Gros agrégat", "Index columnstore", "Stockage en colonnes"],
     ["Statistiques", "`UPDATE STATISTICS`", "Tenues seules"],
     ["Voir le plan", "Plan réel (Ctrl + M)", "Query Profile"],

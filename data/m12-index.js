@@ -455,7 +455,7 @@ LEARNSQL.questions.m12 = [
   },
   {
     id: "m12-q26", dialecte: "SQL Server",
-    q: "Dans quel sens lit-on un plan d'exécution graphique ?",
+    q: "Dans quel sens lit-on un plan d'exécution graphique, pour suivre les données ?",
     choix: [
       "De gauche à droite, puis de haut en bas",
       "De droite à gauche",
@@ -519,7 +519,7 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. Les statistiques ne reflètent peut-être pas encore les nouvelles données (la mise à jour automatique a un seuil).",
+      "Oui. Juste après un gros chargement, les statistiques peuvent être en retard ou calculées sur un petit échantillon : les recalculer (WITH FULLSCAN si besoin) est la première piste.",
       "Non. On ne supprime pas les statistiques : on les met à jour.",
       "Non. Désactiver les index rend tout encore plus lent.",
       "Non. Vider le cache force de nouveaux plans… avec les mêmes statistiques périmées."
@@ -827,7 +827,7 @@ LEARNSQL.questions.m12 = [
     bonne: 1,
     pourquoi: [
       "Non. Coûteux et inutile.",
-      "Oui. Entre ~5 et 30 % : REORGANIZE ; au-delà de ~30 % : REBUILD (seuils indicatifs). Sur des disques rapides, mettre à jour les statistiques est souvent plus important.",
+      "Oui. Repères classiques : 5 à 30 % → REORGANIZE, au-delà → REBUILD. Microsoft conseille aujourd'hui de mesurer l'effet plutôt que suivre ces seuils ; souvent, mettre à jour les statistiques suffit.",
       "Non. Les gros scans en souffrent.",
       "Non. On perdrait leur aide."
     ],
@@ -1375,7 +1375,7 @@ LEARNSQL.questions.m12 = [
   },
   {
     id: "m12-q77", dialecte: "SQL Server",
-    q: "Pourquoi ne peut-on pas mettre une colonne NVARCHAR(2000) dans la CLÉ d'un index non cluster ?",
+    q: "Pourquoi éviter une colonne NVARCHAR(2000) dans la CLÉ d'un index non cluster ?",
     choix: [
       "C'est permis, sans aucune limite",
       "La clé d'index a une taille limitée",
@@ -1384,9 +1384,9 @@ LEARNSQL.questions.m12 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Il y a une limite de taille.",
-      "Oui. 1 700 octets pour un non cluster (900 pour un cluster) : 2 000 caractères Unicode peuvent dépasser. Une telle colonne peut aller en INCLUDE.",
-      "Non. Un texte court est permis.",
+      "Non. L'index se crée, avec un avertissement, mais toute valeur de plus de 1 700 octets fera échouer l'INSERT ou l'UPDATE.",
+      "Oui. 1 700 octets au plus pour une clé non cluster (900 pour un cluster), et NVARCHAR(2000) peut en faire 4 000. SQL Server crée l'index avec un avertissement, puis refuse les lignes trop longues : la colonne peut aller en INCLUDE.",
+      "Non. Un texte est permis en clé, dans la limite de taille.",
       "Non. Un INCLUDE suffit."
     ],
     retenir: "Clé d'index : taille limitée."

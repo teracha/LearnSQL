@@ -1,15 +1,18 @@
 // Fiche de révision du module m12 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m12.js.
+// Relue le 12/11/2026 : alignée sur le cours complet (S1, S2, S7) et ses questions (q05, q07, q16, q38, q86) : Seek
+// « souvent rapide, pas toujours » (le cours en fait un piège), clé cluster stable, conversion implicite de la colonne,
+// suppression après vérification, colonne montant_ht de la base, CREATE CLUSTERED INDEX seulement sans clé primaire.
 LEARNSQL.fiches.m12 = {
-  intro: "Un index, c'est comme l'index d'un livre : il évite de tout lire pour trouver une page. Bien choisi, il divise un temps de réponse par 100. Mal choisi, il ralentit les écritures pour rien.",
+  intro: "Un index, c'est comme l'index d'un livre : il évite de tout lire pour trouver une page. Bien choisi, il peut diviser un temps de réponse par 100. Mal choisi, il ralentit les écritures pour rien.",
   sections: [
     {
       titre: "Index cluster et index non cluster",
-      exemple: "-- La table est rangée physiquement par id\nCREATE CLUSTERED INDEX cx_commande ON dbo.commande (id);\n\n-- Un « annuaire » à part, trié par client\nCREATE NONCLUSTERED INDEX ix_commande_client\n  ON dbo.commande (client_id, date_cde)\n  INCLUDE (montant);",
+      exemple: "-- Ranger la table par id, si la clé primaire ne le fait pas déjà\nCREATE CLUSTERED INDEX cx_commande ON dbo.commande (id);\n\n-- Un « annuaire » à part, trié par client\nCREATE NONCLUSTERED INDEX ix_commande_client\n  ON dbo.commande (client_id, date_cde)\n  INCLUDE (montant_ht);",
       points: [
         "Index cluster : la table ELLE-MÊME est triée selon la clé. Un seul par table.",
         "La clé primaire crée un index cluster par défaut.",
-        "Bonne clé cluster : étroite, unique, croissante (ex. un id IDENTITY).",
+        "Bonne clé cluster : étroite, unique, stable, croissante (ex. un id IDENTITY).",
         "Table sans index cluster = « heap » (tas).",
         "Index non cluster : structure à part, avec la clé + un pointeur vers la ligne.",
         "`INCLUDE` : ajoute des colonnes en bout d'index, pour éviter d'aller lire la table."
@@ -18,15 +21,15 @@ LEARNSQL.fiches.m12 = {
     },
     {
       titre: "Seek, Scan et Key Lookup",
-      exemple: "SET STATISTICS IO ON;\nSELECT montant FROM dbo.commande WHERE client_id = 42;\n-- Regarde « lectures logiques » dans l'onglet Messages",
+      exemple: "SET STATISTICS IO ON;\nSELECT montant_ht FROM dbo.commande WHERE client_id = 42;\n-- Regarde « lectures logiques » dans l'onglet Messages",
       points: [
-        "Index Seek : on va directement aux bonnes lignes. Rapide.",
+        "Index Seek : on va directement aux bonnes lignes. Souvent rapide, pas toujours.",
         "Index / Table Scan : on lit tout. Normal pour de petites tables ou de gros volumes demandés.",
         "Key Lookup : l'index trouve la ligne, mais il manque des colonnes → aller-retour dans la table. Coûteux en masse.",
         "Index « couvrant » : contient toutes les colonnes utiles (clé + INCLUDE). Pas de lookup.",
         "`SET STATISTICS IO ON` : le nombre de lectures logiques est la vraie mesure de l'effort."
       ],
-      retenir: "Seek = rapide. Beaucoup de Key Lookup = ajoute un INCLUDE."
+      retenir: "Seek = accès direct. Beaucoup de Key Lookup = ajoute un INCLUDE."
     },
     {
       titre: "L'ordre des colonnes dans l'index",
@@ -43,7 +46,7 @@ LEARNSQL.fiches.m12 = {
       exemple: "WHERE YEAR(date_cde) = 2026            -- ✘ fonction sur la colonne\nWHERE code_client = 12345              -- ✘ si code_client est VARCHAR\nWHERE nom LIKE '%DUP%'                  -- ✘ joker au début\nWHERE ISNULL(statut, '') = 'OK'         -- ✘ fonction\n\nWHERE date_cde >= '20260101' AND date_cde < '20270101'  -- ✔",
       points: [
         "Fonction sur la colonne = l'index ne peut pas être parcouru par recherche.",
-        "Conversion implicite (types différents) = même effet. Visible dans le plan (avertissement jaune).",
+        "Conversion implicite de la colonne (types différents) = même effet. Visible dans le plan (avertissement jaune).",
         "Joker `%` au début d'un LIKE = scan.",
         "Un OR entre deux colonnes différentes est souvent mal optimisé."
       ],
@@ -77,7 +80,7 @@ LEARNSQL.fiches.m12 = {
       exemple: "-- Chaque INSERT dans commande met aussi à jour tous ses index\n-- 12 index sur une table d'import EDI = chargement lent",
       points: [
         "Chaque index ralentit INSERT, UPDATE et DELETE.",
-        "Supprime les index jamais utilisés (`sys.dm_db_index_usage_stats`).",
+        "Supprime les index jamais utilisés, après vérification (`sys.dm_db_index_usage_stats`).",
         "Évite les index en double (même début de clé).",
         "Snowflake n'a pas d'index cluster ou non cluster : il utilise les micro-partitions (module 14). Depuis octobre 2026, ses index secondaires (édition Enterprise, payants) servent seulement aux recherches très sélectives."
       ],
