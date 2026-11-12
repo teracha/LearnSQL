@@ -79,6 +79,7 @@ LEARNSQL.cours.m13 = {
       titre: "Les variables : SET ou SELECT",
       exemple: "DECLARE @a INT = 0, @b INT = 0;\n-- Nom mal écrit : aucune fiche\nSELECT @a = id FROM dbo.client WHERE nom = 'Piscine Dumont';\nSET @b = (SELECT id FROM dbo.client WHERE nom = 'Piscine Dumont');\n-- 2 fiches à ce nom (2 agences)\nSELECT @a = id FROM dbo.client WHERE nom = 'Piscines Dumont';\nSET @b = (SELECT id FROM dbo.client WHERE nom = 'Piscines Dumont');",
       resultat: [["cas", "SELECT @a = id …", "SET @b = (SELECT …)"], ["0 ligne", "inchangée : 0", null], ["2 lignes", "2 ou 6, sans erreur", "erreur 512"]],
+      regle: "Une variable (`@nom`) garde une valeur pour la suite du traitement ; déclarée sans valeur, elle vaut NULL. SET et SELECT la remplissent, mais pas avec la même prudence. Si la requête ne trouve rien, ou trouve plusieurs lignes, SET avec une sous-requête le signale : NULL, ou une erreur. `SELECT @v = …` le cache : il garde l'ancienne valeur, ou prend une des lignes. Pour une valeur attendue, on choisit donc SET, puis on teste le résultat.",
       points: [
         "Ce qui se passe : sans fiche, SELECT laisse @a intact (sa valeur d'avant) ; SET met NULL. Avec 2 fiches, SELECT garde l'id de l'une, sans rien dire ; SET s'arrête sur l'erreur 512 (« plus d'une valeur »).",
         "Pourquoi : `SELECT @a = id FROM …` prend la valeur de la dernière ligne rendue, dans un ordre non garanti ; sans ligne, rien n'est affecté. `SET @b = (sous-requête)` attend une seule valeur : vide, c'est NULL.",
@@ -92,11 +93,12 @@ LEARNSQL.cours.m13 = {
       titre: "IF et WHILE : toujours BEGIN … END",
       exemple: "-- Voulu : purger les flux de mars s'il ne reste aucun rejet\nIF NOT EXISTS (SELECT 1 FROM dbo.flux_edi WHERE statut = 'REJET')\n    PRINT 'Aucun rejet : purge des flux de mars';\n    DELETE FROM dbo.flux_edi WHERE date_recu < '20260401';",
       resultat: "Il reste 2 rejets : pas de PRINT. Mais le DELETE s'exécute : 4 flux de mars supprimés, dont le rejet n° 3.",
+      regle: "IF et WHILE pilotent le déroulement du traitement : IF décide si des instructions s'exécutent, WHILE les répète. Ils ne choisissent pas une valeur dans une requête : ce rôle revient à CASE. Leur piège : sans bloc `BEGIN … END`, ils ne commandent qu'une instruction, la suivante. Une boucle traite une ligne à la fois : sur beaucoup de lignes, une requête sur l'ensemble vaut mieux.",
       points: [
         "Ce qui se passe : il reste 2 flux rejetés, la condition est fausse. Mais le DELETE n'est pas dans le IF : il part quand même, avec le flux 3 (EAN inconnu).",
-        "Pourquoi : sans `BEGIN … END`, un IF ne commande que l'instruction qui le suit. Le décalage de la ligne ne compte pas : le moteur lit des instructions, pas une mise en page. Même règle pour ELSE et WHILE.",
+        "Pourquoi : le décalage de la ligne ne compte pas : le moteur lit des instructions, pas une mise en page. Même règle pour ELSE et WHILE.",
         "Le piège : le correctif d'urgence, une 2e ligne ajoutée sous un IF qui n'en avait qu'une. Elle tourne à chaque passage, sans erreur : le rejet EDI disparaît, et le client relance.",
-        "Le bon réflexe : `IF … BEGIN … END`, toujours, même pour une ligne. `IF EXISTS` s'arrête à la 1re ligne trouvée (m06). IF choisit des instructions ; dans une requête, c'est CASE qui choisit une valeur (m03).",
+        "Le bon réflexe : `IF … BEGIN … END`, toujours, même pour une ligne. `IF EXISTS` s'arrête à la 1re ligne trouvée (m06).",
         "Et aussi : `WHILE` répète tant que sa condition est vraie : fais-la avancer (`SET @i += 1`), sinon elle ne finit jamais. BREAK sort, CONTINUE passe au tour suivant. Ligne par ligne, c'est lent (m16) ; une purge se fait par lots (m09)."
       ],
       retenir: "IF et WHILE ne commandent qu'une instruction : BEGIN … END, toujours. Une boucle doit avancer ; une requête sur l'ensemble vaut mieux."
@@ -105,9 +107,10 @@ LEARNSQL.cours.m13 = {
       titre: "La procédure stockée : paramètres, OUTPUT, RETURN",
       exemple: "CREATE OR ALTER PROCEDURE dbo.p_nb_rejets\n  @partenaire VARCHAR(40),\n  @nb         INT OUTPUT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SET @nb = (SELECT COUNT(*) FROM dbo.flux_edi\n             WHERE partenaire = @partenaire AND statut = 'REJET');\nEND;\nGO\nDECLARE @n1 INT, @n2 INT;\nEXEC dbo.p_nb_rejets @partenaire = 'AquaBleu', @nb = @n1;          -- OUTPUT oublié\nEXEC dbo.p_nb_rejets @partenaire = 'AquaBleu', @nb = @n2 OUTPUT;\nSELECT @n1 AS sans_output, @n2 AS avec_output;",
       resultat: [["sans_output", "avec_output"], [null, 2]],
+      regle: "Une procédure stockée est un traitement enregistré dans la base, lancé par son nom avec des paramètres. Elle rend ses résultats par des lignes (un SELECT), par des paramètres `OUTPUT`, ou par un code entier (`RETURN`). OUTPUT s'écrit des deux côtés, dans la procédure et à l'appel, sinon la valeur ne revient pas, sans erreur. Un échec se signale par une erreur (THROW), pas par un code : un code se perd, une erreur se voit.",
       points: [
         "Ce qui se passe : la procédure tourne deux fois, sans erreur. Sans le mot OUTPUT à l'appel, la valeur ne revient pas : @n1 reste NULL. Avec OUTPUT, @n2 reçoit 2 (les rejets d'AquaBleu).",
-        "Pourquoi : OUTPUT s'écrit des deux côtés, procédure et appel. `RETURN` sort de la procédure avec un code entier (0 = succès), lu par `EXEC @code = dbo.p_…` : jamais un texte, un montant ou des lignes.",
+        "Pourquoi : `RETURN` sort de la procédure avec un code entier (0 = succès), lu par `EXEC @code = dbo.p_…` : jamais un texte, un montant ou des lignes.",
         "Le piège : signaler un échec par `RETURN -1`. L'appelant lit rarement ce code : le job de nuit de l'Agent SQL affiche « réussi ». THROW, lui, arrête tout, et l'erreur se voit.",
         "Le bon réflexe : `CREATE OR ALTER` (relançable, droits gardés), `SET NOCOUNT ON` en 1re ligne (pas de messages « n lignes affectées », qui gênent les outils), paramètres typés, nommés à l'appel, validés : `IF @partenaire IS NULL THROW 50001, 'Partenaire obligatoire', 1;`.",
         "Et aussi : un paramètre facultatif a une valeur par défaut : `@depuis DATE = NULL`. THROW maison : numéro de 50 000 ou plus, `;` à la fin de l'instruction d'avant. Pas de préfixe `sp_` (procédures système)."
@@ -118,11 +121,12 @@ LEARNSQL.cours.m13 = {
       titre: "Le journal de traitement : ce qui survit au ROLLBACK",
       exemple: "DECLARE @journal TABLE (etape VARCHAR(30), nb INT);\nBEGIN TRAN;\nUPDATE dbo.commande SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nINSERT INTO @journal VALUES ('Commandes livrées', @@ROWCOUNT);\nUPDATE dbo.flux_edi SET statut = 'OK', motif = NULL WHERE statut = 'REJET';\nINSERT INTO @journal VALUES ('Flux remis OK', @@ROWCOUNT);\nROLLBACK;                         -- comme dans un CATCH (m11)\nSELECT etape, nb FROM @journal;",
       resultat: [["etape", "nb"], ["Commandes livrées", 3], ["Flux remis OK", 2]],
+      regle: "Un journal de traitement dit ce qu'un traitement a fait : quoi, quand, combien, et le résultat. Il sert surtout quand le traitement échoue : il doit donc survivre à l'échec qu'il raconte. Or un ROLLBACK efface ce que la transaction a écrit, journal compris. Deux parades existent. On note en cours de route dans une variable table (une table déclarée comme une variable), que le ROLLBACK épargne. On écrit le journal permanent seulement après le ROLLBACK.",
       points: [
         "Ce qui se passe : ROLLBACK annule les deux UPDATE : CDE-1005 à CDE-1007 restent EN_COURS, les flux 3 et 6 restent REJET. Mais @journal garde ses 2 lignes : on sait ce que le traitement avait fait.",
         "Pourquoi : une variable table (`DECLARE @t TABLE`) reste hors de la transaction : ROLLBACK ne la touche pas. Une table temporaire `#t` (table de travail, effacée en fin de procédure ou de session) suit la transaction : elle serait vidée.",
         "Le piège : écrire dans le journal permanent pendant la transaction. Le ROLLBACK efface la ligne avec le reste : la nuit a échoué, et le journal ne dit rien.",
-        "Le bon réflexe : dans le CATCH, `ROLLBACK` d'abord, puis l'INSERT dans le journal permanent (`ERROR_NUMBER()`, `ERROR_MESSAGE()`, `ERROR_LINE()`, les lignes de @journal), puis `THROW;` (m11). Un journal dit quoi, quand, combien, et le résultat.",
+        "Le bon réflexe : dans le CATCH, `ROLLBACK` d'abord, puis l'INSERT dans le journal permanent (`ERROR_NUMBER()`, `ERROR_MESSAGE()`, `ERROR_LINE()`, les lignes de @journal), puis `THROW;` (m11).",
         "Et aussi : la variable table pour quelques lignes ; au-delà d'une centaine, `#t`, avec index et statistiques (ce que le moteur sait de son contenu, pour choisir son plan). Une `#t` se voit dans les procédures appelées."
       ],
       retenir: "Dans le CATCH : ROLLBACK, puis journal, puis THROW. La variable table survit au ROLLBACK, pas la #table, faite pour les gros volumes."
@@ -131,12 +135,13 @@ LEARNSQL.cours.m13 = {
       titre: "Les fonctions : scalaire ou table en ligne",
       exemple: "-- Fonction scalaire : une valeur, appelée pour chaque client\nCREATE OR ALTER FUNCTION dbo.f_ca (@client_id INT)\nRETURNS DECIMAL(12,2) AS\nBEGIN\n  RETURN (SELECT SUM(montant_ht) FROM dbo.commande\n          WHERE client_id = @client_id AND statut <> 'ANNULEE');\nEND;\nGO\nSELECT code, nom, dbo.f_ca(id) AS ca\nFROM dbo.client WHERE pays = 'FR' AND type = 'PRO' ORDER BY code;",
       resultat: [["code", "nom", "ca"], ["C002", "Piscines Dumont", "2580.00"], ["C003", "Bleu Lagon", null], ["C004", "Hydro Sud", "318.00"], ["C006", "Piscines Dumont", "79.80"], ["C007", "Camping Les Flots", null]],
+      regle: "Une fonction rend un résultat sans rien changer dans la base : c'est ce qui la distingue d'une procédure. La fonction scalaire rend une seule valeur. Dans une requête, elle peut tourner une fois par ligne : c'est cher sur une grosse table. La fonction table en ligne rend des lignes, par une seule requête. Le moteur l'intègre à son plan : elle reste rapide. Pour un calcul sur beaucoup de lignes, on choisit donc la fonction table en ligne.",
       points: [
         "Ce qui se passe : un chiffre d'affaires par client ; NULL pour Bleu Lagon (commande annulée) et Camping Les Flots (aucune commande). Le résultat est juste, mais la fonction peut refaire sa requête pour chaque client.",
         "Pourquoi : une fonction scalaire est une boîte noire pour l'optimiseur (la partie du moteur qui choisit le plan). Il l'appelle ligne par ligne, sans parallélisme (un seul processeur) : 100 000 clients, 100 000 requêtes.",
         "Le piège : rapide en test, très lent en production. SQL Server 2019 (niveau de compatibilité 150) déplie souvent la fonction dans la requête, c'est l'inlining ; mais un GETDATE(), un WHILE ou une variable table l'empêchent.",
         "Le bon réflexe : une fonction table en ligne, `RETURNS TABLE AS RETURN (SELECT …)`, appelée par `CROSS APPLY` : le moteur la déplie comme une vue. Évite la multi-instructions (`RETURNS @t TABLE … BEGIN … END`) : il devine mal son nombre de lignes.",
-        "Et aussi : une fonction ne modifie aucune donnée (une procédure, si). Ni TRY / CATCH, ni #table, ni NEWID() ; GETDATE() est permis. `is_inlineable` (vue `sys.sql_modules`) dit si elle peut être dépliée. Anti-patterns : m16."
+        "Et aussi : dans une fonction, ni TRY / CATCH, ni #table, ni NEWID() ; GETDATE() est permis. `is_inlineable` (vue `sys.sql_modules`) dit si elle peut être dépliée. Anti-patterns : m16."
       ],
       retenir: "Fonction scalaire = une requête par ligne, sauf inlining (2019 et plus). Préfère la fonction table en ligne, appelée par CROSS APPLY."
     },
@@ -144,6 +149,7 @@ LEARNSQL.cours.m13 = {
       titre: "Le SQL dynamique : les valeurs en paramètres",
       exemple: "DECLARE @nom VARCHAR(60) = 'AquaBleu'' OR 1 = 1 --';   -- saisie piégée\n-- Piège : la valeur collée dans le texte\nDECLARE @sql NVARCHAR(MAX) =\n  N'SELECT code, nom FROM dbo.client WHERE nom = ''' + @nom + N'''';\nEXEC (@sql);\n-- Juste : la valeur passée en paramètre\nEXEC sp_executesql N'SELECT code, nom FROM dbo.client WHERE nom = @n',\n                   N'@n VARCHAR(60)', @n = @nom;",
       resultat: "EXEC (@sql) : 7 lignes, tous les clients. sp_executesql : 0 ligne, aucun client ne porte ce nom.",
+      regle: "Le SQL dynamique construit une requête dans un texte, puis l'exécute. Son danger : une valeur collée dans ce texte devient du code. Une saisie piégée peut alors changer la requête, et lire ou effacer des données : c'est l'injection SQL. La règle : le texte ne contient que le code ; les valeurs passent à part, en paramètres de `sp_executesql`.",
       points: [
         "Ce qui se passe : la saisie ferme l'apostrophe, ajoute `OR 1 = 1` (toujours vrai) et met la fin en commentaire (`--`) : la requête change, 7 clients sortent. En paramètre, c'est un simple nom : 0 ligne.",
         "Pourquoi : `EXEC (@sql)` exécute le texte tel quel. `sp_executesql` sépare le code (le 1er texte) des valeurs (déclarées dans le 2e) : une valeur n'est jamais lue comme du code. Et le plan est réutilisé.",
@@ -157,9 +163,10 @@ LEARNSQL.cours.m13 = {
       titre: "Snowflake Scripting : même logique, autre syntaxe",
       exemple: "CREATE OR REPLACE PROCEDURE VENTES.P_NB_REJETS(partenaire VARCHAR)\nRETURNS VARCHAR LANGUAGE SQL AS\n$$\nDECLARE\n  nb INTEGER DEFAULT 0;\nBEGIN\n  SELECT COUNT(*) INTO :nb FROM VENTES.FLUX_EDI\n  WHERE partenaire = :partenaire AND statut = 'REJET';\n  RETURN 'Rejets : ' || nb;\nEXCEPTION\n  WHEN OTHER THEN RETURN 'Erreur : ' || SQLERRM;   -- piège : l'erreur est avalée\nEND;\n$$;\nCALL VENTES.P_NB_REJETS('AquaBleu');",
       resultat: "CALL rend 'Rejets : 2'. Une erreur deviendrait un texte rendu : l'appel « réussirait » quand même.",
+      regle: "Snowflake Scripting reprend la logique de T-SQL dans une autre syntaxe : variables, conditions, boucles, erreurs et procédures. Les règles apprises restent vraies : une erreur attrapée se relance, un échec doit se voir. Seuls les mots changent : CALL pour EXEC, EXCEPTION pour CATCH, RAISE pour THROW, et des variables sans @. Migrer une procédure, c'est donc réécrire sa syntaxe en gardant ses règles.",
       points: [
         "Ce qui se passe : CALL lance la procédure, qui rend 'Rejets : 2'. Le bloc a trois parties, entre deux `$$` : DECLARE (les variables), BEGIN (le corps), EXCEPTION (les erreurs). RETURNS est obligatoire.",
-        "Pourquoi : variables sans @ sur Snowflake. Dans une instruction SQL, `:nb` et `:partenaire` (avec deux-points) désignent la variable et l'argument ; `partenaire` seul, c'est la colonne. Dans le corps, `LET n := 5;` déclare et affecte.",
+        "Pourquoi : dans une instruction SQL, `:nb` et `:partenaire` (avec deux-points) désignent la variable et l'argument ; `partenaire` seul, c'est la colonne. Dans le corps, `LET n := 5;` déclare et affecte.",
         "Le piège : `WHEN OTHER THEN RETURN …` avale l'erreur, comme un CATCH sans THROW. La TASK (la tâche planifiée de Snowflake) voit un appel réussi : personne n'apprend que le contrôle a échoué.",
         "Le bon réflexe : dans EXCEPTION, écris dans une table de journal (Snowflake n'a pas de PRINT), puis `RAISE;` relance la même erreur. Erreur métier : `DECLARE e EXCEPTION (-20001, 'Période invalide');` puis `RAISE e;`. SQLERRM donne le message.",
         "SQL Server / Snowflake : ni #table ni variable table, mais `CREATE TEMPORARY TABLE` ou un RESULTSET (un résultat de requête gardé en variable). SQL dynamique : `EXECUTE IMMEDIATE … USING`. Par défaut, la procédure a les droits de son propriétaire."
