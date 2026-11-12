@@ -1,5 +1,7 @@
 // Fiche de révision du module m06 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m06.js.
+// Relue le 12/11/2026 : alignée sur le cours complet et ses questions (q21, q43, q82, q96) : une table dérivée n'est
+// pas stockée ; CTE renommée eclate (la base a une table nomenclature) ; garde-fou avec un arrêt ; carte courte.
 LEARNSQL.fiches.m06 = {
   intro: "Une sous-requête est une requête dans une requête. Une CTE (WITH) fait la même chose, mais en plus lisible. Elles servent à découper un problème compliqué en étapes simples.",
   sections: [
@@ -40,12 +42,12 @@ LEARNSQL.fiches.m06 = {
       titre: "La table dérivée (sous-requête dans FROM)",
       exemple: "SELECT t.annee, SUM(t.montant) AS ca\nFROM (\n  SELECT YEAR(date_cde) AS annee, montant\n  FROM dbo.commande\n) AS t\nGROUP BY t.annee;",
       points: [
-        "Le résultat de la sous-requête devient une table temporaire.",
+        "Le résultat de la sous-requête se lit comme une table. Rien n'est stocké : ce n'est pas une table temporaire `#t`.",
         "L'alias (`AS t`) est obligatoire sur SQL Server.",
         "Pratique pour nommer un calcul avant GROUP BY.",
         "Pas de ORDER BY dans une sous-requête sur SQL Server (sauf avec TOP)."
       ],
-      retenir: "Sous-requête dans FROM = table temporaire, avec un alias obligatoire."
+      retenir: "Sous-requête dans FROM = une table le temps de la requête, rien n'est stocké. Alias obligatoire sur SQL Server."
     },
     {
       titre: "La CTE : WITH",
@@ -62,19 +64,19 @@ LEARNSQL.fiches.m06 = {
     },
     {
       titre: "La CTE récursive : hiérarchies et nomenclatures",
-      exemple: "WITH nomenclature AS (\n  -- Ancre : le produit fini\n  SELECT composant_id, quantite, 1 AS niveau\n  FROM dbo.bom WHERE parent_id = 'PISCINE-8M'\n  UNION ALL\n  -- Récursion : les composants des composants\n  SELECT b.composant_id, n.quantite * b.quantite, n.niveau + 1\n  FROM dbo.bom b\n  JOIN nomenclature n ON b.parent_id = n.composant_id\n)\nSELECT * FROM nomenclature;",
+      exemple: "WITH eclate AS (\n  -- Ancre : les composants du produit fini\n  SELECT composant_id, quantite, 1 AS niveau\n  FROM dbo.bom WHERE parent_id = 'PISCINE-8M'\n  UNION ALL\n  -- Récursion : les composants des composants\n  SELECT b.composant_id, n.quantite * b.quantite, n.niveau + 1\n  FROM dbo.bom b\n  JOIN eclate n ON b.parent_id = n.composant_id\n)\nSELECT * FROM eclate;",
       points: [
         "Deux parties : l'ancre (point de départ) UNION ALL la partie récursive.",
         "Elle s'arrête quand la partie récursive ne trouve plus rien.",
         "SQL Server : 100 niveaux max par défaut → `OPTION (MAXRECURSION 0)` pour lever la limite.",
-        "Une boucle dans les données (A → B → A) = récursion infinie. Garde un compteur de niveau.",
-        "Snowflake : `WITH RECURSIVE nomenclature (composant_id, quantite, niveau) AS (…)` : RECURSIVE conseillé, liste des colonnes obligatoire. Ou `CONNECT BY`."
+        "Une boucle dans les données (A → B → A) = récursion infinie. Garde-fou : un compteur de niveau, plus `WHERE n.niveau < 10` dans la partie récursive.",
+        "Snowflake : `WITH RECURSIVE eclate (composant_id, quantite, niveau) AS (…)` : RECURSIVE conseillé, liste des colonnes obligatoire. Ou `CONNECT BY`."
       ],
       retenir: "Hiérarchie, nomenclature, organigramme : CTE récursive."
     }
   ],
   differences: [
-    ["Mot-clé récursif", "`WITH` seul", "`WITH RECURSIVE` (conseillé), liste des colonnes obligatoire"],
+    ["Mot-clé récursif", "`WITH` seul", "`WITH RECURSIVE` + liste des colonnes"],
     ["Avant WITH", "`;` obligatoire si instruction avant", "Pas de contrainte"],
     ["Hiérarchie alternative", "—", "`CONNECT BY`"]
   ]

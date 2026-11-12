@@ -1,5 +1,7 @@
 // Fiche de révision du module m07 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m07.js.
+// Relue le 12/11/2026 : alignée sur le cours complet (S3, S7) et ses questions (q28, q29, q38) : EXCEPT dans les deux
+// sens ne voit pas les doublons (COUNT(*)) ; colonnes listées, jamais SELECT * dans une union ; colonne 'v1' / 'v2'.
 LEARNSQL.fiches.m07 = {
   intro: "Les opérateurs ensemblistes empilent ou comparent les résultats de deux requêtes. Très utiles pour comparer deux sources : ERP contre EDI, ancienne contre nouvelle version d'une table.",
   sections: [
@@ -50,15 +52,15 @@ LEARNSQL.fiches.m07 = {
     },
     {
       titre: "Comparer deux tables complètement",
-      exemple: "(SELECT * FROM v1 EXCEPT SELECT * FROM v2)\nUNION ALL\n(SELECT * FROM v2 EXCEPT SELECT * FROM v1);",
-      resultat: "0 ligne = les deux tables sont identiques.",
+      exemple: "(SELECT code, nom, ville FROM v1\n EXCEPT\n SELECT code, nom, ville FROM v2)\nUNION ALL\n(SELECT code, nom, ville FROM v2\n EXCEPT\n SELECT code, nom, ville FROM v1);",
+      resultat: "0 ligne = les mêmes lignes distinctes. Une ligne en double ne se voit pas : compare aussi les COUNT(*).",
       points: [
         "1re partie : ce qui est dans v1 mais pas dans v2.",
         "2e partie : l'inverse.",
-        "Ajoute une colonne 'v1' / 'v2' pour savoir d'où vient la différence.",
+        "Ajoute une colonne 'v1' / 'v2' pour savoir d'où vient la différence : la même des deux côtés d'un EXCEPT, sinon tout sort.",
         "Mets des parenthèses : les priorités entre opérateurs sont un piège."
       ],
-      retenir: "Recette de migration : A EXCEPT B, puis B EXCEPT A."
+      retenir: "Recette de migration : A EXCEPT B, puis B EXCEPT A, puis les COUNT(*)."
     }
   ],
   differences: [

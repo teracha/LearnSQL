@@ -479,7 +479,7 @@ LEARNSQL.questions.m04 = [
       "Non. MID découpe du texte (dans d'autres outils).",
       "Non. MODE donne la valeur la plus fréquente."
     ],
-    retenir: "Médiane : MEDIAN (Snowflake), PERCENTILE_CONT(0.5) (SQL Server). Plus robuste que la moyenne."
+    retenir: "Médiane : MEDIAN (Snowflake), PERCENTILE_CONT(0.5) … OVER (…) (SQL Server). Plus robuste que la moyenne."
   },
   {
     id: "m04-q27", dialecte: "Standard",

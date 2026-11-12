@@ -1,5 +1,7 @@
 // Fiche de révision du module m04 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m04.js.
+// Relue le 12/11/2026 : alignée sur le cours complet et ses questions (q24, q66, q70) : dépassement d'un INT et OVER de
+// PERCENTILE_CONT attribués à SQL Server, COUNT_IF (sa doc : NULL), pas de ligne à 0 pour un client sans commande.
 LEARNSQL.fiches.m04 = {
   intro: "Les agrégats résument plusieurs lignes en une seule valeur : un total, un nombre, une moyenne. GROUP BY permet de faire ce résumé par client, par mois, par article…",
   sections: [
@@ -11,7 +13,7 @@ LEARNSQL.fiches.m04 = {
         "SUM, AVG, MIN, MAX ignorent les NULL.",
         "SUM sur aucune ligne = NULL, pas 0 → `COALESCE(SUM(x), 0)`.",
         "SQL Server : AVG d'un INT renvoie un INT → `AVG(col * 1.0)`.",
-        "SUM d'un INT peut dépasser la limite → `SUM(CAST(col AS bigint))`.",
+        "SQL Server : SUM d'un INT peut dépasser la limite → `SUM(CAST(col AS bigint))`.",
         "`COUNT(1)` = `COUNT(*)` : aucune différence de vitesse."
       ],
       retenir: "COUNT(*) = lignes, COUNT(col) = valeurs non NULL. SUM de rien = NULL."
@@ -19,7 +21,7 @@ LEARNSQL.fiches.m04 = {
     {
       titre: "GROUP BY : un résumé par groupe",
       exemple: "SELECT client_id, COUNT(*) AS nb_cdes, SUM(montant) AS ca\nFROM dbo.commande\nWHERE statut <> 'ANNULEE'\nGROUP BY client_id;",
-      resultat: "une ligne par client.",
+      resultat: "une ligne par client qui a au moins une commande non annulée. Les autres clients n'apparaissent pas.",
       points: [
         "Chaque colonne du SELECT est soit dans GROUP BY, soit dans un agrégat.",
         "SQL Server : GROUP BY avec l'expression complète (`YEAR(date_cde)`), pas l'alias.",
@@ -46,7 +48,7 @@ LEARNSQL.fiches.m04 = {
         "Un CASE dans un agrégat = un calcul par condition, en une seule lecture.",
         "Piège : `COUNT(CASE … THEN 1 ELSE 0 END)` compte TOUT (0 n'est pas NULL).",
         "Avec COUNT : pas de ELSE. Avec SUM : ELSE 0.",
-        "Snowflake : `COUNT_IF(condition)`."
+        "Snowflake : `COUNT_IF(condition)` (sa doc : NULL si aucune ligne ne compte)."
       ],
       retenir: "Pivot simple : SUM(CASE WHEN … THEN x ELSE 0 END)."
     },
@@ -57,7 +59,7 @@ LEARNSQL.fiches.m04 = {
         "Ne fais jamais la moyenne de moyennes : recalcule total / nombre.",
         "`SUM(DISTINCT x)` est presque toujours faux.",
         "`COUNT(*)` après un LEFT JOIN compte 1 pour un client sans commande → `COUNT(co.id)`.",
-        "Médiane : `MEDIAN` (Snowflake), `PERCENTILE_CONT(0.5)` (SQL Server)."
+        "Médiane : `MEDIAN` (Snowflake), `PERCENTILE_CONT(0.5)` avec `OVER` (SQL Server)."
       ],
       retenir: "Recalcule les ratios à partir des totaux."
     },
@@ -89,6 +91,6 @@ LEARNSQL.fiches.m04 = {
     ["AVG d'un entier", "Entier (tronqué)", "Décimal"],
     ["Compter selon condition", "`SUM(CASE …)`", "`COUNT_IF(…)`"],
     ["Concaténer des lignes", "`STRING_AGG`", "`LISTAGG`"],
-    ["Médiane", "`PERCENTILE_CONT(0.5)`", "`MEDIAN`"]
+    ["Médiane", "`PERCENTILE_CONT` + `OVER`", "`MEDIAN`"]
   ]
 };

@@ -1,7 +1,9 @@
 // Fiche de révision du module m05 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m05.js.
+// Relue le 12/11/2026 : alignée sur le cours complet (S7) et ses questions (q10, q99) : tranches [mini ; maxi[ ;
+// carte aux cellules courtes (le top N par groupe a sa ligne) ; « les lignes de détail ».
 LEARNSQL.fiches.m05 = {
-  intro: "Une jointure relie deux tables : les commandes à leurs clients, les lignes à leurs articles. C'est la source n°1 des doublons et des montants faux dans les rapports.",
+  intro: "Une jointure relie deux tables : les commandes à leurs clients, les lignes de détail à leurs articles. C'est la source n°1 des doublons et des montants faux dans les rapports.",
   sections: [
     {
       titre: "INNER JOIN : seulement ce qui correspond",
@@ -59,7 +61,7 @@ LEARNSQL.fiches.m05 = {
     },
     {
       titre: "Les autres jointures",
-      exemple: "-- Auto-jointure : salarié + son manager\nSELECT s.nom, m.nom AS manager\nFROM dbo.salarie s\nLEFT JOIN dbo.salarie m ON m.id = s.manager_id;\n\n-- Non-équi : barème par tranche\nJOIN dbo.tranche t ON co.montant BETWEEN t.mini AND t.maxi",
+      exemple: "-- Auto-jointure : salarié + son manager\nSELECT s.nom, m.nom AS manager\nFROM dbo.salarie s\nLEFT JOIN dbo.salarie m ON m.id = s.manager_id;\n\n-- Non-équi : barème par tranche, bornes [mini ; maxi[\nJOIN dbo.tranche t ON co.montant >= t.mini AND co.montant < t.maxi",
       points: [
         "CROSS JOIN : toutes les combinaisons (3 × 5 = 15 lignes).",
         "Auto-jointure : même table, deux alias. Doublons : `a.id < b.id`.",
@@ -83,7 +85,8 @@ LEARNSQL.fiches.m05 = {
   ],
   differences: [
     ["`USING (col)`", "Non", "Oui"],
-    ["Sous-requête liée par ligne", "`CROSS APPLY` / `OUTER APPLY`", "`LATERAL` (sans `LIMIT` : top N avec `QUALIFY`)"],
+    ["Sous-requête liée par ligne", "`CROSS APPLY` / `OUTER APPLY`", "`LATERAL`, sans `LIMIT`"],
+    ["Top N par groupe", "`APPLY` + `TOP (n)`", "`QUALIFY ROW_NUMBER()`"],
     ["Comparaison NULL-safe", "`IS NOT DISTINCT FROM` (2022+)", "`IS NOT DISTINCT FROM`, `EQUAL_NULL`"],
     ["Diagnostic des doublons", "Plan d'exécution", "Query Profile (« exploding join »)"]
   ]
