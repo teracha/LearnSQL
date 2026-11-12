@@ -131,3 +131,23 @@ INSERT INTO stock_depot VALUES (6, 1, 5);
 INSERT INTO stock_depot VALUES (7, 1, 100); INSERT INTO stock_depot VALUES (7, 2, 60);  INSERT INTO stock_depot VALUES (7, 3, 40);
 INSERT INTO stock_depot VALUES (8, 1, 10);  INSERT INTO stock_depot VALUES (8, 3, 5);
 -- L'article 5 (Pompe 1 CV) n'a aucune ligne de stock : rupture dans les 3 dépôts.
+
+-- Pour le module m06 (CTE récursive) : la nomenclature, ce qui compose un kit (3 niveaux).
+-- FIL-14 et POMP-1 sont des codes du catalogue `article` ; les autres sont hors catalogue (kits sur devis, pièces).
+CREATE TABLE nomenclature (
+  compose    VARCHAR(10) NOT NULL,   -- le produit composé (le parent)
+  composant  VARCHAR(10) NOT NULL,   -- ce qu'il contient (l'enfant)
+  qte        INTEGER     NOT NULL,   -- quantité pour 1 composé
+  PRIMARY KEY (compose, composant)
+);
+-- Kit filtration collectivité : 2 filtres à sable et 1 pompe. 1 filtre = 4 sacs de sable de 25 kg et 1 vanne 6 voies ;
+-- 1 vanne = 2 joints. Pour 1 kit : 2 filtres, 1 pompe, 8 sacs, 2 vannes, 4 joints.
+INSERT INTO nomenclature VALUES ('KIT-COLL', 'FIL-14',   2);
+INSERT INTO nomenclature VALUES ('KIT-COLL', 'POMP-1',   1);
+INSERT INTO nomenclature VALUES ('FIL-14',   'SABLE-25', 4);
+INSERT INTO nomenclature VALUES ('FIL-14',   'VANNE-6V', 1);
+INSERT INTO nomenclature VALUES ('VANNE-6V', 'JOINT-V',  2);
+-- Kit hivernage, avec une erreur de saisie : la 2e ligne est à l'envers et crée une boucle (KIT-HIV ↔ BACHE8).
+-- Une CTE récursive qui part de KIT-HIV sans garde-fou ne s'arrête pas (SQL Server : erreur 530 à 100 niveaux).
+INSERT INTO nomenclature VALUES ('KIT-HIV',  'BACHE8',   1);
+INSERT INTO nomenclature VALUES ('BACHE8',   'KIT-HIV',  1);

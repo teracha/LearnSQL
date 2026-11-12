@@ -3,16 +3,19 @@
 // Squelette du modèle m02 v2 : Exemple (qui MONTRE le piège) → Résultat → « Ce qui se passe » → « Pourquoi » → « Le
 // piège » (l'erreur vue en entreprise) → « Le bon réflexe » → « SQL Server / Snowflake » ou « Et aussi » → À retenir.
 // Chaque mot technique est expliqué à sa première apparition.
-// Base d'exemple : docs/base-exemple.sql. Résultats recalculés avec SQLite (scratchpad cours-complets/m06 : verif.py, et
-// verif_cours.py qui rejoue les exemples tels qu'écrits ; DATEADD → date(j, '+1 day'), CAST decimal(5,2) → ROUND(x, 2))
-// : commandes des 2 fiches Piscines Dumont avec IN
-// (3 lignes ; la sous-requête rend bien 2 id) ; dernière commande des 5 PRO français (Camping Les Flots → NULL) ;
-// colonne empruntée `code IN (SELECT code FROM ligne_cde)` → les 8 articles (7 vendus en vrai) ; clients avec une
-// commande livrée (EXISTS et IN : 3 ; JOIN : 4 lignes, AquaBleu 2 fois ; EXISTS sans lien : 7) ; articles jamais
-// commandés par AquaBleu (POMP-1, ROB-X, EPU-F ; piège `<>` : ROB-X, FIL-14, CHL-5, EPU-F) ; part du CA hors annulées
-// (15115.00 → 83.54, 2580.00 → 14.26, 318.00 → 1.76, 79.80 → 0.44) ; plus grosse commande par client (ROW_NUMBER : 4
-// lignes, CDE-1006 gagne au départage ; jointure sur MAX et RANK : 5 lignes) ; jours du 1er au 5 avril (1, 0, 1, 0, 0 ;
-// avec <= : jusqu'au 6) ; calendrier 2026 : 365 lignes, 364 niveaux récursifs (au-delà de 100 : MAXRECURSION).
+// Base d'exemple : docs/base-exemple.sql, avec la table `nomenclature` (7 lignes) ajoutée pour ce cours le 12/11/2026 :
+// kit filtration collectivité sur 3 niveaux, et kit hivernage saisi en boucle (KIT-HIV ↔ BACHE8).
+// Résultats recalculés avec SQLite (scratchpad cours-complets/m06 : verif.py, et verif_cours.py qui rejoue les exemples
+// tels qu'écrits ; DATEADD → date(j, '+1 day'), CAST decimal(5,2) → ROUND(x, 2), WITH → WITH RECURSIVE) : commandes des
+// 2 fiches Piscines Dumont avec IN (3 lignes ; la sous-requête rend bien 2 id) ; dernière commande des 5 PRO français
+// (Camping Les Flots → NULL) ; colonne empruntée `code IN (SELECT code FROM ligne_cde)` → les 8 articles (7 vendus en
+// vrai) ; clients avec une commande livrée (EXISTS et IN : 3 ; JOIN : 4 lignes, AquaBleu 2 fois ; EXISTS sans lien : 7) ;
+// articles jamais commandés par AquaBleu (POMP-1, ROB-X, EPU-F ; piège `<>` : ROB-X, FIL-14, CHL-5, EPU-F) ; part du CA
+// hors annulées (15115.00 → 83.54, 2580.00 → 14.26, 318.00 → 1.76, 79.80 → 0.44) ; plus grosse commande par client
+// (ROW_NUMBER : 4 lignes, CDE-1006 gagne au départage ; jointure sur MAX et RANK : 5 lignes) ; explosion de KIT-COLL
+// (FIL-14 2, POMP-1 1, SABLE-25 8, VANNE-6V 2, JOINT-V 4 ; niveaux 1, 1, 2, 2, 3) ; KIT-HIV avec garde-fou < 10 : 10
+// lignes en boucle, sans garde-fou : ne s'arrête pas (lecture coupée à 150 niveaux) ; série d'octobre avec `< '31'` :
+// 31 jours (avec <= : jusqu'au 1er novembre) ; calendrier 2026 : 365 lignes, 364 niveaux récursifs (MAXRECURSION).
 // Faits sans équivalent SQLite, vérifiés à la main et dans la doc : erreur 512 (SQLite prend la 1re ligne), types SQL
 // Server du calcul de part (decimal(38,2) puis decimal(38,6), CAST arrondit à 2 décimales).
 // Sources (vérifiées le 12/11/2026) : learn.microsoft.com/sql : relational-databases/performance/subqueries (scalaire,
@@ -42,7 +45,7 @@ LEARNSQL.cours.m06 = {
       points: [
         "Ce qui se passe : la 1re requête plante : « Subquery returned more than 1 value » (erreur 512). La 2e renvoie les 3 commandes des deux agences.",
         "Pourquoi : après `=` ou `>`, la sous-requête doit rendre une seule valeur : on la dit scalaire. `(SELECT AVG(montant_ht) FROM dbo.commande)` en rend une ; « Piscines Dumont » en rend deux, et le moteur refuse de choisir.",
-        "Le piège : la requête marche des mois, puis plante quand une 2e ligne arrive (un 2e taux de TVA). Et une sous-requête vide vaut NULL, pas 0 : `SET ca = (SELECT SUM(…))` met NULL aux clients sans commande.",
+        "Le piège : elle marche des mois, puis plante quand une 2e ligne arrive (un 2e taux de TVA). Et vide, elle vaut NULL, pas 0 : `SET ca = (SELECT SUM(…))` met NULL aux clients sans commande.",
         "Le bon réflexe : IN si plusieurs valeurs sont possibles. Sinon, garantis une ligne : une clé unique (`code = 'C002'`), un agrégat (MAX, SUM) ou `TOP (1)` avec `ORDER BY`. Et `COALESCE(…, 0)` pour le cas vide.",
         "Et aussi : sans lien avec la ligne, elle est calculée une fois. Elle va partout où va une valeur, jusque dans HAVING (un CA client face à la moyenne des CA)."
       ],
@@ -57,7 +60,7 @@ LEARNSQL.cours.m06 = {
         "Pourquoi : la sous-requête lit `cl.id`, une colonne du dessus : elle est corrélée (liée à la ligne en cours), recalculée en logique pour chaque client. Si une colonne manque dans sa table, le moteur la cherche au-dessus.",
         "Le piège : la 2e requête. Sans colonne `code` dans `ligne_cde`, le moteur prend celle d'`article` et teste « mon code est dans (mon code…) » : toujours vrai. Pas d'erreur, un rapport faux.",
         "Le bon réflexe : préfixe chaque colonne par l'alias de sa table : avec `l.code`, l'oubli donne une vraie erreur. Sur un gros volume, un `LEFT JOIN` vers une sous-requête groupée répond pareil, en une lecture.",
-        "SQL Server / Snowflake : Snowflake ne garantit la corrélée que dans le WHERE ; ailleurs, il répond parfois « Unsupported subquery type ». Réécris avec une jointure, ou une fonction de fenêtrage (module m08) : `AVG(montant_ht) OVER (PARTITION BY client_id)` pose la moyenne du client sur chaque ligne."
+        "SQL Server / Snowflake : Snowflake ne garantit la corrélée que dans le WHERE (ailleurs : « Unsupported subquery type »). Réécris en jointure, ou avec une fonction de fenêtrage (module m08) : `AVG(montant_ht) OVER (PARTITION BY client_id)` pose la moyenne du client sur chaque ligne."
       ],
       retenir: "Corrélée = elle lit une colonne du dessus, donc change à chaque ligne. Préfixe toutes les colonnes."
     },
@@ -79,7 +82,7 @@ LEARNSQL.cours.m06 = {
       exemple: "-- Les articles qu'AquaBleu (client 1) n'a JAMAIS commandés\nSELECT a.code, a.libelle\nFROM dbo.article AS a\nWHERE NOT EXISTS (SELECT 1\n                  FROM dbo.ligne_cde AS l\n                  JOIN dbo.commande AS co ON co.id = l.cde_id\n                  WHERE l.article_id = a.id AND co.client_id = 1);\n-- Piège : JOIN … WHERE co.client_id <> 1 sort CHL-5 et FIL-14, oublie POMP-1",
       resultat: [["code", "libelle"], ["POMP-1", "Pompe 1 CV"], ["ROB-X", "Robot électrique X"], ["EPU-F", "Épuisette de fond"]],
       points: [
-        "Ce qui se passe : 3 articles. Pour chacun, le moteur cherche une ligne de commande d'AquaBleu et n'en trouve pas : NOT EXISTS est vrai. La pompe sort aussi : personne ne l'a commandée.",
+        "Ce qui se passe : 3 articles. Pour chacun, le moteur ne trouve aucune ligne de commande d'AquaBleu : NOT EXISTS est vrai. La pompe sort aussi : personne ne l'a commandée.",
         "Pourquoi : « jamais » porte sur tout l'historique. `client_id <> 1` juge une ligne à la fois : il garde un article dès qu'un autre client l'a commandé, même si AquaBleu l'a commandé aussi.",
         "Le piège : NOT IN. Un seul NULL dans la liste, et il rend 0 ligne, sans erreur (module m02). Et une clé NULL ne trouve jamais de partenaire : `NULL IN (…)` n'est jamais vrai, EXISTS non plus.",
         "Le bon réflexe : NOT EXISTS pour « jamais », « sans », « pas encore ». Les commandes livrées sans facture : `NOT EXISTS (SELECT 1 FROM dbo.facture AS f WHERE f.cde_id = co.id)`. « A mais jamais B » : EXISTS AND NOT EXISTS.",
@@ -96,7 +99,7 @@ LEARNSQL.cours.m06 = {
         "Pourquoi : une CTE (une requête nommée par `WITH`) se lit ensuite comme une table : on y filtre un alias, on y additionne des totaux. La table dérivée, `FROM (SELECT …) AS t`, fait pareil, au milieu.",
         "Le piège : une CTE n'est pas un cache. Citée deux fois, comme ici, SQL Server la calcule deux fois ; elle meurt avec l'instruction qui la suit. Sur SQL Server, l'instruction d'avant doit finir par `;`, sinon WITH plante : d'où le `;WITH`.",
         "Le bon réflexe : un seul WITH, des étapes séparées par des virgules ; chacune lit celles d'avant. Pour déboguer, finis par `SELECT * FROM ca_client`. Un gros résultat relu souvent : une table temporaire `#t`.",
-        "Et aussi : chaque colonne a un nom (`AS ca`, ou une liste en tête : `WITH ca_client (client_id, ca) AS`), la table dérivée un alias (`AS t`), et pas d'ORDER BY dedans sans TOP. Snowflake accepte un alias dans le WHERE : moins d'étapes."
+        "Et aussi : chaque colonne a un nom (`AS ca`, ou une liste en tête : `WITH t (a, b)`), la table dérivée un alias (`AS t`), et pas d'ORDER BY dedans sans TOP. Snowflake accepte un alias dans le WHERE : moins d'étapes."
       ],
       retenir: "CTE = une étape nommée, lue de haut en bas : un WITH, des virgules, `;` devant. Pas un cache."
     },
@@ -107,32 +110,32 @@ LEARNSQL.cours.m06 = {
       points: [
         "Ce qui se passe : une ligne par client. Piscines Dumont (client 2) a deux commandes à 1 290 € : le 2e critère, `id DESC`, les départage ; CDE-1006 gagne.",
         "Pourquoi : ROW_NUMBER numérote les lignes de chaque client (`PARTITION BY`) dans l'ordre demandé. Il est calculé au SELECT, après le WHERE : pour filtrer `rn = 1`, il faut une étape au-dessus.",
-        "Le piège : une jointure sur `MAX(montant_ht)` garde les ex aequo (à égalité) : Piscines Dumont sort 2 fois ; RANK aussi. Sans 2e critère, ROW_NUMBER choisit au hasard : le rapport varie d'un jour à l'autre.",
+        "Le piège : une jointure sur `MAX(montant_ht)` garde les ex aequo (à égalité) : Piscines Dumont sort 2 fois ; RANK aussi. Sans 2e critère, ROW_NUMBER choisit au hasard : le rapport change chaque jour.",
         "Le bon réflexe : CTE + ROW_NUMBER + départage, puis `rn = 1` ; `rn <= 3` pour le top 3. Dédoublonner un import : `WITH d AS (…) DELETE FROM d WHERE rn > 1`, après un SELECT de contrôle.",
         "SQL Server / Snowflake : Snowflake filtre sans étape, `QUALIFY ROW_NUMBER() OVER (…) = 1` (le WHERE des fenêtres). Il ne supprime pas à travers une CTE : `INSERT OVERWRITE INTO t SELECT * FROM t QUALIFY … = 1`."
       ],
       retenir: "Une ligne par groupe : CTE + ROW_NUMBER avec un départage, puis `rn = 1`. MAX et RANK gardent les ex aequo."
     },
     {
-      titre: "La CTE récursive : une série de jours, un arbre",
-      exemple: "-- Un jour par ligne, du 1er au 5 avril (Snowflake : WITH RECURSIVE, '2026-04-01')\nWITH jours (jour) AS (\n  SELECT CAST('20260401' AS date)            -- l'ancre\n  UNION ALL\n  SELECT DATEADD(day, 1, jour) FROM jours     -- la partie récursive\n  WHERE jour < '20260405'                     -- l'arrêt\n)\nSELECT j.jour, COUNT(co.id) AS nb_cde\nFROM jours AS j LEFT JOIN dbo.commande AS co ON co.date_cde = j.jour\nGROUP BY j.jour ORDER BY j.jour;",
-      resultat: [["jour", "nb_cde"], ["2026-04-01", 1], ["2026-04-02", 0], ["2026-04-03", 1], ["2026-04-04", 0], ["2026-04-05", 0]],
+      titre: "La CTE récursive : exploser une nomenclature",
+      exemple: "WITH eclate (composant, qte, niveau) AS (          -- Snowflake : WITH RECURSIVE\n  SELECT composant, qte, 1                         -- l'ancre : sous la racine\n  FROM dbo.nomenclature WHERE compose = 'KIT-COLL'\n  UNION ALL\n  SELECT n.composant, e.qte * n.qte, e.niveau + 1  -- descend d'un niveau\n  FROM dbo.nomenclature AS n JOIN eclate AS e ON n.compose = e.composant\n  WHERE e.niveau < 10                              -- garde-fou\n)\nSELECT composant, qte, niveau FROM eclate ORDER BY niveau, composant;\n-- Piège : lancée sur KIT-HIV (saisi en boucle) sans garde-fou : erreur 530",
+      resultat: [["composant", "qte", "niveau"], ["FIL-14", 2, 1], ["POMP-1", 1, 1], ["SABLE-25", 8, 2], ["VANNE-6V", 2, 2], ["JOINT-V", 4, 3]],
       points: [
-        "Ce qui se passe : une ligne par jour, même sans commande (0), grâce au LEFT JOIN. Le dernier tour part du 4 et ajoute le 5 : l'arrêt teste la valeur AVANT l'ajout (avec `<=`, on irait au 6).",
-        "Pourquoi : une CTE récursive (qui se relit elle-même) a deux parties, empilées par UNION ALL. L'ancre donne la 1re ligne ; la partie récursive repart du tour d'avant, jusqu'à ne plus rien trouver.",
-        "Le piège : un arrêt oublié, ou des données en boucle (A contient B, B contient A). SQL Server s'arrête à 100 niveaux, sur l'erreur 530 ; Snowflake tourne, et se facture, jusqu'au délai maximum.",
-        "Le bon réflexe : un compteur garde-fou : `1 AS niveau`, puis `niveau + 1` et `WHERE niveau < 20`. Un calendrier d'un an : `OPTION (MAXRECURSION 400)` en fin de requête. `MAXRECURSION 0` enlève toute limite : garde le compteur.",
-        "Et aussi : un arbre se parcourt pareil : l'ancre prend la racine (`manager_id IS NULL`), la partie récursive descend (`ON s.manager_id = r.id`) ou monte (`ON s.id = r.manager_id`). Nomenclature : on multiplie les quantités, 4 panneaux × 6 vis = 24 vis."
+        "Ce qui se passe : les 5 composants du kit, leur quantité pour 1 kit et leur niveau. 2 filtres × 4 sacs = 8 sacs de sable ; 2 vannes × 2 joints = 4 joints (niveau 3).",
+        "Pourquoi : une CTE récursive (qui se relit elle-même) a deux parties, empilées par UNION ALL : l'ancre prend ce qui est sous la racine, puis la partie récursive descend d'un niveau par tour, jusqu'à ne plus rien trouver.",
+        "Le piège : une boucle dans les données. Une ligne saisie à l'envers dit que BACHE8 contient KIT-HIV, qui contient BACHE8. SQL Server s'arrête à 100 niveaux (erreur 530) ; Snowflake tourne, et se facture, jusqu'au délai maximum.",
+        "Le bon réflexe : un compteur garde-fou (`1` dans l'ancre, puis `e.niveau + 1` et `WHERE e.niveau < 10`), et des quantités multipliées, jamais additionnées. Plus de 100 niveaux voulus : `OPTION (MAXRECURSION 400)` ; `MAXRECURSION 0` enlève toute limite.",
+        "Et aussi : un organigramme se parcourt pareil. L'ancre prend le chef (`manager_id IS NULL`) ; la partie récursive descend (`ON s.manager_id = r.id`) ou remonte vers le chef (`ON s.id = r.manager_id`)."
       ],
-      retenir: "Récursive = ancre UNION ALL partie récursive. Toujours un arrêt et un garde-fou ; SQL Server : 100 niveaux au plus."
+      retenir: "Récursive = ancre UNION ALL partie récursive, un niveau par tour. Quantités multipliées ; toujours un garde-fou."
     },
     {
       titre: "Détails utiles",
       points: [
         "Garder un résultat : `WITH … SELECT … INTO #t FROM …` crée une table temporaire, calculée une fois ; jointe souvent, indexe-la. Elle disparaît en fin de procédure ou de session. Pour quelques lignes : `DECLARE @t TABLE`.",
         "Une vue (une requête enregistrée dans la base) est permanente et partagée ; une CTE vit le temps d'une requête. Une vue peut contenir un WITH ; un WITH, pas un autre.",
-        "Le dernier prix ET sa date, en une lecture : `OUTER APPLY (SELECT TOP (1) … ORDER BY date_effet DESC)`. Une table dérivée ne peut pas lire une autre table du même FROM ; APPLY, si. Snowflake : `LATERAL`, sans LIMIT dedans, donc QUALIFY.",
-        "Des lignes sans récursion : `GENERATE_SERIES(1, 100)` (SQL Server 2022, niveau de compatibilité 160) ; Snowflake : `TABLE(GENERATOR(ROWCOUNT => 365))` + `ROW_NUMBER()`. Plus simple : une table calendrier.",
+        "Le dernier prix ET sa date : `OUTER APPLY (SELECT TOP (1) … ORDER BY date_effet DESC)`, en une lecture. APPLY lit une table du même FROM, ce que refuse une table dérivée. Snowflake : `LATERAL`, sans LIMIT dedans (QUALIFY).",
+        "Une série de jours : ancre = le 1er jour, puis `DATEADD(day, 1, jour)` tant que `jour < '20261031'` (l'arrêt teste la valeur AVANT l'ajout). Sinon : `GENERATE_SERIES` (SQL Server 2022), `GENERATOR(ROWCOUNT => n)` (Snowflake), ou une table calendrier.",
         "Afficher un arbre : construis un chemin, `CAST(nom AS varchar(1000))` dans l'ancre et à chaque ajout, puis trie dessus. Même type, même longueur des deux côtés, sinon erreur.",
         "Récursion sur SQL Server : UNION ALL obligatoire ; dans la partie récursive, ni LEFT JOIN, ni GROUP BY, TOP, DISTINCT ou agrégat. Indexe la colonne parent. Snowflake a aussi `START WITH … CONNECT BY … PRIOR`.",
         "Dans le plan d'exécution (le chemin choisi par le moteur), IN et EXISTS deviennent une semi-jointure, sans doublon. Sous-requête, jointure, CTE : souvent le même plan ; écris clair."

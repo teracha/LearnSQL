@@ -9,12 +9,12 @@ Le cours court remplacé devient la fiche de révision du module (`data/fiches/m
 
 Tous les cours SQL utilisent la même petite base : le négociant en équipement de piscines du parcours Chef de projet
 (3 dépôts, ERP Divalto, clients EDI de la grande distribution dont AquaBleu). Tables : `client` (7), `article` (8),
-`commande` (8), `ligne_cde` (11), `facture` (4), `flux_edi` (6), `depot` (3), `stock_depot` (15).
+`commande` (8), `ligne_cde` (11), `facture` (4), `flux_edi` (6), `depot` (3), `stock_depot` (15), `nomenclature` (7).
 - Les chiffres sont petits et vérifiables de tête ; les résultats des exemples se calculent sur ces données, et se
   vérifient avec SQLite (commande dans l'en-tête du fichier .sql ; `TOP` se vérifie avec `LIMIT`).
 - Les pièges sont dans les données : une ville `NULL` (Camping Les Flots), 2 fiches « Piscines Dumont » (2 agences),
   2 SIREN manquants, 2 commandes au même montant (ex aequo), 2 clients sans commande, une commande annulée sans facture,
-  un article en rupture, 2 flux EDI rejetés.
+  un article en rupture, 2 flux EDI rejetés, une boucle dans la nomenclature (KIT-HIV ↔ BACHE8, ligne saisie à l'envers).
 - Noms : SQL Server écrit `dbo.client` ; Snowflake écrit `VENTES.CLIENT` (majuscules). Un cours écrit la forme SQL Server
   dans ses exemples, et dit la forme Snowflake quand elle diffère.
 - On n'ajoute pas de table ni de ligne pour un seul exemple : si un cas manque, on le propose au superviseur, qui met à
