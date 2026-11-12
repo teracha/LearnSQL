@@ -46,9 +46,10 @@ LEARNSQL.cours.m06 = {
       titre: "La sous-requête scalaire : une seule valeur",
       exemple: "-- Piège : erreur 512, 2 fiches « Piscines Dumont » (2 agences) = 2 id\nSELECT num_cde FROM dbo.commande\nWHERE client_id = (SELECT id FROM dbo.client WHERE nom = 'Piscines Dumont');\n\n-- Juste : IN accepte une liste (résultat ci-dessous)\nSELECT num_cde, client_id, montant_ht\nFROM dbo.commande\nWHERE client_id IN (SELECT id FROM dbo.client WHERE nom = 'Piscines Dumont');",
       resultat: [["num_cde", "client_id", "montant_ht"], ["CDE-1002", 2, "1290.00"], ["CDE-1006", 2, "1290.00"], ["CDE-1008", 6, "79.80"]],
+      regle: "Une sous-requête scalaire rend une seule valeur. On l'écrit là où une valeur est attendue, par exemple après `=` ou `>`. Si elle rend plusieurs lignes, le moteur s'arrête en erreur, même si la requête marchait la veille. Si elle ne rend rien, ce n'est pas une erreur : elle vaut NULL. Quand la réponse peut être une liste, on écrit IN au lieu de `=`.",
       points: [
         "Ce qui se passe : la 1re requête plante : « Subquery returned more than 1 value » (erreur 512). La 2e renvoie les 3 commandes des deux agences.",
-        "Pourquoi : après `=` ou `>`, la sous-requête doit rendre une seule valeur : on la dit scalaire. `(SELECT AVG(montant_ht) FROM dbo.commande)` en rend une ; « Piscines Dumont » en rend deux, et le moteur refuse de choisir.",
+        "Pourquoi : `(SELECT AVG(montant_ht) FROM dbo.commande)` rend une valeur ; « Piscines Dumont » en rend deux, et le moteur refuse de choisir.",
         "Le piège : elle marche des mois, puis plante quand une 2e ligne arrive (un 2e taux de TVA). Et vide, elle vaut NULL, pas 0 : `SET ca = (SELECT SUM(…))` met NULL aux clients sans commande.",
         "Le bon réflexe : IN si plusieurs valeurs sont possibles. Sinon, garantis une ligne : une clé unique (`code = 'C002'`), un agrégat (MAX, SUM) ou `TOP (1)` avec `ORDER BY`. Et `COALESCE(…, 0)` pour le cas vide.",
         "Et aussi : sans lien avec la ligne, elle est calculée une fois. Elle va partout où va une valeur (sauf GROUP BY), jusque dans HAVING (un CA client face à la moyenne des CA)."
@@ -59,9 +60,10 @@ LEARNSQL.cours.m06 = {
       titre: "La sous-requête corrélée : une valeur par ligne",
       exemple: "-- La dernière commande de chaque pisciniste français (résultat ci-dessous)\nSELECT cl.code, cl.nom,\n       (SELECT MAX(co.date_cde) FROM dbo.commande AS co\n        WHERE co.client_id = cl.id) AS derniere_cde\nFROM dbo.client AS cl\nWHERE cl.pays = 'FR' AND cl.type = 'PRO';\n\n-- Piège : ligne_cde n'a pas de colonne code, et pourtant pas d'erreur\nSELECT code FROM dbo.article\nWHERE code IN (SELECT code FROM dbo.ligne_cde);",
       resultat: [["code", "nom", "derniere_cde"], ["C002", "Piscines Dumont", "2026-04-03"], ["C003", "Bleu Lagon", "2026-03-12"], ["C004", "Hydro Sud", "2026-04-01"], ["C006", "Piscines Dumont", "2026-04-10"], ["C007", "Camping Les Flots", null]],
+      regle: "Une sous-requête corrélée lit une colonne de la requête du dessus : elle dépend de la ligne en cours. Elle répond ainsi à une question par ligne, comme « la dernière commande de ce client ». Dans le SELECT, une ligne sans réponse reste, avec NULL, comme dans un LEFT JOIN. Son piège : une colonne absente de sa table est cherchée au-dessus, sans erreur. La règle : un alias devant chaque colonne.",
       points: [
         "Ce qui se passe : chaque client a sa date ; Camping Les Flots, sans commande, a NULL mais reste dans la liste. La 2e requête rend les 8 articles, même la pompe jamais vendue.",
-        "Pourquoi : la sous-requête lit `cl.id`, une colonne du dessus : elle est corrélée (liée à la ligne en cours), recalculée en logique pour chaque client. Si une colonne manque dans sa table, le moteur la cherche au-dessus.",
+        "Pourquoi : la sous-requête lit `cl.id`, une colonne du dessus : elle est corrélée, recalculée en logique pour chaque client.",
         "Le piège : la 2e requête. Sans colonne `code` dans `ligne_cde`, le moteur prend celle d'`article` et teste « mon code est dans (mon code…) » : toujours vrai. Pas d'erreur, un rapport faux.",
         "Le bon réflexe : préfixe chaque colonne par l'alias de sa table : avec `l.code`, l'oubli donne une vraie erreur. Sur un gros volume, un `LEFT JOIN` vers une sous-requête groupée répond pareil, en une lecture.",
         "SQL Server / Snowflake : Snowflake ne garantit la corrélée que dans le WHERE, avec un agrégat ; sinon, « Unsupported subquery type ». Réécris en jointure, ou en fenêtrage (m08) : `AVG(montant_ht) OVER (PARTITION BY client_id)` met la moyenne du client sur chaque ligne."
@@ -72,9 +74,10 @@ LEARNSQL.cours.m06 = {
       titre: "EXISTS et IN : « au moins un », sans doublon",
       exemple: "-- Les clients qui ont au moins une commande livrée\nSELECT cl.code, cl.nom, cl.ville\nFROM dbo.client AS cl\nWHERE EXISTS (SELECT 1 FROM dbo.commande AS co\n              WHERE co.client_id = cl.id\n                AND co.statut = 'LIVREE');\n-- Piège : un JOIN dbo.commande à la place sort AquaBleu 2 fois",
       resultat: [["code", "nom", "ville"], ["C001", "AquaBleu", "Lyon"], ["C002", "Piscines Dumont", "Grenoble"], ["C006", "Piscines Dumont", "Lyon"]],
+      regle: "EXISTS répond par oui ou non : la sous-requête trouve-t-elle au moins une ligne ? Chaque ligne du dessus sort donc une seule fois, même avec plusieurs partenaires ; une jointure, elle, la répéterait. IN rend le même service, en comparant une colonne à une liste. On les choisit pour « au moins un » : les clients qui ont commandé, les articles déjà vendus. Avec EXISTS, la sous-requête doit être liée à la ligne du dessus, sinon la réponse est la même pour toutes.",
       points: [
         "Ce qui se passe : 3 clients, chacun une fois. AquaBleu a 2 commandes livrées, mais sort une fois. Un JOIN le sortirait 2 fois.",
-        "Pourquoi : EXISTS demande « y a-t-il au moins une ligne ? » et s'arrête à la 1re trouvée. Il ne lit pas le SELECT : `SELECT 1` est une habitude, `SELECT *` fait pareil.",
+        "Pourquoi : EXISTS s'arrête à la 1re ligne trouvée. Il ne lit pas le SELECT : `SELECT 1` est une habitude, `SELECT *` fait pareil.",
         "Le piège : oublier le lien `co.client_id = cl.id`. La sous-requête ne dépend plus du client : une commande livrée quelque part, et EXISTS est vrai pour les 7 clients, sans erreur.",
         "Le bon réflexe : EXISTS ou IN (`cl.id IN (SELECT client_id …)`) pour « ceux qui ont au moins un… ». Ni JOIN + DISTINCT, ni `COUNT(*) > 0`, qui compte tout pour rien.",
         "SQL Server / Snowflake : `CASE WHEN EXISTS (…) THEN 'Actif' ELSE 'Inactif' END` marche sur SQL Server ; Snowflake n'accepte l'EXISTS lié que dans le WHERE. Le IN de SQL Server compare une seule colonne : pour deux, EXISTS."
@@ -85,9 +88,10 @@ LEARNSQL.cours.m06 = {
       titre: "NOT EXISTS : « jamais » et « sans »",
       exemple: "-- Les articles qu'AquaBleu (client 1) n'a JAMAIS commandés\nSELECT a.code, a.libelle\nFROM dbo.article AS a\nWHERE NOT EXISTS (SELECT 1\n                  FROM dbo.ligne_cde AS l\n                  JOIN dbo.commande AS co ON co.id = l.cde_id\n                  WHERE l.article_id = a.id AND co.client_id = 1);\n-- Piège : JOIN … WHERE co.client_id <> 1 sort CHL-5 et FIL-14, oublie POMP-1",
       resultat: [["code", "libelle"], ["POMP-1", "Pompe 1 CV"], ["ROB-X", "Robot électrique X"], ["EPU-F", "Épuisette de fond"]],
+      regle: "NOT EXISTS est vrai quand la sous-requête ne trouve aucune ligne. Il traduit « jamais », « sans » ou « pas encore » : les articles jamais commandés, les commandes sans facture. Ces mots portent sur toutes les lignes à la fois. Un test `<>` juge une ligne à la fois : il dit « une autre ligne existe », pas « aucune ligne n'existe ». NOT IN semble pareil, mais un NULL dans la liste le bloque. NOT EXISTS n'a aucun de ces deux pièges.",
       points: [
         "Ce qui se passe : 3 articles. Pour chacun, le moteur ne trouve aucune commande d'AquaBleu qui le contient : NOT EXISTS est vrai. La pompe sort aussi : personne ne l'a commandée.",
-        "Pourquoi : « jamais » porte sur tout l'historique. `client_id <> 1` juge une ligne à la fois : il garde un article dès qu'un autre client l'a commandé, même si AquaBleu l'a commandé aussi.",
+        "Pourquoi : `client_id <> 1` garde un article dès qu'un autre client l'a commandé, même si AquaBleu l'a commandé aussi.",
         "Le piège : NOT IN. Un seul NULL dans la liste, et il rend 0 ligne, sans erreur (module m02). Et une clé NULL ne trouve jamais de partenaire : `NULL IN (…)` n'est jamais vrai, EXISTS non plus.",
         "Le bon réflexe : NOT EXISTS pour « jamais », « sans », « pas encore ». Commandes livrées sans facture : `NOT EXISTS (SELECT 1 FROM dbo.facture AS f WHERE f.cde_id = co.id)`. « A mais jamais B » : EXISTS AND NOT EXISTS.",
         "Et aussi : un import relançable : `INSERT … SELECT … FROM stg_article AS s WHERE NOT EXISTS (… a.code = s.code)`. Il n'insère que les codes absents ; relancé, il n'ajoute rien."
@@ -98,6 +102,7 @@ LEARNSQL.cours.m06 = {
       titre: "Table dérivée et CTE : un nom pour chaque étape",
       exemple: "WITH ca_client AS (               -- étape 1 : le CA de chaque client\n  SELECT client_id, SUM(montant_ht) AS ca\n  FROM dbo.commande WHERE statut <> 'ANNULEE'\n  GROUP BY client_id\n),\ntotal AS (SELECT SUM(ca) AS ca_total FROM ca_client)   -- étape 2 : lit l'étape 1\nSELECT cc.client_id, cc.ca,\n       CAST(100 * cc.ca / t.ca_total AS decimal(5,2)) AS part_pct\nFROM ca_client AS cc CROSS JOIN total AS t;   -- 2e lecture de ca_client",
       resultat: [["client_id", "ca", "part_pct"], [1, "15115.00", "83.54"], [2, "2580.00", "14.26"], [4, "318.00", "1.76"], [6, "79.80", "0.44"]],
+      regle: "Une CTE découpe une requête longue en étapes, chacune avec son nom. Elle se lit de haut en bas, comme une recette : chaque étape peut s'appuyer sur les précédentes. C'est plus clair que des sous-requêtes les unes dans les autres, mais pas forcément plus rapide. Une CTE ne garde pas son résultat : elle ne vit que le temps d'une instruction. SQL Server la recalcule même à chaque fois qu'elle est citée. Pour réutiliser un résultat lourd, on le range dans une table temporaire.",
       points: [
         "Ce qui se passe : la part de chaque client dans le CA ; AquaBleu pèse 83,54 %. L'étape 1 calcule le CA par client, l'étape 2 les additionne, la requête finale divise.",
         "Pourquoi : une CTE (une requête nommée par `WITH`) se lit ensuite comme une table : on y filtre un alias, on y additionne des totaux. La table dérivée, `FROM (SELECT …) AS t`, fait pareil, au milieu.",
@@ -111,6 +116,7 @@ LEARNSQL.cours.m06 = {
       titre: "CTE et ROW_NUMBER : une ligne par groupe",
       exemple: "-- La plus grosse commande de chaque client : une seule, même à égalité\nWITH r AS (\n  SELECT client_id, num_cde, montant_ht,\n         ROW_NUMBER() OVER (PARTITION BY client_id\n                            ORDER BY montant_ht DESC, id DESC) AS rn\n  FROM dbo.commande\n  WHERE statut <> 'ANNULEE'\n)\nSELECT client_id, num_cde, montant_ht FROM r WHERE rn = 1;",
       resultat: [["client_id", "num_cde", "montant_ht"], [1, "CDE-1007", "7950.00"], [2, "CDE-1006", "1290.00"], [4, "CDE-1005", "318.00"], [6, "CDE-1008", "79.80"]],
+      regle: "Un besoin courant : garder une seule ligne par groupe, comme la dernière commande de chaque client. La méthode sûre : dans une CTE, ROW_NUMBER donne un numéro à chaque ligne du groupe ; on garde le 1. On obtient un seul gagnant par groupe, même à égalité. Pour que ce soit toujours le même, l'ordre se termine par un critère de départage, comme l'identifiant. Une jointure sur MAX, ou RANK, laisse au contraire passer toutes les lignes à égalité.",
       points: [
         "Ce qui se passe : une ligne par client. Piscines Dumont (client 2) a deux commandes à 1 290 € : le 2e critère, `id DESC`, les départage ; CDE-1006 gagne.",
         "Pourquoi : ROW_NUMBER numérote les lignes de chaque client (`PARTITION BY`) dans l'ordre demandé. Il est calculé au SELECT, après le WHERE : pour filtrer `rn = 1`, il faut une étape au-dessus.",
@@ -124,6 +130,7 @@ LEARNSQL.cours.m06 = {
       titre: "La CTE récursive : exploser une nomenclature",
       exemple: "WITH eclate (composant, qte, niveau) AS (          -- Snowflake : WITH RECURSIVE\n  SELECT composant, qte, 1                         -- l'ancre : sous la racine\n  FROM dbo.nomenclature WHERE compose = 'KIT-COLL'\n  UNION ALL\n  SELECT n.composant, e.qte * n.qte, e.niveau + 1  -- descend d'un niveau\n  FROM dbo.nomenclature AS n JOIN eclate AS e ON n.compose = e.composant\n  WHERE e.niveau < 10                              -- garde-fou\n)\nSELECT composant, qte, niveau FROM eclate ORDER BY niveau, composant;\n-- Piège : lancée sur KIT-COUV (saisi en boucle) sans garde-fou : erreur 530",
       resultat: [["composant", "qte", "niveau"], ["FIL-14", 2, 1], ["POMP-1", 1, 1], ["SABLE-25", 12, 2], ["VANNE-6V", 2, 2], ["JOINT-V", 4, 3]],
+      regle: "Une CTE récursive (qui se relit elle-même) parcourt une structure niveau par niveau : une nomenclature, un organigramme, une série de dates. Elle prend un point de départ, puis répète le même pas, tant que ce pas trouve de nouvelles lignes. Son danger : des données qui bouclent (A contient B, qui contient A). Le moteur ne voit pas la boucle, et la récursion tourne en rond. Un compteur de niveaux, avec une limite, sert donc toujours de garde-fou.",
       points: [
         "Ce qui se passe : les 5 composants du kit, leur quantité pour 1 kit et leur niveau. 2 filtres × 6 sacs = 12 sacs de sable ; 2 vannes × 2 joints = 4 joints (niveau 3).",
         "Pourquoi : une CTE récursive (qui se relit elle-même) a deux parties, empilées par UNION ALL : l'ancre prend ce qui est sous la racine (le kit), puis la partie récursive descend d'un niveau par tour, jusqu'à ne plus rien trouver.",

@@ -33,9 +33,10 @@ LEARNSQL.cours.m07 = {
       titre: "UNION ALL : empiler deux résultats",
       exemple: "-- Les pièces d'AquaBleu (client 1) : commandes et factures, par date\nSELECT 'Commande' AS piece, num_cde AS numero, date_cde AS date_piece, montant_ht\nFROM dbo.commande\nWHERE client_id = 1\nUNION ALL\nSELECT 'Facture', f.num_fact, f.date_fact, f.montant_ht\nFROM dbo.facture AS f JOIN dbo.commande AS c ON c.id = f.cde_id\nWHERE c.client_id = 1\nORDER BY date_piece;",
       resultat: [["piece", "numero", "date_piece", "montant_ht"], ["Commande", "CDE-1001", "2026-03-02", "4780.00"], ["Facture", "FA-2026-0301", "2026-03-03", "4780.00"], ["Commande", "CDE-1003", "2026-03-09", "2385.00"], ["Facture", "FA-2026-0303", "2026-03-10", "2385.00"], ["Commande", "CDE-1007", "2026-04-07", "7950.00"]],
+      regle: "UNION ALL réunit les lignes de deux requêtes dans un seul résultat, sans en retirer aucune. Il ne compare aucune ligne, ce qui le rend plus rapide qu'UNION. Il sert à assembler des données de même forme, venues de plusieurs endroits. Par exemple : les commandes et les factures, les ventes de deux sociétés, l'année en cours et ses archives. Une fois réunies, les lignes ne disent plus d'où elles viennent. Ajoute donc à chaque partie une colonne qui nomme sa source.",
       points: [
         "Ce qui se passe : les 3 commandes d'AquaBleu et ses 2 factures, par date, dans les mêmes colonnes. La constante `piece` (le même texte sur toute la partie) dit d'où vient la ligne.",
-        "Pourquoi : `UNION ALL` ajoute les lignes de la 2e requête à celles de la 1re, sans rien retirer. Les noms des colonnes viennent de la 1re ; ceux de la 2e sont ignorés.",
+        "Pourquoi : les noms des colonnes viennent de la 1re requête ; ceux de la 2e sont ignorés.",
         "Le piège : empiler deux sociétés (deux dossiers Divalto) sans colonne source. Le même code client existe des deux côtés : Power BI additionne deux clients différents.",
         "Le bon réflexe : une constante par partie (`'Commande'`, `'Facture'` ou `'SOC1'`, `'SOC2'`). C'est la base d'une vue qui réunit une table et son archive, ou les sociétés d'un groupe.",
         "Et aussi : un seul `ORDER BY`, à la fin, pour toutes les lignes (section 4)."
@@ -46,9 +47,10 @@ LEARNSQL.cours.m07 = {
       titre: "UNION : les doublons disparaissent, même les vrais",
       exemple: "-- Voulu : CA facturé + commandes en cours, par client\nSELECT client_id, SUM(montant_ht) AS total\nFROM (SELECT c.client_id, f.montant_ht\n      FROM dbo.facture AS f JOIN dbo.commande AS c ON c.id = f.cde_id\n      UNION                 -- piège : il fallait UNION ALL\n      SELECT client_id, montant_ht\n      FROM dbo.commande WHERE statut = 'EN_COURS') AS t\nGROUP BY client_id\nORDER BY client_id;",
       resultat: [["client_id", "total"], [1, "15115.00"], [2, "1290.00"], [4, "318.00"], [6, "79.80"]],
+      regle: "UNION, c'est UNION ALL suivi d'un DISTINCT : après l'empilement, toute ligne en double disparaît, même à l'intérieur d'une seule partie. Deux lignes égales n'en font plus qu'une. C'est voulu quand chaque valeur ne doit sortir qu'une fois, comme dans une liste de codes. C'est une perte quand chaque ligne est une opération : deux ventes identiques restent deux ventes. Dans le doute, choisis UNION ALL.",
       points: [
         "Ce qui se passe : 1 290 € pour Piscines Dumont (client 2), au lieu de 2 580 €. Sa facture FA-2026-0302 et sa commande CDE-1006 font la même ligne : `UNION` n'en garde qu'une.",
-        "Pourquoi : `UNION` = `UNION ALL` + `DISTINCT` : il retire tous les doublons, même ceux d'une seule partie. Pour les trouver, il trie ou hache tout le résultat (range chaque ligne par empreinte) : c'est plus lent.",
+        "Pourquoi : pour trouver les doublons, `UNION` trie ou hache tout le résultat (range chaque ligne par empreinte) : c'est plus lent.",
         "Le piège : sur des faits (ventes, factures, stock), deux lignes identiques peuvent être vraies. `UNION` les fusionne sans erreur, et le CA baisse. Un `DISTINCT` dans chaque partie ne sert à rien.",
         "Le bon réflexe : `UNION ALL` par défaut (ici : 2 580 €). `UNION` seulement pour une liste de valeurs uniques, comme les codes clients de l'ERP ou de l'EDI.",
         "Et aussi : pour le CA net, empile les avoirs avec le signe moins (`-montant`), puis un seul `GROUP BY`. Une jointure facture-avoir multiplierait les sommes (m05)."
@@ -59,9 +61,10 @@ LEARNSQL.cours.m07 = {
       titre: "Les colonnes : par position, jamais par nom",
       exemple: "-- La 2e partie, copiée d'une autre requête, a nom et ville inversés\nSELECT nom, ville FROM dbo.client WHERE type = 'GD'\nUNION ALL\nSELECT ville, nom FROM dbo.client WHERE pays = 'CH'\nORDER BY nom;",
       resultat: [["nom", "ville"], ["AquaBleu", "Lyon"], ["Genève", "Pool & Garden"]],
+      regle: "Une union associe les colonnes par leur position : la 1re avec la 1re, la 2e avec la 2e. Les noms n'y jouent aucun rôle (sauf avec `BY NAME`, sur Snowflake). Le moteur ne vérifie pas non plus le sens : deux colonnes de texte inversées passent sans erreur. C'est donc à toi de garder le même ordre dans chaque partie, sans jamais écrire `SELECT *`.",
       points: [
         "Ce qui se passe : « Genève » arrive dans `nom`, « Pool & Garden » dans `ville`. Aucune erreur : ce sont deux textes, et le moteur ne lit pas les noms.",
-        "Pourquoi : une union associe les colonnes par position. Il faut le même nombre de colonnes et des types compatibles ; le résultat prend le plus large : `VARCHAR(50)` plutôt que `VARCHAR(5)`, `DECIMAL` plutôt qu'`INT`.",
+        "Pourquoi : il faut le même nombre de colonnes et des types compatibles ; le résultat prend le plus large : `VARCHAR(50)` plutôt que `VARCHAR(5)`, `DECIMAL` plutôt qu'`INT`.",
         "Le piège : `SELECT *` dans une vue `UNION ALL` : si une table gagne une colonne, la vue plante ou décale tout. Et `SELECT 1 UNION ALL SELECT 'A'` plante : le nombre l'emporte, et 'A' n'en est pas un.",
         "Le bon réflexe : liste les colonnes, même ordre, même type, dans chaque partie. Colonne absente : `NULL AS libelle` ; type à aligner : `CAST(id AS varchar(10))`. Mêmes règles pour `INTERSECT` et `EXCEPT`.",
         "SQL Server / Snowflake : deux bases SQL Server de collations différentes (règles de comparaison des textes) font planter l'union : ajoute `COLLATE`. Snowflake sait associer par nom : `UNION ALL BY NAME`."
@@ -72,9 +75,10 @@ LEARNSQL.cours.m07 = {
       titre: "ORDER BY et TOP : un seul tri, à la fin",
       exemple: "-- Piège : TOP (2) directement dans chaque partie = 2 lignes quelconques\n-- Juste : top 2 des livrées + top 2 des en cours\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'LIVREE' ORDER BY montant_ht DESC) AS l\nUNION ALL\nSELECT num_cde, statut, montant_ht\nFROM (SELECT TOP (2) num_cde, statut, montant_ht FROM dbo.commande\n      WHERE statut = 'EN_COURS' ORDER BY montant_ht DESC) AS e\nORDER BY montant_ht DESC;",
       resultat: [["num_cde", "statut", "montant_ht"], ["CDE-1007", "EN_COURS", "7950.00"], ["CDE-1001", "LIVREE", "4780.00"], ["CDE-1003", "LIVREE", "2385.00"], ["CDE-1006", "EN_COURS", "1290.00"]],
+      regle: "Une union se trie une seule fois, tout à la fin. Le dernier ORDER BY trie alors toutes les lignes des deux parties, avec les noms de colonnes de la 1re. Sans lui, aucun ordre n'est garanti. Une partie qui a son propre tri, comme un top 3, va dans une table dérivée (une requête dans le FROM).",
       points: [
         "Ce qui se passe : le top 2 de chaque partie, puis un tri sur les 4 lignes. Chaque `TOP` vit dans une table dérivée (une requête dans le `FROM`), avec son `ORDER BY`.",
-        "Pourquoi : dans une union, `ORDER BY` trie le résultat complet : une seule fois, à la fin, avec les noms de la 1re partie. Placé avant `UNION ALL` : erreur de syntaxe.",
+        "Pourquoi : placé avant `UNION ALL`, un `ORDER BY` donne une erreur de syntaxe.",
         "Le piège : `TOP (2)` dans chaque partie, `ORDER BY` à la fin : pas d'erreur, mais les `TOP` passent avant le tri et prennent 2 commandes quelconques. Et un `WHERE` ne filtre que sa partie.",
         "Le bon réflexe : une table dérivée par `TOP`, un `WHERE` dans chaque partie. Sans tri, A ne sort pas forcément avant B : `1 AS ordre` dans A, `2` dans B, puis `ORDER BY ordre`.",
         "SQL Server / Snowflake : limiter tout le résultat : `OFFSET 0 ROWS FETCH NEXT 3 ROWS ONLY` après l'`ORDER BY` final (SQL Server), `LIMIT 3` (Snowflake). Un top par partie : table dérivée avec `LIMIT`."
@@ -85,8 +89,9 @@ LEARNSQL.cours.m07 = {
       titre: "INTERSECT et EXCEPT : le commun et le manquant",
       exemple: "-- Réassort : articles stockés à Lyon (dépôt 1), absents de Nantes (dépôt 3)\nSELECT article_id FROM dbo.stock_depot WHERE depot_id = 1\nEXCEPT\nSELECT article_id FROM dbo.stock_depot WHERE depot_id = 3\nORDER BY article_id;\n-- Dans l'autre sens (dépôt 3 EXCEPT dépôt 1) : 0 ligne",
       resultat: [["article_id"], [2], [4], [6]],
+      regle: "INTERSECT garde les lignes présentes des deux côtés : le commun. EXCEPT garde les lignes du 1er résultat absentes du 2e : le manquant. On s'en sert pour comparer deux listes ou deux tables. Comme UNION, ils associent les colonnes par position. EXCEPT, lui, a un sens : `B EXCEPT A` pose une autre question que `A EXCEPT B`.",
       points: [
-        "Ce qui se passe : les articles 2, 4 et 6 (CHL-25, FIL-14, ROB-X) sont à Lyon, pas à Nantes. `EXCEPT` garde les lignes de la 1re requête absentes de la 2e ; `INTERSECT`, celles des deux côtés.",
+        "Ce qui se passe : les articles 2, 4 et 6 (CHL-25, FIL-14, ROB-X) sont à Lyon, pas à Nantes.",
         "Pourquoi : les deux comparent des lignes entières et rendent un résultat sans doublon : `A INTERSECT A` revient à un `DISTINCT`, et `A EXCEPT A` est toujours vide.",
         "Le piège : le sens compte. Nantes `EXCEPT` Lyon renvoie 0 ligne : tout ce qui est à Nantes est aussi à Lyon. Un contrôle écrit à l'envers dit « rien à signaler ».",
         "Le bon réflexe : dis d'abord la question : « dans A, pas dans B » s'écrit `A EXCEPT B`. Ne mets que les colonnes qui doivent être égales : avec `qte` en plus, plus rien n'est commun.",
@@ -98,9 +103,10 @@ LEARNSQL.cours.m07 = {
       titre: "EXCEPT et NULL : deux cases vides sont égales",
       exemple: "-- Piège (m02) : 0 ligne, car le flux 3 (rejeté) a un cde_id NULL\nSELECT id FROM dbo.commande\nWHERE id NOT IN (SELECT cde_id FROM dbo.flux_edi);\n-- Juste : les commandes sans flux EDI (résultat ci-dessous)\nSELECT id FROM dbo.commande\nEXCEPT\nSELECT cde_id FROM dbo.flux_edi\nORDER BY id;",
       resultat: [["id"], [2], [4], [5], [6], [8]],
+      regle: "Avec `=`, deux NULL ne sont pas égaux : la comparaison reste inconnue. UNION, INTERSECT et EXCEPT, eux, traitent deux NULL comme une même valeur, comme le fait DISTINCT. EXCEPT échappe donc au piège de NOT IN, qu'un seul NULL dans la liste rend vide. Pour savoir si deux lignes sont identiques, cases vides comprises, EXCEPT est plus sûr qu'une jointure.",
       points: [
         "Ce qui se passe : `EXCEPT` trouve les 5 commandes sans flux EDI ; `NOT IN` renvoie 0 ligne, car un NULL dans la liste bloque tout (m02).",
-        "Pourquoi : pour `UNION`, `INTERSECT` et `EXCEPT`, deux NULL sont « pareils », comme pour `DISTINCT`. Le NULL du flux 3 est une simple valeur : il ne bloque rien. Avec `=`, NULL = NULL reste inconnu.",
+        "Pourquoi : le NULL du flux 3 est une simple valeur : il ne bloque rien.",
         "Le piège : comparer deux tables par jointure (un `=` par colonne) : une ville NULL ne retrouve pas sa jumelle. Testée sur `client` contre elle-même (code, nom, ville), la jointure voit un écart (Camping Les Flots) ; `EXCEPT`, aucun.",
         "Le bon réflexe : `EXCEPT` pour comparer des lignes entières. Il ne rend que les colonnes comparées : pour afficher le client ou le montant, passe par `NOT EXISTS` (m06) ou une jointure.",
         "Et aussi : sur la clé seule (`EXCEPT` ou `NOT EXISTS`), tu trouves les absents ; sur toutes les colonnes, les absents et les modifiés."
@@ -111,9 +117,10 @@ LEARNSQL.cours.m07 = {
       titre: "Comparer deux tables : EXCEPT dans les deux sens",
       exemple: "-- Rapprochement commandes / factures (n° + montant), dans les deux sens\n(SELECT id, montant_ht FROM dbo.commande\n EXCEPT\n SELECT cde_id, montant_ht FROM dbo.facture)\nUNION ALL\n(SELECT cde_id, montant_ht FROM dbo.facture\n EXCEPT\n SELECT id, montant_ht FROM dbo.commande)\nORDER BY id;   -- sans les parenthèses : 0 ligne",
       resultat: [["id", "montant_ht"], [4, "549.00"], [5, "318.00"], [6, "1290.00"], [7, "7950.00"]],
+      regle: "Deux tables sont identiques quand rien ne manque, dans aucun sens. Il faut donc deux EXCEPT : A sans B, puis B sans A. Comme EXCEPT retire les doublons, une ligne en double passe inaperçue : compare aussi le nombre de lignes. Pour réunir les deux sens, mets chaque EXCEPT entre parenthèses ; sans elles, le contrôle devient faux. Et « identique » dépend du moteur : SQL Server peut juger 'LYON' égal à 'Lyon', Snowflake, par défaut, non.",
       points: [
         "Ce qui se passe : 4 écarts, tous dans le 1er sens : l'annulée et les 3 commandes en cours, sans facture. Le 2e sens est vide : chaque facture a le bon montant.",
-        "Pourquoi : `A EXCEPT B` ne voit que les lignes de A : le 2e sens seul aurait dit « 0 écart ». Et `EXCEPT` dédoublonne : une ligne chargée deux fois passe inaperçue. Compare aussi les `COUNT(*)`.",
+        "Pourquoi : `A EXCEPT B` ne voit que les lignes de A : le 2e sens seul aurait dit « 0 écart ».",
         "Le piège : sans parenthèses, le moteur lit de gauche à droite : `((commande EXCEPT facture) UNION ALL facture) EXCEPT commande`. Le dernier `EXCEPT` efface tout. Seul `INTERSECT` passe avant `UNION` et `EXCEPT`.",
         "Le bon réflexe : des parenthèses, et une colonne qui dit le sens (`'sans facture' AS ecart`), la même des deux côtés de l'`EXCEPT`. Compter : `SELECT COUNT(*) FROM (… EXCEPT …) AS d`.",
         "SQL Server / Snowflake : SQL Server compare selon la collation : en French_CI_AS, 'LYON' = 'Lyon', espaces de fin ignorés. Snowflake compare exactement : le même contrôle y trouve des écarts (m02)."

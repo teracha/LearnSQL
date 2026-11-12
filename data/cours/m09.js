@@ -61,9 +61,10 @@ LEARNSQL.cours.m09 = {
       titre: "INSERT : nommer les colonnes, toujours",
       exemple: "-- Piège : sans liste, 6 valeurs pour 7 colonnes : erreur 213\nINSERT INTO dbo.client VALUES (8, 'C008', 'Spa Azur', 'Toulon', 'FR', 'PRO');\n\n-- Juste : la liste des colonnes\nINSERT INTO dbo.client (id, code, nom, ville, pays, type)\nVALUES (8, 'C008', 'Spa Azur', 'Toulon', 'FR', 'PRO'),\n       (9, 'C009', 'Piscinas Lopez', NULL, 'ES', 'PRO');",
       resultat: [["code", "nom", "ville", "pays", "siren"], ["C008", "Spa Azur", "Toulon", "FR", null], ["C009", "Piscinas Lopez", null, "ES", null]],
+      regle: "`INSERT` ajoute des lignes dans une table : des valeurs écrites (`VALUES`), ou le résultat d'une requête (`INSERT … SELECT`). La liste des colonnes dit, par leur nom, où va chaque valeur. Sans elle, le moteur range les valeurs par position, dans l'ordre actuel des colonnes de la table. Le jour où la table change, l'INSERT plante, ou remplit les mauvaises colonnes sans erreur. La règle : nomme toujours les colonnes, quelle que soit la source des valeurs.",
       points: [
         "Ce qui se passe : la 1re requête plante sans rien insérer : il manque le siren. La 2e crée les 2 clients ; le siren, absent de la liste, vaut NULL (une case vide).",
-        "Pourquoi : sans liste, le moteur range les valeurs dans l'ordre des colonnes de la table. Avec la liste, chaque valeur va dans la colonne nommée ; une colonne absente prend sa valeur par défaut (`DEFAULT`), sinon NULL.",
+        "Pourquoi : avec la liste, une colonne absente prend sa valeur par défaut (`DEFAULT`), sinon NULL.",
         "Le piège : l'INSERT sans liste, ou `INSERT … SELECT *`, qui marche depuis des années. Une colonne s'ajoute : il plante. Deux colonnes du même type inversées : il les remplit à l'envers, sans erreur.",
         "Le bon réflexe : la liste, toujours, aussi dans `INSERT … SELECT` (insérer le résultat d'une requête), qui range par position, pas par nom, comme `UNION` (m07). Une colonne NOT NULL (obligatoire) sans DEFAULT doit y être.",
         "SQL Server / Snowflake : même écriture. `INSERT … VALUES` : 1 000 lignes au plus sur SQL Server, 200 000 sur Snowflake. Au-delà, charge un fichier : `BULK INSERT`, ou `COPY INTO` sur Snowflake."
@@ -74,9 +75,10 @@ LEARNSQL.cours.m09 = {
       titre: "UPDATE et DELETE : le SELECT d'abord",
       exemple: "-- 1. Le SELECT : quelles lignes ? combien ?\nSELECT code, prix_tarif, prix_tarif * 1.10 AS nouveau\nFROM dbo.article\nWHERE famille = 'CHIMIE';\n-- 2. Le même WHERE sous l'UPDATE : 3 lignes attendues\nUPDATE dbo.article\nSET prix_tarif = prix_tarif * 1.10\nWHERE famille = 'CHIMIE';\n-- Piège : sans WHERE, les 8 articles prennent +10 %",
       resultat: [["code", "prix_tarif"], ["CHL-5", "43.89"], ["CHL-25", "174.90"], ["PH-5", "26.95"]],
+      regle: "`UPDATE` modifie, et `DELETE` supprime, toutes les lignes que garde le WHERE. Le WHERE est le seul garde-fou : le moteur ne vérifie ni le nombre de lignes, ni ton intention. Or un même WHERE garde les mêmes lignes, dans un SELECT comme dans un UPDATE. Le SELECT est donc un essai sans risque : ce qu'il montre, l'UPDATE ou le DELETE le touchera. Après, le nombre de lignes touchées doit égaler celui du SELECT.",
       points: [
         "Ce qui se passe : le SELECT montre les 3 articles de chimie et leur futur prix. L'UPDATE, avec le même WHERE, en modifie 3 : le compte attendu. Le tableau les montre après.",
-        "Pourquoi : `UPDATE` et `DELETE` touchent toutes les lignes que garde le WHERE. Sans WHERE, toute la table, sans erreur ni question. Et 0 ligne touchée n'est pas une erreur non plus : à toi de compter.",
+        "Pourquoi : sans WHERE, c'est toute la table, sans erreur ni question. Et 0 ligne touchée n'est pas une erreur non plus : à toi de compter.",
         "Le piège : le WHERE oublié, ou laissé hors de la sélection. Tu surlignes `UPDATE … SET` sans la ligne du WHERE, F5 : SSMS n'exécute que le texte surligné, et les 8 articles prennent +10 %.",
         "Le bon réflexe : écris le SELECT, compte, puis garde le même WHERE sous l'UPDATE. En production, ouvre une transaction (un bloc validé par COMMIT ou annulé par ROLLBACK : m11) et lis `@@ROWCOUNT` (les lignes touchées) juste après.",
         "Et aussi : le SET calcule tout avec les valeurs d'avant (`SET a = b, b = a` échange). Un CASE sans ELSE met NULL aux lignes oubliées : prix effacés, ou erreur sur une colonne NOT NULL comme `prix_tarif`."
@@ -87,6 +89,7 @@ LEARNSQL.cours.m09 = {
       titre: "UPDATE avec une jointure : une source unique",
       exemple: "-- Tarif EDI reçu : CHL-5 y est deux fois\nUPDATE a\nSET a.prix_tarif = t.prix\nFROM dbo.article AS a\nJOIN (VALUES ('CHL-5', 41.50), ('CHL-5', 42.90), ('PH-5', 25.90))\n     AS t(code, prix) ON t.code = a.code;\n-- Snowflake : UPDATE VENTES.ARTICLE a SET prix_tarif = t.prix\n--   FROM (VALUES …) AS t(code, prix) WHERE t.code = a.code;",
       resultat: "Aucune erreur. PH-5 passe à 25.90 ; CHL-5 prend 41.50 ou 42.90, au hasard.",
+      regle: "Un UPDATE avec jointure va chercher la nouvelle valeur dans une autre table : un tarif reçu, un fichier EDI. Seules les lignes qui trouvent une correspondance changent ; les autres restent telles quelles. Le danger vient des doublons de la source. Une case ne peut recevoir qu'une valeur : avec deux candidates, le moteur tranche seul, sans message. La règle : une seule ligne source par clé, contrôlée avant l'UPDATE. Pour recopier un total, on agrège la source d'abord.",
       points: [
         "Ce qui se passe : pas d'erreur, pas d'alerte. CHL-5 trouve deux lignes de tarif et en garde une : laquelle, personne ne le sait, et cela peut changer d'une exécution à l'autre.",
         "Pourquoi : `UPDATE a … FROM … JOIN` modifie chaque article qui trouve un tarif, et seulement eux. Un article ne prend qu'une valeur : face à deux lignes, le moteur en garde une, sans prévenir (« résultat indéfini », dit Microsoft).",
@@ -100,9 +103,10 @@ LEARNSQL.cours.m09 = {
       titre: "DELETE : la jointure et les clés étrangères",
       exemple: "-- Supprimer les lignes (ligne_cde) des commandes annulées : CDE-1004\nDELETE l\nFROM dbo.ligne_cde AS l\nJOIN dbo.commande AS c ON c.id = l.cde_id\nWHERE c.statut = 'ANNULEE';\n-- Snowflake : DELETE FROM VENTES.LIGNE_CDE l USING VENTES.COMMANDE c\n--   WHERE c.id = l.cde_id AND c.statut = 'ANNULEE';\n-- Piège : supprimer d'abord la commande : erreur 547",
       resultat: "1 ligne supprimée : la n° 6 de ligne_cde (1 filtre FIL-14, 549.00). CDE-1004 reste, sans ligne.",
+      regle: "Un DELETE avec jointure ne supprime que dans la table qu'il nomme, jamais dans les tables jointes. Une clé étrangère (une colonne qui pointe vers une ligne d'une autre table) lie un enfant à son parent. Par défaut, elle protège le parent : il ne peut pas partir tant qu'un enfant pointe vers lui. On supprime donc les enfants d'abord, puis le parent. Snowflake, lui, ne vérifie pas ces clés : cet ordre reste à ta charge.",
       points: [
         "Ce qui se passe : la seule ligne de `ligne_cde` liée à CDE-1004 part. `DELETE l` dit quelle table perd des lignes : celle de l'alias `l`. La jointure choisit seulement lesquelles.",
-        "Pourquoi : `ligne_cde.cde_id` est une clé étrangère (une colonne qui pointe vers une commande). Tant qu'une ligne de `ligne_cde` pointe vers CDE-1004, SQL Server refuse de supprimer la commande : erreur 547. Les enfants d'abord, puis le parent.",
+        "Pourquoi : `ligne_cde.cde_id` est une clé étrangère (une colonne qui pointe vers une commande). Tant qu'une ligne de `ligne_cde` pointe vers CDE-1004, SQL Server refuse de supprimer la commande : erreur 547.",
         "Le piège : `ON DELETE CASCADE` sur la clé : supprimer un client efface toutes ses commandes, sans prévenir. Et Snowflake ne vérifie pas les clés étrangères : le DELETE du parent passe, et laisse des lignes orphelines (sans parent).",
         "Le bon réflexe : dans un ERP, désactive plutôt que supprimer (`actif = 0`, la suppression logique) : l'historique reste ; une vue filtre `actif = 1` pour les rapports. Orphelines à purger : `NOT EXISTS` vers le parent (m06).",
         "SQL Server / Snowflake : avec `USING`, sans le lien `c.id = l.cde_id`, toute la table part dès qu'une commande est annulée. Sur SQL Server, une clé étrangère sans index ralentit le DELETE du parent."
@@ -113,6 +117,7 @@ LEARNSQL.cours.m09 = {
       titre: "Vider ou purger : TRUNCATE, ou DELETE par lots",
       exemple: "-- Purge des flux de mars, par lots de 1 000 lignes\nWHILE 1 = 1\nBEGIN\n  DELETE TOP (1000) FROM dbo.flux_edi\n  WHERE date_recu < '20260401';\n  IF @@ROWCOUNT < 1000 BREAK;   -- dernier lot : on sort\nEND;",
       resultat: "1 tour : 4 flux supprimés (1 à 4, de mars). @@ROWCOUNT vaut 4, moins que 1 000 : la boucle s'arrête.",
+      regle: "`TRUNCATE TABLE` vide toute une table d'un coup ; `DELETE` choisit ses lignes avec un WHERE. Sur SQL Server, un seul DELETE géant bloque toute la table, et l'ERP attend. On supprime donc par lots, assez petits pour ne pas bloquer la table, en boucle jusqu'au dernier. Un gros UPDATE se découpe de la même façon. Snowflake ne verrouille pas ligne par ligne : là, un seul DELETE suffit.",
       points: [
         "Ce qui se passe : ici, un tour suffit. Sur 500 000 lignes, ce serait 500 petits DELETE ; une pause entre deux (`WAITFOR DELAY '00:00:01'`) laisse travailler l'ERP.",
         "Pourquoi : SQL Server pose un verrou (un « occupé ») sur chaque ligne supprimée. Au-delà de 5 000 verrous sur une table, il les remplace par un seul, sur toute la table : l'escalade. Un lot de 1 000 reste dessous.",
@@ -126,9 +131,10 @@ LEARNSQL.cours.m09 = {
       titre: "MERGE : synchroniser une table avec une source",
       exemple: "-- Inventaire de Lyon : CHL-5 compté 55, POMP-1 trouvée : 10\nMERGE INTO dbo.stock_depot AS s\nUSING (VALUES (1, 1, 55), (5, 1, 10)) AS inv(article_id, depot_id, qte)\n   ON s.article_id = inv.article_id AND s.depot_id = inv.depot_id\nWHEN MATCHED AND s.qte <> inv.qte THEN\n     UPDATE SET qte = inv.qte\nWHEN NOT MATCHED THEN\n     INSERT (article_id, depot_id, qte) VALUES (inv.article_id, inv.depot_id, inv.qte);\n-- Piège : CHL-5 deux fois dans la source : erreur 8672",
       resultat: [["article_id", "depot_id", "qte"], [1, 1, 55], [5, 1, 10]],
+      regle: "MERGE synchronise une table, la cible, avec une source : un inventaire, un tarif, un flux EDI. C'est un UPDATE et un INSERT en une seule instruction, l'« upsert ». Ce qui existe déjà est mis à jour, ce qui est nouveau est créé. Comme pour un UPDATE avec jointure, la source ne doit avoir qu'une ligne par clé : on la dédoublonne avant. Et une ligne absente de la source n'a pas forcément disparu : on ne supprime qu'avec une source complète.",
       points: [
         "Ce qui se passe : CHL-5 existe à Lyon, avec une autre quantité : 60 devient 55. POMP-1 n'y est pas : une ligne est créée. Les 14 autres stocks ne bougent pas.",
-        "Pourquoi : MERGE joint la source (l'inventaire) à la cible (la table) par le ON. Trouvé des deux côtés : `WHEN MATCHED`, mise à jour. Seulement dans la source : `WHEN NOT MATCHED`, insertion. C'est l'« upsert », en une instruction.",
+        "Pourquoi : MERGE joint la source (l'inventaire) à la cible (la table) par le ON. Trouvé des deux côtés : `WHEN MATCHED`, mise à jour. Seulement dans la source : `WHEN NOT MATCHED`, insertion.",
         "Le piège : une ligne source en double, CHL-5 compté deux fois. SQL Server refuse tout le MERGE : erreur 8672. Snowflake aussi, par défaut ; avec `ERROR_ON_NONDETERMINISTIC_MERGE = FALSE`, il prend une des deux lignes, au hasard.",
         "Le bon réflexe : dédoublonne la source avant (GROUP BY, ou ROW_NUMBER = 1), et écarte les clés NULL : elles ne trouvent jamais la cible et s'insèrent à chaque passage. Sur SQL Server, le `;` final est obligatoire.",
         "SQL Server / Snowflake : `WHEN NOT MATCHED BY SOURCE THEN DELETE` (SQL Server seul) efface ce qui manque dans la source : ici 14 stocks, Toulouse et Nantes compris ! Seulement avec une source complète, et limité au dépôt (`AND s.depot_id = 1`). Snowflake : DELETE à part."
@@ -139,6 +145,7 @@ LEARNSQL.cours.m09 = {
       titre: "OUTPUT : voir ce qui a changé",
       exemple: "-- Commandes en cours livrées : la trace avant / après\nUPDATE dbo.commande\nSET statut = 'LIVREE'\nOUTPUT deleted.num_cde, deleted.statut AS avant, inserted.statut AS apres\nWHERE statut = 'EN_COURS';\n-- Snowflake : pas d'OUTPUT ; l'UPDATE rend « number of rows updated : 3 »",
       resultat: [["num_cde", "avant", "apres"], ["CDE-1005", "EN_COURS", "LIVREE"], ["CDE-1006", "EN_COURS", "LIVREE"], ["CDE-1007", "EN_COURS", "LIVREE"]],
+      regle: "Après un UPDATE ou un DELETE, l'ancienne valeur n'est plus dans la table. Sur SQL Server, la trace de l'avant et de l'après se prend donc pendant l'instruction : c'est le rôle d'`OUTPUT`. Il rend chaque ligne touchée, avec ses valeurs d'avant et d'après, et peut les écrire dans une table d'historique. Snowflake n'a pas d'OUTPUT, mais Time Travel permet de relire la table telle qu'elle était juste avant.",
       points: [
         "Ce qui se passe : une ligne par commande modifiée, avec son statut d'avant et d'après : les 3 commandes en cours passent à LIVREE. L'ordre des lignes rendues n'est pas garanti.",
         "Pourquoi : pendant l'instruction, SQL Server tient deux tables cachées : `deleted` (les lignes avant) et `inserted` (après). Un INSERT n'a que `inserted`, un DELETE que `deleted`, un UPDATE les deux. Un trigger (code lancé à chaque modification) lit les mêmes.",

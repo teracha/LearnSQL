@@ -73,9 +73,10 @@ LEARNSQL.cours.m10 = {
       titre: "CREATE TABLE : un type juste pour chaque colonne",
       exemple: "CREATE TABLE dbo.livraison (\n  id          INT           NOT NULL,\n  num_bl      VARCHAR(12)   NOT NULL,  -- un code : du texte\n  cde_id      INT           NOT NULL,\n  date_prevue DATE          NOT NULL,\n  expedie_le  DATETIME2(0)  NULL,\n  poids_kg    DECIMAL(9,3)  NOT NULL,\n  port_ht     DECIMAL(18,2) NOT NULL   -- de l'argent : jamais FLOAT\n);\nINSERT INTO dbo.livraison (id, num_bl, cde_id, date_prevue, poids_kg, port_ht)\nVALUES (1, 'BL-2026-0042-R', 7, '20260408', 412.5, 85);",
       resultat: "Table créée, vide. L'INSERT est refusé (« String or binary data would be truncated ») : 'BL-2026-0042-R' fait 14 caractères pour 12.",
+      regle: "Le type d'une colonne dit quelles valeurs elle accepte : c'est le premier contrôle des données. Il refuse un texte trop long ou une date qui n'existe pas, sans aucune contrainte à écrire. Plus il est large, moins il protège. On le choisit donc selon ce qu'est la valeur, pas « pour être tranquille ». Un code fait de chiffres reste du texte : si on ne calcule pas dessus, ce n'est pas un nombre. L'argent demande un type exact : DECIMAL, jamais FLOAT.",
       points: [
         "Ce qui se passe : chaque colonne a un nom, un type, et `NULL` ou `NOT NULL` (case vide permise ou non). Le numéro de BL dépasse ses 12 caractères : le type l'a refusé.",
-        "Pourquoi : le type dit ce que la colonne accepte. `DECIMAL(9,3)` garde exactement 9 chiffres, dont 3 décimales ; `DATE` refuse un 31 février ; `VARCHAR(12)`, un 13e caractère. En `VARCHAR(MAX)`, tout entrerait.",
+        "Pourquoi : `DECIMAL(9,3)` garde exactement 9 chiffres, dont 3 décimales ; `DATE` refuse un 31 février ; `VARCHAR(12)`, un 13e caractère. En `VARCHAR(MAX)`, tout entrerait.",
         "Le piège : typer « pour être tranquille ». Un montant en FLOAT dérive de quelques centimes (m03), une date en texte trie mal, un code postal en nombre perd son zéro : 01000 devient 1000.",
         "Le bon réflexe : un code en texte (`CHAR(9)`, longueur fixe, pour un SIREN), l'argent en `DECIMAL(18,2)`, une quantité au mètre en `DECIMAL(12,3)`, un jour en `DATE`, un horodatage en `DATETIME2(0)`, pas `DATETIME`. Table qui grossit vite : id en `BIGINT`.",
         "SQL Server / Snowflake : Snowflake range tout entier en `NUMBER(38,0)` ; son `VARCHAR` est déjà Unicode, comme `NVARCHAR` ; sa longueur contrôle, sans changer la vitesse. `TIMESTAMP` y vaut `TIMESTAMP_NTZ` (sans fuseau) par défaut ; sur SQL Server, ce n'est pas une date."
@@ -86,9 +87,10 @@ LEARNSQL.cours.m10 = {
       titre: "NOT NULL et DEFAULT : rendre une valeur obligatoire",
       exemple: "-- 1. Rendre la ville obligatoire\nALTER TABLE dbo.client ALTER COLUMN ville VARCHAR(40) NOT NULL;\n\n-- 2. Une devise obligatoire, sur une table déjà remplie\nALTER TABLE dbo.commande ADD devise CHAR(3) NOT NULL\n  CONSTRAINT df_commande_devise DEFAULT 'EUR';",
       resultat: "1 : refusé, Camping Les Flots (C007) n'a pas de ville. 2 : réussi, les 8 commandes reçoivent EUR.",
+      regle: "`NOT NULL` rend une valeur obligatoire : aucun INSERT ni UPDATE ne peut laisser la case vide. `DEFAULT` fournit une valeur de départ à la colonne qu'un INSERT laisse de côté. Mais il n'oblige à rien : seul NOT NULL interdit le vide. Toute valeur que le métier exige mérite donc un NOT NULL : c'est la table qui la garantit. Pour rendre obligatoire une colonne déjà remplie, on corrige d'abord ses cases vides : sinon, le moteur refuse.",
       points: [
         "Ce qui se passe : le 1er ordre échoue, une ligne a déjà une ville vide. Le 2e marche : `DEFAULT` (la valeur mise quand l'INSERT n'en donne pas) remplit aussi les 8 commandes déjà là.",
-        "Pourquoi : `NOT NULL` interdit la case vide, à chaque INSERT et UPDATE. Une colonne `NOT NULL` ajoutée à une table pleine doit remplir les lignes existantes : sans DEFAULT, SQL Server refuse.",
+        "Pourquoi : une colonne `NOT NULL` ajoutée à une table pleine doit remplir les lignes existantes : sans DEFAULT, SQL Server refuse.",
         "Le piège : DEFAULT ne joue qu'à l'INSERT, quand la colonne est absente. Un `NULL` écrit en toutes lettres n'est pas remplacé, et un UPDATE ne le recalcule pas : `modifie_le DEFAULT SYSDATETIME()` reste figé.",
         "Le bon réflexe : `NOT NULL` dès que le métier exige la valeur, et toujours `NULL` ou `NOT NULL` écrit (sinon, la connexion décide). Avant de durcir, corrige les vides : `UPDATE … WHERE ville IS NULL`.",
         "SQL Server / Snowflake : Snowflake vérifie NOT NULL aussi : `ALTER COLUMN ville SET NOT NULL`, refusé s'il reste des NULL. Sur SQL Server, `ALTER COLUMN ville VARCHAR(80)` sans `NOT NULL` rend la colonne facultative : réécris la définition complète."
@@ -99,9 +101,10 @@ LEARNSQL.cours.m10 = {
       titre: "Clé primaire et IDENTITY : un numéro par ligne, avec des trous",
       exemple: "CREATE TABLE dbo.avoir (\n  id         INT IDENTITY(1,1) NOT NULL,  -- numéro automatique\n  num_avoir  VARCHAR(12)   NOT NULL,      -- le numéro légal\n  montant_ht DECIMAL(18,2) NOT NULL,\n  CONSTRAINT pk_avoir PRIMARY KEY (id),\n  CONSTRAINT uq_avoir_num UNIQUE (num_avoir));\nINSERT INTO dbo.avoir (num_avoir, montant_ht) VALUES ('AV-2026-001', 159.00);\nINSERT INTO dbo.avoir (num_avoir, montant_ht) VALUES ('AV-2026-001', 35.90);  -- doublon\nINSERT INTO dbo.avoir (num_avoir, montant_ht) VALUES ('AV-2026-002', 35.90);\nSELECT id, num_avoir, montant_ht FROM dbo.avoir;",
       resultat: [["id", "num_avoir", "montant_ht"], [1, "AV-2026-001", "159.00"], [3, "AV-2026-002", "35.90"]],
+      regle: "La clé primaire (`PRIMARY KEY`) désigne chaque ligne : c'est `UNIQUE` (pas de doublon) et `NOT NULL` à la fois. Elle ne doit jamais changer : on prend souvent une clé technique, un numéro automatique sans sens métier donné par `IDENTITY`. Le numéro métier, celui que lisent les utilisateurs, reste à côté, sous `UNIQUE`. IDENTITY laisse des trous : un INSERT refusé ou annulé perd son numéro. Il ne sert donc jamais pour une numérotation légale, comme celle des factures. Snowflake accepte la clé primaire, mais ne la vérifie pas.",
       points: [
         "Ce qui se passe : le 2e avoir est refusé (erreur 2627), son numéro existe déjà. Mais il a consommé l'id 2 : l'avoir suivant reçoit 3. `IDENTITY(1,1)` (départ 1, pas de 1) numérote seul.",
-        "Pourquoi : la clé primaire (PRIMARY KEY) identifie chaque ligne : unique, jamais NULL. Une clé technique (un numéro sans sens métier) ne change jamais ; un code client ou un SIRET peut changer. Le numéro métier reste à côté, sous `UNIQUE`.",
+        "Pourquoi : une clé technique ne change jamais ; un code client ou un SIRET peut changer.",
         "Le piège : compter sur IDENTITY pour une suite sans trou. Un INSERT refusé ou annulé (ROLLBACK) perd son numéro ; un redémarrage peut sauter un bloc. Or factures et avoirs exigent une suite chronologique et continue.",
         "Le bon réflexe : une clé technique en PRIMARY KEY, `UNIQUE` sur la clé métier. Clé sur deux colonnes : `PRIMARY KEY (article_id, depot_id)`, comme `stock_depot`. Nomme chaque contrainte (`pk_`, `uq_`, `fk_`, `ck_`, `df_`) : l'erreur cite ce nom.",
         "SQL Server / Snowflake : Snowflake écrit `AUTOINCREMENT` (ou `IDENTITY`), ou une séquence (un compteur à part, `seq.NEXTVAL`) : numéros uniques, pas forcément dans l'ordre. Et il ne vérifie ni la clé primaire ni `UNIQUE` : le 2e AV-2026-001 entrerait."
@@ -112,6 +115,7 @@ LEARNSQL.cours.m10 = {
       titre: "UNIQUE : chercher les doublons avant de poser la règle",
       exemple: "-- Avant : ALTER TABLE dbo.client ADD CONSTRAINT uq_client_siren UNIQUE (siren);\n-- Quelles lignes bloqueraient ?\nSELECT siren, COUNT(*) AS nb, MIN(code) AS code_1, MAX(code) AS code_2\nFROM dbo.client\nGROUP BY siren\nHAVING COUNT(*) > 1\nORDER BY siren;",
       resultat: [["siren", "nb", "code_1", "code_2"], [null, 2, "C003", "C005"], ["423456789", 2, "C002", "C006"]],
+      regle: "UNIQUE garantit qu'une valeur n'apparaît qu'une fois dans la colonne. Posée sur une table déjà remplie, la règle vérifie d'abord l'existant : un seul doublon, et elle est refusée. On cherche donc les doublons avant, avec un GROUP BY et `HAVING COUNT(*) > 1`. Chaque doublon pose alors une question : erreur de saisie à nettoyer, ou règle mal choisie ? Sur Snowflake, UNIQUE est déclaré mais pas vérifié : ce contrôle reste à faire soi-même, après chaque chargement.",
       points: [
         "Ce qui se passe : deux groupes bloquent. Deux clients n'ont pas de SIREN (C003, C005), et les 2 agences Piscines Dumont partagent le même. L'`ALTER TABLE` serait refusé (erreur 1505), en citant un seul doublon.",
         "Pourquoi : UNIQUE interdit deux valeurs égales, et là, SQL Server compte deux NULL comme égaux. Pour plusieurs NULL : un index (la table des matières d'une table) unique filtré, `CREATE UNIQUE INDEX ux_client_siren ON dbo.client (siren) WHERE siren IS NOT NULL`.",
@@ -125,6 +129,7 @@ LEARNSQL.cours.m10 = {
       titre: "FOREIGN KEY : pas de ligne pour une commande inconnue",
       exemple: "-- Dans la définition de dbo.ligne_cde :\n--   CONSTRAINT fk_ligne_cde_commande FOREIGN KEY (cde_id) REFERENCES dbo.commande (id)\n-- Une ligne pour la commande 99, qui n'existe pas\nINSERT INTO dbo.ligne_cde (id, cde_id, article_id, qte, prix_unit)\nVALUES (12, 99, 1, 10, 35.90);",
       resultat: "SQL Server : refusé, erreur 547 (conflit avec la contrainte FOREIGN KEY) ; la table garde ses 11 lignes. Snowflake : la ligne entre, orpheline (sans commande).",
+      regle: "Une clé étrangère relie une table à son parent : chaque valeur doit exister dans la clé du parent. Elle empêche ainsi les orphelins, des lignes qui pointent vers rien. Par défaut, elle protège aussi le parent : on ne peut pas le supprimer tant qu'il a des enfants. Une case vide passe : la référence est alors facultative, et NOT NULL la rend obligatoire. Snowflake accepte la clé sans la vérifier : là, c'est à toi de chercher les orphelins.",
       points: [
         "Ce qui se passe : `cde_id` est une clé étrangère (une colonne qui pointe vers la clé d'une autre table) : la commande 99 n'existe pas, refusé. Le flux EDI 3, à `cde_id` NULL, est accepté : NULL passe.",
         "Pourquoi : la clé étrangère pointe vers une PRIMARY KEY ou une colonne UNIQUE du parent, et joue dans les deux sens : supprimer la commande 1, qui a des lignes, est refusé aussi (`NO ACTION`, réglage par défaut).",
@@ -138,6 +143,7 @@ LEARNSQL.cours.m10 = {
       titre: "CHECK : une règle sur chaque ligne",
       exemple: "-- Règle EDI : un flux rejeté doit avoir un motif\nALTER TABLE dbo.flux_edi ADD CONSTRAINT ck_flux_motif\n  CHECK (statut = 'OK' OR motif IS NOT NULL);\n\nUPDATE dbo.flux_edi SET statut = 'REJET' WHERE id = 5;",
       resultat: "Contrainte ajoutée : les 6 flux la respectent. L'UPDATE est refusé (erreur 547, conflit avec la contrainte CHECK) : le flux 5 serait rejeté sans motif.",
+      regle: "Un CHECK est une règle métier écrite dans la table. Il vérifie, à chaque INSERT et UPDATE, les valeurs permises ou la cohérence entre les colonnes d'une ligne. Une case vide passe le CHECK : si la valeur est due, ajoute NOT NULL. Un CHECK juge chaque ligne seule, sans regarder les autres tables. Snowflake le vérifie aussi. Mais pour l'instant, COPY INTO (le chargement de fichiers) échoue sur une table qui en a un.",
       points: [
         "Ce qui se passe : le moteur vérifie d'abord les 6 flux déjà là, puis chaque INSERT et UPDATE : le flux 5 en REJET sans motif est refusé. Ce CHECK compare deux colonnes de la ligne.",
         "Pourquoi : un CHECK refuse seulement quand sa condition est fausse. Avec NULL, elle est « inconnue » (m02) : la ligne passe. `CHECK (qte > 0)` accepte donc une quantité vide ; ajoute `NOT NULL`.",
@@ -151,12 +157,13 @@ LEARNSQL.cours.m10 = {
       titre: "Copier, vider, supprimer : SELECT INTO, TRUNCATE, DROP",
       exemple: "-- Copie de sécurité avant une correction\nSELECT * INTO dbo.client_sauv FROM dbo.client;   -- Snowflake : CREATE TABLE … AS SELECT\n\n-- Pas de clé primaire dans la copie : ce doublon passe\nINSERT INTO dbo.client_sauv (id, code, nom, pays, type)\nVALUES (1, 'C001', 'AquaBleu', 'FR', 'GD');",
       resultat: "7 lignes copiées, puis 1 ajoutée : 8 lignes, dont deux id 1. Sur dbo.client, le même INSERT est refusé (erreur 2627, clé primaire).",
+      regle: "Copier, vider, supprimer : trois gestes à ne pas confondre. `SELECT … INTO` copie les lignes dans une nouvelle table, sans les clés ni les contraintes de la table d'origine. `TRUNCATE` vide toute la table, sans WHERE, et la garde ; `DROP` la supprime, structure comprise. Relancé, un script qui supprime ou recrée une table efface ses données, sans erreur. Un script de déploiement teste donc si la table existe avant d'agir : il peut tourner deux fois sans perte.",
       points: [
         "Ce qui se passe : `SELECT … INTO` crée la table et la remplit : colonnes, types, NOT NULL et IDENTITY suivent. Mais ni clé primaire, ni index, ni contrainte : le doublon entre.",
         "Pourquoi : SELECT INTO copie un résultat de requête, pas une définition de table. Bien pour une sauvegarde datée avant un UPDATE de masse (m09) ; une vraie table : `CREATE TABLE` complet, puis `INSERT … SELECT`.",
         "Le piège : sur Snowflake, `CREATE OR REPLACE TABLE` fait un DROP puis un CREATE. Relancé en production, le script de déploiement recrée la table vide, sans alerte ni erreur.",
         "Le bon réflexe : des scripts relançables sans perte. `DROP TABLE IF EXISTS` pour une table de travail ; sinon `CREATE TABLE IF NOT EXISTS` (Snowflake) ou `IF OBJECT_ID('dbo.t') IS NULL` (SQL Server), puis `ALTER TABLE` pour la suite.",
-        "SQL Server / Snowflake : `TRUNCATE TABLE` vide tout, sans WHERE ; `DROP TABLE` supprime aussi la structure. SQL Server refuse les deux si une clé étrangère pointe vers la table, et TRUNCATE y remet IDENTITY au départ. Snowflake a `UNDROP TABLE` (Time Travel)."
+        "SQL Server / Snowflake : SQL Server refuse TRUNCATE et DROP si une clé étrangère pointe vers la table, et TRUNCATE y remet IDENTITY au départ. Snowflake a `UNDROP TABLE` (Time Travel)."
       ],
       retenir: "SELECT INTO copie les lignes, pas les contraintes. TRUNCATE vide, DROP supprime, CREATE OR REPLACE recrée vide : scripts avec IF (NOT) EXISTS."
     },
