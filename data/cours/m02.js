@@ -75,7 +75,7 @@ LEARNSQL.cours.m02 = {
         "Ce qui se passe : les 3 commandes livrées de mars. La plage va du 1er mars inclus au 1er avril exclu : le signe < sur la fin, pas <=.",
         "Pourquoi : `BETWEEN '20260301' AND '20260331'` marche sur une colonne DATE. Mais sur une colonne DATETIME (date + heure), '20260331' veut dire le 31 mars à minuit : la commande du 31 à 14 h disparaît.",
         "Le piège : `YEAR(date_cde) = 2026`. La fonction enveloppe la colonne ; le moteur ne peut plus utiliser l'index (la table des matières de la table) et lit toutes les lignes. Sur une grosse table, la requête passe de 1 seconde à 1 minute.",
-        "Le bon réflexe : la colonne reste nue, le calcul va du côté de la valeur : `date_cde >= DATEADD(day, -30, GETDATE())` pour les 30 derniers jours. Snowflake aussi lit moins de blocs quand la colonne est nue (module m12).",
+        "Le bon réflexe : la colonne reste nue, le calcul va du côté de la valeur : `date_cde >= DATEADD(day, -30, GETDATE())` pour les 30 derniers jours. Snowflake aussi lit moins de blocs quand la colonne est nue (module m14).",
         "SQL Server / Snowflake : la date du jour s'écrit `CAST(GETDATE() AS date)` sur SQL Server, `CURRENT_DATE` sur Snowflake. Une date écrite '20260301' est lue par SQL Server ; Snowflake la lirait de travers : écris '2026-03-01'."
       ],
       retenir: "Une période : `>= début AND < lendemain de la fin`. La colonne nue, le calcul du côté de la valeur."
