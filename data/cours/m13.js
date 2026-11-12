@@ -71,11 +71,11 @@ LEARNSQL.cours.m13 = {
   sections: [
     {
       titre: "Les variables : SET ou SELECT",
-      exemple: "DECLARE @a INT = 0, @b INT = 0;\n-- 2 fiches à ce nom (2 agences)\nSELECT @a = id FROM dbo.client WHERE nom = 'Piscines Dumont';\nSET @b = (SELECT id FROM dbo.client WHERE nom = 'Piscines Dumont');\n-- Nom mal écrit : aucune fiche\nSELECT @a = id FROM dbo.client WHERE nom = 'Piscine Dumont';\nSET @b = (SELECT id FROM dbo.client WHERE nom = 'Piscine Dumont');",
-      resultat: [["cas", "SELECT @a = id …", "SET @b = (SELECT …)"], ["2 lignes", "2 ou 6, sans erreur", "erreur 512"], ["0 ligne", "inchangée : 2 ou 6", null]],
+      exemple: "DECLARE @a INT = 0, @b INT = 0;\n-- Nom mal écrit : aucune fiche\nSELECT @a = id FROM dbo.client WHERE nom = 'Piscine Dumont';\nSET @b = (SELECT id FROM dbo.client WHERE nom = 'Piscine Dumont');\n-- 2 fiches à ce nom (2 agences)\nSELECT @a = id FROM dbo.client WHERE nom = 'Piscines Dumont';\nSET @b = (SELECT id FROM dbo.client WHERE nom = 'Piscines Dumont');",
+      resultat: [["cas", "SELECT @a = id …", "SET @b = (SELECT …)"], ["0 ligne", "inchangée : 0", null], ["2 lignes", "2 ou 6, sans erreur", "erreur 512"]],
       points: [
-        "Ce qui se passe : avec 2 fiches, SELECT garde l'id de l'une, sans rien dire ; SET s'arrête sur l'erreur 512 (« plus d'une valeur »). Avec 0 fiche, SELECT laisse @a intact (l'id d'avant) ; SET met NULL.",
-        "Pourquoi : `SELECT @a = id FROM …` affecte la variable à chaque ligne lue : la dernière gagne, dans un ordre non garanti ; sans ligne, rien ne change. `SET @b = (sous-requête)` attend une valeur : vide, c'est NULL.",
+        "Ce qui se passe : sans fiche, SELECT laisse @a intact (sa valeur d'avant) ; SET met NULL. Avec 2 fiches, SELECT garde l'id de l'une, sans rien dire ; SET s'arrête sur l'erreur 512 (« plus d'une valeur »).",
+        "Pourquoi : `SELECT @a = id FROM …` prend la valeur de la dernière ligne rendue, dans un ordre non garanti ; sans ligne, rien n'est affecté. `SET @b = (sous-requête)` attend une seule valeur : vide, c'est NULL.",
         "Le piège : une boucle sur les lignes d'un fichier EDI. Le client mal écrit garde l'id du client d'avant : la commande part chez le mauvais client, sans aucune erreur.",
         "Le bon réflexe : une valeur attendue, `SET` avec sous-requête, puis `IF @b IS NULL THROW …` (section 3). Après un SELECT, contrôle `@@ROWCOUNT` (le nombre de lignes lues) : il doit valoir 1.",
         "Et aussi : SET remplit une variable, SELECT plusieurs d'un coup (`SELECT @a = …, @b = …`). `DECLARE @n INT;` vaut NULL, et `@n + 1` aussi : initialise. Une variable vit jusqu'au `GO`, la fin du lot."
