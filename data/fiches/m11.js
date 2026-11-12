@@ -1,5 +1,8 @@
 // Fiche de révision du module m11 : la version courte du cours (l'ancien cours, avant le cours complet).
 // Le cours complet est dans data/cours/m11.js.
+// Relue le 12/11/2026 : alignée sur le cours complet (S2, S5, S6) et ses questions (q04, q08, q10, q36) : XACT_ABORT et
+// erreur d'exécution, @@TRANCOUNT = niveau d'imbrication, THROW dans le retenir, victime annulée (pas tuée), RCSI par défaut
+// sur Azure SQL Database seulement.
 LEARNSQL.fiches.m11 = {
   intro: "Une transaction regroupe plusieurs modifications en un seul bloc : tout réussit, ou tout est annulé. Les verrous protègent les données quand plusieurs personnes travaillent en même temps. Ils expliquent aussi les blocages de l'ERP.",
   sections: [
@@ -19,11 +22,11 @@ LEARNSQL.fiches.m11 = {
       exemple: "SET XACT_ABORT ON;\nBEGIN TRY\n  BEGIN TRAN;\n    UPDATE …;\n    INSERT …;\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  IF @@TRANCOUNT > 0 ROLLBACK;\n  THROW;   -- renvoie l'erreur\nEND CATCH;",
       points: [
         "Par défaut, une erreur n'annule pas toujours la transaction. Piège !",
-        "`SET XACT_ABORT ON` : toute erreur annule la transaction.",
-        "`@@TRANCOUNT` : nombre de transactions ouvertes.",
+        "`SET XACT_ABORT ON` : toute erreur d'exécution annule la transaction.",
+        "`@@TRANCOUNT` : le niveau d'imbrication (0 = aucune transaction ouverte).",
         "Transactions imbriquées : un ROLLBACK annule TOUT, pas seulement la dernière."
       ],
-      retenir: "XACT_ABORT ON + TRY / CATCH + ROLLBACK : le trio de sécurité."
+      retenir: "XACT_ABORT ON + TRY / CATCH + ROLLBACK + THROW : les 4 réflexes de sécurité."
     },
     {
       titre: "Les verrous et les blocages",
@@ -39,7 +42,7 @@ LEARNSQL.fiches.m11 = {
     },
     {
       titre: "Le deadlock (interblocage)",
-      exemple: "-- Session 1 : verrouille A, puis veut B\n-- Session 2 : verrouille B, puis veut A\n-- → chacune attend l'autre : SQL Server en tue une (erreur 1205)",
+      exemple: "-- Session 1 : verrouille A, puis veut B\n-- Session 2 : verrouille B, puis veut A\n-- → chacune attend l'autre : SQL Server en annule une (erreur 1205)",
       points: [
         "Deux sessions s'attendent mutuellement.",
         "SQL Server choisit une « victime » et annule sa transaction.",
@@ -55,7 +58,7 @@ LEARNSQL.fiches.m11 = {
       points: [
         "READ UNCOMMITTED / `NOLOCK` : lit des données non validées. Peut aussi rater ou doubler des lignes !",
         "READ COMMITTED : défaut. Lit seulement ce qui est validé.",
-        "RCSI / SNAPSHOT : lit une version validée, sans bloquer les écritures. Défaut sur Azure SQL.",
+        "RCSI / SNAPSHOT : lit une version validée, sans bloquer les écritures. RCSI : défaut sur Azure SQL Database.",
         "REPEATABLE READ, SERIALIZABLE : plus sûrs, mais plus de blocages.",
         "Snowflake : un seul niveau, READ COMMITTED. Les lectures ne bloquent jamais."
       ],

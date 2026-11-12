@@ -355,7 +355,7 @@ LEARNSQL.questions.m11 = [
     bonne: 1,
     pourquoi: [
       "Non. Sans index, les verrous et les blocages augmentent.",
-      "Oui. RCSI : les lectures lisent la dernière version validée, sans bloquer ni être bloquées. Coût : versions stockées dans tempdb. À valider avec l'éditeur de l'ERP.",
+      "Oui. RCSI : les lectures lisent la dernière version validée, sans bloquer ni être bloquées. Coût : versions stockées dans tempdb (dans la base avec ADR). À valider avec l'éditeur de l'ERP.",
       "Non. Les index réduisent les verrous, mais les lecteurs et les écrivains se gênent encore.",
       "Non. Possible, mais pas toujours acceptable."
     ],
@@ -381,7 +381,7 @@ LEARNSQL.questions.m11 = [
   },
   {
     id: "m11-q22", dialecte: "SQL Server",
-    q: "Où SQL Server stocke-t-il les anciennes versions des lignes avec RCSI / SNAPSHOT ?",
+    q: "Par défaut, où SQL Server stocke-t-il les anciennes versions des lignes avec RCSI / SNAPSHOT ?",
     choix: [
       "Dans le journal",
       "Dans tempdb (version store)",
@@ -391,11 +391,11 @@ LEARNSQL.questions.m11 = [
     bonne: 1,
     pourquoi: [
       "Non. Le journal sert à la reprise, pas aux versions.",
-      "Oui. Surveiller la taille de tempdb, surtout avec de longues transactions.",
-      "Non. La table garde seulement la version actuelle.",
-      "Non. Elles sont bien gardées, dans tempdb."
+      "Oui. Surveille la taille de tempdb si des transactions durent. Avec ADR (récupération accélérée : option dès SQL Server 2019, d'office sur Azure SQL), elles restent dans la base.",
+      "Non. Par défaut, la table ne garde que la version actuelle. Seule ADR range d'anciennes versions dans la base, parfois dans la ligne.",
+      "Non. Elles sont bien gardées : dans tempdb par défaut."
     ],
-    retenir: "Versionnement = tempdb."
+    retenir: "Versionnement = tempdb par défaut (dans la base avec ADR)."
   },
   {
     id: "m11-q23", dialecte: "SQL Server",
@@ -744,7 +744,7 @@ LEARNSQL.questions.m11 = [
   },
   {
     id: "m11-q42", dialecte: "SQL Server",
-    q: "Tu fais KILL 87 sur une session qui modifiait 5 millions de lignes depuis 1 heure. Que se passe-t-il ?",
+    q: "Sur SQL Server (réglages par défaut), tu fais KILL 87 sur une session qui modifiait 5 millions de lignes depuis 1 heure. Que se passe-t-il ?",
     choix: [
       "Elle s'arrête instantanément",
       "Un ROLLBACK, parfois aussi long",
@@ -753,8 +753,8 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Le ROLLBACK prend du temps.",
-      "Oui. Sa transaction est annulée, ce qui peut prendre aussi longtemps que le travail déjà fait. Pendant l'annulation, les verrous restent posés : KILL n'est jamais anodin.",
+      "Non. Par défaut, le ROLLBACK prend du temps (presque rien avec ADR, une option).",
+      "Oui. Sa transaction est annulée, ce qui peut prendre aussi longtemps que le travail déjà fait (presque rien avec ADR, la récupération accélérée). Pendant l'annulation, les verrous restent posés : KILL n'est jamais anodin.",
       "Non. KILL annule la transaction.",
       "Non. KILL n'attend pas la fin : il annule tout ce qui n'est pas validé."
     ],
@@ -762,7 +762,7 @@ LEARNSQL.questions.m11 = [
   },
   {
     id: "m11-q43", dialecte: "SQL Server",
-    q: "Pourquoi une transaction restée ouverte des heures fait-elle grossir le journal (log) ?",
+    q: "Sur SQL Server (réglages par défaut), pourquoi une transaction restée ouverte des heures fait-elle grossir le journal (log) ?",
     choix: [
       "Elle n'a aucun effet sur le journal",
       "Le journal ne peut pas être vidé",
@@ -771,8 +771,8 @@ LEARNSQL.questions.m11 = [
     ],
     bonne: 1,
     pourquoi: [
-      "Non. Elle empêche de vider le journal.",
-      "Oui. Le journal ne peut pas être vidé au-delà de la plus vieille transaction active : tout ce qui suit est conservé. Disque plein possible.",
+      "Non. Elle empêche de vider le journal (sauf avec ADR, une option).",
+      "Oui. Le journal ne peut pas être vidé au-delà de la plus vieille transaction active : tout ce qui suit est conservé. Disque plein possible, sauf avec ADR (récupération accélérée, d'office sur Azure SQL).",
       "Non. Elle ne compresse rien.",
       "Non. Le journal n'est jamais supprimé."
     ],

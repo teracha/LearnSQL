@@ -181,7 +181,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Fait annuler toute la transaction dès la première erreur, au lieu de continuer avec la suite.",
     moteurs: {
       sqlserver: "`SET XACT_ABORT ON;` en tête de script ou de procédure ; sans lui (OFF, le défaut), beaucoup d'erreurs n'annulent que l'instruction fautive",
-      snowflake: "Pas de XACT_ABORT : l'instruction en erreur est annulée seule, la transaction reste ouverte ; dans un bloc, fais le `ROLLBACK` dans `EXCEPTION`",
+      snowflake: "Pas de XACT_ABORT : `ALTER SESSION SET TRANSACTION_ABORT_ON_ERROR = TRUE;` annule toute la transaction à la première erreur ; par défaut (FALSE), seule l'instruction en erreur est annulée ; dans un bloc, fais le `ROLLBACK` dans `EXCEPTION`",
       mysql: "Pas de XACT_ABORT : l'instruction en erreur est annulée seule, la transaction reste ouverte ; dans une procédure, `DECLARE EXIT HANDLER FOR SQLEXCEPTION` + `ROLLBACK`"
     },
     noms: ["XACT_ABORT", "XACT_ABORT ON"],
