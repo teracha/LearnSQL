@@ -57,6 +57,7 @@ LEARNSQL.cours.m16 = {
       titre: "Lisible : des alias qui parlent, des jointures écrites",
       exemple: "-- Livré : « les commandes d'avril et leur client »\nSELECT a.num_cde, b.nom\nFROM commande a, client b\nWHERE a.date_cde >= '20260401'\nORDER BY 2;\n-- Relu (résultat ci-dessous)\nSELECT cde.num_cde, cli.nom\nFROM dbo.commande AS cde\nJOIN dbo.client AS cli ON cli.id = cde.client_id\nWHERE cde.date_cde >= '20260401'\nORDER BY cli.nom, cde.num_cde;",
       resultat: [["num_cde", "nom"], ["CDE-1007", "AquaBleu"], ["CDE-1005", "Hydro Sud"], ["CDE-1006", "Piscines Dumont"], ["CDE-1008", "Piscines Dumont"]],
+      regle: "Une requête sera relue : par un collègue, par un relecteur, par toi dans six mois. Elle doit se comprendre sans être déchiffrée. Chaque jointure s'écrit avec `JOIN … ON` : chaque table arrive avec la condition qui la relie. Chaque alias dit quelle table il désigne, et chaque colonne porte l'alias de sa table. On trie par nom de colonne, jamais par position.",
       points: [
         "Ce qui se passe : la version livrée rend 28 lignes, chaque commande d'avril avec chacun des 7 clients. La version relue rend les 4 commandes et leur client.",
         "Pourquoi : avec la virgule, le lien entre les tables part dans le WHERE, loin du FROM ; oublié, il donne un produit cartésien (tout avec tout, m05), sans erreur. `JOIN` le met à côté de sa table.",
@@ -70,6 +71,7 @@ LEARNSQL.cours.m16 = {
       titre: "SELECT * : la vue figée, les colonnes lues pour rien",
       exemple: "-- Livré pour Power BI, qui en lit 3 colonnes\nCREATE VIEW dbo.v_article AS\nSELECT * FROM dbo.article;\nGO\n-- Six mois après, l'ERP ajoute une colonne\nALTER TABLE dbo.article ADD poids_kg DECIMAL(9,3) NULL;\nSELECT * FROM dbo.v_article;",
       resultat: "SQL Server : les 6 colonnes d'origine, sans poids_kg ni erreur. Snowflake : une erreur de colonne.",
+      regle: "Une requête livrée nomme les colonnes dont elle a besoin, et seulement elles. Elle coûte moins : moins de données lues et envoyées, et un index peut suffire à y répondre (m12). Elle ne dépend plus de la forme de la table : une colonne ajoutée n'entre pas dans son résultat. `SELECT *` garde son usage : explorer une table qu'on découvre.",
       points: [
         "Ce qui se passe : SQL Server rend les colonnes du jour de la création ; `poids_kg` manque, sans message. Snowflake refuse la vue jusqu'à ce qu'on la recrée.",
         "Pourquoi : à la création, SQL Server range la liste des colonnes de la vue ; l'étoile n'est pas relue. `EXEC sp_refreshview 'dbo.v_article'` la met à jour. Une colonne renommée y garde son ancien nom.",
@@ -83,6 +85,7 @@ LEARNSQL.cours.m16 = {
       titre: "Ligne à ligne : la boucle, le curseur, la fonction scalaire",
       exemple: "-- Livré : +10 % sur la chimie, article par article\nDECLARE @id int = (SELECT MIN(id) FROM dbo.article WHERE famille = 'CHIMIE');\nWHILE @id IS NOT NULL\nBEGIN\n  UPDATE dbo.article SET prix_tarif = prix_tarif * 1.10 WHERE id = @id;\n  SET @id = (SELECT MIN(id) FROM dbo.article WHERE famille = 'CHIMIE' AND id > @id);\nEND;\n-- Relu : une seule instruction\nUPDATE dbo.article SET prix_tarif = prix_tarif * 1.10 WHERE famille = 'CHIMIE';",
       resultat: "Mêmes prix (43.89, 174.90, 26.95). Boucle : 7 instructions, 1 puis 2 par tour ; 100 001 pour 50 000 articles. UPDATE : 1.",
+      regle: "SQL travaille sur des ensembles de lignes. Une instruction décrit le résultat voulu pour toutes les lignes, et le moteur choisit comment l'obtenir. Modifier, charger, cumuler ou ajouter un libellé : tout cela tient en une instruction. Ce qui avance ligne par ligne refait le travail à chaque ligne, et le temps grandit avec le volume. C'est vrai d'une boucle, d'un curseur, et souvent d'une fonction scalaire appelée dans un SELECT.",
       points: [
         "Ce qui se passe : même résultat, mais la boucle fait 3 tours ; chacun relit la table pour trouver l'article suivant, puis écrit une ligne.",
         "Pourquoi : le moteur traite un ensemble de lignes d'un coup : une lecture, un plan (le chemin choisi), une écriture. Une boucle ou un curseur (qui lit ligne à ligne, m13) repaie tout à chaque tour.",
@@ -96,6 +99,7 @@ LEARNSQL.cours.m16 = {
       titre: "Les rustines : DISTINCT, NOLOCK et les pièges déjà vus",
       exemple: "-- Livré : « CA 2026 des clients EDI », 4 défauts\nSELECT DISTINCT cl.nom, SUM(co.montant_ht) AS ca   -- 1. DISTINCT\nFROM dbo.commande AS co WITH (NOLOCK)               -- 2. NOLOCK\nJOIN dbo.client AS cl ON cl.id = co.client_id\nJOIN dbo.flux_edi AS f ON f.cde_id = co.id\nWHERE YEAR(co.date_cde) = 2026                      -- 3. fonction sur la colonne\nGROUP BY cl.nom;                                    -- 4. un nom, pas une clé",
       resultat: "AquaBleu : 27 845 €, pour 15 115 € de commandes EDI, chacune comptée une fois par flux (2 + 1 + 2).",
+      regle: "Un bug se corrige à sa cause, jamais en surface. Une rustine fait disparaître le symptôme, mais le bug reste, caché. Des doublons inattendus viennent souvent d'une jointure qui multiplie les lignes. On trouve laquelle, puis on agrège avant de joindre, ou on teste l'existence avec `EXISTS`. En relecture, chaque `DISTINCT` ou `NOLOCK` pose donc une question : quel bug cache-t-il ?",
       points: [
         "Ce qui se passe : la jointure vers `flux_edi` copie chaque commande une fois par flux. Le DISTINCT ne retire rien : après le GROUP BY, chaque ligne est déjà unique.",
         "Pourquoi : DISTINCT dédoublonne les lignes finies : il cache des doublons dans une liste, il ne répare jamais une somme faite sur des copies (m05). « Au moins un flux » s'écrit `EXISTS` (m06).",
@@ -109,6 +113,7 @@ LEARNSQL.cours.m16 = {
       titre: "Les valeurs en dur : nombres magiques et dates",
       exemple: "-- Livré en mars : « commandes du mois à facturer »\nSELECT num_cde, date_cde, montant_ht\nFROM dbo.commande\nWHERE date_cde >= '20260301' AND date_cde < '20260401'   -- le mois, en dur\n  AND statut IN ('LIVREE', 'EN_COURS')                    -- copié dans 15 rapports\n  AND montant_ht > 100;                                   -- 100 : pourquoi ?\n-- Lancé le 10 avril (résultat ci-dessous)",
       resultat: [["num_cde", "date_cde", "montant_ht"], ["CDE-1001", "2026-03-02", "4780.00"], ["CDE-1002", "2026-03-05", "1290.00"], ["CDE-1003", "2026-03-09", "2385.00"]],
+      regle: "Une bonne requête ne contient aucune valeur sans nom. Un seuil ou une liste de statuts se range à un seul endroit : une table de paramètres, que chaque rapport joint. On change alors la valeur une seule fois, et tous les rapports suivent. La date du jour se lit une seule fois, au début du traitement, et les autres dates s'en déduisent. Ce qui reste en dur porte un commentaire qui dit son sens.",
       points: [
         "Ce qui se passe : le 10 avril, le rapport « du mois » montre encore mars ; CDE-1005, 1006 et 1007 manquent. Et `100` ? Un seuil, un test oublié ? C'est un nombre magique (une valeur sans nom).",
         "Pourquoi : une valeur en dur ne change que si quelqu'un rouvre chaque requête qui la copie. Quinze rapports, quinze endroits : un sera oublié, et deux rapports Power BI divergent.",
@@ -122,6 +127,7 @@ LEARNSQL.cours.m16 = {
       titre: "SQL dynamique : la saisie ne devient jamais du code",
       exemple: "-- Livré : la recherche client ; l'utilisateur tape  x' OR '1'='1\nDECLARE @nom varchar(60) = 'x'' OR ''1''=''1';\nDECLARE @sql nvarchar(400) =\n  N'SELECT code, nom FROM dbo.client WHERE nom = ''' + @nom + N'''';\nEXEC (@sql);   -- … WHERE nom = 'x' OR '1'='1'\n-- Relu : la saisie part en paramètre\nEXEC sp_executesql N'SELECT code, nom FROM dbo.client WHERE nom = @n',\n                   N'@n varchar(60)', @n = @nom;",
       resultat: "EXEC : les 7 clients sortent. sp_executesql : 0 ligne, aucun client ne s'appelle ainsi.",
+      regle: "Le SQL dynamique construit une requête dans un texte, puis l'exécute. Sa règle tient en une phrase : une donnée ne devient jamais du code. Chaque valeur part donc en paramètre, séparée du texte : quoi qu'elle contienne, elle ne peut pas changer la requête. Un nom de table ne peut pas voyager en paramètre : il ne vient donc jamais tel quel de la saisie. La règle vaut pour toute donnée venue de l'extérieur : une saisie, mais aussi un champ EDI.",
       points: [
         "Ce qui se passe : la saisie ferme l'apostrophe et ajoute `OR '1'='1'`, toujours vrai : les 7 clients sortent. En paramètre, la même saisie reste un nom bizarre : 0 ligne.",
         "Pourquoi : `EXEC (@sql)` exécute le texte tel qu'il est : ce qui est collé devient du code. Avec `sp_executesql`, la requête est fixe et la valeur voyage à part, jamais lue comme du SQL.",
@@ -135,9 +141,10 @@ LEARNSQL.cours.m16 = {
       titre: "Tester avant de livrer",
       exemple: "-- Ticket SI-1234 : relancer les factures émises depuis plus de 30 jours\n-- 1. Le SELECT, avec le WHERE prévu (arrêté au 30/04)\nSELECT num_fact, date_fact, statut\nFROM dbo.facture\nWHERE date_fact < DATEADD(day, -30, '20260430');   -- le statut est oublié\n-- 2. Ensuite : transaction, UPDATE, compte contrôlé",
       resultat: [["num_fact", "date_fact", "statut"], ["FA-2026-0301", "2026-03-03", "PAYEE"], ["FA-2026-0302", "2026-03-06", "PAYEE"], ["FA-2026-0303", "2026-03-10", "RETARD"]],
+      regle: "Un script qui modifie des données agit sur toutes les lignes de son WHERE, sans rien demander. Le tester, c'est répondre à trois questions avant la production. Quelles lignes seront touchées, et combien ? Peut-on revenir en arrière si le compte est faux ? Combien de temps prendra-t-il sur le vrai volume ? Le SELECT, la transaction qui compte, la sauvegarde et l'essai sur une copie récente de la base y répondent.",
       points: [
         "Ce qui se passe : 3 factures, dont 2 payées : l'UPDATE aurait relancé AquaBleu et Piscines Dumont pour des factures réglées. Avec `AND statut = 'EMISE'`, 0 ligne : rien à relancer ce jour-là.",
-        "Pourquoi : un UPDATE touche toutes les lignes de son WHERE, sans question ; 0 ou 3 lignes ne sont jamais une erreur (m09). Le SELECT montre le nombre et le contenu, avant tout dégât.",
+        "Pourquoi : 0 ou 3 lignes ne sont jamais une erreur (m09). Le SELECT montre le nombre et le contenu, avant tout dégât.",
         "Le piège : le script testé sur une petite recette, ou jamais hors de la production : 1 s sur 10 000 lignes, 25 min sur 40 millions. Ou un `BEGIN TRAN` oublié dans SSMS : tout le monde attend (m11).",
         "Le bon réflexe : un ticket, un script relu, le SELECT puis le même WHERE, une transaction qui compte (`IF @@ROWCOUNT <> @attendu ROLLBACK; ELSE COMMIT;`), une copie datée (`SELECT … INTO`), un test à volume réel sur une copie récente, plan lu.",
         "SQL Server / Snowflake : Snowflake clone vite une base de test (`CREATE DATABASE recette CLONE prod;`) et relit le passé par Time Travel (`AT (OFFSET => -1800)`). Mais `CREATE OR REPLACE TABLE` relancé recrée la table vide (m10)."

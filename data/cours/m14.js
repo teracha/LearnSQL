@@ -67,6 +67,7 @@ LEARNSQL.cours.m14 = {
       titre: "Le warehouse : du calcul loué à la seconde",
       exemple: "-- Pour les rafraîchissements Power BI (Import, toutes les 30 min)\nCREATE WAREHOUSE WH_REFRESH\n  WAREHOUSE_SIZE = XSMALL   -- la plus petite : 1 crédit/h (1re génération)\n  AUTO_SUSPEND = 60         -- arrêt après 60 s sans requête (défaut : 600)\n  AUTO_RESUME = TRUE;       -- repart seul à la requête suivante\nUSE WAREHOUSE WH_REFRESH;\nSELECT statut, COUNT(*) AS nb, SUM(montant_ht) AS ca\nFROM VENTES.COMMANDE GROUP BY statut ORDER BY statut;",
       resultat: [["STATUT", "NB", "CA"], ["ANNULEE", 1, "549.00"], ["EN_COURS", 3, "9558.00"], ["LIVREE", 4, "8534.80"]],
+      regle: "Sur Snowflake, les données et le calcul sont séparés. Le calcul se fait dans un warehouse : des serveurs qui démarrent et s'arrêtent à la demande. On le paie à la seconde, tant qu'il tourne, qu'il travaille ou qu'il attende. Arrêté, il ne coûte rien. La facture suit donc sa taille et le temps où il tourne. La règle : un warehouse par usage, à la bonne taille, avec un arrêt automatique réglé sur le rythme de ses requêtes.",
       points: [
         "Ce qui se passe : `WH_REFRESH` calcule ; les commandes restent dans le stockage. Un warehouse (un groupe de serveurs de calcul) ne stocke aucune table : `WH_ETL` charge la même table sans gêner le rapport.",
         "Pourquoi : trois couches séparées. Le stockage se paie au volume ; le calcul, en crédits (l'unité de facture), à la seconde quand un warehouse tourne, 60 s minimum par démarrage ; les services cloud gèrent connexions et droits.",
@@ -80,9 +81,10 @@ LEARNSQL.cours.m14 = {
       titre: "Les micro-partitions : lire moins de blocs",
       exemple: "-- Rapport Power BI : commandes depuis avril\nSELECT num_cde, date_cde, montant_ht      -- 3 colonnes lues, pas toutes\nFROM VENTES.COMMANDE\nWHERE date_cde >= '2026-04-01'            -- une valeur : les blocs de mars sont sautés\nORDER BY date_cde;\n-- Piège : même résultat, mais aucun bloc sauté :\n-- WHERE date_cde >= (SELECT MIN(date_cde) FROM VENTES.COMMANDE\n--                    WHERE statut = 'EN_COURS')",
       resultat: [["NUM_CDE", "DATE_CDE", "MONTANT_HT"], ["CDE-1005", "2026-04-01", "318.00"], ["CDE-1006", "2026-04-03", "1290.00"], ["CDE-1007", "2026-04-07", "7950.00"], ["CDE-1008", "2026-04-10", "79.80"]],
+      regle: "Snowflake découpe chaque table en micro-partitions : des blocs, rangés par colonne. Pour chaque bloc, il note le minimum et le maximum de chaque colonne. Avant de lire, il compare le filtre à ces bornes et saute les blocs qui ne peuvent pas répondre : c'est l'élagage. L'élagage marche le mieux sur une colonne qui suit l'ordre de chargement, souvent la date. Compare cette colonne à une valeur fixe, pas à une sous-requête. Et cite seulement les colonnes utiles : les autres ne sont pas lues.",
       points: [
         "Ce qui se passe : les 4 commandes depuis avril. Sur une vraie table, Snowflake ne lit que les micro-partitions (blocs de 50 à 500 Mo avant compression, rangés par colonne) qui peuvent contenir avril.",
-        "Pourquoi : pour chaque bloc, Snowflake note le minimum et le maximum de chaque colonne. Un bloc dont le maximum est en mars est sauté sans être lu : c'est l'élagage (pruning).",
+        "Pourquoi : un bloc dont le maximum est en mars est sauté sans être lu : c'est l'élagage (pruning).",
         "Le piège : le rapport Power BI lent. Le Query Profile (le plan détaillé) affiche « Partitions scanned 9 800 / total 10 000 » : presque tout est lu. Causes : un filtre sur une colonne éparpillée, ou une sous-requête dans le filtre.",
         "Le bon réflexe : filtre avec une valeur écrite, ou calculée avant, sur la colonne qui suit l'ordre de chargement (souvent la date). Liste tes colonnes : Snowflake ne lit que celles-là. `LIMIT` ne garantit pas de lire moins.",
         "SQL Server / Snowflake : ni index cluster à créer, ni statistiques à recalculer : Snowflake range dans l'ordre d'arrivée et tient seul ses métadonnées. `SELECT COUNT(*)` sans filtre s'y lit, sans passer par un warehouse."
@@ -93,6 +95,7 @@ LEARNSQL.cours.m14 = {
       titre: "Ranger ou indexer : utile, mais payant",
       exemple: "-- Table de 4 To filtrée par date : mesurer, puis ranger\nSELECT SYSTEM$CLUSTERING_INFORMATION('VENTES.COMMANDE', '(date_cde)');\nALTER TABLE VENTES.COMMANDE CLUSTER BY (date_cde);\n\n-- Une commande parmi des milliards (Enterprise, octobre 2026)\nCREATE INDEX ix_cde_num ON VENTES.COMMANDE (num_cde) INCLUDE (statut);\nSELECT num_cde, statut FROM VENTES.COMMANDE WHERE num_cde = 'CDE-1007';",
       resultat: "CDE-1007, EN_COURS, avec ou sans index : ranger et indexer changent la vitesse et la facture, jamais le résultat.",
+      regle: "L'élagage saute peu de blocs quand les valeurs cherchées sont éparpillées dans toute la table. L'ordre de chargement range la table gratuitement, souvent par date. Pour un autre filtre fréquent, une clé de clustering (`CLUSTER BY`) garde la table rangée selon ce filtre. Pour retrouver quelques lignes parmi des milliards, un index secondaire indique les bons blocs. Snowflake entretient les deux en fond, et ce travail se paie en crédits, surtout si la table change souvent. Réserve-les aux très grosses tables, et mesure le gain.",
       points: [
         "Ce qui se passe : la fonction mesure le rangement par date (sa profondeur moyenne : combien de blocs se chevauchent ; petite, c'est bien rangé). `CLUSTER BY` (une clé de clustering) maintient ce rangement. L'index secondaire sait dans quels blocs est CDE-1007.",
         "Pourquoi : chargée chaque jour, une table est rangée par date, gratuitement. Mais un client a des commandes dans presque tous les blocs : filtré sur lui, presque rien n'est sauté. Les UPDATE, eux, dérangent les dates.",
@@ -106,12 +109,13 @@ LEARNSQL.cours.m14 = {
       titre: "Les caches : une 2e exécution rapide ne prouve rien",
       exemple: "-- 9 h 00 : le warehouse calcule\nSELECT client_id, SUM(montant_ht) AS ca FROM VENTES.COMMANDE GROUP BY client_id;\n-- 9 h 05 : même texte, mêmes données : résultat repris\n-- 9 h 06 : la même en minuscules : recalcul complet\nALTER SESSION SET USE_CACHED_RESULT = FALSE;   -- pour mesurer",
       resultat: "9 h 05 : réponse quasi instantanée, sans calcul. 9 h 06 : calcul complet, pour la même question.",
+      regle: "Snowflake garde deux caches, des copies qui évitent de refaire un travail. Le cache de résultat garde la réponse d'une requête, et peut la rendre sans calcul quand la même requête revient. Le cache du warehouse garde les données déjà lues, tant qu'il tourne : l'arrêter le vide. Le temps d'une requête dépend donc de ce qui est en cache, pas seulement de son écriture. Pour juger une requête, mesure-la sans le cache de résultat.",
       points: [
         "Ce qui se passe : à 9 h 05, Snowflake reprend le résultat de 9 h 00 : c'est le cache de résultat (une réponse gardée). À 9 h 06, le texte diffère : autre requête.",
         "Pourquoi : un résultat est gardé 24 h (chaque réutilisation relance 24 h, 31 jours au plus). Il peut resservir si le texte est identique, les données inchangées, le rôle autorisé ; jamais avec `RANDOM` ou `CURRENT_TIMESTAMP`.",
         "Le piège : « J'ai optimisé : de 40 s à 1 s. » C'était le cache. À l'inverse, le rapport rapide hier rame à 8 h : le chargement de la nuit a changé les données.",
         "Le bon réflexe : pour mesurer, coupe le cache de résultat (`USE_CACHED_RESULT = FALSE`) et compare les partitions lues, plus fiables que le temps.",
-        "Et aussi : le warehouse garde en cache les données déjà lues, tant qu'il tourne ; l'arrêter le vide. Snowflake conseille 10 minutes au moins avant l'arrêt pour des analystes Power BI, l'arrêt immédiat pour une tâche planifiée."
+        "Et aussi : Snowflake conseille 10 minutes au moins avant l'arrêt pour des analystes Power BI, l'arrêt immédiat pour une tâche planifiée."
       ],
       retenir: "Même texte, mêmes données : le résultat revient du cache, 24 h. Une 2e exécution rapide ne prouve rien : mesure sans le cache."
     },
@@ -119,6 +123,7 @@ LEARNSQL.cours.m14 = {
       titre: "Time Travel, UNDROP et CLONE : revenir en arrière",
       exemple: "-- 10 h 02 : UPDATE sans WHERE, les 8 commandes passent en LIVREE\nUPDATE VENTES.COMMANDE SET statut = 'LIVREE';\n-- 10 h 05 : la table juste avant cet UPDATE (id lu dans l'historique)\nSELECT num_cde, statut\nFROM VENTES.COMMANDE BEFORE (STATEMENT => '01bf3c4e-…')\nWHERE statut = 'EN_COURS'\nORDER BY num_cde;",
       resultat: [["NUM_CDE", "STATUT"], ["CDE-1005", "EN_COURS"], ["CDE-1006", "EN_COURS"], ["CDE-1007", "EN_COURS"]],
+      regle: "Sur Snowflake, une erreur validée se répare sans sauvegarde, pendant la rétention (la durée de garde des anciennes versions). Le Time Travel relit la table telle qu'elle était, avec `AT` ou `BEFORE`. `CLONE` copie cet état passé dans une table à part : on répare depuis cette copie. `UNDROP` rend une table supprimée, si son nom est libre. Mais chaque version gardée se paie en stockage : pour une table rechargée chaque nuit, une rétention courte suffit.",
       points: [
         "Ce qui se passe : la table relue juste avant l'UPDATE : les 3 commandes en cours réapparaissent. C'est le Time Travel (relire le passé) ; `AT (OFFSET => -300)` lit la table d'il y a 5 minutes.",
         "Pourquoi : un UPDATE n'écrase pas un bloc : il en écrit un nouveau et garde l'ancien. Rétention (durée de garde) : 1 jour par défaut, 90 au plus en Enterprise ; puis 7 jours de Fail-safe (un filet de secours), via le support.",
@@ -132,6 +137,7 @@ LEARNSQL.cours.m14 = {
       titre: "Le JSON : VARIANT, deux-points et FLATTEN",
       exemple: "-- Le flux ORDERS n° 1 d'AquaBleu, converti en JSON par l'outil EDI\nWITH f AS (SELECT PARSE_JSON('{\"num_cde\":\"CDE-1001\",\"lignes\":[\n  {\"art\":\"CHL-5\",\"qte\":100},{\"art\":\"CHL-25\",\"qte\":10}]}') AS doc)\nSELECT f.doc:num_cde::STRING AS num_cde,\n       l.value:art::STRING   AS article,\n       l.value:qte::NUMBER   AS qte\nFROM f, LATERAL FLATTEN(input => f.doc:lignes) l\nORDER BY qte DESC;\n-- Piège : f.doc:Lignes (L majuscule) : 0 ligne, sans erreur",
       resultat: [["NUM_CDE", "ARTICLE", "QTE"], ["CDE-1001", "CHL-5", 100], ["CDE-1001", "CHL-25", 10]],
+      regle: "Sur Snowflake, un document JSON se range entier dans une colonne, et se lit directement en SQL. On suit un chemin jusqu'à la valeur, puis on la convertit dans un vrai type : sinon, elle reste du JSON. Un tableau du document devient des lignes avec `LATERAL FLATTEN`. Dans un chemin, une majuscule compte : une clé mal écrite ne trouve rien, sans erreur. Contrôle donc les documents qui ne sortent aucune ligne.",
       points: [
         "Ce qui se passe : une ligne SQL par ligne de commande. `:` entre dans le JSON, `.` descend d'un niveau, `::` convertit. FLATTEN déplie le tableau `lignes` ; `value` contient chaque élément.",
         "Pourquoi : VARIANT est le type qui garde un JSON tel quel, et `:` rend toujours du VARIANT. Sans `::STRING`, Power BI reçoit \"CDE-1001\", entre guillemets : convertis tout ce que tu extrais.",
@@ -145,6 +151,7 @@ LEARNSQL.cours.m14 = {
       titre: "Charger des fichiers : stage, COPY INTO, Snowpipe",
       exemple: "-- Les commandes EDI du jour, en CSV dans un stage (une zone de fichiers)\nCOPY INTO VENTES.STG_COMMANDE\nFROM @EDI.STAGE_EDI/orders/\nFILE_FORMAT = (FORMAT_NAME = 'EDI.FF_CSV_FR')   -- séparateur ;, en-tête, dates\nON_ERROR = ABORT_STATEMENT;                      -- le défaut, écrit pour être vu\n-- Test sans charger : VALIDATION_MODE = RETURN_ERRORS",
       resultat: "Un 31/02 dans le fichier : échec, 0 ligne chargée. Corrigé : orders_0412.csv chargé (LOADED, 8 lignes). Relancé : « Copy executed with 0 files processed. »",
+      regle: "Un fichier se dépose d'abord dans un stage (une zone de fichiers), puis `COPY INTO` le copie dans une table. Snowpipe fait ce travail seul, à l'arrivée de chaque fichier. Snowflake garde la trace de chaque fichier chargé, pour ne pas le charger deux fois. Par défaut, `COPY INTO` échoue en entier dès qu'une ligne est fausse : on teste donc le fichier avant. Et Snowflake ne bloque pas les doublons : on contrôle la table après.",
       points: [
         "Ce qui se passe : COPY INTO lit les fichiers du stage (interne à Snowflake, ou externe : S3, Azure) et remplit la table. Il retient chaque fichier chargé 64 jours : relancé, il le saute.",
         "Pourquoi : `ON_ERROR = ABORT_STATEMENT`, le défaut de COPY, arrête tout à la première ligne fausse. `CONTINUE` saute les lignes en erreur, `SKIP_FILE` le fichier. Snowpipe (le chargement automatique à l'arrivée d'un fichier) saute le fichier, par défaut.",
