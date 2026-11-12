@@ -129,7 +129,7 @@ LEARNSQL.cours.m04 = {
       points: [
         "Une liste dans une case : `STRING_AGG(num_cde, ', ') WITHIN GROUP (ORDER BY num_cde)` (SQL Server 2017+), `LISTAGG` sur Snowflake. STRING_AGG refuse DISTINCT (LISTAGG l'accepte), et plante au-delà de 8 000 octets : `CAST(num_cde AS varchar(max))`.",
         "Le détail et le total côte à côte : `SUM(montant_ht) OVER (PARTITION BY client_id)` ajoute le total du client sur chaque ligne (fonction de fenêtrage, m08). « La dernière commande de chaque client », « le top 3 par région » : ROW_NUMBER, qui numérote les lignes.",
-        "Le meilleur client : `ORDER BY SUM(montant_ht) DESC` puis `TOP (1) WITH TIES` ; ORDER BY accepte un agrégat absent du SELECT. `MAX(SUM(…))` plante : fais d'abord les sommes dans une sous-requête (une requête dans la requête).",
+        "Le meilleur client : `ORDER BY SUM(montant_ht) DESC` puis `TOP (1) WITH TIES` ; ORDER BY accepte un agrégat absent du SELECT. SQL Server refuse `MAX(SUM(…))` : fais d'abord les sommes dans une sous-requête (une requête dans la requête).",
         "Sans agrégat, GROUP BY fait comme DISTINCT : DISTINCT pour dédoublonner, GROUP BY pour calculer. Les deux ensemble : DISTINCT ne sert à rien.",
         "Médiane : `MEDIAN(x)` sur Snowflake ; `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY x) OVER (…)` sur SQL Server, qui exige OVER. Sur 10, 20, 30, 40 : CONT donne 25, PERCENTILE_DISC une vraie valeur, 20. Écart-type : STDEV, STDDEV sur Snowflake.",
         "SQL Server : un total INT plante au-delà de 2,1 milliards : `SUM(CAST(qte AS bigint))`, et `COUNT_BIG(*)` pour compter. SUM, AVG, MIN et MAX refusent le BIT : `SUM(CAST(actif AS int))`. Gros volumes : `APPROX_COUNT_DISTINCT` estime vite (2019+, Snowflake).",
@@ -143,7 +143,7 @@ LEARNSQL.cours.m04 = {
     ["Alias dans GROUP BY", "Interdit", "Accepté"],
     ["Grouper sans tout lister", "Impossible", "`GROUP BY ALL`"],
     ["Une valeur du groupe", "`MAX(nom)`", "`ANY_VALUE(nom)`"],
-    ["1er du mois", "`DATETRUNC(month, d)` (2022+)", "`DATE_TRUNC('month', d)`"],
+    ["Grouper par mois", "`DATETRUNC(month, d)` (2022+)", "`DATE_TRUNC('month', d)`"],
     ["AVG d'un entier", "Entier (coupé)", "Décimal"],
     ["Compter si…", "`SUM(CASE … END)`", "`COUNT_IF(…)`"],
     ["Toutes vraies ?", "`MIN(CASE …) = 1`", "`BOOLAND_AGG`"],
