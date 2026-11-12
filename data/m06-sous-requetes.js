@@ -966,7 +966,7 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. SELECT value FROM GENERATE_SERIES(1, 100). Plus simple qu'une CTE récursive.",
+      "Oui. SELECT value FROM GENERATE_SERIES(1, 100). Plus simple qu'une CTE récursive. Il faut une base en niveau de compatibilité 160 ou plus.",
       "Non. Python.",
       "Non. Cette fonction n'existe pas sur SQL Server.",
       "Non. Snowflake a GENERATOR, avec une autre syntaxe."
@@ -1437,8 +1437,8 @@ LEARNSQL.questions.m06 = [
     retenir: "Une seule ligne garantie : ROW_NUMBER + critère de départage."
   },
   {
-    id: "m06-q79", dialecte: "Standard",
-    q: "Peut-on trier des clients par leur nombre de commandes avec une sous-requête dans ORDER BY ?",
+    id: "m06-q79", dialecte: "SQL Server",
+    q: "Sur SQL Server, peut-on trier des clients par leur nombre de commandes avec une sous-requête dans ORDER BY ?",
     code: "SELECT nom FROM client c\nORDER BY (SELECT COUNT(*) FROM commande co WHERE co.client_id = c.id) DESC;",
     choix: [
       "Oui",
@@ -1448,12 +1448,12 @@ LEARNSQL.questions.m06 = [
     ],
     bonne: 0,
     pourquoi: [
-      "Oui. C'est valide. Une jointure + GROUP BY est souvent plus lisible.",
+      "Oui. SQL Server l'accepte. Une jointure + GROUP BY est souvent plus lisible, et marche aussi sur Snowflake.",
       "Non. ORDER BY accepte une sous-requête scalaire.",
       "Non. TOP n'est pas nécessaire.",
-      "Non. Valide aussi sur SQL Server."
+      "Non. SQL Server l'accepte. Snowflake, lui, ne garantit la sous-requête liée que dans le WHERE."
     ],
-    retenir: "Une sous-requête scalaire peut servir de critère de tri."
+    retenir: "SQL Server : une sous-requête scalaire peut servir de critère de tri."
   },
   {
     id: "m06-q80", dialecte: "SQL Server",
