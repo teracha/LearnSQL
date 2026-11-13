@@ -14,7 +14,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "zeros-devant",
     titre: "Compléter un numéro avec des zéros devant",
     famille: "Compléter",
-    besoins: ["sortir un numéro client avec des zéros devant", "un numéro sur 6 chiffres avec des zéros à gauche", "transformer 42 en 000042", "l'attribut ZEROFILL"],
+    besoins: ["sortir un numéro client avec des zéros devant", "un numéro de facture sur 8 chiffres avec des zéros à gauche", "transformer 42 en 000042", "l'attribut ZEROFILL"],
     essais: ["je voudrais un numero de facture sur 8 caractere avec des 0", "remplir à gauche avec des zéros", "zerofill"],
     moteurs: {
       sqlserver: "`RIGHT('000000' + CAST(id AS VARCHAR(6)), 6)`, ou `FORMAT(id, 'D6')` (plus lent sur beaucoup de lignes)",
@@ -29,7 +29,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["num_cde", "num_6"], ["CDE-1001", "000001"], ["CDE-1002", "000002"], ["CDE-1003", "000003"]],
     piege: "Un nombre plus long que la largeur est coupé, sans erreur : `RIGHT` garde la fin du nombre, `LPAD` en garde le début. Choisis une largeur assez grande, et contrôle la longueur.",
     pratique: "Garde le numéro en nombre dans la table, et ajoute les zéros seulement à l'affichage ou à l'export (fichier EDI, étiquette) : un nombre se trie et se compare bien.",
-    motsCles: ["zéro", "zeros", "0", "compléter", "gauche", "devant", "padding", "largeur", "longueur fixe", "numéro", "code", "format"],
+    motsCles: ["zéro", "zeros", "0", "compléter", "gauche", "devant", "padding", "largeur", "longueur fixe", "numéro", "chiffres", "caractères"],
     voirAussi: ["lpad", "right", "format", "cast", "zerofill"]
   },
   {
