@@ -144,7 +144,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["num_cde", "numero"], ["CDE-1001", "1001"], ["CDE-1002", "1002"], ["CDE-1003", "1003"]],
     piege: "Sur SQL Server 2022 et Snowflake, `LTRIM(x, 'CDE-')` enlève chaque lettre C, D, E et - du début, pas le mot : 'CDE-E12' devient '12'. MySQL, lui, enlève bien le mot entier avec `TRIM(LEADING …)`.",
     pratique: "Pour joindre ce numéro à une colonne numérique de l'ERP, convertis-le avec `TRY_CAST(… AS INT)` (SQL Server, Snowflake) : un reste qui n'est pas un nombre donne NULL au lieu de planter.",
-    motsCles: ["préfixe", "début", "enlever", "supprimer", "retirer", "premiers caractères", "numéro", "code", "devant", "commande", "cde"],
+    motsCles: ["préfixe", "début", "enlever", "supprimer", "retirer", "premiers caractères", "référence", "code", "devant", "commande", "cde"],
     voirAussi: ["substring", "like", "replace", "trim", "try-cast"]
   },
   {
