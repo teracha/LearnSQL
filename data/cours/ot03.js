@@ -13,6 +13,7 @@ LEARNSQL.cours.ot03 = {
     {
       titre: "Note de décision : options chiffrées",
       exemple: "Mardi 2 février 2027, projet DEMAT 2027. Le responsable ADV (administration des ventes) veut la référence chantier sur les factures : des litiges chez 3 clients pisciniers.\nC'est la demande n° 7 : 4 jours d'intégrateur, environ 3 000 €, 15 tests à refaire.\nCe n'est pas dans ta délégation : elle touche le budget.\nLe DAF (directeur administratif et financier, ton sponsor) décidera au COPIL (comité de pilotage) du mardi 9. Tu lui prépares une note de décision.",
+      regle: "Une note de décision prépare un choix qui n'est pas le tien. Elle donne au décideur tout ce qu'il faut pour trancher vite : la question, sa date limite, les faits, et plusieurs options avec leur prix. « Ne rien changer » est toujours une option, avec son propre coût. Tu recommandes, mais le décideur choisit : la note montre que le choix est réel.",
       points: [
         "À quoi elle sert : préparer une décision qui n'est pas à toi. Les faits, 2 ou 3 options avec leur prix, et ta recommandation. Quand : avant de demander une décision au sponsor, au COPIL, à ton DSI (directeur des systèmes d'information) ou au manager d'un autre service.",
         "Sur le site : `Nouveau`. L'option « A. Ne rien changer » est déjà écrite. Remplis de haut en bas : décision attendue, date limite, qui décide, faits, impact. `+ Option` pour B et C, puis ta recommandation. Plus d'alerte ? `Copier`, et tu colles la note dans ton e-mail.",
@@ -25,6 +26,7 @@ LEARNSQL.cours.ot03 = {
     {
       titre: "Registre des décisions",
       exemple: "Mardi 30 mars 2027, 10 h. Le DAF, au téléphone : « D'accord pour 3 jours d'intégrateur de plus, pour les flux EDI (échange de données informatisé). »\nL'après-midi, il signe la commande des 3 jours.\nLe soir, tu lui écris : « Comme convenu ce matin : 3 jours de plus pour les flux EDI. »\nPuis une ligne au registre : 30/03/2027 · commande de 3 jours · le DAF · Téléphone · + 2 250 € · Écrit (mail).",
+      regle: "Le registre des décisions est la mémoire du projet : chaque décision, sa date, qui l'a prise et son impact. Une décision orale s'oublie ou se conteste ; écrite le jour même, elle tient. Le registre évite aussi de rediscuter sans fin : une décision écrite ne se refait pas, sauf fait nouveau. Il complète la note de décision (avant) et le compte rendu (pendant).",
       points: [
         "À quoi il sert : garder une trace de chaque décision. La date, la décision, qui l'a prise, l'impact. Quand : après chaque COPIL, et après chaque décision prise au téléphone, dans un couloir ou par mail.",
         "Sur le site : un registre par projet, avec `Nouveau`. Une ligne par décision, avec `+ Décision`. « Où » : COPIL, séance courte, téléphone, couloir, mail. « Trace écrite » : compte rendu, écrit (mail), ou à faire. Sous le tableau, le total « Trace écrite à faire ».",
@@ -37,6 +39,7 @@ LEARNSQL.cours.ot03 = {
     {
       titre: "Registre des changements",
       exemple: "Jeudi 8 avril 2027. Ton registre des changements compte 5 demandes.\nN° 7 (référence chantier) et n° 9 (code magasin) : acceptées par le DAF au COPIL du 9 février. N° 14 : refusée. N° 15 et n° 16 : « Pas maintenant », chacune avec sa date.\nSous le tableau : « Acceptées : jours » 7, « Acceptées : coût (€) » 5 250, « À décider » 0.",
+      regle: "Un projet change toujours ; le danger, c'est qu'il change sans que personne l'ait décidé. Le registre des changements fait passer chaque demande par le même chemin : son impact chiffré, une décision de la bonne personne, puis le travail. Il garde aussi les refus et les reports. Son total des changements acceptés montre la dérive, que chaque petit oui, pris seul, cache.",
       points: [
         "À quoi il sert : suivre chaque demande de changement, son impact, la décision, et le total déjà accepté. Quand : dès qu'une demande touche le périmètre, le budget, une date validée ou un contrat. Le total se montre à chaque COPIL.",
         "Sur le site : `+ Demande`. Le n°, le demandeur, la demande (qui, quoi, pourquoi, pour quand), les jours, le coût, les autres impacts. « Décision » vaut « À décider » au départ ; puis « Acceptée », « Pas maintenant » ou « Refusée », avec qui et quand.",
@@ -49,6 +52,7 @@ LEARNSQL.cours.ot03 = {
     {
       titre: "MoSCoW : trier les demandes",
       exemple: "Février 2027. L'enveloppe des écrans de la compta : 10 jours d'intégrateur, fixée par le DAF.\nSix demandes, 12 jours en tout : l'état des factures bloquées (2 jours), l'état des rejets (3), les avoirs en attente (3), un tri par site (1), un total des avoirs (1), une alerte par mail (2).\nLa cheffe comptable, PO (product owner : celle qui classe le backlog, la liste des demandes), trie avec toi.\nRésultat : 5 jours de « doit » sur 10, 50 %, « Dans le repère ». L'alerte par mail : « pas cette fois », pour le 1er juillet.",
+      regle: "MoSCoW sert à trier quand il y a plus de demandes que de place. Chaque demande reçoit une classe : doit, devrait, pourrait, ou pas cette fois. Les critères s'écrivent avant de comparer, et la loi passe avant tout. Si tout devient « doit », le tri ne protège plus la date : il faut garder de la marge dans les classes du dessous. Un « pas cette fois » n'est pas un refus : il reçoit une date.",
       points: [
         "À quoi il sert : trier des demandes pour une place limitée : une itération, une enveloppe de jours, la bascule (la mise en service). Quand : dès que plusieurs demandes veulent la même place.",
         "Sur le site : écris ce qu'on trie et la place, en jours. Les critères sont déjà écrits : relis-les avant de comparer. `+ Demande` : le demandeur, le pourquoi, l'effort en jours (estimé par celui qui fera le travail), la classe. Sous le tableau : l'effort prévu, la part du « doit » et son niveau.",

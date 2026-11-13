@@ -17,8 +17,10 @@ const { chromium } = require('playwright');
       apres: s.slice(i + 1).some(e => e.matches('ul.points')) }; }));
   console.log('m05 règles générales', rg.length); if (rg.length !== 7) errs.push('m05 : 7 règles générales attendues, ' + rg.length);
   rg.forEach((r, i) => { if (r.label !== 'La règle générale' || r.texte < 100 || !r.avant || !r.apres) errs.push('m05 : règle ' + (i + 1) + ' mal placée ou vide'); });
-  // Les 16 cours SQL : autant de blocs que de parties qui ont une règle (données). Un cours sans règle (cp01) : aucun bloc.
-  for (let i = 1; i <= 16; i++) { const id = 'm' + String(i).padStart(2, '0');
+  // Les 16 cours SQL et les 5 cours « Maîtriser les outils » : autant de blocs que de parties qui ont une règle (données).
+  // Un cours sans règle (cp01) : aucun bloc.
+  const avecRegles = Array.from({ length: 16 }, (_, i) => 'm' + String(i + 1).padStart(2, '0')).concat(['ot01', 'ot02', 'ot03', 'ot04', 'ot05']);
+  for (const id of avecRegles) {
     await p.goto(U + '#/cours/' + id); await p.waitForTimeout(100);
     const r = await p.evaluate(id => ({ attendu: LEARNSQL.cours[id].sections.filter(s => s.regle).length, vu: document.querySelectorAll('.card .regle').length }), id);
     if (!r.attendu || r.vu !== r.attendu) errs.push(id + ' : ' + r.vu + ' règle(s) affichée(s) pour ' + r.attendu); }

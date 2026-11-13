@@ -14,6 +14,7 @@ LEARNSQL.cours.ot02 = {
     {
       titre: "Registre des risques",
       exemple: "Lundi 8 février 2027, point projet de DEMAT 2027. Julie : « Seule la cheffe comptable sait traiter les avoirs fournisseurs. Et elle part du 12 au 30 avril. »\nTu ajoutes la ligne avec `+ Risque`. Probabilité 3, impact 2 : l'outil affiche 6, « Priorité ».\nPropriétaire : le DAF (directeur administratif et financier, ton sponsor), son manager. Pas elle : elle sera absente.",
+      regle: "Un risque est un problème qui n'est pas encore arrivé. Le registre les rassemble pour les traiter tant qu'il est temps : chacun reçoit une note, une réponse, une date et un propriétaire. La note (probabilité × impact) dit où mettre l'effort en premier. Un registre utile se relit chaque semaine : sans action ni date, ce n'est qu'une liste d'inquiétudes. Quand un risque arrive, il devient un problème à traiter tout de suite.",
       points: [
         "À quoi il sert : lister les risques, les noter de 1 à 9, suivre leur action. Quand : dès le cadrage, puis 15 minutes chaque semaine au point projet.",
         "Sur le site : `Nouveau` ou `Partir de l'exemple`, puis une ligne par risque : « Parce que [cause], il peut arriver que [risque], ce qui entraînerait [conséquence]. » Note = probabilité × impact : 1 ou 2 « On surveille », 3 ou 4 « Action simple », 6 ou 9 « Priorité ».",
@@ -26,6 +27,7 @@ LEARNSQL.cours.ot02 = {
     {
       titre: "Tableau de bord de l'équipe",
       exemple: "Vendredi 2 avril 2027, 3e semaine de recette (les tests du métier). Le tableau de bord a 6 lignes, dont « Cas de recette joués et OK ».\nJulie, Sophie et Marc la mettent à jour : 45 cas joués sur 60 prévus, 38 OK. La marge de recette est mangée.\nÉtat : « Seuil franchi ». L'alerte : au point projet du lundi, avec un plan daté.",
+      regle: "Le tableau de bord est l'outil de l'équipe : il montre chaque semaine si le projet avance vers son résultat. Il garde peu d'indicateurs, chacun avec une définition, une source et un seuil, pour que tout le monde lise le même chiffre. Il mesure ce qui est produit, pas l'agitation. Son rôle est d'alerter tôt : un indicateur qui glisse vers son seuil se traite avant de le franchir.",
       points: [
         "À quoi il sert : suivre 5 à 7 indicateurs de résultat. Quand : à jour chaque vendredi, chacun ses lignes ; le point projet du lundi part de lui.",
         "Sur le site : `+ Indicateur`, avec sa définition, sa source, son seuil et son responsable. Chaque vendredi : la valeur, « Données au » et l'état : « Dans le seuil », « En risque » ou « Seuil franchi ».",
@@ -38,6 +40,7 @@ LEARNSQL.cours.ot02 = {
     {
       titre: "Rapport du COPIL et météo",
       exemple: "Jeudi 8 avril 2027, COPIL le mardi 13. Tu fais `Dupliquer` sur le rapport de mars ; chiffres arrêtés au 31 mars.\nEn tête, la décision attendue : un intérimaire pour la recette, environ 4 000 €, oui ou non ?\nMétéo : délai orange (le PV, procès-verbal de recette, prévu le 7 mai au lieu du 30 avril) ; les 3 autres axes verts.\nL'outil calcule la météo globale : « Orange ».",
+      regle: "Le rapport du COPIL est fait pour ceux qui décident, pas pour raconter le projet. Il tient sur une page, avec le même plan chaque mois, pour qu'on le lise en deux minutes. Il commence par les décisions attendues, puis donne l'état du projet en couleurs. Ces couleurs viennent de seuils fixés à l'avance, pas d'une impression : le rouge veut dire que le sponsor doit décider.",
       points: [
         "À quoi il sert : une page par mois pour le COPIL : décisions attendues, météo, jalons, 5 plus gros risques, ligne budget. Quand : 3 jours ouvrés avant, avec l'ordre du jour.",
         "Sur le site : un rapport neuf a déjà les 4 axes (délai, budget, périmètre, qualité et risques) et l'ordre du jour type. Jalon : prévu (seul le sponsor le change), réel, prévision. L'outil calcule l'écart et le reste de tolérance (14 jours).",
@@ -50,6 +53,7 @@ LEARNSQL.cours.ot02 = {
     {
       titre: "Suivi du budget",
       exemple: "Fin mars 2027. Commande de base de l'intégrateur, en régie (au temps passé) : 40 jours, 30 000 €. Faits : 24 jours ; à faire : 19.\nSur sa ligne : consommé 18 000 €, reste à faire 14 250 €. Atterrissage calculé : 32 250 €, pour 30 000 € engagés.\nL'alerte : « L'atterrissage dépasse la commande : préviens le DAF tout de suite, avec des options. »",
+      regle: "Suivre un budget, c'est prévoir où l'on va finir, pas compter les factures déjà payées. Pour chaque poste, on suit le travail fait et le travail qui reste : leur somme donne l'atterrissage (le coût final prévu). On le compare à la référence, que seul le sponsor peut changer. Un écart n'est pas une faute : il se dit tôt, avec sa cause et des options, pendant qu'on peut encore agir.",
       points: [
         "À quoi il sert : suivre chaque poste : engagé, consommé, reste à faire, atterrissage, écart. Quand : chaque mois avant le COPIL ; la régie, chaque semaine.",
         "Sur le site : `+ Poste`, une ligne par poste et une par commande. L'outil calcule l'atterrissage (consommé + reste à faire) et l'écart (atterrissage − référence).",
@@ -62,6 +66,7 @@ LEARNSQL.cours.ot02 = {
     {
       titre: "Compte rendu de réunion",
       exemple: "COPIL du mardi 9 février 2027. Le DAF : « Bon, allez-y pour les changements n° 7 et n° 9. »\nToi : « Je note : n° 7 et n° 9 acceptés, 7 jours d'intégrateur, 5 250 €. C'est bien ça ? »\nMercredi 10, 9 h, le compte rendu part : 2 décisions, 4 actions, 1 point ouvert.",
+      regle: "Le compte rendu garde la mémoire de la réunion : ce qui a été décidé, qui fait quoi, et ce qui reste ouvert. Ce n'est pas un récit : seules les décisions, les actions et les questions en suspens comptent. Envoyé vite, il permet à chacun de corriger un malentendu tant qu'il est frais. À la réunion suivante, on part de ses actions : faites ou pas.",
       points: [
         "À quoi il sert : écrire les décisions, les actions et les points ouverts. Quand : sous 24 h après un COPIL ou un point projet ; le jour même pour un comité fournisseur.",
         "Sur le site : réunion, date, participants, « Envoyé le », puis `+ Décision`, `+ Action`, `+ Point ouvert`. Envoyé plus d'un jour après ? L'alerte le dit.",
@@ -74,6 +79,7 @@ LEARNSQL.cours.ot02 = {
     {
       titre: "Fiche du lundi et charge",
       exemple: "Lundi 8 mars 2027. Avant tes 30 minutes avec ton DSI (directeur des systèmes d'information), tu remplis ta fiche.\nTon temps, en demi-journées : DEMAT 9, run (le fonctionnement courant) 3. Charge : 120 %, « Au-delà : ton DSI ».\nTon besoin : « Ne glisse pas : la recette. Peut glisser : la doc d'un flux EDI (échange de données informatisé). Tu choisis ? »",
+      regle: "La fiche du lundi prépare ton point avec ton manager : en quelques minutes, ce qui avance, ce qui coince, ce dont tu as besoin. Elle suit aussi ta charge, en demi-journées, pour voir tôt quand ton temps ne suffit plus. Ce n'est pas la liste de tes tâches : c'est ce qui demande une attention ou une décision. Une surcharge qui dure se dit, faits en main, et ton manager arbitre.",
       points: [
         "À quoi elle sert : préparer le point du lundi : ce qui avance, ce qui coince, ton besoin, ta charge. Une mauvaise nouvelle n'attend pas lundi : ton DSI l'apprend par toi, le jour même.",
         "Sur le site : `Dupliquer` la fiche d'avant. Ton temps : le partage fixé avec ton DSI (7 projet, 3 run), la semaine passée, cette semaine. Charge = cette semaine ÷ 10 : « Dans tes 10 », « Pic court » (jusqu'à 110 %) ou « Au-delà : ton DSI ».",

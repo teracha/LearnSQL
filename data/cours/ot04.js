@@ -14,6 +14,7 @@ LEARNSQL.cours.ot04 = {
     {
       titre: "Grille de choix d'un prestataire",
       exemple: "Octobre 2026, projet DEMAT 2027. Tu consultes 3 PA (plateformes agréées) de la liste officielle. Réponses sous 2 semaines.\nAvant d'ouvrir les offres, tu écris la grille : 3 critères éliminatoires, puis 7 critères pondérés, 100 en tout. Le DAF (directeur administratif et financier, ton sponsor) la valide.\nAprès les démos sur vos 6 cas réels, chacun note son domaine. Totaux : A 78, B 74, C 64.",
+      regle: "Une grille de choix rend la comparaison des offres juste et défendable. Les critères et leurs poids s'écrivent avant d'ouvrir les offres : ainsi, la grille ne peut pas être ajustée pour un favori. Les critères éliminatoires trient d'abord ; les notes, données sur des faits, classent ensuite. La grille éclaire la décision, mais c'est le décideur qui choisit, sur ta recommandation.",
       points: [
         "À quoi elle sert : comparer 2 ou 3 offres sérieuses sur une grille écrite avant de les ouvrir. Quand : la grille avant les offres, validée par le décideur ; les notes après les démos et les références.",
         "Sur le site : « Ce qu'on achète », les offres, « Grille validée par, le ». `+ Éliminatoire` : Oui ou Non par offre. `+ Critère` : un poids, puis une note de 0 à 5 par offre (5 très intéressant, 3 satisfaisant, 0 pas d'information). Points = poids × note ÷ 5 : un calcul, qui reste une formule avec `Télécharger en Excel`.",
@@ -26,6 +27,7 @@ LEARNSQL.cours.ot04 = {
     {
       titre: "Fiche contrat et SLA",
       exemple: "Novembre 2026. Le DAF t'envoie le contrat de la PA : « Relis ce qui te concerne. »\nTu ouvres la fiche : 10 clauses à relire, déjà listées, chacune avec ce que tu vérifies.\nSigné, tu en tires une page pour l'équipe.\nAvril 2027 : son rapport dit 99,8 % de disponibilité. Tes tickets : 6 h de panne. L'outil calcule 99,17 %, pour 99,5 % promis.",
+      regle: "Un contrat ne protège que ce qui y est écrit. Avant de signer, tu relis les clauses qui touchent ton projet, et tu proposes un texte quand il manque quelque chose. Après, une fiche d'une page rend le contrat utile à l'équipe. Le SLA (le niveau de service promis) se vérifie chaque mois avec tes propres mesures, pas seulement avec le rapport du fournisseur.",
       points: [
         "À quoi elle sert : relire tes clauses avant de signer ; puis une fiche d'une page pour l'équipe (dates, livrables, recette, SLA, pénalités, préavis, contacts) ; puis mesurer le SLA (le niveau de service promis) chaque mois, au comité fournisseur.",
         "Sur le site : un document neuf a déjà les 10 clauses. Pour chacune : ce que dit le contrat, ou ton texte proposé, puis l'état : « OK » ou « À faire écrire ». Puis les rubriques de la fiche. Chaque mois, `+ Mois` : les jours, les heures de panne, son rapport. La disponibilité se calcule.",
@@ -38,6 +40,7 @@ LEARNSQL.cours.ot04 = {
     {
       titre: "Échéancier des contrats",
       exemple: "Plus tard, tu es DSI adjoint. Octobre 2028, budget 2029.\nLe contrat de la PA finit le 30 novembre 2029. Il se reconduit seul, sauf préavis de 6 mois.\nL'outil calcule la date limite pour résilier : le 30/05/2029. Ta prochaine relecture : septembre 2029, trop tard.\nL'alerte : « La date limite tombe avant la prochaine relecture : prépare le choix du DAF, sortie chiffrée, et prévois-le au budget. »",
+      regle: "Un contrat qui se reconduit seul ne prévient pas. L'échéancier liste chaque contrat avec sa fin, son préavis et son propriétaire, pour calculer la date limite pour résilier. Avant cette date, le DAF peut rester, renégocier ou changer ; après, le contrat repart pour une période. L'échéancier se relit à chaque budget, et une date limite proche se prépare tout de suite.",
       points: [
         "À quoi il sert : lister chaque contrat avec sa fin, son préavis et son propriétaire, pour que le DAF choisisse avant la date limite. Quand : dès le 1er contrat signé, puis relu à chaque budget.",
         "Sur le site : « Relu par », « Relu le », et la date de la prochaine relecture (le prochain budget). `+ Contrat` : sa fin, son préavis en mois, son propriétaire. L'outil calcule la date limite pour résilier, et les jours qui restent.",

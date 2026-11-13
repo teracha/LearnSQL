@@ -75,7 +75,7 @@ LEARNSQL.cours.mXX = {          // une fiche : LEARNSQL.fiches.mXX, même format
 
 Toujours l'exemple d'abord. `regle` (facultatif) : « La règle générale », affichée après l'exemple et le résultat, avant
 les points : le sens de la notion en quelques phrases simples, sans dépendre de l'exemple (demande de l'élève, novembre
-2026 : dans chaque partie des 16 cours SQL, sauf « Détails utiles »). Texte entre accents graves = affiché en police code. `resultat` : une phrase, ou un tableau
+2026 : dans chaque partie des 16 cours SQL, sauf « Détails utiles », et des 5 cours « Maîtriser les outils »). Texte entre accents graves = affiché en police code. `resultat` : une phrase, ou un tableau
 (1re ligne = les en-têtes).
 
 ## Mode révision

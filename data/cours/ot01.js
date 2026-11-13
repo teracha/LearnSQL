@@ -14,6 +14,7 @@ LEARNSQL.cours.ot01 = {
     {
       titre: "Note de cadrage",
       exemple: "Octobre 2026, projet DEMAT 2027. Le DAF (directeur administratif et financier, ton sponsor) : « On passe à la facture électronique. Lance l'intégrateur. »\nLa cheffe comptable comprend « factures fournisseurs ». Le commercial, « factures clients ».\nTrois projets dans une phrase. Rien n'est commandé.\nTu ouvres la note de cadrage, et tu la remplis avec la cheffe comptable et le responsable ADV (administration des ventes).",
+      regle: "La note de cadrage est le contrat de départ entre le projet et ceux qui le paient. Elle fixe ce que le projet doit produire, pour qui, avec quels moyens, et surtout ce qu'il ne fera pas. Elle transforme une phrase vague (« lance la facture électronique ») en un objectif que tout le monde lit de la même façon. Une fois validée par écrit par le sponsor, elle sert de référence : chaque nouvelle demande se compare à elle.",
       points: [
         "À quoi elle sert : écrire, avant de dépenser, ce que le projet doit produire, pour qui, avec quels moyens et quelles limites. Quand : au début, avant les commandes. Un prestataire démarre sans note validée ni commande ? Tu fais arrêter, et tu informes le sponsor le jour même.",
         "Sur le site : `Voir l'exemple` montre la note de DEMAT 2027. `Nouveau` ouvre une note vide ; `Partir de l'exemple`, une copie à adapter. Les tableaux s'allongent avec `+ Critère`, `+ Hypothèse`, `+ Risque`, `+ Jalon`. Ta note reste dans ce navigateur ; pour la garder ailleurs : `Enregistrer dans un fichier`.",
@@ -26,6 +27,7 @@ LEARNSQL.cours.ot01 = {
     {
       titre: "Business case : le coût sur 3 ans",
       exemple: "Octobre 2026. Le DAF : « Le connecteur coûte 35 k€ de plus que le portail, sur 3 ans. Ça vaut le coup ? »\nDans le business case, 2 options. A : le portail de la PA (plateforme agréée) seul, les factures fournisseurs ressaisies. B : le connecteur standard de la PA dans Divalto.\nGain de B : 2 000 factures × 3 minutes = 100 heures par mois. À 30 € l'heure : 3 000 € par mois.\nL'outil affiche un délai de retour de 11,67 mois, et une alerte : « Gain en temps : ce n'est pas de l'argent économisé. »",
+      regle: "Le business case répond à une question : le projet vaut-il ce qu'il coûte ? Il compare des options sur toute leur durée, pas seulement le prix d'achat : la mise en place, le fonctionnement, la sortie, et le temps des équipes. Face aux coûts, il met les gains, en séparant l'argent économisé du temps libéré. Le sponsor décide avec lui, et on le relit quand un gros changement modifie les chiffres.",
       points: [
         "À quoi il sert : justifier le projet. Les options, leur coût complet sur la durée (le TCO, coût total de possession), les gains, ta recommandation. Quand : au cadrage, avant de valider le budget ; puis après les contrats, et à chaque gros changement.",
         "Sur le site, 3 tableaux. `+ Option` : son coût, son surcoût et son gain par mois ; le délai de retour se calcule (surcoût ÷ gain). `+ Poste` : quantité × prix, et sa nature : mise en place, run (le fonctionnement après la mise en service), sortie, réserve. `+ Gain` : volume × temps gagné × coût horaire.",
@@ -38,6 +40,7 @@ LEARNSQL.cours.ot01 = {
     {
       titre: "Matrice RACI",
       exemple: "Mars 2027. Ta matrice RACI de DEMAT a une colonne par personne :\ntoi, le DAF, la cheffe comptable, Julie, ton DSI (directeur des systèmes d'information), le DG (directeur général)…\nNouveau livrable : le planning de formation de la compta.\nTu l'ajoutes avec `+ Livrable`, et tu te mets R.\nUne alerte s'affiche : « Personne n'approuve ce livrable : mets un A. »\nTu proposes la cheffe comptable, qui accepte. Son A fait disparaître l'alerte.",
+      regle: "La matrice RACI répartit les rôles : pour chaque livrable, qui le réalise (R), qui l'approuve (A), qui est consulté avant (C) et qui est informé après (I). Elle évite deux dangers : le travail que personne ne fait, et la décision que personne ne prend. Le A est le plus important : un seul par livrable, sinon personne ne tranche. Elle vit avec le projet : un départ ou un nouveau livrable la met à jour.",
       points: [
         "À quoi elle sert : dire, pour chaque livrable, qui réalise (R), qui approuve (A), qui est consulté (C) et qui est informé (I). Quand : au cadrage, validée par le sponsor ; puis à chaque nouveau livrable, départ ou congé.",
         "Sur le site : `+ Personne` ajoute une colonne (une personne ou un rôle), `+ Livrable` une ligne. Dans chaque case : R, A, C ou I. La légende rappelle le sens : C donne son avis AVANT la décision, I l'apprend APRÈS.",
@@ -50,6 +53,7 @@ LEARNSQL.cours.ot01 = {
     {
       titre: "Calculette d'estimation",
       exemple: "Décembre 2026. 300 fiches clients n'ont pas de SIREN (le numéro d'entreprise) dans Divalto. L'ADV doit les compléter.\nElle estime : 4 jours au mieux, 6 probablement, 14 au pire. Elle a 2 jours par semaine pour ça.\nLa calculette : charge = (4 + 4 × 6 + 14) ÷ 6 = 7 jours. Durée = 7 ÷ 2 = 3,5 semaines.\nAu planning, tu mets 3,5 semaines.",
+      regle: "Estimer, ce n'est pas deviner un chiffre, c'est donner une fourchette honnête. Trois valeurs, optimiste, probable et pessimiste, donnent une charge plus réaliste qu'un chiffre unique. Ensuite, la charge (le travail en jours) devient une durée (le temps au calendrier), selon la disponibilité réelle de la personne. Une estimation appartient à celui qui fait le travail : elle change quand le contenu change, jamais sous la pression.",
       points: [
         "À quoi elle sert : estimer une tâche avec 3 chiffres, puis passer de la charge (le travail, en jours) à la durée (le temps au calendrier). Quand : en faisant le planning, avec ceux qui feront le travail ; puis chaque fois que le contenu change.",
         "Sur le site : `+ Tâche`, puis qui l'estime, les 3 chiffres en jours (optimiste O, probable P, pessimiste Pe) et la disponibilité en jours par semaine. L'outil calcule la charge, (O + 4 × P + Pe) ÷ 6, la durée en semaines, et la charge totale.",
