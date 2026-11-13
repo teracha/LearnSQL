@@ -130,7 +130,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     resultat: [["num_cde", "date_cde", "annee", "mois", "trimestre"], ["CDE-1001", "2026-03-02", 2026, 3, 1], ["CDE-1003", "2026-03-09", 2026, 3, 1], ["CDE-1007", "2026-04-07", 2026, 4, 2]],
     piege: "`WHERE YEAR(date_cde) = 2026` enveloppe la colonne : l'index ne sert plus, toute la table est lue. Écris une plage : `date_cde >= '20260101' AND date_cde < '20270101'`.",
     pratique: "Pour un numéro de semaine comme en France (norme ISO : semaine du lundi au dimanche), écris `DATEPART(iso_week, d)` ; Snowflake : `WEEKISO(d)` ; MySQL : `WEEK(d, 3)`. La semaine « simple » (`week`) suit d'autres règles.",
-    motsCles: ["extraire", "année", "mois", "jour", "trimestre", "semaine", "partie", "numéro", "year", "month", "day", "quarter", "extract", "heure", "date"],
+    motsCles: ["extraire", "année", "mois", "jour", "trimestre", "semaine", "partie", "numéro", "year", "month", "day", "quarter", "extract", "heure", "date", "année d'une date", "mois d'une date"],
     voirAussi: ["date-trunc", "eomonth", "datefromparts", "dateadd"],
     module: "m03"
   },

@@ -113,7 +113,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     apercu: { sqlserver: "4 octets, ± 2,1 milliards", snowflake: "= NUMBER(38,0)", mysql: "4 octets ; UNSIGNED : 0 à 4,2 milliards" },
     noms: ["INTEGER"],
     exemple: "CREATE TABLE stock_depot (\n  article_id INT NOT NULL,\n  depot_id   INT NOT NULL,\n  qte        INT NOT NULL\n);",
-    piege: "Sur SQL Server, une division de deux entiers garde un entier : `7 / 2` donne 3. Snowflake et MySQL donnent 3.5. Pour garder les décimales sur SQL Server : `7 / 2.0`, ou un `CAST`.",
+    piege: "Sur SQL Server, une division de deux entiers garde un entier : `7 / 2` donne 3 (Snowflake et MySQL : 3.5). Pour garder les décimales sur SQL Server : `7 / 2.0`, ou un `CAST`.",
     pratique: "Un code fait de chiffres (code postal, SIRET, numéro de facture) se range en texte (`VARCHAR`) : en INT, 01000 perdrait son zéro, et on ne calcule jamais dessus.",
     motsCles: ["entier", "nombre entier", "integer", "int", "quantité", "compteur", "sans virgule", "4 octets", "type numérique"],
     voirAussi: ["bigint", "smallint", "decimal", "types-nombre", "division"]
@@ -181,8 +181,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     noms: [],
     exemple: "-- Snowflake : quatre types déclarés, un seul type rangé\nCREATE TABLE statut_flux (\n  code_statut TINYINT,\n  nb_lignes   INT,\n  montant     DECIMAL(10,2),\n  taux        NUMERIC\n);\nDESC TABLE statut_flux;",
     resultat: [["name", "type"], ["CODE_STATUT", "NUMBER(38,0)"], ["NB_LIGNES", "NUMBER(38,0)"], ["MONTANT", "NUMBER(10,2)"], ["TAUX", "NUMBER(38,0)"]],
-    piege: "Exemple écrit pour Snowflake. TINYINT ou INT n'y limitent rien : code_statut accepte 300, ou 12 chiffres, sans erreur ; pour une vraie limite, ajoute un CHECK (`CHECK (code_statut BETWEEN 0 AND 255)`), appliqué depuis avril 2026.",
-    pratique: "Sur Snowflake, la précision ne coûte rien (même place, même vitesse) : seule l'échelle compte. `NUMBER(38,2)` pour un montant, sans hésiter ; pas plus de décimales que le besoin.",
+    piege: "Exemple écrit pour Snowflake. TINYINT ou INT n'y limitent rien : code_statut accepte 300, ou 12 chiffres, sans erreur ; pour une vraie limite, ajoute un CHECK (`CHECK (code_statut BETWEEN 0 AND 255)`), appliqué depuis avril 2026 ; pour l'instant, `COPY INTO` échoue alors sur la table.",
+    pratique: "Sur Snowflake, la précision ne coûte rien (même place) : seule l'échelle compte. `NUMBER(38,2)` pour un montant, sans hésiter ; pas plus de décimales que le besoin.",
     motsCles: ["number", "nombre", "snowflake", "numérique", "nombre exact", "38 chiffres", "précision", "échelle", "entier", "décimal", "decfloat", "type numérique"],
     voirAussi: ["decimal", "int", "float", "to-number", "cast"],
     module: "m10"
@@ -341,7 +341,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Un attribut des entiers de MySQL : pas de nombre négatif, et une valeur maximale doublée.",
     moteurs: {
       sqlserver: "Pas de UNSIGNED : `CHECK (col >= 0)` ; seul `TINYINT` est déjà sans signe (0 à 255)",
-      snowflake: "Pas de UNSIGNED : `CHECK (col >= 0)`, appliqué depuis avril 2026",
+      snowflake: "Pas de UNSIGNED : `CHECK (col >= 0)`, appliqué depuis avril 2026 ; pour l'instant, `COPY INTO` échoue sur une table qui en a un",
       mysql: "`INT UNSIGNED` : de 0 à 4 294 967 295 ; obsolète sur `DECIMAL`, `FLOAT` et `DOUBLE` (MySQL conseille un `CHECK`)"
     },
     apercu: { sqlserver: "— (CHECK col >= 0)", snowflake: "— (CHECK col >= 0)", mysql: "négatifs refusés, maximum doublé" },
@@ -412,7 +412,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "`ALTER TABLE t MODIFY col DECIMAL(12,4) NOT NULL` : convertit tout ; en mode strict (le défaut), refusé si une valeur ne passe pas"
     },
     apercu: { sqlserver: "ALTER COLUMN : conversion de chaque valeur", snowflake: "SET DATA TYPE : surtout agrandir", mysql: "MODIFY : définition complète" },
-    noms: ["MODIFY COLUMN", "CHANGE COLUMN"],
+    noms: ["MODIFY COLUMN", "CHANGE COLUMN", "modifier le type"],
     exemple: "-- Prix de vente à 4 décimales, comme les prix d'achat\nALTER TABLE article ALTER COLUMN prix_tarif DECIMAL(12,4) NOT NULL;\nSELECT code, prix_tarif FROM article WHERE famille = 'CHIMIE';",
     exemples: {
       snowflake: "-- L'échelle (2 → 4) ne change pas sur place : une nouvelle colonne\nALTER TABLE article ADD COLUMN prix_4 NUMBER(12,4);\nUPDATE article SET prix_4 = prix_tarif;\nALTER TABLE article DROP COLUMN prix_tarif;\nALTER TABLE article RENAME COLUMN prix_4 TO prix_tarif;\nSELECT code, prix_tarif FROM article WHERE famille = 'CHIMIE';",
@@ -446,7 +446,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["id", "qte", "prix_unit", "montant"], [1, 100, "35.90", "3590.00"], [2, 10, "119.00", "1190.00"]],
     piege: "On n'écrit jamais dans une colonne calculée : un INSERT qui la cite est refusé. Et sur Snowflake, le type doit coller au calcul : `NUMBER(12,2)` est refusé ici, car qte × prix_unit peut faire 38 chiffres.",
-    pratique: "Une colonne calculée évite de recopier la formule dans chaque requête et chaque rapport Power BI. Stockée (PERSISTED, STORED), elle peut aussi porter un index, pour filtrer vite sur la valeur calculée.",
+    pratique: "Une colonne calculée évite de recopier la formule dans chaque requête et chaque rapport Power BI. Sur SQL Server et MySQL, elle peut aussi porter un index, même non stockée, pour filtrer vite sur la valeur calculée.",
     motsCles: ["colonne calculée", "calculer", "calcul", "formule", "persisted", "virtuelle", "generated", "stored", "montant de ligne", "computed", "dérivée", "toujours à jour"],
     voirAussi: ["create-index", "alter-table", "default", "create-view"]
   }

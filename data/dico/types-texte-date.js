@@ -349,7 +349,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "-- La fin de journée, écrite au millième\nSELECT CAST('2026-10-31 23:59:59.999' AS DATETIME)    AS en_datetime,\n       CAST('2026-10-31 23:59:59.999' AS DATETIME(3)) AS en_datetime3;"
     },
     resultat: [["en_datetime", "en_datetime2"], ["2026-11-01 00:00:00.000", "2026-10-31 23:59:59.999"]],
-    piege: "Arrondi au lendemain, sans erreur : `BETWEEN '20261001' AND '20261031 23:59:59.999'` prend aussi les commandes du 1er novembre à minuit. MySQL arrondit pareil un DATETIME sans décimale (Snowflake garde .999) : filtre avec `>= '20261001' AND < '20261101'`.",
+    piege: "Arrondi au lendemain, sans erreur : `BETWEEN '20261001' AND '20261031 23:59:59.999'` prend aussi les commandes du 1er novembre à minuit. MySQL arrondit pareil une heure écrite dans un DATETIME sans décimale (Snowflake garde .999) : filtre avec `>= '20261001' AND < '20261101'`.",
     pratique: "Pour un nouvel horodatage sur SQL Server, prends `DATETIME2(0)` (à la seconde, 6 octets) ou `DATETIME2(3)` (au millième, 7 octets) : plus précis et plus léger que DATETIME (8 octets).",
     motsCles: ["date et heure", "date avec heure", "horodatage", "heure", "arrondi", "millisecondes", "fin de journée", "23:59:59", "datetime", "date heure", "moment"],
     voirAussi: ["datetime2", "smalldatetime", "between", "timestamp-ntz", "getdate"],
@@ -421,7 +421,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     resultat: [["id", "heure_paris"], [1, "2026-03-02 07:10:00 +01:00"], [6, "2026-04-08 19:30:00 +02:00"]],
     piege: "Un `CAST` vers `DATETIME2` jette le décalage sans convertir : '17:30 +02:00' devient 17:30, pas 15:30 UTC. Pour passer en UTC, écris d'abord `AT TIME ZONE 'UTC'`.",
     pratique: "Sur MySQL, `CONVERT_TZ(d, '+00:00', 'Europe/Paris')` renvoie NULL tant que les tables de fuseaux ne sont pas chargées ; avec des décalages chiffrés ('+01:00'), il marche toujours, mais sans heure d'été.",
-    motsCles: ["fuseau horaire", "fuseau", "décalage", "utc", "heure d'été", "heure locale", "timezone", "international", "offset", "heure universelle", "at time zone", "paris"],
+    motsCles: ["fuseau horaire", "fuseau", "décalage", "utc", "heure d'été", "heure locale", "timezone", "international", "offset", "heure universelle", "at time zone", "paris", "date et heure avec fuseau"],
     voirAussi: ["datetime2", "timestamp-tz", "getdate", "types-date"],
     module: "m10"
   },
@@ -509,7 +509,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     resultat: [["depart", "a_6_mois"], ["2026-01-15 12:00:00.000 +0100", "2026-07-15 12:00:00.000 +0100"]],
     piege: "TIMESTAMP_TZ garde le décalage, pas le fuseau : 6 mois plus tard, il reste +01:00 alors que Paris est à +02:00 en juillet. Pour l'heure locale juste, recalcule avec `CONVERT_TIMEZONE('Europe/Paris', …)`.",
     pratique: "Deux valeurs sont égales si elles désignent le même instant UTC : '17:30 +02:00' = '16:30 +01:00' est vrai. Pratique pour repérer un même flux reçu de deux pays.",
-    motsCles: ["tz", "fuseau", "décalage", "time zone", "timestamp_tz", "offset", "heure d'été", "international", "utc", "fuseau horaire", "avec fuseau"],
+    motsCles: ["tz", "fuseau", "décalage", "time zone", "timestamp_tz", "offset", "heure d'été", "international", "utc", "fuseau horaire", "avec fuseau", "date et heure avec fuseau"],
     voirAussi: ["datetimeoffset", "timestamp-ntz", "timestamp-ltz", "timestamp"],
     module: "m03"
   },

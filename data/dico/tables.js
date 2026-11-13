@@ -374,7 +374,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     resultat: [["cde_id", "date_prevue", "expedie_le"], [7, "2026-04-08", "2026-04-08 17:30:00"]],
     piege: "Sur SQL Server, `TIMESTAMP` n'est pas une date : c'est un compteur de version de ligne (rowversion). Une table recopiée de Snowflake ou de MySQL avec `TIMESTAMP` refuse alors tes dates (Msg 273) : écris `DATETIME2`.",
     pratique: "Pour des heures de flux venues de plusieurs pays, range-les en UTC, ou avec leur décalage (`DATETIMEOFFSET`, `TIMESTAMP_TZ`) : en heure de Paris, la nuit du passage à l'heure d'hiver, 2 h 30 existe deux fois.",
-    motsCles: ["date", "heure", "horodatage", "jour", "temps", "fuseau", "seconde", "calendrier", "moment", "utc", "2038", "type", "timezone"],
+    motsCles: ["date", "heure", "horodatage", "jour", "temps", "fuseau", "seconde", "calendrier", "moment", "utc", "2038", "type", "timezone", "temporel", "type temporel"],
     voirAussi: ["date", "datetime2", "datetimeoffset", "timestamp", "timestamp-ntz", "getdate", "dateadd", "datediff"],
     module: "m10"
   },

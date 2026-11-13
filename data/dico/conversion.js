@@ -38,12 +38,12 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     type: "fonction",
     categorie: "Conversion",
     famille: "Convertir un type",
-    apercu: { sqlserver: "CAST(x AS type) ; vers INT : coupe", snowflake: "CAST ou :: ; vers INT : arrondit", mysql: "CAST(x AS SIGNED) : arrondit" },
+    apercu: { sqlserver: "CAST(x AS type) ; vers INT : coupe", snowflake: "CAST ou :: ; vers INT : arrondit", mysql: "CAST(x AS SIGNED) : arrondit un nombre" },
     definition: "Convertit une valeur vers un autre type : texte, nombre entier, décimal, date…",
     moteurs: {
       sqlserver: "`CAST(x AS decimal(10,2))`, `CAST(x AS varchar(20))` ; vers `int`, il coupe les décimales",
       snowflake: "`CAST(x AS NUMBER(10,2))` ou `x::NUMBER(10,2)` ; vers un entier, il arrondit",
-      mysql: "`CAST(x AS DECIMAL(10,2))`, `CAST(x AS CHAR)`, `CAST(x AS SIGNED)` (il arrondit) : pas de `AS INT` ni de `AS VARCHAR`"
+      mysql: "`CAST(x AS DECIMAL(10,2))`, `CAST(x AS CHAR)`, `CAST(x AS SIGNED)` (il arrondit un nombre, mais coupe un texte : '12.7' donne 12) : pas de `AS INT` ni de `AS VARCHAR`"
     },
     noms: ["::"],
     exemple: "-- TTC des commandes EDI, en décimal exact\nSELECT num_cde, montant_ht,\n       CAST(montant_ht * 1.2 AS decimal(10,2)) AS montant_ttc\nFROM commande\nWHERE canal = 'EDI';",
