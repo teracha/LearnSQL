@@ -4,7 +4,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "debut-fin-de-mois",
     titre: "Trouver le premier et le dernier jour du mois",
     famille: "Dates utiles",
-    besoins: ["avoir le premier jour du mois d'une date", "trouver le dernier jour du mois", "les bornes du mois dernier pour un rapport"],
+    besoins: ["avoir le premier jour du mois d'une date", "trouver le dernier jour du mois", "les bornes du mois dernier pour un rapport", "la fin du mois d'une date"],
     essais: ["fin de mois", "1er jour du mois en cours", "dernier jour du mois precedent", "eomonth"],
     moteurs: {
       sqlserver: "Dernier jour : `EOMONTH(d)` ; premier : `DATETRUNC(month, d)` (2022+), avant : `DATEADD(day, 1, EOMONTH(d, -1))`",
@@ -92,7 +92,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "echeance-fin-de-mois",
     titre: "Calculer une échéance à 45 jours fin de mois",
     famille: "Dates utiles",
-    besoins: ["calculer la date d'échéance d'une facture à 45 jours fin de mois", "une échéance à 30 jours fin de mois", "la date limite de paiement d'une facture"],
+    besoins: ["calculer la date d'échéance d'une facture à 45 jours fin de mois", "une échéance à 30 jours fin de mois", "la date limite de paiement d'une facture", "la date d'échéance d'une facture"],
     essais: ["echeance 45j fdm", "date de reglement a 30 jours fin de mois", "calculer la date d echeance", "delai de paiement fin de mois"],
     moteurs: {
       sqlserver: "`EOMONTH(DATEADD(day, 45, date_fact))` ; l'autre lecture, fin de mois puis 45 jours : `DATEADD(day, 45, EOMONTH(date_fact))`",
@@ -158,7 +158,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "semaine-iso",
     titre: "Trouver le numéro de semaine (norme ISO)",
     famille: "Dates utiles",
-    besoins: ["avoir le numéro de semaine d'une date, comme en France", "regrouper les commandes par semaine", "la semaine ISO de chaque commande"],
+    besoins: ["avoir le numéro de semaine d'une date, comme en France", "regrouper les commandes par semaine", "la semaine ISO de chaque commande", "le n° de semaine d'une date"],
     essais: ["numero de semaine", "semaine 1 a 53", "week iso", "chiffre d affaires par semaine"],
     moteurs: {
       sqlserver: "`DATEPART(iso_week, d)` ; l'année de cette semaine : `YEAR(DATEADD(day, 26 - DATEPART(iso_week, d), d))`",
@@ -209,10 +209,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "Pas de fonction : la même table calendrier ; week-end : `DAYOFWEEKISO(jour) >= 6`",
       mysql: "Pas de fonction : la même table calendrier ; week-end : `WEEKDAY(jour) >= 5` (0 = lundi)"
     },
-    exemple: "-- calendrier : une ligne par jour ; ouvre = 0 le samedi, le dimanche\n-- et les jours fériés (lundi de Pâques le 6 avril 2026). Arrêté au 15 avril.\nSELECT c.num_cde, c.date_cde,\n       DATEDIFF(day, c.date_cde, '20260415') AS jours_calendaires,\n       COUNT(k.jour)                          AS jours_ouvres\nFROM commande AS c\nLEFT JOIN calendrier AS k\n       ON k.jour > c.date_cde AND k.jour <= '20260415' AND k.ouvre = 1\nWHERE c.statut = 'EN_COURS'\nGROUP BY c.num_cde, c.date_cde\nORDER BY c.date_cde;",
+    exemple: "-- Table calendrier à créer d'abord (pas dans la base d'exemple) :\n-- une ligne par jour ; ouvre = 0 le samedi, le dimanche et les jours\n-- fériés (lundi de Pâques le 6 avril 2026). Arrêté au 15 avril.\nSELECT c.num_cde, c.date_cde,\n       DATEDIFF(day, c.date_cde, '20260415') AS jours_calendaires,\n       COUNT(k.jour)                          AS jours_ouvres\nFROM commande AS c\nLEFT JOIN calendrier AS k\n       ON k.jour > c.date_cde AND k.jour <= '20260415' AND k.ouvre = 1\nWHERE c.statut = 'EN_COURS'\nGROUP BY c.num_cde, c.date_cde\nORDER BY c.date_cde;",
     exemples: {
-      snowflake: "SELECT c.num_cde, c.date_cde,\n       DATEDIFF(day, c.date_cde, '2026-04-15'::DATE) AS jours_calendaires,\n       COUNT(k.jour)                                  AS jours_ouvres\nFROM commande AS c\nLEFT JOIN calendrier AS k\n       ON k.jour > c.date_cde AND k.jour <= '2026-04-15'::DATE AND k.ouvre = 1\nWHERE c.statut = 'EN_COURS'\nGROUP BY c.num_cde, c.date_cde\nORDER BY c.date_cde;",
-      mysql: "SELECT c.num_cde, c.date_cde,\n       DATEDIFF('2026-04-15', c.date_cde) AS jours_calendaires,\n       COUNT(k.jour)                       AS jours_ouvres\nFROM commande AS c\nLEFT JOIN calendrier AS k\n       ON k.jour > c.date_cde AND k.jour <= '2026-04-15' AND k.ouvre = 1\nWHERE c.statut = 'EN_COURS'\nGROUP BY c.num_cde, c.date_cde\nORDER BY c.date_cde;"
+      snowflake: "-- Table calendrier à créer d'abord (pas dans la base d'exemple) :\n-- une ligne par jour ; ouvre = 0 le samedi, le dimanche et les jours\n-- fériés (lundi de Pâques le 6 avril 2026). Arrêté au 15 avril.\nSELECT c.num_cde, c.date_cde,\n       DATEDIFF(day, c.date_cde, '2026-04-15'::DATE) AS jours_calendaires,\n       COUNT(k.jour)                                  AS jours_ouvres\nFROM commande AS c\nLEFT JOIN calendrier AS k\n       ON k.jour > c.date_cde AND k.jour <= '2026-04-15'::DATE AND k.ouvre = 1\nWHERE c.statut = 'EN_COURS'\nGROUP BY c.num_cde, c.date_cde\nORDER BY c.date_cde;",
+      mysql: "-- Table calendrier à créer d'abord (pas dans la base d'exemple) :\n-- une ligne par jour ; ouvre = 0 le samedi, le dimanche et les jours\n-- fériés (lundi de Pâques le 6 avril 2026). Arrêté au 15 avril.\nSELECT c.num_cde, c.date_cde,\n       DATEDIFF('2026-04-15', c.date_cde) AS jours_calendaires,\n       COUNT(k.jour)                       AS jours_ouvres\nFROM commande AS c\nLEFT JOIN calendrier AS k\n       ON k.jour > c.date_cde AND k.jour <= '2026-04-15' AND k.ouvre = 1\nWHERE c.statut = 'EN_COURS'\nGROUP BY c.num_cde, c.date_cde\nORDER BY c.date_cde;"
     },
     resultat: [["num_cde", "date_cde", "jours_calendaires", "jours_ouvres"], ["CDE-1005", "2026-04-01", 14, 9], ["CDE-1006", "2026-04-03", 12, 7], ["CDE-1007", "2026-04-07", 8, 6]],
     piege: "Le lundi de Pâques (6 avril 2026) n'est ni un samedi ni un dimanche : un calcul « du lundi au vendredi » le compte comme ouvré, et le délai est faux d'un jour. Les jours fériés viennent d'une liste, à tenir à jour chaque année.",

@@ -36,7 +36,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["compose", "composant"], ["VANNE-6V", "JOINT-V"], ["BACHE8", "KIT-COUV"], ["FIL-14", "SABLE-25"], ["FIL-14", "VANNE-6V"]],
     piege: "`NOT IN (SELECT code FROM …)` rend 0 ligne dès qu'un code de la liste est NULL, sans erreur. `NOT EXISTS` ou `LEFT JOIN … IS NULL` n'ont pas ce piège.",
     pratique: "Ici, les orphelins sont voulus (kits et pièces hors catalogue) : le contrôle signale, le métier tranche. Lance-le après chaque import EDI ou Excel : un « EAN inconnu » est un orphelin.",
-    motsCles: ["orphelin", "sans parent", "sans client", "inconnu", "inexistant", "clé étrangère", "intégrité", "sans correspondance", "référence", "absent", "catalogue"],
+    motsCles: ["orphelin", "sans parent", "sans client", "inconnu", "inexistant", "clé étrangère", "intégrité", "sans correspondance", "référence", "absent", "catalogue", "n'existe pas"],
     voirAussi: ["exists", "left-join", "foreign-key", "except"]
   },
   {
@@ -67,7 +67,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     besoins: ["vérifier qu'un SIREN contient bien 9 chiffres", "contrôler le format d'un SIRET à 14 chiffres", "trouver les codes postaux mal saisis"],
     essais: ["siret sur 14 caracteres numeriques", "controle avec une expression reguliere", "code postal a 5 chiffres", "regex"],
     moteurs: {
-      sqlserver: "`siren LIKE REPLICATE('[0-9]', 9)` : 9 chiffres, rien d'autre ; SQL Server 2025 : `REGEXP_LIKE(siren, '^[0-9]{9}$')`",
+      sqlserver: "`siren LIKE REPLICATE('[0-9]', 9)` : 9 chiffres, rien d'autre ; SQL Server 2025 (niveau 170) : `REGEXP_LIKE(siren, '^[0-9]{9}$')`",
       snowflake: "`REGEXP_LIKE(siren, '[0-9]{9}')` : le motif doit couvrir tout le texte ; LIKE ne connaît pas `[0-9]`",
       mysql: "`REGEXP_LIKE(siren, '^[0-9]{9}$')` : sans `^` et `$`, 9 chiffres au milieu d'un texte suffisent"
     },
@@ -119,7 +119,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       mysql: "SELECT c.id AS id_cde, c.montant_ht AS cde, f.montant_ht AS fact,\n       CASE WHEN f.cde_id IS NULL THEN 'sans facture'\n            ELSE 'montant différent' END AS ecart\nFROM commande AS c\nLEFT JOIN facture AS f ON f.cde_id = c.id\nWHERE f.cde_id IS NULL OR c.montant_ht <> f.montant_ht\nUNION ALL\nSELECT f.cde_id, NULL, f.montant_ht, 'facture sans commande'\nFROM facture AS f\nWHERE NOT EXISTS (SELECT 1 FROM commande AS c WHERE c.id = f.cde_id)\nORDER BY id_cde;"
     },
     resultat: [["id_cde", "cde", "fact", "ecart"], [4, "549.00", null, "sans facture"], [5, "318.00", null, "sans facture"], [6, "1290.00", null, "sans facture"], [7, "7950.00", null, "sans facture"]],
-    piege: "`c.montant_ht <> f.montant_ht` ne voit pas un montant NULL d'un seul côté : la comparaison est inconnue, et l'écart sort du contrôle. Si la colonne accepte NULL, compare avec `IS DISTINCT FROM` (MySQL : `NOT (a <=> b)`).",
+    piege: "`c.montant_ht <> f.montant_ht` ne voit pas un montant NULL d'un seul côté : la comparaison est inconnue, et l'écart sort du contrôle. Si la colonne accepte NULL, compare avec `IS DISTINCT FROM` (SQL Server 2022+ ; MySQL : `NOT (a <=> b)`).",
     pratique: "Pour une reprise (de l'ERP vers Snowflake), compare d'abord les `COUNT(*)` et les sommes de chaque côté : c'est rapide, et ça dit s'il y a un écart. La comparaison ligne à ligne dit ensuite où.",
     motsCles: ["comparer", "différences", "écarts", "rapprochement", "deux tables", "reprise", "réconciliation", "diff", "manque", "côté"],
     voirAussi: ["full-outer-join", "except", "is-distinct-from", "coalesce"]
@@ -157,7 +157,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["num_cde", "montant_ht", "total_lignes", "ecart"], ["CDE-1001", "4780.00", "4780.00", "0.00"], ["CDE-1003", "2385.00", "2385.00", "0.00"], ["CDE-1007", "7950.00", "7950.00", "0.00"]],
     piege: "Avec un `JOIN` simple, une commande sans aucune ligne disparaît du contrôle, alors que c'est l'erreur la plus grave. `LEFT JOIN` et `COALESCE(SUM(…), 0)` la font sortir, avec tout son montant en écart.",
     pratique: "Si chaque ligne est arrondie au centime (remise, TVA), l'écart peut valoir 0,01 sans être une erreur : contrôle avec une tolérance, `ABS(ecart) > 0.01`.",
-    motsCles: ["total", "contrôle", "cohérence", "en-tête", "lignes", "somme", "écart", "détail", "montant", "correspond"],
+    motsCles: ["total", "contrôle", "cohérence", "en-tête", "entête", "lignes", "somme", "écart", "détail", "montant", "correspond"],
     voirAussi: ["having", "left-join", "sum", "coalesce"]
   },
   {
@@ -182,7 +182,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "valeurs-anormales",
     titre: "Trouver les valeurs hors limites (prix, quantités)",
     famille: "Contrôler les données",
-    besoins: ["trouver les prix trop bas ou trop hauts par rapport au tarif", "repérer les quantités négatives ou anormales", "contrôler les valeurs hors des bornes attendues"],
+    besoins: ["trouver les prix trop bas ou trop hauts par rapport au tarif", "repérer les quantités négatives ou anormales", "contrôler les valeurs hors des bornes attendues", "repérer les valeurs aberrantes"],
     essais: ["prix aberrant", "detecter les anomalies de prix dans les commandes", "valeur hors norme", "quantite negative ou nulle"],
     moteurs: {
       sqlserver: "`WHERE prix_unit NOT BETWEEN prix_tarif * 0.8 AND prix_tarif` : des bornes écrites en clair",

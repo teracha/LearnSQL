@@ -26,7 +26,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "liste-en-lignes",
     titre: "Découper une liste en lignes",
     famille: "Manipuler",
-    besoins: ["découper un texte « C001;C002;C003 » en une ligne par code", "transformer une liste séparée par des points-virgules en lignes", "une ligne par valeur à partir d'une seule case"],
+    besoins: ["découper un texte « C001;C002;C003 » en une ligne par code", "transformer une liste séparée par des points-virgules en lignes", "une ligne par valeur à partir d'une seule case", "faire un split de texte en lignes"],
     essais: ["split d une chaine en plusieurs lignes", "eclater une liste de codes", "string_split", "couper une chaine a chaque point virgule"],
     moteurs: {
       sqlserver: "`SELECT value FROM STRING_SPLIT(liste, ';')` (2016+) ; séparateur d'un seul caractère ; le rang du morceau : 3e argument `1`, colonne `ordinal` (2022+)",
@@ -41,14 +41,14 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["code", "libelle", "stock"], ["CHL-5", "Chlore lent 5 kg", 120], ["PH-5", "pH moins 5 kg", 80], ["ROB-X", "Robot électrique X", 5]],
     piege: "SQL Server ne garantit pas l'ordre des morceaux : pour « le 2e code de la liste », demande le rang (`ordinal`, 2022+). Et un espace après le séparateur ('C001; C002') fait rater la jointure : `TRIM` sur chaque morceau.",
     pratique: "Deux séparateurs collés (« ;; ») donnent un morceau vide, à filtrer. Pour découper la colonne d'une table : `CROSS APPLY STRING_SPLIT(t.liste, ';')` sur SQL Server, `, LATERAL SPLIT_TO_TABLE(t.liste, ';')` sur Snowflake.",
-    motsCles: ["découper", "séparer", "split", "liste", "point-virgule", "éclater", "en lignes", "string_split", "split_to_table", "paramètre"],
+    motsCles: ["découper", "séparer", "split", "liste", "point-virgule", "éclater", "en lignes", "chaîne", "plusieurs lignes", "paramètre"],
     voirAussi: ["string-split", "trim", "cross-apply", "in"]
   },
   {
     id: "lignes-en-colonnes",
     titre: "Mettre des lignes en colonnes (pivot)",
     famille: "Manipuler",
-    besoins: ["afficher le stock de chaque dépôt dans sa propre colonne", "transformer des lignes en colonnes", "faire un tableau croisé comme dans Excel"],
+    besoins: ["afficher le stock de chaque dépôt dans sa propre colonne", "transformer des lignes en colonnes", "faire un tableau croisé comme dans Excel", "une colonne par mois"],
     essais: ["pivot", "une colonne par depot", "tableau croise dynamique en sql", "passer les mois en colonnes"],
     moteurs: {
       sqlserver: "`SUM(CASE WHEN depot_id = 1 THEN qte ELSE 0 END) AS lyon`, une colonne par valeur ; ou `PIVOT (SUM(qte) FOR depot_id IN ([1], [2], [3]))`",
@@ -106,7 +106,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "top-n-par-groupe",
     titre: "Garder les N premiers de chaque groupe",
     famille: "Manipuler",
-    besoins: ["les 2 plus grosses commandes de chaque client", "le top 3 des articles de chaque famille", "garder les N premières lignes par groupe"],
+    besoins: ["les 2 plus grosses commandes de chaque client", "le top 3 des articles de chaque famille", "garder les N premières lignes par groupe", "les meilleurs clients de chaque région"],
     essais: ["top 3 par client", "les deux meilleures ventes de chaque famille", "limiter a n lignes par categorie", "classement par categorie et garder les premiers"],
     moteurs: {
       sqlserver: "`ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY montant_ht DESC, id DESC) AS rn` dans une CTE, puis `WHERE rn <= 2`",

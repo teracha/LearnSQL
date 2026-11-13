@@ -23,9 +23,9 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`ROUND(x, 2)` ou `x::NUMBER(10,2)` : 2 décimales ; en texte : `TO_CHAR(x, 'FM999999990.00')`",
       mysql: "`ROUND(x, 2)` ou `CAST(x AS DECIMAL(10,2))` ; `FORMAT(x, 2)` ajoute en plus des virgules de milliers (texte)"
     },
-    exemple: "-- Le panier moyen de chaque canal\nSELECT canal,\n       ROUND(AVG(montant_ht), 2) AS avec_round,\n       CAST(AVG(montant_ht) AS DECIMAL(10,2)) AS avec_cast\nFROM commande\nGROUP BY canal\nORDER BY canal;",
+    exemple: "-- Le panier moyen de chaque canal\n-- Résultat de SQL Server. Snowflake et MySQL : 5038.33 dans les 2 colonnes.\nSELECT canal,\n       ROUND(AVG(montant_ht), 2) AS avec_round,\n       CAST(AVG(montant_ht) AS DECIMAL(10,2)) AS avec_cast\nFROM commande\nGROUP BY canal\nORDER BY canal;",
     exemples: {
-      snowflake: "-- Le panier moyen de chaque canal\nSELECT canal,\n       ROUND(AVG(montant_ht), 2) AS avec_round,\n       AVG(montant_ht)::NUMBER(10,2) AS avec_cast\nFROM commande\nGROUP BY canal\nORDER BY canal;"
+      snowflake: "-- Le panier moyen de chaque canal\n-- Ici, les 2 colonnes donnent 5038.33 (le tableau est celui de SQL Server).\nSELECT canal,\n       ROUND(AVG(montant_ht), 2) AS avec_round,\n       AVG(montant_ht)::NUMBER(10,2) AS avec_cast\nFROM commande\nGROUP BY canal\nORDER BY canal;"
     },
     resultat: [["canal", "avec_round", "avec_cast"], ["EDI", "5038.330000", "5038.33"], ["TEL", "562.600000", "562.60"], ["WEB", "919.500000", "919.50"]],
     piege: "Sur SQL Server, `ROUND(x, 2)` arrondit mais garde le type de départ : la moyenne s'affiche 5038.330000. `CAST(… AS DECIMAL(10,2))` arrondit et ne garde que 2 décimales ; sur Snowflake et MySQL, ROUND suffit.",
@@ -52,7 +52,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["num_cde", "montant_ht", "montant_fr"], ["CDE-1001", "4780.00", "4 780,00"], ["CDE-1007", "7950.00", "7 950,00"], ["CDE-1008", "79.80", "79,80"]],
     piege: "Le résultat est du texte : il ne s'additionne plus, et le tri suit les caractères ('2 385,00' passe avant '318,00'). Formate seulement à la fin, pour l'affichage.",
     pratique: "Pour Power BI ou Excel, envoie le nombre : le format français se règle dans l'outil. Ce texte sert pour un libellé, un mail ou un PDF ; FORMAT est lent sur des millions de lignes.",
-    motsCles: ["milliers", "séparateur de milliers", "espace", "virgule", "français", "à la française", "montant", "lisible", "euros", "format monétaire", "formater"],
+    motsCles: ["milliers", "séparateur de milliers", "espace", "virgule", "français", "à la française", "montant", "lisible", "euros", "format monétaire", "formater", "nombre"],
     voirAussi: ["format", "replace", "convert", "cast"]
   },
   {
@@ -125,7 +125,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "heure-hh-mm",
     titre: "Écrire une heure en HH:MM",
     famille: "Formater",
-    besoins: ["afficher seulement l'heure et les minutes", "garder HH:MM d'une date avec heure", "l'heure de réception d'un flux au format 06:10"],
+    besoins: ["afficher seulement l'heure et les minutes", "garder HH:MM d'une date avec heure", "l'heure de réception d'un flux au format 06:10", "afficher juste l'heure"],
     essais: ["heure sans les secondes", "transformer un timestamp en hh:mm", "afficher l'heure sur 24 h"],
     moteurs: {
       sqlserver: "`CONVERT(VARCHAR(5), d, 108)` (108 = HH:mm:ss sur 24 h, coupé à 5 caractères) ; ou `FORMAT(d, 'HH:mm')`",

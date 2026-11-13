@@ -19,7 +19,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "espaces-debut-fin",
     titre: "Enlever les espaces au début et à la fin",
     famille: "Nettoyer du texte",
-    besoins: ["supprimer les espaces qui entourent un code", "nettoyer un code reçu avec des blancs autour", "enlever les espaces en trop d'un import"],
+    besoins: ["supprimer les espaces qui entourent un code", "nettoyer un code reçu avec des blancs autour", "enlever les espaces en trop d'un import", "enlever les blancs au début et à la fin"],
     essais: ["un espace en fin de code casse ma jointure", "virer les blancs autour du texte", "nettoyer les espaces parasites d'un champ"],
     moteurs: {
       sqlserver: "`TRIM(x)` (2017+) ; avant : `LTRIM(RTRIM(x))`",
@@ -32,7 +32,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       mysql: "-- Des codes clients reçus dans un fichier, avec des espaces autour\nWITH recu AS (\n  SELECT '  C001' AS code UNION ALL\n  SELECT 'C002  ' UNION ALL\n  SELECT ' C004 '\n)\nSELECT CONCAT('[', r.code, ']') AS code_recu, c.nom\nFROM recu AS r\nJOIN client AS c ON c.code = TRIM(r.code)\nORDER BY c.code;"
     },
     resultat: [["code_recu", "nom"], ["[  C001]", "AquaBleu"], ["[C002  ]", "Piscines Dumont"], ["[ C004 ]", "Hydro Sud"]],
-    piege: "Sur SQL Server, `=` ignore les espaces de fin : 'C002  ' = 'C002' est vrai, mais faux sur Snowflake et sur MySQL 8. Les espaces de début, eux, font échouer la jointure partout.",
+    piege: "Sur SQL Server, `=` ignore les espaces de fin : 'C002  ' = 'C002' est vrai, mais faux sur Snowflake et sur MySQL 8 (collation par défaut). Les espaces de début, eux, font échouer la jointure partout.",
     pratique: "Nettoie une seule fois, à l'import : `TRIM` dans l'`INSERT … SELECT`, ou un `UPDATE … SET code = TRIM(code)`. Un TRIM dans le ON de chaque jointure empêche l'index de servir.",
     motsCles: ["trim", "espaces", "début", "fin", "blancs", "autour", "entourent", "parasites", "enlever", "supprimer", "nettoyer", "jointure"],
     voirAussi: ["trim", "len", "replace", "varchar", "inner-join"]
@@ -85,7 +85,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "garder-chiffres",
     titre: "Garder seulement les chiffres (téléphone, SIRET)",
     famille: "Nettoyer du texte",
-    besoins: ["enlever tout ce qui n'est pas un chiffre", "nettoyer un numéro de téléphone saisi avec des points et des tirets", "garder les chiffres d'un SIRET tapé avec des espaces"],
+    besoins: ["enlever tout ce qui n'est pas un chiffre", "nettoyer un numéro de téléphone saisi avec des points et des tirets", "garder les chiffres d'un SIRET tapé avec des espaces", "enlever les lettres et les signes d'un numéro"],
     essais: ["supprimer la ponctuation d'un numero de tel", "uniquement des chiffres dans le champ telephone", "ne garder que les chiffres d'un siret"],
     moteurs: {
       sqlserver: "2025+ : `REGEXP_REPLACE(x, '[^0-9]', '')` ; avant : `REPLACE(TRANSLATE(x, ' .-/', '####'), '#', '')` (seulement les caractères listés)",
@@ -204,7 +204,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     exemple: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT 'C001' + NCHAR(160) AS code   -- espace insécable\n  UNION ALL\n  SELECT 'C002' + CHAR(9)              -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, LEN(code) AS longueur,\n       UNICODE(RIGHT(code, 1)) AS code_dernier\nFROM recu;",
     exemples: {
       snowflake: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT 'C001' || CHR(160) AS code   -- espace insécable\n  UNION ALL\n  SELECT 'C002' || CHR(9)             -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, LENGTH(code) AS longueur,\n       UNICODE(RIGHT(code, 1)) AS code_dernier\nFROM recu;",
-      mysql: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT CONCAT('C001', _utf8mb4 X'C2A0') AS code   -- espace insécable\n  UNION ALL\n  SELECT CONCAT('C002', '\\t')                       -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, CHAR_LENGTH(code) AS longueur,\n       HEX(RIGHT(code, 1)) AS octets_dernier   -- C2A0, puis 09\nFROM recu;"
+      mysql: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT CONCAT('C001', _utf8mb4 X'C2A0') AS code   -- espace insécable\n  UNION ALL\n  SELECT CONCAT('C002', '\\t')                       -- tabulation\n)\n-- Le code du dernier caractère ; HEX(RIGHT(code, 1)) montre ses octets : C2A0, 09\nSELECT LEFT(code, 4) AS debut, CHAR_LENGTH(code) AS longueur,\n       ORD(CONVERT(RIGHT(code, 1) USING utf32)) AS code_dernier\nFROM recu;"
     },
     resultat: [["debut", "longueur", "code_dernier"], ["C001", 5, 160], ["C002", 5, 9]],
     piege: "TRIM n'enlève ni l'espace insécable ni la tabulation, et l'écran ne les montre pas : `WHERE code = 'C001'` échoue sans erreur. Enlève-les avec REPLACE : `REPLACE(code, NCHAR(160), '')` sur SQL Server, `CHR(160)` sur Snowflake.",
@@ -216,7 +216,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "enlever-zeros-devant",
     titre: "Enlever les zéros devant un code",
     famille: "Nettoyer du texte",
-    besoins: ["transformer 000123 en 123", "enlever les zéros au début d'un numéro", "comparer un code reçu avec des zéros à un code sans zéros"],
+    besoins: ["transformer 000123 en 123", "enlever les zéros au début d'un numéro", "comparer un code reçu avec des zéros à un code sans zéros", "enlever les 0 à gauche"],
     essais: ["virer les 0 non significatifs", "le code article arrive avec des zeros en trop au debut", "virer les zeros de tete d'un code"],
     moteurs: {
       sqlserver: "2022+ (niveau 160) : `LTRIM(x, '0')` ; avant : `SUBSTRING(x, PATINDEX('%[^0]%', x + '.'), LEN(x))` (la position du 1er caractère qui n'est pas un 0)",
@@ -231,7 +231,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["num_fact", "num_4", "sans_zeros"], ["FA-2026-0301", "0301", "301"], ["FA-2026-0302", "0302", "302"], ["FA-2026-0303", "0303", "303"], ["FA-2026-0401", "0401", "401"]],
     piege: "Un code fait seulement de zéros devient vide : '0000' donne '' ; garde '0' avec un `CASE`. Et sur SQL Server et Snowflake, `CAST(x AS INT)`, autre façon d'enlever les zéros, plante dès qu'une lettre traîne dans le code.",
     pratique: "Pour rapprocher un code EDI (avec zéros) d'un code ERP (sans zéros), mets les deux sous la même forme, une fois à l'import. Une conversion dans le ON empêche l'index de servir.",
-    motsCles: ["zéros", "zéros devant", "zéros de tête", "enlever", "supprimer", "retirer", "non significatifs", "inutiles", "début", "code", "numéro", "edi"],
+    motsCles: ["zéros", "enlever les zéros", "zéros de tête", "enlever", "supprimer", "retirer", "non significatifs", "supprimer les zéros", "début", "code", "numéro", "retirer les zéros"],
     voirAussi: ["trim", "cast", "try-cast", "lpad", "substring"]
   }
 ]);

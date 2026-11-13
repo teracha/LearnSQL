@@ -17,11 +17,11 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     besoins: ["sortir un numéro client avec des zéros devant", "un numéro de facture sur 8 chiffres avec des zéros à gauche", "transformer 42 en 000042", "l'attribut ZEROFILL"],
     essais: ["je voudrais un numero de facture sur 8 caractere avec des 0", "remplir à gauche avec des zéros", "zerofill"],
     moteurs: {
-      sqlserver: "`RIGHT('000000' + CAST(id AS VARCHAR(6)), 6)`, ou `FORMAT(id, 'D6')` (plus lent sur beaucoup de lignes)",
+      sqlserver: "`RIGHT('000000' + CAST(id AS VARCHAR(10)), 6)`, ou `FORMAT(id, 'D6')` (plus lent sur beaucoup de lignes)",
       snowflake: "`LPAD(id::VARCHAR, 6, '0')`",
       mysql: "`LPAD(id, 6, '0')` ; l'attribut `ZEROFILL` est obsolète depuis MySQL 8.0.17"
     },
-    exemple: "SELECT num_cde,\n       RIGHT('000000' + CAST(id AS VARCHAR(6)), 6) AS num_6\nFROM commande\nWHERE id <= 3\nORDER BY id;",
+    exemple: "SELECT num_cde,\n       RIGHT('000000' + CAST(id AS VARCHAR(10)), 6) AS num_6\nFROM commande\nWHERE id <= 3\nORDER BY id;",
     exemples: {
       snowflake: "SELECT num_cde, LPAD(id::VARCHAR, 6, '0') AS num_6\nFROM commande\nWHERE id <= 3\nORDER BY id;",
       mysql: "SELECT num_cde, LPAD(id, 6, '0') AS num_6\nFROM commande\nWHERE id <= 3\nORDER BY id;"
@@ -29,7 +29,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["num_cde", "num_6"], ["CDE-1001", "000001"], ["CDE-1002", "000002"], ["CDE-1003", "000003"]],
     piege: "Un nombre plus long que la largeur est coupé, sans erreur : `RIGHT` garde la fin du nombre, `LPAD` en garde le début. Choisis une largeur assez grande, et contrôle la longueur.",
     pratique: "Garde le numéro en nombre dans la table, et ajoute les zéros seulement à l'affichage ou à l'export (fichier EDI, étiquette) : un nombre se trie et se compare bien.",
-    motsCles: ["zéro", "zeros", "0", "compléter", "gauche", "devant", "padding", "largeur", "longueur fixe", "numéro", "chiffres", "caractères"],
+    motsCles: ["zéro", "ajouter", "0", "compléter", "gauche", "devant", "remplir", "code", "longueur fixe", "numéro", "chiffres", "caractères"],
     voirAussi: ["lpad", "right", "format", "cast", "zerofill"]
   },
   {
@@ -51,7 +51,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     resultat: [["code", "nom_20", "longueur"], ["C001", "AquaBleu            ", 20], ["C004", "Hydro Sud           ", 20], ["C007", "Camping Les Flots   ", 20]],
     piege: "Un texte plus long que la zone est coupé sans erreur : sur 10 caractères, 'Camping Les Flots' devient 'Camping Le'. Et sur SQL Server, `LEN` ne voit pas les espaces de fin : contrôle la largeur avec `DATALENGTH` (il compte des octets).",
     pratique: "Construis chaque ligne du fichier en collant les zones dans l'ordre de la spécification (code, nom, ville…), puis contrôle la longueur totale de la ligne : une zone trop courte décale toutes les suivantes.",
-    motsCles: ["espaces", "droite", "compléter", "blancs", "largeur fixe", "fichier plat", "positionnel", "aligner", "longueur", "remplir", "zone"],
+    motsCles: ["espaces", "droite", "compléter", "blancs", "largeur fixe", "fichier plat", "positionnel", "aligner", "longueur", "remplir", "zone", "cadrer à gauche"],
     voirAussi: ["lpad", "len", "cast", "types-texte", "char"]
   },
   {
@@ -112,10 +112,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     id: "jours-manquants",
     titre: "Créer les jours manquants d'une période",
     famille: "Compléter",
-    besoins: ["avoir une ligne par jour même sans commande", "générer une ligne pour chaque jour de la période", "garder les jours sans vente dans le résultat"],
+    besoins: ["avoir une ligne par jour même sans commande", "générer une ligne pour chaque jour de la période", "garder les jours sans vente dans le résultat", "tous les jours du mois, même sans vente"],
     essais: ["creer un calendrier en sql", "toutes les dates d'un mois meme vides", "les jours sans commande manquent dans mon graphique"],
     moteurs: {
-      sqlserver: "CTE récursive avec `DATEADD(day, 1, jour)` (`OPTION (MAXRECURSION 400)` au-delà de 100 jours) ; 2022+ : `GENERATE_SERIES(0, 29)`",
+      sqlserver: "CTE récursive avec `DATEADD(day, 1, jour)` (`OPTION (MAXRECURSION 400)` au-delà de 100 jours) ; 2022+ (niveau 160) : `GENERATE_SERIES(0, 29)`",
       snowflake: "`TABLE(GENERATOR(ROWCOUNT => 30))` et `ROW_NUMBER() OVER (ORDER BY SEQ4()) - 1` jours, ou une CTE récursive",
       mysql: "`WITH RECURSIVE` et `jour + INTERVAL 1 DAY` (1 000 niveaux au plus par défaut)"
     },
@@ -125,7 +125,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       mysql: "WITH RECURSIVE jours (jour) AS (\n  SELECT CAST('2026-04-01' AS DATE)\n  UNION ALL\n  SELECT jour + INTERVAL 1 DAY FROM jours WHERE jour < '2026-04-04'\n)\nSELECT j.jour, COALESCE(SUM(c.montant_ht), 0) AS ca_ht\nFROM jours AS j\nLEFT JOIN commande AS c ON c.date_cde = j.jour\nGROUP BY j.jour\nORDER BY j.jour;"
     },
     resultat: [["jour", "ca_ht"], ["2026-04-01", "318.00"], ["2026-04-02", "0.00"], ["2026-04-03", "1290.00"], ["2026-04-04", "0.00"]],
-    piege: "Sur SQL Server, la récursion s'arrête à 100 niveaux : un mois passe, une année plante (« maximum recursion 100 »). Ajoute `OPTION (MAXRECURSION 400)` à la fin de la requête, ou prends `GENERATE_SERIES` (2022+).",
+    piege: "Sur SQL Server, la récursion s'arrête à 100 niveaux : un mois passe, une année plante (« maximum recursion 100 »). Ajoute `OPTION (MAXRECURSION 400)` à la fin de la requête, ou prends `GENERATE_SERIES` (2022+, niveau 160).",
     pratique: "Pour des mois au lieu de jours, pars du 1er du mois et ajoute `DATEADD(month, 1, mois)` (MySQL : `mois + INTERVAL 1 MONTH`) : le graphique Power BI montre alors aussi les mois sans vente.",
     motsCles: ["jours", "dates", "calendrier", "générer", "jours manquants", "toutes les dates", "manque", "mois", "période", "chaque jour", "graphique", "trous"],
     voirAussi: ["cte-recursive", "dateadd", "left-join", "coalesce", "with-cte"]
@@ -170,7 +170,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     },
     resultat: [["serie", "dernier_num", "prochain"], ["FA-2026-03", 3, "FA-2026-0304"], ["FA-2026-04", 1, "FA-2026-0402"]],
     piege: "`MAX` sur un texte compare caractère par caractère : il donne 'C999' plutôt que 'C1000' ('9' > '1'), et le « prochain » existe déjà. Prends le MAX du nombre extrait (`CAST`), pas du texte.",
-    pratique: "Deux imports lancés en même temps prennent le même numéro : pour une vraie numérotation, laisse l'ERP ou une séquence (`IDENTITY`, `SEQUENCE`) le donner. MAX + 1 suffit pour préparer un fichier de création.",
+    pratique: "Deux imports en même temps prennent le même numéro : laisse l'ERP numéroter. Une séquence (`SEQUENCE`) peut sauter des numéros : bien pour un code client, jamais pour une facture. MAX + 1 suffit pour un fichier de création.",
     motsCles: ["prochain", "suivant", "numéro libre", "disponible", "plus grand", "max", "plus un", "nouveau code", "dernier numéro", "compteur", "incrémenter"],
     voirAussi: ["min-max", "identity", "lpad", "cast", "right"]
   },
