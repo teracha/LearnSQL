@@ -134,7 +134,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Les noms de clés tiennent compte de la casse : `doc:Cde` renvoie NULL, sans erreur. Et sans `::STRING`, Snowflake affiche `\"CDE-1007\"` avec ses guillemets (MySQL aussi, avec `->`) : convertis toujours.",
     pratique: "Pour découvrir les clés d'un message JSON reçu, liste-les : `OBJECT_KEYS(doc)` sur Snowflake, `JSON_KEYS(doc)` sur MySQL, la colonne `[key]` de `CROSS APPLY OPENJSON(doc)` sur SQL Server. Seul le premier niveau sort.",
     motsCles: ["json", "semi-structuré", "document", "champ", "clé", "extraire", "parse", "deux-points", "chemin", "objet", "tableau", "api", "variant", "xml", "message", "lire"],
-    voirAussi: ["flatten", "cast", "copy-into"],
+    voirAussi: ["flatten", "cast", "copy-into", "type-variant"],
     module: "m14"
   },
   {

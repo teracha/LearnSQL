@@ -86,7 +86,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Résultat de SQL Server, qui ignore les espaces de fin pour comparer ; Snowflake et MySQL 8 en tiennent compte et renvoient 0, sans erreur. Nettoie les codes reçus avec `TRIM` avant de comparer.",
     pratique: "Sur SQL Server, `VARCHAR(MAX)` ne peut pas être une clé d'index : garde-le pour les longs textes (commentaires, messages bruts) et donne une vraie longueur aux codes et aux libellés.",
     motsCles: ["texte", "chaîne", "string", "libellé", "taille variable", "caractères", "varchar max", "taille", "alphanumérique", "espaces", "chaîne de caractères", "varchar"],
-    voirAussi: ["char", "nvarchar", "text", "len", "trim", "types-texte"],
+    voirAussi: ["char", "nvarchar", "text", "trim", "collate", "longueur-precision"],
     module: "m10"
   },
   {
@@ -137,7 +137,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Une colonne NVARCHAR ne suffit pas : sans le N, `'Łódź'` passe d'abord par la page de codes de la base et perd ses lettres, sans erreur. Écris `N'Łódź'`, et déclare tes paramètres en NVARCHAR.",
     pratique: "Sur SQL Server 2019+, une collation `_UTF8` rend VARCHAR Unicode, plus léger pour du texte latin. Mais n y compte des octets : 'Épuisette' prend 10 octets pour 9 lettres.",
     motsCles: ["unicode", "texte unicode", "accents", "alphabet", "caractères étrangers", "polonais", "étranger", "national", "utf8", "utf-8", "n devant", "nvarchar max", "chinois"],
-    voirAussi: ["varchar", "nchar", "types-texte", "cast"],
+    voirAussi: ["varchar", "nchar", "collate", "types-texte", "cast"],
     module: "m03"
   },
   {
@@ -162,7 +162,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Sur MySQL, `TEXT` s'arrête à 65 535 octets : un gros message EDI est refusé (« Data too long »), et en utf8mb4 un « é » compte pour 2 octets. Prends `MEDIUMTEXT` (16 Mo).",
     pratique: "Sur SQL Server, migre une vieille colonne `TEXT` ou `NTEXT` en `VARCHAR(MAX)` ou `NVARCHAR(MAX)` : seules quelques fonctions (`SUBSTRING`, `PATINDEX`, `DATALENGTH`) acceptent ces anciens types.",
     motsCles: ["texte long", "commentaire", "message", "gros texte", "longtext", "mediumtext", "clob", "texte libre", "observations", "memo", "ntext", "tinytext"],
-    voirAussi: ["varchar", "nvarchar", "blob"],
+    voirAussi: ["varchar", "nvarchar", "blob", "alter-column"],
     module: "m10"
   },
   // ---------- Binaires ----------
@@ -212,7 +212,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Sur Snowflake, `BINARY` sans longueur s'arrête à 8 Mo, et on ne peut pas l'agrandir ensuite : un gros PDF sera refusé. Déclare `BINARY(67108864)` (64 Mo) dès la création de la table.",
     pratique: "Sur SQL Server, `VARBINARY` sans longueur vaut 1 octet dans une déclaration et 30 dans un `CAST`, comme VARCHAR : écris toujours la taille, ou `MAX`.",
     motsCles: ["binaire", "fichier", "pdf", "image", "document", "pièce jointe", "octets", "varbinary max", "stocker un fichier", "scan", "photo", "chiffré"],
-    voirAussi: ["binary", "blob", "varchar"]
+    voirAussi: ["binary", "blob", "varchar", "alter-column"]
   },
   {
     id: "blob",
@@ -306,7 +306,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Copiée sur Snowflake, la constante `'20260401'` est lue comme 20 260 401 secondes depuis 1970 (le 23 août 1970) : le filtre garde les 8 commandes, sans erreur. Écris `'2026-04-01'` sur Snowflake.",
     pratique: "Une date sans heure se range en `DATE`, pas en date avec heure : `WHERE date_cde = '20260401'` marche alors sans souci d'heure. Sur SQL Server, elle prend 3 octets au lieu de 8.",
     motsCles: ["date", "date seule", "sans heure", "date sans heure", "type date", "calendrier", "échéance", "date de livraison", "jj/mm/aaaa", "aaaa-mm-jj"],
-    voirAussi: ["datetime2", "current-date", "dateadd", "datefromparts", "convert"],
+    voirAussi: ["datetime2", "to-date", "convert", "current-date", "dateadd"],
     module: "m03"
   },
   {
@@ -377,7 +377,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Sans précision, `DATETIME2` vaut `DATETIME2(7)` : 7 décimales à l'affichage et dans les exports, et 8 octets par valeur. Pour un horodatage de flux, `DATETIME2(0)` (6 octets) suffit.",
     pratique: "Horodate tes flux avec `SYSUTCDATETIME()` (l'heure UTC, en DATETIME2) plutôt qu'avec `GETDATE()` (l'heure du serveur, en DATETIME) ; convertis à l'affichage avec `AT TIME ZONE`.",
     motsCles: ["date et heure", "horodatage", "précision", "date heure moderne", "nanosecondes", "décimales", "secondes", "date avec heure", "heure précise", "datetime2"],
-    voirAussi: ["datetime", "datetimeoffset", "timestamp-ntz", "getdate", "types-date"],
+    voirAussi: ["datetime", "datetimeoffset", "timestamp-ntz", "getdate", "longueur-precision", "types-date"],
     module: "m10"
   },
   {

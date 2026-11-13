@@ -298,7 +298,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Trop long, le texte est coupé sans erreur : 123456 sur 5 chiffres donne '23456' avec RIGHT, et '12345' avec LPAD. Vérifie la longueur avant (`LEN`), sinon le fichier EDI part avec un faux chiffre.",
     pratique: "Pour un fichier à longueur fixe, complète aussi les textes à droite : `RPAD(nom, 35, ' ')` sur Snowflake et MySQL ; sur SQL Server, `CAST(nom AS char(35))` ajoute les espaces de fin.",
     motsCles: ["compléter", "zéros", "remplir", "gauche", "longueur", "fixe", "padding", "aligner", "format", "rpad", "devant", "chiffres", "code", "pad", "replicate"],
-    voirAussi: ["right", "format", "cast", "len"],
+    voirAussi: ["right", "format", "cast", "len", "zerofill"],
     module: "m03"
   }
 ]);

@@ -46,8 +46,8 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
     },
     exemple: "SELECT num_cde, montant_ht,\n       FORMAT(montant_ht, 'N2', 'fr-FR') AS montant_fr\nFROM commande\nWHERE id IN (1, 7, 8)\nORDER BY id;",
     exemples: {
-      snowflake: "SELECT num_cde, montant_ht,\n       TRANSLATE(TO_CHAR(montant_ht, 'FM999,999,990.00'), ',.', ' ,') AS montant_fr\nFROM commande\nWHERE id IN (1, 7, 8)\nORDER BY id;",
-      mysql: "SELECT num_cde, montant_ht,\n       REPLACE(REPLACE(FORMAT(montant_ht, 2), ',', ' '), '.', ',') AS montant_fr\nFROM commande\nWHERE id IN (1, 7, 8)\nORDER BY id;"
+      snowflake: "SELECT num_cde, montant_ht,\n       TRANSLATE(TO_CHAR(montant_ht, 'FM999,999,990.00'), ',.', ' ,')\n         AS montant_fr\nFROM commande\nWHERE id IN (1, 7, 8)\nORDER BY id;",
+      mysql: "SELECT num_cde, montant_ht,\n       REPLACE(REPLACE(FORMAT(montant_ht, 2), ',', ' '), '.', ',')\n         AS montant_fr\nFROM commande\nWHERE id IN (1, 7, 8)\nORDER BY id;"
     },
     resultat: [["num_cde", "montant_ht", "montant_fr"], ["CDE-1001", "4780.00", "4 780,00"], ["CDE-1007", "7950.00", "7 950,00"], ["CDE-1008", "79.80", "79,80"]],
     piege: "Le résultat est du texte : il ne s'additionne plus, et le tri suit les caractères ('2 385,00' passe avant '318,00'). Formate seulement à la fin, pour l'affichage.",
@@ -66,10 +66,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`REPLACE(TO_CHAR(x, 'FM999999990.00'), '.', ',')`",
       mysql: "`REPLACE(CAST(x AS CHAR), '.', ',')`"
     },
-    exemple: "-- Une ligne de CSV (séparateur ;) pour un Excel en français\nSELECT CONCAT(num_cde, ';', REPLACE(CAST(montant_ht AS VARCHAR(20)), '.', ',')) AS ligne_csv\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
+    exemple: "-- Une ligne de CSV (séparateur ;) pour un Excel en français\nSELECT CONCAT(num_cde, ';',\n              REPLACE(CAST(montant_ht AS VARCHAR(20)), '.', ','))\n         AS ligne_csv\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
     exemples: {
-      snowflake: "-- Une ligne de CSV (séparateur ;) pour un Excel en français\nSELECT num_cde || ';' || REPLACE(TO_CHAR(montant_ht, 'FM999999990.00'), '.', ',') AS ligne_csv\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
-      mysql: "-- Une ligne de CSV (séparateur ;) pour un Excel en français\nSELECT CONCAT(num_cde, ';', REPLACE(CAST(montant_ht AS CHAR), '.', ',')) AS ligne_csv\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;"
+      snowflake: "-- Une ligne de CSV (séparateur ;) pour un Excel en français\nSELECT num_cde || ';'\n       || REPLACE(TO_CHAR(montant_ht, 'FM999999990.00'), '.', ',')\n         AS ligne_csv\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
+      mysql: "-- Une ligne de CSV (séparateur ;) pour un Excel en français\nSELECT CONCAT(num_cde, ';',\n              REPLACE(CAST(montant_ht AS CHAR), '.', ',')) AS ligne_csv\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;"
     },
     resultat: [["ligne_csv"], ["CDE-1001;4780,00"], ["CDE-1005;318,00"], ["CDE-1008;79,80"]],
     piege: "Avec la virgule comme séparateur de colonnes, la virgule décimale coupe chaque montant en deux colonnes. Pour un Excel en français, sépare les colonnes par un point-virgule.",
@@ -154,10 +154,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`ROUND(100 * x, 1) || ' %'`",
       mysql: "`CONCAT(ROUND(100 * x, 1), ' %')`"
     },
-    exemple: "-- Le taux de remise de chaque ligne : (tarif - prix négocié) / tarif\nSELECT a.code, a.prix_tarif, l.prix_unit,\n       CONCAT(CAST(100.0 * (a.prix_tarif - l.prix_unit) / a.prix_tarif AS DECIMAL(5,1)), ' %') AS remise\nFROM ligne_cde AS l\nJOIN article AS a ON a.id = l.article_id\nWHERE l.cde_id IN (1, 3)\nORDER BY l.id;",
+    exemple: "-- Le taux de remise de chaque ligne : (tarif - prix négocié) / tarif\nSELECT a.code, a.prix_tarif, l.prix_unit,\n       CONCAT(CAST(100.0 * (a.prix_tarif - l.prix_unit) / a.prix_tarif\n                   AS DECIMAL(5,1)), ' %') AS remise\nFROM ligne_cde AS l\nJOIN article AS a ON a.id = l.article_id\nWHERE l.cde_id IN (1, 3)\nORDER BY l.id;",
     exemples: {
-      snowflake: "-- Le taux de remise de chaque ligne : (tarif - prix négocié) / tarif\nSELECT a.code, a.prix_tarif, l.prix_unit,\n       ROUND(100 * (a.prix_tarif - l.prix_unit) / a.prix_tarif, 1) || ' %' AS remise\nFROM ligne_cde AS l\nJOIN article AS a ON a.id = l.article_id\nWHERE l.cde_id IN (1, 3)\nORDER BY l.id;",
-      mysql: "-- Le taux de remise de chaque ligne : (tarif - prix négocié) / tarif\nSELECT a.code, a.prix_tarif, l.prix_unit,\n       CONCAT(ROUND(100 * (a.prix_tarif - l.prix_unit) / a.prix_tarif, 1), ' %') AS remise\nFROM ligne_cde AS l\nJOIN article AS a ON a.id = l.article_id\nWHERE l.cde_id IN (1, 3)\nORDER BY l.id;"
+      snowflake: "-- Le taux de remise de chaque ligne : (tarif - prix négocié) / tarif\nSELECT a.code, a.prix_tarif, l.prix_unit,\n       ROUND(100 * (a.prix_tarif - l.prix_unit) / a.prix_tarif, 1)\n         || ' %' AS remise\nFROM ligne_cde AS l\nJOIN article AS a ON a.id = l.article_id\nWHERE l.cde_id IN (1, 3)\nORDER BY l.id;",
+      mysql: "-- Le taux de remise de chaque ligne : (tarif - prix négocié) / tarif\nSELECT a.code, a.prix_tarif, l.prix_unit,\n       CONCAT(ROUND(100 * (a.prix_tarif - l.prix_unit)\n                    / a.prix_tarif, 1), ' %') AS remise\nFROM ligne_cde AS l\nJOIN article AS a ON a.id = l.article_id\nWHERE l.cde_id IN (1, 3)\nORDER BY l.id;"
     },
     resultat: [["code", "prix_tarif", "prix_unit", "remise"], ["CHL-5", "39.90", "35.90", "10.0 %"], ["CHL-25", "159.00", "119.00", "25.2 %"], ["PH-5", "24.50", "22.50", "8.2 %"], ["BACHE8", "149.00", "126.00", "15.4 %"]],
     piege: "Avec des entiers (un COUNT), SQL Server coupe la division : `100 * 3 / 8` donne 37, pas 37,5 ; écris `100.0`. Et `FORMAT(x, 'P1')` multiplie déjà par 100 : donne-lui 0.125, pas 12.5.",
@@ -194,10 +194,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`INITCAP(x)` : chaque mot ; la 1re lettre seule : `INITCAP(x, '')`",
       mysql: "Pas de INITCAP : `CONCAT(UPPER(LEFT(x, 1)), LOWER(SUBSTRING(x, 2)))` (le premier mot seulement)"
     },
-    exemple: "SELECT DISTINCT famille,\n       UPPER(LEFT(famille, 1)) + LOWER(SUBSTRING(famille, 2, LEN(famille))) AS famille_propre\nFROM article\nORDER BY famille;",
+    exemple: "SELECT DISTINCT famille,\n       UPPER(LEFT(famille, 1))\n       + LOWER(SUBSTRING(famille, 2, LEN(famille))) AS famille_propre\nFROM article\nORDER BY famille;",
     exemples: {
       snowflake: "SELECT DISTINCT famille,\n       INITCAP(famille) AS famille_propre\nFROM article\nORDER BY famille;",
-      mysql: "SELECT DISTINCT famille,\n       CONCAT(UPPER(LEFT(famille, 1)), LOWER(SUBSTRING(famille, 2))) AS famille_propre\nFROM article\nORDER BY famille;"
+      mysql: "SELECT DISTINCT famille,\n       CONCAT(UPPER(LEFT(famille, 1)),\n              LOWER(SUBSTRING(famille, 2))) AS famille_propre\nFROM article\nORDER BY famille;"
     },
     resultat: [["famille", "famille_propre"], ["ACCESSOIRE", "Accessoire"], ["CHIMIE", "Chimie"], ["FILTRATION", "Filtration"], ["ROBOT", "Robot"]],
     piege: "Le reste du mot passe en minuscules : 'SARL AQUABLEU' devient 'Sarl Aquableu', et les sigles sont perdus. Sur Snowflake, INITCAP coupe aussi au tiret ('SAINT-ETIENNE' → 'Saint-Etienne'), pas à l'apostrophe (\"L'ISLE\" → \"L'isle\").",
@@ -216,7 +216,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`LPAD(TO_VARCHAR(ROUND(x * 100)), 12, '0')`",
       mysql: "`LPAD(CAST(x * 100 AS SIGNED), 12, '0')`"
     },
-    exemple: "-- Montant HT sur 12 positions, 2 décimales sous-entendues\nSELECT num_cde, montant_ht,\n       RIGHT('000000000000' + CAST(CAST(montant_ht * 100 AS BIGINT) AS VARCHAR(12)), 12) AS montant_12\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
+    exemple: "-- Montant HT sur 12 positions, 2 décimales sous-entendues\nSELECT num_cde, montant_ht,\n       RIGHT('000000000000'\n         + CAST(CAST(montant_ht * 100 AS BIGINT) AS VARCHAR(12)), 12)\n         AS montant_12\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
     exemples: {
       snowflake: "-- Montant HT sur 12 positions, 2 décimales sous-entendues\nSELECT num_cde, montant_ht,\n       LPAD(TO_VARCHAR(ROUND(montant_ht * 100)), 12, '0') AS montant_12\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;",
       mysql: "-- Montant HT sur 12 positions, 2 décimales sous-entendues\nSELECT num_cde, montant_ht,\n       LPAD(CAST(montant_ht * 100 AS SIGNED), 12, '0') AS montant_12\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY id;"

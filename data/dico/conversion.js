@@ -51,7 +51,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "`CAST(12.7 AS int)` donne 12 sur SQL Server (il coupe), mais 13 sur Snowflake (il arrondit, comme `AS SIGNED` sur MySQL) : un montant migré change sans erreur. Arrondis toi-même avant : `CAST(ROUND(x, 0) AS int)` donne 13 partout (MySQL : `AS SIGNED`).",
     pratique: "Donne toujours une longueur : sur SQL Server, `CAST(x AS varchar)` coupe à 30 caractères, sans erreur, et `DECLARE @v varchar` n'en garde qu'un seul.",
     motsCles: ["convertir", "conversion", "type", "transformer", "changer", "entier", "décimal", "texte", "nombre", "varchar", "int", "typer", "caster", "numérique"],
-    voirAussi: ["convert", "try-cast", "round", "format"],
+    voirAussi: ["convert", "try-cast", "round", "format", "deux-points", "conversion-implicite", "parse"],
     module: "m03"
   },
   {
@@ -128,7 +128,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "FORMAT passe par .NET, hors du moteur : très lent sur un million de lignes, formate plutôt dans Power BI. Attention aussi : `MM` = mois mais `mm` = minutes ; et Snowflake et MySQL écrivent « March 2026 ».",
     pratique: "Sur MySQL, pour des mois en français, règle d'abord la session : `SET lc_time_names = 'fr_FR';`. Ensuite, `DATE_FORMAT(d, '%M %Y')` donne « mars 2026 » au lieu de « March 2026 ».",
     motsCles: ["formater", "mise", "forme", "affichage", "afficher", "séparateur", "milliers", "décimales", "mois", "lettres", "euros", "présentation", "culture", "lisible", "monnaie"],
-    voirAussi: ["convert", "cast", "lpad", "round"],
+    voirAussi: ["convert", "cast", "lpad", "round", "to-char"],
     module: "m03"
   },
   {

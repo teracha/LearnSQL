@@ -48,10 +48,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`REGEXP_REPLACE(x, ' {2,}', ' ')`",
       mysql: "`REGEXP_REPLACE(x, ' {2,}', ' ')` (8.0+)"
     },
-    exemple: "-- Des noms saisis avec des espaces en trop au milieu\nWITH saisie AS (\n  SELECT 'Piscines   Dumont' AS nom UNION ALL\n  SELECT 'Hydro  Sud'\n),\npropre AS (\n  SELECT nom, REPLACE(REPLACE(REPLACE(nom, ' ', '<>'), '><', ''), '<>', ' ') AS nom_propre\n  FROM saisie\n)\nSELECT nom_propre, LEN(nom) AS lg_avant, LEN(nom_propre) AS lg_apres\nFROM propre\nORDER BY lg_avant DESC;",
+    exemple: "-- Des noms saisis avec des espaces en trop au milieu\nWITH saisie AS (\n  SELECT 'Piscines   Dumont' AS nom UNION ALL\n  SELECT 'Hydro  Sud'\n),\npropre AS (\n  SELECT nom,\n         REPLACE(REPLACE(REPLACE(nom, ' ', '<>'), '><', ''), '<>', ' ')\n           AS nom_propre\n  FROM saisie\n)\nSELECT nom_propre, LEN(nom) AS lg_avant, LEN(nom_propre) AS lg_apres\nFROM propre\nORDER BY lg_avant DESC;",
     exemples: {
-      snowflake: "-- Des noms saisis avec des espaces en trop au milieu\nWITH saisie AS (\n  SELECT 'Piscines   Dumont' AS nom UNION ALL\n  SELECT 'Hydro  Sud'\n),\npropre AS (\n  SELECT nom, REGEXP_REPLACE(nom, ' {2,}', ' ') AS nom_propre\n  FROM saisie\n)\nSELECT nom_propre, LENGTH(nom) AS lg_avant, LENGTH(nom_propre) AS lg_apres\nFROM propre\nORDER BY lg_avant DESC;",
-      mysql: "-- Des noms saisis avec des espaces en trop au milieu\nWITH saisie AS (\n  SELECT 'Piscines   Dumont' AS nom UNION ALL\n  SELECT 'Hydro  Sud'\n),\npropre AS (\n  SELECT nom, REGEXP_REPLACE(nom, ' {2,}', ' ') AS nom_propre\n  FROM saisie\n)\nSELECT nom_propre, CHAR_LENGTH(nom) AS lg_avant, CHAR_LENGTH(nom_propre) AS lg_apres\nFROM propre\nORDER BY lg_avant DESC;"
+      snowflake: "-- Des noms saisis avec des espaces en trop au milieu\nWITH saisie AS (\n  SELECT 'Piscines   Dumont' AS nom UNION ALL\n  SELECT 'Hydro  Sud'\n),\npropre AS (\n  SELECT nom, REGEXP_REPLACE(nom, ' {2,}', ' ') AS nom_propre\n  FROM saisie\n)\nSELECT nom_propre,\n       LENGTH(nom) AS lg_avant, LENGTH(nom_propre) AS lg_apres\nFROM propre\nORDER BY lg_avant DESC;",
+      mysql: "-- Des noms saisis avec des espaces en trop au milieu\nWITH saisie AS (\n  SELECT 'Piscines   Dumont' AS nom UNION ALL\n  SELECT 'Hydro  Sud'\n),\npropre AS (\n  SELECT nom, REGEXP_REPLACE(nom, ' {2,}', ' ') AS nom_propre\n  FROM saisie\n)\nSELECT nom_propre,\n       CHAR_LENGTH(nom) AS lg_avant, CHAR_LENGTH(nom_propre) AS lg_apres\nFROM propre\nORDER BY lg_avant DESC;"
     },
     resultat: [["nom_propre", "lg_avant", "lg_apres"], ["Piscines Dumont", 17, 15], ["Hydro Sud", 10, 9]],
     piege: "Ces recettes ne voient que l'espace simple : une tabulation ou un espace insécable entre deux mots reste en place. Et le truc des 3 REPLACE suppose que le texte ne contient ni `<` ni `>`.",
@@ -70,10 +70,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "Même écriture avec `CHAR(13)`, `CHAR(10)`, `CHAR(9)` ; ou `'\\r'`, `'\\n'`, `'\\t'` dans le texte",
       mysql: "`REPLACE(REPLACE(REPLACE(x, '\\r', ''), '\\n', ' '), '\\t', ' ')`"
     },
-    exemple: "-- Deux libellés reçus dans un fichier : un retour à la ligne, une tabulation\nWITH recu AS (\n  SELECT 'Filtre à sable' + CHAR(13) + CHAR(10) + '14 m3/h' AS libelle UNION ALL\n  SELECT 'Pompe' + CHAR(9) + '1 CV'\n)\nSELECT a.code, a.libelle\nFROM recu AS r\nJOIN article AS a\n  ON a.libelle = REPLACE(REPLACE(REPLACE(r.libelle, CHAR(13), ''), CHAR(10), ' '), CHAR(9), ' ')\nORDER BY a.code;",
+    exemple: "-- Deux libellés reçus : un retour à la ligne, une tabulation\nWITH recu AS (\n  SELECT 'Filtre à sable' + CHAR(13) + CHAR(10) + '14 m3/h' AS libelle\n  UNION ALL\n  SELECT 'Pompe' + CHAR(9) + '1 CV'\n)\nSELECT a.code, a.libelle\nFROM recu AS r\nJOIN article AS a\n  ON a.libelle = REPLACE(REPLACE(REPLACE(r.libelle,\n                   CHAR(13), ''), CHAR(10), ' '), CHAR(9), ' ')\nORDER BY a.code;",
     exemples: {
-      snowflake: "-- Deux libellés reçus dans un fichier : un retour à la ligne, une tabulation\nWITH recu AS (\n  SELECT 'Filtre à sable' || CHAR(13) || CHAR(10) || '14 m3/h' AS libelle UNION ALL\n  SELECT 'Pompe' || CHAR(9) || '1 CV'\n)\nSELECT a.code, a.libelle\nFROM recu AS r\nJOIN article AS a\n  ON a.libelle = REPLACE(REPLACE(REPLACE(r.libelle, CHAR(13), ''), CHAR(10), ' '), CHAR(9), ' ')\nORDER BY a.code;",
-      mysql: "-- Deux libellés reçus dans un fichier : un retour à la ligne, une tabulation\nWITH recu AS (\n  SELECT CONCAT('Filtre à sable', '\\r\\n', '14 m3/h') AS libelle UNION ALL\n  SELECT CONCAT('Pompe', '\\t', '1 CV')\n)\nSELECT a.code, a.libelle\nFROM recu AS r\nJOIN article AS a\n  ON a.libelle = REPLACE(REPLACE(REPLACE(r.libelle, '\\r', ''), '\\n', ' '), '\\t', ' ')\nORDER BY a.code;"
+      snowflake: "-- Deux libellés reçus : un retour à la ligne, une tabulation\nWITH recu AS (\n  SELECT 'Filtre à sable' || CHAR(13) || CHAR(10) || '14 m3/h'\n         AS libelle\n  UNION ALL\n  SELECT 'Pompe' || CHAR(9) || '1 CV'\n)\nSELECT a.code, a.libelle\nFROM recu AS r\nJOIN article AS a\n  ON a.libelle = REPLACE(REPLACE(REPLACE(r.libelle,\n                   CHAR(13), ''), CHAR(10), ' '), CHAR(9), ' ')\nORDER BY a.code;",
+      mysql: "-- Deux libellés reçus : un retour à la ligne, une tabulation\nWITH recu AS (\n  SELECT CONCAT('Filtre à sable', '\\r\\n', '14 m3/h') AS libelle\n  UNION ALL\n  SELECT CONCAT('Pompe', '\\t', '1 CV')\n)\nSELECT a.code, a.libelle\nFROM recu AS r\nJOIN article AS a\n  ON a.libelle = REPLACE(REPLACE(REPLACE(r.libelle,\n                   '\\r', ''), '\\n', ' '), '\\t', ' ')\nORDER BY a.code;"
     },
     resultat: [["code", "libelle"], ["FIL-14", "Filtre à sable 14 m3/h"], ["POMP-1", "Pompe 1 CV"]],
     piege: "Un retour à la ligne Windows, c'est deux caractères (CHAR(13) puis CHAR(10)) : remplacés chacun par un espace, ils en laissent deux. Enlève CHAR(13), puis remplace CHAR(10) par un espace.",
@@ -201,10 +201,10 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`UNICODE(RIGHT(x, 1))` et `LENGTH(x)` ; le 1er caractère hors de l'ASCII imprimable : `REGEXP_INSTR(x, '[^ -~]')`",
       mysql: "`HEX(x)` montre les octets (C2A0 = espace insécable, 09 = tabulation) ; et `CHAR_LENGTH(x)`"
     },
-    exemple: "-- Deux codes clients collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT 'C001' + NCHAR(160) AS code UNION ALL   -- espace insécable\n  SELECT 'C002' + CHAR(9)                        -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, LEN(code) AS longueur,\n       UNICODE(RIGHT(code, 1)) AS code_dernier\nFROM recu;",
+    exemple: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT 'C001' + NCHAR(160) AS code   -- espace insécable\n  UNION ALL\n  SELECT 'C002' + CHAR(9)              -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, LEN(code) AS longueur,\n       UNICODE(RIGHT(code, 1)) AS code_dernier\nFROM recu;",
     exemples: {
-      snowflake: "-- Deux codes clients collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT 'C001' || CHR(160) AS code UNION ALL   -- espace insécable\n  SELECT 'C002' || CHR(9)                       -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, LENGTH(code) AS longueur,\n       UNICODE(RIGHT(code, 1)) AS code_dernier\nFROM recu;",
-      mysql: "-- Deux codes clients collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT CONCAT('C001', _utf8mb4 X'C2A0') AS code UNION ALL   -- espace insécable\n  SELECT CONCAT('C002', '\\t')                                 -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, CHAR_LENGTH(code) AS longueur,\n       HEX(RIGHT(code, 1)) AS octets_dernier   -- C2A0, puis 09\nFROM recu;"
+      snowflake: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT 'C001' || CHR(160) AS code   -- espace insécable\n  UNION ALL\n  SELECT 'C002' || CHR(9)             -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, LENGTH(code) AS longueur,\n       UNICODE(RIGHT(code, 1)) AS code_dernier\nFROM recu;",
+      mysql: "-- Des codes collés depuis Excel, qui ne trouvent pas leur client\nWITH recu AS (\n  SELECT CONCAT('C001', _utf8mb4 X'C2A0') AS code   -- espace insécable\n  UNION ALL\n  SELECT CONCAT('C002', '\\t')                       -- tabulation\n)\nSELECT LEFT(code, 4) AS debut, CHAR_LENGTH(code) AS longueur,\n       HEX(RIGHT(code, 1)) AS octets_dernier   -- C2A0, puis 09\nFROM recu;"
     },
     resultat: [["debut", "longueur", "code_dernier"], ["C001", 5, 160], ["C002", 5, 9]],
     piege: "TRIM n'enlève ni l'espace insécable ni la tabulation, et l'écran ne les montre pas : `WHERE code = 'C001'` échoue sans erreur. Enlève-les avec REPLACE : `REPLACE(code, NCHAR(160), '')` sur SQL Server, `CHR(160)` sur Snowflake.",
@@ -223,7 +223,7 @@ LEARNSQL.astuces = (LEARNSQL.astuces || []).concat([
       snowflake: "`LTRIM(x, '0')`",
       mysql: "`TRIM(LEADING '0' FROM x)`"
     },
-    exemple: "-- Le numéro de facture du mois, sans ses zéros de tête\nWITH f AS (\n  SELECT num_fact, RIGHT(num_fact, 4) AS num_4\n  FROM facture\n)\nSELECT num_fact, num_4,\n       SUBSTRING(num_4, PATINDEX('%[^0]%', num_4 + '.'), 4) AS sans_zeros\nFROM f\nORDER BY num_fact;",
+    exemple: "-- Le numéro de facture du mois, sans ses zéros de tête\nWITH f AS (\n  SELECT num_fact, RIGHT(num_fact, 4) AS num_4\n  FROM facture\n)\nSELECT num_fact, num_4,\n       SUBSTRING(num_4, PATINDEX('%[^0]%', num_4 + '.'), 4)\n         AS sans_zeros\nFROM f\nORDER BY num_fact;",
     exemples: {
       snowflake: "-- Le numéro de facture du mois, sans ses zéros de tête\nSELECT num_fact, RIGHT(num_fact, 4) AS num_4,\n       LTRIM(RIGHT(num_fact, 4), '0') AS sans_zeros\nFROM facture\nORDER BY num_fact;",
       mysql: "-- Le numéro de facture du mois, sans ses zéros de tête\nSELECT num_fact, RIGHT(num_fact, 4) AS num_4,\n       TRIM(LEADING '0' FROM RIGHT(num_fact, 4)) AS sans_zeros\nFROM facture\nORDER BY num_fact;"

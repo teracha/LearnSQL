@@ -82,7 +82,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Sur SQL Server, `ALTER COLUMN libelle VARCHAR(80)` sans `NOT NULL` rend la colonne facultative, sans message. MySQL fait pareil avec `MODIFY`, et perd aussi le `DEFAULT` : réécris toujours la définition complète de la colonne.",
     pratique: "Pour renommer une colonne : `ALTER TABLE t RENAME COLUMN ancien TO nouveau` (Snowflake, MySQL 8) ; sur SQL Server, `EXEC sp_rename 't.ancien', 'nouveau', 'COLUMN'`. Les vues et requêtes qui citent l'ancien nom ne sont pas corrigées.",
     motsCles: ["modifier", "ajouter", "colonne", "changer", "type", "agrandir", "allonger", "renommer", "supprimer colonne", "structure", "évoluer", "champ", "longueur", "add", "modify"],
-    voirAussi: ["create-table", "drop-table", "not-null", "default", "types-texte"],
+    voirAussi: ["create-table", "drop-table", "not-null", "default", "types-texte", "alter-column", "longueur-precision"],
     module: "m10"
   },
   {
@@ -322,7 +322,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Stockent du texte : longueur variable (VARCHAR), fixe (CHAR), ou tous les alphabets (NVARCHAR).",
     moteurs: {
       sqlserver: "`VARCHAR(n)`, `CHAR(n)` (complété par des espaces), `NVARCHAR(n)` pour l'Unicode ; sans n : 1 caractère (30 dans un CAST)",
-      snowflake: "`VARCHAR(n)`, toujours Unicode ; `STRING` et `TEXT` = VARCHAR ; sans n : 16 777 216 caractères, sans perte de vitesse ; `CHAR` n'ajoute pas d'espaces",
+      snowflake: "`VARCHAR(n)`, toujours Unicode ; `STRING` et `TEXT` = VARCHAR ; sans n : 16 777 216 caractères (au plus 128 Mo), sans perte de vitesse ; `CHAR` n'ajoute pas d'espaces",
       mysql: "`VARCHAR(n)` (n obligatoire), `CHAR(n)`, `TEXT` ; en utf8mb4 (par défaut), n compte des caractères, accents compris"
     },
     noms: ["VARCHAR", "NVARCHAR", "CHAR", "NCHAR", "STRING", "TEXT", "VARCHAR(MAX)", "utf8mb4", "type de données"],
@@ -331,7 +331,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "`VARCHAR` sans longueur garde 1 seul caractère sur SQL Server : `DECLARE @code VARCHAR = 'CHL-25'` donne 'C', sans erreur (et `CAST(x AS VARCHAR)` coupe à 30). Écris toujours la longueur : `VARCHAR(20)`.",
     pratique: "Pour les noms de partenaires étrangers (polonais, grec…), prends `NVARCHAR` sur SQL Server et écris `N'texte'` : en `VARCHAR` sans collation UTF-8, les lettres hors de l'alphabet de la base sont perdues, sans erreur.",
     motsCles: ["texte", "chaîne", "caractères", "longueur", "unicode", "accents", "taille", "alphabet", "tronqué", "trop long", "string", "libellé", "utf8", "type"],
-    voirAussi: ["len", "cast", "trim", "types-nombre", "alter-table"],
+    voirAussi: ["varchar", "nvarchar", "char", "text", "len", "trim", "cast", "alter-table"],
     module: "m10"
   },
   {
@@ -375,7 +375,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Sur SQL Server, `TIMESTAMP` n'est pas une date : c'est un compteur de version de ligne (rowversion). Une table recopiée de Snowflake ou de MySQL avec `TIMESTAMP` refuse alors tes dates (Msg 273) : écris `DATETIME2`.",
     pratique: "Pour des heures de flux venues de plusieurs pays, range-les en UTC, ou avec leur décalage (`DATETIMEOFFSET`, `TIMESTAMP_TZ`) : en heure de Paris, la nuit du passage à l'heure d'hiver, 2 h 30 existe deux fois.",
     motsCles: ["date", "heure", "horodatage", "jour", "temps", "fuseau", "seconde", "calendrier", "moment", "utc", "2038", "type", "timezone"],
-    voirAussi: ["getdate", "current-date", "cast", "dateadd", "datediff"],
+    voirAussi: ["date", "datetime2", "datetimeoffset", "timestamp", "timestamp-ntz", "getdate", "dateadd", "datediff"],
     module: "m10"
   },
   {

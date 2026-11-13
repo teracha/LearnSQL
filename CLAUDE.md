@@ -177,7 +177,8 @@ Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte (u
   sinon pas d'onglet et une fiche `dv-…` affiche un message. Onglet gardé (`learnsql-dico-domaine`) ; la recherche ne
   cherche que dans l'onglet choisi ; Traduire ne renvoie que vers des fiches SQL. Test : `outils/tests/dico-divalto.js`.
   Recherche Divalto : réglages en plus (`DICO_REGLAGES`) ; test `node outils/tests/recherche-divalto.js` (123 questions
-  de l'expert au rang 1, 0 échec). Les 5 harnais SQL du scratchpad doivent garder une sortie identique.
+  de l'expert au rang 1, 0 échec). Les 5 harnais SQL du scratchpad gardent une sortie identique quand on change le moteur de recherche ; quand on ajoute
+  des fiches, une fiche plus précise peut passer devant (ex. la fiche `varchar` devant `types-texte`) : c'est voulu.
 - Étape 3 (à venir) : fiches perso de l'élève, privées, dans son compte.
 
 ## Traduire une requête
