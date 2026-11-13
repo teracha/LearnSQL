@@ -481,7 +481,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       snowflake: "`TIMESTAMP_LTZ(n)` : rangé en UTC, montré au fuseau du paramètre `TIMEZONE` (America/Los_Angeles par défaut)",
       mysql: "Pas de TIMESTAMP_LTZ : le `TIMESTAMP` de MySQL fait pareil (UTC, fuseau `time_zone` de la session)"
     },
-    apercu: { sqlserver: "— (DATETIMEOFFSET + AT TIME ZONE)", snowflake: "UTC, montré au fuseau session", mysql: "≈ TIMESTAMP (UTC, fuseau session)" },
+    apercu: { sqlserver: "— (DATETIMEOFFSET + AT TIME ZONE)", snowflake: "UTC, montré au fuseau session", mysql: "— (TIMESTAMP : UTC, fuseau session)" },
     noms: ["TIMESTAMPLTZ", "TIMESTAMP WITH LOCAL TIME ZONE"],
     exemple: "-- Snowflake : un flux reçu à 15 h 30 UTC, lu depuis Paris\nCREATE TABLE reception_ltz (id INT, recu_le TIMESTAMP_LTZ);\nINSERT INTO reception_ltz VALUES (6, '2026-04-08 15:30:00 +00:00');\nALTER SESSION SET TIMEZONE = 'Europe/Paris';\nSELECT id, recu_le, HOUR(recu_le) AS heure FROM reception_ltz;",
     resultat: [["id", "recu_le", "heure"], [6, "2026-04-08 17:30:00.000 +0200", 17]],
@@ -662,7 +662,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     type: "type",
     categorie: "Types de données",
     famille: "Autres types",
-    definition: "Un identifiant unique universel (GUID ou UUID) de 16 octets, écrit en 36 caractères hexadécimaux.",
+    definition: "Un identifiant unique universel (GUID ou UUID) de 16 octets, écrit en 36 caractères avec ses tirets.",
     moteurs: {
       sqlserver: "`UNIQUEIDENTIFIER` : 16 octets ; `NEWID()` (au hasard) ou `NEWSEQUENTIALID()` (croissant, en DEFAULT seulement)",
       snowflake: "Type `UUID` depuis janvier 2026 (avant : `VARCHAR(36)`) ; `UUID_STRING()` en crée un",
