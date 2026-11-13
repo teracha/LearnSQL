@@ -307,8 +307,17 @@ const cas = [
   // --- Les liens vers le dico : pas de faux liens ---
   { nom: 'pas de faux lien : une colonne qui s\'appelle comme un mot-clé', sql: 'SELECT t.left, t.date, t.count FROM t', fiches: ['select', 'from'], sansFiches: ['left', 'count', 'types-date'] },
   { nom: 'IF() de MySQL : la fiche IIF ; IF … ELSE : la fiche IF', sql: "SELECT IF(a > 0, 'o', 'n') FROM t; IF @x = 1 PRINT 'a';", fiches: ['iif', 'if-else'] },
-  { nom: 'TRUNCATE() de MySQL : la fiche ROUND, pas TRUNCATE TABLE', sql: 'SELECT TRUNCATE(prix, 1) FROM article', attendu: ['tronqué à 1 décimale'], fiches: ['round'], sansFiches: ['truncate'] }
+  { nom: 'TRUNCATE() de MySQL : la fiche ROUND, pas TRUNCATE TABLE', sql: 'SELECT TRUNCATE(prix, 1) FROM article', attendu: ['tronqué à 1 décimale'], fiches: ['round'], sansFiches: ['truncate'] },
+  // Un type de donnée : sa fiche « Types de données » (INT), pas la fiche générale de « Tables » (types-nombre).
+  { nom: 'CAST en INT : la fiche du type INT', sql: 'SELECT CAST(qte AS INT) AS q FROM stock', fiches: ['cast', 'int'], sansFiches: ['types-nombre'] },
+  { nom: 'colonne INT : la fiche du type INT', sql: 'CREATE TABLE t (id INT NOT NULL)', fiches: ['int'], sansFiches: ['types-nombre'] }
 ];
+// Un type sans fiche « Types de données » : la fiche de « Tables » qui le nomme (fiches de test, ajoutées puis retirées).
+const avantTest = LEARNSQL.dico.length;
+LEARNSQL.dico.push({ id: 'test-tables-zz', nom: 'ZZTYPE / YYTYPE', noms: ['ZZTYPE', 'YYTYPE'], type: 'mot-clé', categorie: 'Tables', definition: 'Test.' },
+  { id: 'test-type-yy', nom: 'YYTYPE', type: 'type', categorie: 'Types de données', definition: 'Test.' });
+const repli = ['ZZTYPE', 'YYTYPE'].map(t => T('SELECT CAST(x AS ' + t + ') FROM t').fiches.map(f => f.id).filter(id => /^test-/.test(id)).join());
+LEARNSQL.dico.splice(avantTest);
 
 let echecs = 0;
 const ligne = (c, m) => { echecs++; console.log('ÉCHEC  ' + c.nom + ' : ' + m); };
@@ -328,6 +337,8 @@ cas.forEach(c => {
   if (!c.vide && !r.lignes.length) ligne(c, 'aucune ligne (page blanche)');
 });
 let total = cas.length;
+total++;
+if (repli.join(' | ') !== 'test-tables-zz | test-type-yy') { echecs++; console.log('ÉCHEC  type sans fiche « Types de données » : ' + repli.join(' | ') + ' au lieu de test-tables-zz | test-type-yy'); }
 
 // Une idée par ligne : dans les 3 exemples de la page, aucune ligne de plus de 120 caractères.
 total++;

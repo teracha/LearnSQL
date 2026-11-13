@@ -1692,6 +1692,12 @@
   var DICO_DOMAINES = [{ id: "sql", nom: "SQL" }, { id: "divalto", nom: "Divalto" }];
   // Les thèmes du dico Divalto, dans cet ordre (le dico SQL range les siens par ordre alphabétique).
   var DICO_CATEGORIES_DIVALTO = ["Tables Divalto", "Champs Divalto", "Vues Divalto", "Requêtes Dataviz"];
+  // La catégorie « Types de données » et les familles de la page « Tous les types de données » (#/types), dans l'ordre
+  // d'affichage (docs/dico.md). Une fiche SQL qui a une famille est une ligne du tableau de sa famille (cellules : apercu).
+  // Même liste dans outils/verifier.js.
+  var DICO_CATEGORIE_TYPES = "Types de données";
+  var DICO_FAMILLES = ["Entiers", "Décimaux exacts", "Nombres approchés", "Booléens", "Textes", "Binaires",
+    "Listes de valeurs", "Dates et heures", "Semi-structurés", "Autres types", "Modifier un type", "Convertir un type"];
   var DICO_MOTS_VIDES = {};
   ("je j tu il elle on nous vous veux voudrais voudrai aimerais aimerai faire fait faut peux peut dois doit comment " +
    "quel quelle quels quelles est c ce cet cette ces que qu qui quoi un une des du de d la le les l au aux a et ou " +
@@ -1709,14 +1715,35 @@
   // - nomProche, cleProche : toute la question est un nom (« fiche fourniseur ») ou un mot-clé de plusieurs mots
   //   (« lignes de comande ») de la fiche, à une faute près (deux lettres inversées comptent pour une) ;
   // - ordreTypes : à score égal, la table, puis le champ, la vue, la requête.
+  // Les Astuces SQL (« astuces », docs/astuces.md) passent par la même recherche, sur DATA.astuces (textesRecherche) : une
+  // astuce n'a pas de nom ; ses mots-clés sont les siens et les fonctions de ses solutions (`LPAD`, `RIGHT`…) ; le texte
+  // de ses solutions et sa famille comptent comme une définition. En plus :
+  // - besoin : la phrase de l'élève comparée à chaque besoin de l'astuce (et à son titre) ; le plus proche donne jusqu'à
+  //   ces points (tous les mots en commun : tous les points, voir ressemblance) ;
+  // - besoinTel : un besoin (ou le titre) tapé tel quel, aux accents, majuscules et signes près (comme un nom du dico) ;
+  // - motsVides : des mots en plus, vides dans une phrase de besoin (« j'aimerais bien sortir un numéro client ») ;
+  // - debut : un mot dont la racine commence par celle d'un mot-clé ou d'un besoin (ou l'inverse), à partir de ces
+  //   lettres, est proche (« meilleures » → meilleur, « meilleurs » → meill : les racines du féminin en -eure).
   var DICO_REGLAGES = {
     sql: {},
     divalto: {
       champ: 60, motCourant: 3, nomCourant: 0, motCleEntier: 30, typeSeul: { table: 15, champ: 5 },
       nomProche: 300, cleProche: 60, ordreTypes: ["table", "champ", "vue", "requête"]
+    },
+    astuces: {
+      besoin: 300, besoinTel: 1000, debut: 5,
+      motsVides: ensembleMots("bien besoin aimer souhaite souhaiterais souhaiterait aimerait voudrait astuce astuces truc " +
+        "trucs facon maniere moyen avoir obtenir sortir afficher donner mettre")
     }
   };
-  // Un index par domaine (« sql », « divalto ») : les deux dicos ne se mêlent pas. Chacun : { taille, liste, connus,
+  function ensembleMots(t) { var e = {}; t.split(" ").forEach(function (m) { e[m] = true; }); return e; }
+  // La racine a commence-t-elle par la racine b, ou l'inverse, la plus courte ayant au moins n lettres (n : 0 = jamais) ?
+  function debutCommun(a, b, n) {
+    if (!(n > 0)) return false;
+    var court = a.length <= b.length ? a : b, long = court === a ? b : a;
+    return court.length >= n && long.indexOf(court) === 0;
+  }
+  // Un index par domaine (« sql », « divalto », « astuces ») : ils ne se mêlent pas. Chacun : { taille, liste, connus,
   // freq, codes } ; connus = les racines de tous ses mots-clés (un mot connu, « valeurs », n'est pas un nom mal tapé,
   // « values ») ; freq = combien de fiches ont chaque racine ; codes = les mots des noms de ses tables et champs (« pino »).
   var dicoIndex = {};
@@ -1779,25 +1806,65 @@
     return Object.keys(vus);
   }
 
-  // L'index d'un domaine (« sql » par défaut) : seulement ses fiches. Refait quand des fiches sont ajoutées.
+  // Ce que la recherche lit d'une fiche du dico, ou d'une astuce (domaine « astuces ») : ses noms, ses mots-clés, le
+  // texte de sa définition (des mots à 8 points), sa famille (un type de donnée, une astuce : ses mots comptent comme
+  // ceux de la définition, et la famille entière comme une expression) et ses besoins (les astuces seulement).
+  function textesRecherche(f, domaine) {
+    if (domaine !== "astuces") {
+      return { noms: [f.nom].concat(f.noms || []), motsCles: f.motsCles || [], famille: f.famille || "", besoins: [],
+        def: (f.definition || "") + " " + (f.categorie || "") + " " + (f.famille || "") };
+    }
+    var m = f.moteurs || {}, solutions = [m.sqlserver, m.snowflake, m.mysql].join(" ");
+    return { noms: [], motsCles: (f.motsCles || []).concat(fonctionsCode(solutions)), famille: f.famille || "",
+      besoins: [f.titre || ""].concat(f.besoins || []), def: (f.famille || "") + " " + solutions };
+  }
+  // Les fonctions et mots du code d'une solution (entre accents graves, hors des 'textes') : `LPAD(id, 6, '0')` → LPAD.
+  // Seulement les mots en majuscules, sauf ceux de la grammaire d'une requête (AS, AND, NULL, SELECT…).
+  var CODE_GRAMMAIRE = ensembleMots("AS AND OR NOT IS NULL IN ON BY THEN WHEN ELSE END SELECT FROM WHERE");
+  function fonctionsCode(t) {
+    var vus = {};
+    (String(t || "").match(/`[^`]*`/g) || []).forEach(function (code) {
+      (code.replace(/'[^']*'/g, " ").match(/\b[A-Z][A-Z0-9_]+\b/g) || []).forEach(function (w) {
+        if (!CODE_GRAMMAIRE[w]) vus[w] = true;
+      });
+    });
+    return Object.keys(vus);
+  }
+  // Les racines d'une phrase de besoin (ou de la question), sans les mots vides, chacune une fois, et leurs squelettes.
+  function racinesPhrase(t, vides) {
+    var vues = {};
+    motsDe(t).forEach(function (m) { if (!DICO_MOTS_VIDES[m] && !vides[m]) vues[racine(m)] = true; });
+    var r = Object.keys(vues);
+    return { r: r, sq: r.map(squelette) };
+  }
+
+  // L'index d'un domaine (« sql » par défaut, « divalto », ou « astuces ») : seulement ses fiches (ou les astuces).
+  // Refait quand des fiches sont ajoutées.
   function indexDico(domaine) {
     domaine = domaine || "sql";
-    var toutes = DATA.dico || [];
+    var vides = (DICO_REGLAGES[domaine] || DICO_REGLAGES.sql).motsVides || {};
+    var utile = function (m) { return !DICO_MOTS_VIDES[m] && !vides[m]; };
+    var toutes = (domaine === "astuces" ? DATA.astuces : DATA.dico) || [];
     if (dicoIndex[domaine] && dicoIndex[domaine].taille === toutes.length) return dicoIndex[domaine].liste;
-    var liste = toutes.filter(function (f) { return domaineFiche(f) === domaine; }).map(function (f) {
-      var noms = [f.nom].concat(f.noms || []);
+    var liste = toutes.filter(function (f) { return domaine === "astuces" || domaineFiche(f) === domaine; }).map(function (f) {
+      var t = textesRecherche(f, domaine), noms = t.noms;
       var cles = {}, def = {}, motsNoms = {}, entiers = {};
       var expressions = [], phrasesCles = [], clesLongues = [];
-      (f.motsCles || []).forEach(function (k) {
+      t.motsCles.forEach(function (k) {
         var tous = motsDe(k);
         if (tous.length >= 2) { phrasesCles.push(" " + tous.join(" ") + " "); clesLongues.push(tous.join(" ")); }
-        var r = motsDe(k).filter(function (m) { return !DICO_MOTS_VIDES[m]; }).map(racine);
+        var r = motsDe(k).filter(utile).map(racine);
         r.forEach(function (m) { cles[m] = true; });
         if (r.length >= 2) expressions.push(r);
         if (r.length === 1) entiers[singulier(k)] = true;   // un mot-clé d'un seul mot (« commandes » → « commande »)
       });
-      motsDe((f.definition || "") + " " + (f.categorie || "")).forEach(function (m) {
-        if (m.length > 3 && !DICO_MOTS_VIDES[m]) def[racine(m)] = true;
+      // La famille entière (« Dates et heures ») : une expression, sans devenir un mot-clé (les poids des autres fiches
+      // ne changent pas).
+      var famille = motsDe(t.famille), rf = famille.filter(utile).map(racine);
+      if (famille.length >= 2) phrasesCles.push(" " + famille.join(" ") + " ");
+      if (rf.length >= 2) expressions.push(rf);
+      motsDe(t.def).forEach(function (m) {
+        if (m.length > 3 && utile(m)) def[racine(m)] = true;
       });
       noms.forEach(function (n, i) {
         if (i === 0 || n === n.toUpperCase()) motsDe(n).forEach(function (m) { motsNoms[m] = true; });
@@ -1815,7 +1882,9 @@
         def: def,
         entiers: entiers,
         clesLongues: clesLongues,
-        champs: domaine === "divalto" ? nomsChamps(f) : []
+        champs: domaine === "divalto" ? nomsChamps(f) : [],
+        besoins: t.besoins.map(function (b) { return racinesPhrase(b, vides); }).filter(function (b) { return b.r.length; }),
+        tels: t.besoins.map(function (b) { return motsDe(b).join(" "); })   // chaque besoin tel quel (« numero client … »)
       };
     });
     // Un mot-clé rare (« aujourd ») compte plus qu'un mot-clé que beaucoup de fiches partagent (« date »).
@@ -1839,17 +1908,41 @@
     return b;
   }
 
-  // Note chaque fiche du domaine (« sql » par défaut) pour la question ; renvoie [{ fiche, score }], du plus proche
-  // au moins proche.
+  // La ressemblance de la question q avec le plus proche des besoins (racinesPhrase), de 0 à 1 : la part des mots en
+  // commun, 2 × communs / (mots de la question + mots du besoin) (coefficient de Dice : 1 = les mêmes mots), au carré :
+  // un seul mot en commun compte peu (les mots-clés s'en chargent), une phrase presque pareille compte beaucoup. Un mot
+  // est en commun s'il est le même, à une faute près (deux à partir de 7 lettres ; aucune sous 5 : « fois » n'est pas
+  // « mois »), s'il a le même début (debut lettres au moins, voir DICO_REGLAGES.astuces), ou le même squelette de consonnes
+  // avec à peu près la même longueur (« carreceete » est « caractère », « dédoublonner » n'est pas « booléen »).
+  function ressemblance(q, besoins, debut) {
+    var mieux = 0;
+    if (!q.r.length) return 0;
+    besoins.forEach(function (b) {
+      var communs = q.r.filter(function (r, j) {
+        var tol = r.length >= 7 ? 2 : (r.length >= 5 ? 1 : 0);
+        return b.r.some(function (k, i) {
+          return k === r || (tol > 0 && distance(r, k, tol) <= tol) || debutCommun(r, k, debut) ||
+            (q.sq[j].length >= 4 && Math.abs(r.length - k.length) <= 2 && distance(q.sq[j], b.sq[i], 1) <= 1);
+        });
+      }).length;
+      var dice = Math.min(1, 2 * communs / (q.r.length + b.r.length));   // (au plus 1 : « zeros zeors » vise un seul mot)
+      mieux = Math.max(mieux, dice * dice);
+    });
+    return mieux;
+  }
+
+  // Note chaque fiche du domaine (« sql » par défaut ; « astuces » : chaque astuce) pour la question ; renvoie
+  // [{ fiche, score }] (fiche : la fiche, ou l'astuce), du plus proche au moins proche.
   function chercherDico(question, domaine) {
     domaine = domaine || "sql";
-    var reg = DICO_REGLAGES[domaine] || DICO_REGLAGES.sql;
+    var reg = DICO_REGLAGES[domaine] || DICO_REGLAGES.sql, vides = reg.motsVides || {};
     var brut = sansAccents(question).replace(/\s+/g, " ").trim();
     if (!brut) return [];
     var mots = motsDe(brut);
     var phrase = " " + mots.join(" ") + " ";
-    var utiles = mots.filter(function (m) { return !DICO_MOTS_VIDES[m]; });
+    var utiles = mots.filter(function (m) { return !DICO_MOTS_VIDES[m] && !vides[m]; });
     if (!utiles.length) utiles = mots;
+    var demande = reg.besoin ? racinesPhrase(brut, vides) : null;   // astuces : la question, à comparer aux besoins
     var racines = {};
     utiles.forEach(function (m) { racines[racine(m)] = true; });
     var index = indexDico(domaine), info = dicoIndex[domaine], connus = info.connus;
@@ -1902,6 +1995,7 @@
           var k = x.cles[i];
           if (k === r) meilleur = Math.max(meilleur, x.poids[i] + (i === 0 ? 3 : i <= 2 ? 2 : i <= 5 ? 1 : 0)); // exact (les premiers mots-clés d'une fiche comptent un peu plus)
           else if (tol && distance(r, k, tol) <= tol) meilleur = Math.max(meilleur, 25);    // une faute ou deux
+          else if (debutCommun(r, k, reg.debut)) meilleur = Math.max(meilleur, 25);        // astuces : même début
           else if (sq.length >= 4 && distance(sq, x.squelettes[i], 1) <= 1) meilleur = Math.max(meilleur, 15);
         }
         if (!meilleur && x.def[r]) meilleur = 8;                                            // mot de la définition
@@ -1915,6 +2009,9 @@
         if (phrase.indexOf(k) >= 0) expr = Math.min(130, expr + 60);
       });
       score += expr;
+      // Astuces : la phrase de l'élève comparée au plus proche des besoins (ou au titre) de l'astuce ; un besoin tapé tel quel.
+      if (demande && x.besoins.length) score += Math.round(reg.besoin * ressemblance(demande, x.besoins, reg.debut));
+      if (reg.besoinTel && x.tels.indexOf(texte) >= 0) score += reg.besoinTel;
       // Divalto, un mot tapé seul : un mot-clé entier de la fiche (« commande » pour ENT) ; puis la table avant le champ.
       if (seul && reg.motCleEntier && x.entiers[singulier(utiles[0])]) score += reg.motCleEntier;
       if (seul && reg.typeSeul && score >= DICO_SEUIL) score += reg.typeSeul[x.fiche.type] || 0;
@@ -1922,9 +2019,10 @@
     }).filter(function (r) { return r.score > 0; })
       .sort(function (a, b) {
         return b.score - a.score || rangType(a.fiche, reg) - rangType(b.fiche, reg) ||
-          rangModule(a.fiche) - rangModule(b.fiche) || a.fiche.nom.localeCompare(b.fiche.nom);
+          rangModule(a.fiche) - rangModule(b.fiche) || nomTri(a.fiche).localeCompare(nomTri(b.fiche));
       });
   }
+  function nomTri(f) { return String(f.nom || f.titre || ""); }   // (une astuce n'a pas de nom : son titre)
   function rangType(f, reg) { var i = (reg.ordreTypes || []).indexOf(f.type); return i < 0 ? 0 : i; }
   function rangModule(f) {
     var n = f.module && /^m(\d\d)$/.exec(f.module);
@@ -1969,11 +2067,15 @@
   }
   // Une requête Dataviz a un titre, pas un nom de code : police normale.
   function classeTitre(f) { return f.type === "requête" ? " titre" : ""; }
+  // Le type affiché d'une fiche : « type de donnée » pour type: "type" (catégorie « Types de données »).
+  function nomType(f) { return f.type === "type" ? "type de donnée" : f.type; }
+  // Une famille de types (« Dates et heures ») → « dates-et-heures » : #/types/dates-et-heures, l'id de son titre.
+  function idFamille(nom) { return sansAccents(nom).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
   function carteFiche(f, moteur, q) {
     var dv = domaineFiche(f) === "divalto";
     return '<a class="card fiche-res" href="#/dico/' + encodeURIComponent(f.id) + '"><div class="fiche-tete"><strong' +
       (dv && classeTitre(f) ? ' class="titre"' : '') + '>' +
-      esc(f.nom) + '</strong><span class="tag">' + esc(f.type) + '</span><span class="tag">' + esc(f.categorie) +
+      esc(f.nom) + '</strong><span class="tag">' + esc(nomType(f)) + '</span><span class="tag">' + esc(f.categorie) +
       '</span></div><p>' + fmt(f.definition) + '</p>' + (dv ? champsCites(f, q) : syntaxeFiche(f, moteur)) + '</a>';
   }
   // Fiche Divalto trouvée par un de ses champs : la carte montre ce champ (« PINO : le numéro de la pièce »).
@@ -2004,7 +2106,9 @@
       return '<p class="muted">' + fiches.length + (fiches.length > 1 ? ' fiches' : ' fiche') +
         '. Tape une question ou un nom, ou parcours par thème :</p>' +
         ordreCategories(Object.keys(cats), dv).map(function (c) {
-          return '<h2>' + esc(c) + '</h2><div class="puces">' + cats[c].sort(parNom).map(function (f) {
+          return '<h2>' + esc(c) + '</h2>' + (!dv && c === DICO_CATEGORIE_TYPES ?
+            '<p class="fiche-famille"><a href="#/types">Voir le tableau de tous les types</a></p>' : '') +
+            '<div class="puces">' + cats[c].sort(parNom).map(function (f) {
             return '<a class="puce' + (dv ? classeTitre(f) : '') + '" href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a>';
           }).join('') + '</div>';
         }).join('');
@@ -2082,7 +2186,9 @@
       '<div class="dico-recherche"><input type="search" id="dico-q" autocomplete="off" spellcheck="false" ' +
       (dv ? 'placeholder="Ex. : lignes de commande, MOUV, PINO…" aria-label="Rechercher dans le dico Divalto">' :
       'placeholder="Ex. : chercher un caractère, COALESCE…" aria-label="Rechercher dans le dico">') + '</div>' +
-      (dv ? '' : selecteurMoteurs(dicoMoteur())) + '<div id="dico-res"></div>';
+      (dv ? '' : selecteurMoteurs(dicoMoteur()) +
+        '<p class="dico-types"><a class="btn ghost small" href="#/types">Tous les types de données</a></p>') +
+      '<div id="dico-res"></div>';
     app.innerHTML = onglets ? ongletsDico(domaine) + '<div id="dico-panneau" role="tabpanel" aria-labelledby="onglet-' +
       domaine + '">' + contenu + '</div>' : contenu;
     var champ = document.getElementById("dico-q"), zone = document.getElementById("dico-res");
@@ -2112,34 +2218,81 @@
     var mod = f.module && module(f.module) && moduleVisible(f.module) ? module(f.module) : null;
     app.innerHTML = '<p class="muted"><a href="#/dico">Super dico</a> › ' + esc(f.categorie) + '</p>' +
       '<h1 class="fiche-nom">' + esc(f.nom) + '</h1>' +
-      '<div class="tags"><span class="tag">' + esc(f.type) + '</span><span class="tag">' + esc(f.categorie) + '</span></div>' +
+      '<div class="tags"><span class="tag">' + esc(nomType(f)) + '</span><span class="tag">' + esc(f.categorie) + '</span></div>' +
       '<p class="definition">' + fmt(f.definition) + '</p>' +
+      // Une fiche qui a une famille (un type, UNSIGNED, CAST…) est une ligne du tableau de tous les types.
+      (f.famille ? '<p class="fiche-famille">Famille : <strong>' + esc(f.famille) + '</strong> · <a href="#/types/' +
+        idFamille(f.famille) + '">Voir le tableau de tous les types</a></p>' : '') +
       selecteurMoteurs(dicoMoteur()) + '<div class="card" id="fiche-corps"></div>' +
       (voir.length ? '<h2>Voir aussi</h2><div class="puces">' + voir.map(function (v) {
         return '<a class="puce" href="#/dico/' + encodeURIComponent(v) + '">' + esc(parId[v].nom) + '</a>';
       }).join('') + '</div>' : '') +
       (mod && DATA.cours[f.module] ? '<p>Dans le cours : <a href="#/cours/' + esc(f.module) + '">' + esc(mod.titre) + '</a></p>' : '') +
       '<div class="actions"><a class="btn ghost" href="#/dico">Nouvelle recherche</a></div>';
-    var rendre = function () {
-      var m = dicoMoteur(), ex = f.exemples || {}, html = '<p class="label">Syntaxe</p>' + syntaxeFiche(f, m);
-      if (m === "snowflake" || m === "mysql") {
-        html += '<p class="label">Exemple · ' + esc(nomMoteur(m)) + '</p><pre class="code">' + esc(ex[m] || f.exemple || "") + '</pre>';
-      } else if (f.exemple) {
-        var variantes = ["snowflake", "mysql"].filter(function (x) { return ex[x]; });
-        html += '<p class="label">Exemple' + (variantes.length ? ' · SQL Server' : '') + '</p><pre class="code">' + esc(f.exemple) + '</pre>';
-        if (m === "tous") variantes.forEach(function (x) {
-          html += '<p class="label">Exemple · ' + esc(nomMoteur(x)) + '</p><pre class="code">' + esc(ex[x]) + '</pre>';
-        });
-      }
-      if (f.resultat) html += resultatCours(f.resultat);
-      if (f.piege) html += '<div class="feedback ko"><p><strong>Le piège :</strong> ' + fmt(f.piege) + '</p></div>';
-      if (f.correction) html += '<div class="feedback ok"><p><strong>La correction :</strong> ' + fmt(f.correction) + '</p></div>';
-      if (f.pratique) html += '<div class="feedback pratique"><p><strong>En pratique :</strong> ' + fmt(f.pratique) + '</p></div>';
-      document.getElementById("fiche-corps").innerHTML = html;
-    };
+    var rendre = function () { document.getElementById("fiche-corps").innerHTML = corpsFiche(f, dicoMoteur()); };
     brancherMoteurs(rendre);
     rendre();
     retourOnglet("sql");
+  }
+  // Le corps d'une fiche du dico, ou d'une astuce (titre : « La solution »), pour le moteur m : la syntaxe, l'exemple du
+  // moteur choisi (« Tous » : celui de SQL Server, puis ses variantes), le résultat, le piège, la correction, le conseil.
+  function corpsFiche(f, m, titre) {
+    var ex = f.exemples || {}, html = '<p class="label">' + esc(titre || "Syntaxe") + '</p>' + syntaxeFiche(f, m);
+    if (m === "snowflake" || m === "mysql") {
+      html += '<p class="label">Exemple · ' + esc(nomMoteur(m)) + '</p><pre class="code">' + esc(ex[m] || f.exemple || "") + '</pre>';
+    } else if (f.exemple) {
+      var variantes = ["snowflake", "mysql"].filter(function (x) { return ex[x]; });
+      html += '<p class="label">Exemple' + (variantes.length ? ' · SQL Server' : '') + '</p><pre class="code">' + esc(f.exemple) + '</pre>';
+      if (m === "tous") variantes.forEach(function (x) {
+        html += '<p class="label">Exemple · ' + esc(nomMoteur(x)) + '</p><pre class="code">' + esc(ex[x]) + '</pre>';
+      });
+    }
+    if (f.resultat) html += resultatCours(f.resultat);
+    if (f.piege) html += '<div class="feedback ko"><p><strong>Le piège :</strong> ' + fmt(f.piege) + '</p></div>';
+    if (f.correction) html += '<div class="feedback ok"><p><strong>La correction :</strong> ' + fmt(f.correction) + '</p></div>';
+    if (f.pratique) html += '<div class="feedback pratique"><p><strong>En pratique :</strong> ' + fmt(f.pratique) + '</p></div>';
+    return html;
+  }
+
+  // La page « Tous les types de données » (#/types, ou #/types/<famille> : la page s'ouvre sur cette famille). Pour chaque
+  // famille de DICO_FAMILLES qui a des fiches : un titre et un tableau Type | SQL Server | Snowflake | MySQL (les cellules
+  // `apercu` ; le sélecteur de moteur ne garde que la colonne choisie). Le nom d'un type ouvre sa fiche. Mêmes droits que
+  // le dico. Sur téléphone, le tableau défile dans son cadre, la page ne déborde pas.
+  function pageTypes(cible) {
+    if (!outilOuvert("dico")) { pageOutilReserve(); return; }
+    var fiches = (DATA.dico || []).filter(function (f) { return domaineFiche(f) === "sql" && f.famille; });
+    var familles = DICO_FAMILLES.map(function (nom) {
+      return { nom: nom, id: idFamille(nom), fiches: fiches.filter(function (f) { return f.famille === nom; }) };
+    }).filter(function (g) { return g.fiches.length; });
+    app.innerHTML = '<p class="muted"><a href="#/dico">Super dico</a> › ' + esc(DICO_CATEGORIE_TYPES) + '</p>' +
+      '<h1>Tous les types de données</h1>' +
+      '<p class="muted">Les types de SQL Server, Snowflake et MySQL, rangés par famille, côte à côte. Clique sur un type ' +
+      'pour ouvrir sa fiche.</p>' +
+      (familles.length ? '<div class="puces types-familles">' + familles.map(function (g) {
+        return '<a class="puce titre" href="#/types/' + g.id + '">' + esc(g.nom) + '</a>';
+      }).join('') + '</div>' + selecteurMoteurs(dicoMoteur()) + '<div id="types-tableaux"></div>' :
+        '<p>Le dico n\'a pas encore de type de donnée.</p>') +
+      '<div class="actions"><a class="btn ghost" href="#/dico">Retour au dico</a></div>';
+    retourOnglet("sql");
+    if (!familles.length) return;
+    var rendre = function () { document.getElementById("types-tableaux").innerHTML = tableauxTypes(familles, dicoMoteur()); };
+    brancherMoteurs(rendre);
+    rendre();
+    var titre = cible ? document.getElementById("famille-" + cible) : null;
+    if (titre) titre.scrollIntoView();
+  }
+  function tableauxTypes(familles, moteur) {
+    var cols = moteur === "tous" ? ["sqlserver", "snowflake", "mysql"] : [moteur];
+    // Sur un petit écran seulement (CSS) : les 3 moteurs ne tiennent pas en largeur.
+    var glisser = moteur === "tous" ? '<p class="muted types-glisser">Fais glisser un tableau pour voir les 3 moteurs, ou choisis un moteur.</p>' : '';
+    return glisser + familles.map(function (g) {
+      return '<h2 id="famille-' + g.id + '">' + esc(g.nom) + '</h2><div class="table-wrap types-cadre"><table class="types-table">' +
+        '<thead><tr><th scope="col">Type</th>' + cols.map(function (m) { return '<th scope="col">' + esc(nomMoteur(m)) + '</th>'; }).join('') +
+        '</tr></thead><tbody>' + g.fiches.map(function (f) {
+          return '<tr><th scope="row"><a href="#/dico/' + encodeURIComponent(f.id) + '">' + esc(f.nom) + '</a></th>' +
+            cols.map(function (m) { return '<td>' + fmt((f.apercu || {})[m] || "—") + '</td>'; }).join('') + '</tr>';
+        }).join('') + '</tbody></table></div>';
+    }).join('');
   }
 
   // Une fiche du dico Divalto (docs/dico.md) : chaque bloc seulement si la fiche a le champ ; pas de moteurs.
@@ -2207,6 +2360,93 @@
     if (!l.length) return '';
     if (l.length === 1) return '<p class="muted">Source : ' + lien(l[0]) + '</p>';
     return '<p class="muted">Sources :</p><ul class="points">' + l.map(function (s) { return '<li>' + lien(s) + '</li>'; }).join('') + '</ul>';
+  }
+
+  // ---------- Astuces SQL (docs/astuces.md) ----------
+  // #/astuces : l'élève écrit son besoin en une phrase (« sortir un numéro client avec des zéros devant ») ; les astuces
+  // les plus proches viennent de la recherche du dico (chercherDico(q, "astuces")). Sans phrase : toutes les astuces, par
+  // famille. #/astuces/<id> : une astuce. Le sélecteur de moteur est celui du dico (même choix gardé). Public sans compte ;
+  // un compte connecté suit le droit de l'outil « astuces » (section Outils), comme le dico. Les liens vers le dico
+  // suivent le droit du dico.
+  var ASTUCES_FAMILLES = ["Compléter", "Formater", "Nettoyer du texte", "Manipuler", "Dates utiles", "Contrôler les données"];
+  var astucesQuestion = "";   // la dernière recherche, gardée quand on ouvre une astuce
+
+  function pageAstuces(id) {
+    if (!outilOuvert("astuces")) { pageOutilReserve(); return; }
+    if (id) { pageAstuce(id); return; }
+    app.innerHTML = '<h1>Astuces SQL</h1>' +
+      '<p class="muted">Écris ton besoin en une phrase : le site te donne l\'astuce, pour SQL Server, Snowflake et MySQL. ' +
+      'Les fautes de frappe sont tolérées.</p>' +
+      '<div class="dico-recherche"><input type="search" id="astuces-q" autocomplete="off" spellcheck="false" ' +
+      'placeholder="Ex. : sortir un numéro client avec des zéros devant" aria-label="Écris ton besoin"></div>' +
+      selecteurMoteurs(dicoMoteur()) + '<div id="astuces-res"></div>';
+    var champ = document.getElementById("astuces-q"), zone = document.getElementById("astuces-res");
+    champ.value = astucesQuestion;
+    var maj = function () {
+      astucesQuestion = champ.value;
+      zone.innerHTML = resultatsAstuces(champ.value, dicoMoteur());
+      // « Cherche dans le dico » : le dico s'ouvre avec la même phrase, dans l'onglet SQL.
+      Array.prototype.forEach.call(zone.querySelectorAll("a.vers-dico"), function (a) {
+        a.addEventListener("click", function () { dicoQuestion = champ.value; if (accesDivalto()) ecrireDomaine("sql"); });
+      });
+    };
+    champ.addEventListener("input", maj);
+    brancherMoteurs(maj);
+    maj();
+    champ.focus();
+  }
+  // Les astuces par famille, dans l'ordre d'ASTUCES_FAMILLES (une famille inconnue : à la fin).
+  function famillesAstuces(astuces) {
+    var noms = ASTUCES_FAMILLES.slice();
+    astuces.forEach(function (a) { if (noms.indexOf(a.famille) < 0) noms.push(a.famille); });
+    return noms.map(function (nom) {
+      return { nom: nom, astuces: astuces.filter(function (a) { return a.famille === nom; }) };
+    }).filter(function (g) { return g.astuces.length; });
+  }
+  function carteAstuce(a, moteur) {
+    return '<a class="card fiche-res" href="#/astuces/' + encodeURIComponent(a.id) + '"><div class="fiche-tete"><strong class="titre">' +
+      esc(a.titre) + '</strong><span class="tag">' + esc(a.famille) + '</span></div>' + syntaxeFiche(a, moteur) + '</a>';
+  }
+  function resultatsAstuces(q, moteur) {
+    var astuces = DATA.astuces || [];
+    q = String(q).trim();
+    if (!astuces.length) return '<p class="muted">Pas encore d\'astuce.</p>';
+    if (!q) {
+      return '<p class="muted">' + pluriel(astuces.length, "astuce", "astuces") + '. Écris ton besoin, ou choisis par famille :</p>' +
+        famillesAstuces(astuces).map(function (g) {
+          return '<h2>' + esc(g.nom) + '</h2><ul class="astuces-liste">' + g.astuces.map(function (a) {
+            return '<li><a href="#/astuces/' + encodeURIComponent(a.id) + '">' + esc(a.titre) + '</a></li>';
+          }).join('') + '</ul>';
+        }).join('');
+    }
+    var r = chercherDico(q, "astuces");
+    var bons = r.filter(function (x) { return x.score >= DICO_SEUIL; }).slice(0, 8);
+    if (bons.length) return bons.map(function (x) { return carteAstuce(x.fiche, moteur); }).join('');
+    var dico = outilOuvert("dico") ? ', ou <a href="#/dico" class="vers-dico">cherche dans le dico</a>' : '';
+    if (r.length) return '<p>Pas d\'astuce sûre pour « ' + esc(q) + ' ». Les plus proches :</p>' +
+      r.slice(0, 3).map(function (x) { return carteAstuce(x.fiche, moteur); }).join('') +
+      '<p>Ce n\'est pas ça ? Essaie d\'autres mots' + dico + '.</p>';
+    return '<p id="astuces-aucune">Aucune astuce ne correspond. Essaie d\'autres mots' + dico + '.</p>';
+  }
+  // Une astuce : titre, famille, la solution du moteur choisi (ou des 3), l'exemple, le résultat, le piège, « En
+  // pratique », et « Voir aussi » : des fiches du dico SQL.
+  function pageAstuce(id) {
+    var a = (DATA.astuces || []).filter(function (x) { return x.id === id; })[0];
+    if (!a) { location.hash = "#/astuces"; return; }
+    var parId = {};
+    (DATA.dico || []).forEach(function (x) { parId[x.id] = x; });
+    var voir = outilOuvert("dico") ? (a.voirAussi || []).filter(function (v) { return parId[v] && domaineFiche(parId[v]) === "sql"; }) : [];
+    app.innerHTML = '<p class="muted"><a href="#/astuces">Astuces SQL</a> › ' + esc(a.famille) + '</p>' +
+      '<h1>' + esc(a.titre) + '</h1>' +
+      '<div class="tags"><span class="tag">' + esc(a.famille) + '</span></div>' +
+      selecteurMoteurs(dicoMoteur()) + '<div class="card" id="astuce-corps"></div>' +
+      (voir.length ? '<h2>Voir aussi dans le dico</h2><div class="puces">' + voir.map(function (v) {
+        return '<a class="puce" href="#/dico/' + encodeURIComponent(v) + '">' + esc(parId[v].nom) + '</a>';
+      }).join('') + '</div>' : '') +
+      '<div class="actions"><a class="btn ghost" href="#/astuces">Nouvelle recherche</a></div>';
+    var rendre = function () { document.getElementById("astuce-corps").innerHTML = corpsFiche(a, dicoMoteur(), "La solution"); };
+    brancherMoteurs(rendre);
+    rendre();
   }
 
   // ---------- Traduire une requête (docs/traducteur.md) ----------
@@ -3095,6 +3335,8 @@
     else if (parts[0] === "confidentialite") pageLegale("Confidentialité", "confidentialite");
     else if (parts[0] === "equipe") pageEquipe(parts[1]);
     else if (parts[0] === "dico") pageDico(parts[1]);
+    else if (parts[0] === "types") pageTypes(parts[1] ? decoder(parts[1]) : "");
+    else if (parts[0] === "astuces") pageAstuces(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "traduire") pageTraduire();
     else if (parts[0] === "outils") {
       if (parts[1]) pageOutil(decoder(parts[1]), parts[2] ? decoder(parts[2]) : "");

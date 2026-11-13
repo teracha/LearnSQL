@@ -45,12 +45,34 @@ for (const [m, qs] of Object.entries(LEARNSQL.questions)) {
   if (ecarts.length) console.log('   écarts :', ecarts.join(' '));
   if (!ok) alertes++;
 }
+// Un résultat (cours, fiche de révision, astuce) : une phrase, ou un tableau (en-têtes, puis au moins une ligne de même
+// longueur ; une case : un texte, un nombre ou null).
+const celluleOK = v => v === null || typeof v === 'string' || typeof v === 'number';
+const resultatOK = r => (typeof r === 'string' && r.trim() !== '') || (Array.isArray(r) && r.length >= 2 &&
+  r.every(l => Array.isArray(l) && l.length && l.length === r[0].length && l.every(celluleOK)));
 // ---------- Super dico (docs/dico.md) ----------
 const dossierDico = path.join(racine, 'data/dico');
 // Le conseil pratique (champ `pratique`, règle 9 de docs/dico.md) : obligatoire, chaque fiche SQL en a un.
 // Dans le dico Divalto, `pratique` et `piege` sont facultatifs, mais contrôlés de la même façon s'ils sont là.
 const PRATIQUE_OBLIGATOIRE = true;
 const PRATIQUE_MAX_MOTS = 40;
+// Les catégories du dico SQL et leurs fichiers (docs/dico.md, « Les fichiers ») : une fiche est rangée dans le fichier
+// de sa catégorie ; « Types de données » en a deux.
+const DICO_CATEGORIES = {
+  'Requête': ['requete.js'], 'Filtres': ['filtres.js'], 'NULL': ['null.js'], 'Texte': ['texte.js'], 'Dates': ['dates.js'],
+  'Conversion': ['conversion.js'], 'Nombres': ['nombres.js'], 'Logique': ['logique.js'], 'Agrégats': ['agregats.js'],
+  'Jointures': ['jointures.js'], 'Sous-requêtes': ['sous-requetes.js'], 'Ensembles': ['ensembles.js'],
+  'Fenêtrage': ['fenetrage.js'], 'Modifier': ['modifier.js'], 'Tables': ['tables.js'], 'Transactions': ['transactions.js'],
+  'Index': ['index.js'], 'Programmation': ['programmation.js'], 'Snowflake': ['snowflake.js'],
+  'Types de données': ['types-nombres.js', 'types-texte-date.js']
+};
+// Les familles de la page « Tous les types de données » (#/types), dans l'ordre (même liste que DICO_FAMILLES de
+// js/app.js). Une fiche qui a une famille est une ligne du tableau : elle a aussi son aperçu (3 cases de 6 mots au plus ;
+// les nombres et les signes ne comptent pas : « 4 octets ; UNSIGNED : 0 à 4,2 milliards » fait 4 mots).
+const FAMILLES_TYPES = ['Entiers', 'Décimaux exacts', 'Nombres approchés', 'Booléens', 'Textes', 'Binaires', 'Listes de valeurs',
+  'Dates et heures', 'Semi-structurés', 'Autres types', 'Modifier un type', 'Convertir un type'];
+const APERCU_MAX_MOTS = 6;
+const motsApercu = t => t.trim().split(/\s+/).filter(m => /[A-Za-zÀ-ÿ]/.test(m)).length;
 // Le dico Divalto (domaine: "divalto", section « Le dico Divalto » de docs/dico.md).
 const DV_TYPES = ['table', 'champ', 'vue', 'requête'];
 const DV_CATEGORIES = ['Tables Divalto', 'Champs Divalto', 'Vues Divalto', 'Requêtes Dataviz'];
@@ -58,9 +80,41 @@ const DV_DEFINITION_MAX_MOTS = 20;
 const DV_CHAMPS_AFFICHES = ['id', 'nom', 'type', 'domaine', 'categorie', 'definition', 'noms', 'champs', 'liens', 'indicateurs',
   'regles', 'exemple', 'piege', 'pratique', 'motsCles', 'voirAussi', 'source', 'sources', 'version'];
 if (!filtre && fs.existsSync(dossierDico)) {
-  for (const f of fs.readdirSync(dossierDico).filter(f => f.endsWith('.js'))) require(path.join(dossierDico, f));
+  const fichierDe = new Map();   // une fiche → son fichier
+  for (const f of fs.readdirSync(dossierDico).filter(f => f.endsWith('.js'))) {
+    const avant = (LEARNSQL.dico || []).length;
+    require(path.join(dossierDico, f));
+    (LEARNSQL.dico || []).slice(avant).forEach(x => fichierDe.set(x, f));
+  }
   const fiches = LEARNSQL.dico || [], idsDico = new Set(), modules = new Set((LEARNSQL.modules || []).map(m => m.id));
-  const typesOk = ['fonction', 'mot-clé', 'erreur'], moteurs = ['sqlserver', 'snowflake', 'mysql'];
+  const typesOk = ['fonction', 'mot-clé', 'erreur', 'type'], moteurs = ['sqlserver', 'snowflake', 'mysql'];
+  let nbFamille = 0;
+  // Catégorie et fichier ; famille et aperçu (une fiche « type » a les deux, toute fiche SQL peut les avoir).
+  const verifierTypes = f => {
+    const err = (...m) => { console.log('ERREUR dico', f.id, ...m); erreurs++; };
+    const fichiers = DICO_CATEGORIES[f.categorie];
+    if (!fichiers) err('catégorie inconnue :', f.categorie, '(' + Object.keys(DICO_CATEGORIES).join(', ') + ')');
+    else if (fichiers.indexOf(fichierDe.get(f)) < 0) { console.log('ALERTE dico', f.id, ': rangée dans', fichierDe.get(f) + ', sa catégorie « ' + f.categorie + ' » va dans', fichiers.join(' ou ')); alertes++; }
+    if (f.famille !== undefined) {
+      nbFamille++;
+      if (FAMILLES_TYPES.indexOf(f.famille) < 0) err('famille inconnue :', f.famille, '(' + FAMILLES_TYPES.join(', ') + ')');
+    }
+    if (f.apercu !== undefined) {
+      if (!f.apercu || typeof f.apercu !== 'object' || Object.keys(f.apercu).some(k => moteurs.indexOf(k) < 0)) err('apercu : { sqlserver, snowflake, mysql }');
+      else moteurs.forEach(m => {
+        const t = f.apercu[m];
+        if (typeof t !== 'string' || !t.trim()) err('apercu.' + m + ' vide');
+        else if (motsApercu(t) > APERCU_MAX_MOTS) err('apercu.' + m + ' long (' + motsApercu(t) + ' mots, ' + APERCU_MAX_MOTS + ' au plus) :', t);
+      });
+    }
+    if ((f.famille === undefined) !== (f.apercu === undefined)) err('famille et apercu vont ensemble (une ligne du tableau « Tous les types »)');
+    if (f.type === 'type') {
+      if (f.famille === undefined || f.apercu === undefined) err('une fiche « type » a une famille et un apercu');
+      if (f.categorie !== 'Types de données') err('une fiche « type » est dans la catégorie « Types de données »');
+    } else if (f.categorie === 'Types de données' && f.famille === undefined) {
+      console.log('ALERTE dico', f.id, ': catégorie « Types de données » sans famille (absente du tableau « Tous les types »)'); alertes++;
+    }
+  };
   const texte = t => typeof t === 'string' && t.trim() !== '';
   const nbMots = t => t.trim().split(/\s+/).length;
   let avecPratique = 0, nbDivalto = 0;
@@ -105,6 +159,7 @@ if (!filtre && fs.existsSync(dossierDico)) {
     if (/^dv-/.test(f.id || '')) { console.log('ERREUR dico id « dv-… » sans domaine "divalto"', f.id); erreurs++; }
     if (!f.nom || !f.categorie || !f.definition || typesOk.indexOf(f.type) < 0) { console.log('ERREUR dico format', f.id); erreurs++; }
     if (!f.moteurs || moteurs.some(m => !f.moteurs[m])) { console.log('ERREUR dico moteur manquant', f.id); erreurs++; }
+    verifierTypes(f);
     if (!Array.isArray(f.motsCles) || f.motsCles.length < 8 || f.motsCles.length > 20) { console.log('ALERTE dico motsCles (8 à 20)', f.id, (f.motsCles || []).length); alertes++; }
     if (f.definition && f.definition.split(/\s+/).length > 25) { console.log('ALERTE dico définition longue', f.id); alertes++; }
     if (f.module && !modules.has(f.module)) { console.log('ERREUR dico module inconnu', f.id, f.module); erreurs++; }
@@ -116,7 +171,77 @@ if (!filtre && fs.existsSync(dossierDico)) {
   });
   // « Voir aussi » : des fiches qui existent (une fiche Divalto peut renvoyer vers une fiche SQL).
   fiches.forEach(f => (f.voirAussi || []).forEach(v => { if (!idsDico.has(v)) { console.log('ERREUR dico voirAussi inconnu', f.id, v); erreurs++; } }));
-  console.log(`dico ${fiches.length - nbDivalto} fiches SQL + ${nbDivalto} Divalto (conseil pratique : ${avecPratique})`);
+  console.log(`dico ${fiches.length - nbDivalto} fiches SQL + ${nbDivalto} Divalto (conseil pratique : ${avecPratique} ; tableau des types : ${nbFamille})`);
+}
+// ---------- Astuces SQL (docs/astuces.md) ----------
+// data/astuces/<famille>.js (LEARNSQL.astuces), chargés dans index.html : ids uniques, famille connue (et son fichier),
+// titre, 2 à 4 besoins et 2 à 4 essais, les 3 moteurs, exemple, résultat au format des cours, piège, 6 à 12 mots-clés,
+// « Voir aussi » vers des fiches du dico SQL qui existent. Que chaque besoin et chaque essai trouve son astuce : node
+// outils/tests/recherche-astuces.js.
+const dossierAstuces = path.join(racine, 'data/astuces');
+let nbAstuces = 0;
+if (!filtre && fs.existsSync(dossierAstuces)) {
+  const index = fs.readFileSync(path.join(racine, 'index.html'), 'utf8');
+  const err = (...m) => { console.log('ERREUR astuces', ...m); erreurs++; };
+  const alerte = (...m) => { console.log('ALERTE astuces', ...m); alertes++; };
+  const texte = t => typeof t === 'string' && t.trim() !== '';
+  const nbMots = t => t.trim().split(/\s+/).length;
+  const pareil = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  // Les familles, dans l'ordre de la page #/astuces (même liste que ASTUCES_FAMILLES de js/app.js), et leur fichier.
+  const FAMILLES = { 'Compléter': 'completer.js', 'Formater': 'formater.js', 'Nettoyer du texte': 'nettoyer.js',
+    'Manipuler': 'manipuler.js', 'Dates utiles': 'dates.js', 'Contrôler les données': 'controler.js' };
+  const CHAMPS = ['id', 'titre', 'famille', 'besoins', 'essais', 'moteurs', 'exemple', 'exemples', 'resultat', 'piege', 'pratique',
+    'motsCles', 'voirAussi'];
+  const moteurs = ['sqlserver', 'snowflake', 'mysql'];
+  const dicoSql = new Set((LEARNSQL.dico || []).filter(x => x.domaine !== 'divalto').map(x => x.id));
+  const ids = new Set(), parFamille = {};
+  const liste = (l, min, max) => Array.isArray(l) && l.length >= min && l.length <= max && l.every(texte);
+  // Un besoin (ou un titre) tapé tel quel donne son astuce en 1er : deux astuces ne peuvent pas avoir le même.
+  const phrases = new Map(), tel = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  for (const f of fs.readdirSync(dossierAstuces).filter(f => f.endsWith('.js')).sort()) {
+    const avant = (LEARNSQL.astuces || []).length;
+    try { require(path.join(dossierAstuces, f)); } catch (e) { err('data/astuces/' + f, ': fichier illisible,', e.message); continue; }
+    if (index.indexOf('<script src="data/astuces/' + f + '"></script>') < 0) err('data/astuces/' + f, 'absent de index.html');
+    (LEARNSQL.astuces || []).slice(avant).forEach(a => {
+      const id = a && a.id, e = (...m) => err(id, ...m);
+      nbAstuces++;
+      if (!a || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id || '')) { err('id (minuscules, chiffres, tirets) :', id); return; }
+      if (ids.has(id)) e('id en double');
+      ids.add(id);
+      if (!FAMILLES[a.famille]) e('famille inconnue :', a.famille, '(' + Object.keys(FAMILLES).join(', ') + ')');
+      else {
+        parFamille[a.famille] = (parFamille[a.famille] || 0) + 1;
+        if (FAMILLES[a.famille] !== f) alerte(id, ': rangée dans', f + ', sa famille « ' + a.famille + ' » va dans', FAMILLES[a.famille]);
+      }
+      if (!texte(a.titre)) e('titre manquant');
+      if (!liste(a.besoins, 2, 4)) e('besoins : 2 à 4 phrases');
+      [a.titre].concat(Array.isArray(a.besoins) ? a.besoins : []).filter(texte).forEach(b => {
+        const autre = phrases.get(tel(b));
+        if (autre && autre !== id) alerte(id, ': « ' + b + ' » est aussi un besoin ou le titre de', autre);
+        else phrases.set(tel(b), id);
+      });
+      if (!liste(a.essais, 2, 4)) e('essais : 2 à 4 phrases');
+      else if (Array.isArray(a.besoins) && a.essais.some(x => a.besoins.some(b => pareil(b) === pareil(x)))) alerte(id, ': un essai répète un besoin (il doit le dire autrement)');
+      if (!a.moteurs || typeof a.moteurs !== 'object' || moteurs.some(m => !texte(a.moteurs[m])) || Object.keys(a.moteurs).some(k => moteurs.indexOf(k) < 0)) e('moteurs : { sqlserver, snowflake, mysql }, 3 textes');
+      if (!texte(a.exemple)) e('exemple manquant');
+      if (a.exemples !== undefined && !(a.exemples && typeof a.exemples === 'object' && Object.keys(a.exemples).every(k => ['snowflake', 'mysql'].indexOf(k) >= 0 && texte(a.exemples[k])))) e('exemples : { snowflake, mysql }, des textes');
+      if (a.resultat !== undefined) {
+        if (!resultatOK(a.resultat)) e('résultat (une phrase, ou un tableau : en-têtes puis lignes de même longueur)');
+        else if (Array.isArray(a.resultat) && (a.resultat.length < 3 || a.resultat.length > 6)) alerte(id, ': résultat, 2 à 5 lignes (' + (a.resultat.length - 1) + ')');
+      }
+      if (!texte(a.piege)) e('piège manquant');
+      if (a.pratique !== undefined) {
+        if (!texte(a.pratique)) e('pratique vide');
+        else if (nbMots(a.pratique) > PRATIQUE_MAX_MOTS) alerte(id, ': pratique long (' + nbMots(a.pratique) + ' mots, ' + PRATIQUE_MAX_MOTS + ' au plus)');
+        else if (pareil(a.pratique) === pareil(a.piege)) e('pratique identique au piège');
+      }
+      if (!liste(a.motsCles, 6, 12)) e('motsCles : 6 à 12 mots', (a.motsCles || []).length);
+      if (a.voirAussi !== undefined && !Array.isArray(a.voirAussi)) e('voirAussi : une liste d\'id du dico');
+      (Array.isArray(a.voirAussi) ? a.voirAussi : []).forEach(v => { if (!dicoSql.has(v)) e('voirAussi : pas de fiche « ' + v + ' » dans le dico SQL'); });
+      Object.keys(a).filter(k => CHAMPS.indexOf(k) < 0).forEach(k => alerte(id, ': champ inconnu (non affiché)', k));
+    });
+  }
+  console.log(`astuces ${nbAstuces} (${Object.keys(FAMILLES).filter(x => parFamille[x]).map(x => x + ' ' + parFamille[x]).join(', ') || 'aucune'})`);
 }
 // ---------- Outils (docs/outils.md) ----------
 // Les sujets (data/outils/sujets.js) et les définitions (data/outils/<id>.js, un outil par fichier, chargé dans index.html) :
@@ -188,7 +313,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   // Sans compte : les sujets publics. Le dico et Traduire suivent le droit de leur lien (js/app.js, outilOuvert).
   if (!Array.isArray(LEARNSQL.outilsPublics)) err('data/outils/sujets.js : LEARNSQL.outilsPublics manquant (les sujets ouverts sans compte)');
   else LEARNSQL.outilsPublics.forEach(id => { if (!idsSujets.has(id)) err('outilsPublics : sujet inconnu', id); });
-  ['dico', 'traduire'].forEach(id => { if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')'); });
+  ['dico', 'traduire', 'astuces'].forEach(id => { if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')'); });
   const modules = new Set((LEARNSQL.modules || []).map(m => m.id)), idsOutils = new Set(), parType = {};
   const CHAMPS_OUTIL = ['id', 'sujet', 'titre', 'resume', 'quand', 'etapes', 'cours', 'type', 'colonnes', 'alertes', 'totaux', 'aideTotaux',
     'modele', 'ligne', 'colonne', 'valeurs', 'libelles', 'aides', 'rubriques', 'exemple', 'export'];
@@ -453,10 +578,7 @@ if (!filtre) {
   const alerte = (...m) => { console.log('ALERTE', ...m); alertes++; };
   const texte = t => typeof t === 'string' && t.trim() !== '';
   const CHAMPS = ['intro', 'sections', 'differences'], CHAMPS_SECTION = ['titre', 'exemple', 'resultat', 'regle', 'points', 'retenir', 'source'];
-  const cellule = v => v === null || typeof v === 'string' || typeof v === 'number';
-  // Résultat : une phrase, ou un tableau (en-têtes, puis au moins une ligne de même longueur).
-  const resultatOK = r => texte(r) || (Array.isArray(r) && r.length >= 2 &&
-    r.every(l => Array.isArray(l) && l.length && l.length === r[0].length && l.every(cellule)));
+  // Résultat : resultatOK (en haut du fichier), le même contrôle que pour les astuces.
   const verifierFormat = (ou, c) => {
     if (!c || typeof c !== 'object') return err(ou, ': vide');
     if (!texte(c.intro)) err(ou, ': intro (un texte)');
@@ -502,5 +624,5 @@ if (!filtre) {
   nbFiches = Object.keys(LEARNSQL.fiches).length;
   console.log(`cours ${Object.keys(LEARNSQL.cours).length} · fiches de révision ${nbFiches}`);
 }
-console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
+console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision · ${nbAstuces} astuce(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
 process.exitCode = erreurs ? 1 : 0;

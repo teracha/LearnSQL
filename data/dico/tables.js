@@ -37,6 +37,9 @@
 //   datetime.html (TIMESTAMP : UTC et 2038), implicit-commit.html.
 // docs.snowflake.com et dev.mysql.com n'étaient pas joignables depuis la session : vérifiés par extraits de recherche,
 // et chaque ligne MySQL a été testée sur le serveur.
+// 13/11/2026 (tableau « Tous les types de données », docs/dico.md) : famille « Modifier un type » et apercu sur
+// identity, default et not-null ; « Voir aussi » de types-nombre et type-booleen complétés par les fiches détaillées de
+// types-nombres.js (catégorie « Types de données »). Relus contre ces fiches : pas de contradiction.
 LEARNSQL.dico = (LEARNSQL.dico || []).concat([
   {
     id: "create-table",
@@ -194,6 +197,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     nom: "DEFAULT",
     type: "mot-clé",
     categorie: "Tables",
+    famille: "Modifier un type",
+    apercu: { sqlserver: "DEFAULT valeur (CONSTRAINT df_…)", snowflake: "DEFAULT valeur", mysql: "DEFAULT valeur, ou (expression)" },
     definition: "Donne une valeur automatique à une colonne quand l'INSERT ne la fournit pas.",
     moteurs: {
       sqlserver: "`col type NOT NULL CONSTRAINT df_x DEFAULT 1` ; une fonction marche aussi : `DEFAULT SYSDATETIME()`",
@@ -214,6 +219,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     nom: "NOT NULL",
     type: "mot-clé",
     categorie: "Tables",
+    famille: "Modifier un type",
+    apercu: { sqlserver: "NOT NULL ; ALTER COLUMN pour changer", snowflake: "NOT NULL ; SET NOT NULL", mysql: "NOT NULL ; MODIFY pour changer" },
     definition: "Rend une colonne obligatoire : une ligne sans valeur dans cette colonne est refusée.",
     moteurs: {
       sqlserver: "`col type NOT NULL` ; colonne existante : `ALTER TABLE t ALTER COLUMN col type NOT NULL` (refusé s'il reste des NULL)",
@@ -238,6 +245,8 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     nom: "IDENTITY",
     type: "mot-clé",
     categorie: "Tables",
+    famille: "Modifier un type",
+    apercu: { sqlserver: "IDENTITY(1,1)", snowflake: "AUTOINCREMENT ou IDENTITY", mysql: "AUTO_INCREMENT, sur une clé" },
     definition: "Donne automatiquement un numéro à chaque nouvelle ligne, pour la clé technique.",
     moteurs: {
       sqlserver: "`id INT IDENTITY(1,1)` (départ, pas) ; le numéro créé : `SCOPE_IDENTITY()` ; ou une `SEQUENCE` (`NEXT VALUE FOR`)",
@@ -342,7 +351,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "`DECIMAL` sans précision ni échelle garde 0 décimale sur les 3 moteurs : 19.90 devient 20, sans erreur. Écris toujours `DECIMAL(10,2)` ; et pour l'argent, jamais FLOAT : 0.1 + 0.2 n'y vaut pas 0.3.",
     pratique: "Un code fait de chiffres (EAN, SIREN, code postal) se range en texte, `CHAR(13)`, pas en nombre : un `BIGINT` perd les zéros de tête (`0123…` devient `123…`), et on ne calcule jamais avec ce code.",
     motsCles: ["nombre", "entier", "décimal", "décimales", "virgule", "précision", "échelle", "montant", "argent", "prix", "arrondi", "approché", "numérique", "chiffres", "centimes", "type"],
-    voirAussi: ["cast", "round", "division", "types-texte", "sum"],
+    voirAussi: ["int", "bigint", "smallint", "tinyint", "mediumint", "decimal", "number", "money", "float", "real", "cast", "round", "division", "types-texte", "sum"],
     module: "m10"
   },
   {
@@ -390,7 +399,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     piege: "Sans `NOT NULL`, la colonne a trois états : `WHERE actif = 0` oublie les lignes à NULL, et le compte des partenaires inactifs est faux. Sur Snowflake, la même requête affiche TRUE et FALSE au lieu de 1 et 0.",
     pratique: "Pour compter les partenaires actifs : sur SQL Server, `SUM(CAST(actif AS INT))`, car `SUM` refuse le type BIT ; sur Snowflake, `COUNT_IF(actif)` ; sur MySQL, `SUM(actif)` suffit.",
     motsCles: ["booléen", "oui", "non", "vrai", "faux", "actif", "inactif", "drapeau", "flag", "case à cocher", "indicateur", "logique", "0 ou 1", "type"],
-    voirAussi: ["case", "iif", "where", "default", "not-null"],
+    voirAussi: ["bit", "boolean", "case", "iif", "where", "default", "not-null"],
     module: "m10"
   }
 ]);

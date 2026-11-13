@@ -325,6 +325,31 @@ select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
 .fiche-tete strong.titre, .fiche-nom.titre, .puce.titre { font-family: inherit; }
 .fiche-tete strong, .fiche-nom, .puce { overflow-wrap: anywhere; }
 
+/* Dico : « Tous les types de données » (#/types). Un tableau par famille ; sur téléphone, il défile dans son cadre
+   (la page ne déborde pas) et la colonne « Type » reste visible à gauche. */
+.dico-types { margin: -6px 0 18px; }
+.fiche-famille { margin: 4px 0 14px; overflow-wrap: anywhere; }
+.types-familles { margin: 6px 0 4px; }
+.types-cadre { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); margin-bottom: 8px; }
+.types-table { font-size: 16px; }
+.types-table th, .types-table td { vertical-align: top; padding: 8px 10px; }
+.types-table thead th { background: var(--code-bg); font-size: 15px; white-space: nowrap; }
+.types-table td { min-width: 9em; }   /* (un code, « TIMESTAMP_NTZ », ne se coupe pas : le tableau défile) */
+.types-table tbody tr:last-child th, .types-table tbody tr:last-child td { border-bottom: 0; }
+/* Le nom d'un type ne se coupe qu'entre deux mots (« MEDIUMINT » reste entier) : le tableau défile dans son cadre. */
+.types-table th:first-child { position: sticky; left: 0; z-index: 1; min-width: 6.5em; max-width: 11em; background: var(--card);
+  border-right: 1px solid var(--line); overflow-wrap: normal; }
+.types-table thead th:first-child { background: var(--code-bg); }
+.types-table tbody th a { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 700; text-decoration: none; }
+.types-glisser { display: none; margin: 0 0 4px; font-size: 16px; }
+@media (max-width: 700px) { .types-glisser { display: block; } }
+
+/* Astuces SQL (#/astuces) : la liste par famille (une astuce par ligne, une cible large) */
+.astuces-liste { list-style: none; margin: 0; padding: 0; }
+.astuces-liste li { border-bottom: 1px solid var(--line); }
+.astuces-liste a { display: block; padding: 9px 2px; font-weight: 700; text-decoration: none; overflow-wrap: anywhere; }
+.astuces-liste a:hover { text-decoration: underline; }
+
 /* Traduire une requête */
 .tr-sql { min-height: 180px; font-size: 15px; }
 .tr-titre-ex { margin-top: 18px; }

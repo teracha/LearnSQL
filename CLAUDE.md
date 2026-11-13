@@ -160,13 +160,19 @@ Prestataires, `ot05` Livrer (`data/otXX-<étape>.js`, `data/cours/otXX.js`).
 Page `#/dico` (et `#/dico/<id>` pour une fiche), ouverte à tous, sans compte (un compte connecté suit le droit outil
 `dico`, voir « Outils »). Spécification et format : `docs/dico.md`.
 - Fiches dans `data/dico/<catégorie>.js` (`LEARNSQL.dico = (LEARNSQL.dico || []).concat([...])`), chargées dans `index.html`.
-- Une fiche = une fonction, un mot-clé ou une erreur, pour 3 moteurs : SQL Server, Snowflake, MySQL 8.
+- Une fiche = une fonction, un mot-clé, une erreur ou un type de donnée, pour 3 moteurs : SQL Server, Snowflake, MySQL 8.
   Exemple sur la base d'exemple (`docs/base-exemple.sql`, tables sans schéma), résultat vérifié avec SQLite.
 - Recherche sans IA dans `js/app.js` (bloc « Super dico ») : mots vides, racines, fautes tolérées.
   Sélecteur de moteur gardé dans le navigateur (`learnsql-dico-moteur`).
 - Champ `pratique` : le conseil pratique (règle 9), affiché sous le piège dans un encadré « En pratique ».
   `outils/verifier.js` le contrôle (non vide, 40 mots au plus, différent du piège) ; constante `PRATIQUE_OBLIGATOIRE`.
 - `node outils/verifier.js` contrôle aussi le dico ; test navigateur : `outils/tests/dico.js`.
+- Types de données (novembre 2026, `docs/dico.md`, « Les types de données ») : catégorie « Types de données »
+  (`data/dico/types-nombres.js` et `types-texte-date.js`), une fiche par type (`type: "type"`, affiché « type de donnée »),
+  avec `famille` (12 familles, dans l'ordre de `DICO_FAMILLES`) et `apercu` (3 cases de 6 mots au plus). Toute fiche SQL
+  peut avoir les deux (UNSIGNED, ZEROFILL, CAST… : familles « Modifier un type », « Convertir un type »). Page
+  `#/types` « Tous les types de données » (un tableau par famille, les 3 moteurs côte à côte ; `#/types/<famille>`
+  s'ouvre sur une famille), liée depuis `#/dico` et depuis chaque fiche qui a une famille ; mêmes droits que le dico.
 - Onglet « Divalto » (fiches `domaine: "divalto"`, ids `dv-…`, dans `data/dico/divalto.js`) : seulement si `accesOK(["divalto"])` (en plus du droit sur le dico),
   sinon pas d'onglet et une fiche `dv-…` affiche un message. Onglet gardé (`learnsql-dico-domaine`) ; la recherche ne
   cherche que dans l'onglet choisi ; Traduire ne renvoie que vers des fiches SQL. Test : `outils/tests/dico-divalto.js`.
@@ -193,8 +199,14 @@ Spécification : `docs/traducteur.md`.
 
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
-- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico et Traduire, ouvert sans compte ; Gestion de
-  projet : ses outils rangés en 5 étapes, `groupes` : Cadrer, Piloter, Décider, Prestataires, Livrer).
+- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL et Traduire, ouvert sans compte ;
+  Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer, Piloter, Décider, Prestataires, Livrer).
+- Astuces SQL (`#/astuces`, outil `astuces`, mêmes droits que le dico ; `docs/astuces.md`) : l'élève écrit son besoin en
+  une phrase, le site donne l'astuce pour les 3 moteurs. Astuces dans `data/astuces/<famille>.js` (6 familles : Compléter,
+  Formater, Nettoyer du texte, Manipuler, Dates utiles, Contrôler les données) ; recherche = celle du dico
+  (`chercherDico(q, "astuces")`, la phrase comparée aux `besoins`). Contrôles : `node outils/verifier.js` ; tests
+  `node outils/tests/recherche-astuces.js` (chaque besoin au rang 1, chaque essai dans les 3 premières, 0 échec) et
+  `outils/tests/astuces.js` (navigateur, dans `lancer.sh`).
 - Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
   `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
   sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).
@@ -247,6 +259,9 @@ Pour le code : (architecte si gros changement) → developpeur → testeur-site 
 Les agents coûtent cher (chacun repart de zéro) : seulement pour les gros morceaux.
 
 Tests navigateur : `sh outils/tests/lancer.sh` (Supabase simulé).
+Tests node (sans navigateur, chacun « 0 échec ») : `node outils/tests/recherche-divalto.js`,
+`node outils/tests/recherche-astuces.js`, `node outils/tests/traducteur-cas.js`, `node outils/tests/traducteur-corpus.js`,
+`node outils/tests/outils-moteur.js`.
 
 ## Commandes disponibles
 

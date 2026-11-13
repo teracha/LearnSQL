@@ -28,9 +28,11 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
 Catégories (le nom du fichier en minuscules, sans accent) : Requête (`requete.js`), Filtres (`filtres.js`),
 NULL (`null.js`), Texte (`texte.js`), Dates (`dates.js`), Conversion (`conversion.js`), Nombres (`nombres.js`),
 Logique (`logique.js`) ; étape 2 : Agrégats (`agregats.js`), Jointures (`jointures.js`), Sous-requêtes
-(`sous-requetes.js`), Ensembles (`ensembles.js`), Fenêtrage (`fenetrage.js`), Modifier (`modifier.js`), Tables et
-types (`tables.js`), Transactions (`transactions.js`), Index (`index.js`), Programmation (`programmation.js`),
-Snowflake (`snowflake.js`) ; plus tard : Erreurs.
+(`sous-requetes.js`), Ensembles (`ensembles.js`), Fenêtrage (`fenetrage.js`), Modifier (`modifier.js`), Tables
+(`tables.js`), Transactions (`transactions.js`), Index (`index.js`), Programmation (`programmation.js`),
+Snowflake (`snowflake.js`) ; novembre 2026 : Types de données (deux fichiers : `types-nombres.js` et
+`types-texte-date.js`, voir « Les types de données ») ; plus tard : Erreurs. `outils/verifier.js` connaît cette liste :
+une catégorie inconnue est une erreur, une fiche hors du fichier de sa catégorie une alerte.
 
 ## Le format d'une fiche
 
@@ -38,8 +40,9 @@ Snowflake (`snowflake.js`) ; plus tard : Erreurs.
 {
   id: "charindex",                 // unique dans tout le dico : minuscules, chiffres, tirets
   nom: "CHARINDEX",                // le nom affiché : celui de SQL Server s'il existe, sinon le plus courant
-  type: "fonction",                // "fonction" | "mot-clé" | "erreur"
+  type: "fonction",                // "fonction" | "mot-clé" | "erreur" | "type" (un type de donnée, affiché « type de donnée »)
   categorie: "Texte",              // une des catégories ci-dessus
+  // famille, apercu : facultatifs ; une ligne du tableau « Tous les types de données » (voir « Les types de données »)
   definition: "Donne la position d'un caractère, ou d'un texte, dans un autre texte.",
   moteurs: {                       // les 3 moteurs, toujours ; une phrase courte chacun, le code entre accents graves
     sqlserver: "`CHARINDEX(cherché, texte)`",
@@ -65,6 +68,42 @@ Snowflake (`snowflake.js`) ; plus tard : Erreurs.
 Une fiche « erreur » (étape 2) ajoute `codes` (par exemple `["Msg 207", "ERROR 1054"]`), et son `definition` dit le
 message ; `exemple` montre la requête qui provoque l'erreur, `resultat` le message, `piege` la cause, et un champ
 `correction` dit quoi écrire.
+
+## Les types de données
+
+Demandé par l'élève (novembre 2026) : « liste tous les types de données […] et aussi tous les petits trucs qui
+permettent de modifier le type de données (ZEROFILL…) ». Son choix : un tableau de tous les types (par famille, les 3
+moteurs côte à côte) et une fiche par type.
+
+- **Une fiche de type** : `type: "type"` (affiché « type de donnée »), `categorie: "Types de données"`, dans
+  `types-nombres.js` (entiers, décimaux, approchés, booléens, et les familles « Modifier un type » et « Convertir un
+  type ») ou `types-texte-date.js` (le reste). Modèle : la fiche `int`. En plus du format habituel :
+  - `famille` : une des familles, dans cet ordre d'affichage : Entiers, Décimaux exacts, Nombres approchés, Booléens,
+    Textes, Binaires, Listes de valeurs, Dates et heures, Semi-structurés, Autres types, Modifier un type, Convertir un
+    type (`DICO_FAMILLES` dans `js/app.js`, même liste dans `outils/verifier.js`) ;
+  - `apercu: { sqlserver, snowflake, mysql }` : les 3 cases du tableau, 6 mots au plus chacune (taille, limites,
+    équivalent ; les nombres et les signes ne comptent pas : « 4 octets ; UNSIGNED : 0 à 4,2 milliards » fait 4 mots).
+    Un type absent d'un moteur : « — » suivi de l'équivalent, ex. « — (INT) ».
+- **`famille` et `apercu` vont ensemble**, sur toute fiche SQL : une fiche « mot-clé » ou « fonction » qui modifie ou
+  convertit un type (UNSIGNED, ZEROFILL, `identity`, `cast`…) les a aussi, et entre dans le tableau. Une fiche « type » a
+  toujours les deux.
+- **La page « Tous les types de données »** (`#/types`, mêmes droits que le dico) : une phrase, les familles en puces
+  (chacune mène à `#/types/<famille>`, ex. `#/types/dates-et-heures` : la page s'ouvre sur cette famille), le sélecteur
+  de moteur, puis pour chaque famille qui a des fiches, dans l'ordre : un titre et un tableau Type | SQL Server |
+  Snowflake | MySQL (les cases `apercu`) ; le nom du type ouvre sa fiche. Le sélecteur ne garde que la colonne du moteur
+  choisi. Sur téléphone (390 px), le tableau défile dans son cadre (la colonne Type reste à gauche) : la page ne déborde
+  pas. Les lignes d'une famille suivent l'ordre de chargement des fichiers (`index.html`), puis l'ordre dans le fichier.
+- **On y arrive** par le bouton « Tous les types de données » sous le sélecteur de moteur de `#/dico` (onglet SQL), par
+  le lien sous le titre « Types de données » quand on parcourt par thème, et depuis chaque fiche qui a une famille :
+  « Famille : Entiers · Voir le tableau de tous les types » (vers `#/types/<sa famille>`).
+- **La recherche** trouve les fiches de type comme les autres ; les mots de la famille comptent comme ceux de la
+  définition, et la famille entière comme une expression (« listes de valeurs », « dates et heures »).
+- **Traduire** : le nom d'un type dans une requête (`CAST(x AS INT)`, une colonne `INT`) renvoie à sa fiche « Types de
+  données », sinon à la fiche générale de la catégorie Tables (`types-nombre`…).
+- **Contrôles** (`node outils/verifier.js`) : `famille` connue ; `apercu` = 3 cases non vides de 6 mots au plus ; les
+  deux ensemble ; une fiche « type » a les deux et la catégorie « Types de données » ; une fiche de cette catégorie sans
+  famille : une alerte (elle manque au tableau). La ligne « dico » dit combien de fiches sont dans le tableau. Test
+  navigateur : `outils/tests/dico.js`.
 
 ## Les règles d'écriture
 
@@ -98,7 +137,7 @@ Sans IA, sans service externe, dans le navigateur :
   « sur »…) sont retirés ; chaque mot est réduit à sa racine (« recherche », « rechercher » → « recherch ») ;
 - chaque fiche est notée : nom ou autre nom exact (très fort), début du nom, mot-clé exact, mot-clé proche
   (une ou deux lettres de différence, ou même squelette de consonnes : « carreceete » ≈ « caractère »), mot de la
-  définition ;
+  définition (ou de la catégorie, ou de la famille d'un type ; la famille entière compte comme une expression) ;
 - les fiches les mieux notées s'affichent ; si aucune ne passe le seuil, les plus proches quand même, avec un message.
 - la recherche ne cherche que dans l'onglet choisi (SQL ou Divalto), avec ses propres poids. L'onglet SQL garde la
   recherche ci-dessus. L'onglet Divalto a des réglages en plus (`DICO_REGLAGES` dans `js/app.js`) :
@@ -107,6 +146,8 @@ Sans IA, sans service externe, dans le navigateur :
   - un mot tapé seul (« commande ») donne d'abord la table (ENT), puis le champ, avant les vues et les requêtes ;
   - une faute sur un nom entier (« fiche fourniseur », « clinet ») ou sur un mot-clé de plusieurs mots est tolérée ;
   - test : `node outils/tests/recherche-divalto.js` (les 123 questions de l'expert, chacune au rang 1).
+- la même recherche sert aux Astuces SQL (`chercherDico(question, "astuces")`, réglages `DICO_REGLAGES.astuces` : la
+  phrase comparée aux besoins de chaque astuce) : voir `docs/astuces.md`.
 
 ## Le dico Divalto
 

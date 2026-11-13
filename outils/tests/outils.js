@@ -6,8 +6,9 @@
 // zip, pour chaque outil), Copier, Imprimer, les liens avec les cours, du HTML dans les textes de l'élève, rien
 // d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le sujet gestion-projet (droit outil) est
 // réservé au groupe 1, le parcours Chef de projet est ouvert. Les droits des outils (24) : sans compte, compte non limité,
-// hors du groupe, dans le groupe, le dico réservé, toute la section réservée, aucun outil visible (pas de lien
-// « Outils » dans le menu), admin, la page Équipe à 390 px.
+// hors du groupe, dans le groupe, le dico réservé (les astuces sans lien vers le dico, la page des types réservée), les
+// astuces réservées, toute la section réservée, aucun outil visible (pas de lien « Outils » dans le menu), admin, la page
+// Équipe à 390 px.
 // L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
 // Corrections de novembre 2026 (23) : les étapes, les cases vides (budget et business case du testeur), la tolérance
 // avec une virgule, la note du rapport, les limites, les messages d'un fichier ouvert, « Sans nom », 320 px sans
@@ -26,6 +27,8 @@ const DONNEES = (() => {
   return c.LEARNSQL;
 })();
 const GESTION = DONNEES.outilsSujets.filter(s => s.id === 'gestion-projet')[0];
+// Les outils du sujet SQL (des liens : le dico, les astuces, Traduire), dans l'ordre de la page.
+const SQL = DONNEES.outilsSujets.filter(s => s.id === 'outils-sql')[0].outils;
 const ETAPES = GESTION.groupes.map(g => [g.titre, g.outils.slice()]);
 const OUTILS = ETAPES.reduce((l, e) => l.concat(e[1]), []);
 const NB_CARTES = DONNEES.outilsSujets.reduce((n, s) => n + (s.groupes ? s.groupes.reduce((m, g) => m + g.outils.length, 0) : s.outils.length), 0);
@@ -121,7 +124,7 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   let sujets = await p.$$eval('.o-sujet h2', xs => xs.map(x => x.textContent));
   verifier(sujets.join('|') === 'SQL', 'sans compte : sujets ' + sujets.join('|'));
   const cartesSql = await p.$$eval('.o-sujet .o-carte', xs => xs.map(x => x.getAttribute('href')));
-  verifier(cartesSql.join(' ') === '#/dico #/traduire', 'cartes du sujet SQL : ' + cartesSql.join(' '));
+  verifier(cartesSql.join(' ') === SQL.map(o => o.lien).join(' ') && cartesSql.indexOf('#/astuces') >= 0, 'cartes du sujet SQL : ' + cartesSql.join(' '));
   verifier(/Connecte-toi/.test(await texte('#app')), 'sans compte : pas d\'invitation à se connecter');
   await largeur('page Outils (sans compte)');
   await p.click('.o-carte[href="#/dico"]'); await attendre();
@@ -727,10 +730,23 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   await aller('#/traduire'); await p.fill('#tr-sql', 'SELECT COALESCE(a, b) FROM t'); await p.click('#tr-go'); await attendre();
   verifier(await texte('h1') === 'Traduire une requête' && /La traduction/.test(await texte('#tr-res')) && !/Dans le dico/.test(await texte('#tr-res')) &&
     !(await p.$('#tr-res a[href^="#/dico"]')), 'Traduire, dico réservé : ' + (await texte('#tr-res')).slice(0, 80));
+  // Les astuces, dico réservé : elles marchent, sans aucun lien vers le dico (« Voir aussi », « cherche dans le dico ») ;
+  // la page des types suit le droit du dico
+  await aller('#/astuces/zeros-devant');
+  verifier(await texte('h1') === 'Compléter un numéro avec des zéros devant' && !(await p.$('#app a[href^="#/dico"]')), 'astuce, dico réservé : ' + (await texte('#app')).slice(0, 80));
+  await aller('#/astuces'); await p.fill('#astuces-q', 'zzqxw'); await attendre();
+  verifier(/Aucune astuce ne correspond\. Essaie d'autres mots\.$/.test(await texte('#astuces-aucune')) && !(await p.$('#app a[href^="#/dico"]')), 'astuces sans réponse, dico réservé : ' + await texte('#astuces-res'));
+  await reserve('#/types', 'page des types, dico réservé');
   db.acces = [{ element: 'traduire', groupe_id: 1 }]; await synchro();
   await aller('#/dico');
   verifier(await texte('h1') === 'Super dico SQL' && !(await p.$('#app a[href="#/traduire"]')) && await p.$('#onglet-divalto'), 'dico, Traduire réservé : lien vers Traduire, ou pas d\'onglet Divalto');
   await reserve('#/traduire', 'Traduire réservé');
+  // Les astuces réservées au groupe 1 (julie n'y est pas) : ni carte, ni page, ni astuce ; le dico reste ouvert
+  db.acces = [{ element: 'astuces', groupe_id: 1 }]; await synchro();
+  await aller('#/outils');
+  verifier((await cartes()).indexOf('astuces') < 0 && (await cartes()).indexOf('dico') >= 0, 'astuces réservées : cartes ' + (await cartes()).join(' '));
+  await reserve('#/astuces', 'astuces réservées'); await reserve('#/astuces/zeros-devant', 'astuce réservée');
+  await aller('#/types'); verifier(await texte('h1') === 'Tous les types de données', 'astuces réservées : la page des types');
   // e. Sans compte : le dico et Traduire restent publics, seulement le sujet SQL
   await aller('#/compte'); await p.click('#deconnexion'); await attendre();
   await aller('#/dico');
@@ -738,7 +754,7 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   await aller('#/traduire');
   verifier(await texte('h1') === 'Traduire une requête', 'sans compte : Traduire n\'est pas public');
   await aller('#/outils');
-  verifier(await sujetsVus() === 'SQL' && (await cartes()).join(' ') === 'dico traduire' && await p.isVisible('#lien-outils'), 'sans compte : ' + await sujetsVus());
+  verifier(await sujetsVus() === 'SQL' && (await cartes()).join(' ') === SQL.map(o => o.id).join(' ') && await p.isVisible('#lien-outils'), 'sans compte : ' + await sujetsVus());
   // f. Toute la section réservée (élément « outils ») : tout est caché, le lien du menu aussi
   db.acces = [{ element: 'outils', groupe_id: 1 }];
   await connecter({ id: 'u2', email: 'julie@x.fr' });
@@ -755,7 +771,7 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   await aller('#/outils');
   verifier(await p.isHidden('#lien-outils') && !(await p.$('.o-sujet')) && /Aucun outil n'est ouvert à ton compte/.test(await texte('#app')), 'aucun outil visible : le lien « Outils » reste');
   // Un seul outil visible (Traduire) : le lien revient
-  db.acces = [{ element: 'gestion-projet', groupe_id: 1 }, { element: 'dico', groupe_id: 1 }]; await synchro();
+  db.acces = [{ element: 'gestion-projet', groupe_id: 1 }, { element: 'dico', groupe_id: 1 }, { element: 'astuces', groupe_id: 1 }]; await synchro();
   await aller('#/outils');
   verifier(await p.isVisible('#lien-outils') && (await cartes()).join(' ') === 'traduire', 'un seul outil visible : ' + (await cartes()).join(' '));
   db.acces = [{ element: 'outils', groupe_id: 1 }];

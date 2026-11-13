@@ -2191,6 +2191,8 @@
     "MIN_BY PERCENTILE_CONT PERCENTILE_DISC BIT_AND BIT_OR BIT_XOR BOOL_AND BOOL_OR CHECKSUM_AGG JSON_ARRAYAGG JSON_OBJECTAGG OBJECT_AGG MODE");
   var FN_CONDITIONS = ensemble("REGEXP_LIKE CONTAINS STARTSWITH ENDSWITH EQUAL_NULL ARRAY_CONTAINS");
   var MC = { type: "mot-clé" }, FO = { type: "fonction" };
+  // Un type de donnée (INT, VARCHAR…) : sa fiche « Types de données », sinon la fiche générale de « Tables ».
+  var TY = { categories: ["Types de données", "Tables"] };
 
   // Parcourt un arbre (objets et tableaux), sans descendre dans les sous-requêtes si dedans === false.
   function parcourir(n, f, dedans) {
@@ -2247,16 +2249,20 @@
       if (!n) n = notes[num] = { num: num, texte: texte.replace(/\u0004/g, " ").replace(/\u0005/g, ", "), ou: [] };
       if (etiquette && n.ou.indexOf(etiquette) < 0) n.ou.push(etiquette);
     }
-    // Lien vers une fiche du dico, reconnue par son nom ou un de ses noms (filtre : type ou catégorie).
+    // Lien vers une fiche du dico, reconnue par son nom ou un de ses noms (filtre : type, catégorie, ou catégories dans
+    // l'ordre de préférence).
     function lien(nom, filtre) {
       var l = indexDico()[compact(nom).toUpperCase()];
       if (!l) return;
-      for (var k = 0; k < l.length; k++) {
-        var f = l[k];
-        if (filtre && filtre.type && f.type !== filtre.type) continue;
-        if (filtre && filtre.categorie && f.categorie !== filtre.categorie) continue;
-        if (!fichesVues[f.id]) { fichesVues[f.id] = true; fiches.push({ id: f.id, nom: f.nom }); }
-        return;
+      var cats = filtre && (filtre.categories || (filtre.categorie ? [filtre.categorie] : null)) || [null];
+      for (var c = 0; c < cats.length; c++) {
+        for (var k = 0; k < l.length; k++) {
+          var f = l[k];
+          if (filtre && filtre.type && f.type !== filtre.type) continue;
+          if (cats[c] && f.categorie !== cats[c]) continue;
+          if (!fichesVues[f.id]) { fichesVues[f.id] = true; fiches.push({ id: f.id, nom: f.nom }); }
+          return;
+        }
       }
     }
     function cteDe(nom) {
@@ -2553,7 +2559,7 @@
       }
       var r = tx(e.e, ctx), t = typeTexte(e.type);
       if (e.forme === "::") lien("::", FO); else lien(e.forme === "TRY_CAST" || e.forme === "TRY_CONVERT" ? e.forme : e.forme === "CONVERT" ? "CONVERT" : "CAST", FO);
-      lien(e.type.nom, { categorie: "Tables" });
+      lien(e.type.nom, TY);
       var st = "";
       if (e.style) { var sv = valeurNombre(e.style); st = " (style " + tx(e.style, ctx).t + (sv !== null && STYLES[sv] ? " : " + STYLES[sv] : "") + ")"; }
       if (e.e.t === "chemin") return P(r.t + ", " + accord("converti", r.g) + " en " + t + st, r.g);
@@ -3951,7 +3957,7 @@
     function colonneTexte(c, ctx) {
       var l = [];
       if (c.calcul) l.push("calculée : " + tx(c.calcul, ctx).t);
-      else { l.push(typeTexte(c.type)); lien(c.type.nom, { categorie: "Tables" }); }
+      else { l.push(typeTexte(c.type)); lien(c.type.nom, TY); }
       if (c.cle) { l.push("clé primaire"); lien("PRIMARY KEY"); }
       if (c.obligatoire) { l.push("obligatoire (NOT NULL)"); lien("NOT NULL"); }
       if (c.unique) { l.push("valeur unique"); lien("UNIQUE"); }
