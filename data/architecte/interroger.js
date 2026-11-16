@@ -8,7 +8,8 @@
 // NOT IN : 0 ligne) ; BETWEEN du 1er au 16 mars sur date_recu (3 flux au lieu de 4) ; TTC > 3000 (CDE-1001, CDE-1007).
 // Calculés avec Python (zoneinfo, decimal) : flux d'avril en heure de Paris (07/04 et 08/04) ; 1er avril 0 h à Paris =
 // 31/03 22:00 UTC ; 29/03/2026 = 23 h, 25/10/2026 = 25 h ; 7 h à Paris = la veille à Los Angeles toute l'année ; semaines
-// ISO (29/12/2025 = semaine 1 de 2026 ; 01/01/2027 = semaine 53 de 2026) ; 3 × 0,33 = 0,99 contre 1,00.
+// ISO (29/12/2025 = semaine 1 de 2026 ; 01/01/2027 = semaine 53 de 2026) ; 3 × ROUND(0,333 ; 2) = 0,99, ROUND(0,999 ; 2) =
+// 1,00 ; vendredi 3/04/2026 + 2 jours ouvrés (lundi de Pâques le 6) = mercredi 8/04.
 // Sources lues le 16/11/2026 (pages gardées dans scratchpad architecte/interroger/pages) : learn.microsoft.com (AVG, SUM,
 // COUNT, APPROX_COUNT_DISTINCT, GROUP BY, GROUPING, FROM, data-type-precedence, collation-precedence, IN, BETWEEN,
 // post-migration guide, DATEDIFF, GETDATE, AT TIME ZONE, DATEPART, SET DATEFIRST, EOMONTH, TRY_CONVERT, datetime2,
@@ -40,7 +41,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "faire des sous totaux avec rollup"
     ],
     exemple: {
-      texte: "Le contrôle de gestion veut le chiffre d'affaires (CA) par client et par mois, pour Power BI. Avant d'écrire le `GROUP BY`, tu fixes le grain : une ligne = un client et un mois. Voici la requête qu'on obtient : 6 lignes, dont 2 pour AquaBleu (7 165 € en mars, 7 950 € en avril).",
+      texte: "Le contrôle de gestion veut le chiffre d'affaires (CA) par client et par mois, pour Power BI. Il faut un agrégat : une fonction qui résume plusieurs lignes en une valeur (`SUM`, `COUNT`, `AVG`). Avant d'écrire le `GROUP BY`, tu fixes le grain, le niveau de détail d'une ligne : un client et un mois. Voici la requête qu'on obtient : 6 lignes, dont 2 pour AquaBleu (7 165 € en mars, 7 950 € en avril).",
       code: "-- Grain : une ligne = un client et un mois (commandes non annulées)\nSELECT cl.code, cl.nom,\n       DATEFROMPARTS(YEAR(co.date_cde), MONTH(co.date_cde), 1) AS mois,\n       COUNT(*)           AS nb_cdes,\n       SUM(co.montant_ht) AS ca_ht\nFROM dbo.commande AS co\nJOIN dbo.client   AS cl ON cl.id = co.client_id\nWHERE co.statut <> 'ANNULEE'\nGROUP BY cl.code, cl.nom, DATEFROMPARTS(YEAR(co.date_cde), MONTH(co.date_cde), 1)\nORDER BY cl.code, mois;",
       codes: {
         snowflake: "-- Grain : une ligne = un client et un mois (commandes non annulées)\nSELECT cl.code, cl.nom,\n       DATE_TRUNC('month', co.date_cde) AS mois,\n       COUNT(*)           AS nb_cdes,\n       SUM(co.montant_ht) AS ca_ht\nFROM commande AS co\nJOIN client   AS cl ON cl.id = co.client_id\nWHERE co.statut <> 'ANNULEE'\nGROUP BY cl.code, cl.nom, mois      -- Snowflake accepte l'alias\nORDER BY cl.code, mois;",
@@ -78,7 +79,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "groupes-vides",
             q: "Les groupes sans aucune ligne doivent-ils apparaître ?",
             pourquoi: "`GROUP BY` ne crée que les groupes qui ont des lignes. Un client sans commande, ou un mois sans vente, disparaît : la moyenne par mois est fausse, et personne ne voit le trou.",
-            reflexe: "Pars de la liste complète (la table client, une table calendrier), puis `LEFT JOIN` vers les commandes et `COALESCE(SUM(…), 0)`. Voir l'astuce « Afficher 0 pour les clients sans commande »."
+            reflexe: "Pars de la liste complète (la table client, une table calendrier d'une ligne par jour), puis `LEFT JOIN` vers les commandes et `COALESCE(SUM(…), 0)`. Voir l'astuce « Afficher 0 pour les clients sans commande »."
           }
         ]
       },
@@ -101,7 +102,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "where-having",
             q: "Ton filtre porte-t-il sur les lignes ou sur les groupes ?",
             pourquoi: "`WHERE` trie les lignes avant le regroupement, `HAVING` trie les groupes après. « Nouveaux clients 2026 » avec un `WHERE` sur la date : tous les clients de l'année deviennent nouveaux.",
-            reflexe: "Condition sur une colonne (statut, date) : `WHERE`, le plus tôt possible. Condition sur un agrégat : `HAVING`, par exemple `HAVING MIN(date_cde)` pour la 1re commande, ou `HAVING COUNT(*) > 1`."
+            reflexe: "Condition sur une colonne (statut, date) : `WHERE`, le plus tôt possible. Condition sur un agrégat : `HAVING`. Nouveaux clients : `HAVING MIN(date_cde) >=` le 1er janvier, sans `WHERE` sur la date."
           }
         ]
       },
@@ -146,7 +147,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Sur des entiers, une moyenne peut perdre ses décimales : 150 et 5 donnent 77 au lieu de 77,5. Un total trop grand peut aussi dépasser la limite du type, et la requête plante.",
             reflexe: "Fixe le type du calcul : `AVG(qte * 1.0)`, ou `AVG(CAST(qte AS DECIMAL(12,2)))`. Pour un très gros total d'entiers, convertis en `BIGINT` avant de sommer.",
             moteurs: {
-              sqlserver: "`AVG` d'un `INT` rend un `INT` (coupé). `SUM` d'un `INT` reste un `INT` : `SUM(CAST(qte AS BIGINT))`. `AVG` d'un `DECIMAL` sort avec 6 décimales.",
+              sqlserver: "`AVG` d'un `INT` rend un `INT` (coupé). `SUM` d'un `INT` reste un `INT` : `SUM(CAST(qte AS BIGINT))`. `AVG` d'un `DECIMAL` sort avec au moins 6 décimales.",
               snowflake: "`AVG` d'entiers garde les décimales. `SUM` d'une colonne texte la convertit en `FLOAT`, un nombre approché.",
               mysql: "`SUM` et `AVG` d'entiers ou de `DECIMAL` rendent un `DECIMAL` : pas de décimales perdues."
             }
@@ -236,9 +237,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     outils: ["astuces", "traduire"],
     sources: [
       { titre: "AVG (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/functions/avg-transact-sql" },
-      { titre: "SELECT - GROUP BY (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/queries/select-group-by-transact-sql" },
       { titre: "APPROX_COUNT_DISTINCT (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/functions/approx-count-distinct-transact-sql" },
       { titre: "Snowflake : COUNT", url: "https://docs.snowflake.com/en/sql-reference/functions/count" },
+      { titre: "Snowflake : COUNT_IF", url: "https://docs.snowflake.com/en/sql-reference/functions/count_if" },
       { titre: "Snowflake : SUM", url: "https://docs.snowflake.com/en/sql-reference/functions/sum" },
       { titre: "Snowflake : GROUP BY", url: "https://docs.snowflake.com/en/sql-reference/constructs/group-by" },
       { titre: "MySQL 8.4 : MySQL Handling of GROUP BY", url: "https://dev.mysql.com/doc/refman/8.4/en/group-by-handling.html" },
@@ -252,9 +253,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     resume: "Les questions avant un `JOIN` : la clé complète, les lignes en face, INNER ou LEFT, les NULL et les types des clés, le compte avant et après.",
     besoins: [
       "je fais une jointure entre deux tables",
+      "faire une jointure",
       "joindre les commandes et les clients",
-      "choisir entre inner join et left join",
-      "les questions à se poser avant un join"
+      "choisir entre inner join et left join"
     ],
     essais: [
       "ma jointure multiplie les lignes",
@@ -263,7 +264,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "jointure entre l erp et les flux edi"
     ],
     exemple: {
-      texte: "Ton suivi EDI doit montrer chaque flux reçu, même rejeté, avec sa commande et son client quand ils existent. Avant d'écrire les `JOIN`, tu comptes les flux (6), tu choisis `LEFT JOIN`, puis tu recomptes : toujours 6 lignes. Le flux 3, rejeté, garde sa ligne, avec des NULL à droite.",
+      texte: "Ton suivi EDI doit montrer chaque flux reçu, même rejeté, avec sa commande et son client quand ils existent. Il faut des jointures : une jointure relie deux tables par une condition, écrite après `ON`. Avant d'écrire les `JOIN`, tu comptes les flux (6), tu choisis `LEFT JOIN`, puis tu recomptes : toujours 6 lignes. Le flux 3, rejeté, garde sa ligne, avec des NULL à droite.",
       code: "SELECT COUNT(*) AS nb_flux FROM dbo.flux_edi;          -- avant : 6\n\nSELECT f.id AS flux, f.type, f.statut,\n       co.num_cde, cl.nom AS client\nFROM dbo.flux_edi AS f\nLEFT JOIN dbo.commande AS co ON co.id = f.cde_id       -- un flux : 0 ou 1 commande\nLEFT JOIN dbo.client   AS cl ON cl.id = co.client_id   -- LEFT aussi, sinon le flux 3 disparaît\nORDER BY f.id;                                         -- après : 6 lignes",
       codes: {
         snowflake: "SELECT COUNT(*) AS nb_flux FROM flux_edi;          -- avant : 6\n\nSELECT f.id AS flux, f.type, f.statut,\n       co.num_cde, cl.nom AS client\nFROM flux_edi AS f\nLEFT JOIN commande AS co ON co.id = f.cde_id       -- un flux : 0 ou 1 commande\nLEFT JOIN client   AS cl ON cl.id = co.client_id   -- LEFT aussi, sinon le flux 3 disparaît\nORDER BY f.id;                                     -- après : 6 lignes",
@@ -284,13 +285,13 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "cle-complete",
             q: "Ta condition ON couvre-t-elle toutes les colonnes de la clé ?",
             pourquoi: "Une clé à deux colonnes jointe sur une seule mélange les lignes. Dans Divalto, le dossier (DOS) fait partie des clés : l'oublier relie les commandes de deux dossiers.",
-            reflexe: "Lis la clé primaire, ou unique, de la table d'en face. Mets toutes ses colonnes dans le `ON` : `ON li.societe = co.societe AND li.num_cde = co.num_cde`."
+            reflexe: "Lis la clé primaire, ou unique, de la table d'en face. Mets toutes ses colonnes dans le `ON` : `ON a.societe = b.societe AND a.num_cde = b.num_cde`."
           },
           {
             id: "cardinalite",
             q: "Pour une ligne, combien de lignes en face : zéro, une ou plusieurs ?",
-            pourquoi: "En « un à plusieurs », la ligne de gauche est copiée. Deux tables filles jointes à la même commande se croisent : 2 lignes × 2 flux = 4 copies, et CDE-1001 vaut 9 560 € au lieu de 4 780 €.",
-            reflexe: "Vérifie que la clé est unique du côté « un » : `GROUP BY cle HAVING COUNT(*) > 1` doit être vide. Deux tables filles : agrège chacune avant de la joindre."
+            pourquoi: "En « un à plusieurs », la ligne de gauche est copiée. Deux tables qui pointent vers la même commande (lignes et flux) se croisent : 2 × 2 = 4 copies, et CDE-1001 vaut 9 560 € au lieu de 4 780 €.",
+            reflexe: "Vérifie que la clé est unique du côté « un » : `GROUP BY cle HAVING COUNT(*) > 1` doit être vide. Deux tables qui pointent vers la même commande : agrège chacune avant de la joindre."
           },
           {
             id: "compter",
@@ -298,8 +299,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une jointure qui perd ou qui double des lignes ne donne aucune erreur. Le seul signe, c'est un nombre de lignes qui change.",
             reflexe: "`COUNT(*)` de la table de départ, puis après chaque `JOIN`, une jointure à la fois. Ici : 6 flux avant, 6 lignes après. Chaque écart doit s'expliquer.",
             moteurs: {
-              sqlserver: "Le plan d'exécution réel montre, pour chaque jointure, les lignes estimées et les lignes réelles.",
-              snowflake: "Le Query Profile montre les lignes qui entrent et qui sortent de chaque jointure. Sa doc appelle « exploding join » une jointure qui en produit bien plus qu'elle n'en reçoit."
+              sqlserver: "Le plan d'exécution réel (le chemin suivi par le moteur) montre, pour chaque jointure, les lignes estimées et les lignes réelles.",
+              snowflake: "Le Query Profile (le plan détaillé de Snowflake) montre les lignes qui entrent et qui sortent de chaque jointure. Sa doc appelle « exploding join » une jointure qui en produit bien plus qu'elle n'en reçoit."
             }
           }
         ]
@@ -358,14 +359,14 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               sqlserver: "`IS NOT DISTINCT FROM` depuis SQL Server 2022. Avant : `(a = b OR (a IS NULL AND b IS NULL))`.",
               snowflake: "`IS NOT DISTINCT FROM`, ou `EQUAL_NULL(a, b)`.",
-              mysql: "L'opérateur `<=>` : sa doc le donne comme l'équivalent de `IS NOT DISTINCT FROM`."
+              mysql: "L'opérateur `<=>`, l'égalité qui accepte les NULL : `a <=> b`."
             }
           },
           {
             id: "meme-type",
             q: "Les deux colonnes de la jointure ont-elles le même type ?",
-            pourquoi: "Texte d'un côté, nombre de l'autre : le moteur convertit seul, c'est une conversion implicite. L'index ne sert plus, et une valeur comme 'A12' fait planter la requête, ou devient 0.",
-            reflexe: "Compare les types avant (`INFORMATION_SCHEMA.COLUMNS`). Corrige le type de la colonne, ou convertis une fois, du côté de la plus petite table.",
+            pourquoi: "Texte d'un côté, nombre de l'autre : le moteur convertit seul, c'est une conversion implicite. L'index (la table des matières de la table) ne sert plus, et une valeur comme 'A12' fait planter la requête, ou devient 0.",
+            reflexe: "Compare les types avant (`INFORMATION_SCHEMA.COLUMNS`). Corrige le type de la colonne. Sinon, convertis toi-même l'autre côté, et laisse nue la colonne de la grosse table, celle qui a l'index.",
             moteurs: {
               sqlserver: "Le type de plus faible priorité est converti : `INT` passe avant `VARCHAR`, donc toute la colonne texte est convertie. Le plan montre `CONVERT_IMPLICIT`.",
               snowflake: "Convertit aussi seul. Si une valeur ne se convertit pas, la requête échoue.",
@@ -378,7 +379,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "'0042' n'égale pas '42', et 'C001 ' n'égale pas toujours 'C001'. La jointure perd des lignes, sans erreur, et seulement sur certaines valeurs.",
             reflexe: "Nettoie une fois, au chargement (`TRIM`, `UPPER`, zéros devant), plutôt que dans chaque `ON` : une fonction dans le `ON` empêche l'index.",
             moteurs: {
-              sqlserver: "`=` ignore les espaces de fin. La casse suit la collation (la règle de comparaison des textes) : souvent ignorée.",
+              sqlserver: "`=` ignore les espaces de fin. La casse suit la collation de la colonne : souvent ignorée.",
               snowflake: "Compare exactement, par défaut : la casse et les espaces de fin comptent.",
               mysql: "La collation par défaut (`utf8mb4_0900_ai_ci`) ignore la casse et les accents, mais compte les espaces de fin."
             }
@@ -386,7 +387,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "collation",
             q: "Les deux colonnes texte ont-elles la même collation ?",
-            pourquoi: "Deux bases (l'ERP et l'entrepôt de données) peuvent comparer les textes avec deux règles différentes. La jointure plante, ou compare autrement que prévu.",
+            pourquoi: "La collation, c'est la règle de comparaison des textes (casse, accents). L'ERP et l'entrepôt de données peuvent en avoir deux différentes : la jointure plante, ou compare autrement que prévu.",
             reflexe: "Vérifie la collation des deux colonnes. Si elles diffèrent, impose-en une dans le `ON`, avec `COLLATE`. Mieux : la même collation dès la création des tables.",
             moteurs: {
               sqlserver: "Erreur « Cannot resolve the collation conflict… ». Ajoute d'un côté : `ON a.code = b.code COLLATE French_CI_AS`.",
@@ -412,7 +413,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Un index sur la colonne de jointure du côté « plusieurs » (`commande.client_id`). Compare le plan avant et après.",
             moteurs: {
               sqlserver: "Aucun index n'est créé seul sur une clé étrangère : crée-le.",
-              snowflake: "Pas d'index classique : filtre chaque table tôt, et lis le Query Profile. Un index secondaire (édition Enterprise) ne sert qu'aux recherches très sélectives.",
+              snowflake: "Pas d'index classique : filtre chaque table tôt, et lis le Query Profile, son plan détaillé. Un index secondaire (édition Enterprise) ne sert qu'aux recherches très sélectives.",
               mysql: "InnoDB crée l'index de la clé étrangère s'il manque."
             }
           }
@@ -458,7 +459,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     essais: [
       "ma requete ne ramene rien avec not in",
       "where colonne = null ne marche pas",
-      "between sur une date avec heure",
+      "filtre between sur une date avec heure",
       "conditions and or et parentheses"
     ],
     exemple: {
@@ -540,8 +541,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "`YEAR(date_cde) = 2026` ou `UPPER(nom) = 'AQUABLEU'` : le moteur calcule chaque ligne avant de comparer. L'index (la table des matières de la table) ne sert plus, et tout est lu.",
             reflexe: "Mets le calcul du côté de la valeur : une plage de dates, `montant_ht > 1000 / 1.2`. Si la fonction est inévitable, indexe son résultat (voir « J'utilise une fonction sur chaque ligne »).",
             moteurs: {
-              sqlserver: "Le plan montre un Scan (tout lire) au lieu d'un Seek (aller droit au but).",
-              snowflake: "L'élagage (sauter les blocs de la table, les micro-partitions) se perd souvent. Le Query Profile compare les partitions lues au total.",
+              sqlserver: "Le plan d'exécution (le chemin suivi par le moteur) montre un Scan (tout lire) au lieu d'un Seek (aller droit au but).",
+              snowflake: "L'élagage (sauter les blocs de la table, les micro-partitions) se perd souvent. Le Query Profile, son plan détaillé, compare les partitions lues au total.",
               mysql: "L'index ne sert pas, sauf un index sur l'expression elle-même (« functional key part »)."
             }
           },
@@ -562,7 +563,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Écris la valeur dans le type de la colonne : `siren = '512345678'`. Un paramètre (Power BI, script, application) prend aussi le type exact de la colonne.",
             moteurs: {
               sqlserver: "Un paramètre `NVARCHAR` comparé à une colonne `VARCHAR` peut aussi forcer la conversion de la colonne. Le plan montre `CONVERT_IMPLICIT`.",
-              mysql: "Une colonne texte comparée à un nombre n'utilise pas l'index, et 'x6' = 0 est vrai (sa doc)."
+              mysql: "Une colonne texte comparée à un nombre n'utilise pas l'index, et 'x6' = 0 est vrai."
             }
           },
           {
@@ -580,7 +581,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "casse",
             q: "Le filtre doit-il ignorer les majuscules et les accents ?",
-            pourquoi: "`nom = 'aquableu'` trouve AquaBleu sur SQL Server, rien sur Snowflake. 'Geneve' trouve 'Genève' sur MySQL, pas sur SQL Server. Même requête, résultats différents.",
+            pourquoi: "`nom = 'aquableu'` trouve AquaBleu sur SQL Server (collation CI), rien sur Snowflake. 'Geneve' trouve 'Genève' sur MySQL, pas en `French_CI_AS`. Même requête, résultats différents.",
             reflexe: "Connais la collation de la colonne, sa règle de comparaison des textes. Sur un moteur qui compte la casse, compare les deux côtés en majuscules, ou nettoie au chargement.",
             moteurs: {
               sqlserver: "Selon la collation : `French_CI_AS` ignore la casse (CI) mais compte les accents (AS).",
@@ -644,7 +645,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     famille: "Interroger",
     resume: "Les questions avant un calcul de date : le type de la colonne, le fuseau horaire, les bornes de la période, DATEDIFF, les semaines, les jours ouvrés, le calendrier.",
     besoins: [
-      "je calcule avec des dates",
+      "ajouter des jours ou des mois à une date",
       "calculer un écart entre deux dates",
       "gérer les fuseaux horaires et l'heure d'été",
       "les questions à se poser sur une colonne date"
@@ -681,7 +682,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "jour",
             q: "Faut-il comparer des jours, alors que la colonne a une heure ?",
-            pourquoi: "Un regroupement sur la date et l'heure donne une ligne par seconde, pas une par jour. Et un filtre « = ce jour-là » ne trouve que minuit pile.",
+            pourquoi: "Un regroupement sur la date et l'heure donne une ligne par instant différent, pas une par jour. Et un filtre « = ce jour-là » ne trouve que minuit pile.",
             reflexe: "Pour afficher ou grouper par jour : `CAST(date_recu AS DATE)`. Pour filtrer un jour : une plage, de 0 h ce jour-là à 0 h le lendemain, exclu. Voir l'astuce « Enlever l'heure d'une date »."
           }
         ]
@@ -703,7 +704,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "maintenant",
             q: "Quelle heure donne « maintenant » sur ce serveur ?",
-            pourquoi: "« Maintenant » vient de l'horloge du serveur, pas forcément à l'heure de Paris. Sur Snowflake laissé sur Los Angeles, un traitement lancé à 7 h à Paris prend la veille pour « aujourd'hui ».",
+            pourquoi: "« Maintenant » vient de l'horloge du serveur, qui n'est pas forcément à l'heure de Paris. Sur Snowflake laissé sur Los Angeles, un traitement lancé à 7 h à Paris prend la veille pour « aujourd'hui ».",
             reflexe: "Sache quelle horloge tu lis. Dans les traitements, prends l'UTC ; fixe le fuseau de la session quand le jour métier compte. Teste à l'heure réelle du traitement.",
             moteurs: {
               sqlserver: "`GETDATE()` et `CURRENT_TIMESTAMP` donnent l'heure du système du serveur ; Azure SQL Database suit l'UTC. `SYSUTCDATETIME()` donne l'UTC.",
@@ -718,7 +719,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Calcule les durées en UTC. Convertis en heure locale seulement à la fin, pour afficher ou pour trouver le jour métier.",
             moteurs: {
               sqlserver: "`AT TIME ZONE` gère le changement d'heure : une heure locale dans le « trou » de mars est décalée d'une heure (sa doc).",
-              snowflake: "`TIMESTAMP_TZ` garde le décalage (+01:00), pas le fuseau : six mois plus tard, le décalage n'a pas suivi l'heure d'été (sa doc)."
+              snowflake: "`TIMESTAMP_TZ` garde le décalage (+01:00), pas le fuseau : ajoute six mois, et le décalage reste celui de l'hiver (sa doc)."
             }
           },
           {
@@ -766,7 +767,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Compte dans la petite unité utile (des jours), puis convertis. Pour des années pleines, retire 1 si l'anniversaire n'est pas encore passé. Voir l'astuce « Calculer un âge ou une ancienneté en années ».",
             moteurs: {
               sqlserver: "`DATEDIFF(year, '20251231', '20260101')` vaut 1 (sa doc : « boundaries crossed »).",
-              snowflake: "Même règle : `DATEDIFF(month, '2021-01-01', '2021-02-28')` vaut 1 (exemple de sa doc).",
+              snowflake: "Même règle : seule l'unité demandée compte (sa doc). `DATEDIFF(year, '2025-12-31'::DATE, '2026-01-01'::DATE)` vaut donc 1.",
               mysql: "`DATEDIFF(fin, début)` compte des jours seulement, dans l'ordre inverse. `TIMESTAMPDIFF(YEAR, début, fin)` compte des années complètes."
             }
           },
@@ -780,7 +781,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "semaines",
             q: "Quelle semaine veux-tu : ISO (lundi, norme européenne), ou celle du moteur ?",
             pourquoi: "Les moteurs ne numérotent pas tous les semaines pareil. En ISO, le lundi 29/12/2025 est dans la semaine 1 de 2026 : grouper par année civile et semaine ISO crée une fausse semaine 1 de 2025.",
-            reflexe: "Prends la semaine ISO avec l'année ISO, toujours ensemble. Le plus simple : les deux colonnes dans la table calendrier, calculées une fois.",
+            reflexe: "Prends la semaine ISO avec l'année ISO, toujours ensemble. Le plus simple : les deux colonnes dans la table calendrier, calculées une fois. Voir l'astuce « Trouver le numéro de semaine (norme ISO) ».",
             moteurs: {
               sqlserver: "`DATEPART(iso_week, d)`, mais aucune partie « année ISO ». `week` et `weekday` dépendent de `SET DATEFIRST` (7, le dimanche, en anglais américain).",
               snowflake: "`WEEKISO` et `YEAROFWEEKISO` suivent toujours l'ISO. `WEEK`, `DAYOFWEEK` et `DATE_TRUNC('week', d)` dépendent de `WEEK_START` et `WEEK_OF_YEAR_POLICY`.",
@@ -811,11 +812,11 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "calendrier",
             q: "Ton rapport a-t-il une table calendrier ?",
-            pourquoi: "Sans elle, les jours sans vente disparaissent, et chaque rapport recalcule semaine et exercice à sa façon. Power BI crée en plus, par défaut, une table de dates cachée pour chaque colonne date.",
-            reflexe: "Une table en base : une ligne par jour, sans trou ni doublon, sur des années entières, avec semaine ISO, ouvré, férié, exercice. Dans Power BI, marque-la comme table de dates.",
+            pourquoi: "Sans elle, les jours sans vente disparaissent, et chaque rapport recalcule semaine et exercice à sa façon. Power BI crée en plus, par défaut, une table de dates cachée pour chaque colonne date (« Date/heure automatique »).",
+            reflexe: "Une table en base : une ligne par jour, sans trou ni doublon, sur des années entières, avec semaine ISO, ouvré, férié, exercice. Dans Power BI, marque-la comme table de dates si sa doc le demande (clé AAAAMMJJ, fonctions de temps classiques).",
             moteurs: {
               sqlserver: "Les jours se génèrent avec `GENERATE_SERIES` (SQL Server 2022, niveau de compatibilité 160).",
-              snowflake: "Les jours se génèrent avec `TABLE(GENERATOR(ROWCOUNT => n))`.",
+              snowflake: "Les jours se génèrent avec `TABLE(GENERATOR(ROWCOUNT => n))`. Numérote-les avec `ROW_NUMBER()` : sa doc prévient que `SEQ4()` peut laisser des trous.",
               mysql: "Avec une CTE récursive : `cte_max_recursion_depth` vaut 1000 par défaut, moins de 3 ans de jours. Augmente-le pour la session."
             }
           }
@@ -832,7 +833,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "MySQL : `CONVERT_TZ(d, 'UTC', 'Europe/Paris')` rend NULL quand les tables de fuseaux du serveur ne sont pas chargées."
     ],
     pratique: "Génère la table calendrier une fois, en base, pour 10 ans, avec les fériés et l'exercice de ta société. Power BI, Excel et tes requêtes partagent alors les mêmes semaines et les mêmes jours ouvrés.",
-    motsCles: ["date", "dates", "datediff", "dateadd", "fuseau horaire", "utc", "heure d'été", "fin de mois", "semaine iso", "jours ouvrés", "calendrier", "timestamp", "période", "getdate", "aujourd'hui"],
+    motsCles: ["date", "dates", "datediff", "dateadd", "fuseau horaire", "utc", "heure d'été", "fin de mois", "semaine iso", "jours ouvrés", "table calendrier", "timestamp", "période", "getdate", "aujourd'hui"],
     voirAussi: ["filtrer", "agreger", "formater", "choisir-types", "donnees-powerbi", "importer-fichier"],
     dico: ["datediff", "dateadd", "eomonth", "datepart", "getdate", "datetimeoffset", "timestamp-ltz", "to-date"],
     outils: ["astuces", "dico"],
@@ -853,10 +854,10 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     famille: "Interroger",
     resume: "Les questions avant de formater dans une requête : qui affiche la valeur, la culture, l'arrondi, la longueur, le format des dates, les NULL et l'export CSV.",
     besoins: [
-      "je formate une valeur pour l'affichage",
+      "mise en forme des nombres et des dates",
       "afficher un montant ou une date au format français",
-      "mettre en forme un nombre dans une requête",
-      "formater en sql ou dans power bi"
+      "formater un montant ou une date",
+      "formater dans la requête ou dans le rapport"
     ],
     essais: [
       "format est lent sur sql server",
@@ -865,7 +866,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "point ou virgule pour les decimales"
     ],
     exemple: {
-      texte: "L'ADV veut la liste des commandes avec la date en JJ/MM/AAAA et le montant à la française (4 780,00). Avant de formater dans la requête, tu demandes qui affiche la valeur. Pour Power BI ou Excel : les vraies valeurs, le format se règle dans l'outil. Pour un mail ou un PDF : le texte, formaté à la fin.",
+      texte: "L'ADV (l'administration des ventes) veut la liste des commandes avec la date en JJ/MM/AAAA et le montant à la française (4 780,00). Avant de formater dans la requête, tu demandes qui affiche la valeur. Pour Power BI ou Excel : les vraies valeurs, le format se règle dans l'outil. Pour un mail ou un PDF : le texte, formaté à la fin.",
       code: "-- Pour Power BI ou Excel : les vraies valeurs (le format se règle dans l'outil)\nSELECT num_cde, date_cde, montant_ht FROM dbo.commande WHERE id IN (1, 5, 8);\n\n-- Pour un texte (mail, PDF) : formater à la fin, avec une culture choisie\nSELECT num_cde,\n       CONVERT(varchar(10), date_cde, 103) AS date_fr,      -- 02/03/2026\n       FORMAT(montant_ht, 'N2', 'fr-FR')   AS montant_fr    -- 4 780,00\nFROM dbo.commande\nWHERE id IN (1, 5, 8)\nORDER BY date_cde;   -- le tri se fait sur la vraie date, pas sur le texte",
       codes: {
         snowflake: "-- Pour Power BI ou Excel : les vraies valeurs (le format se règle dans l'outil)\nSELECT num_cde, date_cde, montant_ht FROM commande WHERE id IN (1, 5, 8);\n\n-- Pour un texte (mail, PDF) : formater à la fin\nSELECT num_cde,\n       TO_CHAR(date_cde, 'DD/MM/YYYY') AS date_fr,          -- 02/03/2026\n       TRANSLATE(TO_CHAR(montant_ht, 'FM999,999,990.00'), ',.', ' ,')\n         AS montant_fr                                      -- 4 780,00\nFROM commande\nWHERE id IN (1, 5, 8)\nORDER BY date_cde;   -- le tri se fait sur la vraie date, pas sur le texte",
@@ -929,7 +930,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Calcule en pleine précision. Arrondis une fois, là où ta règle de gestion le dit (la ligne de facture, ou le total). Pour le reste, un format d'affichage suffit.",
             moteurs: {
               sqlserver: "`ROUND(x, 2)` garde le type : une moyenne s'affiche 5038.330000. `CAST(x AS DECIMAL(12,2))` arrondit et ne garde que 2 décimales.",
-              snowflake: "`ROUND` arrondit les demis en s'éloignant de zéro. Un 3e argument, `'HALF_TO_EVEN'`, arrondit au chiffre pair : l'arrondi bancaire.",
+              snowflake: "`ROUND` arrondit les demis en s'éloignant de zéro. Sur un `NUMBER`, un 3e argument, `'HALF_TO_EVEN'`, arrondit au chiffre pair : l'arrondi bancaire.",
               mysql: "`ROUND` d'un `DECIMAL` arrondit les demis en s'éloignant de zéro ; d'un `FLOAT` ou d'un `DOUBLE`, souvent au chiffre pair (sa doc)."
             }
           },
@@ -1043,10 +1044,10 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     famille: "Interroger",
     resume: "Les questions avant d'appeler une fonction sur chaque ligne : NULL et erreurs de conversion, index perdu dans le WHERE, coût d'un appel par ligne, fonctions maison (UDF), déterminisme.",
     besoins: [
-      "j'utilise une fonction sur chaque ligne",
+      "fonction scalaire",
       "créer une fonction scalaire maison (udf)",
       "appeler une fonction dans le select pour chaque ligne",
-      "les questions à se poser avant une fonction utilisateur"
+      "les questions à se poser avant une udf"
     ],
     essais: [
       "udf scalaire tres lente sur sql server 2019",
@@ -1055,7 +1056,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "is_inlineable"
     ],
     exemple: {
-      texte: "Un rapport affiche le TTC des commandes avec une fonction maison, `dbo.f_ttc`, et filtre `WHERE dbo.f_ttc(montant_ht) > 3000`. En recette, 8 commandes : instantané. En production, la fonction tourne sur chaque ligne de la table, et l'index ne sert plus. Voici la version relue : même résultat (CDE-1001 et CDE-1007), sans fonction maison.",
+      texte: "Un rapport affiche le TTC des commandes avec une fonction maison (une UDF, écrite par l'équipe), `dbo.f_ttc`, et filtre `WHERE dbo.f_ttc(montant_ht) > 3000`. En recette, 8 commandes : instantané. En production, la fonction tourne sur chaque ligne de la table, et un index (la table des matières de la table) sur `montant_ht` ne peut plus servir. Voici la version relue : même résultat (CDE-1001 et CDE-1007), sans fonction maison.",
       code: "-- Avant : une fonction maison, sur chaque ligne, dans le SELECT et le WHERE\nSELECT num_cde, dbo.f_ttc(montant_ht) AS montant_ttc\nFROM dbo.commande\nWHERE dbo.f_ttc(montant_ht) > 3000;\n\n-- Après : l'expression dans la requête, la colonne nue dans le WHERE\nSELECT num_cde, CAST(montant_ht * 1.20 AS DECIMAL(12,2)) AS montant_ttc   -- TVA 20 %\nFROM dbo.commande\nWHERE montant_ht > 2500;   -- 3 000 / 1,20 : le calcul passe du côté de la valeur",
       codes: {
         snowflake: "-- Avant : une fonction maison (UDF), sur chaque ligne\nSELECT num_cde, f_ttc(montant_ht) AS montant_ttc\nFROM commande\nWHERE f_ttc(montant_ht) > 3000;\n\n-- Après : l'expression dans la requête, la colonne nue dans le WHERE\nSELECT num_cde, (montant_ht * 1.20)::NUMBER(12,2) AS montant_ttc   -- TVA 20 %\nFROM commande\nWHERE montant_ht > 2500;   -- 3 000 / 1,20 : le calcul passe du côté de la valeur",
@@ -1136,7 +1137,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Réécris pour laisser la colonne nue : une plage de dates, un calcul du côté de la valeur. Si la fonction est inévitable et fréquente, indexe son résultat.",
             moteurs: {
               sqlserver: "Une colonne calculée (souvent `PERSISTED`), puis un index dessus. Son expression doit être déterministe et précise (sa doc).",
-              snowflake: "L'élagage des micro-partitions se perd souvent. Search Optimization (édition Enterprise) accélère certaines recherches avec fonction.",
+              snowflake: "L'élagage (sauter les blocs inutiles de la table, les micro-partitions) se perd souvent. Search Optimization (édition Enterprise) accélère certaines recherches avec fonction.",
               mysql: "Un index sur l'expression : `CREATE INDEX ix_code ON article ((UPPER(code)));`."
             }
           },
@@ -1159,20 +1160,20 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "inlining",
             q: "Ta fonction scalaire maison peut-elle être mise en ligne (inlining) ?",
-            pourquoi: "Sans mise en ligne, une fonction scalaire T-SQL tourne ligne par ligne, sans parallélisme. La doc de Microsoft cite une requête à 29 minutes avec la fonction, 1,6 seconde une fois mise en ligne.",
+            pourquoi: "Mise en ligne, la fonction est recopiée dans la requête. Sinon, elle tourne ligne par ligne, sur un seul processeur : la doc cite 29 minutes avec la fonction, 1,6 seconde une fois mise en ligne.",
             reflexe: "SQL Server 2019 ou plus, niveau de compatibilité 150 : vérifie `is_inlineable` dans `sys.sql_modules`. 1 ne garantit rien : l'appel compte aussi (pas dans un `ORDER BY` ni un `GROUP BY`).",
             moteurs: {
-              sqlserver: "Empêchent la mise en ligne : `GETDATE()`, une variable table, une boucle `WHILE`, plusieurs `RETURN` (depuis 2019 CU5), une CTE dans la fonction ou dans la requête qui l'appelle (CU11)."
+              sqlserver: "Empêchent la mise en ligne : `GETDATE()`, une variable table, une boucle `WHILE`, plusieurs `RETURN` (depuis 2019 CU5), une CTE dans la fonction, ou (depuis CU11) dans la requête qui l'appelle."
             },
             seulement: ["sqlserver"]
           },
           {
             id: "table-en-ligne",
             q: "Une fonction table en ligne, ou une vue, ferait-elle mieux ?",
-            pourquoi: "Une fonction table écrite en plusieurs instructions est une boîte noire : le moteur devine mal son nombre de lignes, et choisit un mauvais plan.",
+            pourquoi: "Une fonction table écrite en plusieurs instructions est une boîte noire : le moteur devine mal son nombre de lignes, et choisit un mauvais plan (le chemin pour lire les données).",
             reflexe: "Une seule requête : une fonction table en ligne (`RETURNS TABLE AS RETURN (SELECT …)`), ou une vue. Le moteur la déplie dans le plan, comme du SQL écrit à la main.",
             moteurs: {
-              sqlserver: "Appelle-la avec `CROSS APPLY`. Une fonction table en plusieurs instructions est estimée à 100 lignes, quelle que soit la réalité (depuis 2014).",
+              sqlserver: "Appelle-la avec `CROSS APPLY`. Une fonction table en plusieurs instructions est estimée à 100 lignes (depuis 2014) ; l'exécution entrelacée (SQL Server 2017, niveau 140) ne corrige que certains cas.",
               snowflake: "Fonction table (UDTF) : `RETURNS TABLE (…)`, appelée avec `TABLE(f(…))`.",
               mysql: "Pas de fonction qui rend une table : une vue."
             }
