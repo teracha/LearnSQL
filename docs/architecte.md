@@ -36,6 +36,59 @@ Ses choix : les 4 familles (Concevoir, Écrire et charger, Interroger, Exploiter
   jamais envoyées. Une question retirée des données : sa case est oubliée sans erreur.
 - Lisible à 390 px, sans débordement ; une page longue se lit étape par étape.
 
+### Ce qui est construit (détails d'affichage)
+
+- **La liste** (`#/architecte` sans phrase) : une carte par situation (titre, résumé, « 26 questions · 3 cochées ») ; avec
+  plusieurs familles, « Aller à : Concevoir · Écrire et charger · … » en haut. **Les comptes** (liste, étapes, total,
+  copie) ne comptent que les questions du moteur choisi.
+- **La recherche** : comme les astuces, 8 situations au plus (25 points ou plus), avec leur famille ; sinon « Pas de
+  situation sûre pour « … ». Les plus proches : » (3 au plus) ; rien : « Aucune situation ne correspond. Essaie d'autres
+  mots, ou regarde toute la liste. » (le bouton vide la recherche). La phrase est gardée le temps de l'onglet (« Nouvelle
+  recherche »), jamais enregistrée.
+- **La situation**, dans cet ordre : le fil (« Conseils d'architecte › Concevoir »), le titre, la famille, le résumé,
+  « Aller à : La checklist · Les pièges · Voir aussi », le sélecteur de moteur, « L'exemple », « La checklist » et ses
+  deux boutons, « Les pièges », « En pratique », « Voir aussi », « Les sources », « Nouvelle recherche ».
+- **L'exemple** : un moteur seul, son code (`codes.<moteur>`, sinon `code`), sous « Le code · Snowflake » ; « Tous » : le
+  code SQL Server, puis les autres écritures **repliées** (« Le code · Snowflake ») ; sans code : le texte seul.
+- **La checklist** : une consigne d'une ligne, « 3 cochées sur 26 » et une barre verte, puis une étape = un bloc
+  repliable : « 1. Le besoin » et son compte « 2 / 5 » (vert quand l'étape est finie). À la première visite d'une
+  situation (dans l'onglet), seule la première étape pas finie est ouverte ; « Ouvrir toutes les étapes » / « Fermer
+  toutes les étapes ». Les étapes ouvertes le restent quand on change de moteur (le temps de l'onglet). Une étape sans
+  question pour le moteur choisi disparaît, et les étapes affichées sont renumérotées de 1 à n. Une question : une case de
+  24 px et la question en gras (toute la ligne est cliquable), puis en retrait « Pourquoi : », « Le bon réflexe : », les
+  notes des moteurs affichés (« SQL Server : … », avec un trait à gauche) et le code. Une question `seulement` porte
+  l'étiquette « Seulement sur Snowflake ». Une question cochée passe en vert.
+- **Les boutons** « Copier la checklist » et « Tout décocher » sont juste sous la checklist (ils agissent sur elle) ;
+  « Nouvelle recherche » est en bas de la page.
+- **Copier la checklist** : ce texte (les accents graves retirés), pour le moteur choisi :
+
+  ```
+  Je crée une table : la checklist (SQL Server)
+  3 cochées sur 26
+
+  1. Le besoin
+  [x] Que représente UNE ligne de la table ?
+  [ ] Cette donnée existe-t-elle déjà ailleurs ?
+
+  2. La clé
+  …
+  ```
+
+  « Tous » : « (SQL Server, Snowflake et MySQL) », et une question propre à un moteur finit par « (seulement sur
+  Snowflake) ». D'abord le presse-papiers, puis le repli (`execCommand`) ; si tout échoue, le texte s'affiche sous les
+  boutons, sélectionné, à copier à la main.
+- **Tout décocher** : une confirmation (« Décocher toutes les cases de « Je crée une table » ? ») ; toutes les cases de
+  la situation, même celles d'une question cachée par le moteur choisi. Sans case cochée : « Aucune case n'est cochée. »
+- **Le stockage** : une question retirée des données est oubliée à la prochaine case cochée ; un stockage illisible
+  repart de zéro ; si le navigateur refuse d'enregistrer, les cases vivent le temps de l'onglet et la page le dit (« Ce
+  navigateur n'enregistre pas tes cases : elles seront perdues en fermant l'onglet. »).
+- **Lecture** : une espace insécable avant ? ! : ; » et après « (et dans « 550 000 ») : un signe ne commence jamais une
+  ligne.
+- **Les liens** : « Voir aussi » montre seulement les situations qui existent, les fiches du dico SQL qui existent (avec
+  le droit du dico) et les outils visibles pour le compte (sans compte : ceux des sujets publics).
+- Code : bloc « Conseils d'architecte » de `js/app.js` (`pageArchitecte`, `resultatsArchitecte`, `pageSituation`,
+  `etapesSituation`, `texteChecklist`, `voirAussiSituation`…), styles `.ar-…` de `css/style.css`.
+
 ## Les fichiers
 
 `data/architecte/<famille>.js`, chargés dans `index.html`, un fichier par famille :
@@ -122,6 +175,22 @@ La même que les astuces (`docs/astuces.md`, « La recherche ») : `chercherDico
 comparée aux `besoins` et au titre, les `motsCles`, les mots du résumé et des questions. Sans IA, dans le navigateur.
 La recherche du dico SQL, du dico Divalto et des astuces ne change pas (mêmes résultats, mêmes scores).
 
+Les réglages construits (`DICO_REGLAGES.architecte`, novembre 2026) :
+- **ceux des astuces** : la ressemblance avec le plus proche des besoins (le titre compte comme un besoin) donne jusqu'à
+  300 points (`besoin`) ; un besoin ou le titre tapé tel quel, aux accents, majuscules et signes près : + 1 000
+  (`besoinTel`) ; le même début de mot à partir de 5 lettres (`debut`) ; une situation s'affiche à 25 points ou plus ;
+- **les mots-clés** (`motsCles`) comptent comme ceux d'une fiche du dico (un mot-clé rare compte plus) ;
+- **comme une définition** (8 points par mot, si le mot n'est pas déjà un mot-clé) : la famille, le résumé et le texte
+  des questions (`q` ; pas `pourquoi` ni `reflexe`). La famille entière compte aussi comme une expression ;
+- **ses mots vides**, en plus de ceux du dico : bien, bonne, bonnes, besoin, aimer, souhaite, souhaiterais, aimerait,
+  voudrait, conseil, conseils, architecte, question, questions, poser, pose, demander, quand, avant (« quelles questions
+  me poser avant de créer une table »). Pas « mettre » ni « donner » (vides pour les astuces) : ils comptent ici (« je
+  mets à jour », « je donne des droits ») ; ni « bon » (« bon de commande », « bon de livraison »).
+
+Le test `outils/tests/recherche-architecte.js` essaie d'abord ces réglages sur 16 situations d'essai voisines (je crée une
+table, une table pour un import, un index, une vue, une base ; j'insère, je mets à jour, je supprime ; j'importe un
+fichier, j'exécute un script depuis un fichier…), puis sur les vraies situations.
+
 ## Les situations prévues
 
 | Famille | Vague 1 | Vague 2 |
@@ -152,9 +221,22 @@ protège des données personnelles · J'écris une procédure stockée.
   manque ; alerte au-delà d'une limite de mots) ; ids des questions uniques dans la situation ; `moteurs` et `seulement`
   avec des moteurs connus ; chaque `voirAussi`, `dico`, `outils` existe ; `sources` en https ; un champ inconnu = une
   alerte. La ligne « total » dit combien de situations et de questions.
+  - Les situations prévues (le tableau plus haut) sont la constante `ARCHITECTE_PREVUES` du vérificateur. Un `voirAussi`
+    hors de cette liste : une erreur ; vers une situation prévue, pas encore écrite : ni erreur ni alerte, une ligne
+    « info architecte : N lien(s) vers des situations à venir (…) ». Un id de situation hors de la liste : une alerte.
+  - `outils` : tout outil de la section Outils (`data/outils/sujets.js` : un lien comme `mots-reserves`, ou une
+    définition `gp-…`).
+  - En plus (des alertes) : un titre qui ne commence pas par « Je », « J' », « Ma », « Mon » ou « Mes » ; un essai qui
+    répète un besoin ; deux situations qui ont le même besoin ou le même titre (tapé tel quel, il donnerait les deux) ;
+    `seulement` qui cite les 3 moteurs ; une note de `moteurs` pour un moteur hors de `seulement`. Des erreurs : un
+    `exemple.code` ou un `exemple.codes.<moteur>` vide.
+  - La ligne « architecte » donne les situations, les questions et le nombre par famille.
 - `node outils/tests/recherche-architecte.js` : chaque besoin trouve sa situation au rang 1, chaque essai dans les
   3 premières. Dernière ligne : « N échec(s) sur M ».
 - `outils/tests/architecte.js` (navigateur, dans `lancer.sh`) : la carte sur la page Outils sans compte, la liste par
   famille, la recherche, le sélecteur de moteur (notes et questions `seulement`), cocher (gardé après rechargement),
   « Tout décocher », « Copier la checklist », 390 px sans débordement, aucune erreur JavaScript. Les droits :
-  `outils/tests/outils.js`.
+  `outils/tests/outils.js`. Les attendus sont lus dans les données ; des situations d'essai, injectées dans la page,
+  couvrent ce que les vraies n'ont pas encore (une question `seulement`, d'autres familles, un exemple sans code, un lien
+  vers une situation à venir, une fiche inconnue, un outil réservé) ; il vérifie aussi l'étape ouverte par défaut, les
+  replis de la copie, une question retirée, un stockage illisible et un navigateur qui refuse d'enregistrer.

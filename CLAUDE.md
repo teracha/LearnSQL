@@ -200,9 +200,9 @@ Spécification : `docs/traducteur.md`.
 
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
-- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL, Traduire et Mots réservés, ouvert
-  sans compte ; Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer, Piloter, Décider, Prestataires,
-  Livrer).
+- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL, Traduire, Mots réservés et les
+  Conseils d'architecte, ouvert sans compte ; Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer,
+  Piloter, Décider, Prestataires, Livrer).
 - Astuces SQL (`#/astuces`, outil `astuces`, mêmes droits que le dico ; `docs/astuces.md`) : l'élève écrit son besoin en
   une phrase, le site donne l'astuce pour les 3 moteurs. Astuces dans `data/astuces/<famille>.js` (6 familles : Compléter,
   Formater, Nettoyer du texte, Manipuler, Dates utiles, Contrôler les données) ; recherche = celle du dico
@@ -215,6 +215,15 @@ Spécification et format figé : `docs/outils.md`.
   Données dans `data/reserves/` : `liste.js` (GÉNÉRÉ par `outils/mots-reserves/extraire.py` à partir des 3 pages
   officielles : ne jamais le modifier à la main), `regles.js` et `pieges.js` (l'expert SQL). Contrôles :
   `node outils/verifier.js` ; test `outils/tests/mots-reserves.js` (navigateur, dans `lancer.sh`).
+- Conseils d'architecte (`#/architecte`, outil `architecte`, mêmes droits que le dico ; `docs/architecte.md`) : l'élève
+  écrit sa situation (« je crée une table pour les commandes EDI ») ; le site donne la checklist des questions à se
+  poser (l'exemple d'abord, puis des étapes repliables, une case par question, les notes des 3 moteurs), les pièges,
+  « Voir aussi ». Situations dans `data/architecte/<famille>.js` (4 familles : Concevoir, Écrire et charger, Interroger,
+  Exploiter ; 46 situations prévues) ; recherche = celle du dico (`chercherDico(q, "architecte")`). Cases cochées dans
+  le navigateur (`learnsql-architecte`), jamais envoyées ; « Copier la checklist », « Tout décocher ». Contrôles :
+  `node outils/verifier.js` (la liste des situations prévues : `ARCHITECTE_PREVUES`) ; tests
+  `node outils/tests/recherche-architecte.js` (chaque besoin au rang 1, chaque essai dans les 3 premières, 0 échec) et
+  `outils/tests/architecte.js` (navigateur, dans `lancer.sh`).
 - Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
   `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
   sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).
@@ -268,8 +277,8 @@ Les agents coûtent cher (chacun repart de zéro) : seulement pour les gros morc
 
 Tests navigateur : `sh outils/tests/lancer.sh` (Supabase simulé).
 Tests node (sans navigateur, chacun « 0 échec ») : `node outils/tests/recherche-divalto.js`,
-`node outils/tests/recherche-astuces.js`, `node outils/tests/traducteur-cas.js`, `node outils/tests/traducteur-corpus.js`,
-`node outils/tests/outils-moteur.js`.
+`node outils/tests/recherche-astuces.js`, `node outils/tests/recherche-architecte.js`, `node outils/tests/traducteur-cas.js`,
+`node outils/tests/traducteur-corpus.js`, `node outils/tests/outils-moteur.js`.
 
 ## Commandes disponibles
 

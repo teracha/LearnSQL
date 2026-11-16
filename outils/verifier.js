@@ -430,7 +430,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   if (!Array.isArray(LEARNSQL.outilsPublics)) err('data/outils/sujets.js : LEARNSQL.outilsPublics manquant (les sujets ouverts sans compte)');
   else LEARNSQL.outilsPublics.forEach(id => { if (!idsSujets.has(id)) err('outilsPublics : sujet inconnu', id); });
   // Les pages SQL ont leur adresse et leur droit outil : le lien d'id « x » mène à #/x.
-  ['dico', 'traduire', 'astuces', 'mots-reserves'].forEach(id => {
+  ['dico', 'traduire', 'astuces', 'mots-reserves', 'architecte'].forEach(id => {
     const lien = sujets.reduce((l, s) => l.concat(s.outils || []), []).filter(o => o && typeof o === 'object' && o.id === id)[0];
     if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')');
     else if (lien && lien.lien !== '#/' + id) err('sujets : le lien « ' + id + ' » mène à', lien.lien, 'au lieu de #/' + id);
@@ -687,6 +687,179 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   Object.keys(range).forEach(o => { if (!idsOutils.has(o)) err('sujet', range[o], ': outil inconnu', o); });
   console.log(`outils ${outils.length} (${Object.keys(parType).map(t => t + ' ' + parType[t]).join(', ')}) · ${sujets.length} sujets`);
 }
+// ---------- Conseils d'architecte (docs/architecte.md) ----------
+// data/architecte/<famille>.js (LEARNSQL.architecte), chargés dans index.html : ids uniques, famille connue (et rangée dans
+// son fichier), les champs et leurs limites (erreur : un champ obligatoire manque ou a un mauvais format ; alerte : au-delà
+// d'une limite de mots, ou un champ inconnu), ids des questions uniques dans la situation, moteurs connus, « Voir aussi »,
+// dico et outils qui existent, sources en https. Que chaque besoin et chaque essai trouve sa situation : node
+// outils/tests/recherche-architecte.js.
+// Les situations prévues (docs/architecte.md, « Les situations prévues ») : un « Voir aussi » peut viser une situation
+// prévue mais pas encore écrite (le site n'affiche pas son lien) ; hors de cette liste, c'est une erreur.
+const ARCHITECTE_PREVUES = [
+  // Concevoir
+  'creer-base', 'creer-schema', 'creer-table', 'cle-primaire', 'relier-tables', 'choisir-types', 'nommer',
+  'creer-index', 'creer-vue', 'modifier-table', 'historiser', 'table-import', 'semi-structure',
+  // Écrire et charger
+  'ecrire-valeur', 'inserer', 'mettre-a-jour', 'supprimer', 'script-fichier', 'importer-fichier',
+  'fusionner', 'transaction', 'charger-snowflake', 'exporter', 'corriger-prod',
+  // Interroger
+  'agreger', 'joindre', 'filtrer', 'dates', 'formater', 'fonction-scalaire',
+  'fenetre', 'sous-requete', 'doublons', 'trier-paginer', 'comparer-texte',
+  // Exploiter
+  'requete-lente', 'mettre-en-prod', 'droits', 'sauvegarder', 'migrer',
+  'couts-snowflake', 'donnees-powerbi', 'automatiser', 'documenter', 'donnees-personnelles', 'procedure'
+];
+const dossierArchitecte = path.join(racine, 'data/architecte');
+let nbSituations = 0, nbQuestionsArchitecte = 0;
+if (!filtre && fs.existsSync(dossierArchitecte)) {
+  const index = fs.readFileSync(path.join(racine, 'index.html'), 'utf8');
+  const err = (...m) => { console.log('ERREUR architecte', ...m); erreurs++; };
+  const alerte = (...m) => { console.log('ALERTE architecte', ...m); alertes++; };
+  const texte = t => typeof t === 'string' && t.trim() !== '';
+  // Les mots d'un texte : ceux qui ont une lettre ou un chiffre (« : », « → » ou « · » seuls ne comptent pas).
+  const nbMots = t => String(t || '').split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
+  const pareil = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const tel = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  // Les familles, dans l'ordre de la page #/architecte (même liste que ARCHITECTE_FAMILLES de js/app.js), et leur fichier.
+  const FAMILLES = { 'Concevoir': 'concevoir.js', 'Écrire et charger': 'ecrire.js', 'Interroger': 'interroger.js', 'Exploiter': 'exploiter.js' };
+  const MOTEURS = ['sqlserver', 'snowflake', 'mysql'];
+  const CHAMPS = ['id', 'titre', 'famille', 'resume', 'besoins', 'essais', 'exemple', 'etapes', 'pieges', 'pratique', 'motsCles',
+    'voirAussi', 'dico', 'outils', 'sources'];
+  const CHAMPS_EXEMPLE = ['texte', 'code', 'codes'], CHAMPS_ETAPE = ['titre', 'questions'];
+  const CHAMPS_QUESTION = ['id', 'q', 'pourquoi', 'reflexe', 'moteurs', 'seulement', 'code'];
+  const idOK = id => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(id || '');
+  const liste = (l, min, max) => Array.isArray(l) && l.length >= min && l.length <= max && l.every(texte);
+  // Un texte limité en mots : erreur s'il manque, alerte au-delà de max mots.
+  const limite = (lieu, nom, t, max, facultatif) => {
+    if (t === undefined && facultatif) return;
+    if (!texte(t)) err(lieu, ':', nom, 'manquant (un texte)');
+    else if (nbMots(t) > max) alerte(lieu, ':', nom, 'de', nbMots(t), 'mots (' + max + ' au plus)');
+  };
+  // Les fiches du dico SQL et les outils de la section Outils (sujets.js : un lien comme « mots-reserves », ou une définition).
+  const dicoSql = new Set((LEARNSQL.dico || []).filter(x => x.domaine !== 'divalto').map(x => x.id));
+  const idsOutilsSite = new Set();
+  (LEARNSQL.outilsSujets || []).forEach(s => (s.groupes ? s.groupes.reduce((l, g) => l.concat(g.outils || []), []) : (s.outils || []))
+    .forEach(o => { const id = typeof o === 'string' ? o : o && o.id; if (id) idsOutilsSite.add(id); }));
+  const ids = new Set(), parFamille = {}, phrases = new Map(), aVenir = new Set();
+  let liensAVenir = 0;
+  const lus = [];   // [situation, fichier]
+  Object.keys(FAMILLES).forEach(f => { if (!fs.existsSync(path.join(dossierArchitecte, FAMILLES[f]))) err('data/architecte/' + FAMILLES[f], 'manquant (famille « ' + f + ' »)'); });
+  for (const f of fs.readdirSync(dossierArchitecte).filter(f => f.endsWith('.js')).sort()) {
+    const avant = (LEARNSQL.architecte || []).length;
+    try { require(path.join(dossierArchitecte, f)); } catch (e) { err('data/architecte/' + f, ': fichier illisible,', e.message); continue; }
+    if (index.indexOf('<script src="data/architecte/' + f + '"></script>') < 0) err('data/architecte/' + f, 'absent de index.html');
+    (LEARNSQL.architecte || []).slice(avant).forEach(s => lus.push([s, f]));
+  }
+  lus.forEach(([s, f]) => {
+    const id = s && s.id, l = 'situation ' + (id || '?');
+    nbSituations++;
+    if (!s || typeof s !== 'object') { err(l, ': une situation est un objet { id, titre, … }'); return; }
+    Object.keys(s).filter(k => CHAMPS.indexOf(k) < 0).forEach(k => alerte(l, ': champ inconnu (non affiché)', k));
+    if (!idOK(id)) err(l, ': id (minuscules, chiffres, tirets)');
+    if (ids.has(id)) err(l, ': id en double');
+    if (ARCHITECTE_PREVUES.indexOf(id) < 0) alerte(l, ': id hors de la liste prévue (docs/architecte.md, « Les situations prévues »)');
+    ids.add(id);
+    if (!texte(s.titre)) err(l, ': titre manquant');
+    else {
+      if (nbMots(s.titre) > 10) alerte(l, ': titre de', nbMots(s.titre), 'mots (10 au plus)');
+      if (!/^(Je |J'|J’|Ma |Mon |Mes )/.test(s.titre)) alerte(l, ': titre à la 1re personne (« Je … », « J\'… », « Ma requête… ») :', s.titre);
+    }
+    if (!FAMILLES[s.famille]) err(l, ': famille inconnue :', s.famille, '(' + Object.keys(FAMILLES).join(', ') + ')');
+    else {
+      parFamille[s.famille] = (parFamille[s.famille] || 0) + 1;
+      if (FAMILLES[s.famille] !== f) alerte(l, ': rangée dans', f + ', sa famille « ' + s.famille + ' » va dans', FAMILLES[s.famille]);
+    }
+    limite(l, 'resume', s.resume, 30);
+    if (!liste(s.besoins, 2, 4)) err(l, ': besoins, 2 à 4 phrases');
+    if (!liste(s.essais, 2, 4)) err(l, ': essais, 2 à 4 phrases');
+    else if (Array.isArray(s.besoins) && s.essais.some(x => s.besoins.some(b => pareil(b) === pareil(x)))) alerte(l, ': un essai répète un besoin (il doit le dire autrement)');
+    // Un besoin (ou le titre) tapé tel quel donne sa situation en 1er : deux situations ne peuvent pas avoir le même.
+    [s.titre].concat(Array.isArray(s.besoins) ? s.besoins : []).filter(texte).forEach(b => {
+      const autre = phrases.get(tel(b));
+      if (autre && autre !== id) alerte(l, ': « ' + b + ' » est aussi un besoin ou le titre de', autre);
+      else phrases.set(tel(b), id);
+    });
+    // L'exemple : le texte (obligatoire), le code SQL Server et les autres écritures (facultatifs).
+    const ex = s.exemple;
+    if (!ex || typeof ex !== 'object' || !texte(ex.texte)) err(l, ': exemple.texte manquant');
+    if (ex && typeof ex === 'object') {
+      Object.keys(ex).filter(k => CHAMPS_EXEMPLE.indexOf(k) < 0).forEach(k => alerte(l, ': exemple, champ inconnu (non affiché)', k));
+      if (ex.code !== undefined && !texte(ex.code)) err(l, ': exemple.code vide');
+      if (ex.codes !== undefined) {
+        if (!ex.codes || typeof ex.codes !== 'object') err(l, ': exemple.codes : { snowflake, mysql }');
+        else Object.keys(ex.codes).forEach(m => {
+          if (['snowflake', 'mysql'].indexOf(m) < 0) err(l, ': exemple.codes, moteur', m, '(snowflake, mysql)');
+          else if (!texte(ex.codes[m])) err(l, ': exemple.codes.' + m, 'vide');
+        });
+      }
+    }
+    // Les étapes et leurs questions.
+    if (!Array.isArray(s.etapes) || s.etapes.length < 3 || s.etapes.length > 10) err(l, ': etapes, 3 à 10');
+    const qids = new Set();
+    (Array.isArray(s.etapes) ? s.etapes : []).forEach((e, i) => {
+      const le = l + ' étape ' + (i + 1);
+      if (!e || typeof e !== 'object') { err(le, ': { titre, questions }'); return; }
+      Object.keys(e).filter(k => CHAMPS_ETAPE.indexOf(k) < 0).forEach(k => alerte(le, ': champ inconnu (non affiché)', k));
+      limite(le, 'titre', e.titre, 5);
+      if (!Array.isArray(e.questions) || e.questions.length < 1 || e.questions.length > 10) err(le, ': 1 à 10 questions');
+      (Array.isArray(e.questions) ? e.questions : []).forEach((q, k) => {
+        const lq = l + ' question ' + ((q && q.id) || '?');
+        nbQuestionsArchitecte++;
+        if (!q || typeof q !== 'object') { err(le, ': question', k + 1, ', { id, q, pourquoi, reflexe }'); return; }
+        Object.keys(q).filter(x => CHAMPS_QUESTION.indexOf(x) < 0).forEach(x => alerte(lq, ': champ inconnu (non affiché)', x));
+        if (!idOK(q.id)) err(lq, ': id (minuscules, chiffres, tirets)');
+        else if (qids.has(q.id)) err(lq, ': id en double dans la situation (il garde la case cochée)');
+        qids.add(q.id);
+        if (!texte(q.q) || !/\?\s*$/.test(q.q)) err(lq, ': q, une question qui finit par « ? »');
+        else if (nbMots(q.q) > 20) alerte(lq, ': q de', nbMots(q.q), 'mots (20 au plus)');
+        limite(lq, 'pourquoi', q.pourquoi, 45);
+        limite(lq, 'reflexe', q.reflexe, 45);
+        if (q.moteurs !== undefined) {
+          const ks = q.moteurs && typeof q.moteurs === 'object' ? Object.keys(q.moteurs) : [];
+          if (!ks.length) err(lq, ': moteurs, 1 à 3 notes { sqlserver, snowflake, mysql }');
+          ks.forEach(m => {
+            if (MOTEURS.indexOf(m) < 0) err(lq, ': moteur inconnu', m, '(' + MOTEURS.join(', ') + ')');
+            else limite(lq, 'moteurs.' + m, q.moteurs[m], 45);
+          });
+        }
+        if (q.seulement !== undefined) {
+          if (!Array.isArray(q.seulement) || !q.seulement.length || q.seulement.some(m => MOTEURS.indexOf(m) < 0) ||
+              new Set(q.seulement).size !== q.seulement.length) err(lq, ': seulement, une liste de moteurs connus (' + MOTEURS.join(', ') + ')');
+          else if (q.seulement.length === MOTEURS.length) alerte(lq, ': seulement cite les 3 moteurs (inutile)');
+          else if (q.moteurs && typeof q.moteurs === 'object') Object.keys(q.moteurs).filter(m => MOTEURS.indexOf(m) >= 0 && q.seulement.indexOf(m) < 0)
+            .forEach(m => alerte(lq, ': une note pour', m + ', mais la question ne vaut que pour', q.seulement.join(', ')));
+        }
+        if (q.code !== undefined) {
+          if (!texte(q.code)) err(lq, ': code vide');
+          else if (q.code.split('\n').length > 8) alerte(lq, ': code de', q.code.split('\n').length, 'lignes (8 au plus)');
+        }
+      });
+    });
+    // Les pièges, « En pratique », les mots-clés.
+    if (!liste(s.pieges, 3, 10)) err(l, ': pieges, 3 à 10 textes');
+    else s.pieges.forEach((p, i) => { if (nbMots(p) > 40) alerte(l, ': piège', i + 1, 'de', nbMots(p), 'mots (40 au plus)'); });
+    if (s.pratique !== undefined) limite(l, 'pratique', s.pratique, 40);
+    if (!liste(s.motsCles, 6, 15)) err(l, ': motsCles, 6 à 15 mots', Array.isArray(s.motsCles) ? '(' + s.motsCles.length + ')' : '');
+    // Les liens : d'autres situations (prévues), des fiches du dico SQL, des outils de la section Outils.
+    if (s.voirAussi !== undefined && !Array.isArray(s.voirAussi)) err(l, ': voirAussi, une liste d\'id de situations');
+    (Array.isArray(s.voirAussi) ? s.voirAussi : []).forEach(v => {
+      if (v === id) err(l, ': voirAussi vers elle-même');
+      else if (ARCHITECTE_PREVUES.indexOf(v) < 0) err(l, ': voirAussi, « ' + v + ' » n\'est pas une situation prévue (docs/architecte.md)');
+    });
+    if (s.dico !== undefined && !Array.isArray(s.dico)) err(l, ': dico, une liste d\'id du dico SQL');
+    (Array.isArray(s.dico) ? s.dico : []).forEach(d => { if (!dicoSql.has(d)) err(l, ': dico, pas de fiche « ' + d + ' » dans le dico SQL'); });
+    if (s.outils !== undefined && !Array.isArray(s.outils)) err(l, ': outils, une liste d\'id d\'outils');
+    (Array.isArray(s.outils) ? s.outils : []).forEach(o => { if (!idsOutilsSite.has(o)) err(l, ': outils, « ' + o + ' » n\'est pas un outil de la section Outils'); });
+    if (!Array.isArray(s.sources) || s.sources.length < 1 || s.sources.length > 8) err(l, ': sources, 1 à 8 pages');
+    else s.sources.forEach((x, i) => { if (!x || !texte(x.titre) || !/^https:\/\/\S+$/.test(x.url || '')) err(l, ': source', i + 1, ', { titre, url en https }'); });
+  });
+  // Un « Voir aussi » vers une situation prévue, pas encore écrite : ni erreur ni alerte (le site n'affiche pas le lien).
+  lus.forEach(([s]) => (s && Array.isArray(s.voirAussi) ? s.voirAussi : []).forEach(v => {
+    if (v !== s.id && ARCHITECTE_PREVUES.indexOf(v) >= 0 && !ids.has(v)) { liensAVenir++; aVenir.add(v); }
+  }));
+  console.log(`architecte ${nbSituations} situation(s), ${nbQuestionsArchitecte} question(s) (${Object.keys(FAMILLES).filter(x => parFamille[x]).map(x => x + ' ' + parFamille[x]).join(', ') || 'aucune'})`);
+  if (liensAVenir) console.log(`info architecte : ${liensAVenir} lien(s) vers des situations à venir (${[...aVenir].sort().join(', ')})`);
+}
 // ---------- Cours et fiches de révision (CLAUDE.md, « Cours et fiches de révision ») ----------
 // Un cours : data/cours/<id>.js (LEARNSQL.cours.<id>). Une fiche de révision : data/fiches/<id>.js (LEARNSQL.fiches.<id>),
 // au même format qu'un cours (ce que pageCours de js/app.js affiche), chargée dans index.html, pour un module existant
@@ -745,5 +918,6 @@ if (!filtre) {
   nbFiches = Object.keys(LEARNSQL.fiches).length;
   console.log(`cours ${Object.keys(LEARNSQL.cours).length} · fiches de révision ${nbFiches}`);
 }
-console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision · ${nbAstuces} astuce(s) · ${nbReserves} mot(s) réservé(s) · ${nbPieges} piège(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
+console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision · ${nbAstuces} astuce(s) · ${nbReserves} mot(s) réservé(s) · ${nbPieges} piège(s) · ` +
+  `${nbSituations} situation(s) d'architecte et ${nbQuestionsArchitecte} question(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
 process.exitCode = erreurs ? 1 : 0;

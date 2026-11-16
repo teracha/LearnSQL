@@ -350,6 +350,63 @@ select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
 .astuces-liste a { display: block; padding: 9px 2px; font-weight: 700; text-decoration: none; overflow-wrap: anywhere; }
 .astuces-liste a:hover { text-decoration: underline; }
 
+/* Conseils d'architecte (#/architecte) : la liste (une carte par situation), puis une situation : l'exemple, la checklist
+   (une étape = un bloc repliable, son compte à droite ; une case de 24 px, la question en gras, le détail en retrait),
+   les pièges, « Voir aussi », les sources. Rien ne dépasse à 390 px : un code long défile dans son cadre. */
+.ar-familles, .ar-aller { margin: 0 0 4px; overflow-wrap: anywhere; }
+.ar-cible:focus { outline: none; }
+.ar-cible:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ar-carte p { overflow-wrap: anywhere; }
+.ar-carte .ar-compte { margin: 4px 0 0; font-size: 15px; font-weight: 700; color: var(--muted); }
+.ar-carte .ar-compte.ar-complet { color: var(--ok); }
+.ar-resume { font-size: 20px; margin: 10px 0 6px; overflow-wrap: anywhere; }
+.ar-exemple { overflow-wrap: anywhere; }
+.ar-exemple > p:first-child { margin-top: 0; }
+.ar-exemple .label { margin-top: 12px; }
+.ar-variante { margin: 0 0 8px; }
+.ar-variante summary { cursor: pointer; color: var(--accent); font-weight: 700; padding: 8px 0; }
+.ar-consigne { margin: 0 0 8px; }
+.ar-total { margin: 0; font-size: 18px; }
+.ar-barre { margin: 6px 0 4px; }
+.ar-barre div { background: var(--ok); }
+.ar-replier { margin: 0 0 10px; text-align: right; }
+.ar-replier .lien { padding: 8px 0; }
+.ar-etape { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 10px; }
+.ar-etape > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 14px;
+  cursor: pointer; font-weight: 700; font-size: 19px; }
+.ar-etape > summary::-webkit-details-marker { display: none; }
+.ar-etape > summary::before { content: "▸"; flex: none; color: var(--accent); transition: transform 0.15s; }
+.ar-etape[open] > summary::before { transform: rotate(90deg); }
+.ar-etape > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius); }
+.ar-etape-titre { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ar-etape-n { color: var(--accent); }
+.ar-etape-compte { flex: none; font-size: 15px; white-space: nowrap; padding: 0 10px; border-radius: 99px; background: var(--code-bg); color: var(--muted); }
+.ar-complete .ar-etape-compte { background: var(--ok-soft); color: var(--ok); }
+.ar-questions { list-style: none; margin: 0; padding: 0 14px 4px; }
+.ar-q { border-top: 1px solid var(--line); padding: 12px 0; }
+.ar-case { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; cursor: pointer; }
+.ar-case input { flex: none; width: 24px; height: 24px; margin: 2px 0 0; accent-color: var(--ok); cursor: pointer; }
+:root[data-theme="dark"] .ar-case input, :root[data-theme="dark"] .ar-copie { color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ar-case input, :root:not([data-theme="light"]) .ar-copie { color-scheme: dark; } }
+.ar-texte { font-weight: 700; overflow-wrap: anywhere; }
+.ar-fait .ar-texte { color: var(--ok); }
+.ar-detail { margin-left: 36px; min-width: 0; overflow-wrap: anywhere; }
+.ar-detail p { margin: 6px 0; }
+.ar-detail pre.code { margin: 8px 0 4px; }
+.ar-seul { margin: 2px 0 6px; }
+.ar-note { font-size: 16px; border-left: 3px solid var(--line); padding-left: 10px; }
+.ar-cache { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.ar-copie { min-height: 160px; margin-top: 8px; font-size: 15px; }
+.ar-copie[hidden] { display: none; }
+.ar-pieges ul { margin: 0; padding-left: 20px; }
+.ar-pieges li { margin: 4px 0 8px; overflow-wrap: anywhere; }
+.ar-sous { margin-top: 14px; }
+.ar-sources { overflow-wrap: anywhere; }
+@media (max-width: 520px) {
+  .ar-etape > summary { font-size: 18px; padding: 8px 12px; }
+  .ar-questions { padding: 0 12px 4px; }
+}
+
 /* Mots réservés (#/mots-reserves) : le verdict en tête (un mot et sa couleur), un bloc par moteur, les pièges (une carte
    chacun), la liste complète : sur téléphone, le tableau défile dans son cadre (la page ne déborde pas) et la colonne
    « Mot » reste visible à gauche. */

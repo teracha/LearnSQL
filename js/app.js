@@ -1724,6 +1724,11 @@
   // - motsVides : des mots en plus, vides dans une phrase de besoin (« j'aimerais bien sortir un numéro client ») ;
   // - debut : un mot dont la racine commence par celle d'un mot-clé ou d'un besoin (ou l'inverse), à partir de ces
   //   lettres, est proche (« meilleures » → meilleur, « meilleurs » → meill : les racines du féminin en -eure).
+  // Les Conseils d'architecte (« architecte », docs/architecte.md) : la même recherche que les astuces, sur
+  // DATA.architecte. Une situation n'a pas de nom ; ses mots-clés sont les siens ; sa famille, son résumé et ses questions
+  // (q) comptent comme une définition. Mêmes réglages que les astuces, avec ses propres mots vides : ceux d'une phrase de
+  // situation (« quelles questions me poser », « les bonnes pratiques ») ; pas « mettre » ni « donner », qui comptent ici
+  // (« je mets à jour », « je donne des droits »), ni « bon » (« bon de commande »).
   var DICO_REGLAGES = {
     sql: {},
     divalto: {
@@ -1734,6 +1739,11 @@
       besoin: 300, besoinTel: 1000, debut: 5,
       motsVides: ensembleMots("bien besoin aimer souhaite souhaiterais souhaiterait aimerait voudrait astuce astuces truc " +
         "trucs facon maniere moyen avoir obtenir sortir afficher donner mettre")
+    },
+    architecte: {
+      besoin: 300, besoinTel: 1000, debut: 5,
+      motsVides: ensembleMots("bien bonne bonnes besoin aimer souhaite souhaiterais aimerait voudrait conseil conseils " +
+        "architecte question questions poser pose demander quand avant")
     }
   };
   function ensembleMots(t) { var e = {}; t.split(" ").forEach(function (m) { e[m] = true; }); return e; }
@@ -1743,9 +1753,10 @@
     var court = a.length <= b.length ? a : b, long = court === a ? b : a;
     return court.length >= n && long.indexOf(court) === 0;
   }
-  // Un index par domaine (« sql », « divalto », « astuces ») : ils ne se mêlent pas. Chacun : { taille, liste, connus,
-  // freq, codes } ; connus = les racines de tous ses mots-clés (un mot connu, « valeurs », n'est pas un nom mal tapé,
-  // « values ») ; freq = combien de fiches ont chaque racine ; codes = les mots des noms de ses tables et champs (« pino »).
+  // Un index par domaine (« sql », « divalto », « astuces », « architecte ») : ils ne se mêlent pas. Chacun : { taille,
+  // liste, connus, freq, codes } ; connus = les racines de tous ses mots-clés (un mot connu, « valeurs », n'est pas un nom
+  // mal tapé, « values ») ; freq = combien de fiches ont chaque racine ; codes = les mots des noms de ses tables et champs
+  // (« pino »).
   var dicoIndex = {};
   var dicoQuestion = "";   // la dernière recherche, gardée quand on ouvre une fiche (et quand on change d'onglet)
 
@@ -1806,10 +1817,19 @@
     return Object.keys(vus);
   }
 
-  // Ce que la recherche lit d'une fiche du dico, ou d'une astuce (domaine « astuces ») : ses noms, ses mots-clés, le
-  // texte de sa définition (des mots à 8 points), sa famille (un type de donnée, une astuce : ses mots comptent comme
-  // ceux de la définition, et la famille entière comme une expression) et ses besoins (les astuces seulement).
+  // Ce que la recherche lit d'une fiche du dico, d'une astuce (domaine « astuces ») ou d'une situation (« architecte ») :
+  // ses noms, ses mots-clés, le texte de sa définition (des mots à 8 points), sa famille (un type de donnée, une astuce,
+  // une situation : ses mots comptent comme ceux de la définition, et la famille entière comme une expression) et ses
+  // besoins (les astuces et les situations seulement ; le titre compte comme un besoin).
   function textesRecherche(f, domaine) {
+    if (domaine === "architecte") {
+      var qs = [];
+      (f.etapes || []).forEach(function (e) {
+        ((e && e.questions) || []).forEach(function (x) { if (x && x.q) qs.push(x.q); });
+      });
+      return { noms: [], motsCles: f.motsCles || [], famille: f.famille || "", besoins: [f.titre || ""].concat(f.besoins || []),
+        def: (f.famille || "") + " " + (f.resume || "") + " " + qs.join(" ") };
+    }
     if (domaine !== "astuces") {
       return { noms: [f.nom].concat(f.noms || []), motsCles: f.motsCles || [], famille: f.famille || "", besoins: [],
         def: (f.definition || "") + " " + (f.categorie || "") + " " + (f.famille || "") };
@@ -1838,15 +1858,16 @@
     return { r: r, sq: r.map(squelette) };
   }
 
-  // L'index d'un domaine (« sql » par défaut, « divalto », ou « astuces ») : seulement ses fiches (ou les astuces).
-  // Refait quand des fiches sont ajoutées.
+  // L'index d'un domaine (« sql » par défaut, « divalto », « astuces » ou « architecte ») : seulement ses fiches (ou les
+  // astuces, ou les situations). Refait quand des fiches sont ajoutées.
   function indexDico(domaine) {
     domaine = domaine || "sql";
     var vides = (DICO_REGLAGES[domaine] || DICO_REGLAGES.sql).motsVides || {};
     var utile = function (m) { return !DICO_MOTS_VIDES[m] && !vides[m]; };
-    var toutes = (domaine === "astuces" ? DATA.astuces : DATA.dico) || [];
+    var aPart = domaine === "astuces" || domaine === "architecte";   // une liste à part, pas des fiches du dico
+    var toutes = (aPart ? DATA[domaine] : DATA.dico) || [];
     if (dicoIndex[domaine] && dicoIndex[domaine].taille === toutes.length) return dicoIndex[domaine].liste;
-    var liste = toutes.filter(function (f) { return domaine === "astuces" || domaineFiche(f) === domaine; }).map(function (f) {
+    var liste = toutes.filter(function (f) { return aPart ? !!f : domaineFiche(f) === domaine; }).map(function (f) {
       var t = textesRecherche(f, domaine), noms = t.noms;
       var cles = {}, def = {}, motsNoms = {}, entiers = {};
       var expressions = [], phrasesCles = [], clesLongues = [];
@@ -1931,8 +1952,8 @@
     return mieux;
   }
 
-  // Note chaque fiche du domaine (« sql » par défaut ; « astuces » : chaque astuce) pour la question ; renvoie
-  // [{ fiche, score }] (fiche : la fiche, ou l'astuce), du plus proche au moins proche.
+  // Note chaque fiche du domaine (« sql » par défaut ; « astuces » : chaque astuce ; « architecte » : chaque situation)
+  // pour la question ; renvoie [{ fiche, score }] (fiche : la fiche, l'astuce ou la situation), du plus proche au moins proche.
   function chercherDico(question, domaine) {
     domaine = domaine || "sql";
     var reg = DICO_REGLAGES[domaine] || DICO_REGLAGES.sql, vides = reg.motsVides || {};
@@ -2009,7 +2030,7 @@
         if (phrase.indexOf(k) >= 0) expr = Math.min(130, expr + 60);
       });
       score += expr;
-      // Astuces : la phrase de l'élève comparée au plus proche des besoins (ou au titre) de l'astuce ; un besoin tapé tel quel.
+      // Astuces et situations : la phrase de l'élève comparée au plus proche des besoins (ou au titre) ; un besoin tapé tel quel.
       if (demande && x.besoins.length) score += Math.round(reg.besoin * ressemblance(demande, x.besoins, reg.debut));
       if (reg.besoinTel && x.tels.indexOf(texte) >= 0) score += reg.besoinTel;
       // Divalto, un mot tapé seul : un mot-clé entier de la fiche (« commande » pour ENT) ; puis la table avant le champ.
@@ -2447,6 +2468,382 @@
     var rendre = function () { document.getElementById("astuce-corps").innerHTML = corpsFiche(a, dicoMoteur(), "La solution"); };
     brancherMoteurs(rendre);
     rendre();
+  }
+
+  // ---------- Conseils d'architecte (docs/architecte.md) ----------
+  // #/architecte : l'élève écrit sa situation en une phrase (« je crée une table pour les commandes EDI ») ; les situations
+  // les plus proches viennent de la recherche du dico (chercherDico(q, "architecte")). Sans phrase : toutes les situations,
+  // par famille, avec leur nombre de questions et de cases cochées. #/architecte/<id> : une situation : l'exemple d'abord,
+  // puis la checklist (des étapes repliables, une case par question), les pièges, « En pratique », « Voir aussi », les
+  // sources. Le sélecteur de moteur est celui du dico (même choix gardé) : un moteur seul ne montre que sa note et cache les
+  // questions « seulement » des autres moteurs ; « Tous » montre tout, avec le nom du moteur. Les cases cochées restent dans
+  // ce navigateur (localStorage, clé learnsql-architecte), jamais envoyées. Public sans compte ; un compte connecté suit le
+  // droit de l'outil « architecte » (section Outils). Les liens vers le dico suivent le droit du dico, ceux vers un autre
+  // outil le droit de cet outil.
+  var ARCHITECTE_FAMILLES = ["Concevoir", "Écrire et charger", "Interroger", "Exploiter"];   // même liste dans outils/verifier.js
+  var ARCHITECTE_KEY = "learnsql-architecte";
+  var architecteQuestion = "";   // la dernière recherche, gardée quand on ouvre une situation
+  var architecteSecours = null;  // le navigateur refuse d'enregistrer : les cases vivent le temps de l'onglet
+  var architecteOuvertes = {};   // les étapes ouvertes, le temps de l'onglet : { "<situation>": { "<n° de l'étape>": true } }
+
+  function situationsArchitecte() { return (DATA.architecte || []).filter(function (s) { return s && s.id; }); }
+  // Les cases cochées : { "<situation>": { "<question>": true } }. Chaque lecture et écriture dans un try/catch : si le
+  // navigateur refuse (navigation privée, stockage plein), la page marche quand même.
+  function lireCasesArchitecte() {
+    var s = null;
+    if (architecteSecours) return architecteSecours;
+    try { s = JSON.parse(localStorage.getItem(ARCHITECTE_KEY) || "null"); } catch (e) { s = null; }
+    return s && typeof s === "object" && !Array.isArray(s) ? s : {};
+  }
+  function ecrireCasesArchitecte(tout) {
+    try { localStorage.setItem(ARCHITECTE_KEY, JSON.stringify(tout)); architecteSecours = null; return true; }
+    catch (e) { architecteSecours = tout; return false; }
+  }
+  // Les cases cochées d'une situation : seulement ses questions qui existent (une question retirée des données est oubliée,
+  // sans erreur, à la prochaine case cochée).
+  function casesSituation(s) {
+    var c = lireCasesArchitecte()[s.id], r = {};
+    if (!c || typeof c !== "object") return r;
+    (s.etapes || []).forEach(function (e) {
+      ((e && e.questions) || []).forEach(function (q) { if (q && q.id && c[q.id] === true) r[q.id] = true; });
+    });
+    return r;
+  }
+  function ecrireCasesSituation(s, cases) {
+    var tout = lireCasesArchitecte(), copie = {};
+    Object.keys(tout).forEach(function (k) { copie[k] = tout[k]; });
+    if (Object.keys(cases).length) copie[s.id] = cases; else delete copie[s.id];
+    return ecrireCasesArchitecte(copie);
+  }
+  // Une question « seulement » pour d'autres moteurs est cachée quand un seul moteur est choisi (« Tous » : tout).
+  function questionVisible(q, moteur) {
+    return moteur === "tous" || !Array.isArray(q.seulement) || !q.seulement.length || q.seulement.indexOf(moteur) >= 0;
+  }
+  // Les étapes qui ont une question visible pour ce moteur, numérotées de 1 à n : { e, i (son rang dans les données), n,
+  // questions }.
+  function etapesVisibles(s, moteur) {
+    var l = [];
+    (s.etapes || []).forEach(function (e, i) {
+      var qs = ((e && e.questions) || []).filter(function (q) { return q && q.id && questionVisible(q, moteur); });
+      if (qs.length) l.push({ e: e, i: i, n: l.length + 1, questions: qs });
+    });
+    return l;
+  }
+  // Les questions visibles pour ce moteur, et combien sont cochées.
+  function compteSituation(s, moteur, cases) {
+    var c = { total: 0, cochees: 0 };
+    cases = cases || casesSituation(s);
+    etapesVisibles(s, moteur).forEach(function (et) {
+      et.questions.forEach(function (q) { c.total++; if (cases[q.id]) c.cochees++; });
+    });
+    return c;
+  }
+  function texteCoches(c) { return c.cochees + (c.cochees > 1 ? " cochées" : " cochée") + " sur " + c.total; }
+  // Le texte d'une situation (fmt : le code entre accents graves), sans signe seul en début de ligne : une espace
+  // insécable avant ? ! : ; » et après «, et dans un nombre (« 550 000 »).
+  function fmtAr(t) {
+    return fmt(String(t || "").replace(/ ([?!:;»])/g, "\u00a0$1").replace(/« /g, "«\u00a0").replace(/(\d) (?=\d{3}(\D|$))/g, "$1\u00a0"));
+  }
+  // « Aller à » : la page défile jusqu'au titre (l'adresse ne change pas : elle sert au routeur), qui prend le focus.
+  function allerA(cible) {
+    if (!cible) return;
+    window.scrollTo(0, cible.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - 8);
+    try { cible.focus({ preventScroll: true }); } catch (e) { cible.focus(); }
+  }
+
+  function pageArchitecte(id) {
+    if (!outilOuvert("architecte")) { pageOutilReserve(); return; }
+    if (id) { pageSituation(id); return; }
+    app.innerHTML = '<h1>Conseils d\'architecte</h1>' +
+      '<p class="muted">Tu crées une table ? Tu charges un fichier ? Tu lances un script ? Voici les questions à te poser, ' +
+      'en checklist à cocher. Pour SQL Server, Snowflake et MySQL.</p>' +
+      '<div class="dico-recherche"><input type="search" id="ar-q" autocomplete="off" spellcheck="false" ' +
+      'placeholder="Ex. : je crée une table pour les commandes EDI" aria-label="Écris ta situation"></div>' +
+      selecteurMoteurs(dicoMoteur()) + '<div id="ar-res"></div>';
+    var champ = document.getElementById("ar-q"), zone = document.getElementById("ar-res");
+    champ.value = architecteQuestion;
+    var maj = function () {
+      architecteQuestion = champ.value;
+      zone.innerHTML = resultatsArchitecte(champ.value, dicoMoteur());
+    };
+    // « Regarde toute la liste » (aucune réponse sûre) : la recherche est vidée. « Aller à » une famille.
+    zone.addEventListener("click", function (e) {
+      var t = e.target, cible = t && t.getAttribute ? t.getAttribute("data-aller") : null;
+      if (t && t.classList && t.classList.contains("ar-tout")) { champ.value = ""; maj(); champ.focus(); }
+      else if (cible) allerA(document.getElementById(cible));
+    });
+    champ.addEventListener("input", maj);
+    brancherMoteurs(maj);
+    maj();
+    champ.focus();
+  }
+  // Les situations par famille, dans l'ordre d'ARCHITECTE_FAMILLES (une famille inconnue : à la fin).
+  function famillesArchitecte(situations) {
+    var noms = ARCHITECTE_FAMILLES.slice();
+    situations.forEach(function (s) { if (noms.indexOf(s.famille) < 0) noms.push(s.famille); });
+    return noms.map(function (nom) {
+      return { nom: nom, situations: situations.filter(function (s) { return s.famille === nom; }) };
+    }).filter(function (g) { return g.situations.length; });
+  }
+  // Une situation dans une liste : son titre, sa famille (après une recherche), son résumé, ses questions (celles du
+  // moteur choisi) et combien sont cochées.
+  function carteSituation(s, moteur, avecFamille) {
+    var c = compteSituation(s, moteur);
+    return '<a class="card fiche-res ar-carte" href="#/architecte/' + encodeURIComponent(s.id) + '"><div class="fiche-tete">' +
+      '<strong class="titre">' + esc(s.titre || "") + '</strong>' + (avecFamille ? '<span class="tag">' + esc(s.famille || "") + '</span>' : '') +
+      '</div>' + (s.resume ? '<p>' + fmtAr(s.resume) + '</p>' : '') + '<p class="ar-compte' + (c.total && c.cochees === c.total ? ' ar-complet' : '') +
+      '">' + pluriel(c.total, "question", "questions") + ' · ' + pluriel(c.cochees, "cochée", "cochées") + '</p></a>';
+  }
+  function resultatsArchitecte(q, moteur) {
+    var toutes = situationsArchitecte();
+    var tout = ', ou <button type="button" class="lien ar-tout">regarde toute la liste</button>.';
+    q = String(q).trim();
+    if (!toutes.length) return '<p class="muted">Pas encore de situation.</p>';
+    if (!q) {
+      var groupes = famillesArchitecte(toutes);
+      return '<p class="muted">' + pluriel(toutes.length, "situation", "situations") + '. Écris ta situation, ou choisis dans la liste.</p>' +
+        (groupes.length > 1 ? '<p class="ar-familles">Aller à&nbsp;: ' + groupes.map(function (g, k) {
+          return '<button type="button" class="lien" data-aller="ar-f-' + k + '">' + esc(g.nom) + '</button>';
+        }).join(' · ') + '</p>' : '') +
+        groupes.map(function (g, k) {
+          return '<h2 id="ar-f-' + k + '" class="ar-cible" tabindex="-1">' + esc(g.nom) + '</h2>' +
+            g.situations.map(function (s) { return carteSituation(s, moteur, false); }).join('');
+        }).join('');
+    }
+    var r = chercherDico(q, "architecte").filter(function (x) { return x.fiche.id; });
+    var bons = r.filter(function (x) { return x.score >= DICO_SEUIL; }).slice(0, 8);
+    if (bons.length) return bons.map(function (x) { return carteSituation(x.fiche, moteur, true); }).join('');
+    if (r.length) return '<p>Pas de situation sûre pour « ' + esc(q) + ' ». Les plus proches :</p>' +
+      r.slice(0, 3).map(function (x) { return carteSituation(x.fiche, moteur, true); }).join('') +
+      '<p>Ce n\'est pas ça ? Essaie d\'autres mots' + tout + '</p>';
+    return '<p id="ar-aucune">Aucune situation ne correspond. Essaie d\'autres mots' + tout + '</p>';
+  }
+
+  // Une situation : le titre, la famille, le résumé, « Aller à » ; l'exemple ; la checklist et ses boutons ; les pièges,
+  // « En pratique », « Voir aussi », les sources ; « Nouvelle recherche ». Le moteur choisi refait l'exemple et la checklist.
+  // Une étape se replie ; à la 1re visite (dans l'onglet), seule la première étape pas finie est ouverte.
+  function pageSituation(id) {
+    var s = situationsArchitecte().filter(function (x) { return x.id === id; })[0];
+    if (!s) { location.hash = "#/architecte"; return; }
+    var voir = voirAussiSituation(s), pieges = piegesSituation(s);
+    var aller = [["ar-checklist", "La checklist"]].concat(pieges ? [["ar-pieges", "Les pièges"]] : [], voir ? [["ar-voir", "Voir aussi"]] : []);
+    app.innerHTML = '<p class="muted"><a href="#/architecte">Conseils d\'architecte</a> › ' + esc(s.famille || "") + '</p>' +
+      '<h1>' + esc(s.titre || "") + '</h1>' +
+      '<div class="tags"><span class="tag">' + esc(s.famille || "") + '</span></div>' +
+      (s.resume ? '<p class="ar-resume">' + fmtAr(s.resume) + '</p>' : '') +
+      '<p class="ar-aller">Aller à&nbsp;: ' + aller.map(function (a) {
+        return '<button type="button" class="lien" data-aller="' + a[0] + '">' + a[1] + '</button>';
+      }).join(' · ') + '</p>' +
+      selecteurMoteurs(dicoMoteur()) +
+      '<h2>L\'exemple</h2><div class="card ar-exemple" id="ar-exemple"></div>' +
+      '<h2 id="ar-checklist" class="ar-cible" tabindex="-1">La checklist</h2>' +
+      '<p class="muted ar-consigne">Ouvre une étape. Coche une question quand tu as ta réponse. Tes cases restent dans ce ' +
+      'navigateur.</p>' +
+      '<p class="o-avertir" id="ar-stockage" hidden>Ce navigateur n\'enregistre pas tes cases : elles seront perdues en ' +
+      'fermant l\'onglet.</p>' +
+      '<p class="ar-total" id="ar-total" role="status"></p><div class="progress ar-barre" aria-hidden="true"><div id="ar-barre"></div></div>' +
+      '<p class="ar-replier"><button type="button" class="lien" id="ar-ouvrir"></button></p>' +
+      '<div id="ar-etapes"></div>' +
+      '<div class="actions"><button type="button" class="btn" id="ar-copier">Copier la checklist</button>' +
+      '<button type="button" class="btn ghost" id="ar-decocher">Tout décocher</button></div>' +
+      '<p id="ar-msg" class="muted o-msg" role="status"></p>' +
+      '<textarea id="ar-copie" class="ar-copie" readonly hidden aria-label="La checklist, à copier à la main"></textarea>' +
+      pieges +
+      (s.pratique ? '<div class="feedback pratique"><p><strong>En pratique&nbsp;:</strong> ' + fmtAr(s.pratique) + '</p></div>' : '') +
+      voir + sourcesSituation(s) +
+      '<div class="actions"><a class="btn ghost" href="#/architecte">Nouvelle recherche</a></div>';
+    var zone = document.getElementById("ar-etapes"), msg = document.getElementById("ar-msg");
+    var copie = document.getElementById("ar-copie"), ouvrir = document.getElementById("ar-ouvrir");
+    if (!architecteOuvertes[s.id]) architecteOuvertes[s.id] = ouvertesParDefaut(s, dicoMoteur());
+    var ouvertes = architecteOuvertes[s.id];
+    // Le bouton dit ce qu'il fera : tout ouvrir, ou tout fermer (quand tout est ouvert).
+    var majOuvrir = function () {
+      var ds = zone.querySelectorAll("details.ar-etape");
+      var toutes = ds.length > 0 && Array.prototype.every.call(ds, function (d) { return d.open; });
+      ouvrir.textContent = toutes ? "Fermer toutes les étapes" : "Ouvrir toutes les étapes";
+      ouvrir.hidden = !ds.length;
+    };
+    // Les comptes : en tout (et la barre), par étape (« 2 / 5 », vert quand l'étape est finie), et chaque question cochée.
+    var majComptes = function () {
+      var m = dicoMoteur(), cases = casesSituation(s), c = compteSituation(s, m, cases);
+      document.getElementById("ar-total").innerHTML = '<strong>' + c.cochees + '</strong>' + texteCoches(c).slice(String(c.cochees).length);
+      document.getElementById("ar-barre").style.width = (c.total ? Math.round(100 * c.cochees / c.total) : 0) + "%";
+      etapesVisibles(s, m).forEach(function (et) {
+        var d = zone.querySelector('details[data-etape="' + et.i + '"]'), n = 0;
+        if (!d) return;
+        et.questions.forEach(function (q) { if (cases[q.id]) n++; });
+        d.querySelector(".ar-etape-compte").innerHTML = n + ' / ' + et.questions.length + '<span class="ar-cache"> cochées</span>';
+        d.classList.toggle("ar-complete", n === et.questions.length);
+      });
+      Array.prototype.forEach.call(zone.querySelectorAll("input[data-q]"), function (b) {
+        b.checked = !!cases[b.getAttribute("data-q")];
+        var li = b.parentNode && b.parentNode.parentNode;
+        if (li) li.classList.toggle("ar-fait", b.checked);
+      });
+      majOuvrir();
+    };
+    var rendre = function () {
+      var m = dicoMoteur();
+      document.getElementById("ar-exemple").innerHTML = exempleSituation(s, m);
+      zone.innerHTML = etapesSituation(s, m, ouvertes);
+      majComptes();
+    };
+    var stockage = function (ok) { document.getElementById("ar-stockage").hidden = ok; };
+    // Une case cochée ou décochée : enregistrée tout de suite, les comptes suivent (la page n'est pas refaite).
+    zone.addEventListener("change", function (e) {
+      var b = e.target, q = b && b.getAttribute ? b.getAttribute("data-q") : null, cases;
+      if (!q) return;
+      cases = casesSituation(s);
+      if (b.checked) cases[q] = true; else delete cases[q];
+      stockage(ecrireCasesSituation(s, cases));
+      majComptes();
+    });
+    // Une étape ouverte ou fermée : gardée le temps de l'onglet (« toggle » ne remonte pas : on l'écoute à la descente).
+    zone.addEventListener("toggle", function (e) {
+      var d = e.target, i = d && d.getAttribute ? d.getAttribute("data-etape") : null;
+      if (i === null) return;
+      if (d.open) ouvertes[i] = true; else delete ouvertes[i];
+      majOuvrir();
+    }, true);
+    ouvrir.addEventListener("click", function () {
+      var oui = ouvrir.textContent.indexOf("Ouvrir") === 0;
+      Array.prototype.forEach.call(zone.querySelectorAll("details.ar-etape"), function (d) {
+        d.open = oui;
+        if (oui) ouvertes[d.getAttribute("data-etape")] = true; else delete ouvertes[d.getAttribute("data-etape")];
+      });
+      majOuvrir();
+    });
+    // « Copier la checklist » : le presse-papiers (et son repli, copierTexte) ; si tout échoue, le texte s'affiche,
+    // sélectionné, pour le copier à la main.
+    surClic("ar-copier", function () {
+      var t = texteChecklist(s, dicoMoteur(), casesSituation(s));
+      copie.hidden = true;
+      copierTexte(t, function (ok) {
+        msg.textContent = ok ? "Copié : la checklist est prête à coller." : "Copie impossible. Le texte est ci-dessous : copie-le à la main.";
+        if (ok) return;
+        copie.value = t;
+        copie.hidden = false;
+        copie.focus();
+        copie.select();
+      });
+    });
+    surClic("ar-decocher", function () {
+      copie.hidden = true;
+      if (!Object.keys(casesSituation(s)).length) { msg.textContent = "Aucune case n'est cochée."; return; }
+      if (!confirm("Décocher toutes les cases de « " + (s.titre || "") + " » ?")) return;
+      stockage(ecrireCasesSituation(s, {}));
+      majComptes();
+      msg.textContent = "C'est fait : toutes les cases sont décochées.";
+    });
+    Array.prototype.forEach.call(app.querySelectorAll(".ar-aller [data-aller]"), function (b) {
+      b.addEventListener("click", function () { allerA(document.getElementById(b.getAttribute("data-aller"))); });
+    });
+    brancherMoteurs(rendre);
+    rendre();
+  }
+  // À la 1re visite d'une situation (dans l'onglet) : la première étape qui a une case vide est ouverte.
+  function ouvertesParDefaut(s, moteur) {
+    var cases = casesSituation(s), o = {};
+    var et = etapesVisibles(s, moteur).filter(function (x) { return x.questions.some(function (q) { return !cases[q.id]; }); })[0];
+    if (et) o[et.i] = true;
+    return o;
+  }
+  // L'exemple : le texte, puis le code du moteur choisi (codes.<moteur> quand l'écriture diffère, sinon code). « Tous » :
+  // le code SQL Server, puis les autres écritures, repliées (« Le code · Snowflake »).
+  function exempleSituation(s, moteur) {
+    var ex = s.exemple || {}, codes = ex.codes || {}, html = ex.texte ? '<p>' + fmtAr(ex.texte) + '</p>' : '';
+    var bloc = function (titre, code) { return '<p class="label">' + esc(titre) + '</p><pre class="code">' + esc(code) + '</pre>'; };
+    if (moteur === "snowflake" || moteur === "mysql") return html + (codes[moteur] || ex.code ? bloc("Le code · " + nomMoteur(moteur), codes[moteur] || ex.code) : '');
+    var variantes = ["snowflake", "mysql"].filter(function (m) { return codes[m]; });
+    if (ex.code) html += bloc(variantes.length ? "Le code · SQL Server" : "Le code", ex.code);
+    if (moteur === "tous") variantes.forEach(function (m) {
+      html += ex.code ? '<details class="ar-variante"><summary>Le code · ' + esc(nomMoteur(m)) + '</summary><pre class="code">' +
+        esc(codes[m]) + '</pre></details>' : bloc("Le code · " + nomMoteur(m), codes[m]);
+    });
+    return html;
+  }
+  // La checklist : une étape = un bloc repliable (<details>), son numéro, son titre et son compte ; dedans, une case par
+  // question : la question en gras, puis « Pourquoi : », « Le bon réflexe : », les notes des moteurs affichés et le code.
+  function etapesSituation(s, moteur, ouvertes) {
+    var l = etapesVisibles(s, moteur);
+    if (!l.length) return '<p class="muted">Pas de question pour ce moteur.</p>';
+    return l.map(function (et) {
+      return '<details class="ar-etape" data-etape="' + et.i + '"' + (ouvertes[et.i] ? ' open' : '') + '><summary>' +
+        '<span class="ar-etape-titre"><span class="ar-etape-n">' + et.n + '.</span> ' + esc(et.e.titre || "") + '</span>' +
+        '<span class="ar-etape-compte"></span></summary><ul class="ar-questions">' +
+        et.questions.map(function (q) { return questionSituation(q, moteur); }).join('') + '</ul></details>';
+    }).join('');
+  }
+  function questionSituation(q, moteur) {
+    var seul = Array.isArray(q.seulement) && q.seulement.length ? q.seulement : null;
+    var notes = moteursMR(moteur).filter(function (m) { return q.moteurs && typeof q.moteurs[m] === "string" && q.moteurs[m].trim(); });
+    return '<li class="ar-q"><label class="ar-case"><input type="checkbox" data-q="' + esc(q.id) + '"><span class="ar-texte">' +
+      fmtAr(q.q || "") + '</span></label><div class="ar-detail">' +
+      (seul ? '<p class="ar-seul"><span class="tag">Seulement sur ' + esc(listeEt(seul.map(nomMoteur))) + '</span></p>' : '') +
+      (q.pourquoi ? '<p><strong>Pourquoi&nbsp;:</strong> ' + fmtAr(q.pourquoi) + '</p>' : '') +
+      (q.reflexe ? '<p><strong>Le bon réflexe&nbsp;:</strong> ' + fmtAr(q.reflexe) + '</p>' : '') +
+      notes.map(function (m) { return '<p class="ar-note"><strong>' + esc(nomMoteur(m)) + '&nbsp;:</strong> ' + fmtAr(q.moteurs[m]) + '</p>'; }).join('') +
+      (q.code ? '<pre class="code">' + esc(q.code) + '</pre>' : '') + '</div></li>';
+  }
+  // « Copier la checklist » : les questions seulement, groupées par étape, pour le moteur choisi ([x] cochée, [ ] non ;
+  // « Tous » : une question propre à un moteur le dit). Le code entre accents graves perd ses accents graves.
+  function texteChecklist(s, moteur, cases) {
+    var brut = function (t) { return String(t || "").replace(/`/g, ""); };
+    var l = [brut(s.titre) + " : la checklist (" + (moteur === "tous" ? listeEt(MR_MOTEURS.map(nomMoteur)) : nomMoteur(moteur)) + ")",
+      texteCoches(compteSituation(s, moteur, cases))];
+    etapesVisibles(s, moteur).forEach(function (et) {
+      l.push("", et.n + ". " + brut(et.e.titre));
+      et.questions.forEach(function (q) {
+        var seul = moteur === "tous" && Array.isArray(q.seulement) && q.seulement.length ?
+          " (seulement sur " + listeEt(q.seulement.map(nomMoteur)) + ")" : "";
+        l.push((cases[q.id] ? "[x] " : "[ ] ") + brut(q.q) + seul);
+      });
+    });
+    return l.join("\n");
+  }
+  function piegesSituation(s) {
+    var l = (s.pieges || []).filter(function (p) { return typeof p === "string" && p.trim(); });
+    return l.length ? '<h2 id="ar-pieges" class="ar-cible" tabindex="-1">Les pièges</h2><div class="feedback ko ar-pieges"><ul>' +
+      l.map(function (p) { return '<li>' + fmtAr(p) + '</li>'; }).join('') + '</ul></div>' : '';
+  }
+  // « Voir aussi » : les autres situations qui existent (une situation prévue, pas encore écrite, n'a pas de lien), les
+  // fiches du dico SQL (seulement avec le droit du dico), les outils de la section Outils (chacun selon son droit).
+  function voirAussiSituation(s) {
+    var parId = {}, dico = {};
+    situationsArchitecte().forEach(function (x) { parId[x.id] = x; });
+    (DATA.dico || []).forEach(function (x) { if (x && x.id) dico[x.id] = x; });
+    var sits = (s.voirAussi || []).filter(function (v) { return v !== s.id && parId[v]; });
+    var fiches = outilOuvert("dico") ? (s.dico || []).filter(function (v) { return dico[v] && domaineFiche(dico[v]) === "sql"; }) : [];
+    var outils = (s.outils || []).map(outilLie).filter(Boolean);
+    if (!sits.length && !fiches.length && !outils.length) return '';
+    return '<h2 id="ar-voir" class="ar-cible" tabindex="-1">Voir aussi</h2>' +
+      (sits.length ? '<p class="label ar-sous">Les situations</p><ul class="astuces-liste ar-voir-situations">' + sits.map(function (v) {
+        return '<li><a href="#/architecte/' + encodeURIComponent(v) + '">' + esc(parId[v].titre || v) + '</a></li>';
+      }).join('') + '</ul>' : '') +
+      (fiches.length ? '<p class="label ar-sous">Dans le dico</p><div class="puces ar-voir-dico">' + fiches.map(function (v) {
+        return '<a class="puce" href="#/dico/' + encodeURIComponent(v) + '">' + esc(dico[v].nom) + '</a>';
+      }).join('') + '</div>' : '') +
+      (outils.length ? '<p class="label ar-sous">Les outils</p><div class="puces ar-voir-outils">' + outils.map(function (o) {
+        return '<a class="puce titre" href="' + esc(o.lien) + '">' + esc(o.titre) + '</a>';
+      }).join('') + '</div>' : '');
+  }
+  // Un outil de la section Outils (un lien comme « Mots réservés », ou une définition), s'il est visible pour ce compte
+  // (même règle que la page Outils : sans compte, les sujets publics).
+  function outilLie(id) {
+    var sujet = sujetDe(id), o = null;
+    if (!sujet) return null;
+    entreesSujet(sujet).forEach(function (x) {
+      if (typeof x === "string" ? x === id : x && x.id === id) o = typeof x === "string" ? definitionOutil(x) : x;
+    });
+    return o && o.titre && outilVisible(sujet, o) ? { titre: o.titre, lien: o.lien || "#/outils/" + o.id } : null;
+  }
+  // Les sources : les pages officielles lues pour écrire la situation (un lien seulement en https).
+  function sourcesSituation(s) {
+    var l = (Array.isArray(s.sources) ? s.sources : []).filter(function (x) { return x && x.titre; });
+    return l.length ? '<h2>Les sources</h2><ul class="points ar-sources">' + l.map(function (x) {
+      return '<li>' + (/^https:\/\//.test(x.url || "") ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.titre) + '</a>' :
+        esc(x.titre)) + '</li>';
+    }).join('') + '</ul>' : '';
   }
 
   // ---------- Mots réservés (docs/mots-reserves.md) ----------
@@ -3652,6 +4049,7 @@
     else if (parts[0] === "dico") pageDico(parts[1]);
     else if (parts[0] === "types") pageTypes(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "astuces") pageAstuces(parts[1] ? decoder(parts[1]) : "");
+    else if (parts[0] === "architecte") pageArchitecte(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "traduire") pageTraduire();
     else if (parts[0] === "mots-reserves") pageMotsReserves();
     else if (parts[0] === "outils") {
