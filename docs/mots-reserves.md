@@ -16,8 +16,9 @@ pour les 3 moteurs du site : SQL Server, Snowflake, MySQL.
 - **1. Vérifier un nom.** L'élève tape un nom ; il peut l'entourer de `[ ]`, `" "` ou `` ` ` `` : on les retire, avec
   les espaces autour. Le résultat suit la frappe (pas de bouton) ; un nom vide n'affiche rien. Le nom tapé reste en
   mémoire le temps de l'onglet (jamais dans le navigateur ni dans l'adresse).
-  - **Le verdict**, en tête, sur les moteurs affichés : « À éviter » (réservé, limité ou futur sur un moteur, ou un nom
-    hors des règles : à entourer, ou trop long), « Possible, mais à éviter » (seulement un mot-clé de MySQL), « Libre ».
+  - **Le verdict**, en tête, sur les moteurs affichés : « À éviter » (refusé tel quel sur un moteur : réservé ou
+    limité, ou un nom hors des règles : à entourer, ou trop long), « Possible, mais à éviter » (permis aujourd'hui
+    partout, mais futur sur SQL Server ou mot-clé de MySQL : `date`, `value`, `status`), « Libre ».
     Une phrase dit pourquoi (« Réservé sur SQL Server, Snowflake et MySQL. », « À entourer partout sur Snowflake : une
     lettre accentuée « é ». »). Un lecteur d'écran entend le verdict seul (`#mr-annonce`, `role="status"`).
   - **Quoi écrire à la place** : pour un piège (`pieges.js`), « À la place : … », « On le choisit pour : » (`pourquoi` :
@@ -66,7 +67,7 @@ Les statuts (un moteur absent = le mot est libre sur ce moteur) :
 | Moteur | Statut | Sens | Page |
 |---|---|---|---|
 | SQL Server | `réservé` | refusé tel quel comme nom : à entourer | à éviter |
-| SQL Server | `futur` | permis aujourd'hui, peut devenir réservé (« future keywords ») | à éviter |
+| SQL Server | `futur` | permis aujourd'hui, peut devenir réservé (« future keywords ») | possible, mais à éviter |
 | Snowflake | `réservé` | refusé tel quel : à entourer | à éviter |
 | Snowflake | `limité` | interdit dans certains emplois, dits par `noteSnowflake` : à entourer | à éviter |
 | MySQL 8.4 | `réservé` | refusé tel quel (« (R) » de la page) : à entourer | à éviter |

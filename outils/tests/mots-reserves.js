@@ -110,7 +110,7 @@ const { chromium } = require('playwright');
   await taper('nom client');
   r = await lu();
   verifier(r.verdict === 'À éviter' && /mr-ko/.test(r.classe) && r.phrase === 'À entourer partout sur SQL Server, Snowflake et MySQL : un espace.', 'nom client, verdict : ' + r.phrase);
-  r.moteurs.forEach(x => verifier(x.pastille === 'libre' && /^non Pas permis tel quel : un espace\./.test(x.regle) && x.ecrit === entoure(x.m, 'nom client'),
+  r.moteurs.forEach(x => verifier(x.pastille === 'libre' && /^non Il ne suit pas la règle : un espace\./.test(x.regle) && x.ecrit === entoure(x.m, 'nom client'),
     'nom client, ' + x.m + ' : ' + x.regle + ' · ' + x.ecrit));
   verifier(/^Plutôt : nom_client/.test(r.place), 'nom client, la proposition : ' + r.place);
   await largeur('vérifier « nom client »');

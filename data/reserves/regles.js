@@ -27,7 +27,7 @@ LEARNSQL.motsRegles = {
   sqlserver: {
     longueurMax: 128,
     motif: "^[A-Za-z_\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u0220\\u0222-\\u0233][A-Za-z0-9_@$#\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u0220\\u0222-\\u0233]*$",
-    regle: "Commence par une lettre (accents permis) ou _. Ensuite : lettres, chiffres, _, @, $ ou #. Pas d'espace. Un nom de table qui commence par # est une table temporaire.",
+    regle: "Commence par une lettre (accents permis) ou _. Ensuite : lettres, chiffres, _, @, $ ou #. Pas d'espace. Un nom qui commence par # désigne une table temporaire : pour une table normale, commence par une lettre.",
     echapper: "[{nom}]",
     echapperTexte: "Entre crochets. Les guillemets droits marchent aussi, si l'option QUOTED_IDENTIFIER est active (le cas le plus courant).",
     casse: "La casse suit la collation de la base. En général (collation _CI_, comme French_CI_AS), elle ne compte pas : Commande = commande.",
@@ -45,7 +45,7 @@ LEARNSQL.motsRegles = {
   mysql: {
     longueurMax: 64,
     motif: "^(?![0-9]+$)(?![0-9]+[eE][0-9])(?!0x[0-9A-Fa-f]+$)(?!0b[01]+$)(?!\\$)[A-Za-z0-9_$\\u0080-\\uD7FF\\uE000-\\uFFFF]+$",
-    regle: "Lettres (accents permis), chiffres, _ ou $. Peut commencer par un chiffre, mais ne doit pas ressembler à un nombre (123, 1e3). Pas d'espace, pas de $ au début.",
+    regle: "Lettres (accents permis), chiffres, _ ou $. Peut commencer par un chiffre, mais ne doit pas ressembler à un nombre (123, 1e3). Pas d'espace. Pas de $ au début : c'est obsolète (MySQL l'accepte encore, avec un avertissement).",
     echapper: "`{nom}`",
     echapperTexte: "Entre accents graves, le signe ` (AltGr + 7, puis Espace, sur un clavier français). Avec le mode ANSI_QUOTES, aussi entre guillemets droits.",
     casse: "Colonnes : la casse ne compte pas. Tables et bases : elle compte sous Linux, pas sous Windows (réglage lower_case_table_names). Écris tout en minuscules.",

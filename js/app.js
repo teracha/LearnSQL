@@ -2539,8 +2539,9 @@
       tropLong: tropLong, entourer: entourer, r: r || {},
       ecrit: tropLong ? "" : !entourer ? nom : r && r.echapper ? ecritureMR(nom, r) : "" };
   }
-  // Le verdict, sur les moteurs affichés : « À éviter » (réservé, limité ou futur, ou un nom à entourer ou trop long),
-  // « Possible, mais à éviter » (seulement un mot-clé de MySQL), « Libre ».
+  // Le verdict, sur les moteurs affichés : « À éviter » (refusé tel quel sur un moteur : réservé, limité, un nom à
+  // entourer ou trop long), « Possible, mais à éviter » (permis aujourd'hui partout, mais futur sur SQL Server ou
+  // mot-clé de MySQL), « Libre ». Dans « À éviter », la phrase cite aussi les moteurs où le mot est futur.
   function verdictMR(analyses) {
     var noms = function (f) { return listeEt(analyses.filter(f).map(function (a) { return nomMoteur(a.moteur); })); };
     var phrases = [], n;
@@ -2555,9 +2556,11 @@
     }
     n = noms(function (a) { return a.tropLong; });
     if (n) phrases.push("Trop long sur " + n + ".");
-    if (phrases.length) return { niveau: "ko", titre: "À éviter", texte: phrases.join(" ") };
-    n = noms(function (a) { return a.statut === "mot-clé"; });
-    if (n) return { niveau: "attention", titre: "Possible, mais à éviter", texte: "Un mot-clé de " + n + " : permis comme nom, mais un autre nom est plus sûr." };
+    if (analyses.some(function (a) { return a.entourer || a.tropLong; })) return { niveau: "ko", titre: "À éviter", texte: phrases.join(" ") };
+    var futur = noms(function (a) { return a.statut === "futur"; }), cle = noms(function (a) { return a.statut === "mot-clé"; });
+    if (futur || cle) return { niveau: "attention", titre: "Possible, mais à éviter", texte: (futur ? "Peut devenir réservé sur " + futur +
+      (cle ? ", et c'est un mot-clé de " + cle : "") + " : permis aujourd'hui" : "Un mot-clé de " + cle + " : permis comme nom") +
+      ", mais un autre nom est plus sûr." };
     return { niveau: "ok", titre: "Libre", texte: "Ni réservé, ni à entourer sur " + noms(function () { return true; }) + "." };
   }
   // Le piège de ce nom (pieges.js), ou null. Son « pourquoi » dit pourquoi on CHOISIT ce nom (« la date d'une
@@ -2578,7 +2581,7 @@
   function blocMR(a) {
     var r = a.r, st = MR_STATUTS[a.statut];
     var statut = pastilleMR(a.statut) + ' ' + (st ? esc(st.sens) : 'Pas un mot réservé.') + (a.note ? ' <span class="muted">' + esc(a.note) + '</span>' : '');
-    var regle = a.raisons.length ? '<span class="o-niveau o-ko">non</span> Pas permis tel quel : ' + esc(a.raisons.join(", ")) + '.' +
+    var regle = a.raisons.length ? '<span class="o-niveau o-ko">non</span> Il ne suit pas la règle : ' + esc(a.raisons.join(", ")) + '.' +
       (r.regle ? '<span class="mr-note">La règle : ' + fmt(r.regle) + '</span>' : '') : '<span class="o-niveau o-ok">oui</span> Il suit la règle des noms.';
     var ecrire = a.tropLong ? 'Impossible, même entouré : raccourcis-le.' : !a.ecrit ? 'Entouré (modèle manquant).' :
       '<code class="mr-ecrit">' + esc(a.ecrit) + '</code> ' + (a.entourer ? (r.echapperTexte ? '<span class="mr-note">' + fmt(r.echapperTexte) + '</span>' : '') :
