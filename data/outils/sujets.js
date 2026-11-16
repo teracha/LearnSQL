@@ -12,11 +12,12 @@ LEARNSQL.outilsPublics = ["outils-sql"];
 LEARNSQL.outilsSujets = [
   {
     id: "outils-sql", titre: "SQL",
-    resume: "Trouver une fonction ou une astuce, comprendre une requête.",
+    resume: "Trouver une fonction ou une astuce, comprendre une requête, vérifier un nom.",
     outils: [
       { id: "dico", titre: "Super dico SQL", resume: "Trouver une fonction ou un mot-clé, pour SQL Server, Snowflake et MySQL.", lien: "#/dico" },
       { id: "astuces", titre: "Astuces SQL", resume: "Écris ton besoin en une phrase : l'astuce SQL pour SQL Server, Snowflake et MySQL.", lien: "#/astuces" },
-      { id: "traduire", titre: "Traduire une requête", resume: "Coller une requête et la lire en français, dans l'ordre où SQL la calcule.", lien: "#/traduire" }
+      { id: "traduire", titre: "Traduire une requête", resume: "Coller une requête et la lire en français, dans l'ordre où SQL la calcule.", lien: "#/traduire" },
+      { id: "mots-reserves", titre: "Mots réservés", resume: "Vérifier un nom de table ou de colonne : est-il réservé sur SQL Server, Snowflake ou MySQL ?", lien: "#/mots-reserves" }
     ]
   },
   {

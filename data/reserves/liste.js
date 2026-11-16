@@ -1026,9 +1026,6 @@ LEARNSQL.motsReserves = {
    "GET_FORMAT": {
     "mysql": "mot-clé"
    },
-   "GET_MASTER_PUBLIC_KEY": {
-    "mysql": "mot-clé"
-   },
    "GET_SOURCE_PUBLIC_KEY": {
     "mysql": "mot-clé"
    },
@@ -1331,9 +1328,6 @@ LEARNSQL.motsReserves = {
    "JSON_VALUE": {
     "mysql": "mot-clé"
    },
-   "K": {
-    "mysql": "mot-clé"
-   },
    "KEY": {
     "sqlserver": "réservé",
     "mysql": "réservé"
@@ -1488,9 +1482,6 @@ LEARNSQL.motsReserves = {
    "LOW_PRIORITY": {
     "mysql": "réservé"
    },
-   "M": {
-    "mysql": "mot-clé"
-   },
    "MANUAL": {
     "mysql": "mot-clé"
    },
@@ -1498,84 +1489,6 @@ LEARNSQL.motsReserves = {
     "sqlserver": "futur"
    },
    "MASTER": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_AUTO_POSITION": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_BIND": {
-    "mysql": "réservé"
-   },
-   "MASTER_COMPRESSION_ALGORITHMS": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_CONNECT_RETRY": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_DELAY": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_HEARTBEAT_PERIOD": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_HOST": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_LOG_FILE": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_LOG_POS": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_PASSWORD": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_PORT": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_PUBLIC_KEY_PATH": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_RETRY_COUNT": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_CA": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_CAPATH": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_CERT": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_CIPHER": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_CRL": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_CRLPATH": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_KEY": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_SSL_VERIFY_SERVER_CERT": {
-    "mysql": "réservé"
-   },
-   "MASTER_TLS_CIPHERSUITES": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_TLS_VERSION": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_USER": {
-    "mysql": "mot-clé"
-   },
-   "MASTER_ZSTD_COMPRESSION_LEVEL": {
     "mysql": "mot-clé"
    },
    "MATCH": {

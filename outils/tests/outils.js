@@ -7,7 +7,7 @@
 // d'envoyé, aucune erreur JavaScript. Supabase simulé : julie (agent) ; le sujet gestion-projet (droit outil) est
 // réservé au groupe 1, le parcours Chef de projet est ouvert. Les droits des outils (24) : sans compte, compte non limité,
 // hors du groupe, dans le groupe, le dico réservé (les astuces sans lien vers le dico, la page des types réservée), les
-// astuces réservées, toute la section réservée, aucun outil visible (pas de lien « Outils » dans le menu), admin, la page
+// astuces réservées, les mots réservés réservés (#/mots-reserves), toute la section réservée, aucun outil visible (pas de lien « Outils » dans le menu), admin, la page
 // Équipe à 390 px.
 // L'horloge du navigateur est fixée au 15 janvier 2027 : les alertes « date passée » ne dépendent pas du jour du test.
 // Corrections de novembre 2026 (23) : les étapes, les cases vides (budget et business case du testeur), la tolérance
@@ -747,12 +747,22 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   verifier((await cartes()).indexOf('astuces') < 0 && (await cartes()).indexOf('dico') >= 0, 'astuces réservées : cartes ' + (await cartes()).join(' '));
   await reserve('#/astuces', 'astuces réservées'); await reserve('#/astuces/zeros-devant', 'astuce réservée');
   await aller('#/types'); verifier(await texte('h1') === 'Tous les types de données', 'astuces réservées : la page des types');
-  // e. Sans compte : le dico et Traduire restent publics, seulement le sujet SQL
+  // L'outil « Mots réservés » réservé au groupe 1 (julie n'y est pas) : ni carte, ni page ; le dico et les astuces restent ouverts
+  db.acces = [{ element: 'mots-reserves', groupe_id: 1 }]; await synchro();
+  await aller('#/outils');
+  verifier((await cartes()).indexOf('mots-reserves') < 0 && (await cartes()).indexOf('dico') >= 0 && (await cartes()).indexOf('astuces') >= 0,
+    'mots réservés réservés : cartes ' + (await cartes()).join(' '));
+  await reserve('#/mots-reserves', 'mots réservés réservés');
+  verifier(!(await p.$('#mr-nom')) && !/Vérifier un nom|ORDER/.test(await texte('#app')), 'mots réservés réservés : le contenu de la page est là');
+  await aller('#/astuces'); verifier(await texte('h1') === 'Astuces SQL', 'mots réservés réservés : les astuces');
+  // e. Sans compte : le dico, Traduire et les mots réservés restent publics, seulement le sujet SQL
   await aller('#/compte'); await p.click('#deconnexion'); await attendre();
   await aller('#/dico');
   verifier(await texte('h1') === 'Super dico SQL' && !(await p.$('#onglet-divalto')), 'sans compte : le dico n\'est pas public');
   await aller('#/traduire');
   verifier(await texte('h1') === 'Traduire une requête', 'sans compte : Traduire n\'est pas public');
+  await aller('#/mots-reserves');
+  verifier(await texte('h1') === 'Mots réservés' && await p.$('#mr-nom'), 'sans compte : les mots réservés ne sont pas publics');
   await aller('#/outils');
   verifier(await sujetsVus() === 'SQL' && (await cartes()).join(' ') === SQL.map(o => o.id).join(' ') && await p.isVisible('#lien-outils'), 'sans compte : ' + await sujetsVus());
   // f. Toute la section réservée (élément « outils ») : tout est caché, le lien du menu aussi
@@ -762,6 +772,7 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   verifier(!(await p.$('.o-sujet')) && /Aucun outil n'est ouvert à ton compte/.test(await texte('#app')), 'section réservée : #/outils ' + (await texte('#app')).slice(0, 80));
   verifier(await p.isHidden('#lien-outils'), 'section réservée : le lien « Outils » reste dans le menu');
   await reserve('#/outils/gp-raci', 'section réservée'); await reserve('#/dico', 'section réservée'); await reserve('#/traduire', 'section réservée');
+  await reserve('#/mots-reserves', 'section réservée');
   verifier(!(await p.$('#app a[href="#/outils"]')), 'section réservée : un lien « Retour aux outils »');
   await aller('#/cours/cp07');
   verifier(/Faire le QCM/.test(await texte('#app')) && !/Les outils de ce cours/.test(await texte('#app')), 'section réservée : « Les outils de ce cours »');
@@ -771,7 +782,8 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   await aller('#/outils');
   verifier(await p.isHidden('#lien-outils') && !(await p.$('.o-sujet')) && /Aucun outil n'est ouvert à ton compte/.test(await texte('#app')), 'aucun outil visible : le lien « Outils » reste');
   // Un seul outil visible (Traduire) : le lien revient
-  db.acces = [{ element: 'gestion-projet', groupe_id: 1 }, { element: 'dico', groupe_id: 1 }, { element: 'astuces', groupe_id: 1 }]; await synchro();
+  db.acces = [{ element: 'gestion-projet', groupe_id: 1 }, { element: 'dico', groupe_id: 1 }, { element: 'astuces', groupe_id: 1 },
+    { element: 'mots-reserves', groupe_id: 1 }]; await synchro();
   await aller('#/outils');
   verifier(await p.isVisible('#lien-outils') && (await cartes()).join(' ') === 'traduire', 'un seul outil visible : ' + (await cartes()).join(' '));
   db.acces = [{ element: 'outils', groupe_id: 1 }];
@@ -780,6 +792,7 @@ const outilsDuCours = (m, sauf) => OUTILS.filter(id => id !== sauf && (definitio
   await aller('#/outils');
   verifier(await sujetsVus() === 'SQL|Gestion de projet' && (await cartes()).length === NB_CARTES && await p.isVisible('#lien-outils'), 'admin : ' + await sujetsVus());
   await aller('#/dico'); verifier(await texte('h1') === 'Super dico SQL', 'admin : le dico');
+  await aller('#/mots-reserves'); verifier(await texte('h1') === 'Mots réservés', 'admin : les mots réservés');
   await aller('#/outils/gp-raci'); verifier(await texte('h1') === 'Matrice RACI', 'admin : un outil');
   // h. La page Équipe de l'admin, à 390 px : la grille « Droits des outils » et la barre, sans débordement
   await aller('#/equipe'); await attendre(500);

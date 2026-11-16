@@ -16,6 +16,7 @@ ss = open(dossier + '/sqlserver.html', encoding='utf-8').read()
 def bloc(debut, fin):
     a = ss.find(debut); b = ss.find(fin, a) if fin else len(ss)
     if a < 0 or b < 0: sys.exit('SQL Server : repère introuvable : ' + debut)
+    # « WITHIN GROUP » (deux mots) n'est pas un nom possible ; WITHIN (futur) et GROUP (réservé) sont déjà listés.
     return set(re.findall(r'<div class="column">\s*<p>([A-Z_]+)</p>', ss[a:b]))
 ss_res = bloc('The following table lists SQL Server and Azure Synapse Analytics reserved keywords', 'ODBC Reserved Keywords')
 ss_fut = bloc('Future Keywords', 'Related content')
@@ -47,8 +48,11 @@ for mot in ('ASC', 'DESC'):
 # MySQL 8.4 : une liste « MOT (R) » ; (R) = réservé, sinon mot-clé permis comme nom.
 my = open(dossier + '/mysql.html', encoding='utf-8').read()
 my_res, my_cle = set(), set()
-for li in re.findall(r'<li class="listitem"><p>(.*?)</p>', my, re.S):
-    m = re.match(r'([A-Z][A-Z0-9_]*)\s*(\(R\))?', sans_balises(li))
+# Seulement la liste « MySQL 8.4 Keywords and Reserved Words » (pas le sommaire, ni les mots ajoutés ou retirés en 8.4).
+a = my.find('MySQL 8.4 Keywords and Reserved Words</h3>'); b = my.find('MySQL 8.4 New Keywords and Reserved Words</h3>', a)
+if a < 0 or b < 0: sys.exit('MySQL : repère introuvable')
+for li in re.findall(r'<li class="listitem"><p>(.*?)</p>', my[a:b], re.S):
+    m = re.match(r'([A-Z_][A-Z0-9_]*)\s*(\(R\))?(;|$)', sans_balises(li))
     if m: (my_res if m.group(2) else my_cle).add(m.group(1))
 
 if len(ss_res) < 150 or len(sf_mots) < 80 or len(my_res) < 200: sys.exit('Listes trop courtes : la page a changé ?')

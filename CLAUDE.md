@@ -200,14 +200,21 @@ Spécification : `docs/traducteur.md`.
 
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
-- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL et Traduire, ouvert sans compte ;
-  Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer, Piloter, Décider, Prestataires, Livrer).
+- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL, Traduire et Mots réservés, ouvert
+  sans compte ; Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer, Piloter, Décider, Prestataires,
+  Livrer).
 - Astuces SQL (`#/astuces`, outil `astuces`, mêmes droits que le dico ; `docs/astuces.md`) : l'élève écrit son besoin en
   une phrase, le site donne l'astuce pour les 3 moteurs. Astuces dans `data/astuces/<famille>.js` (6 familles : Compléter,
   Formater, Nettoyer du texte, Manipuler, Dates utiles, Contrôler les données) ; recherche = celle du dico
   (`chercherDico(q, "astuces")`, la phrase comparée aux `besoins`). Contrôles : `node outils/verifier.js` ; tests
   `node outils/tests/recherche-astuces.js` (chaque besoin au rang 1, chaque essai dans les 3 premières, 0 échec) et
   `outils/tests/astuces.js` (navigateur, dans `lancer.sh`).
+- Mots réservés (`#/mots-reserves`, outil `mots-reserves`, mêmes droits que le dico ; `docs/mots-reserves.md`) : vérifier
+  un nom de table ou de colonne (statut sur les 3 moteurs, règles d'un nom, écriture entourée, quoi mettre à la place ;
+  un verdict « À éviter », « Possible, mais à éviter » ou « Libre »), les pièges fréquents, la liste complète de A à Z.
+  Données dans `data/reserves/` : `liste.js` (GÉNÉRÉ par `outils/mots-reserves/extraire.py` à partir des 3 pages
+  officielles : ne jamais le modifier à la main), `regles.js` et `pieges.js` (l'expert SQL). Contrôles :
+  `node outils/verifier.js` ; test `outils/tests/mots-reserves.js` (navigateur, dans `lancer.sh`).
 - Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
   `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
   sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).

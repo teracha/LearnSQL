@@ -243,6 +243,122 @@ if (!filtre && fs.existsSync(dossierAstuces)) {
   }
   console.log(`astuces ${nbAstuces} (${Object.keys(FAMILLES).filter(x => parFamille[x]).map(x => x + ' ' + parFamille[x]).join(', ') || 'aucune'})`);
 }
+// ---------- Mots réservés (docs/mots-reserves.md) ----------
+// data/reserves/*.js, chargés dans index.html. liste.js (généré par outils/mots-reserves/extraire.py) : les sources
+// (3 pages https et leur date), des mots en MAJUSCULES, les statuts permis par moteur, noteSnowflake seulement avec un
+// statut Snowflake. regles.js (l'expert) : les 3 moteurs, motif (une expression régulière valide, ES5), longueurMax,
+// echapper ({nom} ou {NOM}), regle, echapperTexte, source https. pieges.js (l'expert) : mot en MAJUSCULES, unique ;
+// pourquoi ; 1 à 4 noms à la place (minuscules et _), chacun permis tel quel sur les 3 moteurs et réservé nulle part.
+const dossierReserves = path.join(racine, 'data/reserves');
+let nbReserves = 0, nbPieges = 0;
+if (!filtre && fs.existsSync(dossierReserves)) {
+  const index = fs.readFileSync(path.join(racine, 'index.html'), 'utf8');
+  const err = (...m) => { console.log('ERREUR mots réservés', ...m); erreurs++; };
+  const alerte = (...m) => { console.log('ALERTE mots réservés', ...m); alertes++; };
+  const texte = t => typeof t === 'string' && t.trim() !== '';
+  const nbMots = t => String(t).trim().split(/\s+/).length;
+  const https = t => /^https:\/\/\S+$/.test(t || '');
+  const MOTEURS = ['sqlserver', 'snowflake', 'mysql'];
+  // Les statuts permis, moteur par moteur (absent = libre). « mot-clé » (MySQL) : permis comme nom.
+  const STATUTS = { sqlserver: ['réservé', 'futur'], snowflake: ['réservé', 'limité'], mysql: ['réservé', 'mot-clé'] };
+  for (const f of ['liste.js', 'regles.js', 'pieges.js']) {
+    if (!fs.existsSync(path.join(dossierReserves, f))) { err('data/reserves/' + f, 'manquant'); continue; }
+    try { require(path.join(dossierReserves, f)); } catch (e) { err('data/reserves/' + f, ': fichier illisible,', e.message); }
+    if (index.indexOf('<script src="data/reserves/' + f + '"></script>') < 0) err('data/reserves/' + f, 'absent de index.html');
+  }
+  // liste.js
+  const L = LEARNSQL.motsReserves, compte = {};
+  const mots = L && L.mots && typeof L.mots === 'object' ? L.mots : {};
+  if (!L || !L.mots || typeof L.mots !== 'object') err('liste.js : LEARNSQL.motsReserves = { sources, mots }');
+  else {
+    const s = L.sources || {};
+    MOTEURS.forEach(m => { if (!https(s[m])) err('liste.js : sources.' + m + ', une adresse https'); });
+    if (!/^\d{4}-\d\d-\d\d$/.test(s.date || '') || isNaN(Date.parse(s.date))) err('liste.js : sources.date, une date AAAA-MM-JJ');
+    Object.keys(mots).forEach(k => {
+      const e = mots[k], lieu = 'liste.js ' + k;
+      if (!/^[A-Z][A-Z0-9_]*$/.test(k)) err(lieu, ': un mot en MAJUSCULES (A-Z, 0-9, _)');
+      if (!e || typeof e !== 'object') { err(lieu, ': { sqlserver, snowflake, noteSnowflake, mysql }'); return; }
+      Object.keys(e).filter(x => MOTEURS.indexOf(x) < 0 && x !== 'noteSnowflake').forEach(x => err(lieu, ': champ inconnu', x));
+      MOTEURS.forEach(m => {
+        if (e[m] === undefined) return;
+        if (STATUTS[m].indexOf(e[m]) < 0) err(lieu, ': statut ' + m + ' « ' + e[m] + ' » (' + STATUTS[m].join(', ') + ')');
+        compte[m + ' ' + e[m]] = (compte[m + ' ' + e[m]] || 0) + 1;
+      });
+      if (e.noteSnowflake !== undefined && (e.snowflake === undefined || !texte(e.noteSnowflake))) err(lieu, ': noteSnowflake, un texte, seulement avec un statut Snowflake');
+      if (!MOTEURS.some(m => e[m] !== undefined)) alerte(lieu, ': aucun statut (libre partout)');
+      // La liste complète de la page : réservé, futur ou limité sur au moins un moteur (un mot-clé MySQL seul n'y est pas).
+      if (MOTEURS.some(m => e[m] !== undefined && e[m] !== 'mot-clé')) nbReserves++;
+    });
+  }
+  // regles.js
+  const R = LEARNSQL.motsRegles, regex = {};
+  const CHAMPS_REGLE = ['longueurMax', 'motif', 'regle', 'echapper', 'echapperTexte', 'casse', 'source'];
+  if (!R || typeof R !== 'object') err('regles.js : LEARNSQL.motsRegles = { sqlserver, snowflake, mysql }');
+  else {
+    Object.keys(R).filter(m => MOTEURS.indexOf(m) < 0).forEach(m => err('regles.js : moteur inconnu', m));
+    MOTEURS.forEach(m => {
+      const r = R[m], lieu = 'regles.js ' + m;
+      if (!r || typeof r !== 'object') { err(lieu, ': manquant'); return; }
+      if (!(Number.isInteger(r.longueurMax) && r.longueurMax > 0)) err(lieu, ': longueurMax, un nombre entier');
+      // Le motif est lu par new RegExp(motif), sans option, dans le navigateur (ES5) : ni \p{…}, ni (?<…).
+      if (!texte(r.motif)) err(lieu, ': motif manquant');
+      else if (/\\[pP]\{|\(\?</.test(r.motif)) err(lieu, ': motif, une expression régulière ES5 (ni \\p{…}, ni (?<…)) :', r.motif);
+      else {
+        try { regex[m] = new RegExp(r.motif); } catch (e) { err(lieu, ': motif, expression régulière fausse :', e.message); }
+        if (regex[m] && !regex[m].test('client')) err(lieu, ': le motif refuse « client » (un nom simple)');
+        if (regex[m] && regex[m].test('nom client')) err(lieu, ': le motif accepte « nom client » (un espace ; oubli de ^ et $ ?)');
+      }
+      if (!texte(r.echapper) || !/\{(nom|NOM)\}/.test(r.echapper)) err(lieu, ': echapper, un modèle avec {nom} ou {NOM} (ex. [{nom}])');
+      ['regle', 'echapperTexte'].forEach(x => { if (!texte(r[x])) err(lieu, ':', x, 'manquant (affiché sur la page)'); });
+      if (r.casse !== undefined && !texte(r.casse)) err(lieu, ': casse vide');
+      if (!https(r.source)) err(lieu, ': source, une adresse https');
+      Object.keys(r).filter(x => CHAMPS_REGLE.indexOf(x) < 0).forEach(x => alerte(lieu, ': champ inconnu (non affiché)', x));
+    });
+  }
+  // pieges.js
+  const P = LEARNSQL.motsPieges, CHAMPS_PIEGE = ['mot', 'pourquoi', 'aLaPlace', 'conseil'];
+  if (!Array.isArray(P)) err('pieges.js : LEARNSQL.motsPieges = [ … ]');
+  else {
+    const vus = new Set();
+    P.forEach((p, i) => {
+      const lieu = 'pieges.js ' + ((p && p.mot) || 'n° ' + (i + 1));
+      if (!p || typeof p !== 'object') { err(lieu, ': { mot, pourquoi, aLaPlace, conseil }'); return; }
+      nbPieges++;
+      if (!texte(p.mot) || !/^[A-Z][A-Z0-9_]*$/.test(p.mot)) err(lieu, ': mot en MAJUSCULES (A-Z, 0-9, _)');
+      else {
+        if (vus.has(p.mot)) err(lieu, ': mot en double');
+        vus.add(p.mot);
+        if (!MOTEURS.some(m => (mots[p.mot] || {})[m] !== undefined)) alerte(lieu, ': absent de liste.js, donc libre sur les 3 moteurs : est-ce un piège ?');
+      }
+      if (!texte(p.pourquoi)) err(lieu, ': pourquoi manquant (une phrase)');
+      else if (nbMots(p.pourquoi) > 30) alerte(lieu, ': pourquoi long (' + nbMots(p.pourquoi) + ' mots, 30 au plus)');
+      if (p.conseil !== undefined) {
+        if (!texte(p.conseil)) err(lieu, ': conseil vide');
+        else if (nbMots(p.conseil) > 30) alerte(lieu, ': conseil long (' + nbMots(p.conseil) + ' mots, 30 au plus)');
+      }
+      if (!Array.isArray(p.aLaPlace) || p.aLaPlace.length < 1 || p.aLaPlace.length > 4) { err(lieu, ': aLaPlace, 1 à 4 noms'); return; }
+      if (new Set(p.aLaPlace).size !== p.aLaPlace.length) err(lieu, ': aLaPlace, un nom en double');
+      p.aLaPlace.forEach(n => {
+        const quoi = ': à la place, « ' + n + ' »';
+        if (typeof n !== 'string' || !/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(n)) { err(lieu + quoi, ': minuscules (et chiffres), mots séparés par un _'); return; }
+        if (texte(p.mot) && n === p.mot.toLowerCase()) err(lieu + quoi, ': c\'est le même mot');
+        MOTEURS.forEach(m => {
+          const r = (R && R[m]) || {};
+          if (regex[m] && !regex[m].test(n)) err(lieu + quoi, ': refusé tel quel sur', m, '(motif de regles.js)');
+          if (Number.isInteger(r.longueurMax) && n.length > r.longueurMax) err(lieu + quoi, ': trop long sur', m);
+        });
+        const e = mots[n.toUpperCase()] || {}, pris = MOTEURS.filter(m => e[m] !== undefined && e[m] !== 'mot-clé');
+        if (pris.length) err(lieu + quoi, ': ' + pris.map(m => e[m] + ' sur ' + m).join(', '));
+        else if (e.mysql === 'mot-clé') alerte(lieu + quoi, ': un mot-clé MySQL (permis, mais la page dit « Possible, mais à éviter »)');
+      });
+      Object.keys(p).filter(x => CHAMPS_PIEGE.indexOf(x) < 0).forEach(x => alerte(lieu, ': champ inconnu (non affiché)', x));
+    });
+  }
+  const c = (m, s) => compte[m + ' ' + s] || 0;
+  console.log(`mots réservés ${Object.keys(mots).length} mots : SQL Server ${c('sqlserver', 'réservé')} réservés + ${c('sqlserver', 'futur')} futurs · ` +
+    `Snowflake ${c('snowflake', 'réservé')} réservés + ${c('snowflake', 'limité')} limités · MySQL ${c('mysql', 'réservé')} réservés + ` +
+    `${c('mysql', 'mot-clé')} mots-clés · liste complète ${nbReserves} · règles ${R ? MOTEURS.filter(m => R[m]).length : 0} moteurs · pièges ${nbPieges}`);
+}
 // ---------- Outils (docs/outils.md) ----------
 // Les sujets (data/outils/sujets.js) et les définitions (data/outils/<id>.js, un outil par fichier, chargé dans index.html) :
 // ids uniques, sujet connu, types valides, formules lues sans erreur, qui ne citent que des colonnes existantes, avec des
@@ -313,7 +429,12 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   // Sans compte : les sujets publics. Le dico et Traduire suivent le droit de leur lien (js/app.js, outilOuvert).
   if (!Array.isArray(LEARNSQL.outilsPublics)) err('data/outils/sujets.js : LEARNSQL.outilsPublics manquant (les sujets ouverts sans compte)');
   else LEARNSQL.outilsPublics.forEach(id => { if (!idsSujets.has(id)) err('outilsPublics : sujet inconnu', id); });
-  ['dico', 'traduire', 'astuces'].forEach(id => { if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')'); });
+  // Les pages SQL ont leur adresse et leur droit outil : le lien d'id « x » mène à #/x.
+  ['dico', 'traduire', 'astuces', 'mots-reserves'].forEach(id => {
+    const lien = sujets.reduce((l, s) => l.concat(s.outils || []), []).filter(o => o && typeof o === 'object' && o.id === id)[0];
+    if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')');
+    else if (lien && lien.lien !== '#/' + id) err('sujets : le lien « ' + id + ' » mène à', lien.lien, 'au lieu de #/' + id);
+  });
   const modules = new Set((LEARNSQL.modules || []).map(m => m.id)), idsOutils = new Set(), parType = {};
   const CHAMPS_OUTIL = ['id', 'sujet', 'titre', 'resume', 'quand', 'etapes', 'cours', 'type', 'colonnes', 'alertes', 'totaux', 'aideTotaux',
     'modele', 'ligne', 'colonne', 'valeurs', 'libelles', 'aides', 'rubriques', 'exemple', 'export'];
@@ -624,5 +745,5 @@ if (!filtre) {
   nbFiches = Object.keys(LEARNSQL.fiches).length;
   console.log(`cours ${Object.keys(LEARNSQL.cours).length} · fiches de révision ${nbFiches}`);
 }
-console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision · ${nbAstuces} astuce(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
+console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision · ${nbAstuces} astuce(s) · ${nbReserves} mot(s) réservé(s) · ${nbPieges} piège(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
 process.exitCode = erreurs ? 1 : 0;

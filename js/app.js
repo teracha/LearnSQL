@@ -2449,6 +2449,317 @@
     rendre();
   }
 
+  // ---------- Mots réservés (docs/mots-reserves.md) ----------
+  // #/mots-reserves, en 3 parties, sous le sélecteur de moteur du dico (même choix gardé) :
+  // 1. Vérifier un nom : l'élève tape un nom ([order], "order" ou `order` : les signes autour sont retirés). Le résultat
+  //    suit la frappe : un verdict en tête, puis, pour chaque moteur affiché, le statut du mot (data/reserves/liste.js),
+  //    les règles d'un nom (regles.js : motif, longueurMax) et l'écriture exacte (echapper) ; pour un piège (pieges.js),
+  //    quoi écrire à la place. Un nom vide n'affiche rien.
+  // 2. Les pièges fréquents (pieges.js) : une carte chacun ; leurs statuts viennent de liste.js.
+  // 3. La liste complète, de A à Z : Mot | un moteur par colonne affichée, les lettres pour sauter, les sources.
+  // Public sans compte ; un compte connecté suit le droit de l'outil « mots-reserves » (section Outils), comme le dico.
+  var MR_MOTEURS = ["sqlserver", "snowflake", "mysql"];
+  // Les statuts de liste.js : leur couleur (toujours avec le mot), leur sens (vérifier un nom) et la légende du tableau.
+  var MR_STATUTS = {
+    "réservé": { couleur: "ko", sens: "Refusé tel quel comme nom.", court: "refusé tel quel" },
+    "futur": { couleur: "attention", sens: "Permis aujourd'hui, mais il peut devenir réservé dans une prochaine version.",
+      court: "peut le devenir (SQL Server)" },
+    "limité": { couleur: "attention", sens: "Interdit dans certains emplois.", court: "interdit dans certains emplois (Snowflake)" },
+    "mot-clé": { couleur: "neutre", sens: "Un mot-clé, mais permis comme nom, sans guillemets.", court: "permis comme nom (MySQL)" }
+  };
+  var mrNom = "", mrMotsCles = false;   // le nom tapé et la case « mots-clés permis » : gardés le temps de l'onglet
+
+  function moteursMR(moteur) { return moteur === "tous" ? MR_MOTEURS : [moteur]; }
+  // « SQL Server, Snowflake et MySQL »
+  function listeEt(l) { return l.length > 1 ? l.slice(0, -1).join(", ") + " et " + l[l.length - 1] : (l[0] || ""); }
+  // Le nom tapé, sans espaces autour ni les signes qui l'entourent : [order], "order", `order` → order. Le signe fermant
+  // peut manquer (la page suit la frappe : « [ord »).
+  function nomMR(t) {
+    var n = String(t || "").trim(), fermant = { "[": "]", '"': '"', "`": "`" }[n.charAt(0)];
+    if (fermant) {
+      n = n.slice(1);
+      if (n.charAt(n.length - 1) === fermant) n = n.slice(0, -1);
+    }
+    return n.trim();
+  }
+  // Le mot dans liste.js (ses statuts par moteur), ou {} : libre partout.
+  function entreeMR(nom) {
+    var mots = (DATA.motsReserves && DATA.motsReserves.mots) || {}, k = String(nom).toUpperCase();
+    return Object.prototype.hasOwnProperty.call(mots, k) ? mots[k] : {};
+  }
+  // Le statut d'un mot sur un moteur, s'il est connu (MR_STATUTS) ; "" : libre.
+  function statutMR(e, moteur) { return Object.prototype.hasOwnProperty.call(MR_STATUTS, e[moteur]) ? e[moteur] : ""; }
+  function pastilleMR(statut) {
+    return statut ? '<span class="o-niveau o-' + MR_STATUTS[statut].couleur + '">' + esc(statut) + '</span>' : '<span class="o-niveau o-ok">libre</span>';
+  }
+  // Pourquoi un nom ne s'écrit pas tel quel sur un moteur (r : ses règles, regles.js) : trop long, puis ce que le motif
+  // refuse. Pour le dire en mots simples, quel que soit le motif : chaque signe est essayé seul au milieu d'un nom permis
+  // (« a-a »), puis le premier en tête (« 1a ») ; refusé sans raison trouvée : « que des chiffres », « ressemble à un
+  // nombre » (MySQL : 1e3, 0x41 ; permis avec une lettre devant), ou « hors de la règle ».
+  function raisonsMR(nom, r) {
+    var l = [], re = null, motif = [];
+    if (typeof r.longueurMax === "number" && nom.length > r.longueurMax) l.push("trop long, " + nom.length + " caractères (" + r.longueurMax + " au plus)");
+    try { re = new RegExp(r.motif); } catch (e) { re = null; }
+    if (!re || re.test(nom)) return l;
+    var base = ["a", "A", "x", "_"].filter(function (b) { return re.test(b + b + b); })[0];
+    if (base) {
+      var vus = {}, espace = false, accents = [], signes = [], c0 = nom.charAt(0);
+      (nom.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\s\S]/g) || []).forEach(function (c) {
+        if (vus[c]) return;
+        vus[c] = true;
+        if (re.test(base + c + base)) return;
+        if (/\s/.test(c)) espace = true;
+        else if (/[a-z]/.test(sansAccents(c)) && sansAccents(c) !== c.toLowerCase()) accents.push("« " + c + " »");
+        else signes.push("« " + c + " »");
+      });
+      if (espace) motif.push("un espace");
+      if (accents.length) motif.push((accents.length > 1 ? "des lettres accentuées " : "une lettre accentuée ") + accents.join(" "));
+      if (signes.length) motif.push((signes.length > 1 ? "des signes interdits " : "un signe interdit ") + signes.join(" "));
+      if (re.test(base + c0 + base) && !re.test(c0 + base + base)) motif.push(/[0-9]/.test(c0) ? "il commence par un chiffre" : "il commence par « " + c0 + " »");
+    }
+    if (!motif.length) motif.push(/^[0-9]+$/.test(nom) ? "il n'a que des chiffres" :
+      /^[0-9]/.test(nom) && base && re.test(base + nom) ? "il ressemble à un nombre" : "il est hors de la règle");
+    return l.concat(motif);
+  }
+  // L'écriture entourée (echapper : « [{nom}] », « "{NOM}" »… ; {nom} : le nom tapé, {NOM} : en majuscules). Le signe
+  // fermant, s'il est dans le nom, est doublé (« a]b » → [a]]b]), comme sur les 3 moteurs. (Remplacer par une fonction :
+  // un « $& » du nom reste tel quel.)
+  function ecritureMR(nom, r) {
+    var modele = String(r.echapper), f = /\}([^{}])$/.exec(modele), n = f ? nom.split(f[1]).join(f[1] + f[1]) : nom;
+    return modele.replace(/\{nom\}/g, function () { return n; }).replace(/\{NOM\}/g, function () { return n.toUpperCase(); });
+  }
+  // Un nom sur un moteur : son statut (liste.js), ses raisons (regles.js), s'il faut l'entourer et comment l'écrire.
+  // Réservé, limité ou hors des règles : à entourer ; trop long : refusé même entouré ; futur ou mot-clé : tel quel.
+  function analyseMR(nom, moteur) {
+    var e = entreeMR(nom), r = (DATA.motsRegles || {})[moteur] || null, statut = statutMR(e, moteur);
+    var raisons = r ? raisonsMR(nom, r) : [];
+    var tropLong = !!r && typeof r.longueurMax === "number" && nom.length > r.longueurMax;
+    var entourer = !tropLong && (statut === "réservé" || statut === "limité" || raisons.length > 0);
+    return { moteur: moteur, statut: statut, note: statut && moteur === "snowflake" ? e.noteSnowflake || "" : "", raisons: raisons,
+      tropLong: tropLong, entourer: entourer, r: r || {},
+      ecrit: tropLong ? "" : !entourer ? nom : r && r.echapper ? ecritureMR(nom, r) : "" };
+  }
+  // Le verdict, sur les moteurs affichés : « À éviter » (réservé, limité ou futur, ou un nom à entourer ou trop long),
+  // « Possible, mais à éviter » (seulement un mot-clé de MySQL), « Libre ».
+  function verdictMR(analyses) {
+    var noms = function (f) { return listeEt(analyses.filter(f).map(function (a) { return nomMoteur(a.moteur); })); };
+    var phrases = [], n;
+    [["réservé", "Réservé sur "], ["limité", "Limité sur "], ["futur", "Peut devenir réservé sur "]].forEach(function (s) {
+      n = noms(function (a) { return a.statut === s[0]; });
+      if (n) phrases.push(s[1] + n + ".");
+    });
+    var hors = analyses.filter(function (a) { return !a.tropLong && a.raisons.length; });
+    if (hors.length) {
+      var memes = hors.every(function (a) { return a.raisons.join() === hors[0].raisons.join(); });
+      phrases.push("À entourer partout sur " + noms(function (a) { return hors.indexOf(a) >= 0; }) + (memes ? " : " + hors[0].raisons.join(", ") : "") + ".");
+    }
+    n = noms(function (a) { return a.tropLong; });
+    if (n) phrases.push("Trop long sur " + n + ".");
+    if (phrases.length) return { niveau: "ko", titre: "À éviter", texte: phrases.join(" ") };
+    n = noms(function (a) { return a.statut === "mot-clé"; });
+    if (n) return { niveau: "attention", titre: "Possible, mais à éviter", texte: "Un mot-clé de " + n + " : permis comme nom, mais un autre nom est plus sûr." };
+    return { niveau: "ok", titre: "Libre", texte: "Ni réservé, ni à entourer sur " + noms(function () { return true; }) + "." };
+  }
+  // Le piège de ce nom (pieges.js), ou null.
+  function piegeMR(nom) {
+    var k = String(nom).toUpperCase();
+    return (DATA.motsPieges || []).filter(function (p) { return p && String(p.mot).toUpperCase() === k; })[0] || null;
+  }
+  function aLaPlaceMR(p) { return (p.aLaPlace || []).map(function (n) { return '<code>' + esc(n) + '</code>'; }).join(' · '); }
+  // Un nom hors des règles (espace, accent, signe) : le même en minuscules, sans accents, des _ entre les mots
+  // (« Nom client » → nom_client), s'il est libre et suit les règles sur les moteurs affichés.
+  function propositionMR(nom, moteurs) {
+    var p = sansAccents(nom).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    if (!p || p === nom) return "";
+    return moteurs.every(function (m) { var a = analyseMR(p, m); return !a.statut && !a.raisons.length; }) ? p : "";
+  }
+  // Un moteur : Statut, Règle, Écris-le.
+  function blocMR(a) {
+    var r = a.r, st = MR_STATUTS[a.statut];
+    var statut = pastilleMR(a.statut) + ' ' + (st ? esc(st.sens) : 'Pas un mot réservé.') + (a.note ? ' <span class="muted">' + esc(a.note) + '</span>' : '');
+    var regle = a.raisons.length ? '<span class="o-niveau o-ko">non</span> Pas permis tel quel : ' + esc(a.raisons.join(", ")) + '.' +
+      (r.regle ? '<span class="mr-note">La règle : ' + fmt(r.regle) + '</span>' : '') : '<span class="o-niveau o-ok">oui</span> Il suit la règle des noms.';
+    var ecrire = a.tropLong ? 'Impossible, même entouré : raccourcis-le.' : !a.ecrit ? 'Entouré (modèle manquant).' :
+      '<code class="mr-ecrit">' + esc(a.ecrit) + '</code> ' + (a.entourer ? (r.echapperTexte ? '<span class="mr-note">' + fmt(r.echapperTexte) + '</span>' : '') :
+        '<span class="muted">tel quel</span>');
+    return '<div class="card mr-moteur" data-moteur="' + a.moteur + '"><h3>' + esc(nomMoteur(a.moteur)) + '</h3><dl class="mr-details">' +
+      '<dt>Statut</dt><dd class="mr-statut">' + statut + '</dd><dt>Règle</dt><dd class="mr-regle">' + regle + '</dd>' +
+      '<dt>Écris-le</dt><dd class="mr-ecrire">' + ecrire + '</dd></dl></div>';
+  }
+  // « Vérifier un nom » : le verdict, quoi écrire à la place, un bloc par moteur affiché ; les autres moteurs en une ligne.
+  function resultatMR(nom, moteur) {
+    if (!DATA.motsReserves) return '<p>La liste des mots réservés n\'est pas chargée : recharge la page.</p>';
+    var moteurs = moteursMR(moteur), analyses = moteurs.map(function (m) { return analyseMR(nom, m); });
+    var v = verdictMR(analyses), p = piegeMR(nom), html = '<div class="mr-verdict mr-' + v.niveau + '" id="mr-verdict"><p class="mr-titre">' +
+      esc(v.titre) + '</p><p>' + esc(v.texte) + '</p></div>';
+    var proposition = v.niveau === "ko" && !p ? propositionMR(nom, moteurs) : "";
+    if (p) {
+      html += '<div class="feedback ok mr-place" id="mr-place"><p><strong>À la place :</strong> ' + aLaPlaceMR(p) + '</p>' +
+        (p.pourquoi ? '<p><strong>Le piège :</strong> ' + fmt(p.pourquoi) + '</p>' : '') +
+        (p.conseil ? '<p><strong>Conseil :</strong> ' + fmt(p.conseil) + '</p>' : '') + '</div>';
+    } else if (proposition) {
+      html += '<div class="feedback ok mr-place" id="mr-place"><p><strong>Plutôt :</strong> <code>' + esc(proposition) + '</code> ' +
+        '<span class="muted">(en minuscules, sans accent, des _ entre les mots)</span></p></div>';
+    } else if (analyses.some(function (a) { return a.statut && a.statut !== "mot-clé"; })) {
+      html += '<p class="mr-conseil" id="mr-conseil">Choisis un autre nom : ajoute un mot qui précise, en minuscules avec _ ' +
+        '(<code>date_commande</code> plutôt que <code>date</code>).</p>';
+    }
+    html += analyses.map(blocMR).join('');
+    var e = entreeMR(nom), autres = MR_MOTEURS.filter(function (m) { return moteurs.indexOf(m) < 0 && statutMR(e, m); });
+    if (autres.length) html += '<p class="muted" id="mr-autres">Sur les autres moteurs : ' + autres.map(function (m) {
+      return esc(statutMR(e, m)) + ' sur ' + esc(nomMoteur(m));
+    }).join(', ') + '.</p>';
+    return html;
+  }
+  // Les règles d'un nom, moteur par moteur (regles.js), repliées sous la vérification.
+  function reglesMR(moteur, ouvert) {
+    var R = DATA.motsRegles || {}, l = moteursMR(moteur).filter(function (m) { return R[m]; });
+    if (!l.length) return '';
+    return '<details class="card mr-regles" id="mr-regles"' + (ouvert ? ' open' : '') + '><summary>Les règles d\'un nom, moteur par moteur</summary>' +
+      l.map(function (m) {
+        var r = R[m];
+        return '<h3>' + esc(nomMoteur(m)) + '</h3><ul class="points">' + (r.regle ? '<li>' + fmt(r.regle) + '</li>' : '') +
+          (typeof r.longueurMax === "number" ? '<li>' + r.longueurMax + ' caractères au plus.</li>' : '') +
+          (r.casse ? '<li>' + fmt(r.casse) + '</li>' : '') +
+          (r.echapperTexte ? '<li>Pour l\'écrire quand même : ' + fmt(r.echapperTexte) + '</li>' : '') + '</ul>' +
+          (/^https:\/\//.test(r.source || "") ? '<p class="muted">Source : <a href="' + esc(r.source) + '" target="_blank" rel="noopener">' +
+            'la page officielle de ' + esc(nomMoteur(m)) + '</a></p>' : '');
+      }).join('') + '</details>';
+  }
+  // Les pièges fréquents : une carte par piège, dans l'ordre de pieges.js, avec ses statuts sur les moteurs affichés.
+  function piegesMR(moteur) {
+    var l = (DATA.motsPieges || []).filter(function (p) { return p && p.mot; });
+    if (!l.length) return '<p class="muted" id="mr-pieges-vide">Pas encore de piège.</p>';
+    return l.map(function (p) {
+      var e = entreeMR(p.mot);
+      return '<div class="card mr-piege" data-mot="' + esc(p.mot) + '"><p class="mr-piege-mot"><code>' + esc(p.mot) + '</code></p>' +
+        '<p class="mr-statuts">' + moteursMR(moteur).map(function (m) {
+          return '<span class="mr-st" data-moteur="' + m + '">' + esc(nomMoteur(m)) + ' ' + pastilleMR(statutMR(e, m)) + '</span>';
+        }).join('') + '</p>' + (p.pourquoi ? '<p><strong>Le piège :</strong> ' + fmt(p.pourquoi) + '</p>' : '') +
+        '<p class="mr-a-la-place"><strong>À la place :</strong> ' + aLaPlaceMR(p) + '</p>' +
+        (p.conseil ? '<p class="muted"><strong>Conseil :</strong> ' + fmt(p.conseil) + '</p>' : '') + '</div>';
+    }).join('');
+  }
+  // La liste complète : les mots réservés, futurs ou limités sur un des moteurs affichés (avec la case : aussi les
+  // mots-clés de MySQL), de A à Z, une colonne par moteur affiché ; une ligne par lettre, où sautent les boutons A, B, C…
+  // Un mot « limité » sur Snowflake a sa note sur une ligne en dessous, de toute la largeur (lisible sur téléphone).
+  function listeMR(moteur, motsCles) {
+    var cols = moteursMR(moteur), mots = (DATA.motsReserves && DATA.motsReserves.mots) || {}, lettres = [], parLettre = {}, presents = {}, n = 0;
+    Object.keys(mots).sort().forEach(function (k) {
+      var garde = false;
+      cols.forEach(function (m) {
+        var s = statutMR(mots[k], m);
+        if (s && (s !== "mot-clé" || motsCles)) garde = true;
+      });
+      if (!garde) return;
+      cols.forEach(function (m) { presents[statutMR(mots[k], m)] = true; });
+      var l = /^[A-Z]/.test(k) ? k.charAt(0) : "#";
+      if (!parLettre[l]) { parLettre[l] = []; lettres.push(l); }
+      parLettre[l].push(k);
+      n++;
+    });
+    if (!n) return '<p class="muted">Aucun mot.</p>';
+    return '<p class="muted" id="mr-compte">' + pluriel(n, "mot", "mots") + (cols.length > 1 ? "" : " sur " + esc(nomMoteur(cols[0]))) + '.</p>' +
+      '<ul class="mr-legende">' + ["réservé", "futur", "limité", "mot-clé"].filter(function (s) { return presents[s]; }).map(function (s) {
+        return '<li>' + pastilleMR(s) + ' ' + esc(MR_STATUTS[s].court) + '</li>';
+      }).join('') + '<li><strong aria-hidden="true">—</strong> libre</li></ul>' +
+      '<div class="mr-lettres" id="mr-lettres" role="group" aria-label="Aller à la lettre">' + lettres.map(function (l) {
+        return '<button type="button" class="mr-lettre" data-lettre="' + l + '">' + l + '</button>';
+      }).join('') + '</div>' +
+      '<p class="muted mr-glisser" id="mr-glisser" hidden>Fais glisser le tableau pour voir les 3 moteurs, ou choisis un moteur.</p>' +
+      '<div class="mr-cadre" id="mr-cadre"><table class="mr-table" id="mr-table"><thead><tr><th scope="col">Mot</th>' +
+      cols.map(function (m) { return '<th scope="col">' + esc(nomMoteur(m)) + '</th>'; }).join('') + '</tr></thead>' +
+      lettres.map(function (l) {
+        return '<tbody id="mr-l-' + l + '"><tr class="mr-sep"><th colspan="' + (cols.length + 1) + '" scope="rowgroup" tabindex="-1"><span>' +
+          l + '</span></th></tr>' + parLettre[l].map(function (k) {
+          var e = mots[k], note = cols.indexOf("snowflake") >= 0 && statutMR(e, "snowflake") === "limité" && e.noteSnowflake;
+          // Un mot long se coupe d'abord après un _ (MASTER_SSL_<wbr>VERIFY…).
+          return '<tr' + (note ? ' class="mr-avec-note"' : '') + '><th scope="row"><code>' + esc(k).replace(/_/g, "_<wbr>") + '</code></th>' +
+            cols.map(function (m) {
+              var s = statutMR(e, m);
+              return '<td>' + (s ? pastilleMR(s) : '<span class="muted" aria-hidden="true">—</span><span class="mr-cache">libre</span>') + '</td>';
+            }).join('') + '</tr>' + (note ? '<tr class="mr-sous"><td colspan="' + (cols.length + 1) + '"><span class="mr-note">Snowflake, ' +
+            esc(k) + ' limité : ' + esc(note) + '</span></td></tr>' : '');
+        }).join('') + '</tbody>';
+      }).join('') + '</table></div>';
+  }
+  // Les sources de liste.js : les 3 pages officielles et leur date (AAAA-MM-JJ → JJ/MM/AAAA).
+  function sourcesMR() {
+    var s = (DATA.motsReserves && DATA.motsReserves.sources) || {}, d = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s.date || "");
+    var liens = MR_MOTEURS.filter(function (m) { return /^https:\/\//.test(s[m] || ""); }).map(function (m) {
+      return '<a href="' + esc(s[m]) + '" target="_blank" rel="noopener">' + esc(nomMoteur(m)) + '</a>';
+    });
+    return liens.length ? '<p class="muted mr-sources" id="mr-sources">Sources : les listes officielles des mots réservés (' + liens.join(' · ') + ')' +
+      (d ? ', lues le ' + d[3] + '/' + d[2] + '/' + d[1] : '') + '.</p>' : '';
+  }
+
+  function pageMotsReserves() {
+    if (!outilOuvert("mots-reserves")) { pageOutilReserve(); return; }
+    app.innerHTML = '<h1>Mots réservés</h1>' +
+      '<p class="muted">Un nom de table ou de colonne réservé (ORDER, USER…) fait planter la requête, ou oblige à l\'entourer ' +
+      'partout : <code>[ORDER]</code>. Vérifie ton nom avant de créer la table.</p>' +
+      '<p class="mr-sommaire">Aller à : <button type="button" class="lien" data-aller="mr-pieges">Les pièges fréquents</button> · ' +
+      '<button type="button" class="lien" data-aller="mr-liste">La liste complète</button></p>' +
+      selecteurMoteurs(dicoMoteur()) +
+      '<h2 id="mr-verifier">1. Vérifier un nom</h2>' +
+      '<div class="dico-recherche"><input type="text" id="mr-nom" autocomplete="off" autocapitalize="off" spellcheck="false" ' +
+      'placeholder="Ex. : statut, order, nom client" aria-label="Le nom à vérifier"></div>' +
+      '<p class="mr-cache" id="mr-annonce" role="status"></p><div id="mr-res"></div><div id="mr-regles-zone"></div>' +
+      '<h2 id="mr-pieges" class="mr-cible" tabindex="-1">2. Les pièges fréquents</h2>' +
+      '<p class="muted">Des noms qu\'on choisit souvent sans y penser, et quoi écrire à la place.</p><div id="mr-pieges-zone"></div>' +
+      '<h2 id="mr-liste" class="mr-cible" tabindex="-1">3. La liste complète</h2>' +
+      '<p class="muted">Les mots réservés, futurs ou limités, de A à Z. Clique sur une lettre pour y aller.</p>' +
+      '<label class="mr-case" id="mr-case"><input type="checkbox" id="mr-cle"> Afficher aussi les mots-clés permis (MySQL)</label>' +
+      '<div id="mr-liste-zone"></div>' + sourcesMR();
+    var champ = document.getElementById("mr-nom"), cle = document.getElementById("mr-cle");
+    var verifier = function () {
+      var nom = nomMR(champ.value), zone = document.getElementById("mr-res");
+      mrNom = champ.value;
+      zone.innerHTML = nom ? resultatMR(nom, dicoMoteur()) : "";
+      // Pour un lecteur d'écran : le verdict seul (« À éviter : Réservé sur … »), pas tout le détail.
+      var v = document.getElementById("mr-verdict");
+      document.getElementById("mr-annonce").textContent = v ? Array.prototype.map.call(v.querySelectorAll("p"), function (x) {
+        return x.textContent;
+      }).join(" : ") : "";
+    };
+    var rendreListe = function () {
+      var m = dicoMoteur(), cadre;
+      document.getElementById("mr-case").hidden = m !== "tous" && m !== "mysql";
+      document.getElementById("mr-liste-zone").innerHTML = listeMR(m, mrMotsCles);
+      cadre = document.getElementById("mr-cadre");
+      // « Fais glisser » seulement quand le tableau ne tient pas dans la largeur (téléphone, les 3 moteurs).
+      if (cadre) document.getElementById("mr-glisser").hidden = cadre.scrollWidth <= cadre.clientWidth + 1;
+    };
+    var rendre = function () {
+      var d = document.getElementById("mr-regles");
+      verifier();
+      document.getElementById("mr-regles-zone").innerHTML = reglesMR(dicoMoteur(), d && d.open);
+      document.getElementById("mr-pieges-zone").innerHTML = piegesMR(dicoMoteur());
+      rendreListe();
+    };
+    champ.value = mrNom;
+    cle.checked = mrMotsCles;
+    champ.addEventListener("input", verifier);
+    cle.addEventListener("change", function () { mrMotsCles = cle.checked; rendreListe(); });
+    brancherMoteurs(rendre);
+    // « Aller à » une partie, ou à une lettre de la liste : la page défile jusqu'au titre (sans changer l'adresse,
+    // qui sert au routeur), et le titre prend le focus.
+    var aller = function (cible) {
+      if (!cible) return;
+      window.scrollTo(0, cible.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - 8);
+      try { cible.focus({ preventScroll: true }); } catch (e) { cible.focus(); }
+    };
+    Array.prototype.forEach.call(app.querySelectorAll("[data-aller]"), function (b) {
+      b.addEventListener("click", function () { aller(document.getElementById(b.getAttribute("data-aller"))); });
+    });
+    document.getElementById("mr-liste-zone").addEventListener("click", function (e) {
+      var l = e.target && e.target.getAttribute ? e.target.getAttribute("data-lettre") : null, tb = l ? document.getElementById("mr-l-" + l) : null;
+      if (tb) aller(tb.querySelector("th"));
+    });
+    rendre();
+    champ.focus();
+  }
+
   // ---------- Traduire une requête (docs/traducteur.md) ----------
   // Le moteur est dans js/traducteur.js (LEARNSQL.traduire), sans IA. La requête reste dans une variable le temps
   // de l'onglet (pour la retrouver après un clic vers le dico) : jamais dans localStorage ni dans l'URL.
@@ -3338,6 +3649,7 @@
     else if (parts[0] === "types") pageTypes(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "astuces") pageAstuces(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "traduire") pageTraduire();
+    else if (parts[0] === "mots-reserves") pageMotsReserves();
     else if (parts[0] === "outils") {
       if (parts[1]) pageOutil(decoder(parts[1]), parts[2] ? decoder(parts[2]) : "");
       else pageOutils();

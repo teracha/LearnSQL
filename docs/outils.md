@@ -2,8 +2,9 @@
 
 Demandé par l'élève : une section « Outils » dans le menu, rangée par sujet. Aujourd'hui :
 - **SQL** : le super dico (`#/dico`, `docs/dico.md`, avec la page « Tous les types de données », `#/types`), les Astuces
-  SQL (`#/astuces`, `docs/astuces.md` : un besoin en une phrase → l'astuce pour les 3 moteurs) et Traduire (`#/traduire`,
-  `docs/traducteur.md`) ;
+  SQL (`#/astuces`, `docs/astuces.md` : un besoin en une phrase → l'astuce pour les 3 moteurs), Traduire (`#/traduire`,
+  `docs/traducteur.md`) et Mots réservés (`#/mots-reserves`, `docs/mots-reserves.md` : un nom de table ou de colonne
+  est-il réservé, comment l'écrire quand même, quoi mettre à la place ; les pièges fréquents ; la liste complète) ;
 - **Gestion de projet** : des modèles d'outils de chef de projet, simples et réutilisables (registre des risques,
   RACI, compte rendu…), tirés des cours du parcours « Chef de projet SI » (`cp01` à `cp27`).
 D'autres sujets viendront (EDI, Divalto…) : ajouter un sujet ou un outil = ajouter des données, pas du code.
@@ -29,7 +30,8 @@ Demandé par l'élève (novembre 2026) : une gestion de droits aussi au niveau d
   L'admin la règle sur la page Équipe, section « Droits des outils », sous « Droits des parcours » : une ligne par
   élément, une case par groupe, « Ouvert à tous » / « Réservé ». On coche, puis « Valider » (barre en bas de l'écran).
 - **Les éléments**, dans l'ordre de la grille : `outils` (toute la section), puis chaque sujet (`outils-sql`,
-  `gestion-projet`), puis chaque outil du sujet, en retrait (`dico`, `astuces`, `traduire`, `gp-cadrage`…).
+  `gestion-projet`), puis chaque outil du sujet, en retrait (`dico`, `astuces`, `traduire`, `mots-reserves`,
+  `gp-cadrage`…).
 - **La règle** : sans ligne = ouvert à tous les connectés ; avec des lignes = réservé à ces groupes ; il faut aussi
   l'accès aux niveaux au-dessus (`outils` → sujet → outil). L'admin voit tout. Sans compte : seulement les sujets de
   `LEARNSQL.outilsPublics` (le sujet SQL), avec tous leurs outils (comme `parcoursPublics`).
@@ -37,8 +39,8 @@ Demandé par l'élève (novembre 2026) : une gestion de droits aussi au niveau d
   visible : un message court) ; le lien « Outils » du menu, caché quand le compte ne voit aucun outil (`outils` réservé,
   ou chaque sujet ou outil réservé à d'autres groupes) ; la page d'un outil, son exemple et ses
   documents (message court « Outil réservé ») ; « Les outils de ce cours » ; `#/dico` (fiches et page des types
-  `#/types` comprises), `#/astuces` (astuces comprises) et `#/traduire` pour un compte connecté qui n'y a pas droit (même
-  message ; sans compte, ils restent publics). Le lien vers Traduire dans le dico, « Dans le dico » dans Traduire, et les
+  `#/types` comprises), `#/astuces` (astuces comprises), `#/traduire` et `#/mots-reserves` pour un compte connecté qui
+  n'y a pas droit (même message ; sans compte, ils restent publics). Le lien vers Traduire dans le dico, « Dans le dico » dans Traduire, et les
   liens des astuces vers le dico (« Voir aussi », « cherche dans le dico ») suivent aussi le droit. L'onglet Divalto du
   dico garde sa règle (parcours Divalto) en plus du droit sur le dico.
 - **Ids uniques dans tout le site** : ils vont dans `acces.element`. Un sujet ou un outil n'a jamais l'id d'un
@@ -137,8 +139,8 @@ Contrôle : `node outils/verifier.js` (section « Outils »). Tests : `outils/te
 - `data/outils/sujets.js` : `LEARNSQL.outilsPublics = ["outils-sql"]` (les sujets ouverts sans compte) et
   `LEARNSQL.outilsSujets = [{ id, titre, resume, outils: [...] }]`.
   `outils` : dans l'ordre, l'id d'une définition, ou un lien `{ id, titre, resume, lien: "#/dico" }` (l'id sert aux
-  droits ; le dico, les Astuces SQL et Traduire ont les ids `dico`, `astuces` et `traduire` : le vérificateur exige ces
-  trois liens). À la place de
+  droits ; le dico, les Astuces SQL, Traduire et Mots réservés ont les ids `dico`, `astuces`, `traduire` et
+  `mots-reserves` : le vérificateur exige ces quatre liens, chacun vers `#/<id>`). À la place de
   `outils`, `groupes: [{ titre: "Cadrer", outils: [...] }, …]` : des étapes, dans l'ordre, numérotées sur la page.
   Un outil est rangé une seule fois.
   Plus de champ `parcours` (le vérificateur le refuse) : les droits se règlent sur la page Équipe.
@@ -326,6 +328,6 @@ temps. Les exemples sont tirés de DEMAT 2027 (`docs/plan-chef-de-projet.md`).
   copie, impression, cours, téléphone et PC, cases vides, limites, 320 px sans débordement, cibles tactiles de 44 px,
   stockage refusé, « Effacer tous mes documents », la date calculée, le total calculé et la colonne facultative (23 bis),
   les droits des outils (sans compte, compte non limité, hors du groupe, dans le groupe, le dico réservé, les astuces
-  réservées, `outils` réservé, admin). Les étapes, les outils et le nombre de cartes attendus sont lus dans les données
+  réservées, les mots réservés réservés, `outils` réservé, admin). Les étapes, les outils et le nombre de cartes attendus sont lus dans les données
   (`data/outils/sujets.js` et les définitions), pas écrits dans le test. La page Équipe (cocher puis valider, grille
   des droits des outils, 390 px) : `outils/tests/equipe.js`.

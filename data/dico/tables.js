@@ -40,6 +40,11 @@
 // 13/11/2026 (tableau « Tous les types de données », docs/dico.md) : famille « Modifier un type » et apercu sur
 // identity, default et not-null ; « Voir aussi » de types-nombre et type-booleen complétés par les fiches détaillées de
 // types-nombres.js (catégorie « Types de données »). Relus contre ces fiches : pas de contradiction.
+// 16/11/2026 (outil « Mots réservés ») : fiche mots-reserves. Sources : SQL Server, relational-databases/databases/
+// database-identifiers ([ ] ou " " avec QUOTED_IDENTIFIER) et errors-events 0-999 (Msg 156) ; Snowflake,
+// sql-reference/identifiers-syntax (sans guillemets : rangé en MAJUSCULES ; entre guillemets : la casse compte) et
+// sql-reference/reserved-keywords (mots « limités ») ; MySQL 8.4, identifiers.html (` `) et keywords.html (mots-clés non
+// réservés permis). Exemple joué sur SQLite et sur le serveur MySQL 8.0.46 (order refusé : ERROR 1064 ; `order` passe).
 LEARNSQL.dico = (LEARNSQL.dico || []).concat([
   {
     id: "create-table",
@@ -401,5 +406,29 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     motsCles: ["booléen", "oui", "non", "vrai", "faux", "actif", "inactif", "drapeau", "flag", "case à cocher", "indicateur", "logique", "0 ou 1", "type"],
     voirAussi: ["bit", "boolean", "case", "iif", "where", "default", "not-null"],
     module: "m10"
+  },
+  {
+    id: "mots-reserves",
+    nom: "Mots réservés",
+    type: "mot-clé",
+    categorie: "Tables",
+    definition: "Un mot du langage SQL que le moteur refuse comme nom de table ou de colonne, sauf s'il est entouré.",
+    moteurs: {
+      sqlserver: "Entre crochets : `[order]` ; ou entre guillemets droits, si QUOTED_IDENTIFIER est actif (le cas courant). Un mot « futur » passe encore, mais peut devenir réservé",
+      snowflake: "Entre guillemets droits, en MAJUSCULES : `\"ORDER\"` ; entre guillemets, la casse compte. Un mot « limité » est interdit seulement dans certains emplois",
+      mysql: "Entre accents graves (AltGr + 7) ; un mot-clé non réservé (`status`, `date`) reste permis sans rien autour"
+    },
+    noms: ["mot-clé réservé", "reserved keyword", "reserved word", "identifiant délimité", "QUOTED_IDENTIFIER"],
+    exemple: "-- Plante : ORDER est un mot réservé\nCREATE TABLE import_edi (order VARCHAR(10), qte INT);\n-- Passe : le nom est entouré, ici et dans chaque requête\nCREATE TABLE import_edi ([order] VARCHAR(10), qte INT);\nINSERT INTO import_edi VALUES ('CDE-1005', 12);\nSELECT [order], qte FROM import_edi;",
+    exemples: {
+      snowflake: "-- Plante : ORDER est un mot réservé\nCREATE TABLE import_edi (order VARCHAR(10), qte INT);\n-- Passe : le nom est entouré, en MAJUSCULES, ici et dans chaque requête\nCREATE TABLE import_edi (\"ORDER\" VARCHAR(10), qte INT);\nINSERT INTO import_edi VALUES ('CDE-1005', 12);\nSELECT \"ORDER\", qte FROM import_edi;",
+      mysql: "-- Plante : ORDER est un mot réservé\nCREATE TABLE import_edi (order VARCHAR(10), qte INT);\n-- Passe : le nom est entouré, ici et dans chaque requête\nCREATE TABLE import_edi (`order` VARCHAR(10), qte INT);\nINSERT INTO import_edi VALUES ('CDE-1005', 12);\nSELECT `order`, qte FROM import_edi;"
+    },
+    resultat: "Le 1er CREATE est refusé : erreur de syntaxe (SQL Server : Msg 156, « Incorrect syntax near the keyword 'order' » ; MySQL : ERROR 1064). Le 2e passe, et le SELECT rend CDE-1005 et 12 ; mais chaque requête devra entourer le nom.",
+    piege: "Sur Snowflake, entre guillemets, la casse compte : une colonne créée `\"order\"`, en minuscules, n'est pas `\"ORDER\"`, et une requête qui écrit `\"ORDER\"` ne la trouve pas. Entoure toujours en MAJUSCULES.",
+    pratique: "Choisis des noms en minuscules avec _, qui disent de quoi il s'agit : `num_cde`, `date_cde`. Avant de créer une table, vérifie chaque nom dans l'outil « Mots réservés » du menu Outils.",
+    motsCles: ["mot réservé", "nom interdit", "crochets", "nom de colonne", "nom de table", "guillemets", "accent grave", "entourer", "échapper", "réservé", "mot-clé", "erreur de syntaxe", "incorrect syntax", "keyword", "nommer", "identifiant"],
+    voirAussi: ["create-table", "alter-table", "as", "timestamp", "current-date"],
+    module: "m01"
   }
 ]);
