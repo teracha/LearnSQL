@@ -20,10 +20,11 @@ pour les 3 moteurs du site : SQL Server, Snowflake, MySQL.
     hors des règles : à entourer, ou trop long), « Possible, mais à éviter » (seulement un mot-clé de MySQL), « Libre ».
     Une phrase dit pourquoi (« Réservé sur SQL Server, Snowflake et MySQL. », « À entourer partout sur Snowflake : une
     lettre accentuée « é ». »). Un lecteur d'écran entend le verdict seul (`#mr-annonce`, `role="status"`).
-  - **Quoi écrire à la place** : pour un piège (`pieges.js`), « À la place : … », « Le piège : » (`pourquoi`) et
-    « Conseil : » ; sinon, pour un nom hors des règles, « Plutôt : nom_client » (le même nom en minuscules, sans accents,
-    des _ entre les mots), seulement s'il est libre et permis sur les moteurs affichés ; sinon, pour un mot réservé, limité
-    ou futur, un conseil général (ajouter un mot qui précise : `date_commande` plutôt que `date`).
+  - **Quoi écrire à la place** : pour un piège (`pieges.js`), « À la place : … », « On le choisit pour : » (`pourquoi` :
+    pourquoi on choisit ce nom, pas un défaut) et « Conseil : ». Sinon, pour un nom hors des règles, « Plutôt :
+    nom_client » (le même nom en minuscules, sans accents, des _ entre les mots), seulement s'il est libre et permis sur
+    les moteurs affichés. Sinon, pour un mot réservé, limité ou futur, un conseil général (ajouter un mot qui précise :
+    `date_commande` plutôt que `date`).
   - **Un bloc par moteur affiché** : Statut (le mot de `liste.js` et son sens ; pour Snowflake, `noteSnowflake`), Règle
     (« oui », ou « non » et pourquoi : trop long, un espace, une lettre accentuée, un signe interdit, il commence par un
     chiffre ou par un signe, il n'a que des chiffres, il ressemble à un nombre ; puis la `regle` du moteur), Écris-le
@@ -32,7 +33,7 @@ pour les 3 moteurs du site : SQL Server, Snowflake, MySQL.
   - Dessous, repliées : « Les règles d'un nom, moteur par moteur » (`regle`, `longueurMax`, `casse`, `echapperTexte`,
     `source`).
 - **2. Les pièges fréquents** : une carte par piège, dans l'ordre de `pieges.js` : le mot, ses statuts sur les moteurs
-  affichés (lus dans `liste.js`), « Le piège : », « À la place : », « Conseil : ».
+  affichés (lus dans `liste.js`), « On le choisit pour : » (`pourquoi`), « À la place : », « Conseil : ».
 - **3. La liste complète** : le nombre de mots, une légende (réservé, futur, limité, mot-clé, — : libre), les lettres
   (A, B, C… : la page va à la lettre), un tableau Mot | un moteur par colonne affichée, de A à Z. Un mot y est s'il est
   réservé, futur ou limité sur un des moteurs affichés ; la case « Afficher aussi les mots-clés permis (MySQL) » ajoute
@@ -92,15 +93,15 @@ LEARNSQL.motsPieges = [
 ];
 ```
 
-`mot` en MAJUSCULES, unique ; `pourquoi` : pourquoi on le choisit sans y penser (une phrase) ; `aLaPlace` : 1 à 4 noms
-(minuscules, mots séparés par _), chacun permis tel quel sur les 3 moteurs et réservé nulle part ; `conseil` :
-facultatif, une phrase. Les statuts ne se répètent pas : ils viennent de `liste.js`.
+`mot` en MAJUSCULES, unique ; `pourquoi` : pourquoi on le choisit sans y penser (une phrase, affichée « On le choisit
+pour : ») ; `aLaPlace` : 1 à 4 noms (minuscules, mots séparés par _), chacun permis tel quel sur les 3 moteurs et
+réservé nulle part ; `conseil` : facultatif, une phrase. Les statuts ne se répètent pas : ils viennent de `liste.js`.
 
 ## Régénérer `liste.js`
 
 Quand une des 3 pages officielles change (nouvelle version d'un moteur) :
 
-1. Télécharger les 3 pages dans un dossier neuf et vide (les commandes sont en tête de `outils/mots-reserves/extraire.py`) :
+1. Télécharger les 3 pages dans un dossier neuf et vide (commandes en tête de `outils/mots-reserves/extraire.py`) :
    ```sh
    mkdir pages-mots
    curl -sSL -o pages-mots/sqlserver.html https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
@@ -111,7 +112,8 @@ Quand une des 3 pages officielles change (nouvelle version d'un moteur) :
    `python3 -I outils/mots-reserves/extraire.py pages-mots 2026-11-16 > data/reserves/liste.js`.
    Il dit combien de mots il a trouvés par moteur. Il s'arrête si une page a changé de forme (« repère introuvable »,
    « commentaire inconnu, à traduire », « Listes trop courtes ») : adapter le script, jamais `liste.js` à la main.
-3. `node outils/verifier.js` (0 erreur), le test navigateur, puis supprimer le dossier `pages-mots`.
+3. `node outils/verifier.js` (0 erreur), `outils/tests/mots-reserves.js` (les nombres attendus sont lus dans les
+   données : rien à changer dans le test), puis supprimer le dossier `pages-mots`.
 4. Un mot de `pieges.js` ou de `aLaPlace` qui change de statut : le vérificateur le dit.
 
 ## Les contrôles et les tests

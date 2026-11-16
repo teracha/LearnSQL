@@ -2560,7 +2560,8 @@
     if (n) return { niveau: "attention", titre: "Possible, mais à éviter", texte: "Un mot-clé de " + n + " : permis comme nom, mais un autre nom est plus sûr." };
     return { niveau: "ok", titre: "Libre", texte: "Ni réservé, ni à entourer sur " + noms(function () { return true; }) + "." };
   }
-  // Le piège de ce nom (pieges.js), ou null.
+  // Le piège de ce nom (pieges.js), ou null. Son « pourquoi » dit pourquoi on CHOISIT ce nom (« la date d'une
+  // commande ») : affiché « On le choisit pour : ».
   function piegeMR(nom) {
     var k = String(nom).toUpperCase();
     return (DATA.motsPieges || []).filter(function (p) { return p && String(p.mot).toUpperCase() === k; })[0] || null;
@@ -2595,7 +2596,7 @@
     var proposition = v.niveau === "ko" && !p ? propositionMR(nom, moteurs) : "";
     if (p) {
       html += '<div class="feedback ok mr-place" id="mr-place"><p><strong>À la place :</strong> ' + aLaPlaceMR(p) + '</p>' +
-        (p.pourquoi ? '<p><strong>Le piège :</strong> ' + fmt(p.pourquoi) + '</p>' : '') +
+        (p.pourquoi ? '<p><strong>On le choisit pour :</strong> ' + fmt(p.pourquoi) + '</p>' : '') +
         (p.conseil ? '<p><strong>Conseil :</strong> ' + fmt(p.conseil) + '</p>' : '') + '</div>';
     } else if (proposition) {
       html += '<div class="feedback ok mr-place" id="mr-place"><p><strong>Plutôt :</strong> <code>' + esc(proposition) + '</code> ' +
@@ -2635,7 +2636,7 @@
       return '<div class="card mr-piege" data-mot="' + esc(p.mot) + '"><p class="mr-piege-mot"><code>' + esc(p.mot) + '</code></p>' +
         '<p class="mr-statuts">' + moteursMR(moteur).map(function (m) {
           return '<span class="mr-st" data-moteur="' + m + '">' + esc(nomMoteur(m)) + ' ' + pastilleMR(statutMR(e, m)) + '</span>';
-        }).join('') + '</p>' + (p.pourquoi ? '<p><strong>Le piège :</strong> ' + fmt(p.pourquoi) + '</p>' : '') +
+        }).join('') + '</p>' + (p.pourquoi ? '<p><strong>On le choisit pour :</strong> ' + fmt(p.pourquoi) + '</p>' : '') +
         '<p class="mr-a-la-place"><strong>À la place :</strong> ' + aLaPlaceMR(p) + '</p>' +
         (p.conseil ? '<p class="muted"><strong>Conseil :</strong> ' + fmt(p.conseil) + '</p>' : '') + '</div>';
     }).join('');

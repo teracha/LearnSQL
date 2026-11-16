@@ -155,14 +155,15 @@ const { chromium } = require('playwright');
   r = await lu();
   verifier(r.moteurs.map(x => x.m).join() === 'snowflake' && r.verdict === 'À éviter' && r.phrase === 'Réservé sur Snowflake.', 'sélecteur Snowflake : ' + r.moteurs.map(x => x.m).join() + ' / ' + r.phrase);
   verifier(await texte('#mr-autres') === 'Sur les autres moteurs : réservé sur SQL Server, réservé sur MySQL.', 'sélecteur Snowflake, les autres moteurs : ' + await texte('#mr-autres'));
-  verifier(JSON.stringify(D.mots.STATUS) === '{"mysql":"mot-clé"}', 'données : STATUS n\'est plus seulement un mot-clé de MySQL');
-  await taper('status');   // un mot-clé de MySQL seulement
-  verifier((await lu()).verdict === 'Libre', 'status, Snowflake seul : pas « Libre »');
+  // Un mot-clé de MySQL seulement (le premier de liste.js, sans piège) : libre sur Snowflake, « Possible, mais à éviter » ailleurs
+  const cle = Object.keys(D.mots).filter(k => JSON.stringify(D.mots[k]) === '{"mysql":"mot-clé"}' && !D.pieges.some(x => x.mot === k))[0] || '';
+  await taper(cle.toLowerCase());
+  verifier(cle && (await lu()).verdict === 'Libre', cle + ', Snowflake seul : pas « Libre »');
   await moteur('mysql');
   r = await lu();
-  verifier(r.verdict === 'Possible, mais à éviter' && /mr-attention/.test(r.classe) && de(r, 'mysql').pastille === 'mot-clé', 'status, MySQL : ' + r.verdict);
+  verifier(r.verdict === 'Possible, mais à éviter' && /mr-attention/.test(r.classe) && de(r, 'mysql').pastille === 'mot-clé', cle + ', MySQL : ' + r.verdict);
   await moteur('tous');
-  verifier((await lu()).verdict === 'Possible, mais à éviter', 'status, Tous : ' + (await lu()).verdict);
+  verifier((await lu()).verdict === 'Possible, mais à éviter', cle + ', Tous : ' + (await lu()).verdict);
 
   // 9. Les pièges : les vrais (pieges.js) ; leurs statuts viennent de liste.js
   const cartes = () => p.$$eval('.mr-piege', xs => xs.map(x => ({ mot: x.getAttribute('data-mot'), texte: x.innerText.replace(/\s+/g, ' ').trim(),
@@ -176,13 +177,14 @@ const { chromium } = require('playwright');
     D.pieges.forEach((pg, i) => {
       const c = cs[i] || {};
       verifier(c.mot === pg.mot && (c.st || []).join() === statuts(pg.mot, MOTEURS) && pg.aLaPlace.every(n => c.texte.indexOf(n) >= 0) &&
-        /Le piège :/.test(c.texte) && (pg.conseil ? /Conseil :/.test(c.texte) : !/Conseil :/.test(c.texte)), 'piège ' + pg.mot + ' : ' + JSON.stringify(c));
+        c.texte.indexOf('On le choisit pour : ' + sansCode(pg.pourquoi)) > 0 && !/Le piège/.test(c.texte) &&
+        (pg.conseil ? /Conseil :/.test(c.texte) : !/Conseil :/.test(c.texte)), 'piège ' + pg.mot + ' : ' + JSON.stringify(c));
     });
-    // Un piège tapé dans « Vérifier un nom » : « À la place » et le piège
+    // Un piège tapé dans « Vérifier un nom » : « À la place », puis pourquoi on le choisit
     const pg = D.pieges[0];
     await taper(pg.mot.toLowerCase());
     r = await lu();
-    verifier(r.place.indexOf('À la place : ' + pg.aLaPlace.join(' · ')) === 0 && r.place.indexOf('Le piège : ' + sansCode(pg.pourquoi)) > 0,
+    verifier(r.place.indexOf('À la place : ' + pg.aLaPlace.join(' · ')) === 0 && r.place.indexOf('On le choisit pour : ' + sansCode(pg.pourquoi)) > 0,
       'vérifier le piège ' + pg.mot + ' : ' + r.place);
     // Chaque nom « à la place » s'écrit tel quel, réservé nulle part (un mot-clé MySQL : une alerte du vérificateur)
     for (const n of D.pieges.reduce((l, x) => l.concat(x.aLaPlace), [])) {
@@ -195,8 +197,8 @@ const { chromium } = require('playwright');
 
   // 10. Les pièges : des pièges d'essai, injectés dans la page (le format de pieges.js)
   const ESSAI = [
-    { mot: 'ORDER', pourquoi: 'Essai : on pense « commande ».', aLaPlace: ['ordre_tri', 'num_ordre'], conseil: 'Essai : un conseil, avec `commande`.' },
-    { mot: 'USER', pourquoi: 'Essai : une table des utilisateurs.', aLaPlace: ['utilisateur'] }
+    { mot: 'ORDER', pourquoi: 'Essai : la commande d\'un client.', aLaPlace: ['ordre_tri', 'num_ordre'], conseil: 'Essai : un conseil, avec `commande`.' },
+    { mot: 'USER', pourquoi: 'Essai : la table des utilisateurs.', aLaPlace: ['utilisateur'] }
   ];
   await taper('order');
   await p.evaluate(e => { window.__vraisPieges = LEARNSQL.motsPieges; LEARNSQL.motsPieges = e; location.hash = '#/outils'; }, ESSAI);
@@ -204,12 +206,12 @@ const { chromium } = require('playwright');
   await p.evaluate(() => { location.hash = '#/mots-reserves'; }); await attendre(150);
   verifier(await p.inputValue('#mr-nom') === 'order', 'le nom tapé n\'est pas gardé en revenant sur la page');
   r = await lu();
-  verifier(r.place === 'À la place : ordre_tri · num_ordre Le piège : Essai : on pense « commande ». Conseil : Essai : un conseil, avec commande.' &&
+  verifier(r.place === 'À la place : ordre_tri · num_ordre On le choisit pour : Essai : la commande d\'un client. Conseil : Essai : un conseil, avec commande.' &&
     !(await p.$('#mr-conseil')), 'piège d\'essai, « order » : ' + r.place);
   cs = await cartes();
   verifier(cs.length === 2 && cs[0].mot === 'ORDER' && cs[1].mot === 'USER', 'pièges d\'essai : ' + cs.map(c => c.mot).join());
   verifier(cs[0].st.join() === statuts('ORDER', MOTEURS) && cs[1].st.join() === statuts('USER', MOTEURS), 'pièges d\'essai, statuts : ' + JSON.stringify(cs.map(c => c.st)));
-  verifier(/^ORDER /.test(cs[0].texte) && /Le piège : Essai : on pense « commande »\./.test(cs[0].texte) && /À la place : ordre_tri · num_ordre/.test(cs[0].texte) &&
+  verifier(/^ORDER /.test(cs[0].texte) && /On le choisit pour : Essai : la commande d'un client\./.test(cs[0].texte) && /À la place : ordre_tri · num_ordre/.test(cs[0].texte) &&
     /Conseil : Essai : un conseil, avec commande\./.test(cs[0].texte) && !/Conseil/.test(cs[1].texte), 'pièges d\'essai, textes : ' + JSON.stringify(cs.map(c => c.texte)));
   verifier(await p.$eval('.mr-piege .mr-a-la-place code', x => x.textContent) === 'ordre_tri', 'pièges d\'essai : « à la place » en police code');
   await largeur('les pièges (essai)');
