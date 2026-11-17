@@ -18,7 +18,8 @@ LEARNSQL.outilsSujets = [
       { id: "astuces", titre: "Astuces SQL", resume: "Écris ton besoin en une phrase : l'astuce SQL pour SQL Server, Snowflake et MySQL.", lien: "#/astuces" },
       { id: "traduire", titre: "Traduire une requête", resume: "Coller une requête et la lire en français, dans l'ordre où SQL la calcule.", lien: "#/traduire" },
       { id: "mots-reserves", titre: "Mots réservés", resume: "Vérifier un nom de table ou de colonne : est-il réservé sur SQL Server, Snowflake ou MySQL ?", lien: "#/mots-reserves" },
-      { id: "architecte", titre: "Conseils d'architecte", resume: "Tu crées une table, tu charges un fichier ? Les questions à te poser, en checklist.", lien: "#/architecte" }
+      { id: "architecte", titre: "Conseils d'architecte", resume: "Tu crées une table, tu charges un fichier ? Les questions à te poser, en checklist.", lien: "#/architecte" },
+      { id: "copilote", titre: "Copilote", resume: "Des checklists prêtes à l'emploi : je lis, je fais, je coche.", lien: "#/copilote" }
     ]
   },
   {

@@ -430,7 +430,7 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   if (!Array.isArray(LEARNSQL.outilsPublics)) err('data/outils/sujets.js : LEARNSQL.outilsPublics manquant (les sujets ouverts sans compte)');
   else LEARNSQL.outilsPublics.forEach(id => { if (!idsSujets.has(id)) err('outilsPublics : sujet inconnu', id); });
   // Les pages SQL ont leur adresse et leur droit outil : le lien d'id « x » mène à #/x.
-  ['dico', 'traduire', 'astuces', 'mots-reserves', 'architecte'].forEach(id => {
+  ['dico', 'traduire', 'astuces', 'mots-reserves', 'architecte', 'copilote'].forEach(id => {
     const lien = sujets.reduce((l, s) => l.concat(s.outils || []), []).filter(o => o && typeof o === 'object' && o.id === id)[0];
     if (!idsLiens.has(id)) err('sujets : pas de lien d\'id « ' + id + ' » (le droit de la page #/' + id + ')');
     else if (lien && lien.lien !== '#/' + id) err('sujets : le lien « ' + id + ' » mène à', lien.lien, 'au lieu de #/' + id);
@@ -687,6 +687,14 @@ if (!filtre && fs.existsSync(dossierOutils)) {
   Object.keys(range).forEach(o => { if (!idsOutils.has(o)) err('sujet', range[o], ': outil inconnu', o); });
   console.log(`outils ${outils.length} (${Object.keys(parType).map(t => t + ' ' + parType[t]).join(', ')}) · ${sujets.length} sujets`);
 }
+// Les ids des outils de la section Outils (data/outils/sujets.js, lu plus haut : un lien comme « mots-reserves », ou une
+// définition « gp-… ») : les « outils » d'une situation d'architecte et l'« outil » d'une action du Copilote les visent.
+const idsOutilsSujets = () => {
+  const ids = new Set();
+  (LEARNSQL.outilsSujets || []).forEach(s => (s.groupes ? s.groupes.reduce((l, g) => l.concat(g.outils || []), []) : (s.outils || []))
+    .forEach(o => { const id = typeof o === 'string' ? o : o && o.id; if (id) ids.add(id); }));
+  return ids;
+};
 // ---------- Conseils d'architecte (docs/architecte.md) ----------
 // data/architecte/<famille>.js (LEARNSQL.architecte), chargés dans index.html : ids uniques, famille connue (et rangée dans
 // son fichier), les champs et leurs limites (erreur : un champ obligatoire manque ou a un mauvais format ; alerte : au-delà
@@ -737,9 +745,7 @@ if (!filtre && fs.existsSync(dossierArchitecte)) {
   };
   // Les fiches du dico SQL et les outils de la section Outils (sujets.js : un lien comme « mots-reserves », ou une définition).
   const dicoSql = new Set((LEARNSQL.dico || []).filter(x => x.domaine !== 'divalto').map(x => x.id));
-  const idsOutilsSite = new Set();
-  (LEARNSQL.outilsSujets || []).forEach(s => (s.groupes ? s.groupes.reduce((l, g) => l.concat(g.outils || []), []) : (s.outils || []))
-    .forEach(o => { const id = typeof o === 'string' ? o : o && o.id; if (id) idsOutilsSite.add(id); }));
+  const idsOutilsSite = idsOutilsSujets();
   const ids = new Set(), parFamille = {}, phrases = new Map(), aVenir = new Set();
   let liensAVenir = 0;
   const lus = [];   // [situation, fichier]
@@ -860,6 +866,93 @@ if (!filtre && fs.existsSync(dossierArchitecte)) {
   console.log(`architecte ${nbSituations} situation(s), ${nbQuestionsArchitecte} question(s) (${Object.keys(FAMILLES).filter(x => parFamille[x]).map(x => x + ' ' + parFamille[x]).join(', ') || 'aucune'})`);
   if (liensAVenir) console.log(`info architecte : ${liensAVenir} lien(s) vers des situations à venir (${[...aVenir].sort().join(', ')})`);
 }
+// ---------- Copilote (docs/copilote.md) ----------
+// data/copilote/*.js (LEARNSQL.copilote ; aujourd'hui fiches.js), chargés dans index.html : des checklists prêtes à
+// l'emploi. Erreur : un champ obligatoire manque ou a un mauvais format ; alerte : au-delà d'une limite de mots, un titre
+// qui n'est pas à la 1re personne, un champ inconnu. Ids des fiches uniques ; niveaux.rapide et niveaux.complet ; au moins
+// une étape ; chaque étape a un titre et au moins une action ; ids des actions uniques dans la fiche (ils gardent les cases
+// cochées) ; texte non vide ; rapide vaut true s'il est là ; au moins une action rapide par fiche ; outil = un outil de la
+// section Outils. Le lien « copilote » du sujet SQL mène à #/copilote : section « Outils » plus haut.
+const dossierCopilote = path.join(racine, 'data/copilote');
+let nbFichesCopilote = 0, nbActionsCopilote = 0;
+if (!filtre && fs.existsSync(dossierCopilote)) {
+  const index = fs.readFileSync(path.join(racine, 'index.html'), 'utf8');
+  const err = (...m) => { console.log('ERREUR copilote', ...m); erreurs++; };
+  const alerte = (...m) => { console.log('ALERTE copilote', ...m); alertes++; };
+  const texte = t => typeof t === 'string' && t.trim() !== '';
+  const objet = x => !!x && typeof x === 'object' && !Array.isArray(x);
+  // Les mots d'un texte : ceux qui ont une lettre ou un chiffre (« : » ou « · » seuls ne comptent pas).
+  const nbMots = t => String(t || '').split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
+  const idOK = id => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(id || '');
+  const CHAMPS = ['id', 'titre', 'resume', 'niveaux', 'etapes'], NIVEAUX = ['rapide', 'complet'];
+  const CHAMPS_ETAPE = ['titre', 'actions'], CHAMPS_ACTION = ['id', 'texte', 'rapide', 'outil'];
+  // Les limites de mots (docs/copilote.md) : un titre (de la fiche ou d'une étape) 8 ; le résumé, une phrase de niveaux,
+  // le texte d'une action 25.
+  const MAX_TITRE = 8, MAX_PHRASE = 25;
+  // Un texte limité en mots : erreur s'il manque, alerte au-delà de max mots.
+  const limite = (lieu, nom, t, max) => {
+    if (!texte(t)) err(lieu, ':', nom, 'manquant (un texte)');
+    else if (nbMots(t) > max) alerte(lieu, ':', nom, 'de', nbMots(t), 'mots (' + max + ' au plus)');
+  };
+  // Un titre : une action, à la 1re personne (« Je finis une requête », « J'écris la fiche »).
+  const titre = (lieu, t) => {
+    limite(lieu, 'titre', t, MAX_TITRE);
+    if (texte(t) && !/^(Je |J'|J’)/.test(t)) alerte(lieu, ': titre à la 1re personne (« Je … », « J\'… ») :', t);
+  };
+  const idsOutils = idsOutilsSujets(), ids = new Set(), lus = [];
+  let nbRapides = 0;
+  for (const f of fs.readdirSync(dossierCopilote).filter(f => f.endsWith('.js')).sort()) {
+    const avant = (LEARNSQL.copilote || []).length;
+    try { require(path.join(dossierCopilote, f)); } catch (e) { err('data/copilote/' + f, ': fichier illisible,', e.message); continue; }
+    if (index.indexOf('<script src="data/copilote/' + f + '"></script>') < 0) err('data/copilote/' + f, 'absent de index.html');
+    (LEARNSQL.copilote || []).slice(avant).forEach(x => lus.push(x));
+  }
+  if (!lus.length) alerte('aucune fiche (data/copilote/fiches.js)');
+  lus.forEach(fi => {
+    const id = fi && fi.id, l = 'fiche ' + (id || '?');
+    nbFichesCopilote++;
+    if (!objet(fi)) { err(l, ': une fiche est un objet { id, titre, resume, niveaux, etapes }'); return; }
+    Object.keys(fi).filter(k => CHAMPS.indexOf(k) < 0).forEach(k => alerte(l, ': champ inconnu (non affiché)', k));
+    if (!idOK(id)) err(l, ': id (minuscules, chiffres, tirets)');
+    else if (ids.has(id)) err(l, ': id en double');
+    ids.add(id);
+    titre(l, fi.titre);
+    limite(l, 'resume', fi.resume, MAX_PHRASE);
+    // Les niveaux : quand choisir Rapide, quand choisir Complet (une phrase chacun).
+    if (!objet(fi.niveaux)) err(l, ': niveaux manquant ({ rapide, complet })');
+    else {
+      NIVEAUX.forEach(n => limite(l, 'niveaux.' + n, fi.niveaux[n], MAX_PHRASE));
+      Object.keys(fi.niveaux).filter(k => NIVEAUX.indexOf(k) < 0).forEach(k => alerte(l, ': niveaux, champ inconnu (non affiché)', k));
+    }
+    // Les étapes et leurs actions.
+    if (!Array.isArray(fi.etapes) || !fi.etapes.length) err(l, ': etapes, au moins une étape');
+    const aids = new Set();
+    let rapides = 0;
+    (Array.isArray(fi.etapes) ? fi.etapes : []).forEach((e, i) => {
+      const le = l + ' étape ' + (i + 1);
+      if (!objet(e)) { err(le, ': une étape est un objet { titre, actions }'); return; }
+      Object.keys(e).filter(k => CHAMPS_ETAPE.indexOf(k) < 0).forEach(k => alerte(le, ': champ inconnu (non affiché)', k));
+      titre(le, e.titre);
+      if (!Array.isArray(e.actions) || !e.actions.length) err(le, ': actions, au moins une action');
+      (Array.isArray(e.actions) ? e.actions : []).forEach((a, k) => {
+        const la = l + ' action ' + ((a && a.id) || (i + 1) + '.' + (k + 1));
+        nbActionsCopilote++;
+        if (!objet(a)) { err(la, ': une action est un objet { id, texte }'); return; }
+        Object.keys(a).filter(x => CHAMPS_ACTION.indexOf(x) < 0).forEach(x => alerte(la, ': champ inconnu (non affiché)', x));
+        if (!idOK(a.id)) err(la, ': id (minuscules, chiffres, tirets)');
+        else if (aids.has(a.id)) err(la, ': id en double dans la fiche (il garde la case cochée)');
+        aids.add(a.id);
+        limite(la, 'texte', a.texte, MAX_PHRASE);
+        if (a.rapide !== undefined && a.rapide !== true) err(la, ': rapide vaut true (sinon, pas de champ rapide)');
+        if (a.rapide === true) rapides++;
+        if (a.outil !== undefined && !idsOutils.has(a.outil)) err(la, ': outil, « ' + a.outil + ' » n\'est pas un outil de la section Outils');
+      });
+    });
+    if (!rapides) err(l, ': aucune action rapide (rapide: true) : le niveau Rapide serait vide');
+    nbRapides += rapides;
+  });
+  console.log(`copilote ${nbFichesCopilote} fiche(s), ${nbActionsCopilote} action(s) dont ${nbRapides} rapide(s)`);
+}
 // ---------- Cours et fiches de révision (CLAUDE.md, « Cours et fiches de révision ») ----------
 // Un cours : data/cours/<id>.js (LEARNSQL.cours.<id>). Une fiche de révision : data/fiches/<id>.js (LEARNSQL.fiches.<id>),
 // au même format qu'un cours (ce que pageCours de js/app.js affiche), chargée dans index.html, pour un module existant
@@ -919,5 +1012,6 @@ if (!filtre) {
   console.log(`cours ${Object.keys(LEARNSQL.cours).length} · fiches de révision ${nbFiches}`);
 }
 console.log(`total ${ids.size} questions${filtre ? '' : ` · ${nbFiches} fiche(s) de révision · ${nbAstuces} astuce(s) · ${nbReserves} mot(s) réservé(s) · ${nbPieges} piège(s) · ` +
-  `${nbSituations} situation(s) d'architecte et ${nbQuestionsArchitecte} question(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
+  `${nbSituations} situation(s) d'architecte et ${nbQuestionsArchitecte} question(s) · ${nbFichesCopilote} fiche(s) de copilote et ` +
+  `${nbActionsCopilote} action(s)`} · ${erreurs} erreur(s) · ${alertes} alerte(s)`);
 process.exitCode = erreurs ? 1 : 0;

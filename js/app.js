@@ -2483,38 +2483,47 @@
   var ARCHITECTE_FAMILLES = ["Concevoir", "Écrire et charger", "Interroger", "Exploiter"];   // même liste dans outils/verifier.js
   var ARCHITECTE_KEY = "learnsql-architecte";
   var architecteQuestion = "";   // la dernière recherche, gardée quand on ouvre une situation
-  var architecteSecours = null;  // le navigateur refuse d'enregistrer : les cases vivent le temps de l'onglet
   var architecteOuvertes = {};   // les étapes ouvertes, le temps de l'onglet : { "<situation>": { "<n° de l'étape>": true } }
+  var casesArchitecte = stockageCases(ARCHITECTE_KEY);   // { "<situation>": { "<question>": true } }
 
   function situationsArchitecte() { return (DATA.architecte || []).filter(function (s) { return s && s.id; }); }
-  // Les cases cochées : { "<situation>": { "<question>": true } }. Chaque lecture et écriture dans un try/catch : si le
-  // navigateur refuse (navigation privée, stockage plein), la page marche quand même.
-  function lireCasesArchitecte() {
-    var s = null;
-    if (architecteSecours) return architecteSecours;
-    try { s = JSON.parse(localStorage.getItem(ARCHITECTE_KEY) || "null"); } catch (e) { s = null; }
-    return s && typeof s === "object" && !Array.isArray(s) ? s : {};
+  // Des cases cochées gardées dans ce navigateur (Conseils d'architecte, Copilote) : { "<page>": { "<case>": true } }.
+  // Chaque lecture et écriture dans un try/catch : si le navigateur refuse (navigation privée, stockage plein), les cases
+  // vivent le temps de l'onglet (une copie en mémoire) et la page marche quand même.
+  function stockageCases(cle) {
+    var secours = null;   // le navigateur refuse d'enregistrer : la copie en mémoire
+    function tout() {
+      var s = null;
+      if (secours) return secours;
+      try { s = JSON.parse(localStorage.getItem(cle) || "null"); } catch (e) { s = null; }
+      return s && typeof s === "object" && !Array.isArray(s) ? s : {};
+    }
+    return {
+      // Les cases cochées d'une page : seulement celles de ses ids (une case retirée des données est oubliée, sans erreur,
+      // à la prochaine case cochée).
+      lire: function (id, ids) {
+        var c = tout()[id], r = {};
+        if (c && typeof c === "object") ids.forEach(function (k) { if (c[k] === true) r[k] = true; });
+        return r;
+      },
+      // Les cases d'une page remplacent les anciennes (aucune : la page quitte le stockage). Faux : le navigateur refuse.
+      ecrire: function (id, cases) {
+        var t = tout(), copie = {};
+        Object.keys(t).forEach(function (k) { copie[k] = t[k]; });
+        if (Object.keys(cases).length) copie[id] = cases; else delete copie[id];
+        try { localStorage.setItem(cle, JSON.stringify(copie)); secours = null; return true; }
+        catch (e) { secours = copie; return false; }
+      }
+    };
   }
-  function ecrireCasesArchitecte(tout) {
-    try { localStorage.setItem(ARCHITECTE_KEY, JSON.stringify(tout)); architecteSecours = null; return true; }
-    catch (e) { architecteSecours = tout; return false; }
+  // Les ids des cases d'une page : ceux des questions (une situation) ou des actions (une fiche du Copilote) de ses étapes.
+  function idsCases(etapes, champ) {
+    var ids = [];
+    (etapes || []).forEach(function (e) { ((e && e[champ]) || []).forEach(function (x) { if (x && x.id) ids.push(x.id); }); });
+    return ids;
   }
-  // Les cases cochées d'une situation : seulement ses questions qui existent (une question retirée des données est oubliée,
-  // sans erreur, à la prochaine case cochée).
-  function casesSituation(s) {
-    var c = lireCasesArchitecte()[s.id], r = {};
-    if (!c || typeof c !== "object") return r;
-    (s.etapes || []).forEach(function (e) {
-      ((e && e.questions) || []).forEach(function (q) { if (q && q.id && c[q.id] === true) r[q.id] = true; });
-    });
-    return r;
-  }
-  function ecrireCasesSituation(s, cases) {
-    var tout = lireCasesArchitecte(), copie = {};
-    Object.keys(tout).forEach(function (k) { copie[k] = tout[k]; });
-    if (Object.keys(cases).length) copie[s.id] = cases; else delete copie[s.id];
-    return ecrireCasesArchitecte(copie);
-  }
+  function casesSituation(s) { return casesArchitecte.lire(s.id, idsCases(s.etapes, "questions")); }
+  function ecrireCasesSituation(s, cases) { return casesArchitecte.ecrire(s.id, cases); }
   // Une question « seulement » pour d'autres moteurs est cachée quand un seul moteur est choisi (« Tous » : tout).
   function questionVisible(q, moteur) {
     return moteur === "tous" || !Array.isArray(q.seulement) || !q.seulement.length || q.seulement.indexOf(moteur) >= 0;
@@ -2713,33 +2722,37 @@
       });
       majOuvrir();
     });
-    // « Copier la checklist » : le presse-papiers (et son repli, copierTexte) ; si tout échoue, le texte s'affiche,
-    // sélectionné, pour le copier à la main.
-    surClic("ar-copier", function () {
-      var t = texteChecklist(s, dicoMoteur(), casesSituation(s));
-      copie.hidden = true;
-      copierTexte(t, function (ok) {
-        msg.textContent = ok ? "Copié : la checklist est prête à coller." : "Copie impossible. Le texte est ci-dessous : copie-le à la main.";
-        if (ok) return;
-        copie.value = t;
-        copie.hidden = false;
-        copie.focus();
-        copie.select();
-      });
-    });
+    surClic("ar-copier", function () { copierChecklist(texteChecklist(s, dicoMoteur(), casesSituation(s)), msg, copie); });
     surClic("ar-decocher", function () {
-      copie.hidden = true;
-      if (!Object.keys(casesSituation(s)).length) { msg.textContent = "Aucune case n'est cochée."; return; }
-      if (!confirm("Décocher toutes les cases de « " + (s.titre || "") + " » ?")) return;
-      stockage(ecrireCasesSituation(s, {}));
-      majComptes();
-      msg.textContent = "C'est fait : toutes les cases sont décochées.";
+      decocherTout(s.titre, casesSituation(s), msg, copie, function () { stockage(ecrireCasesSituation(s, {})); majComptes(); });
     });
     Array.prototype.forEach.call(app.querySelectorAll(".ar-aller [data-aller]"), function (b) {
       b.addEventListener("click", function () { allerA(document.getElementById(b.getAttribute("data-aller"))); });
     });
     brancherMoteurs(rendre);
     rendre();
+  }
+  // « Copier la checklist » (Conseils d'architecte, Copilote) : le presse-papiers (et son repli, copierTexte) ; si tout
+  // échoue, le texte s'affiche dans la zone « copie », sélectionné, pour le copier à la main.
+  function copierChecklist(t, msg, copie) {
+    copie.hidden = true;
+    copierTexte(t, function (ok) {
+      msg.textContent = ok ? "Copié : la checklist est prête à coller." : "Copie impossible. Le texte est ci-dessous : copie-le à la main.";
+      if (ok) return;
+      copie.value = t;
+      copie.hidden = false;
+      copie.focus();
+      copie.select();
+    });
+  }
+  // « Tout décocher » (Conseils d'architecte, Copilote) : sans case cochée, un message ; sinon une confirmation, puis vider()
+  // (toutes les cases de la page, même celles qu'on ne voit pas).
+  function decocherTout(titre, cases, msg, copie, vider) {
+    copie.hidden = true;
+    if (!Object.keys(cases).length) { msg.textContent = "Aucune case n'est cochée."; return; }
+    if (!confirm("Décocher toutes les cases de « " + (titre || "") + " » ?")) return;
+    vider();
+    msg.textContent = "C'est fait : toutes les cases sont décochées.";
   }
   // À la 1re visite d'une situation (dans l'onglet) : la première étape qui a une case vide est ouverte.
   function ouvertesParDefaut(s, moteur) {
@@ -2788,19 +2801,20 @@
   // « Copier la checklist » : les questions seulement, groupées par étape, pour le moteur choisi ([x] cochée, [ ] non ;
   // « Tous » : une question propre à un moteur le dit). Le code entre accents graves perd ses accents graves.
   function texteChecklist(s, moteur, cases) {
-    var brut = function (t) { return String(t || "").replace(/`/g, ""); };
-    var l = [brut(s.titre) + " : la checklist (" + (moteur === "tous" ? listeEt(MR_MOTEURS.map(nomMoteur)) : nomMoteur(moteur)) + ")",
+    var l = [texteBrut(s.titre) + " : la checklist (" + (moteur === "tous" ? listeEt(MR_MOTEURS.map(nomMoteur)) : nomMoteur(moteur)) + ")",
       texteCoches(compteSituation(s, moteur, cases))];
     etapesVisibles(s, moteur).forEach(function (et) {
-      l.push("", et.n + ". " + brut(et.e.titre));
+      l.push("", et.n + ". " + texteBrut(et.e.titre));
       et.questions.forEach(function (q) {
         var seul = moteur === "tous" && Array.isArray(q.seulement) && q.seulement.length ?
           " (seulement sur " + listeEt(q.seulement.map(nomMoteur)) + ")" : "";
-        l.push((cases[q.id] ? "[x] " : "[ ] ") + brut(q.q) + seul);
+        l.push((cases[q.id] ? "[x] " : "[ ] ") + texteBrut(q.q) + seul);
       });
     });
     return l.join("\n");
   }
+  // Un texte des données pour une copie en texte simple (Conseils d'architecte, Copilote) : sans les accents graves du code.
+  function texteBrut(t) { return String(t || "").replace(/`/g, ""); }
   function piegesSituation(s) {
     var l = (s.pieges || []).filter(function (p) { return typeof p === "string" && p.trim(); });
     return l.length ? '<h2 id="ar-pieges" class="ar-cible" tabindex="-1">Les pièges</h2><div class="feedback ko ar-pieges"><ul>' +
@@ -2844,6 +2858,176 @@
       return '<li>' + (/^https:\/\//.test(x.url || "") ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.titre) + '</a>' :
         esc(x.titre)) + '</li>';
     }).join('') + '</ul>' : '';
+  }
+
+  // ---------- Copilote (docs/copilote.md) ----------
+  // Des checklists prêtes à l'emploi : je lis, je fais, je coche. Une fiche (data/copilote/fiches.js) : des étapes, et dans
+  // chacune des actions, sans explication. #/copilote : une carte par fiche (titre, résumé, et pour chaque niveau son
+  // nombre d'actions et combien sont cochées ; pas de recherche tant qu'il y a peu de fiches). #/copilote/<id> : une fiche :
+  // le choix du niveau (Rapide : les actions « rapide » ; Complet : toutes ; gardé dans learnsql-copilote-niveau, Rapide
+  // par défaut), la checklist (les étapes qui ont une action à ce niveau, numérotées ; une case par action ; le lien vers
+  // l'outil d'une action s'il est permis), le compte (« 2 cochées sur 5 »), « Copier la checklist », « Tout décocher ».
+  // Une case est celle de l'action, pas du niveau : cochée en Rapide, elle l'est aussi en Complet. Les cases restent dans ce
+  // navigateur (learnsql-copilote : { "<fiche>": { "<action>": true } }), jamais envoyées. Public sans compte ; un compte
+  // connecté suit le droit de l'outil « copilote » (section Outils), un lien vers un autre outil le droit de cet outil.
+  // Partagé avec les Conseils d'architecte : stockageCases, idsCases, copierChecklist, decocherTout, texteCoches, texteBrut,
+  // fmtAr, outilLie.
+  var COPILOTE_NIVEAUX = [{ id: "rapide", nom: "Rapide" }, { id: "complet", nom: "Complet" }];
+  var COPILOTE_NIVEAU_KEY = "learnsql-copilote-niveau";
+  var casesCopilote = stockageCases("learnsql-copilote");
+  var copiloteNiveau = "";   // le niveau choisi dans cet onglet (gardé même si le navigateur refuse de l'enregistrer)
+
+  function fichesCopilote() { return (DATA.copilote || []).filter(function (f) { return f && f.id; }); }
+  // Le niveau : celui choisi dans l'onglet, sinon celui gardé dans le navigateur, sinon Rapide.
+  function niveauCopilote() {
+    var n = copiloteNiveau;
+    if (!n) { try { n = localStorage.getItem(COPILOTE_NIVEAU_KEY); } catch (e) { n = ""; } }
+    return n === "complet" ? "complet" : "rapide";
+  }
+  function choisirNiveauCopilote(n) {
+    copiloteNiveau = n === "complet" ? "complet" : "rapide";
+    try { localStorage.setItem(COPILOTE_NIVEAU_KEY, copiloteNiveau); } catch (e) { /* gardé le temps de l'onglet */ }
+  }
+  function nomNiveau(n) { return n === "complet" ? "Complet" : "Rapide"; }
+  // Le texte d'une fiche à l'écran : fmtAr, et un petit bout de code entre accents graves (24 signes au plus) ne se coupe
+  // pas à une espace : « TOP 100 » reste sur une ligne. Un plus long se coupe aux espaces, comme le texte.
+  function fmtCp(t) {
+    return fmtAr(String(t || "").replace(/`([^`]+)`/g, function (c, code) { return code.length > 24 ? c : c.replace(/ /g, "\u00a0"); }));
+  }
+  // Les étapes qui ont une action à ce niveau, numérotées de 1 à n (en Rapide, une étape sans action rapide est cachée) :
+  // { e, n, actions }.
+  function etapesCopilote(f, niveau) {
+    var l = [];
+    (f.etapes || []).forEach(function (e) {
+      var as = ((e && e.actions) || []).filter(function (a) { return a && a.id && (niveau !== "rapide" || a.rapide === true); });
+      if (as.length) l.push({ e: e, n: l.length + 1, actions: as });
+    });
+    return l;
+  }
+  function casesFiche(f) { return casesCopilote.lire(f.id, idsCases(f.etapes, "actions")); }
+  // Les actions d'un niveau, et combien sont cochées.
+  function compteCopilote(f, niveau, cases) {
+    var c = { total: 0, cochees: 0 };
+    etapesCopilote(f, niveau).forEach(function (et) {
+      et.actions.forEach(function (a) { c.total++; if (cases[a.id]) c.cochees++; });
+    });
+    return c;
+  }
+
+  function pageCopilote(id) {
+    if (!outilOuvert("copilote")) { pageOutilReserve(); return; }
+    if (id) { pageFicheCopilote(id); return; }
+    var fiches = fichesCopilote();
+    app.innerHTML = '<h1>Copilote</h1><p class="cp-intro">Des checklists prêtes à l\'emploi&nbsp;: je lis, je fais, je coche.</p>' +
+      (fiches.length ? fiches.map(carteCopilote).join('') : '<p class="muted">Pas encore de fiche.</p>');
+  }
+  // Une fiche dans la liste : son titre, son résumé, puis une ligne par niveau (« Rapide : 5 actions · 2 cochées », en vert
+  // quand tout le niveau est coché).
+  function carteCopilote(f) {
+    var cases = casesFiche(f);
+    return '<a class="card fiche-res cp-carte" href="#/copilote/' + encodeURIComponent(f.id) + '"><div class="fiche-tete">' +
+      '<strong class="titre">' + esc(f.titre || "") + '</strong></div>' + (f.resume ? '<p>' + fmtCp(f.resume) + '</p>' : '') +
+      COPILOTE_NIVEAUX.map(function (n) {
+        var c = compteCopilote(f, n.id, cases);
+        return '<p class="cp-compte' + (c.total && c.cochees === c.total ? ' cp-complet' : '') + '" data-niveau="' + n.id + '">' + n.nom +
+          '&nbsp;: ' + pluriel(c.total, "action", "actions") + ' · ' + pluriel(c.cochees, "cochée", "cochées") + '</p>';
+      }).join('') + '</a>';
+  }
+
+  // Une fiche : le titre, le résumé ; les deux niveaux et quand choisir celui qui est affiché ; la checklist ; le compte et
+  // sa barre ; « Copier la checklist », « Tout décocher ». Changer de niveau refait la checklist ; une case cochée ou
+  // décochée est enregistrée tout de suite, et seuls les comptes suivent.
+  function pageFicheCopilote(id) {
+    var f = fichesCopilote().filter(function (x) { return x.id === id; })[0];
+    if (!f) { location.hash = "#/copilote"; return; }
+    app.innerHTML = '<p class="muted"><a href="#/copilote">Copilote</a></p>' +
+      '<h1>' + esc(f.titre || "") + '</h1>' + (f.resume ? '<p class="cp-resume">' + fmtCp(f.resume) + '</p>' : '') +
+      '<div class="cp-niveaux" role="group" aria-label="Niveau">' + COPILOTE_NIVEAUX.map(function (n) {
+        return '<button type="button" class="cp-niveau" data-niveau="' + n.id + '" aria-pressed="false">' + n.nom +
+          ' (' + compteCopilote(f, n.id, {}).total + ')</button>';
+      }).join('') + '</div>' +
+      '<p class="cp-quand" id="cp-quand"></p>' +
+      '<p class="o-avertir" id="cp-stockage" hidden>Ce navigateur n\'enregistre pas tes cases : elles seront perdues en ' +
+      'fermant l\'onglet.</p>' +
+      '<div id="cp-etapes"></div>' +
+      '<p class="cp-total" id="cp-total" role="status"></p><div class="progress cp-barre" aria-hidden="true"><div id="cp-barre"></div></div>' +
+      '<div class="actions"><button type="button" class="btn" id="cp-copier">Copier la checklist</button>' +
+      '<button type="button" class="btn ghost" id="cp-decocher">Tout décocher</button></div>' +
+      '<p id="cp-msg" class="muted o-msg" role="status"></p>' +
+      '<textarea id="cp-copie" class="cp-copie" readonly hidden aria-label="La checklist, à copier à la main"></textarea>';
+    var zone = document.getElementById("cp-etapes"), msg = document.getElementById("cp-msg"), copie = document.getElementById("cp-copie");
+    var stockage = function (ok) { document.getElementById("cp-stockage").hidden = ok; };
+    // Le compte du niveau affiché (et la barre), et chaque action cochée (en vert).
+    var majComptes = function () {
+      var cases = casesFiche(f), c = compteCopilote(f, niveauCopilote(), cases), total = document.getElementById("cp-total");
+      total.innerHTML = '<strong>' + c.cochees + '</strong>' + texteCoches(c).slice(String(c.cochees).length);
+      total.classList.toggle("cp-complet", c.total > 0 && c.cochees === c.total);
+      document.getElementById("cp-barre").style.width = (c.total ? Math.round(100 * c.cochees / c.total) : 0) + "%";
+      Array.prototype.forEach.call(zone.querySelectorAll("input[data-action]"), function (b) {
+        b.checked = !!cases[b.getAttribute("data-action")];
+        var li = b.parentNode && b.parentNode.parentNode;
+        if (li) li.classList.toggle("cp-fait", b.checked);
+      });
+    };
+    var rendre = function () {
+      var n = niveauCopilote(), quand = document.getElementById("cp-quand"), t = f.niveaux && f.niveaux[n];
+      Array.prototype.forEach.call(app.querySelectorAll(".cp-niveau"), function (b) {
+        var oui = b.getAttribute("data-niveau") === n;
+        b.classList.toggle("actif", oui);
+        b.setAttribute("aria-pressed", oui ? "true" : "false");
+      });
+      quand.innerHTML = typeof t === "string" ? fmtCp(t) : "";
+      quand.hidden = !quand.innerHTML;
+      zone.innerHTML = checklistCopilote(f, n);
+      majComptes();
+    };
+    Array.prototype.forEach.call(app.querySelectorAll(".cp-niveau"), function (b) {
+      b.addEventListener("click", function () {
+        choisirNiveauCopilote(b.getAttribute("data-niveau"));
+        copie.hidden = true;
+        msg.textContent = "";
+        rendre();
+      });
+    });
+    zone.addEventListener("change", function (e) {
+      var b = e.target, a = b && b.getAttribute ? b.getAttribute("data-action") : null, cases;
+      if (!a) return;
+      cases = casesFiche(f);
+      if (b.checked) cases[a] = true; else delete cases[a];
+      stockage(casesCopilote.ecrire(f.id, cases));
+      majComptes();
+    });
+    surClic("cp-copier", function () { copierChecklist(texteCopilote(f, niveauCopilote(), casesFiche(f)), msg, copie); });
+    surClic("cp-decocher", function () {
+      decocherTout(f.titre, casesFiche(f), msg, copie, function () { stockage(casesCopilote.ecrire(f.id, {})); majComptes(); });
+    });
+    rendre();
+  }
+  // La checklist d'un niveau : chaque étape (son numéro et son titre), puis ses actions : une case et le texte (toute la
+  // ligne est cliquable) ; dessous, le lien vers l'outil de l'action, s'il est permis (outilLie : même règle que la page
+  // Outils ; sans compte, les sujets publics).
+  function checklistCopilote(f, niveau) {
+    var l = etapesCopilote(f, niveau);
+    if (!l.length) return '<p class="muted">Pas d\'action à ce niveau.</p>';
+    return l.map(function (et) {
+      return '<section class="cp-etape"><h2><span class="cp-etape-n">' + et.n + '.</span> ' + fmtCp(et.e.titre || "") + '</h2>' +
+        '<ul class="cp-actions">' + et.actions.map(function (a) {
+          var o = a.outil ? outilLie(a.outil) : null;
+          return '<li class="cp-action"><label class="cp-case"><input type="checkbox" data-action="' + esc(a.id) + '">' +
+            '<span class="cp-texte">' + fmtCp(a.texte || "") + '</span></label>' +
+            (o ? '<a class="cp-outil" href="' + esc(o.lien) + '">' + esc(o.titre) + '<span aria-hidden="true">&nbsp;›</span></a>' : '') + '</li>';
+        }).join('') + '</ul></section>';
+    }).join('');
+  }
+  // « Copier la checklist » : le niveau affiché ; le titre et le niveau, « 2 cochées sur 5 », puis les étapes numérotées et
+  // leurs actions ([x] cochée, [ ] non). Le code entre accents graves perd ses accents graves.
+  function texteCopilote(f, niveau, cases) {
+    var l = [texteBrut(f.titre) + " : la checklist (" + nomNiveau(niveau) + ")", texteCoches(compteCopilote(f, niveau, cases))];
+    etapesCopilote(f, niveau).forEach(function (et) {
+      l.push("", et.n + ". " + texteBrut(et.e.titre));
+      et.actions.forEach(function (a) { l.push((cases[a.id] ? "[x] " : "[ ] ") + texteBrut(a.texte)); });
+    });
+    return l.join("\n");
   }
 
   // ---------- Mots réservés (docs/mots-reserves.md) ----------
@@ -4050,6 +4234,7 @@
     else if (parts[0] === "types") pageTypes(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "astuces") pageAstuces(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "architecte") pageArchitecte(parts[1] ? decoder(parts[1]) : "");
+    else if (parts[0] === "copilote") pageCopilote(parts[1] ? decoder(parts[1]) : "");
     else if (parts[0] === "traduire") pageTraduire();
     else if (parts[0] === "mots-reserves") pageMotsReserves();
     else if (parts[0] === "outils") {

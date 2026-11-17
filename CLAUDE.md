@@ -200,8 +200,8 @@ Spécification : `docs/traducteur.md`.
 
 Page `#/outils` (lien « Outils » du menu, à la place de Dico et Traduire, dont les adresses ne changent pas).
 Spécification et format figé : `docs/outils.md`.
-- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL, Traduire, Mots réservés et les
-  Conseils d'architecte, ouvert sans compte ; Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer,
+- Sujets : `data/outils/sujets.js` (SQL, id `outils-sql` : le dico, les Astuces SQL, Traduire, Mots réservés, les
+  Conseils d'architecte et le Copilote, ouvert sans compte ; Gestion de projet : ses outils rangés en 5 étapes, `groupes` : Cadrer,
   Piloter, Décider, Prestataires, Livrer).
 - Astuces SQL (`#/astuces`, outil `astuces`, mêmes droits que le dico ; `docs/astuces.md`) : l'élève écrit son besoin en
   une phrase, le site donne l'astuce pour les 3 moteurs. Astuces dans `data/astuces/<famille>.js` (6 familles : Compléter,
@@ -224,6 +224,14 @@ Spécification et format figé : `docs/outils.md`.
   `node outils/verifier.js` (la liste des situations prévues : `ARCHITECTE_PREVUES`) ; tests
   `node outils/tests/recherche-architecte.js` (chaque besoin au rang 1, chaque essai dans les 3 premières, 0 échec) et
   `outils/tests/architecte.js` (navigateur, dans `lancer.sh`).
+- Copilote (`#/copilote`, outil `copilote`, mêmes droits que le dico ; `docs/copilote.md`) : des checklists prêtes à
+  l'emploi, « je lis, je fais, je coche » : une ligne = une action, sans explication. Fiches dans
+  `data/copilote/fiches.js` (une seule pour l'instant, « Je finis une requête ») : **une fiche s'ajoute seulement à la
+  demande de l'élève**, une par une (ne pas reprendre les situations d'Architecte). Deux niveaux : Rapide (les actions
+  `rapide: true`) et Complet (toutes), choix gardé (`learnsql-copilote-niveau`, Rapide par défaut). Une case est celle de
+  l'action (cochée en Rapide, elle l'est en Complet), dans le navigateur (`learnsql-copilote`), jamais envoyée ; « Copier
+  la checklist », « Tout décocher » ; une action peut ouvrir un autre outil (`outil`, selon son droit). Contrôles :
+  `node outils/verifier.js` ; test `outils/tests/copilote.js` (navigateur, dans `lancer.sh`).
 - Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
   `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
   sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).

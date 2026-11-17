@@ -407,6 +407,43 @@ select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
   .ar-questions { padding: 0 12px 4px; }
 }
 
+/* Copilote (#/copilote) : la liste (une carte par fiche, une ligne par niveau), puis une fiche : les deux niveaux (deux
+   boutons de même largeur), la checklist (une étape = un bloc : son titre, puis une ligne par action : une case de 24 px
+   et le texte, toute la ligne cliquable ; le lien vers un outil dessous), le compte et sa barre, les boutons. Aéré ; rien
+   ne dépasse à 390 px. */
+.cp-intro { font-size: 20px; margin: 4px 0 18px; overflow-wrap: anywhere; }
+.cp-carte p { overflow-wrap: anywhere; }
+.cp-carte .cp-compte { margin: 2px 0 0; font-size: 15px; font-weight: 700; color: var(--muted); }
+.cp-carte .cp-compte.cp-complet { color: var(--ok); }
+.cp-resume { font-size: 20px; margin: 10px 0 18px; overflow-wrap: anywhere; }
+.cp-niveaux { display: flex; gap: 10px; margin: 0 0 8px; }
+.cp-niveau { flex: 1 1 0; min-width: 0; min-height: 48px; padding: 8px 10px; border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--card); color: var(--text); font-size: 18px; font-weight: 700; line-height: 1.3; }
+.cp-niveau.actif { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.cp-niveau:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cp-quand { margin: 0 0 20px; color: var(--muted); overflow-wrap: anywhere; }
+.cp-etape { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; padding: 0 14px 2px; }
+.cp-etape h2 { font-size: 19px; line-height: 1.35; margin: 0; padding: 12px 0 10px; overflow-wrap: anywhere; }
+.cp-etape-n { color: var(--accent); }
+.cp-actions { list-style: none; margin: 0; padding: 0; }
+.cp-action { border-top: 1px solid var(--line); padding: 10px 0; }
+.cp-case { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; cursor: pointer; }
+.cp-case input { flex: none; width: 24px; height: 24px; margin: 2px 0 0; accent-color: var(--ok); cursor: pointer; }
+.cp-texte { min-width: 0; overflow-wrap: anywhere; }
+.cp-fait .cp-texte { color: var(--ok); }
+.cp-outil { display: inline-flex; align-items: center; min-height: 44px; margin-left: 36px; font-weight: 700; overflow-wrap: anywhere; }
+.cp-total { margin: 20px 0 0; font-size: 18px; }
+.cp-total.cp-complet { color: var(--ok); }
+.cp-barre { margin: 6px 0 4px; }
+.cp-barre div { background: var(--ok); }
+.cp-copie { min-height: 160px; margin-top: 8px; font-size: 15px; }
+.cp-copie[hidden] { display: none; }
+:root[data-theme="dark"] .cp-case input, :root[data-theme="dark"] .cp-copie { color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cp-case input, :root:not([data-theme="light"]) .cp-copie { color-scheme: dark; } }
+@media (max-width: 520px) {
+  .cp-etape { padding: 0 12px 2px; }
+}
+
 /* Mots réservés (#/mots-reserves) : le verdict en tête (un mot et sa couleur), un bloc par moteur, les pièges (une carte
    chacun), la liste complète : sur téléphone, le tableau défile dans son cadre (la page ne déborde pas) et la colonne
    « Mot » reste visible à gauche. */
