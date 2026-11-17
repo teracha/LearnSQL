@@ -56,7 +56,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Le moteur convertit seul : c'est la conversion implicite. Souvent, il convertit la colonne, ligne par ligne : l'index (la table des matières de la table) ne sert plus, et une seule valeur non numérique peut tout faire planter.",
             reflexe: "Écris la valeur dans le type de la colonne. `siren` est un texte : `siren = '423456789'`, pas `siren = 423456789`. Dans Divalto, `CE4 = '1'`, pas `CE4 = 1`.",
             moteurs: {
-              sqlserver: "Le nombre a la priorité : toute la colonne `siren` est convertie en INT. Un SIREN avec une lettre donne l'erreur 245. Le plan d'exécution montre `CONVERT_IMPLICIT`.",
+              sqlserver: "Le nombre a la priorité : toute la colonne `siren` est convertie en INT. Un SIREN avec une lettre donne l'erreur 245. Le plan d'exécution (le chemin choisi par le moteur) montre `CONVERT_IMPLICIT`.",
               snowflake: "Snowflake essaie lui aussi de changer le texte en nombre : un code comme 'C001' fait échouer la requête.",
               mysql: "Texte et nombre sont comparés comme des nombres à virgule : `code = 0` est vrai pour 'C001', avec un simple avertissement. L'index ne sert plus (doc MySQL)."
             }
@@ -85,7 +85,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               sqlserver: "Sans style, tout dépend de la langue de la connexion et de `SET DATEFORMAT` : en français jour/mois, en anglais mois/jour. Le style 103 lit toujours jour/mois/année.",
               snowflake: "En format automatique (AUTO), une date avec des / est lue mois/jour/année : 05/02/2026 = 2 mai. Écris `TO_DATE('12/03/2026', 'DD/MM/YYYY')`.",
-              mysql: "Refusée en mode strict (« Incorrect date value »). Écris `STR_TO_DATE('12/03/2026', '%d/%m/%Y')` ; un texte qui ne colle pas au format donne NULL."
+              mysql: "Refusée en mode strict, le réglage par défaut qui refuse une valeur invalide (« Incorrect date value »). Écris `STR_TO_DATE('12/03/2026', '%d/%m/%Y')` ; un texte qui ne colle pas au format donne NULL."
             }
           },
           {
@@ -189,12 +189,12 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "casse",
             q: "Ta valeur est-elle écrite exactement comme dans les données : majuscules, accents, espaces ?",
-            pourquoi: "Selon le moteur, 'edi' et 'EDI' sont égaux ou non. Sur un moteur sensible à la casse (majuscules et minuscules), ton filtre ne trouve rien, sans erreur.",
-            reflexe: "Regarde les vraies valeurs avant d'écrire le filtre : `SELECT DISTINCT canal FROM commande;`. Puis copie la valeur exacte.",
+            pourquoi: "Selon le moteur, 'edi' et 'EDI' sont égaux ou non ; 'EDI ' (avec un espace à la fin) et 'EDI' aussi. Sur un moteur sensible à la casse (majuscules et minuscules) ou aux espaces, ton filtre ne trouve rien, sans erreur.",
+            reflexe: "Regarde les vraies valeurs avant d'écrire le filtre : `SELECT DISTINCT canal FROM commande;`. Puis copie la valeur exacte. Un code de longueur fixe (`CHAR`) copié de SQL Server vers Snowflake garde ses espaces de fin : enlève-les au chargement (`RTRIM`).",
             moteurs: {
-              sqlserver: "En général insensible à la casse et sensible aux accents : la collation (la règle qui compare les textes) contient `_CI_AS`.",
-              snowflake: "Sensible à la casse par défaut : `canal = 'edi'` ne trouve pas 'EDI'.",
-              mysql: "Collation par défaut `utf8mb4_0900_ai_ci` : insensible à la casse et aux accents ('e' = 'é')."
+              sqlserver: "En général insensible à la casse et sensible aux accents : la collation (la règle qui compare les textes) contient `_CI_AS`. Les espaces de fin sont ignorés : `'EDI ' = 'EDI'` est vrai.",
+              snowflake: "Sensible à la casse par défaut : `canal = 'edi'` ne trouve pas 'EDI'. Les espaces de fin comptent aussi : `'EDI ' = 'EDI'` est faux.",
+              mysql: "Collation par défaut `utf8mb4_0900_ai_ci` : insensible à la casse et aux accents ('e' = 'é'), mais les espaces de fin comptent (collation NO PAD) : `'EDI ' = 'EDI'` est faux."
             }
           }
         ]
@@ -208,7 +208,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Ce sont trois valeurs différentes. NULL veut dire « inconnu », '' un texte vide, 0 un nombre. Un mauvais choix fausse les comptes et les moyennes : un prix inconnu n'est pas un prix à 0.",
             reflexe: "Décide avec le métier ce que veut dire « pas de valeur ». Une date de livraison pas encore connue : NULL, pas '' ni 0.",
             moteurs: {
-              sqlserver: "Un texte vide `''` écrit dans une colonne de date donne le 01/01/1900 (la valeur par défaut du type), sans erreur.",
+              sqlserver: "Un texte vide `''` écrit dans une colonne de date donne le 01/01/1900 (la valeur par défaut du type), sans erreur. À vérifier sur ta version : `SELECT CAST('' AS date);`.",
               mysql: "En mode strict, `''` dans une colonne de date est refusé (erreur 1292)."
             }
           },
@@ -232,6 +232,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
               sqlserver: "`EXEC sp_executesql N'SELECT code, nom FROM dbo.client WHERE nom = @n', N'@n varchar(60)', @n = @saisie;`",
               snowflake: "Dans un programme, des variables liées `?` ; dans un bloc, `EXECUTE IMMEDIATE :texte USING (v_nom)`.",
               mysql: "`PREPARE s FROM 'SELECT code, nom FROM client WHERE nom = ?'; EXECUTE s USING @saisie;`"
+            }
+          },
+          {
+            id: "liste-in",
+            q: "Colles-tu une longue liste de valeurs dans un IN, par exemple 2 000 codes venus d'Excel ?",
+            pourquoi: "Des milliers de valeurs écrites en dur rendent la requête lente, ou la font échouer. Et un code copié depuis Excel a pu perdre son zéro devant (01200 → 1200) : il ne trouve rien, sans erreur.",
+            reflexe: "Au-delà de quelques dizaines de valeurs, charge la liste dans une table de travail (sur SQL Server, une table temporaire `#codes`), puis fais une jointure sur le code. Compte ses lignes : autant que dans Excel ?",
+            moteurs: {
+              sqlserver: "La doc le dit : des milliers de valeurs dans un `IN` peuvent donner les erreurs 8623 ou 8632. Elle conseille de les ranger dans une table."
             }
           },
           {
@@ -263,7 +272,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "La virgule décimale : `SELECT 1500,50` rend deux colonnes, 1500 et 50.",
       "Une saisie collée dans la requête : `x' OR '1'='1` fait sortir tous les clients (injection SQL).",
       "Un chemin `'C:\\edi\\new.csv'` sur Snowflake ou MySQL : `\\n` devient un retour à la ligne.",
-      "Snowflake : `canal = 'edi'` ne trouve pas 'EDI' ; la casse compte."
+      "Snowflake : `canal = 'edi'` ne trouve pas 'EDI' ; la casse compte.",
+      "Un code avec un espace à la fin : `'EDI ' = 'EDI'` est vrai sur SQL Server, faux sur Snowflake et sur MySQL 8 (collation par défaut)."
     ],
     pratique: "Avant d'écrire une valeur en dur sur la base de Divalto, regarde le type exact de la colonne : un code fait de chiffres y est souvent un texte (`CE4 = '1'`, pas `= 1`).",
     motsCles: ["valeur en dur", "littéral", "constante", "format de date", "aaaammjj", "apostrophe", "unicode", "null", "virgule décimale", "conversion implicite", "paramètre", "injection sql", "fuseau horaire", "casse", "date"],
@@ -359,6 +369,17 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
               sqlserver: "Erreur 2628 depuis SQL Server 2019 (niveau de compatibilité 150) : elle donne la table, la colonne et la valeur coupée. Avant : 8152, sans détail.",
               snowflake: "Erreur : un INSERT ne coupe jamais un texte trop long. Mesure avec `LENGTH`.",
               mysql: "En mode strict (le défaut), erreur 1406 « Data too long ». Sans mode strict, ou avec `INSERT IGNORE`, le texte est coupé avec un simple avertissement. Mesure avec `CHAR_LENGTH`."
+            }
+          },
+          {
+            id: "references",
+            q: "Chaque ligne pointe-t-elle vers un client ou un article qui existe ?",
+            pourquoi: "Un code article inconnu dans le flux : la clé étrangère refuse tout l'INSERT, ou la ligne entre orpheline (sans parent), selon le moteur. La commande est bloquée, ou part incomplète.",
+            reflexe: "Cherche les codes inconnus avant : `SELECT s.* FROM stg.ligne_edi AS s LEFT JOIN article AS a ON a.code = s.article WHERE a.id IS NULL`. Range ces lignes à part, avec le motif, et insère le reste.",
+            moteurs: {
+              sqlserver: "Erreur 547 (conflit avec la clé étrangère) : aucune ligne de l'instruction n'est insérée.",
+              snowflake: "La clé étrangère n'est pas appliquée : la ligne orpheline entre, sans erreur.",
+              mysql: "Erreur 1452 (« a foreign key constraint fails ») : aucune ligne de l'instruction n'est insérée."
             }
           }
         ]
@@ -956,7 +977,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     ],
     exemple: {
       texte: "Tu livres le script `v12_flux_edi.sql` : il crée une table, ajoute une colonne et met à jour des statuts. Il passe en recette, puis en production. Voici son en-tête, et la commande qui le lance proprement.",
-      code: "-- En tête de v12_flux_edi.sql\n:on error exit                    -- sqlcmd, et SSMS en mode SQLCMD : arrêt à la 1re erreur\nSET XACT_ABORT ON;                -- une erreur annule toute la transaction\nSELECT @@SERVERNAME AS serveur, DB_NAME() AS base, SYSDATETIME() AS debut;  -- la cible, au journal\nIF DB_NAME() <> N'$(base)' RAISERROR(N'Mauvaise base : arrêt.', 16, 1);\nGO\n-- Lancement, dans l'invite de commandes :\n-- sqlcmd -S SRV-SQL-RECETTE -d ventes -b -I -f 65001 -v base=ventes -i v12_flux_edi.sql -o v12_recette.log",
+      code: "-- En tête de v12_flux_edi.sql\n-- Arrêt à la 1re erreur (sqlcmd, et SSMS en mode SQLCMD) : la commande seule sur sa ligne\n:on error exit\nSET XACT_ABORT ON;                -- une erreur annule toute la transaction\nSELECT @@SERVERNAME AS serveur, DB_NAME() AS base, SYSDATETIME() AS debut;  -- la cible, au journal\nIF DB_NAME() <> N'$(base)' RAISERROR(N'Mauvaise base : arrêt.', 16, 1);\nGO\n-- Lancement avec sqlcmd version ODBC (celle livrée avec SQL Server) :\n-- sqlcmd -S SRV-SQL-RECETTE -d ventes -b -I -f 65001 -v base=ventes -i v12_flux_edi.sql -o v12_recette.log\n-- sqlcmd (Go) ne connaît pas -f : enlève -f 65001 (il lit déjà l'UTF-8).",
       codes: {
         snowflake: "-- En tête de v12_flux_edi.sql : le contexte, écrit en clair\nUSE ROLE r_deploiement;\nUSE WAREHOUSE wh_deploiement;\nUSE DATABASE ventes;\nUSE SCHEMA edi;\nSELECT CURRENT_ACCOUNT(), CURRENT_ROLE(), CURRENT_WAREHOUSE(),\n       CURRENT_DATABASE(), CURRENT_SCHEMA();   -- la cible, au journal\n-- Lancement, avec Snowflake CLI (le client conseillé) :\n-- snow sql -c recette -f v12_flux_edi.sql --enhanced-exit-codes > v12_recette.log",
         mysql: "-- En tête de v12_flux_edi.sql\nSELECT @@hostname AS serveur, DATABASE() AS base, NOW() AS debut;   -- la cible, au journal\n-- Lancement, dans l'invite de commandes :\n-- mysql --host=srv-mysql-recette --database=ventes --default-character-set=utf8mb4\n--       --verbose < v12_flux_edi.sql > v12_recette.log 2>&1\n-- Sans --force, mysql s'arrête à la 1re erreur ; ce qui est passé avant reste validé."
@@ -978,7 +999,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un fichier UTF-8 lu comme du Windows-1252 abîme les accents : « Électricité » devient « Ã‰lectricitÃ© » dans la table, pour de bon.",
             reflexe: "Enregistre tes scripts en UTF-8 (l'encodage qui connaît toutes les lettres), et dis-le à l'outil qui les lance. Relis une ligne accentuée juste après le premier passage en recette.",
             moteurs: {
-              sqlserver: "sqlcmd lit le fichier avec la page de codes de la console, sauf fichier Unicode reconnu : ajoute `-f 65001` (UTF-8). Pour une colonne NVARCHAR, écris aussi `N'Électricité'`.",
+              sqlserver: "sqlcmd (version ODBC) lit le fichier avec la page de codes de la console, sauf fichier Unicode reconnu : ajoute `-f 65001` (UTF-8). sqlcmd (Go) lit l'UTF-8 seul, et refuse `-f`. Pour une colonne NVARCHAR, écris `N'Électricité'`.",
               mysql: "Le client ignore la marque BOM (des octets invisibles en tête d'un fichier UTF-8), mais ne change pas pour autant de jeu de caractères : ajoute `--default-character-set=utf8mb4`."
             }
           },
@@ -1004,21 +1025,21 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Les commandes `:on error exit`, `:setvar` ou `:r` ne marchent que dans sqlcmd, ou dans SSMS en mode SQLCMD. Ailleurs, elles donnent une erreur, et la suite du script tourne quand même.",
             reflexe: "Dans SSMS : menu Requête, Mode SQLCMD, avant de lancer. En ligne de commande : `sqlcmd -S serveur -d base -i script.sql`.",
             moteurs: {
-              sqlserver: "sqlcmd (la version ODBC) démarre avec QUOTED_IDENTIFIER à OFF : ajoute `-I`, sinon la création d'un index filtré ou d'une vue indexée échoue."
+              sqlserver: "Deux versions existent : `sqlcmd -?` affiche « Version: 1.… » pour sqlcmd (Go). La version ODBC démarre avec QUOTED_IDENTIFIER (le réglage des guillemets doubles) à OFF : ajoute `-I`, sinon un index filtré ne se crée pas, et un UPDATE sur sa table échoue."
             },
             seulement: ["sqlserver"]
           },
           {
             id: "outil-snowflake",
             q: "Lances-tu le script avec Snowflake CLI ou avec SnowSQL ?",
-            pourquoi: "SnowSQL est l'ancien client : Snowflake n'y ajoute plus rien et le supporte jusqu'en avril 2028 (version 1.5). Et lancé avec `-f`, il continue après une erreur.",
+            pourquoi: "SnowSQL est l'ancien client : Snowflake n'y ajoute plus de fonctions (seulement des correctifs) et le supporte jusqu'en avril 2028 (version 1.5). Et lancé avec `-f`, il continue après une erreur.",
             reflexe: "Pour un nouveau script : `snow sql -c recette -f script.sql`. Avec SnowSQL : `snowsql -c recette -f script.sql -o exit_on_error=true`.",
             seulement: ["snowflake"]
           },
           {
             id: "outil-mysql",
             q: "Lances-tu le fichier par `mysql < fichier.sql`, ou par SOURCE dans le client ?",
-            pourquoi: "Les deux lisent le fichier. Mais en redirection (`<`), sans `--force`, mysql s'arrête à la première erreur, et ce qui est passé avant reste validé.",
+            pourquoi: "En redirection (`<`), sans `--force`, mysql s'arrête à la première erreur ; ce qui est passé avant reste validé. SOURCE, tapé dans le client, continue après une erreur (vu sur MySQL 8 : vérifie sur ta version).",
             reflexe: "En ligne de commande : `mysql --database=ventes --verbose < script.sql > journal.txt 2>&1`. `--verbose` écrit chaque instruction avant son résultat : le journal dit où ça s'est arrêté.",
             seulement: ["mysql"]
           }
@@ -1062,7 +1083,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un script qui cite `ventes_prod` partout doit être modifié pour la recette. Une modification oubliée, et la recette écrit en production.",
             reflexe: "Mets ce qui change d'un environnement à l'autre dans des variables, données au lancement. Le même fichier passe alors en recette et en production.",
             moteurs: {
-              sqlserver: "`:setvar base ventes` dans le script, ou `-v base=ventes` à la ligne de commande ; on écrit ensuite `$(base)`.",
+              sqlserver: "`-v base=ventes` à la ligne de commande, puis `$(base)` dans le script. Pas de `:setvar base` dans le script : il passe avant le `-v`, et la base redevient écrite en dur.",
               snowflake: "Snowflake CLI : `-D base=ventes` à la ligne de commande, et `<% base %>` dans le script.",
               mysql: "Le client n'a pas de variable de script : donne la base par `--database`, et n'écris pas son nom dans le script."
             }
@@ -1078,8 +1099,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un script qui continue après une erreur exécute la suite sur une base à moitié modifiée : une table manque, l'UPDATE suivant échoue ou touche les mauvaises lignes.",
             reflexe: "Demande l'arrêt à la première erreur, dans la commande comme dans le script. Puis teste-le : glisse une erreur volontaire en recette, et regarde où ça s'arrête.",
             moteurs: {
-              sqlserver: "Par défaut, sqlcmd et SSMS passent au lot suivant. `:on error exit` en tête du script, et `-b` pour sqlcmd.",
-              snowflake: "SnowSQL avec `-f` continue après une erreur (sa doc le dit) : ajoute `-o exit_on_error=true`. Snowflake CLI : vérifie sur ta version, et lis le code retour.",
+              sqlserver: "Par défaut, sqlcmd et SSMS passent au lot suivant. `:on error exit` en tête du script, seul sur sa ligne (sans commentaire derrière), et `-b` pour sqlcmd.",
+              snowflake: "Snowflake CLI (`snow sql -f`) s'arrête à la première erreur et rend un code différent de 0 ; il n'a pas d'option pour continuer. SnowSQL avec `-f` continue (exit_on_error vaut False) : ajoute `-o exit_on_error=true`.",
               mysql: "En redirection (`<`), arrêt à la première erreur. `--force` continue malgré les erreurs : à éviter pour un déploiement."
             }
           },
@@ -1137,7 +1158,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une vue créée avant sa table échoue. Un script passé deux fois, ou oublié, rend la recette et la production différentes, sans que personne le sache.",
             reflexe: "Numérote les fichiers dans l'ordre de passage (`010_creer_table.sql`, `020_vue.sql`). Note chaque script passé, avec sa date, dans une table de suivi ou dans le ticket.",
             moteurs: {
-              sqlserver: "Un script chef d'orchestre enchaîne les fichiers avec `:r 010_creer_table.sql` (mode SQLCMD).",
+              sqlserver: "Un script chef d'orchestre enchaîne les fichiers avec `:r 010_creer_table.sql` (mode SQLCMD). Le chemin part du dossier de lancement : dans une tâche planifiée, écris le chemin complet.",
               snowflake: "`snow sql -f 010.sql -f 020.sql` les passe dans l'ordre, sur une seule connexion ; ou `!source` dans un fichier chef d'orchestre.",
               mysql: "Un fichier chef d'orchestre, avec une ligne `SOURCE 010_creer_table.sql` par script."
             }
@@ -1173,8 +1194,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "`CREATE OR REPLACE TABLE` dans un script Snowflake relancé : la table revient vide.",
       "MySQL et Snowflake : un CREATE ou un ALTER au milieu valide la transaction ; le ROLLBACK ne rattrape plus ce qui précède.",
       "`mysql --force` va au bout du script malgré les erreurs : il faut lire tout le journal pour les voir.",
-      "sqlcmd (ODBC) sans `-I` : QUOTED_IDENTIFIER est à OFF, et la création d'un index filtré échoue.",
-      "Une variable `DECLARE @x` utilisée après un `GO` : erreur, elle n'existe plus dans ce nouveau lot."
+      "sqlcmd (ODBC) sans `-I` : QUOTED_IDENTIFIER est à OFF ; créer un index filtré, ou modifier une table qui en a un, échoue.",
+      "Une variable `DECLARE @x` utilisée après un `GO` : erreur, elle n'existe plus dans ce nouveau lot.",
+      "`sqlcmd … -f 65001` dans une commande de lancement : sqlcmd (Go), installé par winget, prend la place de la version ODBC et refuse `-f`."
     ],
     pratique: "Nomme tes scripts dans l'ordre de passage (`010_…`, `020_…`) et range chaque journal avec le ticket. En cas de doute sur une donnée, c'est la preuve de ce qui a tourné, et quand.",
     motsCles: ["script", "fichier sql", "sqlcmd", "ligne de commande", "go", "snowsql", "snow sql", "snowflake cli", "source", "encodage", "utf-8", "erreur", "journal", "déploiement", "rejouable"],
@@ -1186,7 +1208,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       { titre: "Commandes de l'utilitaire sqlcmd", url: "https://learn.microsoft.com/fr-fr/sql/tools/sqlcmd/sqlcmd-commands" },
       { titre: "GO (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/language-elements/sql-server-utilities-statements-go" },
       { titre: "Snowflake CLI : snow sql", url: "https://docs.snowflake.com/en/developer-guide/snowflake-cli/command-reference/sql-commands/sql" },
-      { titre: "Snowflake : SnowSQL (client en ligne de commande)", url: "https://docs.snowflake.com/en/user-guide/snowsql" },
+      { titre: "Snowflake : passer de SnowSQL à Snowflake CLI", url: "https://docs.snowflake.com/en/user-guide/snowsql-migrate" },
       { titre: "Snowflake : les transactions", url: "https://docs.snowflake.com/en/sql-reference/transactions" },
       { titre: "MySQL 8.4 : Executing SQL Statements from a Text File", url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-batch-commands.html" },
       { titre: "MySQL 8.4 : mysql Client Options", url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-command-options.html" }
@@ -1297,9 +1319,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Chaque outil a sa règle par défaut. Une quantité vide devient 0 au lieu de NULL : la ligne passe les contrôles, et la commande part avec 0 article.",
             reflexe: "Décide la règle avec le métier, puis écris-la dans le chargement. Ensuite, compte les cases vides de chaque colonne.",
             moteurs: {
-              sqlserver: "Par défaut, une case vide prend la valeur par défaut de la colonne ; `KEEPNULLS` garde NULL. Une colonne texte NOT NULL reçoit un texte vide.",
+              sqlserver: "Par défaut, une case vide prend la valeur par défaut de la colonne ; `KEEPNULLS` garde NULL. Sans valeur par défaut, la colonne doit accepter NULL (la doc le dit).",
               snowflake: "`EMPTY_FIELD_AS_NULL = TRUE` par défaut : `;;` donne NULL. `NULL_IF = ('', 'NULL')` change aussi ces textes en NULL.",
-              mysql: "Une case vide donne '' pour un texte, 0 pour un nombre, la date zéro pour une date ; seul `\\N` donne NULL."
+              mysql: "Avec LOCAL ou IGNORE, une case vide donne '' pour un texte, 0 pour un nombre, la date zéro pour une date. Sans eux, en mode strict, elle fait échouer le chargement (nombre, date). Seul `\\N` donne NULL."
             }
           }
         ]
@@ -1349,7 +1371,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une ligne peut disparaître sans erreur : sautée comme un en-tête, écartée par une tolérance, collée à une autre par un retour à la ligne dans une valeur. Seul le compte le montre.",
             reflexe: "Compte les lignes du fichier avant (`(Get-Content f.csv).Count` sous PowerShell), puis celles chargées et rejetées. Écris les trois nombres dans ta table de suivi des fichiers.",
             moteurs: {
-              snowflake: "Le COPY INTO rend, par fichier, `rows_parsed` et `rows_loaded`. La fonction `COPY_HISTORY` garde ces chiffres 14 jours.",
+              snowflake: "Le COPY INTO rend, par fichier, `rows_parsed` et `rows_loaded`. La fonction `COPY_HISTORY` montre les 14 derniers jours.",
               mysql: "`ROW_COUNT()` après LOAD DATA, puis `SHOW WARNINGS;` : chaque avertissement est une valeur changée."
             }
           },
@@ -1359,7 +1381,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un rejet que personne ne lit est une commande perdue. Le client relance trois jours plus tard, et personne ne sait pourquoi elle manque.",
             reflexe: "Range les rejets dans une table, avec fichier, ligne et motif (« date invalide »). Envoie la liste au responsable du flux à chaque chargement, même vide.",
             moteurs: {
-              sqlserver: "`ERRORFILE` garde les lignes illisibles, avec un fichier `.ERROR.txt` qui dit pourquoi. `MAXERRORS` vaut 10 par défaut : jusqu'à 10 lignes sont écartées, et le reste est chargé.",
+              sqlserver: "`ERRORFILE` garde les lignes illisibles, avec un fichier `.ERROR.txt` qui dit pourquoi ; s'il existe déjà, BULK INSERT échoue : date son nom. `MAXERRORS` vaut 10 par défaut : jusqu'à 10 lignes sont écartées, et le reste est chargé.",
               snowflake: "`ON_ERROR = ABORT_STATEMENT` (le défaut) arrête tout. Avec `CONTINUE`, liste ensuite les erreurs : `VALIDATE(stg.cde_client, JOB_ID => '_last')`, pour un COPY sans transformation.",
               mysql: "Avec `LOCAL` ou `IGNORE`, les erreurs deviennent des avertissements : lis `SHOW WARNINGS` à chaque fois. Sans eux, la première erreur arrête tout."
             }
@@ -1385,7 +1407,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Tiens une table des fichiers chargés : nom, taille, empreinte (un calcul qui identifie le contenu, comme SHA-256), date, lignes. Refuse un fichier dont l'empreinte est déjà connue.",
             moteurs: {
               sqlserver: "`BULK INSERT` recharge un fichier relancé : doublons, ou erreur de clé.",
-              snowflake: "`COPY INTO` saute un fichier déjà chargé, grâce à son historique de chargement, gardé 64 jours. Mais `TRUNCATE` efface cet historique, `FORCE = TRUE` recharge tout, et un même contenu sous un autre nom est rechargé.",
+              snowflake: "`COPY INTO` saute un fichier déjà chargé, grâce à son historique de chargement (64 jours ; au-delà, il le saute aussi, par défaut). Mais `TRUNCATE` efface cet historique, `FORCE = TRUE` recharge tout, et un même contenu sous un autre nom est rechargé.",
               mysql: "`LOAD DATA` recharge un fichier relancé : doublons, ou erreur de clé (`REPLACE` et `IGNORE` changent ce comportement)."
             }
           },
@@ -1401,7 +1423,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
         ]
       },
       {
-        titre: "Le chemin et les droits",
+        titre: "Le dépôt du fichier",
         questions: [
           {
             id: "chemin",
@@ -1409,10 +1431,16 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Le chemin `C:\\Users\\toi\\cde.csv` existe sur ton poste, pas sur le serveur. L'import marche sur ta machine de test, et échoue en production.",
             reflexe: "Dépose les fichiers dans un dossier partagé que le serveur lit, avec un compte de service qui a le droit d'y lire. Écris ce chemin dans la documentation du flux.",
             moteurs: {
-              sqlserver: "`BULK INSERT` lit avec les droits du serveur : un chemin local au serveur, ou un partage `\\\\serveur\\partage\\…`. Il faut les droits INSERT et ADMINISTER BULK OPERATIONS.",
+              sqlserver: "`BULK INSERT` lit le fichier depuis le serveur : un chemin local au serveur, ou un partage `\\\\serveur\\partage\\…`. Il lit avec le compte du service SQL Server (login SQL), ou avec le tien (connexion Windows). Droits : INSERT et ADMINISTER BULK OPERATIONS.",
               snowflake: "Le fichier part d'abord dans un stage (une zone de dépôt) : `PUT` depuis Snowflake CLI, ou un stockage externe (S3, Azure).",
               mysql: "Sans LOCAL : fichier sur le serveur, dans le dossier `secure_file_priv`, avec le droit FILE. Avec LOCAL : `local_infile` doit être actif sur le serveur et dans le client (`--local-infile=1`)."
             }
+          },
+          {
+            id: "fichier-complet",
+            q: "Le fichier est-il complet quand ton traitement le lit ?",
+            pourquoi: "Un traitement qui part pendant que le partenaire dépose encore le fichier lit un fichier coupé : la moitié des commandes est chargée, sans erreur, et le fichier est noté comme chargé.",
+            reflexe: "Fais déposer le fichier sous un nom provisoire (`.tmp`), renommé à la fin, ou suivi d'un fichier témoin (`.ok`). Ne lis que les fichiers terminés. Une ligne de total en fin de fichier permet aussi de vérifier."
           }
         ]
       },

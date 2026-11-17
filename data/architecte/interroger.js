@@ -506,7 +506,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "valeurs",
             q: "Connais-tu toutes les valeurs réelles de la colonne filtrée ?",
-            pourquoi: "`statut = 'LIVREE'` rate 'Livree' ou 'LIVREE ' saisis à la main. Le filtre perd ces lignes, sans erreur.",
+            pourquoi: "Selon le moteur, `statut = 'LIVREE'` rate 'Livree' ou 'LIVREE ' (un espace à la fin) saisis à la main : Snowflake rate les deux ; MySQL 8, le second ; SQL Server (collation CI), aucun. Le filtre perd ces lignes, sans erreur.",
             reflexe: "Regarde d'abord les valeurs et leur nombre : `SELECT statut, COUNT(*) FROM commande GROUP BY statut`. Voir l'astuce « Lister les valeurs d'une colonne et leur nombre »."
           }
         ]

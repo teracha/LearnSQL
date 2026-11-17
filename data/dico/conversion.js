@@ -229,7 +229,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "date_txt", "date_cde"], ["CDE-1001", "20260302", "2026-03-02"], ["CDE-1003", "20260309", "2026-03-09"], ["CDE-1007", "20260407", "2026-04-07"]],
     piege: "Sur Snowflake, `TO_DATE('20260302')` sans format ne plante pas : il lit des secondes depuis 1970 et donne le 23/08/1970. Donne toujours le format : `TO_DATE(date_txt, 'YYYYMMDD')`.",
-    pratique: "Sur MySQL, `STR_TO_DATE` rend NULL, avec un simple avertissement, quand le texte ne colle pas au format ('2026-04-07' lu avec '%d/%m/%Y'). Après un import, compte les dates restées vides.",
+    pratique: "Sur MySQL, `STR_TO_DATE` rend NULL, avec un avertissement, si le texte ne colle pas au format ('2026-04-07' lu avec '%d/%m/%Y') ; dans un INSERT en mode strict, erreur 1411. Compte ensuite les dates restées vides.",
     motsCles: ["to_date", "to_timestamp", "str_to_date", "texte en date", "convertir en date", "lire une date", "aaaammjj", "format de date", "edi", "import", "date", "heure"],
     voirAussi: ["convert", "try-cast", "types-date", "parse", "datefromparts"],
     module: "m03"
