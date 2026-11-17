@@ -151,7 +151,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     moteurs: {
       sqlserver: "`GROUP BY ROLLUP (a, b)` : sous-totaux par a, puis total général ; aussi `CUBE (a, b)` et `GROUPING SETS ((a), (b))`",
       snowflake: "Même écriture : `ROLLUP`, `CUBE`, `GROUPING SETS`, et `GROUPING(col)`",
-      mysql: "Pas de `ROLLUP (…)` : `GROUP BY a, b WITH ROLLUP` ; pas de CUBE ni de GROUPING SETS ; `GROUPING(col)` existe"
+      mysql: "`GROUP BY a, b WITH ROLLUP`, ou `GROUP BY ROLLUP (a, b)` en MySQL 8.4 (pas en 8.0) ; pas de CUBE ni de GROUPING SETS ; `GROUPING(col)` existe"
     },
     noms: ["CUBE", "GROUPING SETS", "GROUPING", "WITH ROLLUP", "GROUPING_ID"],
     exemple: "SELECT canal, SUM(montant_ht) AS total_ht,\n       GROUPING(canal) AS est_total\nFROM commande\nWHERE statut <> 'ANNULEE'\nGROUP BY ROLLUP (canal)\nORDER BY est_total, canal;",

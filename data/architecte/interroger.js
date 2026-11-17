@@ -4,7 +4,7 @@
 // commande × lignes (AquaBleu 30230.00 au lieu de 15115.00 ; SUM(DISTINCT) : 1290.00 au client 2) ; COUNT 7 / 5 / 4 ;
 // COUNT conditionnel avec ELSE 0 (client 2 : 2 au lieu de 0) ; prix moyen CHL-5 37.18 / 36.02 ; flux LEFT JOIN commande
 // LEFT JOIN client (6 lignes ; INNER : 5) ; lignes × flux (CDE-1001 : 9560.00 et 4 flux) ; LEFT + filtre dans le WHERE
-// (2 lignes au lieu de 5) ; commande × client sans condition (56) ; commandes de mars sans flux (NOT EXISTS : CDE-1002 ;
+// (piscinistes : 2 lignes au lieu de 6) ; commande × client sans condition (56) ; commandes de mars sans flux (NOT EXISTS : CDE-1002 ;
 // NOT IN : 0 ligne) ; BETWEEN du 1er au 16 mars sur date_recu (3 flux au lieu de 4) ; TTC > 3000 (CDE-1001, CDE-1007).
 // Calculés avec Python (zoneinfo, decimal) : flux d'avril en heure de Paris (07/04 et 08/04) ; 1er avril 0 h à Paris =
 // 31/03 22:00 UTC ; 29/03/2026 = 23 h, 25/10/2026 = 25 h ; 7 h à Paris = la veille à Los Angeles toute l'année ; semaines
@@ -23,6 +23,11 @@
 // type-conversion, charset-*, comparison-operators, index-btree-hash, create-index, case-sensitivity, datetime,
 // time-zone-support, date-and-time-functions, with, string-functions, mathematical-functions, cast-functions,
 // create-procedure, stored-programs-logging) ; Divalto (Jointures auto résolues et CAST implicites).
+// Relecture testeur (17/11/2026) : chiffres recalculés avec SQLite et Python ; MySQL : texte → nombre = avertissement
+// dans un SELECT, erreur en INSERT / UPDATE strict (type-conversion, sql-mode, load-data) ; SQL Server : « MISSING JOIN
+// PREDICATE » (set-showplan-all), DATETIME arrondi au 1/300 s et '23:59:59.999' → lendemain (datetime), FORMAT et CLR
+// hébergé par le moteur (format, clr-integration), SCHEMABINDING (deterministic functions) ; Snowflake : WEEK_START,
+// WEEK_OF_YEAR_POLICY (functions-date-time) ; Power BI : marquer la table de dates (desktop-date-tables).
 LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
   {
     id: "agreger",
@@ -99,6 +104,12 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Écris la règle avec le métier, puis dans le `WHERE` : `statut <> 'ANNULEE'`. Mets-la à un seul endroit (une vue), pour que tous les rapports comptent pareil."
           },
           {
+            id: "devise-unite",
+            q: "Les valeurs additionnées sont-elles dans la même devise et la même unité ?",
+            pourquoi: "Des euros additionnés à des francs suisses, ou des kilos à des pièces : le total ne veut plus rien dire. Aucune erreur ne s'affiche. Si Pool & Garden, à Genève, est facturé en francs suisses, ses montants se mêlent aux euros dans le CA.",
+            reflexe: "Regarde d'abord ce qui se mélange : `GROUP BY devise`. Convertis avant de sommer, au taux retenu par la compta, ou garde un total par devise. Les quantités : ramène-les à une seule unité."
+          },
+          {
             id: "where-having",
             q: "Ton filtre porte-t-il sur les lignes ou sur les groupes ?",
             pourquoi: "`WHERE` trie les lignes avant le regroupement, `HAVING` trie les groupes après. « Nouveaux clients 2026 » avec un `WHERE` sur la date : tous les clients de l'année deviennent nouveaux.",
@@ -112,7 +123,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "quoi-compter",
             q: "COUNT(*), COUNT(colonne) ou COUNT(DISTINCT) : que comptes-tu vraiment ?",
-            pourquoi: "« Combien de clients ? » a trois réponses : 7 fiches (`COUNT(*)`), 5 SIREN renseignés (`COUNT(siren)`), 4 sociétés (`COUNT(DISTINCT siren)`). Chaque rapport prend la sienne, et les chiffres divergent.",
+            pourquoi: "« Combien de clients ? » a trois réponses : 7 fiches (`COUNT(*)`), 5 SIREN renseignés (`COUNT(siren)`), 4 SIREN différents (`COUNT(DISTINCT siren)`). Chaque rapport prend la sienne, et les chiffres divergent.",
             reflexe: "Dis ce que tu comptes : des lignes, des valeurs renseignées, ou des valeurs différentes. Après un `LEFT JOIN`, compte la clé de droite (`COUNT(co.id)`), pas `COUNT(*)`.",
             moteurs: {
               sqlserver: "`COUNT` rend un `INT` : au-delà de 2,1 milliards de lignes, `COUNT_BIG`.",
@@ -294,6 +305,12 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Vérifie que la clé est unique du côté « un » : `GROUP BY cle HAVING COUNT(*) > 1` doit être vide. Deux tables qui pointent vers la même commande : agrège chacune avant de la joindre."
           },
           {
+            id: "versions-datees",
+            q: "La table d'en face garde-t-elle plusieurs versions datées (tarif, taux, adresse) ?",
+            pourquoi: "Un article qui a eu 3 tarifs donne 3 lignes pour chaque ligne de commande : le CA triple, sans erreur. Ou bien la requête prend le tarif d'aujourd'hui pour une commande de mars.",
+            reflexe: "Joins aussi sur la période : `ON t.article_id = li.article_id AND co.date_cde >= t.date_debut AND co.date_cde < t.date_fin`. Vérifie qu'une seule version couvre chaque date : ni trou, ni chevauchement."
+          },
+          {
             id: "compter",
             q: "As-tu compté les lignes avant et après chaque jointure ?",
             pourquoi: "Une jointure qui perd ou qui double des lignes ne donne aucune erreur. Le seul signe, c'est un nombre de lignes qui change.",
@@ -308,6 +325,12 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       {
         titre: "Le type de jointure",
         questions: [
+          {
+            id: "existe",
+            q: "As-tu besoin des colonnes d'en face, ou seulement de savoir qu'une ligne existe ?",
+            pourquoi: "Pour lister les clients qui ont commandé, `JOIN commande` sort AquaBleu 3 fois : une fois par commande. Un `DISTINCT` ajouté pour corriger cache le problème, qui revient dès qu'on affiche une colonne de la commande.",
+            reflexe: "Pour « au moins une ligne en face » : `WHERE EXISTS (SELECT 1 FROM commande AS co WHERE co.client_id = cl.id)`. Une ligne par client, sans `DISTINCT`. Garde le `JOIN` pour afficher des colonnes d'en face."
+          },
           {
             id: "inner-left",
             q: "Une ligne sans partenaire en face doit-elle rester ?",
@@ -341,7 +364,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une condition oubliée croise tout avec tout : c'est le produit cartésien. 10 000 × 10 000 = 100 millions de lignes. Ici, 8 commandes × 7 clients = 56 lignes, sans erreur.",
             reflexe: "Écris chaque jointure `JOIN … ON`, jamais la virgule dans le `FROM`. Un vrai croisement s'écrit `CROSS JOIN`, avec un commentaire qui dit pourquoi.",
             moteurs: {
-              sqlserver: "Un `JOIN` sans `ON` est une erreur de syntaxe. Le plan avertit : « No Join Predicate ».",
+              sqlserver: "Un `JOIN` sans `ON` est une erreur de syntaxe. Avec la virgule et sans condition, le plan avertit : « No Join Predicate » dans SSMS (« MISSING JOIN PREDICATE » avec `SET SHOWPLAN_ALL`).",
               snowflake: "Un `JOIN` sans `ON` croise tout, comme un `CROSS JOIN` (sa doc).",
               mysql: "`JOIN`, `INNER JOIN` et `CROSS JOIN` y sont équivalents : sans `ON`, tout est croisé (sa doc)."
             }
@@ -431,8 +454,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     ],
     pratique: "Dans Divalto, le dossier (DOS) est en tête des clés, et c'est un texte : mets-le dans chaque `ON`, comparé à un texte. Une table commune à tous les dossiers se joint sur le dossier commun (999).",
     motsCles: ["join", "jointure", "joindre", "inner join", "left join", "full outer join", "produit cartésien", "clé de jointure", "lignes multipliées", "cardinalité", "collation", "rapprochement", "alias", "null"],
-    voirAussi: ["agreger", "filtrer", "relier-tables", "doublons", "sous-requete", "requete-lente"],
-    dico: ["inner-join", "left-join", "full-outer-join", "cross-join", "is-distinct-from", "conversion-implicite", "collate"],
+    voirAussi: ["agreger", "filtrer", "relier-tables", "doublons", "sous-requete", "requete-lente", "historiser"],
+    dico: ["inner-join", "left-join", "full-outer-join", "cross-join", "exists", "is-distinct-from", "conversion-implicite", "collate"],
     outils: ["traduire", "astuces"],
     sources: [
       { titre: "FROM et JOIN (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/queries/from-transact-sql" },
@@ -597,7 +620,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "on-where",
             q: "Avec un LEFT JOIN, ce filtre va-t-il dans le ON ou dans le WHERE ?",
-            pourquoi: "Dans le `WHERE`, un filtre sur la table de droite retire les lignes sans partenaire. Les piscinistes sans commande en cours disparaissent : 2 lignes au lieu de 5.",
+            pourquoi: "Dans le `WHERE`, un filtre sur la table de droite retire les lignes sans partenaire. Les piscinistes sans commande en cours disparaissent : 2 lignes au lieu de 6.",
             reflexe: "Table de droite : le filtre dans le `ON`. Table de gauche : dans le `WHERE`. Recompte les lignes après chaque déplacement."
           }
         ]
@@ -742,7 +765,10 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "demi-ouvert",
             q: "Tes périodes vont-elles du début inclus au début suivant exclu ?",
             pourquoi: "Avec `BETWEEN` ou `<= '… 23:59:59'`, une ligne peut tomber dans deux mois, ou dans aucun (23:59:59,5). Les totaux des mois ne font plus le total de l'année.",
-            reflexe: "Chaque période va de son début inclus au début de la suivante exclu : `>=` 1er avril et `<` 1er mai. Chaque instant tombe dans une seule période, avec ou sans heure."
+            reflexe: "Chaque période va de son début inclus au début de la suivante exclu : `>=` 1er avril et `<` 1er mai. Chaque instant tombe dans une seule période, avec ou sans heure.",
+            moteurs: {
+              sqlserver: "Avec `DATETIME`, `'… 23:59:59.999'` est arrondi au lendemain, 0 h (sa doc) : une borne `<=` du 31 mars prend aussi les lignes du 1er avril à 0 h."
+            }
           },
           {
             id: "fin-de-mois",
@@ -784,7 +810,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Prends la semaine ISO avec l'année ISO, toujours ensemble. Le plus simple : les deux colonnes dans la table calendrier, calculées une fois. Voir l'astuce « Trouver le numéro de semaine (norme ISO) ».",
             moteurs: {
               sqlserver: "`DATEPART(iso_week, d)`, mais aucune partie « année ISO ». `week` et `weekday` dépendent de `SET DATEFIRST` (7, le dimanche, en anglais américain).",
-              snowflake: "`WEEKISO` et `YEAROFWEEKISO` suivent toujours l'ISO. `WEEK`, `DAYOFWEEK` et `DATE_TRUNC('week', d)` dépendent de `WEEK_START` et `WEEK_OF_YEAR_POLICY`.",
+              snowflake: "`WEEKISO` et `YEAROFWEEKISO` suivent toujours l'ISO. `WEEK` dépend de `WEEK_START` et de `WEEK_OF_YEAR_POLICY` ; `DAYOFWEEK` et `DATE_TRUNC('week', d)`, de `WEEK_START` seulement.",
               mysql: "`WEEK(d, 3)` donne la semaine ISO ; `YEARWEEK(d, 3)`, l'année et la semaine. Sans mode, `WEEK` suit `default_week_format`."
             }
           }
@@ -802,6 +828,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
               sqlserver: "`TRY_CONVERT(date, x, 112)` : NULL si impossible (112 = AAAAMMJJ).",
               snowflake: "`TRY_TO_DATE(x, 'YYYYMMDD')`. Sans format, une chaîne de chiffres est lue comme des secondes depuis 1970.",
               mysql: "`STR_TO_DATE(x, '%Y%m%d')` rend NULL, avec un avertissement, quand le texte ne se lit pas."
+            }
+          },
+          {
+            id: "fausse-date",
+            q: "La colonne contient-elle de fausses dates, comme 1900-01-01 ou 9999-12-31 ?",
+            pourquoi: "Une date inconnue saisie '1900-01-01' passe pour une vraie : un délai calculé depuis elle dépasse 126 ans, et la moyenne explose. Une fin '9999-12-31' fausse les durées de la même façon.",
+            reflexe: "Compte-les avant de calculer : `WHERE d < '1990-01-01' OR d > '2099-12-31'`, bornes à fixer avec le métier. Écarte-les du calcul, ou change-les en NULL au chargement. Voir « Je choisis le type de chaque colonne ».",
+            moteurs: {
+              mysql: "Cherche aussi '0000-00-00' : `LOAD DATA` avec `LOCAL` ou `IGNORE` y range une date illisible, avec un simple avertissement (sa doc)."
             }
           }
         ]
@@ -914,7 +949,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "cout-format",
             q: "FORMAT va-t-il tourner sur beaucoup de lignes ?",
-            pourquoi: "`FORMAT` passe par le CLR, le moteur .NET de Microsoft, hors du moteur SQL. Sa doc le réserve à la mise en forme selon une culture, et renvoie à `CAST` ou `CONVERT` pour le reste.",
+            pourquoi: "`FORMAT` appelle le CLR, le moteur .NET hébergé dans SQL Server. Sur un gros volume, ce coût peut compter, mais sa doc ne le chiffre pas. Elle le réserve à la mise en forme selon une culture ; pour le reste : `CAST` ou `CONVERT`.",
             reflexe: "Sur un gros volume, préfère `CONVERT` avec un style, ou formate dans l'outil. Si tu gardes `FORMAT`, mesure sur le volume réel. Et teste le modèle : un modèle faux rend NULL, sans erreur.",
             seulement: ["sqlserver"]
           }
@@ -1000,7 +1035,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un montant NULL affiché 0 fait croire à une vente nulle ; affiché vide, à un oubli. Le lecteur doit savoir ce que veut dire la case.",
             reflexe: "Décide le sens avec le métier : vide (inconnu), 0 (vraiment zéro) ou un libellé (« Non renseigné »). Convertis d'abord en texte, puis remplace : `COALESCE(CAST(montant_ht AS VARCHAR(20)), '')`.",
             moteurs: {
-              sqlserver: "`COALESCE` prend le type de plus haute priorité : `COALESCE(montant_ht, '')` essaie de convertir '' en nombre."
+              sqlserver: "`COALESCE` prend le type de plus haute priorité : `COALESCE(montant_ht, '')` essaie de convertir '' en `DECIMAL`, et plante (sa doc)."
             }
           },
           {
@@ -1112,7 +1147,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               sqlserver: "`TRY_CAST` et `TRY_CONVERT` rendent NULL. Une conversion interdite entre deux types reste une erreur.",
               snowflake: "`TRY_CAST` part seulement d'un texte (sa doc). Aussi `TRY_TO_NUMBER` et `TRY_TO_DATE`.",
-              mysql: "Pas de `TRY_CAST`. Un texte non numérique devient 0 ('x6') ou son début ('6x' donne 6), avec un simple avertissement."
+              mysql: "Pas de `TRY_CAST`. Dans un `SELECT`, un texte non numérique devient 0 ('x6') ou son début ('6x' donne 6), avec un simple avertissement. Dans un `INSERT` ou un `UPDATE`, le mode strict (actif par défaut) en fait une erreur."
             }
           },
           {
@@ -1147,7 +1182,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une fonction non déterministe (`GETDATE()`, `NEWID()`) change d'un appel à l'autre. Elle ne peut pas servir dans un index, et deux exécutions du même rapport ne rendent pas le même résultat.",
             reflexe: "Lis la date ou l'heure une fois, au début, dans une variable. Garde les fonctions non déterministes hors des colonnes calculées et des index.",
             moteurs: {
-              sqlserver: "`GETDATE`, `NEWID` et `FORMAT` ne sont jamais déterministes (sa doc).",
+              sqlserver: "`GETDATE`, `NEWID` et `FORMAT` ne sont jamais déterministes. Une fonction maison ne l'est que créée `WITH SCHEMABINDING`, liée aux objets qu'elle lit (sa doc).",
               snowflake: "Une UDF (fonction maison) est `VOLATILE` par défaut. `IMMUTABLE` est une promesse que Snowflake ne vérifie pas : fausse, le résultat n'est plus garanti.",
               mysql: "`NOW()` donne l'heure du début de l'instruction ; `SYSDATE()`, l'heure de chaque appel."
             }
@@ -1161,9 +1196,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "inlining",
             q: "Ta fonction scalaire maison peut-elle être mise en ligne (inlining) ?",
             pourquoi: "Mise en ligne, la fonction est recopiée dans la requête. Sinon, elle tourne ligne par ligne, sur un seul processeur : la doc cite 29 minutes avec la fonction, 1,6 seconde une fois mise en ligne.",
-            reflexe: "SQL Server 2019 ou plus, niveau de compatibilité 150 : vérifie `is_inlineable` dans `sys.sql_modules`. 1 ne garantit rien : l'appel compte aussi (pas dans un `ORDER BY` ni un `GROUP BY`).",
+            reflexe: "SQL Server 2019 ou plus, base en compatibilité 150 ou plus (son réglage de version) : vérifie `is_inlineable` dans `sys.sql_modules`. 1 ne garantit pas la mise en ligne : l'appel compte aussi (pas dans un `ORDER BY` ni un `GROUP BY`).",
             moteurs: {
-              sqlserver: "Empêchent la mise en ligne : `GETDATE()`, une variable table, une boucle `WHILE`, plusieurs `RETURN` (depuis 2019 CU5), une CTE dans la fonction, ou (depuis CU11) dans la requête qui l'appelle."
+              sqlserver: "Empêchent la mise en ligne : `GETDATE()`, une variable table, une boucle `WHILE`, plusieurs `RETURN` (depuis la mise à jour cumulative CU5 de 2019), une CTE (requête nommée par `WITH`) dans la fonction, ou, depuis la CU11, dans la requête qui l'appelle."
             },
             seulement: ["sqlserver"]
           },
@@ -1210,7 +1245,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "Une fonction maison qui lit une table (le nom du client), appelée dans le `SELECT` : une recherche par ligne, des minutes au lieu d'une seconde.",
       "`WHERE dbo.f_ttc(montant_ht) > 3000` : la fonction tourne sur toutes les lignes lues, et l'index ne sert plus.",
       "`CAST(qte_txt AS INT)` dans un import : une seule valeur 'N/A' arrête tout le chargement.",
-      "MySQL : la quantité 'N/A' devient 0, avec un simple avertissement que personne ne lit.",
+      "MySQL, dans un `SELECT` ou avec `LOAD DATA LOCAL` : la quantité 'N/A' devient 0, avec un simple avertissement que personne ne lit.",
       "Croire une fonction mise en ligne parce que la base est en SQL Server 2019 : un `GETDATE()` dedans suffit à l'empêcher.",
       "Déclarer `IMMUTABLE` (Snowflake) ou `DETERMINISTIC` (MySQL) une fonction qui ne l'est pas : des résultats faux, sans erreur.",
       "Une fonction testée sur 8 lignes de recette : la lenteur n'apparaît qu'en production."

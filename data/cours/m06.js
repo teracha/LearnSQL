@@ -146,7 +146,7 @@ LEARNSQL.cours.m06 = {
         "Garder un résultat : `WITH … SELECT … INTO #t FROM …` crée une table temporaire, calculée une fois ; jointe souvent, indexe-la. Elle disparaît en fin de procédure ou de session. Pour quelques lignes : `DECLARE @t TABLE`.",
         "Une vue (une requête enregistrée dans la base) est permanente et partagée ; une CTE vit le temps d'une requête. Une vue peut contenir un WITH ; mais pas de WITH dans un WITH.",
         "Le dernier prix ET sa date : `OUTER APPLY (SELECT TOP (1) … ORDER BY date_effet DESC)`, en une lecture. APPLY lit une table du même FROM, ce que refuse une table dérivée. Snowflake : `LATERAL`, sans LIMIT dedans (QUALIFY).",
-        "Une série de jours : ancre = le 1er jour, puis `DATEADD(day, 1, jour)` tant que `jour < '20261031'` (l'arrêt teste la valeur AVANT l'ajout). Sinon : `GENERATE_SERIES` (SQL Server 2022), `GENERATOR(ROWCOUNT => n)` (Snowflake), ou une table calendrier.",
+        "Une série de jours : ancre = le 1er jour, puis `DATEADD(day, 1, jour)` tant que `jour < '20261031'` (l'arrêt teste la valeur AVANT l'ajout). Sinon : `GENERATE_SERIES` (SQL Server 2022, niveau de compatibilité 160), `GENERATOR(ROWCOUNT => n)` (Snowflake), ou une table calendrier.",
         "Afficher un arbre : construis un chemin, `CAST(nom AS varchar(1000))` dans l'ancre et à chaque ajout, puis trie dessus. Même type, même longueur des deux côtés, sinon erreur.",
         "Récursion sur SQL Server : UNION ALL obligatoire ; dans la partie récursive, ni LEFT JOIN, ni GROUP BY, TOP, DISTINCT ou agrégat. Indexe la colonne parent. Snowflake a aussi `START WITH … CONNECT BY … PRIOR`.",
         "Dans le plan d'exécution (le chemin choisi par le moteur), IN et EXISTS deviennent une semi-jointure, sans doublon. Sous-requête, jointure, CTE : souvent le même plan ; écris clair."
@@ -164,6 +164,6 @@ LEARNSQL.cours.m06 = {
     ["Sous-requête liée au `FROM`", "`CROSS APPLY`", "`LATERAL`"],
     ["CTE récursive", "`WITH` seul", "`WITH RECURSIVE` + colonnes"],
     ["Boucle sans fin", "Erreur à 100 niveaux", "Tourne jusqu'au délai"],
-    ["Générer des lignes", "`GENERATE_SERIES` (2022)", "`GENERATOR(ROWCOUNT => n)`"]
+    ["Générer des lignes", "`GENERATE_SERIES` (2022, niveau 160)", "`GENERATOR(ROWCOUNT => n)`"]
   ]
 };

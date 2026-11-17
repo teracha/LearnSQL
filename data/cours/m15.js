@@ -136,7 +136,7 @@ LEARNSQL.cours.m15 = {
         "Pourquoi : la table porte ce qu'on ne veut pas recalculer : semaine ISO, mois, jour ouvré, férié, saison, exercice fiscal (d'octobre à septembre).",
         "Le piège : grouper sur la date des faits. Les jours sans commande disparaissent, les moyennes par jour sont fausses, chaque rapport recode l'exercice fiscal. Les calculs de période du DAX veulent une table de dates.",
         "Le bon réflexe : une seule table, sans trou, sur des années entières, partagée par tous les faits. Commande, livraison, facture : une relation par rôle (une active, les autres par `USERELATIONSHIP`), ou une copie par rôle.",
-        "SQL Server / Snowflake : jours générés par `GENERATE_SERIES` (SQL Server 2022) ou `GENERATOR` (Snowflake). Clé : l'entier AAAAMMJJ (20260406). L'heure a sa dimension (1 440 minutes) ; un budget mensuel se relie au 1er du mois."
+        "SQL Server / Snowflake : jours générés par `GENERATE_SERIES` (SQL Server 2022, niveau de compatibilité 160) ou `GENERATOR` (Snowflake). Clé : l'entier AAAAMMJJ (20260406). L'heure a sa dimension (1 440 minutes) ; un budget mensuel se relie au 1er du mois."
       ],
       retenir: "Une table de dates : un jour par ligne, sans trou, avec les notions métier (férié, saison, exercice). Une table, plusieurs rôles."
     },
@@ -161,7 +161,7 @@ LEARNSQL.cours.m15 = {
     ["NOT NULL, CHECK", "Vérifiés", "Vérifiés (CHECK : avril 2026)"],
     ["Doublons, orphelins", "Refusés (contraintes)", "À contrôler au chargement"],
     ["Clé de substitution", "`IDENTITY(1,1)`", "`AUTOINCREMENT`, séquence"],
-    ["Générer le calendrier", "`GENERATE_SERIES` (2022)", "`GENERATOR(ROWCOUNT => n)`"],
+    ["Générer le calendrier", "`GENERATE_SERIES` (2022, niveau 160)", "`GENERATOR(ROWCOUNT => n)`"],
     ["Attributs variables", "`json` (2025)", "`VARIANT`"]
   ]
 };

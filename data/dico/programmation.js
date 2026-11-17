@@ -270,7 +270,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     },
     resultat: [["num_cde", "montant_ht", "montant_ttc"], ["CDE-1001", "4780.00", "5736.00"], ["CDE-1003", "2385.00", "2862.00"], ["CDE-1007", "7950.00", "9540.00"]],
     piege: "Une fonction scalaire est appelée pour chaque ligne : dans un SELECT sur un million de lignes, c'est un million d'appels, sans parallélisme (SQL Server 2019+ l'intègre parfois à la requête, pas toujours). Pour renvoyer des lignes, préfère une fonction table « inline » (`RETURNS TABLE AS RETURN (SELECT …)`), traitée comme une vue avec paramètres.",
-    pratique: "Sur SQL Server 2019+, vérifie si ta fonction scalaire peut être intégrée à la requête : `SELECT is_inlineable FROM sys.sql_modules WHERE object_id = OBJECT_ID('dbo.f_ttc');` (1 = oui, si la base est en compatibilité 150 ou plus).",
+    pratique: "Sur SQL Server 2019+, vérifie si ta fonction scalaire peut être intégrée à la requête : `SELECT is_inlineable FROM sys.sql_modules WHERE object_id = OBJECT_ID('dbo.f_ttc');`. 1 = possible (compatibilité 150 ou plus), pas garanti : l'appel compte aussi.",
     motsCles: ["udf", "créer", "créer une fonction", "calcul", "réutiliser", "scalaire", "tvf", "fonction utilisateur", "perso", "renvoyer", "returns", "lent", "performance", "formule", "inline"],
     voirAussi: ["create-procedure", "cross-apply", "create-view", "round"],
     module: "m13"
