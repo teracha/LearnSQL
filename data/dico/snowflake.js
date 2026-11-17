@@ -97,13 +97,13 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "Crée en un instant une copie d'une table, d'un schéma ou d'une base, sans recopier les données.",
     moteurs: {
       sqlserver: "Pas de CLONE : `SELECT * INTO copie FROM t` recopie vraiment les données (temps, place), sans clé primaire ni index",
-      snowflake: "`CREATE TABLE copie CLONE t;` instantané, sans doubler le stockage ; aussi dans le passé : `CLONE t AT (OFFSET => -3600)`",
+      snowflake: "`CREATE TABLE copie CLONE t;` rapide (zéro copie), sans doubler le stockage ; aussi dans le passé : `CLONE t AT (OFFSET => -3600)`",
       mysql: "Pas de CLONE : `CREATE TABLE copie LIKE t;` puis `INSERT INTO copie SELECT * FROM t;` (vraie copie, clé primaire gardée)"
     },
     noms: ["ZERO-COPY CLONE", "CLONE AT"],
     exemple: "SELECT * INTO commande_test FROM commande;   -- vraie copie\nUPDATE commande_test SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nSELECT (SELECT COUNT(*) FROM commande WHERE statut = 'EN_COURS') AS en_cours_origine,\n       (SELECT COUNT(*) FROM commande_test WHERE statut = 'EN_COURS') AS en_cours_copie;",
     exemples: {
-      snowflake: "CREATE TABLE commande_test CLONE commande;   -- copie instantanée\nUPDATE commande_test SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nSELECT (SELECT COUNT(*) FROM commande WHERE statut = 'EN_COURS') AS en_cours_origine,\n       (SELECT COUNT(*) FROM commande_test WHERE statut = 'EN_COURS') AS en_cours_copie;",
+      snowflake: "CREATE TABLE commande_test CLONE commande;   -- copie rapide (zéro copie)\nUPDATE commande_test SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nSELECT (SELECT COUNT(*) FROM commande WHERE statut = 'EN_COURS') AS en_cours_origine,\n       (SELECT COUNT(*) FROM commande_test WHERE statut = 'EN_COURS') AS en_cours_copie;",
       mysql: "CREATE TABLE commande_test LIKE commande;\nINSERT INTO commande_test SELECT * FROM commande;\nUPDATE commande_test SET statut = 'LIVREE' WHERE statut = 'EN_COURS';\nSELECT (SELECT COUNT(*) FROM commande WHERE statut = 'EN_COURS') AS en_cours_origine,\n       (SELECT COUNT(*) FROM commande_test WHERE statut = 'EN_COURS') AS en_cours_copie;"
     },
     resultat: [["en_cours_origine", "en_cours_copie"], [3, 0]],

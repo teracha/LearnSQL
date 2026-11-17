@@ -656,7 +656,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Copie les lignes visées juste avant, dans une table datée : `SELECT * INTO sauv.article_20261116 FROM dbo.article WHERE …;` sur SQL Server. Ou garde l'avant et l'après pendant l'UPDATE.",
             moteurs: {
               sqlserver: "`OUTPUT deleted.code, deleted.prix_tarif, inserted.prix_tarif INTO sauv.article_prix` garde l'avant et l'après, dans la même instruction.",
-              snowflake: "Time Travel relit la table d'avant : `BEFORE (STATEMENT => '<id de la requête>')`, 1 jour par défaut. Pour plus longtemps : un `CLONE` (une copie instantanée) juste avant l'UPDATE.",
+              snowflake: "Time Travel relit la table d'avant : `BEFORE (STATEMENT => '<id de la requête>')`, 1 jour par défaut. Pour plus longtemps : un `CLONE` (une copie rapide, sans doubler le stockage) juste avant l'UPDATE.",
               mysql: "Pas d'OUTPUT : `CREATE TABLE sauv_article_20261116 AS SELECT * FROM article WHERE …;` avant l'UPDATE."
             }
           }
@@ -1174,7 +1174,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un script relu et testé peut encore surprendre en production : un volume différent, une donnée inattendue. Sans copie, revenir en arrière prend des heures.",
             reflexe: "Juste avant : une sauvegarde de la base, ou une copie datée des tables que le script modifie. Note où elle est, et combien de temps elle est gardée.",
             moteurs: {
-              snowflake: "Un `CLONE` des tables touchées, juste avant : immédiat. Time Travel couvre aussi la durée de rétention (1 jour par défaut)."
+              snowflake: "Un `CLONE` des tables touchées, juste avant : rapide. Time Travel couvre aussi la durée de rétention (1 jour par défaut)."
             }
           },
           {

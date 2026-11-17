@@ -50,7 +50,7 @@
 //   sql/truncate-table (historique de chargement effacé), user-guide/data-load-snowpipe-intro (serverless),
 //   user-guide/data-load-local-file-system-create-stage, sql-reference/constraints-overview (CHECK : COPY INTO échoue),
 //   sql-reference/identifiers-syntax (MAJUSCULES), user-guide/streams-intro (avance seulement par un DML validé),
-//   user-guide/tasks-intro, sql/create-dynamic-table, sql-reference/account-usage (1 an, environ 2 h de retard),
+//   user-guide/tasks-intro, sql/create-dynamic-table, sql-reference/account-usage (1 an ; retard 45 min pour QUERY_HISTORY, 3 h pour WAREHOUSE_METERING_HISTORY),
 //   user-guide/security-access-control-overview, user-guide/security-row-intro (Enterprise).
 // - learn.microsoft.com : power-bi/connect-data/desktop-directquery-about (DirectQuery : chaque visuel et chaque
 //   interaction relancent des requêtes ; Import par défaut), sql/t-sql/statements/set-result-set-caching-transact-sql (le
@@ -167,7 +167,7 @@ LEARNSQL.cours.m14 = {
         "Droits : on les donne à des rôles, puis les rôles aux personnes. Lire une table demande `USAGE` sur la base et le schéma, plus `SELECT` ; `ON FUTURE TABLES` couvre les tables à venir.",
         "Rôles système : SYSADMIN crée les objets, SECURITYADMIN donne les droits, ACCOUNTADMIN gère le compte (rarement, avec double authentification). Un objet appartient au rôle actif à sa création.",
         "Données sensibles (Enterprise) : une MASKING POLICY masque une colonne (l'IBAN) selon le rôle ; une ROW ACCESS POLICY filtre les lignes (la région du commercial).",
-        "Facture : `SNOWFLAKE.ACCOUNT_USAGE` garde 1 an (environ 2 h de retard) : `QUERY_HISTORY`, `WAREHOUSE_METERING_HISTORY`. `ALTER SESSION SET QUERY_TAG = 'rapport_ventes'` étiquette les requêtes d'un rapport.",
+        "Facture : `SNOWFLAKE.ACCOUNT_USAGE` garde 1 an, avec un retard de 45 min (`QUERY_HISTORY`) à 3 h (`WAREHOUSE_METERING_HISTORY`). `ALTER SESSION SET QUERY_TAG = 'rapport_ventes'` étiquette les requêtes d'un rapport.",
         "Une requête sans fin tourne jusqu'à 2 jours (`STATEMENT_TIMEOUT_IN_SECONDS`) : mets 1 heure sur le warehouse des analystes. Sans warehouse : « No active warehouse selected ».",
         "Noms : sans guillemets, Snowflake les met en MAJUSCULES (Power BI voit `NUM_CDE`) ; créé entre guillemets par un outil, `\"num_cde\"` s'écrit ensuite toujours ainsi (m01).",
         "Automatiser : un STREAM donne les changements d'une table jusqu'à ce qu'un DML validé (INSERT, MERGE) les consomme ; une TASK planifie une requête, comme l'Agent SQL Server ; une dynamic table se rafraîchit seule.",
