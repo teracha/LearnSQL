@@ -1609,7 +1609,7 @@ LEARNSQL.questions.m16 = [
     bonne: 1,
     pourquoi: [
       "Non. Trop long pour un usage ponctuel.",
-      "Oui. Après chaque requête, le warehouse reste allumé jusqu'à une heure pour rien : ces minutes sont facturées. Un AUTO_SUSPEND de 60 secondes suffit souvent ; avec AUTO_RESUME, il redémarre tout seul.",
+      "Oui. Après chaque requête, le warehouse reste allumé jusqu'à une heure pour rien : ces minutes sont facturées. Pour de l'exploration, Snowflake conseille environ 5 minutes ; avec AUTO_RESUME, il redémarre tout seul.",
       "Non. 3 600 s, c'est 1 heure : il s'arrête trop rarement.",
       "Non. Les résultats restent justes."
     ],

@@ -101,7 +101,7 @@ LEARNSQL.questions.m14 = [
     bonne: 1,
     pourquoi: [
       "Non. C'est permis.",
-      "Oui. Chaque redémarrage coûte au moins 60 s et vide le cache local : pour des requêtes fréquentes, ça peut coûter plus et ralentir. Snowflake conseille l'arrêt immédiat pour les tâches planifiées, et au moins 10 minutes pour les analystes (BI).",
+      "Oui. Chaque redémarrage coûte au moins 60 s et vide le cache local : pour des requêtes fréquentes, ça peut coûter plus et ralentir. Snowflake conseille l'arrêt immédiat pour les tâches planifiées, environ 5 minutes pour l'exploration (data science), et au moins 10 minutes pour les rapports (BI).",
       "Non. Le stockage ne dépend pas du warehouse.",
       "Non. Un warehouse arrêté ne bloque pas les tables."
     ],

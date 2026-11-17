@@ -37,12 +37,12 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     definition: "La puissance de calcul de Snowflake : elle exécute les requêtes et se paie à la seconde.",
     moteurs: {
       sqlserver: "Pas de warehouse : la puissance de calcul est celle du serveur (processeurs, mémoire), partagée par toutes les requêtes",
-      snowflake: "`USE WAREHOUSE wh_rapport;` choisit le calcul de la session ; tailles XS à 6XL, chaque taille double la puissance et le prix ; payé à la seconde, 60 s minimum à chaque démarrage",
+      snowflake: "`USE WAREHOUSE wh_rapport;` choisit le calcul de la session ; tailles XS à 6XL, chaque taille double en général la puissance et le prix ; payé à la seconde, 60 s minimum à chaque démarrage",
       mysql: "Pas de warehouse : la puissance de calcul est celle du serveur MySQL"
     },
     noms: ["USE WAREHOUSE", "CREATE WAREHOUSE", "VIRTUAL WAREHOUSE", "AUTO_SUSPEND"],
-    exemple: "CREATE WAREHOUSE wh_rapport\n  WAREHOUSE_SIZE = 'XSMALL' AUTO_SUSPEND = 60 AUTO_RESUME = TRUE;\nUSE WAREHOUSE wh_rapport;\nSELECT statut, COUNT(*) AS nb_cdes FROM commande GROUP BY statut;",
-    resultat: "wh_rapport calcule le SELECT, s'arrête seul après 60 s sans requête, et redémarre à la requête suivante : tu paies au moins 1 minute à chaque démarrage, puis à la seconde.",
+    exemple: "CREATE WAREHOUSE wh_rapport\n  WAREHOUSE_SIZE = 'XSMALL' AUTO_SUSPEND = 600 AUTO_RESUME = TRUE;\nUSE WAREHOUSE wh_rapport;\nSELECT statut, COUNT(*) AS nb_cdes FROM commande GROUP BY statut;",
+    resultat: "wh_rapport calcule le SELECT, s'arrête seul après 10 minutes sans requête (le conseil de Snowflake pour des rapports, qui garde le cache), et redémarre à la requête suivante : tu paies au moins 1 minute à chaque démarrage, puis à la seconde.",
     piege: "Exemple écrit pour Snowflake. Sans warehouse actif, la requête plante (« No active warehouse selected in the current session ») ; et avec `AUTO_SUSPEND = 0`, un warehouse oublié ne s'arrête jamais et brûle des crédits toute la nuit.",
     pratique: "Crée un warehouse par usage : un pour les chargements, un pour les rapports Power BI. Un gros import ne ralentit plus les rapports, et tu vois qui consomme les crédits.",
     motsCles: ["warehouse", "entrepôt", "calcul", "puissance", "crédits", "coût", "facture", "payer", "taille", "serveur", "cluster", "suspendre", "démarrer", "compute", "performance", "virtuel"],

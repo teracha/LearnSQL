@@ -73,7 +73,7 @@ LEARNSQL.cours.m14 = {
         "Pourquoi : trois couches séparées. Le stockage se paie au volume ; le calcul, en crédits (l'unité de facture), à la seconde quand un warehouse tourne, 60 s minimum par démarrage ; les services cloud gèrent connexions et droits.",
         "Le piège : la facture qui grimpe. Avec le défaut (600 s), un rafraîchissement d'une minute toutes les 30 minutes paie environ 11 minutes : 1 de travail, 10 d'attente. En DirectQuery, chaque clic Power BI relance des requêtes.",
         "Le bon réflexe : un warehouse par usage (chargements, rafraîchissements, analystes), avec sa taille et son arrêt ; tu vois qui consomme. Un resource monitor (un quota mensuel de crédits) alerte, puis suspend.",
-        "Et aussi : pour une requête trop lente, la taille au-dessus (scale up) double puissance et crédits. Pour des requêtes en attente (« queued ») à 9 h : plusieurs clusters, des copies du warehouse (multi-cluster, édition Enterprise). Gen2 (2e génération, par défaut) : autre tarif."
+        "Et aussi : pour une requête trop lente, la taille au-dessus (scale up) double puissance et crédits. Pour des requêtes en attente (« queued ») à 9 h : plusieurs clusters, des copies du warehouse (multi-cluster, édition Enterprise). Gen2 (2e génération) : autre tarif ; le défaut d'un nouveau warehouse, si ta région la propose."
       ],
       retenir: "Calcul payé à la seconde, 60 s minimum par démarrage : un warehouse par usage, un arrêt automatique réglé sur l'usage."
     },
