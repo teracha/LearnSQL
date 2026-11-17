@@ -1284,6 +1284,11 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
   // mots réservés, erreurs des sous-requêtes, restrictions, WITH, tables dérivées, LATERAL, DELETE, LIMIT, ORDER BY, NULL,
   // comparaison de chaînes, jeux Unicode, plein texte, expressions régulières, fonctions de chaînes) et 8.0 (nouveautés) ;
   // Divalto (widgets KPI, requêtes Dataviz Industrie, contrôle des doublons en saisie de pièces, installation, collation).
+  // Relecture testeur vague 2 (17/11/2026) : nombres recalculés (SQLite) ; MySQL 8.0.46, mode strict : texte → nombre = erreur
+  // 1292 en UPDATE, DELETE et INSERT … SELECT (avertissement dans un SELECT) ; UNIQUE en utf8mb4_0900_ai_ci ('c001' refusé,
+  // 'C001 ' accepté) ; Divalto : ART.DES en Latin1_General_CI_AI depuis la 10.12 (Différence de collation Vx11 → Vx12) ;
+  // Snowflake : « Unsupported subquery type » (udf-sql-troubleshooting), NULL en tête en DESC aussi dans OVER
+  // (functions-window-syntax), lecture au début de l'instruction (transactions : READ COMMITTED).
   {
     id: "fenetre",
     titre: "J'utilise une fonction de fenêtre",
@@ -1343,6 +1348,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Finis l'ordre par une colonne unique : `ORDER BY montant_ht DESC, id DESC`. Le résultat devient le même à chaque exécution. Choisis aussi le sens : `DESC` pour « 1 = la plus récente »."
           },
           {
+            id: "ordre-null",
+            q: "La colonne de l'ordre peut-elle être vide (NULL) ?",
+            pourquoi: "Chaque moteur range les NULL à sa place, aussi dans `OVER`. Avec `ORDER BY date_livraison DESC`, Snowflake met les dates vides en tête : le numéro 1, « la plus récente », est une ligne sans date. SQL Server et MySQL les mettent à la fin.",
+            reflexe: "Écarte les NULL avant (`WHERE date_livraison IS NOT NULL`), ou dis où ils vont. Teste avec une ligne sans date. Les règles de chaque moteur : « Je trie et je garde les N premiers ».",
+            moteurs: {
+              snowflake: "Écris `ORDER BY date_livraison DESC NULLS LAST` dans l'`OVER` : sa doc y applique les mêmes règles de NULL qu'au tri final."
+            }
+          },
+          {
             id: "ordre-final",
             q: "As-tu aussi un ORDER BY à la fin de la requête ?",
             pourquoi: "L'ordre écrit dans `OVER` sert au calcul, pas à l'affichage. Sans `ORDER BY` final, les lignes sortent dans un ordre quelconque, qui peut changer d'un jour à l'autre.",
@@ -1390,7 +1404,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Pars d'une table calendrier (une ligne par jour), jointe en `LEFT JOIN` aux ventes, avec 0 les jours vides. Puis `ROWS`. Ou un cadre en jours, là où le moteur l'accepte.",
             moteurs: {
               sqlserver: "`RANGE` refuse un écart chiffré (`6 PRECEDING`) : calendrier complet, puis `ROWS`.",
-              snowflake: "Sur une date : `RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW`, avec un seul `ORDER BY`.",
+              snowflake: "Sur une date : `RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW`, avec une seule colonne dans l'`ORDER BY`.",
               mysql: "`RANGE BETWEEN INTERVAL 6 DAY PRECEDING AND CURRENT ROW`."
             }
           },
@@ -1473,7 +1487,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Filtre d'abord (la période, le statut) : moins de lignes à trier. Donne le même `PARTITION BY` et le même `ORDER BY` aux fenêtres qui le peuvent. Lis le plan d'exécution (le chemin choisi par le moteur) : combien de tris ?",
             moteurs: {
               sqlserver: "Un index sur les colonnes du `PARTITION BY`, puis de l'`ORDER BY`, dans le même ordre, avec les colonnes lues en `INCLUDE`, peut éviter le tri (sa doc).",
-              snowflake: "Le Query Profile (le plan détaillé de Snowflake), rubrique « Spilling », montre un tri qui déborde. Filtre avant, ou essaie un warehouse (le moteur de calcul) plus grand, et mesure.",
+              snowflake: "Le Query Profile (le plan détaillé de Snowflake), rubrique « Spilling » (le débordement), montre un tri qui déborde de la mémoire. Filtre avant, ou essaie un warehouse (le moteur de calcul) plus grand, et mesure.",
               mysql: "`EXPLAIN` montre « Using filesort » : un tri, écrit sur disque s'il est trop gros (sa doc)."
             }
           }
@@ -1489,7 +1503,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Ailleurs : `COUNT(DISTINCT article_id)` par `GROUP BY` dans une CTE, puis jointure au détail. Ou `DENSE_RANK()` croissant + décroissant - 1 (un NULL y compte comme une valeur).",
             moteurs: {
               sqlserver: "Erreur 10759 : « Use of DISTINCT is not allowed with the OVER clause. »",
-              snowflake: "Accepté ; avec un `ORDER BY` dans l'`OVER`, sur une seule colonne (sa doc).",
+              snowflake: "Accepté ; avec un `ORDER BY` dans l'`OVER`, le `DISTINCT` ne porte que sur une colonne (sa doc).",
               mysql: "Refusé : pas de `DISTINCT` dans une fonction de fenêtre (sa doc)."
             }
           },
@@ -1553,7 +1567,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       texte: "Le suivi EDI doit montrer, pour chaque commande EDI, le type et le statut de son dernier flux. Une 1re version mettait une sous-requête (une requête entre parenthèses, dans une autre) dans le `SELECT`. Elle a planté le jour où CDE-1001 a reçu un 2e flux, sa facture INVOIC : elle devait rendre une seule valeur. Voici la version relue, en deux étapes nommées : une CTE (`WITH`). 3 commandes ; CDE-1007 a un dernier flux rejeté.",
       code: "-- Avant : (SELECT f.statut FROM dbo.flux_edi AS f WHERE f.cde_id = co.id) : erreur 512 dès 2 flux\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut,\n         ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                            ORDER BY f.date_recu DESC, f.id DESC) AS rn\n  FROM dbo.flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM dbo.commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id AND d.rn = 1\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET",
       codes: {
-        snowflake: "-- Avant : (SELECT f.statut … WHERE f.cde_id = co.id) dans le SELECT : pas garanti sur Snowflake\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut\n  FROM flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n  QUALIFY ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                             ORDER BY f.date_recu DESC, f.id DESC) = 1\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET",
+        snowflake: "-- Avant : (SELECT f.statut … WHERE f.cde_id = co.id) dans le SELECT : refusé (« Unsupported subquery type »)\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut\n  FROM flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n  QUALIFY ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                             ORDER BY f.date_recu DESC, f.id DESC) = 1\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET",
         mysql: "-- Avant : (SELECT f.statut FROM flux_edi AS f WHERE f.cde_id = co.id) : erreur 1242 dès 2 flux\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut,\n         ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                            ORDER BY f.date_recu DESC, f.id DESC) AS rn\n  FROM flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id AND d.rn = 1\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET"
       }
     },
@@ -1603,7 +1617,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "in-exists",
             q: "Pour « a au moins un… », écris-tu IN, EXISTS ou une jointure ?",
-            pourquoi: "Une jointure répète la ligne pour chaque partenaire : AquaBleu sort 3 fois, une par commande. On ajoute `DISTINCT`, qui cache le problème. `IN` et `EXISTS` rendent chaque client une seule fois.",
+            pourquoi: "Une jointure répète le client pour chaque commande trouvée : AquaBleu sort 3 fois. On ajoute `DISTINCT`, qui cache le problème. `IN` et `EXISTS` rendent chaque client une seule fois.",
             reflexe: "`WHERE EXISTS (SELECT 1 FROM commande AS co WHERE co.client_id = cl.id)`. Garde ce lien vers la ligne du dessus : sans lui, `EXISTS` est vrai pour tous les clients dès qu'une commande existe.",
             moteurs: {
               sqlserver: "`IN` compare une seule colonne : pour deux colonnes, `EXISTS`.",
@@ -1685,7 +1699,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Garde le chemin parcouru, et arrête quand le composant y est déjà, comme ci-dessous. Puis liste les lignes en boucle : ce sont des erreurs de saisie à corriger. Voir « Je relie deux tables ».",
             moteurs: {
               sqlserver: "Le chemin doit avoir le même type, longueur comprise, dans les deux parties : d'où les deux `CAST` (sa doc).",
-              snowflake: "Concatène avec `||` ; un `VARCHAR` sans longueur suffit.",
+              snowflake: "Concatène avec `||`. Pas besoin de `CAST` : dans l'exemple de sa doc, le texte s'allonge à chaque niveau.",
               mysql: "Le type vient de l'ancre seule : élargis-la avec `CAST(… AS CHAR(400))`, sinon le chemin est coupé, ou la requête plante (sa doc)."
             },
             code: "WITH eclate (composant, niveau, chemin) AS (\n  SELECT composant, 1, CAST('KIT-COUV>' + composant AS VARCHAR(400))\n  FROM dbo.nomenclature WHERE compose = 'KIT-COUV'\n  UNION ALL\n  SELECT n.composant, e.niveau + 1, CAST(e.chemin + '>' + n.composant AS VARCHAR(400))\n  FROM dbo.nomenclature AS n JOIN eclate AS e ON n.compose = e.composant\n  WHERE '>' + e.chemin + '>' NOT LIKE '%>' + n.composant + '>%')   -- déjà vu : arrêt\nSELECT composant, niveau, chemin FROM eclate;   -- 1 ligne : BACHE8"
@@ -1793,10 +1807,10 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "presque",
             q: "Des valeurs presque égales (espaces, majuscules, accents) désignent-elles le même client ?",
-            pourquoi: "'Hydro Sud', 'HYDRO SUD' et 'Hydro Sud ' (un espace à la fin) : selon le moteur, `GROUP BY nom` fait 1, 2 ou 3 groupes. Le doublon passe inaperçu, ou deux fiches sont réunies sans qu'on le veuille.",
+            pourquoi: "'Hydro Sud', 'HYDRO SUD' et 'Hydro Sud ' (un espace à la fin) : selon la collation du moteur (sa règle de comparaison), `GROUP BY nom` fait 1, 2 ou 3 groupes. Le doublon passe inaperçu, ou deux fiches sont réunies sans qu'on le veuille.",
             reflexe: "Groupe sur une forme nettoyée : `UPPER(TRIM(nom))`, sans accents si le métier le veut. Mieux : une colonne nettoyée au chargement. Cherche aussi les caractères invisibles : l'astuce « Repérer les caractères invisibles (espace insécable) ».",
             moteurs: {
-              sqlserver: "Avec une collation (la règle de comparaison des textes) `_CI_` : 1 groupe ; la casse et les espaces de fin sont ignorés. Les accents comptent en `_AS`.",
+              sqlserver: "Avec une collation `_CI_` : 1 groupe ; la casse et les espaces de fin sont ignorés. Les accents comptent en `_AS`.",
               snowflake: "3 groupes : la casse et les espaces de fin comptent.",
               mysql: "Collation par défaut : 2 groupes. La casse et les accents sont ignorés, pas les espaces de fin (NO PAD)."
             }
@@ -1836,7 +1850,10 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "garder",
             q: "Quelle ligne garder : la plus récente, la plus complète, ou celle que l'ERP utilise ?",
             pourquoi: "Garder « une au hasard » peut garder la fiche sans SIREN et effacer celle qui a l'adresse à jour. Et si Divalto ou l'EDI utilisent l'autre numéro, leurs liens cassent.",
-            reflexe: "Écris la règle dans l'ordre de la numérotation : `ROW_NUMBER() OVER (PARTITION BY siret ORDER BY date_modif DESC, id DESC)`. La ligne 1 est gardée. Le dernier critère, unique, rend le choix stable."
+            reflexe: "Écris la règle dans l'ordre de la numérotation : `ROW_NUMBER() OVER (PARTITION BY siret ORDER BY date_modif DESC, id DESC)`. La ligne 1 est gardée. Le dernier critère, unique, rend le choix stable.",
+            moteurs: {
+              snowflake: "En `DESC`, une `date_modif` vide passe en tête : la fiche sans date serait gardée. Écris `ORDER BY date_modif DESC NULLS LAST, id DESC`."
+            }
           },
           {
             id: "fusionner",
@@ -1856,7 +1873,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Rattache d'abord les lignes liées à la ligne gardée, dans une transaction (tout ou rien) : `UPDATE commande SET client_id = @id_garde WHERE client_id = @id_double;`. Puis efface le doublon. Puis cherche les orphelins avec `NOT EXISTS`.",
             moteurs: {
               sqlserver: "La clé étrangère refuse le `DELETE` du client encore cité : erreur 547.",
-              snowflake: "La clé étrangère n'est pas appliquée : le `DELETE` passe, et les commandes restent orphelines, sans erreur.",
+              snowflake: "Sur une table standard, la clé étrangère n'est pas appliquée : le `DELETE` passe, et les commandes restent orphelines, sans erreur.",
               mysql: "InnoDB refuse le `DELETE` du client encore cité."
             }
           },
@@ -1917,8 +1934,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Une fois la table propre, pose la règle sur la clé métier : `ALTER TABLE client ADD CONSTRAINT uq_client_siret UNIQUE (siret);`. Elle échoue s'il reste un doublon : c'est aussi ton dernier contrôle.",
             moteurs: {
               sqlserver: "Un seul NULL accepté ; pour « unique quand c'est rempli » : `CREATE UNIQUE INDEX … WHERE siret IS NOT NULL`. Les espaces de fin étant ignorés, 'C001' et 'C001 ' y sont un doublon.",
-              snowflake: "`UNIQUE` est noté, pas appliqué (sauf sur une table hybride) : charge par `MERGE` (insérer ou mettre à jour selon la clé), et garde le contrôle `GROUP BY … HAVING` après chaque chargement.",
-              mysql: "`UNIQUE` appliqué ; plusieurs NULL acceptés."
+              snowflake: "`UNIQUE` est noté, pas appliqué (sauf sur une table hybride, un type de table fait pour de petites lectures et écritures rapides) : charge par `MERGE` (insérer ou mettre à jour selon la clé), et garde le contrôle `GROUP BY … HAVING` après chaque chargement.",
+              mysql: "`UNIQUE` appliqué ; plusieurs NULL acceptés. La collation décide du doublon : avec celle par défaut, 'c001' est refusé après 'C001', mais 'C001 ' passe (NO PAD)."
             }
           }
         ]
@@ -1986,6 +2003,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Écris l'ordre dont le lecteur a besoin, dans la requête finale : `ORDER BY date_cde DESC, num_cde`. Un `TOP`, un `LIMIT` ou un `OFFSET` sans `ORDER BY` prend des lignes quelconques."
           },
           {
+            id: "par-nom",
+            q: "Tries-tu par le nom des colonnes, et non par leur numéro (ORDER BY 2) ?",
+            pourquoi: "`ORDER BY 2` trie sur la 2e colonne du `SELECT`. Quelqu'un ajoute une colonne au début : le tri change de colonne, sans erreur, et l'export sort dans un autre ordre.",
+            reflexe: "Écris le nom ou l'alias : `ORDER BY montant_ht DESC, num_cde`. Le tri reste juste quand le `SELECT` change. La doc de SQL Server le conseille.",
+            moteurs: {
+              mysql: "Le tri par numéro de colonne est obsolète (sa doc)."
+            }
+          },
+          {
             id: "departage",
             q: "Ton ORDER BY finit-il par une colonne unique, qui départage les ex aequo ?",
             pourquoi: "À égalité sur le tri, le moteur rend les lignes dans l'ordre qu'il veut, et pas toujours le même. CDE-1002 et CDE-1006 échangent leur place, et la 4e commande du top change d'un jour à l'autre.",
@@ -2037,7 +2063,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "texte",
             q: "Le tri d'un texte suit-il l'ordre attendu : majuscules, minuscules, accents ?",
-            pourquoi: "L'ordre d'un texte suit sa collation, la règle qui compare et trie les textes. En ordre binaire (base Divalto, Snowflake par défaut), « pH moins 5 kg » et « Épuisette de fond » sortent après « Robot » : minuscules et accents passent après les majuscules.",
+            pourquoi: "L'ordre d'un texte suit sa collation, la règle qui compare et trie les textes. En ordre binaire (une collation `_BIN` sur SQL Server, Snowflake par défaut), « pH moins 5 kg » et « Épuisette de fond » sortent après « Robot » : minuscules et accents passent après les majuscules.",
             reflexe: "Pour une liste à lire, impose un tri à la française : une collation dans l'`ORDER BY`. Teste avec des majuscules, des minuscules, des accents et des chiffres. Pour un code, l'ordre binaire convient souvent.",
             moteurs: {
               sqlserver: "`ORDER BY libelle COLLATE French_CI_AS` : cette collation passe avant celle de la colonne (sa doc).",
@@ -2051,7 +2077,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "En texte, on compare caractère par caractère : '10' passe avant '9', et « Chlore lent 25 kg » avant « Chlore lent 5 kg ». Des numéros de lot sortent dans le désordre.",
             reflexe: "Trie sur la valeur convertie (`ORDER BY TRY_CAST(num_lot AS INT)`), ou range le nombre dans une colonne numérique. Un code de longueur fixe, avec ses zéros ('000042'), se trie bien en texte.",
             moteurs: {
-              mysql: "Pas de `TRY_CAST` : `CAST(num_lot AS UNSIGNED)`. Une valeur comme 'A12' devient 0, avec un simple avertissement."
+              mysql: "Pas de `TRY_CAST` : `CAST(num_lot AS UNSIGNED)`. Dans un `SELECT`, 'A12' devient 0, avec un simple avertissement. Dans un `INSERT` ou un `UPDATE`, le mode strict (actif par défaut) en fait une erreur."
             }
           }
         ]
@@ -2062,7 +2088,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "pages-stables",
             q: "Une ligne peut-elle sortir sur deux pages, ou sur aucune ?",
-            pourquoi: "Chaque page relance la requête. Si l'ordre a des ex aequo, ou si des lignes arrivent entre deux pages, une commande sort deux fois, et une autre jamais. Personne ne le voit.",
+            pourquoi: "Chaque page relance la requête. Si l'ordre a des ex aequo, ou si des lignes arrivent entre deux pages, une commande peut sortir deux fois, et une autre jamais. Personne ne le voit.",
             reflexe: "Un ordre qui finit par une clé unique. Pour une liste qui bouge pendant qu'on la lit (les flux EDI du jour), pagine par clé : la page suivante part de la dernière ligne vue.",
             moteurs: {
               sqlserver: "Sa doc : des pages stables demandent un `ORDER BY` unique, et des données qui ne changent pas entre deux pages (sinon, une seule transaction en isolation snapshot ou serializable, des niveaux qui figent les données lues)."
@@ -2071,7 +2097,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "grand-offset",
             q: "Les pages lointaines restent-elles rapides, avec un grand OFFSET ?",
-            pourquoi: "Pour sauter 100 000 lignes, le moteur doit les trouver et les trier, puis les jeter. Chaque page coûte plus que la précédente : la dernière est la plus chère.",
+            pourquoi: "Pour sauter 100 000 lignes, le moteur doit quand même les lire, dans l'ordre, puis les jeter. Plus la page est loin, plus il lit de lignes pour rien, à chaque appel.",
             reflexe: "Pagine par clé : garde la dernière clé vue, puis `WHERE id > @dernier_id ORDER BY id`, avec `TOP (20)` ou `LIMIT 20`. Un index sur `id` va droit à la page. Mesure la dernière page, pas la première."
           },
           {
@@ -2136,7 +2162,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "Un `ORDER BY` dans une vue, avec `TOP 100 PERCENT` : la requête qui lit la vue n'est pas triée pour autant.",
       "`TOP (3)` pour « les 3 dernières commandes de chaque client » : 3 lignes en tout."
     ],
-    pratique: "Une base Divalto est en collation binaire (`Latin1_General_BIN`) : triée sur un libellé, une liste met les minuscules et les lettres accentuées après les majuscules. Pour une liste à lire, impose une collation française dans l'`ORDER BY`.",
+    pratique: "Le guide d'installation Divalto impose `Latin1_General_BIN` : minuscules et accents y sont triés après les majuscules. Depuis la 10.12, des libellés (dont `ART.DES`) sont en `Latin1_General_CI_AI`. Lis la collation du champ avant d'imposer un tri.",
     motsCles: ["trier", "tri", "order by", "top", "limit", "offset", "fetch", "pagination", "plus gros", "n premiers", "with ties", "ex aequo", "nulls last", "classement", "ordre de tri"],
     voirAussi: ["fenetre", "sous-requete", "comparer-texte", "requete-lente", "creer-vue", "creer-index", "exporter", "donnees-powerbi"],
     dico: ["order-by", "top", "offset-fetch", "rank", "row-number", "qualify", "collate"],
@@ -2147,9 +2173,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       { titre: "Snowflake : ORDER BY", url: "https://docs.snowflake.com/en/sql-reference/constructs/order-by" },
       { titre: "Snowflake : LIMIT / FETCH", url: "https://docs.snowflake.com/en/sql-reference/constructs/limit" },
       { titre: "Snowflake : Top-K pruning", url: "https://docs.snowflake.com/en/user-guide/querying-top-k-pruning-optimization" },
-      { titre: "MySQL 8.4 : LIMIT Query Optimization", url: "https://dev.mysql.com/doc/refman/8.4/en/limit-optimization.html" },
       { titre: "MySQL 8.4 : Working with NULL Values", url: "https://dev.mysql.com/doc/refman/8.4/en/working-with-null.html" },
-      { titre: "Divalto : Installation Divalto infinity serveur et licence", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10550739615/Installation+Divalto+infinity+serveur+et+licence" }
+      { titre: "Divalto : Installation Divalto infinity serveur et licence", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10550739615/Installation+Divalto+infinity+serveur+et+licence" },
+      { titre: "Divalto : Migration - Différence de collation des champs entre Vx11 et Vx12", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11639881864/Migration+-+Diff+rence+de+collation+des+champs+entre+Vx11+et+Vx12" }
     ]
   },
   {
@@ -2193,7 +2219,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "La collation peut changer d'une colonne à l'autre, même dans une seule base. Sans la connaître, tu ne sais pas ce que fait ton `=`, ni ton `LIKE`.",
             reflexe: "Lis-la avant d'écrire. Son nom dit la règle : CI = casse ignorée, CS = casse comptée, AI = accents ignorés, AS = accents comptés, BIN = binaire, tout compte.",
             moteurs: {
-              sqlserver: "`SELECT name, collation_name FROM sys.columns WHERE object_id = OBJECT_ID('dbo.client');`. Une base Divalto est en `Latin1_General_BIN` : la casse et les accents comptent.",
+              sqlserver: "`SELECT name, collation_name FROM sys.columns WHERE object_id = OBJECT_ID('dbo.client');`. Dans Divalto, elle change d'un champ à l'autre depuis la 10.12 (voir « En pratique »).",
               snowflake: "`SELECT DISTINCT COLLATION(ville) FROM client;` : NULL veut dire aucune collation, les textes sont comparés par leurs codes UTF-8, et tout compte.",
               mysql: "`SHOW FULL COLUMNS FROM client;`, colonne Collation. Par défaut : `utf8mb4_0900_ai_ci`."
             }
@@ -2289,8 +2315,11 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "code-nombre",
             q: "Compares-tu un code rangé en texte à un nombre ?",
-            pourquoi: "`code_postal = 69110` sur une colonne texte : le moteur convertit chaque ligne en nombre. L'index ne sert plus, et '2A004' (la Corse) fait planter la requête, ou devient 2 sur MySQL, avec un simple avertissement.",
-            reflexe: "Écris la valeur dans le type de la colonne : `code_postal = '69110'`. Dans Divalto, `CE4 = '1'`. Le détail : « J'écris une valeur dans une requête »."
+            pourquoi: "`code_postal = 69110` sur une colonne texte : le moteur convertit chaque ligne en nombre. L'index ne sert plus, et '2A004' (la Corse) fait planter la requête. Seul un `SELECT` MySQL passe : '2A004' y devient 2, avec un simple avertissement.",
+            reflexe: "Écris la valeur dans le type de la colonne : `code_postal = '69110'`. Dans Divalto, `CE4 = '1'`. Le détail : « J'écris une valeur dans une requête ».",
+            moteurs: {
+              mysql: "Dans un `UPDATE` ou un `DELETE`, le mode strict (actif par défaut) fait de cette conversion une erreur : la requête s'arrête, sans rien changer (sa doc)."
+            }
           },
           {
             id: "unicode-n",
@@ -2311,7 +2340,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Mesure la ressemblance, par exemple une distance d'édition (le nombre de lettres à changer : ici 2), sur des candidats déjà filtrés (même code postal). Fais valider les paires par un humain : jamais de fusion automatique.",
             moteurs: {
               sqlserver: "`SOUNDEX` et `DIFFERENCE` suivent la prononciation anglaise. `EDIT_DISTANCE` et `JARO_WINKLER_SIMILARITY` (SQL Server 2025) sont en préversion : option `PREVIEW_FEATURES`, déconseillée en production.",
-              snowflake: "`EDITDISTANCE(a, b)` (la distance de Levenshtein) et `JAROWINKLER_SIMILARITY(a, b)`, de 0 à 100, sans tenir compte de la casse.",
+              snowflake: "`EDITDISTANCE(a, b)` : la distance de Levenshtein. `JAROWINKLER_SIMILARITY(a, b)` : une note de 0 à 100, qui ne tient pas compte de la casse (sa doc).",
               mysql: "Seulement `SOUNDEX`, prévu pour l'anglais et peu fiable en UTF-8 (sa doc). Pas de distance d'édition intégrée."
             }
           },
@@ -2321,7 +2350,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Vérifier un format (un SIRET de 14 chiffres, un code 'AAA-999') avec LIKE devient vite illisible. Une expression régulière, un motif qui décrit le format, le dit en une ligne.",
             reflexe: "Garde LIKE pour « commence par » et « contient ». Pour un format : une expression régulière, testée sur des valeurs justes et fausses, avec un commentaire qui la dit en français. Ici, 5 SIREN ont bien 9 chiffres.",
             moteurs: {
-              sqlserver: "Depuis SQL Server 2025 : `REGEXP_LIKE(siren, '^[0-9]{9}$')`, au niveau de compatibilité 170 (le réglage de version de la base) ; aussi `REGEXP_REPLACE`, `REGEXP_SUBSTR`… Rien avant. Elles ignorent la collation (sa doc).",
+              sqlserver: "Depuis SQL Server 2025 : `REGEXP_LIKE(siren, '^[0-9]{9}$')`, au niveau de compatibilité 170 (le réglage de version de la base) ; `REGEXP_REPLACE`, `REGEXP_SUBSTR`… marchent à tous les niveaux. Rien avant. Elles ignorent la collation (sa doc).",
               snowflake: "`REGEXP_LIKE(siren, '[0-9]{9}')` : le motif est ancré aux deux bouts, donc « exactement 9 chiffres ». Pas de collation possible.",
               mysql: "`REGEXP_LIKE(siren, '^[0-9]{9}$')` ; la casse suit la collation, sauf option `'c'` ou `'i'`."
             }
@@ -2350,7 +2379,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "Une espace insécable copiée d'Excel : `TRIM` ne l'enlève pas, et la jointure échoue sans erreur.",
       "Une recherche « contient » sur 5 millions de libellés, à chaque frappe : toute la table est lue à chaque fois."
     ],
-    pratique: "Une base Divalto est en `Latin1_General_BIN` : la casse et les accents comptent. Depuis la 10.12, des libellés passent en `Latin1_General_CI_AI`. Vérifie la collation de chaque champ comparé, surtout dans une surcharge.",
+    pratique: "Dans Divalto, la collation standard compte la casse et les accents. Depuis la 10.12, des libellés passent en `Latin1_General_CI_AI`, qui les ignore. Vérifie la collation de chaque champ comparé, surtout dans une surcharge.",
     motsCles: ["texte", "comparer", "chercher", "recherche", "casse", "majuscules", "accents", "collation", "like", "ilike", "espaces de fin", "plein texte", "soundex", "regex", "contient"],
     voirAussi: ["filtrer", "joindre", "doublons", "ecrire-valeur", "trier-paginer", "fonction-scalaire", "importer-fichier"],
     dico: ["like", "ilike", "collate", "upper-lower", "trim", "replace", "nvarchar", "len"],

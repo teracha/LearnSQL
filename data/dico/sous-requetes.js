@@ -109,9 +109,9 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
     categorie: "Sous-requêtes",
     definition: "Une CTE qui se relit elle-même, niveau par niveau : pour parcourir une hiérarchie ou créer une suite de dates.",
     moteurs: {
-      sqlserver: "`WITH` seul, sans `RECURSIVE` ; l'ancre, `UNION ALL`, puis la partie récursive ; 100 niveaux au plus, sinon `OPTION (MAXRECURSION 0)`",
+      sqlserver: "`WITH` seul, sans `RECURSIVE` ; l'ancre, `UNION ALL`, puis la partie récursive ; 100 niveaux par défaut ; `OPTION (MAXRECURSION n)` change la limite (0 l'enlève)",
       snowflake: "`WITH RECURSIVE nom (colonnes) AS (…)` : la liste des colonnes est obligatoire ; une boucle sans fin tourne, et coûte, jusqu'au délai maximum de la requête",
-      mysql: "`WITH RECURSIVE` obligatoire ; 1 000 niveaux au plus (`cte_max_recursion_depth`)"
+      mysql: "`WITH RECURSIVE` obligatoire ; 1 000 niveaux par défaut (`cte_max_recursion_depth`, modifiable pour la session)"
     },
     noms: ["WITH RECURSIVE", "MAXRECURSION", "CONNECT BY"],
     exemple: "WITH jours (jour) AS (\n  SELECT CAST('20260401' AS date)\n  UNION ALL\n  SELECT DATEADD(day, 1, jour) FROM jours WHERE jour < '20260405'\n)\nSELECT j.jour, COUNT(c.id) AS nb_cde\nFROM jours AS j LEFT JOIN commande AS c ON c.date_cde = j.jour\nGROUP BY j.jour ORDER BY j.jour;",
