@@ -1265,5 +1265,1105 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       { titre: "MySQL 8.4 : CREATE PROCEDURE and CREATE FUNCTION", url: "https://dev.mysql.com/doc/refman/8.4/en/create-procedure.html" },
       { titre: "MySQL 8.4 : Stored Program Binary Logging", url: "https://dev.mysql.com/doc/refman/8.4/en/stored-programs-logging.html" }
     ]
+  },
+  // Vague 2 (17/11/2026) : fenetre, sous-requete, doublons, trier-paginer, comparer-texte.
+  // Résultats recalculés avec SQLite sur docs/base-exemple.sql (scratchpad architecte/v2-interroger/scripts/verif.py) et
+  // rejoués sur MySQL 8.0.46, connexion utf8mb4 (ex aequo CDE-1002 / CDE-1006 : ROW_NUMBER 4 et 5, RANK 4 et 4 puis 6,
+  // DENSE_RANK 4 et 4 puis 5 ; AquaBleu numéroté 1, 3, 7 ou 1, 2, 3 ; 45 345 € = 3 x 15 115 € ; dernier flux : CDE-1001
+  // INVOIC, CDE-1003 ORDERS, CDE-1007 DESADV REJET ; KIT-COUV : 10 lignes au niveau 10 ; SIREN 5 - 4 = 1 ligne en trop ;
+  // TOP (4) WITH TIES = 5 lignes ; LIMIT 2, 3 ; tri binaire et tri utf8mb4_0900_ai_ci des libellés ; 'GENEVE' ; 'C001 ' ;
+  // 3 / 2 / 1 groupes pour 'Hydro Sud' ; DELETE des doublons par jointure ; erreurs QUALIFY, DISTINCT OVER, 1242, IGNORE NULLS).
+  // Sources lues le 17/11/2026 (pages gardées dans scratchpad architecte/v2-interroger/pages) : learn.microsoft.com (OVER,
+  // ROW_NUMBER, LAG, LAST_VALUE, WINDOW, erreurs 0-999, 1000-1999, 2000-2999, 4000-4999, 10000-10999, WITH, DELETE, ORDER BY,
+  // TOP, CREATE VIEW, LIKE, = (comparaison de chaînes), collation et Unicode, Full-Text Search, SOUNDEX, DIFFERENCE,
+  // REGEXP_LIKE, expressions régulières, recherche approchée, nouveautés SQL Server 2025, suppression des doublons) ;
+  // docs.snowflake.com en .md (fenêtres, QUALIFY, COUNT, LAG, LAST_VALUE, ROW_NUMBER, sous-requêtes, WITH, CTE, LATERAL,
+  // DELETE, INSERT, ORDER BY, LIMIT, TOP, top-K pruning, paramètres, collation, LIKE, ILIKE, CONTAINS, SEARCH, recherche
+  // plein texte, Search Optimization, SUBSTRING, EDITDISTANCE, JAROWINKLER_SIMILARITY, SOUNDEX, REGEXP_LIKE, expressions
+  // régulières) ; dev.mysql.com/doc/refman/8.4 (fenêtres : usage, cadre, fonctions, restrictions, fenêtres nommées ; SELECT,
+  // mots réservés, erreurs des sous-requêtes, restrictions, WITH, tables dérivées, LATERAL, DELETE, LIMIT, ORDER BY, NULL,
+  // comparaison de chaînes, jeux Unicode, plein texte, expressions régulières, fonctions de chaînes) et 8.0 (nouveautés) ;
+  // Divalto (widgets KPI, requêtes Dataviz Industrie, contrôle des doublons en saisie de pièces, installation, collation).
+  {
+    id: "fenetre",
+    titre: "J'utilise une fonction de fenêtre",
+    famille: "Interroger",
+    resume: "Les questions avant un `OVER` : le groupe, l'ordre et les ex aequo, le cadre, le filtre sur le résultat, LAG, le cumul, la vitesse, les moteurs.",
+    besoins: [
+      "fonction de fenêtre",
+      "numéroter les lignes avec row_number",
+      "calculer un cumul ou un rang par client avec over",
+      "comparer une ligne à la précédente avec lag"
+    ],
+    essais: [
+      "rank ou dense_rank avec des ex aequo",
+      "last_value ne rend pas la derniere valeur",
+      "filtrer sur row_number dans le where",
+      "lag pour comparer avec la commande precedente"
+    ],
+    exemple: {
+      texte: "Pour Power BI, tu veux chaque commande avec trois calculs : son numéro dans le client (1 = la plus récente), le cumul du client, et l'écart avec la commande d'avant (LAG lit la ligne d'avant). Une fonction de fenêtre (`OVER`) calcule sur un groupe de lignes sans les fusionner. Avant de l'écrire, tu fixes le groupe (`PARTITION BY`), l'ordre (`ORDER BY`) et le cadre : les lignes prises dans le calcul. Résultat : 7 lignes ; la 1re commande de chaque client a un écart vide (NULL).",
+      code: "SELECT client_id, num_cde, date_cde, montant_ht,\n       ROW_NUMBER() OVER (PARTITION BY client_id\n                          ORDER BY date_cde DESC, id DESC) AS rn,        -- 1 = la plus récente\n       SUM(montant_ht) OVER (PARTITION BY client_id ORDER BY date_cde, id\n                             ROWS UNBOUNDED PRECEDING) AS cumul_client,  -- le cadre est écrit\n       montant_ht - LAG(montant_ht) OVER (PARTITION BY client_id\n                                          ORDER BY date_cde, id) AS ecart  -- NULL sur la 1re\nFROM dbo.commande\nWHERE statut <> 'ANNULEE'\nORDER BY client_id, date_cde, id;   -- l'ordre de l'affichage, à part",
+      codes: {
+        snowflake: "SELECT client_id, num_cde, date_cde, montant_ht,\n       ROW_NUMBER() OVER (PARTITION BY client_id\n                          ORDER BY date_cde DESC, id DESC) AS rn,        -- 1 = la plus récente\n       SUM(montant_ht) OVER (PARTITION BY client_id ORDER BY date_cde, id\n                             ROWS UNBOUNDED PRECEDING) AS cumul_client,  -- le cadre est écrit\n       montant_ht - LAG(montant_ht) OVER (PARTITION BY client_id\n                                          ORDER BY date_cde, id) AS ecart  -- NULL sur la 1re\nFROM commande\nWHERE statut <> 'ANNULEE'\nORDER BY client_id, date_cde, id;   -- l'ordre de l'affichage, à part",
+        mysql: "SELECT client_id, num_cde, date_cde, montant_ht,\n       ROW_NUMBER() OVER (PARTITION BY client_id\n                          ORDER BY date_cde DESC, id DESC) AS rn,        -- 1 = la plus récente\n       SUM(montant_ht) OVER (PARTITION BY client_id ORDER BY date_cde, id\n                             ROWS UNBOUNDED PRECEDING) AS cumul_client,  -- le cadre est écrit\n       montant_ht - LAG(montant_ht) OVER (PARTITION BY client_id\n                                          ORDER BY date_cde, id) AS ecart  -- NULL sur la 1re\nFROM commande\nWHERE statut <> 'ANNULEE'\nORDER BY client_id, date_cde, id;   -- l'ordre de l'affichage, à part"
+      }
+    },
+    etapes: [
+      {
+        titre: "Le bon outil",
+        questions: [
+          {
+            id: "fenetre-ou-groupe",
+            q: "Veux-tu garder chaque ligne, ou une seule ligne par groupe ?",
+            pourquoi: "`GROUP BY` fusionne les lignes ; une fenêtre les garde et pose le calcul du groupe à côté. Le mauvais choix donne le mauvais grain (le niveau de détail d'une ligne) : des commandes perdues, ou un total répété partout.",
+            reflexe: "Écris le grain en une phrase : « une ligne = une commande ». Le détail avec le total du client : `SUM(montant_ht) OVER (PARTITION BY client_id)`. Une ligne par client : `GROUP BY`. Voir « Je fais un agrégat »."
+          },
+          {
+            id: "ou-calculer",
+            q: "Le calcul doit-il suivre les filtres du rapport Power BI ?",
+            pourquoi: "Un rang calculé en SQL est figé. Filtré sur une région dans Power BI, un client reste « 3e », même s'il est 1er de sa région. Et un total répété, additionné, compte plusieurs fois : 45 345 € pour AquaBleu au lieu de 15 115 €.",
+            reflexe: "Ce qui ne bouge pas (numéro de version, dernière commande, cumul validé) : en SQL. Ce qui doit suivre les filtres (rang, part du total) : une mesure, un calcul fait par Power BI. N'additionne jamais une colonne de total répété."
+          }
+        ]
+      },
+      {
+        titre: "Le groupe et l'ordre",
+        questions: [
+          {
+            id: "partition",
+            q: "Sur quel groupe le calcul repart-il à zéro (PARTITION BY) ?",
+            pourquoi: "Sans `PARTITION BY`, la fenêtre prend tout le résultat. Le cumul ne repart pas à chaque client, et LAG compare la 1re commande de Piscines Dumont (CDE-1002) à une commande d'AquaBleu (CDE-1001).",
+            reflexe: "Dis le groupe en clair : « par client », « par client et par année ». Puis écris ses colonnes : `PARTITION BY client_id`. Prends la clé, pas le nom : les deux agences Piscines Dumont portent le même."
+          },
+          {
+            id: "ordre-unique",
+            q: "L'ordre de la fenêtre départage-t-il toutes les lignes, avec une clé unique en dernier ?",
+            pourquoi: "Des ex aequo (des lignes à égalité dans l'ordre) n'ont pas d'ordre garanti entre eux. CDE-1002 et CDE-1006 valent 1 290 € : avec `ORDER BY montant_ht`, leur numéro et leur LAG peuvent changer d'une exécution à l'autre ; leur cumul aussi, avec `ROWS`.",
+            reflexe: "Finis l'ordre par une colonne unique : `ORDER BY montant_ht DESC, id DESC`. Le résultat devient le même à chaque exécution. Choisis aussi le sens : `DESC` pour « 1 = la plus récente »."
+          },
+          {
+            id: "ordre-final",
+            q: "As-tu aussi un ORDER BY à la fin de la requête ?",
+            pourquoi: "L'ordre écrit dans `OVER` sert au calcul, pas à l'affichage. Sans `ORDER BY` final, les lignes sortent dans un ordre quelconque, qui peut changer d'un jour à l'autre.",
+            reflexe: "Garde un `ORDER BY` final, comme dans l'exemple : `ORDER BY client_id, date_cde, id`. Il peut différer de celui de la fenêtre. Voir « Je trie et je garde les N premiers »."
+          },
+          {
+            id: "apres-group-by",
+            q: "Ta fenêtre est-elle calculée sur le résultat d'un GROUP BY ?",
+            pourquoi: "Après un `GROUP BY`, la fenêtre ne voit qu'une ligne par groupe. `SUM(montant_ht) OVER ()` y est refusé : `montant_ht` n'existe plus ligne par ligne. Il faut une autre écriture.",
+            reflexe: "Enveloppe l'agrégat : `SUM(SUM(montant_ht)) OVER ()` donne le total de tous les clients. Une fenêtre sur une fenêtre : deux étapes, une CTE (une requête nommée par `WITH`) par fenêtre.",
+            moteurs: {
+              sqlserver: "Une fenêtre dans un agrégat, ou dans une autre fenêtre : erreur 4109.",
+              mysql: "Les fenêtres imbriquées ne sont pas prises en charge (sa doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les ex aequo",
+        questions: [
+          {
+            id: "fonction-rang",
+            q: "Les ex aequo doivent-ils recevoir un numéro chacun, ou le même rang ?",
+            pourquoi: "Classées par montant, CDE-1002 et CDE-1006 (1 290 €) sont 4 et 5 avec ROW_NUMBER ; 4 et 4 avec RANK, puis 6 ; 4 et 4 avec DENSE_RANK, puis 5. Un filtre `rang = 4` rend une ligne ou deux, selon la fonction.",
+            reflexe: "Une ligne par numéro (dédoublonner, garder la dernière) : ROW_NUMBER, avec un départage. Tous les ex aequo, comme sur un podium : RANK. Les N plus gros montants différents : DENSE_RANK. Écris ton choix en commentaire."
+          }
+        ]
+      },
+      {
+        titre: "Le cadre",
+        questions: [
+          {
+            id: "cadre",
+            q: "As-tu écrit le cadre (ROWS ou RANGE), ou laisses-tu celui par défaut ?",
+            pourquoi: "Avec un `ORDER BY` et sans cadre écrit, le défaut est `RANGE … CURRENT ROW` : les ex aequo du tri sont cumulés d'un coup. Deux mouvements de stock du même jour affichent tous les deux le solde du soir.",
+            reflexe: "Écris toujours le cadre. Un cumul : `ROWS UNBOUNDED PRECEDING`, du début du groupe à la ligne. Une moyenne des 3 dernières commandes : `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW`.",
+            moteurs: {
+              snowflake: "Même défaut, sauf pour FIRST_VALUE, LAST_VALUE et NTH_VALUE : toute la fenêtre. Sa doc conseille d'écrire le cadre."
+            }
+          },
+          {
+            id: "lignes-ou-jours",
+            q: "Ta moyenne mobile compte-t-elle des lignes, ou des jours ?",
+            pourquoi: "`ROWS BETWEEN 6 PRECEDING AND CURRENT ROW` prend les 7 dernières lignes, pas les 7 derniers jours. Un jour sans commande n'a pas de ligne : avec 3 jours vides, la « moyenne sur 7 jours » couvre 10 jours, sans erreur.",
+            reflexe: "Pars d'une table calendrier (une ligne par jour), jointe en `LEFT JOIN` aux ventes, avec 0 les jours vides. Puis `ROWS`. Ou un cadre en jours, là où le moteur l'accepte.",
+            moteurs: {
+              sqlserver: "`RANGE` refuse un écart chiffré (`6 PRECEDING`) : calendrier complet, puis `ROWS`.",
+              snowflake: "Sur une date : `RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW`, avec un seul `ORDER BY`.",
+              mysql: "`RANGE BETWEEN INTERVAL 6 DAY PRECEDING AND CURRENT ROW`."
+            }
+          },
+          {
+            id: "last-value",
+            q: "Pour la dernière valeur (LAST_VALUE), ton cadre va-t-il jusqu'au bout du groupe ?",
+            pourquoi: "Sans cadre écrit, SQL Server et MySQL s'arrêtent à la ligne courante : LAST_VALUE rend la ligne elle-même. Snowflake prend toute la fenêtre. Même requête, deux résultats, sans erreur.",
+            reflexe: "Écris `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`. Ou prends FIRST_VALUE dans l'ordre inverse (`ORDER BY date_cde DESC`) : il donne la dernière valeur sur les trois moteurs, sans cadre à régler."
+          }
+        ]
+      },
+      {
+        titre: "Filtrer sur le résultat",
+        questions: [
+          {
+            id: "filtre-resultat",
+            q: "Veux-tu filtrer sur le résultat de la fenêtre (rn = 1, rang <= 3) ?",
+            pourquoi: "La fenêtre se calcule après le `WHERE` : quand il s'exécute, elle n'existe pas encore. `WHERE ROW_NUMBER() OVER (…) = 1` est refusé.",
+            reflexe: "Calcule la fenêtre dans une CTE, puis filtre au-dessus : `WITH r AS (…) SELECT … FROM r WHERE rn = 1`. Avec l'exemple, `rn = 1` garde la dernière commande de chaque client.",
+            moteurs: {
+              sqlserver: "Erreur 4108 : « Windowed functions can only appear in the SELECT or ORDER BY clauses. »",
+              snowflake: "`QUALIFY rn = 1` filtre en une seule requête, après la fenêtre ; il lit l'alias du `SELECT`.",
+              mysql: "Pas de clause `QUALIFY` (le mot est réservé depuis la 8.4, mais la clause n'existe pas) : CTE, puis `WHERE`."
+            }
+          },
+          {
+            id: "filtre-avant",
+            q: "Ton filtre doit-il retirer des lignes avant le calcul, ou après ?",
+            pourquoi: "Numérotées par date parmi toutes les commandes, celles d'AquaBleu ont les numéros 1, 3 et 7. Filtrées sur AquaBleu avant le calcul, elles ont 1, 2 et 3. Ce sont deux questions différentes.",
+            reflexe: "Dis ce que compte le rang : « parmi toutes les commandes » (filtre au-dessus de la CTE) ou « parmi celles du client » (filtre dans le `WHERE` de la même requête). Une vue qui calcule une fenêtre est filtrée après."
+          }
+        ]
+      },
+      {
+        titre: "LAG, LEAD et les bords",
+        questions: [
+          {
+            id: "premiere-ligne",
+            q: "Que doit afficher LAG sur la première ligne de chaque groupe ?",
+            pourquoi: "La 1re commande d'un client n'a pas de commande d'avant : LAG rend NULL, et l'écart aussi. Un `CASE … ELSE 'Stable'` la classe alors « Stable », à tort.",
+            reflexe: "Décide du sens : NULL (« pas de commande d'avant »), ou une valeur par défaut : `LAG(montant_ht, 1, 0)`. Pour un écart en %, divise par `NULLIF(LAG(…), 0)`. Teste la 1re et la dernière ligne de chaque groupe."
+          },
+          {
+            id: "trous",
+            q: "La ligne d'avant est-elle vraiment la période d'avant ?",
+            pourquoi: "LAG compte des lignes, pas des mois. Si février n'a aucune vente, la ligne d'avant mars est janvier : l'évolution « mois sur mois » compare mars à janvier, sans le dire.",
+            reflexe: "Pars d'un calendrier complet (une ligne par mois, même vide), puis LAG. Ou contrôle la date de la ligne d'avant : elle doit être le mois précédent."
+          },
+          {
+            id: "ignore-nulls",
+            q: "Faut-il sauter les cases vides, pour reprendre la dernière valeur connue ?",
+            pourquoi: "Un prix manque certains jours. `LAG(prix)` rend alors NULL, et le calcul de la marge saute ces jours-là, sans erreur.",
+            reflexe: "`IGNORE NULLS`, dans LAG ou LAST_VALUE, prend la dernière valeur non vide, là où le moteur l'accepte. Sinon, deux étapes : l'astuce « Reprendre la dernière valeur connue (remplir vers le bas) ».",
+            moteurs: {
+              sqlserver: "`IGNORE NULLS` depuis SQL Server 2022.",
+              snowflake: "`LAG(prix) IGNORE NULLS OVER (…)`.",
+              mysql: "`IGNORE NULLS` est lu, puis refusé : erreur (sa doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Le cumul",
+        questions: [
+          {
+            id: "cumul-controle",
+            q: "Le dernier cumul de chaque groupe égale-t-il le total du groupe ?",
+            pourquoi: "Un cumul faux ne plante pas : il saute une ligne, en compte deux d'un coup, ou repart au mauvais moment. Personne ne le voit avant l'écart avec la compta.",
+            reflexe: "Compare, pour chaque client, le cumul de sa dernière ligne et son total par `GROUP BY` : dans l'exemple, AquaBleu finit à 15 115 €. Garde ce contrôle dans le script."
+          }
+        ]
+      },
+      {
+        titre: "La vitesse",
+        questions: [
+          {
+            id: "tri",
+            q: "Combien de lignes chaque fenêtre doit-elle trier ?",
+            pourquoi: "Chaque `PARTITION BY … ORDER BY` demande un tri. Sur des millions de lignes, un tri qui ne tient pas en mémoire déborde sur le disque, et coûte plus cher. Cela ne se voit qu'avec le vrai volume.",
+            reflexe: "Filtre d'abord (la période, le statut) : moins de lignes à trier. Donne le même `PARTITION BY` et le même `ORDER BY` aux fenêtres qui le peuvent. Lis le plan d'exécution (le chemin choisi par le moteur) : combien de tris ?",
+            moteurs: {
+              sqlserver: "Un index sur les colonnes du `PARTITION BY`, puis de l'`ORDER BY`, dans le même ordre, avec les colonnes lues en `INCLUDE`, peut éviter le tri (sa doc).",
+              snowflake: "Le Query Profile (le plan détaillé de Snowflake), rubrique « Spilling », montre un tri qui déborde. Filtre avant, ou essaie un warehouse (le moteur de calcul) plus grand, et mesure.",
+              mysql: "`EXPLAIN` montre « Using filesort » : un tri, écrit sur disque s'il est trop gros (sa doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les moteurs",
+        questions: [
+          {
+            id: "count-distinct",
+            q: "Comptes-tu des valeurs différentes dans une fenêtre, avec COUNT(DISTINCT) OVER ?",
+            pourquoi: "Le nombre d'articles différents de chaque client, sur chaque ligne : l'écriture semble évidente, mais seul Snowflake l'accepte. Copiée ailleurs, la requête plante.",
+            reflexe: "Ailleurs : `COUNT(DISTINCT article_id)` par `GROUP BY` dans une CTE, puis jointure au détail. Ou `DENSE_RANK()` croissant + décroissant - 1 (un NULL y compte comme une valeur).",
+            moteurs: {
+              sqlserver: "Erreur 10759 : « Use of DISTINCT is not allowed with the OVER clause. »",
+              snowflake: "Accepté ; avec un `ORDER BY` dans l'`OVER`, sur une seule colonne (sa doc).",
+              mysql: "Refusé : pas de `DISTINCT` dans une fonction de fenêtre (sa doc)."
+            }
+          },
+          {
+            id: "versions",
+            q: "Ton moteur et sa version acceptent-ils toute ta requête ?",
+            pourquoi: "Une fenêtre écrite pour Snowflake (`QUALIFY`, `COUNT(DISTINCT …) OVER`) plante sur SQL Server et MySQL ; un cadre en jours plante sur SQL Server. Et un MySQL d'avant la 8.0 refuse `OVER`.",
+            reflexe: "Vérifie la version (`SELECT @@VERSION;` sur SQL Server, `SELECT VERSION();` sur MySQL), puis teste sur chaque moteur cible. Si la requête doit migrer, garde les écritures communes : une CTE plutôt que `QUALIFY`.",
+            moteurs: {
+              sqlserver: "`IGNORE NULLS` et la clause `WINDOW` (une fenêtre nommée, réutilisée) depuis 2022 ; `WINDOW` demande le niveau de compatibilité 160 (le réglage de version de la base).",
+              mysql: "Fonctions de fenêtre depuis la 8.0 (sa doc des nouveautés 8.0) ; la clause `WINDOW` y est acceptée."
+            }
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Un `ROW_NUMBER()` sans départage : CDE-1002 et CDE-1006 (1 290 €) peuvent échanger leur numéro d'une exécution à l'autre.",
+      "Un cumul sans cadre écrit : deux lignes à égalité dans l'ordre reçoivent le même cumul, d'un coup.",
+      "`LAST_VALUE` sans cadre : la ligne elle-même sur SQL Server et MySQL, la vraie dernière sur Snowflake. Une requête migrée change de résultat, sans erreur.",
+      "`WHERE ROW_NUMBER() OVER (…) = 1` : refusé partout. Il faut une CTE, ou `QUALIFY` sur Snowflake.",
+      "Une requête Snowflake avec `QUALIFY` ou `COUNT(DISTINCT …) OVER`, copiée sur SQL Server ou MySQL : erreur.",
+      "LAG sans `PARTITION BY` : la 1re commande d'un client est comparée à celle d'un autre client.",
+      "Un total répété (`SUM(…) OVER (PARTITION BY client_id)`) additionné dans Power BI : 45 345 € pour AquaBleu au lieu de 15 115 €.",
+      "Une « moyenne sur 7 jours » en `ROWS BETWEEN 6 PRECEDING AND CURRENT ROW`, sur des jours qui manquent : elle couvre plus de 7 jours."
+    ],
+    pratique: "La page Divalto « Les widgets KPI » présente `RANK() OVER (ORDER BY X)` comme un compteur de lignes. À égalité, RANK donne le même numéro : pour compter les lignes, prends `ROW_NUMBER()` avec un départage.",
+    motsCles: ["fonction de fenêtre", "moyenne mobile", "fonction analytique", "over", "partition by", "row_number", "rank", "dense_rank", "lag", "lead", "cumul", "last_value", "qualify", "moyenne glissante", "ex aequo"],
+    voirAussi: ["agreger", "trier-paginer", "sous-requete", "doublons", "dates", "requete-lente", "donnees-powerbi"],
+    dico: ["over", "row-number", "rank", "lag-lead", "cumul", "cadre-rows", "first-value", "qualify"],
+    outils: ["astuces", "traduire"],
+    sources: [
+      { titre: "Clause OVER (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/queries/select-over-clause-transact-sql" },
+      { titre: "LAG (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/functions/lag-transact-sql" },
+      { titre: "Erreurs du moteur de base de données 4000 à 4999", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/errors-events/database-engine-events-and-errors-4000-to-4999" },
+      { titre: "Snowflake : Window function syntax and usage", url: "https://docs.snowflake.com/en/sql-reference/functions-window-syntax" },
+      { titre: "Snowflake : QUALIFY", url: "https://docs.snowflake.com/en/sql-reference/constructs/qualify" },
+      { titre: "MySQL 8.4 : Window Function Frame Specification", url: "https://dev.mysql.com/doc/refman/8.4/en/window-functions-frames.html" },
+      { titre: "MySQL 8.4 : Window Function Restrictions", url: "https://dev.mysql.com/doc/refman/8.4/en/window-function-restrictions.html" },
+      { titre: "Divalto : Les widgets KPI", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516465387/Les+widgets+KPI" }
+    ]
+  },
+  {
+    id: "sous-requete",
+    titre: "J'écris une sous-requête ou une CTE",
+    famille: "Interroger",
+    resume: "Les questions avant une sous-requête ou un `WITH` : une valeur ou une liste, IN ou EXISTS, la corrélée, la CTE lisible mais recalculée, la récursive, la table temporaire, APPLY.",
+    besoins: [
+      "écrire une sous-requête dans le where",
+      "découper une requête en étapes avec une cte",
+      "choisir entre sous-requête, cte et table temporaire",
+      "une cte récursive pour une nomenclature"
+    ],
+    essais: [
+      "subquery returned more than 1 value",
+      "maxrecursion 100 atteint sur la nomenclature",
+      "cross apply ou lateral pour la derniere ligne",
+      "with qui est recalcule plusieurs fois"
+    ],
+    exemple: {
+      texte: "Le suivi EDI doit montrer, pour chaque commande EDI, le type et le statut de son dernier flux. Une 1re version mettait une sous-requête (une requête entre parenthèses, dans une autre) dans le `SELECT`. Elle a planté le jour où CDE-1001 a reçu un 2e flux, sa facture INVOIC : elle devait rendre une seule valeur. Voici la version relue, en deux étapes nommées : une CTE (`WITH`). 3 commandes ; CDE-1007 a un dernier flux rejeté.",
+      code: "-- Avant : (SELECT f.statut FROM dbo.flux_edi AS f WHERE f.cde_id = co.id) : erreur 512 dès 2 flux\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut,\n         ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                            ORDER BY f.date_recu DESC, f.id DESC) AS rn\n  FROM dbo.flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM dbo.commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id AND d.rn = 1\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET",
+      codes: {
+        snowflake: "-- Avant : (SELECT f.statut … WHERE f.cde_id = co.id) dans le SELECT : pas garanti sur Snowflake\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut\n  FROM flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n  QUALIFY ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                             ORDER BY f.date_recu DESC, f.id DESC) = 1\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET",
+        mysql: "-- Avant : (SELECT f.statut FROM flux_edi AS f WHERE f.cde_id = co.id) : erreur 1242 dès 2 flux\nWITH dernier_flux AS (                         -- étape 1 : le dernier flux de chaque commande\n  SELECT f.cde_id, f.type, f.statut,\n         ROW_NUMBER() OVER (PARTITION BY f.cde_id\n                            ORDER BY f.date_recu DESC, f.id DESC) AS rn\n  FROM flux_edi AS f\n  WHERE f.cde_id IS NOT NULL\n)\nSELECT co.num_cde, d.type AS dernier_type, d.statut AS dernier_statut   -- étape 2\nFROM commande AS co\nLEFT JOIN dernier_flux AS d ON d.cde_id = co.id AND d.rn = 1\nWHERE co.canal = 'EDI'\nORDER BY co.num_cde;   -- CDE-1001 INVOIC OK, CDE-1003 ORDERS OK, CDE-1007 DESADV REJET"
+      }
+    },
+    etapes: [
+      {
+        titre: "Le bon outil",
+        questions: [
+          {
+            id: "forme",
+            q: "Que doit rendre ta sous-requête : une valeur, une liste, ou une table ?",
+            pourquoi: "Chaque forme a sa règle. Une valeur se met après `=` ; une liste, après `IN` ou `EXISTS` ; une table, dans le `FROM`, avec un nom. Une forme mal choisie plante, ou double des lignes.",
+            reflexe: "Dis-le avant d'écrire : « une valeur : le taux de TVA du jour » ; « une liste : les commandes qui ont un flux » ; « une table : le dernier flux de chaque commande », comme dans l'exemple."
+          },
+          {
+            id: "vue-ou-cte",
+            q: "Cette étape servira-t-elle aussi à d'autres requêtes ou rapports ?",
+            pourquoi: "Une CTE ne vit que dans sa requête. Copiée dans cinq rapports, la même règle (« commande active ») diverge au premier changement : cinq chiffres différents.",
+            reflexe: "Une règle partagée va dans une vue, une requête enregistrée dans la base, que tous lisent. Une étape propre à une seule requête reste une CTE. Voir « Je crée une vue »."
+          }
+        ]
+      },
+      {
+        titre: "Une seule valeur",
+        questions: [
+          {
+            id: "une-valeur",
+            q: "Ta sous-requête après = peut-elle un jour rendre plusieurs lignes ?",
+            pourquoi: "Elle marche des mois, puis plante quand une 2e ligne arrive. CDE-1001 reçoit sa facture INVOIC : la sous-requête du suivi EDI rend deux statuts, et tout le rapport tombe en erreur.",
+            reflexe: "Garantis une ligne : une clé unique dans le `WHERE`, un agrégat (`MAX`), ou `TOP (1)` avec un `ORDER BY`. Si plusieurs lignes sont normales : `IN`, `EXISTS`, ou une jointure vers une table qui en garde une, comme dans l'exemple.",
+            moteurs: {
+              sqlserver: "Erreur 512 : « Subquery returned more than 1 value. This is not permitted when the subquery follows =, !=, <, <= , >, >= or when the subquery is used as an expression. »",
+              snowflake: "Erreur à l'exécution. Une sous-requête liée à la ligne du dessus doit en plus rendre une ligne à coup sûr : un agrégat sans `GROUP BY` (sa doc).",
+              mysql: "Erreur 1242 : « Subquery returns more than 1 row »."
+            }
+          },
+          {
+            id: "vide",
+            q: "Que vaut ta sous-requête quand elle ne trouve rien ?",
+            pourquoi: "Vide, elle vaut NULL, pas 0. Le CA de Camping Les Flots, qui n'a aucune commande, sort vide, et tout calcul qui l'utilise devient NULL à son tour.",
+            reflexe: "Prévois le cas vide : `COALESCE((SELECT SUM(co.montant_ht) FROM commande AS co WHERE co.client_id = cl.id), 0)`, si 0 a un sens. Teste avec un client sans commande."
+          }
+        ]
+      },
+      {
+        titre: "Une liste : IN ou EXISTS",
+        questions: [
+          {
+            id: "in-exists",
+            q: "Pour « a au moins un… », écris-tu IN, EXISTS ou une jointure ?",
+            pourquoi: "Une jointure répète la ligne pour chaque partenaire : AquaBleu sort 3 fois, une par commande. On ajoute `DISTINCT`, qui cache le problème. `IN` et `EXISTS` rendent chaque client une seule fois.",
+            reflexe: "`WHERE EXISTS (SELECT 1 FROM commande AS co WHERE co.client_id = cl.id)`. Garde ce lien vers la ligne du dessus : sans lui, `EXISTS` est vrai pour tous les clients dès qu'une commande existe.",
+            moteurs: {
+              sqlserver: "`IN` compare une seule colonne : pour deux colonnes, `EXISTS`.",
+              snowflake: "Un `EXISTS` lié à la ligne du dessus n'est prévu que dans le `WHERE` (sa doc).",
+              mysql: "`(a, b) IN (SELECT …)` compare deux colonnes d'un coup."
+            }
+          },
+          {
+            id: "not-in",
+            q: "Ta liste NOT IN peut-elle contenir un NULL ?",
+            pourquoi: "Un seul NULL dans la liste, et `NOT IN` ne rend aucune ligne. Le flux 3, rejeté, n'a pas de commande : `id NOT IN (SELECT cde_id FROM flux_edi)` rend 0 ligne au lieu de 5.",
+            reflexe: "Écris `NOT EXISTS`. Le détail : « Je filtre des lignes »."
+          }
+        ]
+      },
+      {
+        titre: "La sous-requête corrélée",
+        questions: [
+          {
+            id: "correlee",
+            q: "Ta sous-requête est-elle corrélée, c'est-à-dire liée à chaque ligne du dessus ?",
+            pourquoi: "En logique, elle est recalculée pour chaque ligne. Dans le `SELECT` de 2 millions de commandes, cela peut faire 2 millions de recherches, si le moteur ne la change pas en jointure. Le coût n'apparaît qu'avec le vrai volume.",
+            reflexe: "Compare avec une jointure vers une table groupée, une ligne par clé : `LEFT JOIN (SELECT client_id, MAX(date_cde) AS derniere FROM commande GROUP BY client_id)`. Lis le plan d'exécution (le chemin choisi par le moteur) et mesure les deux.",
+            moteurs: {
+              snowflake: "Une corrélée qui rend une valeur n'est garantie que dans le `WHERE`, et avec une ligne à coup sûr (un agrégat sans `GROUP BY`). Ailleurs, passe par une jointure (sa doc)."
+            }
+          },
+          {
+            id: "alias-colonnes",
+            q: "Chaque colonne de la sous-requête porte-t-elle l'alias de sa table ?",
+            pourquoi: "Une colonne absente de la table de la sous-requête est cherchée dans celle du dessus, sans erreur. `code IN (SELECT code FROM ligne_cde)` : `ligne_cde` n'a pas de `code`, l'article est comparé à lui-même, et les 8 articles sortent.",
+            reflexe: "Préfixe chaque colonne : `a.id IN (SELECT l.article_id FROM ligne_cde AS l)`. Avec l'alias, une colonne mal nommée donne une vraie erreur."
+          }
+        ]
+      },
+      {
+        titre: "La CTE",
+        questions: [
+          {
+            id: "cte-lisible",
+            q: "Des sous-requêtes imbriquées seraient-elles plus claires en étapes nommées (CTE) ?",
+            pourquoi: "Trois sous-requêtes les unes dans les autres se lisent de l'intérieur vers l'extérieur. Personne ne les relit sans se tromper, et une correction en oublie une sur trois.",
+            reflexe: "Une étape par CTE, avec un nom qui dit ce qu'elle contient : `WITH dernier_flux AS (…), rejets AS (…)`. Chaque étape lit les précédentes. Pour vérifier une étape, finis par `SELECT * FROM dernier_flux`.",
+            moteurs: {
+              sqlserver: "L'instruction d'avant doit finir par `;` : d'où l'habitude d'écrire `;WITH` (sa doc)."
+            }
+          },
+          {
+            id: "cte-recalcul",
+            q: "Ta CTE est-elle citée plusieurs fois, ou relue par plusieurs requêtes ?",
+            pourquoi: "Une CTE n'est pas un résultat gardé : elle disparaît avec l'instruction qui la suit. Sur SQL Server, chaque citation la recalcule (sa doc) : une étape lourde citée trois fois se paie trois fois.",
+            reflexe: "Un résultat lourd, relu plusieurs fois : range-le une fois dans une table temporaire (une table de travail qui disparaît avec la session). Indexe-la si tu la joins souvent, puis relis-la.",
+            moteurs: {
+              sqlserver: "`SELECT … INTO #t FROM …`. Mets `DROP TABLE IF EXISTS #t;` en tête du script, pour pouvoir le relancer.",
+              snowflake: "`CREATE TEMPORARY TABLE t AS SELECT …` : elle vit le temps de la session.",
+              mysql: "Si l'optimiseur matérialise la CTE (la calcule dans une table interne), il le fait une seule fois, même citée plusieurs fois (sa doc). Sinon : `CREATE TEMPORARY TABLE`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "La CTE récursive",
+        questions: [
+          {
+            id: "recursive-limite",
+            q: "Ta CTE récursive s'arrête-t-elle, même si les données bouclent ?",
+            pourquoi: "Une CTE récursive (qui se relit elle-même) descend une nomenclature niveau par niveau. Une ligne saisie à l'envers crée une boucle : BACHE8 contient KIT-COUV, qui contient BACHE8. La récursion ne s'arrête plus d'elle-même.",
+            reflexe: "Un compteur garde-fou : `1 AS niveau` dans l'ancre (la 1re partie), `e.niveau + 1` et `WHERE e.niveau < 10` dans la partie récursive. Choisis la limite avec le métier : la nomenclature la plus profonde, plus une marge.",
+            moteurs: {
+              sqlserver: "Arrêt à 100 niveaux par défaut : erreur 530. `OPTION (MAXRECURSION n)` change la limite, de 0 à 32 767 ; 0 l'enlève.",
+              snowflake: "Une boucle tourne, et consomme des crédits (l'unité de facture), jusqu'au délai `STATEMENT_TIMEOUT_IN_SECONDS` (2 jours par défaut) ou l'annulation. La liste des colonnes de la CTE est obligatoire.",
+              mysql: "`WITH RECURSIVE` obligatoire. `cte_max_recursion_depth` arrête la requête après 1 000 niveaux, par défaut."
+            }
+          },
+          {
+            id: "recursive-chemin",
+            q: "Ta récursion s'arrête-t-elle sur un composant déjà vu, grâce au chemin parcouru ?",
+            pourquoi: "Le compteur arrête la boucle, mais le résultat reste faux. Sur KIT-COUV, il sort 10 lignes au lieu d'une (BACHE8, KIT-COUV, BACHE8…) : 5 bâches au lieu d'une pour un seul kit.",
+            reflexe: "Garde le chemin parcouru, et arrête quand le composant y est déjà, comme ci-dessous. Puis liste les lignes en boucle : ce sont des erreurs de saisie à corriger. Voir « Je relie deux tables ».",
+            moteurs: {
+              sqlserver: "Le chemin doit avoir le même type, longueur comprise, dans les deux parties : d'où les deux `CAST` (sa doc).",
+              snowflake: "Concatène avec `||` ; un `VARCHAR` sans longueur suffit.",
+              mysql: "Le type vient de l'ancre seule : élargis-la avec `CAST(… AS CHAR(400))`, sinon le chemin est coupé, ou la requête plante (sa doc)."
+            },
+            code: "WITH eclate (composant, niveau, chemin) AS (\n  SELECT composant, 1, CAST('KIT-COUV>' + composant AS VARCHAR(400))\n  FROM dbo.nomenclature WHERE compose = 'KIT-COUV'\n  UNION ALL\n  SELECT n.composant, e.niveau + 1, CAST(e.chemin + '>' + n.composant AS VARCHAR(400))\n  FROM dbo.nomenclature AS n JOIN eclate AS e ON n.compose = e.composant\n  WHERE '>' + e.chemin + '>' NOT LIKE '%>' + n.composant + '>%')   -- déjà vu : arrêt\nSELECT composant, niveau, chemin FROM eclate;   -- 1 ligne : BACHE8"
+          }
+        ]
+      },
+      {
+        titre: "APPLY et LATERAL",
+        questions: [
+          {
+            id: "apply",
+            q: "Te faut-il, pour chaque ligne, plusieurs colonnes de sa ligne liée la plus récente ?",
+            pourquoi: "Une sous-requête dans le `SELECT` ne rend qu'une colonne. Pour le type, le statut et la date du dernier flux, il en faut trois : trois recherches par commande, et à égalité de date, elles peuvent viser trois flux différents.",
+            reflexe: "Une seule lecture : ROW_NUMBER dans une CTE, comme dans l'exemple, sur les trois moteurs. Ou une jointure latérale : une sous-requête du `FROM` qui lit la ligne en cours.",
+            moteurs: {
+              sqlserver: "`OUTER APPLY (SELECT TOP (1) f.type, f.statut … ORDER BY f.date_recu DESC, f.id DESC) AS d`. `CROSS APPLY` perd les commandes sans flux, comme un `INNER JOIN`.",
+              snowflake: "`LATERAL` existe, mais un `LIMIT` y est refusé dans une sous-requête liée : prends ROW_NUMBER et `QUALIFY`.",
+              mysql: "`LEFT JOIN LATERAL (SELECT … ORDER BY … LIMIT 1) AS d ON TRUE` garde les commandes sans flux."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Le tri",
+        questions: [
+          {
+            id: "order-by",
+            q: "As-tu mis un ORDER BY dans une sous-requête ou une CTE ?",
+            pourquoi: "Un tri à l'intérieur ne trie pas le résultat final. Selon le moteur, il est refusé, ignoré, ou coûte un tri pour rien.",
+            reflexe: "Trie une seule fois, dans la requête finale. À l'intérieur, un `ORDER BY` ne sert qu'à choisir les lignes d'un `TOP` ou d'un `LIMIT`. Le détail : « Je trie et je garde les N premiers ».",
+            moteurs: {
+              sqlserver: "Sans `TOP`, `OFFSET` ou `FOR XML` : erreur 1033."
+            }
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Une sous-requête dans le `SELECT`, juste en recette, qui plante le jour où une commande reçoit un 2e flux (erreur 512 sur SQL Server).",
+      "`NOT IN` sur une liste qui contient un NULL : 0 ligne, sans erreur.",
+      "Une colonne sans alias, prise dans la table du dessus : `code IN (SELECT code FROM ligne_cde)` est toujours vrai.",
+      "Un `EXISTS` sans lien vers la ligne du dessus : vrai pour toutes les lignes.",
+      "Une CTE lourde citée deux fois : sur SQL Server, elle est calculée deux fois.",
+      "`OPTION (MAXRECURSION 0)` pour faire taire l'erreur 530 : une boucle tourne alors sans fin.",
+      "Une nomenclature en boucle (KIT-COUV et BACHE8) sur Snowflake : la requête tourne, et se paie, jusqu'au délai maximal, 2 jours par défaut.",
+      "Sur MySQL, un chemin trop court dans l'ancre d'une CTE récursive : il est coupé, ou la requête plante."
+    ],
+    pratique: "Les requêtes Dataviz livrées par Divalto (page « Industrie ») enchaînent les CTE : `;WITH Params AS (…), ComposantsBase AS (…)`. La 1re porte les paramètres (les dates), chaque étape suivante lit la précédente. Lis-les étape par étape.",
+    motsCles: ["sous-requête", "erreur 512", "subquery", "cte", "with", "cte récursive", "récursif", "exists", "in", "corrélée", "table temporaire", "cross apply", "lateral", "maxrecursion", "nomenclature"],
+    voirAussi: ["filtrer", "joindre", "fenetre", "trier-paginer", "creer-vue", "relier-tables", "requete-lente"],
+    dico: ["sous-requete", "with-cte", "cte-recursive", "exists", "in", "cross-apply", "table-temporaire"],
+    outils: ["traduire", "astuces"],
+    sources: [
+      { titre: "WITH common_table_expression (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/queries/with-common-table-expression-transact-sql" },
+      { titre: "Erreurs du moteur de base de données 0 à 999 (512, 530)", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/errors-events/database-engine-events-and-errors-0-to-999" },
+      { titre: "Snowflake : Working with subqueries", url: "https://docs.snowflake.com/en/user-guide/querying-subqueries" },
+      { titre: "Snowflake : WITH", url: "https://docs.snowflake.com/en/sql-reference/constructs/with" },
+      { titre: "MySQL 8.4 : Subquery Errors", url: "https://dev.mysql.com/doc/refman/8.4/en/subquery-errors.html" },
+      { titre: "MySQL 8.4 : WITH (Common Table Expressions)", url: "https://dev.mysql.com/doc/refman/8.4/en/with.html" },
+      { titre: "MySQL 8.4 : Optimizing Derived Tables, View References, and Common Table Expressions", url: "https://dev.mysql.com/doc/refman/8.4/en/derived-table-optimization.html" },
+      { titre: "Divalto : Requêtes Dataviz X.13 · Industrie", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/12896370759/Industrie" }
+    ]
+  },
+  {
+    id: "doublons",
+    titre: "Je cherche ou j'enlève des doublons",
+    famille: "Interroger",
+    resume: "Les questions avant de chercher ou d'effacer des doublons : la définition, les presque-doublons, la ligne gardée, les lignes liées, la sauvegarde, la cause et la règle qui empêche leur retour.",
+    besoins: [
+      "trouver les doublons dans une table",
+      "supprimer les lignes en double",
+      "dédoublonner les clients avant une reprise",
+      "une fiche client en double"
+    ],
+    essais: [
+      "le meme fichier edi charge deux fois",
+      "doublons avec des espaces et des majuscules",
+      "delete des doublons avec row_number",
+      "group by having count superieur a 1"
+    ],
+    exemple: {
+      texte: "Avant de reprendre les clients dans Divalto, tu cherches les doublons. Première idée : le même SIREN, le numéro de l'entreprise. Deux fiches sortent : Piscines Dumont à Grenoble (C002) et à Lyon (C006). Le métier tranche : deux agences de la même société, donc pas un doublon. La bonne règle est le SIRET, le numéro de chaque établissement. D'abord définir, puis chercher, puis montrer les lignes entières.",
+      code: "-- 1. Les groupes : le même SIREN plus d'une fois (les SIREN vides à part)\nSELECT siren, COUNT(*) AS nb\nFROM dbo.client\nWHERE siren IS NOT NULL\nGROUP BY siren\nHAVING COUNT(*) > 1;                     -- 423456789 : 2 fiches\n\n-- 2. Les lignes entières, à montrer au métier avant toute décision\nWITH d AS (\n  SELECT code, nom, ville, siren,\n         COUNT(*) OVER (PARTITION BY siren) AS nb\n  FROM dbo.client\n  WHERE siren IS NOT NULL\n)\nSELECT code, nom, ville, siren, nb\nFROM d\nWHERE nb > 1\nORDER BY siren, code;                    -- C002 Grenoble, C006 Lyon : deux agences",
+      codes: {
+        snowflake: "-- 1. Les groupes : le même SIREN plus d'une fois (les SIREN vides à part)\nSELECT siren, COUNT(*) AS nb\nFROM client\nWHERE siren IS NOT NULL\nGROUP BY siren\nHAVING COUNT(*) > 1;                     -- 423456789 : 2 fiches\n\n-- 2. Les lignes entières, en une requête\nSELECT code, nom, ville, siren,\n       COUNT(*) OVER (PARTITION BY siren) AS nb\nFROM client\nWHERE siren IS NOT NULL\nQUALIFY nb > 1\nORDER BY siren, code;                    -- C002 Grenoble, C006 Lyon : deux agences",
+        mysql: "-- 1. Les groupes : le même SIREN plus d'une fois (les SIREN vides à part)\nSELECT siren, COUNT(*) AS nb\nFROM client\nWHERE siren IS NOT NULL\nGROUP BY siren\nHAVING COUNT(*) > 1;                     -- 423456789 : 2 fiches\n\n-- 2. Les lignes entières, à montrer au métier avant toute décision\nWITH d AS (\n  SELECT code, nom, ville, siren,\n         COUNT(*) OVER (PARTITION BY siren) AS nb\n  FROM client\n  WHERE siren IS NOT NULL\n)\nSELECT code, nom, ville, siren, nb\nFROM d\nWHERE nb > 1\nORDER BY siren, code;                    -- C002 Grenoble, C006 Lyon : deux agences"
+      }
+    },
+    etapes: [
+      {
+        titre: "La définition",
+        questions: [
+          {
+            id: "definition",
+            q: "Quelles colonnes veulent dire « la même chose » pour le métier ?",
+            pourquoi: "Un doublon dépend des colonnes choisies. Par SIREN, Piscines Dumont sort deux fois : ce sont deux agences. Effacer l'une perd une vraie agence, avec ses commandes et son encours.",
+            reflexe: "Écris la règle avec le métier, en une phrase : « même SIRET », « même partenaire et même numéro de commande EDI ». Fais-la valider sur 10 cas réels avant toute suppression."
+          },
+          {
+            id: "vides",
+            q: "Que fais-tu des lignes où une colonne de la règle est vide ?",
+            pourquoi: "Pour `GROUP BY`, tous les NULL (les cases vides) forment un seul groupe. Bleu Lagon et Pool & Garden, sans SIREN, sortent ensemble comme « doublons » : deux clients sans rapport.",
+            reflexe: "Écarte les vides de la recherche (`WHERE siren IS NOT NULL`), comme dans l'exemple, et traite-les à part : une fiche sans SIREN est une fiche à compléter, pas un doublon."
+          },
+          {
+            id: "presque",
+            q: "Des valeurs presque égales (espaces, majuscules, accents) désignent-elles le même client ?",
+            pourquoi: "'Hydro Sud', 'HYDRO SUD' et 'Hydro Sud ' (un espace à la fin) : selon le moteur, `GROUP BY nom` fait 1, 2 ou 3 groupes. Le doublon passe inaperçu, ou deux fiches sont réunies sans qu'on le veuille.",
+            reflexe: "Groupe sur une forme nettoyée : `UPPER(TRIM(nom))`, sans accents si le métier le veut. Mieux : une colonne nettoyée au chargement. Cherche aussi les caractères invisibles : l'astuce « Repérer les caractères invisibles (espace insécable) ».",
+            moteurs: {
+              sqlserver: "Avec une collation (la règle de comparaison des textes) `_CI_` : 1 groupe ; la casse et les espaces de fin sont ignorés. Les accents comptent en `_AS`.",
+              snowflake: "3 groupes : la casse et les espaces de fin comptent.",
+              mysql: "Collation par défaut : 2 groupes. La casse et les accents sont ignorés, pas les espaces de fin (NO PAD)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Trouver et regarder",
+        questions: [
+          {
+            id: "compter",
+            q: "Combien de groupes en double, et combien de lignes en trop ?",
+            pourquoi: "« 50 doublons » : 50 groupes, ou 50 lignes à effacer ? Sans ces deux chiffres, impossible de dire si le nettoyage a réussi, ni d'en rendre compte au métier.",
+            reflexe: "Les groupes : `GROUP BY … HAVING COUNT(*) > 1`. Les lignes en trop : `COUNT(siren) - COUNT(DISTINCT siren)`, ici 5 - 4 = 1. Note les deux avant ; après le nettoyage, les lignes en trop valent 0."
+          },
+          {
+            id: "lignes-entieres",
+            q: "As-tu regardé les lignes entières, pas seulement les groupes ?",
+            pourquoi: "`GROUP BY` rend une ligne par groupe, sans le détail. On ne voit pas que les deux Piscines Dumont ont deux villes, et on efface une vraie agence.",
+            reflexe: "Mets le compte sur chaque ligne : `COUNT(*) OVER (PARTITION BY siren)` dans une CTE (une requête nommée par `WITH`), puis `WHERE nb > 1`, comme dans l'exemple. Montre cette liste au métier avant de décider.",
+            moteurs: {
+              snowflake: "En une requête : `QUALIFY COUNT(*) OVER (PARTITION BY siren) > 1`."
+            }
+          },
+          {
+            id: "distinct",
+            q: "Un DISTINCT cache-t-il le problème au lieu de le régler ?",
+            pourquoi: "`DISTINCT` retire les doublons du résultat, pas de la table. Il ne retire rien si une seule colonne diffère, comme l'heure de chargement. Et après une jointure, la liste paraît propre, mais les sommes restent fausses.",
+            reflexe: "Cherche d'où vient la ligne en trop : un fichier chargé deux fois, une jointure qui multiplie. Corrige la cause. Garde `DISTINCT` pour lister des valeurs, pas pour réparer."
+          }
+        ]
+      },
+      {
+        titre: "La ligne gardée",
+        questions: [
+          {
+            id: "garder",
+            q: "Quelle ligne garder : la plus récente, la plus complète, ou celle que l'ERP utilise ?",
+            pourquoi: "Garder « une au hasard » peut garder la fiche sans SIREN et effacer celle qui a l'adresse à jour. Et si Divalto ou l'EDI utilisent l'autre numéro, leurs liens cassent.",
+            reflexe: "Écris la règle dans l'ordre de la numérotation : `ROW_NUMBER() OVER (PARTITION BY siret ORDER BY date_modif DESC, id DESC)`. La ligne 1 est gardée. Le dernier critère, unique, rend le choix stable."
+          },
+          {
+            id: "fusionner",
+            q: "Faut-il reporter des informations de la ligne effacée sur la ligne gardée ?",
+            pourquoi: "La fiche gardée n'a pas de téléphone ; la fiche effacée l'avait. Une suppression simple perd l'information pour de bon.",
+            reflexe: "Complète d'abord la ligne gardée (`COALESCE(g.telephone, e.telephone)`), dans une mise à jour, puis efface. Garde une table de correspondance : ancien numéro, numéro gardé, date."
+          }
+        ]
+      },
+      {
+        titre: "Les lignes liées",
+        questions: [
+          {
+            id: "liees",
+            q: "D'autres tables pointent-elles vers la ligne à effacer (commandes, factures) ?",
+            pourquoi: "Les commandes du client effacé pointent vers un numéro qui n'existe plus. Selon le moteur, la suppression est refusée, ou passe en laissant des commandes orphelines (sans client), dont le CA sort des rapports.",
+            reflexe: "Rattache d'abord les lignes liées à la ligne gardée, dans une transaction (tout ou rien) : `UPDATE commande SET client_id = @id_garde WHERE client_id = @id_double;`. Puis efface le doublon. Puis cherche les orphelins avec `NOT EXISTS`.",
+            moteurs: {
+              sqlserver: "La clé étrangère refuse le `DELETE` du client encore cité : erreur 547.",
+              snowflake: "La clé étrangère n'est pas appliquée : le `DELETE` passe, et les commandes restent orphelines, sans erreur.",
+              mysql: "InnoDB refuse le `DELETE` du client encore cité."
+            }
+          },
+          {
+            id: "ailleurs",
+            q: "Le numéro effacé sert-il encore ailleurs : Divalto, EDI, Power BI, fichiers ?",
+            pourquoi: "Un partenaire EDI envoie toujours l'ancien code client : le flux est rejeté, ou recrée la fiche effacée. Le doublon revient au prochain message.",
+            reflexe: "Sers-toi de la table de correspondance (ancien numéro, numéro gardé) dans les flux et les rapports. Préviens les équipes qui utilisent l'ancien code avant de l'effacer."
+          }
+        ]
+      },
+      {
+        titre: "Effacer sans risque",
+        questions: [
+          {
+            id: "copie",
+            q: "As-tu copié, avec la date, les lignes que tu vas effacer ?",
+            pourquoi: "Une règle de doublon mal écrite efface des lignes uniques. Sans copie, il faut restaurer toute la base pour les retrouver.",
+            reflexe: "Copie les lignes visées dans une table datée, et compte : lignes copiées = lignes en trop annoncées. Garde-la le temps des vérifications. Le détail : « Je supprime des lignes ».",
+            moteurs: {
+              snowflake: "Time Travel (le retour dans le passé, 1 jour par défaut) relit aussi la table d'avant. Un `CLONE` en garde une copie, sans recopier les données."
+            }
+          },
+          {
+            id: "effacer",
+            q: "Comment effacer les lignes en trop, quand deux lignes sont identiques ?",
+            pourquoi: "Deux lignes identiques en tout ne se distinguent pas dans un `WHERE` : un `DELETE` efface les deux, ou aucune. Il faut d'abord numéroter les lignes de chaque groupe.",
+            reflexe: "Numérote avec la règle de choix, compte les lignes `rn > 1` par un `SELECT`, puis efface celles-là, dans une transaction. Recompte après : 0 ligne en trop. Sur SQL Server, le `DELETE` passe par la CTE (ci-dessous).",
+            moteurs: {
+              snowflake: "Pas de `DELETE` à travers une CTE. Réécris la table : `INSERT OVERWRITE INTO t SELECT * FROM t QUALIFY ROW_NUMBER() OVER (…) = 1;`, dans une transaction. Avec un id unique : `DELETE FROM t USING (… QUALIFY … > 1) AS d WHERE t.id = d.id`.",
+              mysql: "Joins la table à elle-même, numérotée : `DELETE c FROM client_import AS c JOIN (SELECT id, ROW_NUMBER() OVER (…) AS rn FROM client_import) AS d ON d.id = c.id WHERE d.rn > 1;`."
+            },
+            code: "WITH d AS (\n  SELECT ROW_NUMBER() OVER (PARTITION BY siret\n                            ORDER BY date_modif DESC, id DESC) AS rn\n  FROM dbo.client_import\n)\nDELETE FROM d WHERE rn > 1;   -- efface dans client_import"
+          }
+        ]
+      },
+      {
+        titre: "La cause",
+        questions: [
+          {
+            id: "cause",
+            q: "D'où viennent les doublons : un import rejoué, une clé absente, une saisie ?",
+            pourquoi: "Effacer sans chercher la cause, c'est recommencer chaque mois. Le même fichier EDI rejoué la nuit recrée les mêmes commandes au prochain passage.",
+            reflexe: "Regarde les colonnes de trace des lignes en double : fichier, date de chargement, utilisateur. Deux lignes du même fichier : corrige le chargement (« J'importe un fichier »). Pas de clé métier : « Je choisis la clé primaire ».",
+            moteurs: {
+              snowflake: "Un `DELETE` garde l'historique de chargement : `COPY INTO` ne rechargera pas le même fichier, sauf `FORCE = TRUE` ou fichier modifié (sa doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Empêcher le retour",
+        questions: [
+          {
+            id: "unique",
+            q: "Une contrainte UNIQUE, ou un index unique, empêche-t-elle les doublons de revenir ?",
+            pourquoi: "Sans règle dans la base, le nettoyage tient jusqu'au prochain import. Une contrainte, ou un index unique (une table des matières qui refuse les doublons), est vérifiée par le moteur à chaque écriture.",
+            reflexe: "Une fois la table propre, pose la règle sur la clé métier : `ALTER TABLE client ADD CONSTRAINT uq_client_siret UNIQUE (siret);`. Elle échoue s'il reste un doublon : c'est aussi ton dernier contrôle.",
+            moteurs: {
+              sqlserver: "Un seul NULL accepté ; pour « unique quand c'est rempli » : `CREATE UNIQUE INDEX … WHERE siret IS NOT NULL`. Les espaces de fin étant ignorés, 'C001' et 'C001 ' y sont un doublon.",
+              snowflake: "`UNIQUE` est noté, pas appliqué (sauf sur une table hybride) : charge par `MERGE` (insérer ou mettre à jour selon la clé), et garde le contrôle `GROUP BY … HAVING` après chaque chargement.",
+              mysql: "`UNIQUE` appliqué ; plusieurs NULL acceptés."
+            }
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Effacer une des deux fiches Piscines Dumont, « en double » sur le SIREN : c'étaient deux agences, avec leurs commandes.",
+      "`GROUP BY siren` sans écarter les NULL : deux clients sans SIREN sortent comme un doublon.",
+      "Un `DELETE` sur deux lignes identiques en tout : les deux partent.",
+      "Effacer le client en double avant de rattacher ses commandes : refus sur SQL Server et MySQL, commandes orphelines sur Snowflake.",
+      "Un nettoyage sans corriger la cause : le même fichier rejoué recrée les doublons le mois suivant.",
+      "Un `DISTINCT` dans le rapport au lieu de corriger la table : la liste est propre, les totaux restent faux.",
+      "Sur Snowflake, compter sur `UNIQUE` : il n'est pas appliqué sur une table standard.",
+      "Chercher les doublons sur le nom exact : 'HYDRO SUD' et 'Hydro Sud ' passent pour deux clients sur Snowflake."
+    ],
+    pratique: "Divalto peut signaler une pièce client en double (option du dossier) sur « Votre référence » ou « Votre pièce », comparées sans blancs, sans les signes `. , - _ / :` et sans casse. Intégrée par un flux, la pièce en double est créée « Suspendu », selon le paramétrage.",
+    motsCles: ["doublon", "doublons", "en double", "dédoublonner", "deux fois", "supprimer les doublons", "having count", "row_number", "unique", "presque doublons", "fiche en double", "distinct", "nettoyage", "siret"],
+    voirAussi: ["cle-primaire", "supprimer", "importer-fichier", "fenetre", "comparer-texte", "fusionner", "charger-snowflake", "migrer"],
+    dico: ["group-by", "having", "count", "row-number", "distinct", "unique", "delete", "qualify"],
+    outils: ["astuces"],
+    sources: [
+      { titre: "Supprimer les lignes en double d'une table SQL Server", url: "https://learn.microsoft.com/fr-fr/troubleshoot/sql/database-engine/development/remove-duplicate-rows-sql-server-tab" },
+      { titre: "= (Comparaison de chaînes ou affectation) : les espaces de fin", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/language-elements/string-comparison-assignment" },
+      { titre: "Snowflake : DELETE", url: "https://docs.snowflake.com/en/sql-reference/sql/delete" },
+      { titre: "Snowflake : INSERT (OVERWRITE)", url: "https://docs.snowflake.com/en/sql-reference/sql/insert" },
+      { titre: "MySQL 8.4 : DELETE Statement", url: "https://dev.mysql.com/doc/refman/8.4/en/delete.html" },
+      { titre: "MySQL 8.4 : Restrictions on Subqueries", url: "https://dev.mysql.com/doc/refman/8.4/en/subquery-restrictions.html" },
+      { titre: "MySQL 8.4 : Unicode Character Sets (NO PAD)", url: "https://dev.mysql.com/doc/refman/8.4/en/charset-unicode-sets.html" },
+      { titre: "Divalto : Contrôler les doublons en saisie de pièces (V10.6)", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704717457/Contr+ler+les+doublons+en+saisie+de+pi+ces+V10.6" }
+    ]
+  },
+  {
+    id: "trier-paginer",
+    titre: "Je trie et je garde les N premiers",
+    famille: "Interroger",
+    resume: "Les questions avant `ORDER BY` et `TOP` ou `LIMIT` : l'ordre garanti, les ex aequo, les NULL, le tri d'un texte, la page suivante, le top N par groupe.",
+    besoins: [
+      "trier et garder les 10 premiers",
+      "afficher les plus grosses commandes avec top",
+      "paginer un résultat page par page",
+      "les 3 dernières commandes de chaque client"
+    ],
+    essais: [
+      "top 10 sans order by",
+      "offset fetch lent a la page 5000",
+      "les null sortent en premier dans le tri",
+      "limit avec des ex aequo sur snowflake"
+    ],
+    exemple: {
+      texte: "Le tableau de bord de l'ADV montre « les 4 plus grosses commandes ». La 4e place est partagée : CDE-1002 et CDE-1006 sont ex aequo, à 1 290 €. Avec un simple `TOP (4)`, le moteur en garde une au hasard, et pas toujours la même. Avant d'écrire, tu décides avec le demandeur : les ex aequo gardés (5 lignes), ou exactement 4 lignes, départagées par une clé unique.",
+      code: "-- Les ex aequo gardés : 5 lignes\nSELECT TOP (4) WITH TIES num_cde, montant_ht\nFROM dbo.commande\nORDER BY montant_ht DESC;\n\n-- Exactement 4 lignes, toujours les mêmes : une clé unique départage\nSELECT TOP (4) num_cde, montant_ht\nFROM dbo.commande\nORDER BY montant_ht DESC, num_cde;    -- CDE-1002 gardée, CDE-1006 non",
+      codes: {
+        snowflake: "-- Pas de WITH TIES : RANK garde les ex aequo (5 lignes)\nSELECT num_cde, montant_ht\nFROM commande\nQUALIFY RANK() OVER (ORDER BY montant_ht DESC) <= 4\nORDER BY montant_ht DESC, num_cde;\n\n-- Exactement 4 lignes, toujours les mêmes : une clé unique départage\nSELECT num_cde, montant_ht\nFROM commande\nORDER BY montant_ht DESC, num_cde\nLIMIT 4;                              -- CDE-1002 gardée, CDE-1006 non",
+        mysql: "-- Ni TOP ni WITH TIES : RANK dans une CTE garde les ex aequo (5 lignes)\nWITH r AS (\n  SELECT num_cde, montant_ht, RANK() OVER (ORDER BY montant_ht DESC) AS rang\n  FROM commande\n)\nSELECT num_cde, montant_ht FROM r\nWHERE rang <= 4\nORDER BY montant_ht DESC, num_cde;\n\n-- Exactement 4 lignes, toujours les mêmes : une clé unique départage\nSELECT num_cde, montant_ht\nFROM commande\nORDER BY montant_ht DESC, num_cde\nLIMIT 4;                              -- CDE-1002 gardée, CDE-1006 non"
+      }
+    },
+    etapes: [
+      {
+        titre: "L'ordre voulu",
+        questions: [
+          {
+            id: "order-by-final",
+            q: "Ton résultat a-t-il un ORDER BY dans la requête finale ?",
+            pourquoi: "Sans `ORDER BY`, aucun ordre n'est garanti, même s'il « a l'air » bon aujourd'hui. Un nouvel index, plus de lignes, et le fichier EDI ou l'export sort dans un autre ordre.",
+            reflexe: "Écris l'ordre dont le lecteur a besoin, dans la requête finale : `ORDER BY date_cde DESC, num_cde`. Un `TOP`, un `LIMIT` ou un `OFFSET` sans `ORDER BY` prend des lignes quelconques."
+          },
+          {
+            id: "departage",
+            q: "Ton ORDER BY finit-il par une colonne unique, qui départage les ex aequo ?",
+            pourquoi: "À égalité sur le tri, le moteur rend les lignes dans l'ordre qu'il veut, et pas toujours le même. CDE-1002 et CDE-1006 échangent leur place, et la 4e commande du top change d'un jour à l'autre.",
+            reflexe: "Ajoute en dernier une colonne unique : `ORDER BY montant_ht DESC, num_cde`. Le résultat devient le même à chaque exécution, et un `TOP` ou une page coupe toujours au même endroit."
+          },
+          {
+            id: "ex-aequo",
+            q: "À la dernière place, gardes-tu tous les ex aequo, ou exactement N lignes ?",
+            pourquoi: "« Les 4 plus grosses commandes » : deux commandes à 1 290 € se partagent la 4e place. `TOP (4)` en garde une, au hasard : le rapport en oublie une, sans le dire.",
+            reflexe: "Décide avec le demandeur, puis écris la règle en commentaire. Tous les ex aequo : 5 lignes ici. Exactement 4 : une clé unique départage, comme dans l'exemple.",
+            moteurs: {
+              sqlserver: "`TOP (4) WITH TIES`, avec un `ORDER BY` obligatoire.",
+              snowflake: "Pas de `WITH TIES` : `QUALIFY RANK() OVER (ORDER BY …) <= 4`.",
+              mysql: "Ni `TOP` ni `WITH TIES` : `RANK()` dans une CTE (une requête nommée par `WITH`), puis `WHERE rang <= 4`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "L'écriture du moteur",
+        questions: [
+          {
+            id: "syntaxe",
+            q: "Quelle écriture ton moteur attend-il : TOP, LIMIT, ou OFFSET … FETCH ?",
+            pourquoi: "Chaque moteur a la sienne. Une requête copiée d'un moteur à l'autre plante, ou garde d'autres lignes : sur MySQL, `LIMIT 10, 20` rend 20 lignes à partir de la 11e, pas 10.",
+            reflexe: "Écris la forme de ton moteur, toujours avec un `ORDER BY`. Pour une page (sauter 20 lignes, en garder 10) : `OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY`, ou `LIMIT 10 OFFSET 20`.",
+            moteurs: {
+              sqlserver: "`TOP (n)`, ou `OFFSET … FETCH`, qui exige un `ORDER BY`. `TOP` et `OFFSET` ne vont pas ensemble dans la même requête (sa doc).",
+              snowflake: "`LIMIT … OFFSET`, `OFFSET … FETCH`, ou `TOP n` : `TOP n` et `LIMIT n` sont équivalents (sa doc).",
+              mysql: "`LIMIT 10 OFFSET 20`, ou `LIMIT 20, 10` : le saut d'abord, puis le nombre. Pas de `TOP` ni de `FETCH`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les NULL et le texte",
+        questions: [
+          {
+            id: "null",
+            q: "Où doivent sortir les lignes vides (NULL) : en tête, ou à la fin ?",
+            pourquoi: "Chaque moteur a sa règle. Triés par ville, les clients commencent par Camping Les Flots (ville vide) sur SQL Server et MySQL, et finissent par lui sur Snowflake. Sur Snowflake, un top 10 en `DESC` commence par les dates vides.",
+            reflexe: "Écris la place des NULL quand elle compte. Sinon, trie d'abord sur un test : `ORDER BY CASE WHEN ville IS NULL THEN 1 ELSE 0 END, ville`. Ou écarte-les (`WHERE … IS NOT NULL`) s'ils n'ont rien à faire là.",
+            moteurs: {
+              sqlserver: "NULL est la plus petite valeur : en tête en `ASC`, à la fin en `DESC`. Pas de `NULLS FIRST` ni de `NULLS LAST`.",
+              snowflake: "Par défaut (`DEFAULT_NULL_ORDERING = LAST`), NULL est la plus grande valeur : à la fin en `ASC`, en tête en `DESC`. `NULLS LAST` le règle requête par requête.",
+              mysql: "Comme SQL Server. Pas de `NULLS LAST` : `ORDER BY ville IS NULL, ville` met les vides à la fin."
+            }
+          },
+          {
+            id: "texte",
+            q: "Le tri d'un texte suit-il l'ordre attendu : majuscules, minuscules, accents ?",
+            pourquoi: "L'ordre d'un texte suit sa collation, la règle qui compare et trie les textes. En ordre binaire (base Divalto, Snowflake par défaut), « pH moins 5 kg » et « Épuisette de fond » sortent après « Robot » : minuscules et accents passent après les majuscules.",
+            reflexe: "Pour une liste à lire, impose un tri à la française : une collation dans l'`ORDER BY`. Teste avec des majuscules, des minuscules, des accents et des chiffres. Pour un code, l'ordre binaire convient souvent.",
+            moteurs: {
+              sqlserver: "`ORDER BY libelle COLLATE French_CI_AS` : cette collation passe avant celle de la colonne (sa doc).",
+              snowflake: "Sans collation, l'ordre des codes UTF-8 : toutes les majuscules avant les minuscules. `ORDER BY COLLATE(libelle, 'fr')` trie à la française.",
+              mysql: "`utf8mb4_0900_ai_ci` ignore la casse et les accents : « Épuisette » se range avec les E, « pH » avec les P."
+            }
+          },
+          {
+            id: "nombre-texte",
+            q: "Le nombre que tu tries est-il rangé en texte ?",
+            pourquoi: "En texte, on compare caractère par caractère : '10' passe avant '9', et « Chlore lent 25 kg » avant « Chlore lent 5 kg ». Des numéros de lot sortent dans le désordre.",
+            reflexe: "Trie sur la valeur convertie (`ORDER BY TRY_CAST(num_lot AS INT)`), ou range le nombre dans une colonne numérique. Un code de longueur fixe, avec ses zéros ('000042'), se trie bien en texte.",
+            moteurs: {
+              mysql: "Pas de `TRY_CAST` : `CAST(num_lot AS UNSIGNED)`. Une valeur comme 'A12' devient 0, avec un simple avertissement."
+            }
+          }
+        ]
+      },
+      {
+        titre: "La page suivante",
+        questions: [
+          {
+            id: "pages-stables",
+            q: "Une ligne peut-elle sortir sur deux pages, ou sur aucune ?",
+            pourquoi: "Chaque page relance la requête. Si l'ordre a des ex aequo, ou si des lignes arrivent entre deux pages, une commande sort deux fois, et une autre jamais. Personne ne le voit.",
+            reflexe: "Un ordre qui finit par une clé unique. Pour une liste qui bouge pendant qu'on la lit (les flux EDI du jour), pagine par clé : la page suivante part de la dernière ligne vue.",
+            moteurs: {
+              sqlserver: "Sa doc : des pages stables demandent un `ORDER BY` unique, et des données qui ne changent pas entre deux pages (sinon, une seule transaction en isolation snapshot ou serializable, des niveaux qui figent les données lues)."
+            }
+          },
+          {
+            id: "grand-offset",
+            q: "Les pages lointaines restent-elles rapides, avec un grand OFFSET ?",
+            pourquoi: "Pour sauter 100 000 lignes, le moteur doit les trouver et les trier, puis les jeter. Chaque page coûte plus que la précédente : la dernière est la plus chère.",
+            reflexe: "Pagine par clé : garde la dernière clé vue, puis `WHERE id > @dernier_id ORDER BY id`, avec `TOP (20)` ou `LIMIT 20`. Un index sur `id` va droit à la page. Mesure la dernière page, pas la première."
+          },
+          {
+            id: "cout-tri",
+            q: "Le tri lui-même coûte-t-il cher : gros volume, aucun index dans cet ordre ?",
+            pourquoi: "Trier des millions de lignes pour en garder 10 demande de la mémoire, parfois le disque. Sans aide, tout est lu et trié à chaque appel du rapport.",
+            reflexe: "Filtre avant de trier (la période, le statut). Un index dans l'ordre du tri peut éviter le tri : le plan d'exécution (le chemin choisi par le moteur) le montre.",
+            moteurs: {
+              sqlserver: "Le plan montre un opérateur Sort. Un index sur `montant_ht DESC` peut le supprimer pour un `TOP`.",
+              snowflake: "`ORDER BY … LIMIT` peut sauter des blocs de la table (« top-K pruning ») si la 1re colonne triée est un entier, une date, un horodatage ou un texte. En `DESC`, sur une colonne qui peut être NULL : seulement avec `NULLS LAST` (sa doc).",
+              mysql: "`EXPLAIN` affiche « Using filesort » quand l'index ne sert pas au tri (sa doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Le top N par groupe",
+        questions: [
+          {
+            id: "par-groupe",
+            q: "Veux-tu les N premiers en tout, ou les N premiers de chaque groupe ?",
+            pourquoi: "`TOP (3)` garde 3 lignes en tout, pas 3 par client. « Les 3 dernières commandes de chaque client » n'en montre alors qu'une pour AquaBleu, qui en a 3.",
+            reflexe: "Numérote dans chaque groupe : `ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_cde DESC, id DESC)`, puis garde `rn <= 3`. Ex aequo compris : RANK. Voir « J'utilise une fonction de fenêtre ».",
+            moteurs: {
+              sqlserver: "Dans une CTE, puis `WHERE rn <= 3`. Ou `CROSS APPLY (SELECT TOP (3) … ORDER BY …)` pour chaque client.",
+              snowflake: "`QUALIFY ROW_NUMBER() OVER (…) <= 3`, en une requête.",
+              mysql: "Dans une CTE, puis `WHERE rn <= 3` : pas de `QUALIFY`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Où trier",
+        questions: [
+          {
+            id: "tri-utile",
+            q: "Le tri sert-il à quelqu'un, ou l'outil va-t-il retrier ?",
+            pourquoi: "Power BI et Excel trient eux-mêmes chaque tableau et chaque visuel. Un `ORDER BY` sur 5 millions de lignes chargées dans Power BI coûte un tri, sans rien changer à l'affichage.",
+            reflexe: "Trie en SQL quand l'ordre fait partie du résultat : un fichier, un export, un top N, une liste à lire telle quelle. Pour un chargement Power BI, laisse le tri à l'outil."
+          },
+          {
+            id: "vue",
+            q: "Ta vue, ta sous-requête ou ta CTE contient-elle un ORDER BY ?",
+            pourquoi: "Un tri à l'intérieur ne trie pas la requête qui les lit. Un `SELECT TOP 100 PERCENT … ORDER BY` dans une vue est accepté, mais le résultat lu n'est pas trié pour autant.",
+            reflexe: "Pas de tri dans une vue : trie dans la requête qui la lit. À l'intérieur, un `ORDER BY` ne sert qu'à choisir les lignes d'un `TOP` ou d'un `LIMIT`.",
+            moteurs: {
+              sqlserver: "Sans `TOP`, `OFFSET` ou `FOR XML` : erreur 1033. Avec eux, l'`ORDER BY` choisit les lignes, il ne trie pas le résultat (sa doc).",
+              snowflake: "Accepté, mais il ne vaut que dans la sous-requête ; sa doc conseille de trier seulement au niveau final. Un `ORDER BY` et un `LIMIT` à deux niveaux : résultat imprévisible.",
+              mysql: "L'optimiseur ignore l'`ORDER BY` d'une table dérivée ou d'une vue, sauf cas simples (sa doc)."
+            }
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "`TOP (10)` sans `ORDER BY` : 10 lignes quelconques, qui changent d'un jour à l'autre.",
+      "Un top 4 avec deux ex aequo à la 4e place : `TOP (4)` en garde un au hasard.",
+      "Sur Snowflake, `ORDER BY date_livraison DESC LIMIT 10` : les dates vides (NULL) sortent en tête.",
+      "Des numéros de lot rangés en texte : '10' sort avant '9'.",
+      "`LIMIT 10, 20` sur MySQL : 20 lignes à partir de la 11e, pas 10.",
+      "Une pagination par `OFFSET` sur une liste qui bouge : une commande sur deux pages, une autre sur aucune.",
+      "Un `ORDER BY` dans une vue, avec `TOP 100 PERCENT` : la requête qui lit la vue n'est pas triée pour autant.",
+      "`TOP (3)` pour « les 3 dernières commandes de chaque client » : 3 lignes en tout."
+    ],
+    pratique: "Une base Divalto est en collation binaire (`Latin1_General_BIN`) : triée sur un libellé, une liste met les minuscules et les lettres accentuées après les majuscules. Pour une liste à lire, impose une collation française dans l'`ORDER BY`.",
+    motsCles: ["trier", "tri", "order by", "top", "limit", "offset", "fetch", "pagination", "plus gros", "n premiers", "with ties", "ex aequo", "nulls last", "classement", "ordre de tri"],
+    voirAussi: ["fenetre", "sous-requete", "comparer-texte", "requete-lente", "creer-vue", "creer-index", "exporter", "donnees-powerbi"],
+    dico: ["order-by", "top", "offset-fetch", "rank", "row-number", "qualify", "collate"],
+    outils: ["astuces", "traduire"],
+    sources: [
+      { titre: "SELECT - Clause ORDER BY (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/queries/select-order-by-clause-transact-sql" },
+      { titre: "TOP (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/queries/top-transact-sql" },
+      { titre: "Snowflake : ORDER BY", url: "https://docs.snowflake.com/en/sql-reference/constructs/order-by" },
+      { titre: "Snowflake : LIMIT / FETCH", url: "https://docs.snowflake.com/en/sql-reference/constructs/limit" },
+      { titre: "Snowflake : Top-K pruning", url: "https://docs.snowflake.com/en/user-guide/querying-top-k-pruning-optimization" },
+      { titre: "MySQL 8.4 : LIMIT Query Optimization", url: "https://dev.mysql.com/doc/refman/8.4/en/limit-optimization.html" },
+      { titre: "MySQL 8.4 : Working with NULL Values", url: "https://dev.mysql.com/doc/refman/8.4/en/working-with-null.html" },
+      { titre: "Divalto : Installation Divalto infinity serveur et licence", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10550739615/Installation+Divalto+infinity+serveur+et+licence" }
+    ]
+  },
+  {
+    id: "comparer-texte",
+    titre: "Je compare ou je cherche du texte",
+    famille: "Interroger",
+    resume: "Les questions avant de comparer ou chercher du texte : la collation (casse, accents, espaces), les jokers de LIKE, l'index, le plein texte, Unicode, le rapprochement approché, les expressions régulières.",
+    besoins: [
+      "chercher un mot dans un libellé",
+      "comparer des textes sans tenir compte des majuscules et des accents",
+      "rechercher un client dont le nom ressemble",
+      "faire une recherche plein texte"
+    ],
+    essais: [
+      "geneve sans accent ne trouve pas genève",
+      "ilike et collate sur snowflake",
+      "regexp_like sur sql server 2025",
+      "chercher un % ou un _ avec like"
+    ],
+    exemple: {
+      texte: "Un partenaire EDI écrit les villes en majuscules, sans accent (le jeu de caractères UNOA) : 'GENEVE'. Ta fiche client dit 'Genève'. Avant de comparer, tu fixes la règle avec le métier : ni la casse, ni les accents ne comptent. Puis tu l'écris dans la requête, car chaque moteur a sa règle par défaut, sa collation : MySQL trouve Pool & Garden ; SQL Server (French_CI_AS) et Snowflake ne trouvent rien.",
+      code: "-- La ville reçue dans le flux EDI : majuscules, sans accent (UNOA)\nSELECT code, nom, ville\nFROM dbo.client\nWHERE ville = 'GENEVE';                        -- French_CI_AS : 0 ligne (l'accent compte)\n\n-- La règle écrite : ni la casse, ni les accents\nSELECT code, nom, ville\nFROM dbo.client\nWHERE ville COLLATE French_CI_AI = 'GENEVE';   -- C005 Pool & Garden",
+      codes: {
+        snowflake: "-- La ville reçue dans le flux EDI : majuscules, sans accent (UNOA)\nSELECT code, nom, ville\nFROM client\nWHERE ville = 'GENEVE';                        -- 0 ligne : la casse et les accents comptent\n\n-- La règle écrite : ni la casse, ni les accents\nSELECT code, nom, ville\nFROM client\nWHERE COLLATE(ville, 'fr-ci-ai') = 'GENEVE';   -- C005 Pool & Garden",
+        mysql: "-- La ville reçue dans le flux EDI : majuscules, sans accent (UNOA)\nSELECT code, nom, ville\nFROM client\nWHERE ville = 'GENEVE';            -- C005 : utf8mb4_0900_ai_ci ignore la casse et les accents\n\n-- La règle écrite, ici l'inverse : la casse et les accents comptent\nSELECT code, nom, ville\nFROM client\nWHERE ville COLLATE utf8mb4_0900_as_cs = 'GENEVE';   -- 0 ligne"
+      }
+    },
+    etapes: [
+      {
+        titre: "La règle",
+        questions: [
+          {
+            id: "regle",
+            q: "Pour le métier, 'Genève', 'GENEVE' et 'geneve ' sont-ils la même valeur ?",
+            pourquoi: "Si la règle n'est pas décidée, la collation du moteur, sa règle de comparaison des textes, décide à ta place. Elle change d'un moteur à l'autre : la même jointure trouve la fiche sur MySQL, et rien sur Snowflake.",
+            reflexe: "Écris la règle : la casse, les accents, les espaces, la ponctuation comptent-ils ? Pour un code (article, client), en général tout compte. Pour un nom ou une ville, souvent rien. Puis applique-la dans la requête."
+          },
+          {
+            id: "collation",
+            q: "Quelle est la collation de chaque colonne comparée ?",
+            pourquoi: "La collation peut changer d'une colonne à l'autre, même dans une seule base. Sans la connaître, tu ne sais pas ce que fait ton `=`, ni ton `LIKE`.",
+            reflexe: "Lis-la avant d'écrire. Son nom dit la règle : CI = casse ignorée, CS = casse comptée, AI = accents ignorés, AS = accents comptés, BIN = binaire, tout compte.",
+            moteurs: {
+              sqlserver: "`SELECT name, collation_name FROM sys.columns WHERE object_id = OBJECT_ID('dbo.client');`. Une base Divalto est en `Latin1_General_BIN` : la casse et les accents comptent.",
+              snowflake: "`SELECT DISTINCT COLLATION(ville) FROM client;` : NULL veut dire aucune collation, les textes sont comparés par leurs codes UTF-8, et tout compte.",
+              mysql: "`SHOW FULL COLUMNS FROM client;`, colonne Collation. Par défaut : `utf8mb4_0900_ai_ci`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Casse, accents, espaces",
+        questions: [
+          {
+            id: "casse-accents",
+            q: "Ta comparaison doit-elle ignorer la casse, les accents, ou les deux ?",
+            pourquoi: "`UPPER` des deux côtés règle la casse, pas les accents : 'GENEVE' ne trouve toujours pas 'GENÈVE'. Et une fonction sur la colonne empêche l'index (la table des matières de la table) de servir.",
+            reflexe: "Écris la règle dans la comparaison : une collation explicite, comme dans l'exemple. Si la recherche est fréquente, une colonne prête à comparer (majuscules, sans accent), remplie au chargement et indexée.",
+            moteurs: {
+              sqlserver: "`ville COLLATE French_CI_AI = 'GENEVE'`. `French_CI_AS`, la collation française par défaut, ignore la casse mais compte les accents.",
+              snowflake: "`ILIKE` ignore la casse, pas les accents. `COLLATE(ville, 'fr-ci-ai')` ignore les deux en `=` ; dans `LIKE` et `ILIKE`, seules les collations `upper`, `lower` et `trim` sont acceptées (sa doc).",
+              mysql: "`utf8mb4_0900_ai_ci` ignore déjà la casse et les accents. Pour tout compter : `COLLATE utf8mb4_0900_as_cs`."
+            }
+          },
+          {
+            id: "espaces",
+            q: "Les espaces à la fin du texte comptent-ils dans ta comparaison ?",
+            pourquoi: "'C001 ', avec un espace venu d'un champ EDI de longueur fixe, égale 'C001' sur SQL Server, pas sur Snowflake, ni sur MySQL avec sa collation par défaut. La jointure garde la ligne sur un moteur, et la perd sur l'autre.",
+            reflexe: "Enlève-les au chargement, une fois (`RTRIM`, ou `TRIM`). Ne compte pas sur la règle du moteur : elle change aussi entre `=` et `LIKE`.",
+            moteurs: {
+              sqlserver: "`=` ignore les espaces de fin. `LIKE` compte ceux du motif, et ceux de la colonne si elle est Unicode (`NVARCHAR`) (sa doc).",
+              snowflake: "Ils comptent, sauf avec une collation `trim` ou `rtrim`.",
+              mysql: "`=` les compte avec une collation NO PAD, comme celle par défaut ; `LIKE` les compte toujours (sa doc)."
+            }
+          },
+          {
+            id: "invisibles",
+            q: "Des caractères invisibles se cachent-ils dans les valeurs : espace insécable, tabulation, retour à la ligne ?",
+            pourquoi: "Copié d'Excel ou d'un PDF, 'C001' finit par une espace insécable. À l'écran, les deux valeurs sont identiques ; le `=` et la jointure échouent, et `TRIM` ne l'enlève pas.",
+            reflexe: "Compare les longueurs, puis affiche le code du dernier caractère : 160 pour l'espace insécable, 9 pour la tabulation. Remplace-les au chargement. Voir l'astuce « Repérer les caractères invisibles (espace insécable) »."
+          }
+        ]
+      },
+      {
+        titre: "LIKE et ses jokers",
+        questions: [
+          {
+            id: "jokers",
+            q: "Le texte cherché contient-il %, _ ou [, que LIKE prend pour des jokers ?",
+            pourquoi: "Un joker remplace d'autres caractères. Dans `LIKE 'FA_2026%'`, le `_` remplace n'importe quel caractère : 'FA-2026-0301' est trouvé aussi. Et `LIKE '%50%%'`, pour chercher « 50% », trouve tout ce qui contient 50.",
+            reflexe: "Échappe le joker avec `ESCAPE` : `LIKE '%50!%%' ESCAPE '!'` cherche un vrai %. Une saisie d'utilisateur collée dans un motif doit être échappée avant.",
+            moteurs: {
+              sqlserver: "`[ ]` est aussi un joker : `[0-9]`, un chiffre. Un vrai `[` s'écrit `[[]` (sa doc).",
+              snowflake: "Pas de caractère d'échappement par défaut : écris `ESCAPE`. Pas de `[ ]` : `REGEXP_LIKE`.",
+              mysql: "`\\` échappe déjà `%` et `_` par défaut, sauf en mode `NO_BACKSLASH_ESCAPES`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "La vitesse",
+        questions: [
+          {
+            id: "contient",
+            q: "Ta recherche « contient » (LIKE '%…%') tourne-t-elle souvent, sur une grosse table ?",
+            pourquoi: "Avec un joker au début, l'index ne peut pas servir : le moteur lit toutes les lignes, à chaque recherche. Invisible sur 8 articles, cela se paie sur 5 millions de libellés.",
+            reflexe: "Un début connu (`LIKE 'CHL%'`) peut utiliser l'index. Pour chercher des mots dans des libellés, passe à la recherche plein texte (question suivante). Le détail de l'index : « Je filtre des lignes ».",
+            moteurs: {
+              snowflake: "Search Optimization (un service payant, édition Enterprise) `ON SUBSTRING(libelle)` aide `LIKE '%…%'`, si le morceau cherché fait au moins 5 caractères (sa doc)."
+            }
+          },
+          {
+            id: "fonction-colonne",
+            q: "Ta règle met-elle une fonction ou un COLLATE sur la colonne comparée ?",
+            pourquoi: "`UPPER(nom) = 'AQUABLEU'` ou `ville COLLATE French_CI_AI = …` : le moteur transforme chaque ligne avant de comparer. L'index ne peut plus aller droit à la valeur.",
+            reflexe: "Si la recherche est fréquente, donne à la colonne la bonne collation dès sa création, ou ajoute une colonne calculée nettoyée, indexée. Compare le plan avant et après. Voir « J'utilise une fonction sur chaque ligne ».",
+            moteurs: {
+              snowflake: "Une collation dans le `WHERE`, différente de celle de la colonne, peut réduire ou supprimer l'élagage (sauter les blocs inutiles de la table) (sa doc)."
+            }
+          },
+          {
+            id: "plein-texte",
+            q: "Cherches-tu des mots dans des textes longs, plutôt qu'un morceau de code ?",
+            pourquoi: "`LIKE '%pompe%'` cherche des lettres, pas des mots : il trouve « télépompe », rate « POMPES » sur un moteur sensible à la casse, et lit toute la table. La recherche plein texte découpe le texte en mots, rangés dans un index.",
+            reflexe: "Pour des mots dans des libellés, des descriptions ou des notes : un index plein texte. Il s'installe, se remplit et se paie : réserve-le aux recherches fréquentes sur de gros volumes.",
+            moteurs: {
+              sqlserver: "Full-Text Search : un composant à installer, un seul index plein texte par table, puis `CONTAINS` ou `FREETEXT` (sa doc).",
+              snowflake: "`SEARCH(libelle, 'pompe filtre')` découpe en mots, sans réglage, et ignore la casse. Search Optimization `ON FULL_TEXT` l'accélère (édition Enterprise).",
+              mysql: "Un index `FULLTEXT`, puis `MATCH (libelle) AGAINST ('pompe')`. Sur InnoDB, un mot de moins de 3 lettres n'est pas indexé, par défaut."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Le type et l'alphabet",
+        questions: [
+          {
+            id: "code-nombre",
+            q: "Compares-tu un code rangé en texte à un nombre ?",
+            pourquoi: "`code_postal = 69110` sur une colonne texte : le moteur convertit chaque ligne en nombre. L'index ne sert plus, et '2A004' (la Corse) fait planter la requête, ou devient 2 sur MySQL, avec un simple avertissement.",
+            reflexe: "Écris la valeur dans le type de la colonne : `code_postal = '69110'`. Dans Divalto, `CE4 = '1'`. Le détail : « J'écris une valeur dans une requête »."
+          },
+          {
+            id: "unicode-n",
+            q: "Ta valeur Unicode s'écrit-elle avec N devant, face à une colonne NVARCHAR ?",
+            pourquoi: "Sans le N, 'Łódź' passe d'abord par la page de codes de la base (un alphabet limité) : la valeur est abîmée avant la comparaison, qui ne trouve rien, sans erreur.",
+            reflexe: "Colonne `NVARCHAR` : `N'Łódź'`. Colonne `VARCHAR` : pas de N, sinon toute la colonne est convertie et l'index sert mal. Déclare aussi tes paramètres dans le type de la colonne.",
+            seulement: ["sqlserver"]
+          }
+        ]
+      },
+      {
+        titre: "Ressemblances et motifs",
+        questions: [
+          {
+            id: "approche",
+            q: "Cherches-tu des valeurs qui se ressemblent : fautes de frappe, noms mal écrits ?",
+            pourquoi: "'Piscine Dumond' et 'Piscines Dumont' ne sont égaux pour aucune collation. Un rapprochement de fichiers fournisseurs ou de prospects laisse passer ces presque-doublons.",
+            reflexe: "Mesure la ressemblance, par exemple une distance d'édition (le nombre de lettres à changer : ici 2), sur des candidats déjà filtrés (même code postal). Fais valider les paires par un humain : jamais de fusion automatique.",
+            moteurs: {
+              sqlserver: "`SOUNDEX` et `DIFFERENCE` suivent la prononciation anglaise. `EDIT_DISTANCE` et `JARO_WINKLER_SIMILARITY` (SQL Server 2025) sont en préversion : option `PREVIEW_FEATURES`, déconseillée en production.",
+              snowflake: "`EDITDISTANCE(a, b)` (la distance de Levenshtein) et `JAROWINKLER_SIMILARITY(a, b)`, de 0 à 100, sans tenir compte de la casse.",
+              mysql: "Seulement `SOUNDEX`, prévu pour l'anglais et peu fiable en UTF-8 (sa doc). Pas de distance d'édition intégrée."
+            }
+          },
+          {
+            id: "regex",
+            q: "Un motif LIKE suffit-il, ou faut-il une expression régulière ?",
+            pourquoi: "Vérifier un format (un SIRET de 14 chiffres, un code 'AAA-999') avec LIKE devient vite illisible. Une expression régulière, un motif qui décrit le format, le dit en une ligne.",
+            reflexe: "Garde LIKE pour « commence par » et « contient ». Pour un format : une expression régulière, testée sur des valeurs justes et fausses, avec un commentaire qui la dit en français. Ici, 5 SIREN ont bien 9 chiffres.",
+            moteurs: {
+              sqlserver: "Depuis SQL Server 2025 : `REGEXP_LIKE(siren, '^[0-9]{9}$')`, au niveau de compatibilité 170 (le réglage de version de la base) ; aussi `REGEXP_REPLACE`, `REGEXP_SUBSTR`… Rien avant. Elles ignorent la collation (sa doc).",
+              snowflake: "`REGEXP_LIKE(siren, '[0-9]{9}')` : le motif est ancré aux deux bouts, donc « exactement 9 chiffres ». Pas de collation possible.",
+              mysql: "`REGEXP_LIKE(siren, '^[0-9]{9}$')` ; la casse suit la collation, sauf option `'c'` ou `'i'`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Nettoyer à la source",
+        questions: [
+          {
+            id: "nettoyer",
+            q: "Les valeurs sont-elles nettoyées une fois, au chargement, plutôt que dans chaque requête ?",
+            pourquoi: "`UPPER(TRIM(code))` répété dans chaque requête : quelqu'un l'oublie une fois, l'index ne sert plus, et deux rapports comparent différemment.",
+            reflexe: "Au chargement : `TRIM`, `UPPER` pour les codes, caractères invisibles retirés, une forme sans accent si besoin. Garde la valeur brute à côté. Ensuite, compare des colonnes propres, sans fonction."
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "`ville = 'GENEVE'` : trouvé sur MySQL, rien sur SQL Server (`French_CI_AS`) ni sur Snowflake. Même requête, résultats différents.",
+      "`UPPER` des deux côtés pour ignorer la casse : les accents comptent toujours, et l'index ne sert plus.",
+      "Un code reçu 'C001 ', avec un espace de fin : égal à 'C001' sur SQL Server, différent sur Snowflake et MySQL.",
+      "`LIKE 'FA_2026%'` : le `_` est un joker, et 'FA-2026-0301' sort aussi.",
+      "Sur Snowflake, `ILIKE` pour ignorer les accents : il n'ignore que la casse.",
+      "`SOUNDEX` sur des noms français : il suit la prononciation anglaise.",
+      "Une espace insécable copiée d'Excel : `TRIM` ne l'enlève pas, et la jointure échoue sans erreur.",
+      "Une recherche « contient » sur 5 millions de libellés, à chaque frappe : toute la table est lue à chaque fois."
+    ],
+    pratique: "Une base Divalto est en `Latin1_General_BIN` : la casse et les accents comptent. Depuis la 10.12, des libellés passent en `Latin1_General_CI_AI`. Vérifie la collation de chaque champ comparé, surtout dans une surcharge.",
+    motsCles: ["texte", "comparer", "chercher", "recherche", "casse", "majuscules", "accents", "collation", "like", "ilike", "espaces de fin", "plein texte", "soundex", "regex", "contient"],
+    voirAussi: ["filtrer", "joindre", "doublons", "ecrire-valeur", "trier-paginer", "fonction-scalaire", "importer-fichier"],
+    dico: ["like", "ilike", "collate", "upper-lower", "trim", "replace", "nvarchar", "len"],
+    outils: ["astuces", "dico"],
+    sources: [
+      { titre: "Classement et prise en charge d'Unicode", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/collations/collation-and-unicode-support" },
+      { titre: "LIKE (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/language-elements/like-transact-sql" },
+      { titre: "Nouveautés de SQL Server 2025 (expressions régulières, recherche approchée)", url: "https://learn.microsoft.com/fr-fr/sql/sql-server/what-s-new-in-sql-server-2025" },
+      { titre: "Snowflake : Collation support", url: "https://docs.snowflake.com/en/sql-reference/collation" },
+      { titre: "Snowflake : SEARCH", url: "https://docs.snowflake.com/en/sql-reference/functions/search" },
+      { titre: "MySQL 8.4 : String Comparison Functions and Operators", url: "https://dev.mysql.com/doc/refman/8.4/en/string-comparison-functions.html" },
+      { titre: "MySQL 8.4 : Natural Language Full-Text Searches", url: "https://dev.mysql.com/doc/refman/8.4/en/fulltext-natural-language.html" },
+      { titre: "Divalto : Avant migration, vérifier les modifications", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/11750211627/Avant+migration+v+rifier+les+modifications" }
+    ]
   }
 ]);

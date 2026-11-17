@@ -1491,5 +1491,1184 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       { titre: "MySQL 8.4 : LOAD DATA Statement", url: "https://dev.mysql.com/doc/refman/8.4/en/load-data.html" },
       { titre: "Excel : garder les zéros devant et les grands nombres", url: "https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/excel/last-digits-changed-to-zeros" }
     ]
+  },
+  // Vague 2 (17/11/2026), expert « Écrire et charger » : fusionner, transaction, charger-snowflake, exporter, corriger-prod.
+  // Pages officielles lues et gardées dans le scratchpad architecte/v2-ecrire/pages (Microsoft Learn sql-server-ver17,
+  // docs.snowflake.com, MySQL 8.4, base Divalto). Essais refaits sur MySQL 8.0.46 (serveur jetable, bases essai_v2 et base) :
+  // ON DUPLICATE KEY UPDATE (table dérivée, alias AS n, VALUES() = avertissement 1287, ROW_COUNT 1/2/0, doublon source : la
+  // dernière gagne), REPLACE (supprime puis insère : cascade des commandes, triggers DELETE + INSERT, colonne non citée remise
+  // à NULL, nouvel id ; erreur 1451 avec une clé étrangère sans cascade), START TRANSACTION imbriqué = COMMIT implicite, DDL =
+  // COMMIT implicite, MyISAM + ROLLBACK = avertissement 1196, script arrêté sur erreur = transaction annulée à la déconnexion
+  // (avec --force : COMMIT du reste, code retour 0), interblocage 1213 (toute la transaction annulée), attente 1205 (seule
+  // l'instruction), handler EXIT + ROLLBACK + RESIGNAL, INTO OUTFILE (1086, 1290, \N, guillemet écrit \", pas de BOM,
+  // ROW_COUNT = lignes écrites), client --batch (en-tête, NULL écrit NULL). Nombres des exemples vérifiés avec SQLite sur
+  // docs/base-exemple.sql (2 factures pour 2 464,80 ; 4 commandes ANNULEE dont CDE-1004 ; 1 ajout, 1 modification, 1 disparu).
+  {
+    id: "fusionner",
+    titre: "Je fusionne deux tables (MERGE)",
+    famille: "Écrire et charger",
+    resume: "Les questions avant un MERGE : la clé de rapprochement, une seule ligne source par clé, ce qui change vraiment, les lignes disparues, la concurrence, et MySQL sans MERGE.",
+    besoins: [
+      "je fusionne deux tables avec merge",
+      "mettre à jour si la ligne existe sinon l'insérer",
+      "synchroniser une table avec une table de chargement",
+      "faire un upsert"
+    ],
+    essais: [
+      "merge when matched when not matched sql server",
+      "upsert snowflake merge into",
+      "on duplicate key update mysql à la place de merge",
+      "synchronisation incrementale d'une table"
+    ],
+    exemple: {
+      texte: "Chaque nuit, l'extraction complète des clients de Divalto arrive dans `stg.client_jour` (7 clients). Tu synchronises `dw.client`, la table lue par Power BI : 1 client nouveau (C007), 1 client modifié (C003 a maintenant une ville), 1 client disparu de Divalto (C009), à désactiver sans l'effacer. Les 5 autres ne doivent pas être réécrits.",
+      code: "-- Avant : une ligne par code (0 ligne attendue), et une extraction complète\nSELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;\nSELECT COUNT(*) FROM stg.client_jour;   -- 7 : pas beaucoup moins que la veille ?\n\nMERGE INTO dw.client AS c\nUSING stg.client_jour AS s\n   ON c.code = s.code                                   -- la clé, et rien d'autre\nWHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom           -- SQL Server 2022 ou plus\n               OR c.ville IS DISTINCT FROM s.ville OR c.est_actif = 0) THEN\n  UPDATE SET nom = s.nom, ville = s.ville, est_actif = 1, date_modif = SYSDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n  INSERT (code, nom, ville, est_actif, date_modif)\n  VALUES (s.code, s.nom, s.ville, 1, SYSDATETIME())\nWHEN NOT MATCHED BY SOURCE AND c.est_actif = 1 THEN\n  UPDATE SET est_actif = 0, date_modif = SYSDATETIME()   -- désactivé, pas effacé\nOUTPUT $action, inserted.code INTO suivi.merge_client (action, code);\n-- Attendu : 1 INSERT (C007), 2 UPDATE (C003, et C009 désactivé), 5 clients non touchés",
+      codes: {
+        snowflake: "-- Avant : une ligne par code (0 ligne attendue), et une extraction complète\nSELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;\n\nBEGIN TRANSACTION;\nMERGE INTO dw.client c\nUSING stg.client_jour s\n   ON c.code = s.code\nWHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom\n               OR c.ville IS DISTINCT FROM s.ville OR NOT c.est_actif) THEN\n  UPDATE SET nom = s.nom, ville = s.ville, est_actif = TRUE, date_modif = CURRENT_TIMESTAMP()\nWHEN NOT MATCHED THEN\n  INSERT (code, nom, ville, est_actif, date_modif)\n  VALUES (s.code, s.nom, s.ville, TRUE, CURRENT_TIMESTAMP());\n-- « number of rows inserted » : 1, « updated » : 1\n-- Pas de NOT MATCHED BY SOURCE : les disparus, par un UPDATE à part\nUPDATE dw.client SET est_actif = FALSE, date_modif = CURRENT_TIMESTAMP()\nWHERE est_actif\n  AND NOT EXISTS (SELECT 1 FROM stg.client_jour AS s WHERE s.code = client.code);\nCOMMIT;",
+        mysql: "-- Pas de MERGE : INSERT … ON DUPLICATE KEY UPDATE, sur la clé UNIQUE (code)\nSTART TRANSACTION;\nINSERT INTO dw_client (code, nom, ville, est_actif)\nSELECT * FROM (SELECT code AS s_code, nom AS s_nom, ville AS s_ville, 1 AS s_actif\n               FROM stg_client_jour) AS s\nON DUPLICATE KEY UPDATE nom = s_nom, ville = s_ville, est_actif = 1;\nSELECT ROW_COUNT();   -- 3 : C007 ajouté (1) + C003 modifié (2) ; inchangé : 0\n-- Les disparus, à part\nUPDATE dw_client AS c LEFT JOIN stg_client_jour AS s ON s.code = c.code\nSET c.est_actif = 0\nWHERE s.code IS NULL AND c.est_actif = 1;\nCOMMIT;\n-- date_modif (ON UPDATE CURRENT_TIMESTAMP) ne change que si une valeur change"
+      }
+    },
+    etapes: [
+      {
+        titre: "Le bon outil",
+        questions: [
+          {
+            id: "bon-outil",
+            q: "MERGE est-il le bon outil, ou un INSERT et un UPDATE séparés suffisent-ils ?",
+            pourquoi: "Un MERGE fait en une seule instruction l'ajout, la mise à jour, et même la suppression : c'est un « upsert ». Pour seulement ajouter des lignes nouvelles, il complique le code sans rien apporter.",
+            reflexe: "Seulement des lignes nouvelles : un `INSERT … WHERE NOT EXISTS` (voir « J'insère des lignes »). Des nouvelles et des modifiées : un MERGE. Écris d'abord, en français, ce que chaque cas doit faire.",
+            moteurs: {
+              sqlserver: "La doc prévient : à grande échelle, MERGE peut poser des problèmes de concurrence difficiles. Avec beaucoup d'écritures en même temps, un INSERT, un UPDATE et un DELETE séparés peuvent moins bloquer.",
+              mysql: "Pas de MERGE : `INSERT … ON DUPLICATE KEY UPDATE`, ou un UPDATE puis un INSERT. Voir l'étape « MySQL : sans MERGE »."
+            }
+          }
+        ]
+      },
+      {
+        titre: "La clé de rapprochement",
+        questions: [
+          {
+            id: "cle",
+            q: "Sur quelle clé rapproches-tu la source et la cible, et est-elle complète ?",
+            pourquoi: "Une clé incomplète, comme le code client sans la société, ou l'article sans le dépôt, rapproche les mauvaises lignes. Le MERGE met à jour le mauvais client, ou crée des doublons, sans erreur.",
+            reflexe: "Prends la clé métier entière : `ON c.societe = s.societe AND c.code = s.code`. Vérifie qu'elle a le même type et le même format des deux côtés : zéros devant, espaces, majuscules.",
+            moteurs: {
+              sqlserver: "En collation insensible à la casse, 'c001' trouve 'C001', et les espaces de fin sont ignorés.",
+              snowflake: "La casse et les espaces de fin comptent : 'C001 ' ne trouve pas 'C001', et la ligne est ajoutée une 2e fois.",
+              mysql: "Collation par défaut : la casse ne compte pas, mais les espaces de fin comptent (NO PAD)."
+            }
+          },
+          {
+            id: "on-cle",
+            q: "Le ON ne contient-il que la clé, sans autre filtre ?",
+            pourquoi: "Un filtre dans le ON, comme `AND c.depot_id = 1`, fait passer les autres lignes de la cible pour absentes. Le MERGE ajoute en double les lignes de la source, ou désactive des lignes qui n'ont rien à voir.",
+            reflexe: "Mets dans le ON seulement les colonnes de la clé. Filtre la source avant (une vue, ou la table d'arrivée), et limite chaque cas par sa condition : `WHEN NOT MATCHED BY SOURCE AND c.depot_id = 1`.",
+            moteurs: {
+              sqlserver: "La doc le dit : filtrer la cible dans le ON « peut rendre des résultats inattendus et faux ». Elle conseille la condition des WHEN, ou une vue."
+            }
+          },
+          {
+            id: "source-unique",
+            q: "Chaque clé apparaît-elle une seule fois dans la source ?",
+            pourquoi: "Un client présent deux fois dans l'extraction : le moteur ne sait pas quelle ligne prendre. Selon le moteur, tout le MERGE échoue, une des lignes est prise sans dire laquelle, ou le client est ajouté deux fois.",
+            reflexe: "Avant le MERGE : `SELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;` doit rendre 0 ligne. Sinon, garde une ligne par clé (la plus récente, avec `ROW_NUMBER()`), ou rejette le fichier.",
+            moteurs: {
+              sqlserver: "Erreur 8672 : une ligne de la cible serait modifiée plusieurs fois, et tout le MERGE est refusé. Si la clé est nouvelle, les deux lignes sont ajoutées : seule une clé UNIQUE l'empêche.",
+              snowflake: "Erreur par défaut (`ERROR_ON_NONDETERMINISTIC_MERGE = TRUE`) ; avec FALSE, une des lignes est prise, sans dire laquelle. Si la clé est nouvelle, chaque copie est ajoutée (doc), et UNIQUE n'est pas appliqué.",
+              mysql: "Avec `ON DUPLICATE KEY UPDATE`, la 2e ligne met à jour la 1re : la dernière gagne, sans erreur (vu sur MySQL 8.0)."
+            }
+          },
+          {
+            id: "cle-null",
+            q: "La clé peut-elle être vide (NULL) dans la source ?",
+            pourquoi: "NULL n'est égal à rien, pas même à NULL. Une ligne sans clé ne trouve jamais la cible : elle est ajoutée à chaque passage, et les doublons grossissent chaque nuit.",
+            reflexe: "Écarte les clés NULL avant le MERGE (`WHERE code IS NOT NULL`) et range-les dans tes rejets, avec le motif « clé absente ». Compte-les à chaque passage."
+          },
+          {
+            id: "cible-unique",
+            q: "La clé est-elle protégée par une contrainte UNIQUE dans la cible ?",
+            pourquoi: "Sans contrainte, un doublon entré par un autre chemin (un INSERT à la main, un 2e flux) reste invisible. Le MERGE met alors à jour les deux lignes, et Power BI compte le client deux fois.",
+            reflexe: "Pose une clé primaire ou un index UNIQUE sur la clé de la cible. Sur SQL Server, la doc conseille aussi un index sur la clé côté source, unique si possible.",
+            moteurs: {
+              snowflake: "UNIQUE n'est pas appliqué sur une table standard : le MERGE est ta seule protection. Contrôle après chaque passage : `GROUP BY code HAVING COUNT(*) > 1`.",
+              mysql: "`ON DUPLICATE KEY UPDATE` ne marche que sur une clé primaire ou UNIQUE. Avec plusieurs clés UNIQUE, la doc conseille de l'éviter : une seule ligne est mise à jour."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Ce que fait chaque cas",
+        questions: [
+          {
+            id: "que-change",
+            q: "Ne mets-tu à jour que les lignes qui ont vraiment changé ?",
+            pourquoi: "Sans condition, chaque ligne trouvée est réécrite à chaque passage, même identique. Les déclencheurs tournent, `date_modif` change pour tous les clients, et un rapport qui suit cette date croit que tout a bougé.",
+            reflexe: "Ajoute la différence au cas des lignes trouvées : `WHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom OR …)`. Le compte des mises à jour devient celui des vrais changements.",
+            moteurs: {
+              snowflake: "Une ligne réécrite à l'identique compte comme mise à jour (exemple de la doc). Et Snowflake réécrit chaque micro-partition (bloc de stockage) qu'il touche.",
+              mysql: "Une ligne remise à ses valeurs compte 0 dans `ROW_COUNT()`, et une colonne `ON UPDATE CURRENT_TIMESTAMP` ne change pas (doc)."
+            }
+          },
+          {
+            id: "null-compare",
+            q: "Ta comparaison voit-elle le passage d'une valeur vide (NULL) à une vraie valeur ?",
+            pourquoi: "`c.ville <> s.ville` n'est jamais vrai quand un des deux est NULL. C003 passe de « sans ville » à Nice : la condition ne le voit pas, et Power BI garde la case vide.",
+            reflexe: "Compare en comptant NULL comme une valeur : `IS DISTINCT FROM`, ou son équivalent. Teste avec une ligne qui passe de NULL à une valeur, et une qui passe d'une valeur à NULL.",
+            moteurs: {
+              sqlserver: "`IS DISTINCT FROM` depuis SQL Server 2022. Avant : `WHEN MATCHED AND EXISTS (SELECT c.nom, c.ville EXCEPT SELECT s.nom, s.ville)` ; EXCEPT compte deux NULL comme égaux (doc).",
+              snowflake: "`IS DISTINCT FROM`, ou `NOT EQUAL_NULL(c.ville, s.ville)`.",
+              mysql: "`NOT (c.ville <=> s.ville)` : `<=>` est l'égal qui compte NULL comme une valeur."
+            }
+          },
+          {
+            id: "disparus",
+            q: "Que deviennent les lignes de la cible absentes de la source : supprimées, désactivées, ou gardées ?",
+            pourquoi: "Un client absent de l'extraction n'est pas forcément supprimé dans Divalto : il peut être filtré, ou l'extraction a échoué. Le supprimer efface aussi ses ventes passées dans les rapports.",
+            reflexe: "Décide-le avec le métier. Souvent : désactiver (`est_actif = 0`), pas effacer. Sur SQL Server : `WHEN NOT MATCHED BY SOURCE AND c.est_actif = 1 THEN UPDATE SET est_actif = 0`.",
+            moteurs: {
+              sqlserver: "`WHEN NOT MATCHED BY SOURCE` : deux clauses au plus, l'une UPDATE, l'autre DELETE. Leur condition ne peut citer que des colonnes de la cible.",
+              snowflake: "Pas de `NOT MATCHED BY SOURCE` (doc actuelle) : un UPDATE ou un DELETE à part, avec `NOT EXISTS`, dans la même transaction.",
+              mysql: "Un UPDATE ou un DELETE à part : `LEFT JOIN` sur la source, `WHERE s.code IS NULL`."
+            }
+          },
+          {
+            id: "source-complete",
+            q: "La source est-elle complète, ou seulement un morceau : un dépôt, un jour, un fichier coupé ?",
+            pourquoi: "Avec un fichier partiel, tout ce qui manque passe pour disparu. Une extraction vide ou coupée, et le MERGE désactive, ou supprime, la moitié des clients, sans erreur.",
+            reflexe: "Avant de traiter les disparus, compare le nombre de lignes de la source à celui de la veille : arrête tout sous un seuil (moins de 90 %, ou 0 ligne). Une source partielle : limite le cas des disparus à son périmètre."
+          }
+        ]
+      },
+      {
+        titre: "MySQL : sans MERGE",
+        questions: [
+          {
+            id: "odku",
+            q: "Remplaces-tu le MERGE par INSERT … ON DUPLICATE KEY UPDATE ?",
+            pourquoi: "MySQL n'a pas de MERGE. `ON DUPLICATE KEY UPDATE` ajoute la ligne, ou met à jour celle qui a la même clé primaire ou UNIQUE. Sans clé UNIQUE sur le code, il ajoute toujours : doublons.",
+            reflexe: "Vérifie la clé UNIQUE de la cible. Lis `ROW_COUNT()` : 1 par ligne ajoutée, 2 par ligne modifiée, 0 si elle était déjà à jour (doc). Les disparus : un UPDATE à part.",
+            seulement: ["mysql"]
+          },
+          {
+            id: "values-alias",
+            q: "Écris-tu encore VALUES(col) dans la partie ON DUPLICATE KEY UPDATE ?",
+            pourquoi: "La doc 8.4 dit `VALUES()` dépréciée, et à retirer dans une prochaine version. MySQL renvoie déjà un avertissement (1287, vu sur MySQL 8.0) : ton script cassera à une montée de version.",
+            reflexe: "Avec VALUES, un alias de ligne : `VALUES (…) AS n ON DUPLICATE KEY UPDATE nom = n.nom`. Avec un SELECT, une table dérivée dont tu cites les colonnes (`nom = s_nom`), comme dans l'exemple.",
+            seulement: ["mysql"]
+          },
+          {
+            id: "replace",
+            q: "Penses-tu à REPLACE pour remplacer les lignes existantes ?",
+            pourquoi: "REPLACE supprime l'ancienne ligne, puis insère la nouvelle. Une clé étrangère `ON DELETE CASCADE` efface ses commandes ; les déclencheurs DELETE tournent ; les colonnes non citées reprennent leur valeur par défaut ; l'id automatique change.",
+            reflexe: "Préfère `ON DUPLICATE KEY UPDATE` : il modifie la ligne en place, garde son id et ne touche pas aux tables liées. Avec une clé étrangère sans cascade, REPLACE échoue (erreur 1451, vu sur MySQL 8.0).",
+            seulement: ["mysql"]
+          }
+        ]
+      },
+      {
+        titre: "Concurrence et volume",
+        questions: [
+          {
+            id: "concurrence",
+            q: "Un autre traitement peut-il écrire dans la table pendant ton MERGE ?",
+            pourquoi: "Deux MERGE lancés en même temps voient tous les deux un client comme nouveau, et l'ajoutent tous les deux : une erreur de clé, ou un doublon là où la clé n'est pas appliquée.",
+            reflexe: "Un seul chargement à la fois par table : enchaîne les traitements, ne les lance pas en parallèle. Teste le MERGE en recette, avec la charge réelle, avant la production.",
+            moteurs: {
+              sqlserver: "La doc : `MERGE dw.client WITH (HOLDLOCK) AS c …` évite les violations de clé unique quand des clés sont ajoutées et modifiées en même temps. HOLDLOCK = SERIALIZABLE : plus sûr, mais il bloque davantage.",
+              snowflake: "Deux MERGE, UPDATE ou DELETE sur la même table s'attendent en général ; un INSERT ou un COPY peut parfois passer en même temps (doc). La clé n'étant pas appliquée, un doublon peut entrer."
+            }
+          },
+          {
+            id: "volume",
+            q: "Combien de lignes passent dans le MERGE, et la source se limite-t-elle aux changements ?",
+            pourquoi: "Un MERGE de toute la table, chaque nuit, lit les deux tables en entier et garde ses verrous (les lignes réservées) jusqu'au bout. Découpé avec TOP, il relit tout à chaque lot.",
+            reflexe: "Envoie seulement le delta : les lignes modifiées depuis le dernier passage. Les disparus, eux, demandent la source complète. Indexe la clé des deux côtés, et découpe par tranches de clés, pas avec TOP.",
+            moteurs: {
+              sqlserver: "La doc : avec TOP, chaque lot relit la source et la cible en entier, et des doublons peuvent entrer si les lots ne visent pas des lignes neuves.",
+              snowflake: "Pas de verrou par ligne : un seul MERGE. Mais il réécrit chaque micro-partition touchée : un delta en touche moins qu'une table entière."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Déclencheurs et comptes",
+        questions: [
+          {
+            id: "triggers",
+            q: "La table cible a-t-elle des déclencheurs (triggers) ?",
+            pourquoi: "Un trigger est du code lancé à chaque modification de la table. Un MERGE en lance pour chaque cas, sans ordre garanti : un trigger écrit pour un simple INSERT peut se tromper.",
+            reflexe: "Liste les triggers de la cible et lis ce qu'ils font, avant le premier MERGE. Teste en recette un MERGE qui ajoute, modifie et désactive des lignes.",
+            moteurs: {
+              sqlserver: "Les triggers AFTER tournent pour chaque action, sans ordre garanti. Dedans, `@@ROWCOUNT` donne le total du MERGE : un trigger d'INSERT voit 3 pour 1 ajout, 1 modification et 1 suppression (doc).",
+              snowflake: "Pas de triggers.",
+              mysql: "`ON DUPLICATE KEY UPDATE` lance le trigger BEFORE INSERT, puis AFTER INSERT, ou BEFORE et AFTER UPDATE (doc). REPLACE lance les triggers DELETE et INSERT."
+            }
+          },
+          {
+            id: "compter",
+            q: "Sais-tu combien de lignes chaque cas a ajoutées, modifiées ou supprimées ?",
+            pourquoi: "Un MERGE ne dit pas seul s'il a bien travaillé. 0 ajout un jour de nouveaux clients, ou 5 000 désactivations, ne sont pas des erreurs pour le moteur.",
+            reflexe: "Garde les comptes de chaque passage dans une table de suivi. Contrôle : cible après = cible avant + ajouts − suppressions. Ici : 7 + 1 − 0 = 8 lignes, dont 7 actives.",
+            moteurs: {
+              sqlserver: "`OUTPUT $action, inserted.code INTO suivi.merge_client` : une ligne par ligne touchée, avec INSERT, UPDATE ou DELETE ; la doc le conseille pour compter. `@@ROWCOUNT` ne donne que le total.",
+              snowflake: "Le MERGE rend « number of rows inserted », « updated » et « deleted » : garde-les avec `RESULT_SCAN(LAST_QUERY_ID())`.",
+              mysql: "`ROW_COUNT()` compte 1 par ajout, 2 par mise à jour, 0 par ligne inchangée : 3 dans l'exemple, pour 1 ajout et 1 mise à jour."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Transaction et reprise",
+        questions: [
+          {
+            id: "transaction",
+            q: "Le MERGE et les étapes autour sont-ils dans une même transaction ?",
+            pourquoi: "Sur Snowflake et MySQL, les disparus demandent une 2e instruction. Si elle échoue après le MERGE, la table est à moitié synchronisée : les nouveaux sont là, les disparus encore actifs.",
+            reflexe: "Ouvre une transaction (un bloc validé ou annulé en entier) : contrôles, MERGE, disparus, comptes, puis COMMIT seulement si les comptes sont bons. Le détail : « J'utilise une transaction ».",
+            moteurs: {
+              sqlserver: "`SET XACT_ABORT ON;` avant `BEGIN TRAN` : sans lui, une erreur n'annule que l'instruction fautive.",
+              snowflake: "Une instruction en erreur est annulée seule, et la transaction reste ouverte. Un ordre de structure (DDL) au milieu valide tout ce qui précède.",
+              mysql: "`START TRANSACTION` … `COMMIT`. Un DDL au milieu, comme un `CREATE TABLE` de travail, valide tout ce qui précède."
+            }
+          },
+          {
+            id: "rejouable",
+            q: "Peut-on relancer le MERGE sans fausser les données ?",
+            pourquoi: "Un traitement de nuit se relance. Avec `SET qte = c.qte + s.qte`, le 2e passage ajoute la quantité une 2e fois : le stock double, sans erreur.",
+            reflexe: "Écris des valeurs absolues (`SET qte = s.qte`), jamais des cumuls, ou note chaque fichier déjà traité. Teste : le même MERGE lancé deux fois ne doit rien changer au 2e passage."
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Un client deux fois dans la source : erreur 8672 sur SQL Server, erreur par défaut sur Snowflake, la dernière ligne gagne sur MySQL.",
+      "Une clé nouvelle en double dans la source : Snowflake ajoute chaque copie, et UNIQUE ne l'arrête pas.",
+      "Un filtre dans le ON (`AND c.depot_id = 1`) : les autres lignes passent pour absentes, puis sont ajoutées en double ou désactivées.",
+      "`WHEN NOT MATCHED BY SOURCE THEN DELETE` avec une extraction vide ou coupée : la moitié de la table est effacée, sans erreur.",
+      "`c.ville <> s.ville` ne voit pas le passage de NULL à Nice : la mise à jour n'a pas lieu.",
+      "SQL Server : un MERGE sans `;` final est refusé (erreur 10713).",
+      "MySQL : `REPLACE` supprime puis insère ; avec `ON DELETE CASCADE`, les commandes du client partent avec lui.",
+      "Un `SET qte = c.qte + s.qte` dans un MERGE relancé : la quantité est ajoutée deux fois."
+    ],
+    pratique: "Pour une table lue par Power BI, désactive les clients disparus au lieu de les supprimer : leurs ventes passées gardent leur client. Note les comptes de chaque MERGE, avec la date, dans une table de suivi.",
+    motsCles: ["merge", "fusionner", "upsert", "synchroniser", "synchronisation", "synchro", "insérer ou mettre à jour", "when matched", "not matched by source", "on duplicate key update", "replace into", "clé de rapprochement", "$action", "8672"],
+    voirAussi: ["inserer", "mettre-a-jour", "supprimer", "transaction", "doublons", "importer-fichier", "table-import", "historiser"],
+    dico: ["merge", "output", "is-distinct-from", "insert-select", "update", "row-number", "unique", "rowcount"],
+    outils: ["dico"],
+    sources: [
+      { titre: "MERGE (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/statements/merge-transact-sql" },
+      { titre: "Erreurs 8000 à 8999 du moteur de base de données (8672)", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/errors-events/database-engine-events-and-errors-8000-to-8999" },
+      { titre: "Opérateurs EXCEPT et INTERSECT (deux NULL égaux)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/language-elements/set-operators-except-and-intersect-transact-sql" },
+      { titre: "Snowflake : MERGE", url: "https://docs.snowflake.com/en/sql-reference/sql/merge" },
+      { titre: "Snowflake : les transactions (verrous)", url: "https://docs.snowflake.com/en/sql-reference/transactions" },
+      { titre: "MySQL 8.4 : INSERT … ON DUPLICATE KEY UPDATE", url: "https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html" },
+      { titre: "MySQL 8.4 : REPLACE Statement", url: "https://dev.mysql.com/doc/refman/8.4/en/replace.html" },
+      { titre: "MySQL 8.4 : CREATE TRIGGER (REPLACE, ON DUPLICATE KEY UPDATE)", url: "https://dev.mysql.com/doc/refman/8.4/en/create-trigger.html" }
+    ]
+  },
+  {
+    id: "transaction",
+    titre: "J'utilise une transaction",
+    famille: "Écrire et charger",
+    resume: "Les questions avant BEGIN : ce qui doit réussir ensemble, l'annulation sur erreur, une transaction courte, ce que voient les autres, les interblocages, et les règles de chaque moteur.",
+    besoins: [
+      "j'utilise une transaction",
+      "tout annuler si une erreur arrive au milieu du traitement",
+      "enregistrer une commande et ses lignes ensemble ou pas du tout",
+      "begin tran commit rollback"
+    ],
+    essais: [
+      "set xact_abort on try catch rollback",
+      "deadlock victime erreur 1205",
+      "transaction imbriquee trancount procedure",
+      "nolock ou read committed snapshot"
+    ],
+    exemple: {
+      texte: "Le flux EDI de ce matin apporte une commande d'AquaBleu : 10 sacs de chlore CHL-5 à 35,90 €, soit 359,00 € HT. Tu enregistres l'en-tête, la ligne et le suivi du flux. Les trois écritures réussissent ensemble, ou aucune : jamais une commande sans ses lignes.",
+      code: "SET XACT_ABORT ON;          -- une erreur annule toute la transaction\nBEGIN TRY\n  BEGIN TRAN;\n    INSERT INTO dbo.commande (id, num_cde, client_id, date_cde, statut, canal, montant_ht)\n    VALUES (9, 'CDE-1009', 1, '20260414', 'EN_COURS', 'EDI', 359.00);\n    INSERT INTO dbo.ligne_cde (id, cde_id, article_id, qte, prix_unit)\n    VALUES (12, 9, 1, 10, 35.90);\n    INSERT INTO dbo.flux_edi (id, type, partenaire, date_recu, statut, cde_id)\n    VALUES (7, 'ORDERS', 'AquaBleu', '2026-04-14T06:09:00', 'OK', 9);\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  IF XACT_STATE() <> 0 ROLLBACK;   -- rien n'est à moitié fait\n  THROW;                           -- l'erreur remonte au traitement EDI\nEND CATCH;",
+      codes: {
+        snowflake: "EXECUTE IMMEDIATE $$\nBEGIN\n  BEGIN TRANSACTION;\n  INSERT INTO ventes.commande (id, num_cde, client_id, date_cde, statut, canal, montant_ht)\n    VALUES (9, 'CDE-1009', 1, '2026-04-14', 'EN_COURS', 'EDI', 359.00);\n  INSERT INTO ventes.ligne_cde (id, cde_id, article_id, qte, prix_unit)\n    VALUES (12, 9, 1, 10, 35.90);\n  INSERT INTO ventes.flux_edi (id, type, partenaire, date_recu, statut, cde_id)\n    VALUES (7, 'ORDERS', 'AquaBleu', '2026-04-14 06:09:00', 'OK', 9);\n  COMMIT;\nEXCEPTION\n  WHEN OTHER THEN\n    ROLLBACK;   -- annule les trois écritures\n    RAISE;      -- l'erreur remonte\nEND;\n$$;\n-- Hors d'un bloc, une instruction en erreur est annulée seule, et COMMIT valide le reste.",
+        mysql: "START TRANSACTION;\nINSERT INTO commande (id, num_cde, client_id, date_cde, statut, canal, montant_ht)\nVALUES (9, 'CDE-1009', 1, '2026-04-14', 'EN_COURS', 'EDI', 359.00);\nINSERT INTO ligne_cde (id, cde_id, article_id, qte, prix_unit)\nVALUES (12, 9, 1, 10, 35.90);\nINSERT INTO flux_edi (id, type, partenaire, date_recu, statut, cde_id)\nVALUES (7, 'ORDERS', 'AquaBleu', '2026-04-14 06:09:00', 'OK', 9);\nCOMMIT;\n-- Une erreur ? Sans --force, le client mysql s'arrête, et la transaction ouverte\n-- est annulée à la déconnexion (vu sur MySQL 8.0). Dans une procédure :\n-- DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; RESIGNAL; END;"
+      }
+    },
+    etapes: [
+      {
+        titre: "Le besoin",
+        questions: [
+          {
+            id: "ensemble",
+            q: "Quelles écritures doivent réussir ou échouer ensemble ?",
+            pourquoi: "Arrêté entre deux écritures, un traitement laisse une commande sans ses lignes, ou un stock baissé sans son mouvement. La donnée est fausse, et le flux, relancé, l'enregistre une 2e fois.",
+            reflexe: "Liste les écritures liées : l'en-tête, ses lignes, le suivi du flux. Mets-les, et seulement elles, dans une transaction : un bloc validé (COMMIT) ou annulé (ROLLBACK) en entier."
+          },
+          {
+            id: "autocommit",
+            q: "Sais-tu que, sans BEGIN, chaque instruction est validée seule, dès qu'elle finit ?",
+            pourquoi: "C'est l'autocommit, le mode par défaut des trois moteurs. Un ROLLBACK lancé ensuite n'annule rien : l'UPDATE d'avant est déjà définitif.",
+            reflexe: "Ouvre la transaction avant la première écriture, et ferme-la toi-même. Vérifie aussi que ton outil n'a pas changé le mode : une session sans autocommit garde tout ouvert jusqu'à ton COMMIT.",
+            moteurs: {
+              sqlserver: "`SET IMPLICIT_TRANSACTIONS ON`, ou un pilote réglé sans autocommit, ouvre une transaction dès la première instruction, même un SELECT : elle reste ouverte jusqu'au COMMIT (doc).",
+              snowflake: "Paramètre `AUTOCOMMIT`, vrai par défaut. La doc conseille de le garder, et d'écrire des transactions explicites (`BEGIN TRANSACTION`).",
+              mysql: "`autocommit` vaut 1 par défaut. Avec `SET autocommit = 0`, une transaction est toujours ouverte ; si la session finit sans COMMIT, MySQL l'annule (doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Ouvrir et fermer",
+        questions: [
+          {
+            id: "fermer",
+            q: "Chaque BEGIN a-t-il son COMMIT ou son ROLLBACK, sur tous les chemins du code ?",
+            pourquoi: "Une transaction restée ouverte, dans une fenêtre SSMS ou après une erreur, garde ses verrous (les lignes réservées). L'ERP attend, et le journal des transactions (où le moteur note chaque modification) ne se vide plus.",
+            reflexe: "Écris le BEGIN, le COMMIT et le ROLLBACK ensemble, avant le reste. Avant de fermer ta fenêtre ou de partir en pause, vérifie qu'aucune transaction n'est ouverte.",
+            moteurs: {
+              sqlserver: "`SELECT @@TRANCOUNT;` : plus de 0, une transaction est ouverte. La doc : une transaction en attente empêche de vider le journal, qui grossit jusqu'à se remplir.",
+              snowflake: "`SHOW TRANSACTIONS;`. Une session coupée net laisse sa transaction et ses verrous : annulée après 5 minutes d'inactivité si elle bloque une autre transaction, sinon après 4 heures (doc).",
+              mysql: "Dans une procédure, `BEGIN` ouvre un bloc, pas une transaction : écris `START TRANSACTION` (doc)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les erreurs",
+        questions: [
+          {
+            id: "erreur-milieu",
+            q: "Une erreur au milieu annule-t-elle toute la transaction, ou seulement l'instruction fautive ?",
+            pourquoi: "Souvent, seule l'instruction fautive est annulée, et la transaction continue. Le COMMIT final valide alors la commande sans sa ligne, en silence.",
+            reflexe: "Demande au moteur de tout annuler à la première erreur, et teste-le : glisse une erreur volontaire en recette (un article qui n'existe pas), puis vérifie qu'il ne reste rien.",
+            moteurs: {
+              sqlserver: "`SET XACT_ABORT ON;` avant `BEGIN TRAN`. Sans lui (OFF, le défaut), une violation de contrainte n'annule que l'instruction. Il ne couvre pas les erreurs de compilation, comme une faute de syntaxe (doc).",
+              snowflake: "Par défaut, l'instruction en erreur est annulée, la transaction reste active, et COMMIT valide le reste. Avec `TRANSACTION_ABORT_ON_ERROR = TRUE`, la transaction est annulée : la suite échoue jusqu'au COMMIT ou ROLLBACK.",
+              mysql: "InnoDB annule l'instruction en erreur seule (doublon, valeur refusée) ; la transaction reste ouverte. Un interblocage, lui, annule toute la transaction (doc)."
+            }
+          },
+          {
+            id: "rattraper",
+            q: "Qui fait le ROLLBACK quand une erreur arrive, et l'erreur remonte-t-elle au traitement ?",
+            pourquoi: "Sans bloc de secours, une erreur laisse la transaction ouverte, ou à moitié faite. Et un bloc qui « avale » l'erreur fait croire au traitement EDI que la commande est intégrée.",
+            reflexe: "Un bloc de secours : il annule ce qui est ouvert, puis relance l'erreur pour que le traitement, ou l'ordonnanceur, la voie. Jamais un simple message à la place.",
+            moteurs: {
+              sqlserver: "`BEGIN CATCH IF XACT_STATE() <> 0 ROLLBACK; THROW; END CATCH`. `XACT_STATE() = -1` : la transaction ne peut plus qu'être annulée. Le CATCH n'attrape pas une table mal nommée au même niveau (doc).",
+              snowflake: "Dans un bloc : `EXCEPTION WHEN OTHER THEN ROLLBACK; RAISE;` (`RAISE;` seul relance l'erreur d'origine).",
+              mysql: "Dans une procédure : `DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; RESIGNAL; END;`. Dans un script : sans `--force`, le client s'arrête, et la transaction ouverte est annulée à la déconnexion (vu sur MySQL 8.0)."
+            }
+          },
+          {
+            id: "journal-erreur",
+            q: "Ta trace de l'erreur survit-elle au ROLLBACK ?",
+            pourquoi: "Une ligne écrite dans ta table de suivi avant le ROLLBACK est annulée avec le reste. Le flux a échoué, et ton journal ne garde aucune trace de l'échec.",
+            reflexe: "Écris le journal après le ROLLBACK, dans le bloc de secours : le nom du flux, l'erreur, l'heure. Garde le message dans une variable en attendant.",
+            moteurs: {
+              sqlserver: "Une variable de table (`DECLARE @t TABLE …`) n'est pas touchée par un ROLLBACK (doc) : remplis-la pendant le traitement, recopie-la dans le journal après.",
+              snowflake: "Une procédure qui ouvre sa propre transaction garde la ligne de journal, que la transaction appelante réussisse ou échoue (exemple de la doc)."
+            }
+          },
+          {
+            id: "interblocage",
+            q: "Que fait ton traitement s'il est choisi comme victime d'un interblocage ?",
+            pourquoi: "Un interblocage (deadlock) : deux sessions s'attendent l'une l'autre. Le moteur annule le travail d'une des deux. Si le programme ignore l'erreur, la commande n'est jamais intégrée, et personne ne le voit.",
+            reflexe: "Prends les tables dans le même ordre partout (la commande, puis ses lignes), garde les transactions courtes, et relance la transaction entière après une courte pause, trois fois au plus.",
+            moteurs: {
+              sqlserver: "Erreur 1205 : toute la transaction de la victime est annulée. La doc conseille de l'attraper (TRY…CATCH) et de relancer après une courte pause.",
+              snowflake: "Seule l'instruction la plus récente est annulée ; la transaction reste active : à toi de faire COMMIT ou ROLLBACK (doc). Pas d'interblocage entre instructions en autocommit sur une table standard.",
+              mysql: "Erreur 1213 : toute la transaction est annulée. Attention : 1205 veut dire ici « attente de verrou trop longue » (50 s par défaut), et seule l'instruction est annulée."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Une transaction courte",
+        questions: [
+          {
+            id: "courte",
+            q: "Ta transaction reste-t-elle courte : quelques instructions, quelques secondes ?",
+            pourquoi: "Les verrous restent posés jusqu'au COMMIT. Une transaction de 20 minutes bloque les saisies de l'ERP pendant 20 minutes, et fait grossir le journal des transactions.",
+            reflexe: "Prépare tout avant (lectures, calculs, contrôles), puis écris vite. Un gros volume : des lots, chacun dans sa transaction (voir « Je mets à jour des lignes »).",
+            moteurs: {
+              snowflake: "La doc : une transaction trop grosse réduit le parallélisme et augmente les interblocages ; mais 10 lignes dans une transaction coûtent moins que 10 transactions d'une ligne."
+            }
+          },
+          {
+            id: "attente",
+            q: "Ta transaction attend-elle une personne, un clic, ou un autre système avant son COMMIT ?",
+            pourquoi: "Une personne met des minutes à répondre, ou part déjeuner : les lignes restent bloquées tout ce temps. La doc de SQL Server le dit : jamais de saisie de l'utilisateur pendant une transaction.",
+            reflexe: "Demande tout avant d'ouvrir la transaction. Dans SSMS, contrôle par le code, avec le nombre de lignes attendu, plutôt qu'à l'œil, et ne laisse jamais une fenêtre avec un BEGIN sans fin."
+          }
+        ]
+      },
+      {
+        titre: "Ce que voient les autres",
+        questions: [
+          {
+            id: "isolation",
+            q: "Que doivent voir les autres sessions pendant ta transaction, et que vois-tu de la leur ?",
+            pourquoi: "C'est le niveau d'isolation : ce qu'une transaction voit des autres. Mal choisi, il bloque les rapports pendant tes écritures, ou te fait lire des chiffres qui changent entre deux SELECT.",
+            reflexe: "Connais le niveau de ta base. Un rapport qui enchaîne plusieurs SELECT et doit rester cohérent : une photo prise au départ (SNAPSHOT), ou une table figée pour l'occasion.",
+            moteurs: {
+              sqlserver: "READ COMMITTED par défaut : sans RCSI, un lecteur attend tes verrous. RCSI (`READ_COMMITTED_SNAPSHOT`) lit la dernière version validée : désactivé par défaut sur SQL Server, actif sur Azure SQL Database (doc).",
+              snowflake: "READ COMMITTED seulement : chaque instruction voit ce qui était validé à son départ. Deux SELECT de la même transaction peuvent donc voir des données différentes.",
+              mysql: "REPEATABLE READ par défaut (InnoDB) : les lectures de la transaction voient la photo prise à la première lecture."
+            }
+          },
+          {
+            id: "nolock",
+            q: "Lis-tu avec NOLOCK (READ UNCOMMITTED) pour ne plus attendre ?",
+            pourquoi: "NOLOCK lit des données pas encore validées : une lecture sale. Le chiffre lu peut être annulé une seconde après, et des lignes peuvent être lues deux fois, ou pas du tout (doc).",
+            reflexe: "Jamais pour des chiffres qui servent à facturer ou à décider. Pour ne plus attendre : RCSI, à tester avec l'éditeur de l'ERP. Cherche aussi les NOLOCK cachés dans les vues.",
+            moteurs: {
+              sqlserver: "`WITH (NOLOCK)` vaut `READUNCOMMITTED`. Il est ignoré sur la table que modifie un UPDATE ou un DELETE (doc).",
+              mysql: "`SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED` permet aussi la lecture sale. Rarement utile : un SELECT simple n'attend pas les écritures."
+            },
+            seulement: ["sqlserver", "mysql"]
+          }
+        ]
+      },
+      {
+        titre: "Procédures et imbrication",
+        questions: [
+          {
+            id: "imbriquees",
+            q: "Ta transaction appelle-t-elle une procédure qui ouvre sa propre transaction ?",
+            pourquoi: "Sur SQL Server, un BEGIN imbriqué ne crée pas une 2e transaction : le COMMIT intérieur ne valide rien, et un ROLLBACK intérieur annule tout, y compris le travail de l'appelant.",
+            reflexe: "Une seule partie possède la transaction : l'appelant. La procédure appelée regarde s'il y en a déjà une, et pose un point de sauvegarde pour n'annuler que son propre travail.",
+            moteurs: {
+              sqlserver: "`@@TRANCOUNT` compte les BEGIN. `SAVE TRANSACTION p1;` puis `ROLLBACK TRANSACTION p1;` annule ce qui suit le point, et la transaction reste ouverte (doc).",
+              snowflake: "Une transaction ne peut pas commencer hors d'une procédure et finir dedans, ni l'inverse : erreur (doc). Pas de point de sauvegarde.",
+              mysql: "Pas de transaction imbriquée : un 2e `START TRANSACTION` valide d'abord celle en cours (doc). Point de sauvegarde : `SAVEPOINT p1;` puis `ROLLBACK TO SAVEPOINT p1;`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les règles de chaque moteur",
+        questions: [
+          {
+            id: "ddl",
+            q: "Ta transaction contient-elle un ordre de structure : CREATE, ALTER, DROP, TRUNCATE ?",
+            pourquoi: "Sur Snowflake et MySQL, un tel ordre (un DDL) valide d'abord la transaction en cours, puis s'exécute seul. Le ROLLBACK qui suit n'annule plus ce qui précède.",
+            reflexe: "Garde les DDL hors des transactions de données : la structure d'abord, puis les données dans une transaction. Une table de travail : crée-la avant le BEGIN.",
+            moteurs: {
+              sqlserver: "Un `CREATE TABLE` ou un `TRUNCATE` fait dans une transaction s'annule avec elle. Mais un DDL pose un verrou de structure qui bloque même les lectures en NOLOCK (doc).",
+              snowflake: "Chaque DDL est sa propre transaction : il valide la transaction active, et ne s'annule pas (doc). Un `CREATE TABLE … AS SELECT` compte comme un DDL.",
+              mysql: "CREATE, ALTER, DROP, RENAME et TRUNCATE valident la transaction en cours. Un `CREATE TEMPORARY TABLE` ne valide rien, mais ne s'annule pas non plus (doc)."
+            }
+          },
+          {
+            id: "innodb",
+            q: "Toutes les tables touchées sont-elles en InnoDB, le moteur transactionnel de MySQL ?",
+            pourquoi: "Une table MyISAM ne connaît pas les transactions : ses changements sont enregistrés tout de suite. Le ROLLBACK annule le reste, sauf elle, avec un simple avertissement (1196).",
+            reflexe: "Liste les tables qui ne sont pas en InnoDB : `SELECT table_name, engine FROM information_schema.tables WHERE table_schema = DATABASE() AND engine <> 'InnoDB';`. Convertis-les, ou sors-les de la transaction.",
+            seulement: ["mysql"]
+          }
+        ]
+      },
+      {
+        titre: "Avant le COMMIT",
+        questions: [
+          {
+            id: "controle",
+            q: "Que contrôles-tu entre la dernière écriture et le COMMIT ?",
+            pourquoi: "Après le COMMIT, il n'y a plus de retour simple. Un total d'en-tête différent de la somme des lignes, ou un nombre de lignes faux, doit être vu avant.",
+            reflexe: "Contrôle dans la transaction : le nombre de lignes écrites, et le total de l'en-tête égal à la somme des lignes (359,00 € ici). Faux : ROLLBACK et erreur. Juste : COMMIT."
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Sans `SET XACT_ABORT ON`, une violation de contrainte n'annule que l'instruction : le COMMIT valide la commande sans sa ligne.",
+      "Un `BEGIN TRAN` oublié dans une fenêtre SSMS : les lignes restent verrouillées, l'ERP attend, le journal grossit.",
+      "Un CATCH qui ne fait qu'un PRINT : l'erreur est avalée, et le flux EDI passe pour intégré.",
+      "Une ligne de journal écrite avant le ROLLBACK : elle est annulée avec le reste.",
+      "SQL Server : un ROLLBACK dans une procédure appelée annule aussi le travail de l'appelant.",
+      "MySQL : un 2e `START TRANSACTION` valide la 1re transaction, sans message.",
+      "Snowflake et MySQL : un `CREATE TABLE` au milieu valide tout ce qui précède.",
+      "MySQL : l'erreur 1205 n'est pas un interblocage mais une attente trop longue ; seule l'instruction est annulée, la transaction continue.",
+      "MySQL lancé avec `--force` : l'erreur est sautée, le COMMIT valide le reste, et le code retour vaut 0 (vu sur MySQL 8.0).",
+      "NOLOCK dans un rapport de stock : un chiffre jamais validé, ou des lignes comptées deux fois."
+    ],
+    pratique: "Dans un flux EDI, une transaction par message : l'en-tête, ses lignes et le statut du flux. Un message en erreur est annulé seul, rangé en rejet avec son motif, et le flux continue avec le suivant.",
+    motsCles: ["transaction", "1205", "commit", "rollback", "xact_abort", "try catch", "xact_state", "trancount", "imbriquée", "isolation", "nolock", "deadlock", "interblocage", "autocommit", "savepoint"],
+    voirAussi: ["mettre-a-jour", "supprimer", "script-fichier", "inserer", "fusionner", "procedure", "requete-lente", "corriger-prod"],
+    dico: ["begin-transaction", "commit", "rollback", "xact-abort", "try-catch", "throw", "trancount", "savepoint", "isolation", "nolock"],
+    outils: ["dico"],
+    sources: [
+      { titre: "SET XACT_ABORT (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/statements/set-xact-abort-transact-sql" },
+      { titre: "TRY...CATCH (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/language-elements/try-catch-transact-sql" },
+      { titre: "ROLLBACK TRANSACTION (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/language-elements/rollback-transaction-transact-sql" },
+      { titre: "Guide du verrouillage des transactions et du contrôle de version de ligne", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide" },
+      { titre: "Guide des interblocages (erreur 1205)", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/sql-server-deadlocks-guide" },
+      { titre: "Snowflake : les transactions", url: "https://docs.snowflake.com/en/sql-reference/transactions" },
+      { titre: "MySQL 8.4 : START TRANSACTION, COMMIT, and ROLLBACK", url: "https://dev.mysql.com/doc/refman/8.4/en/commit.html" },
+      { titre: "MySQL 8.4 : InnoDB Error Handling", url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-error-handling.html" }
+    ]
+  },
+  {
+    id: "charger-snowflake",
+    titre: "Je charge des fichiers dans Snowflake",
+    famille: "Écrire et charger",
+    resume: "Les questions avant un COPY INTO : le stage, l'accès sans clé écrite, le format, les erreurs, les fichiers déjà chargés, Snowpipe, la taille des fichiers et le contrôle après.",
+    besoins: [
+      "je charge des fichiers dans snowflake",
+      "importer un fichier csv dans snowflake",
+      "mettre en place snowpipe pour charger les fichiers automatiquement",
+      "copy into depuis un stage s3 ou azure"
+    ],
+    essais: [
+      "copy into on_error continue ou abort_statement",
+      "le fichier a deja ete charge snowflake force",
+      "storage integration au lieu des cles aws",
+      "snowpipe auto ingest combien ca coute"
+    ],
+    exemple: {
+      texte: "Le prestataire EDI dépose les commandes en CSV dans un conteneur Azure, toutes les 15 minutes, dans un dossier par jour. Tu les charges dans `stg.cde_edi`, une table d'arrivée, puis tu contrôles avant de passer à la table métier. Voici la mise en place, faite une fois, puis le chargement du jour.",
+      codes: {
+        snowflake: "-- Une fois, par un administrateur : l'accès au conteneur, sans clé écrite\nCREATE STORAGE INTEGRATION int_azure_edi\n  TYPE = EXTERNAL_STAGE  STORAGE_PROVIDER = 'AZURE'  ENABLED = TRUE\n  AZURE_TENANT_ID = '<id du locataire Azure>'\n  STORAGE_ALLOWED_LOCATIONS = ('azure://compteedi.blob.core.windows.net/edi/orders/');\n-- Une fois : le format, le stage, la table d'arrivée (tout en VARCHAR)\nCREATE FILE FORMAT stg.ff_orders TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1\n  FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ENCODING = 'UTF8';\nCREATE STAGE stg.stage_orders URL = 'azure://compteedi.blob.core.windows.net/edi/orders/'\n  STORAGE_INTEGRATION = int_azure_edi FILE_FORMAT = stg.ff_orders;\nCREATE TRANSIENT TABLE stg.cde_edi\n  (num_cde VARCHAR, date_cde VARCHAR, code_article VARCHAR, qte VARCHAR, prix VARCHAR);\n-- Chaque jour : tester, puis charger le dossier du jour\nCOPY INTO stg.cde_edi FROM @stg.stage_orders/2026/04/14/ VALIDATION_MODE = RETURN_ERRORS;\nCOPY INTO stg.cde_edi FROM @stg.stage_orders/2026/04/14/ ON_ERROR = ABORT_STATEMENT;\n-- Par fichier : rows_parsed = rows_loaded ? « 0 files processed » : rien de nouveau"
+      }
+    },
+    etapes: [
+      {
+        titre: "Le stage et l'accès",
+        questions: [
+          {
+            id: "stage",
+            q: "Les fichiers arrivent-ils dans un stage interne à Snowflake, ou dans ton stockage cloud (stage externe) ?",
+            pourquoi: "Un stage est la zone de dépôt d'où COPY INTO lit les fichiers. Interne : il faut y déposer les fichiers (PUT). Externe (Azure, S3) : le partenaire dépose chez toi, et Snowpipe peut charger seul.",
+            reflexe: "Prends un stage nommé (`CREATE STAGE`), pas le stage personnel `@~` ni celui d'une table `@%t` : un stage nommé a ses propres droits. Range les fichiers par flux et par jour : `orders/2026/04/14/`.",
+            moteurs: {
+              sqlserver: "Pas de stage : `BULK INSERT` lit un chemin que le serveur voit (voir « J'importe un fichier »).",
+              mysql: "Pas de stage : `LOAD DATA` lit un fichier du dossier `secure_file_priv` du serveur, ou de ton poste avec LOCAL."
+            }
+          },
+          {
+            id: "integration",
+            q: "L'accès au stockage passe-t-il par une intégration de stockage, sans clé écrite dans le SQL ?",
+            pourquoi: "Une clé écrite dans `CREDENTIALS = (…)` se retrouve dans les scripts et dans Git. Si elle fuit, tout le conteneur est lisible ; si elle change, tous les chargements tombent.",
+            reflexe: "Un administrateur crée une `STORAGE INTEGRATION`, limitée au dossier du flux (`STORAGE_ALLOWED_LOCATIONS`) ; le stage s'y réfère. La doc le recommande fortement. Le rôle propriétaire du stage a besoin du droit USAGE sur l'intégration."
+          }
+        ]
+      },
+      {
+        titre: "Le format du fichier",
+        questions: [
+          {
+            id: "file-format",
+            q: "Le format du fichier est-il décrit une seule fois, dans un FILE FORMAT nommé ?",
+            pourquoi: "Des options recopiées dans chaque COPY finissent par diverger. Le chargement de nuit lit les guillemets, la reprise à la main les oublie : les mêmes fichiers donnent deux résultats.",
+            reflexe: "`CREATE FILE FORMAT stg.ff_orders TYPE = CSV …`, rattaché au stage ou cité dans le COPY (`FORMAT_NAME`). Ne mets pas `FORMAT_NAME` et `TYPE` dans le même COPY : la doc prévient d'un résultat inattendu.",
+            moteurs: {
+              sqlserver: "L'équivalent : un fichier de format (`FORMATFILE` de BULK INSERT, option `-f` de bcp).",
+              mysql: "Pas de format nommé : les options `FIELDS` et `LINES` se répètent dans chaque LOAD DATA."
+            }
+          },
+          {
+            id: "encodage-dates",
+            q: "L'encodage et le format des dates sont-ils écrits, au lieu d'être devinés ?",
+            pourquoi: "En `AUTO`, la date 05/02/2026 est lue mois/jour : le 2 mai. Un fichier Windows-1252 lu comme de l'UTF-8 (le défaut) fait échouer le chargement, ou, avec `REPLACE_INVALID_CHARACTERS`, remplace les accents par �.",
+            reflexe: "Écris `ENCODING = 'WINDOWS1252'` si le fichier l'est. Pour une colonne DATE : `DATE_FORMAT = 'DD/MM/YYYY'`. Ou charge en VARCHAR, et convertis toi-même avec `TRY_TO_DATE(date_cde, 'DD/MM/YYYY')`."
+          },
+          {
+            id: "fuseau",
+            q: "Les heures du fichier ont-elles un fuseau, et dans quel type les ranges-tu ?",
+            pourquoi: "Un horodatage sans décalage, chargé dans `TIMESTAMP_TZ` ou `TIMESTAMP_LTZ`, prend le fuseau de la session : America/Los_Angeles par défaut. Les heures de réception des commandes se décalent de plusieurs heures.",
+            reflexe: "Une heure sans fuseau : `TIMESTAMP_NTZ`, et dis dans le nom de la colonne de quel fuseau elle est (`recu_le_paris`). Sinon, règle `TIMEZONE` dans la session qui charge, ou demande un décalage dans le fichier (+02:00)."
+          },
+          {
+            id: "colonnes-changent",
+            q: "Que se passe-t-il le jour où le fichier gagne ou perd une colonne ?",
+            pourquoi: "Chargé par position, un fichier avec une colonne de plus au milieu décale toutes les valeurs : le prix part dans la quantité. Avec un COPY qui transforme (`SELECT $1, $2…`), aucune erreur ne prévient.",
+            reflexe: "Garde `ERROR_ON_COLUMN_COUNT_MISMATCH = TRUE` (le défaut) : un nombre de colonnes différent arrête le chargement. Pour charger par nom : `PARSE_HEADER = TRUE` et `MATCH_BY_COLUMN_NAME`. `INFER_SCHEMA` montre les colonnes d'un nouveau fichier."
+          },
+          {
+            id: "evolution",
+            q: "Faut-il que la table s'adapte seule aux nouvelles colonnes (l'évolution du schéma) ?",
+            pourquoi: "Avec l'évolution du schéma, Snowflake ajoute lui-même les colonnes nouvelles du fichier. Pratique pour du brut ; mais une faute de frappe du partenaire devient une colonne, sans que personne ne décide.",
+            reflexe: "Réserve-la aux tables brutes, et décide-le avec le métier. Il faut `ENABLE_SCHEMA_EVOLUTION = TRUE`, `MATCH_BY_COLUMN_NAME`, et le droit EVOLVE SCHEMA ; en CSV, aussi `PARSE_HEADER` et `ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE`."
+          },
+          {
+            id: "taille-fichiers",
+            q: "Quelle taille font tes fichiers, une fois compressés ?",
+            pourquoi: "Un fichier = un travail de chargement. Un fichier géant ne se charge pas en parallèle, et un échec le fait recommencer ; des milliers de tout petits fichiers ajoutent un travail fixe pour chacun.",
+            reflexe: "Vise des fichiers de 100 à 250 Mo compressés, comme le conseille la doc, et évite les fichiers de 100 Go ou plus. Compresse en gzip : `COMPRESSION = AUTO` le reconnaît ; le Brotli, lui, s'écrit `BROTLI`."
+          }
+        ]
+      },
+      {
+        titre: "Les erreurs",
+        questions: [
+          {
+            id: "on-error",
+            q: "Une ligne fausse doit-elle tout arrêter, faire sauter son fichier, ou être laissée de côté ?",
+            pourquoi: "Par défaut, COPY arrête tout à la première erreur (`ABORT_STATEMENT`) : le rapport du matin n'a pas les commandes du jour. Avec `CONTINUE`, les lignes fausses manquent, sans alerte.",
+            reflexe: "Décide-le par flux avec le métier : des commandes, plutôt tout ou rien, puis correction ; des journaux techniques, `CONTINUE`. Dans les deux cas, compare `rows_parsed` et `rows_loaded` de chaque fichier.",
+            moteurs: {
+              sqlserver: "BULK INSERT : `MAXERRORS` (10 par défaut) écarte jusqu'à 10 lignes, et `ERRORFILE` les garde dans un fichier.",
+              mysql: "LOAD DATA : en mode strict, sans LOCAL ni IGNORE, la 1re erreur arrête tout ; avec eux, les erreurs deviennent des avertissements."
+            }
+          },
+          {
+            id: "valider",
+            q: "Sais-tu lister toutes les erreurs d'un fichier, et pas seulement la première ?",
+            pourquoi: "Le résultat du COPY ne montre que la 1re erreur de chaque fichier. Corriger une erreur, relancer, trouver la suivante : une matinée perdue.",
+            reflexe: "Avant : `VALIDATION_MODE = RETURN_ERRORS` liste toutes les erreurs, sans rien charger. Après un chargement en `CONTINUE` : `SELECT * FROM TABLE(VALIDATE(stg.cde_edi, JOB_ID => '_last'));`. Ni l'un ni l'autre avec un COPY qui transforme."
+          },
+          {
+            id: "check",
+            q: "La table cible a-t-elle une contrainte CHECK ?",
+            pourquoi: "Pour l'instant, COPY INTO échoue sur une table qui a un CHECK, et un pipe ne se crée pas dessus (doc). Le chargement de nuit tombe le jour où quelqu'un ajoute un CHECK.",
+            reflexe: "Pas de CHECK sur la table d'arrivée : les contrôles se font en SQL, après le chargement. Mets le CHECK sur la table métier, remplie ensuite par INSERT ou MERGE."
+          }
+        ]
+      },
+      {
+        titre: "La table d'arrivée",
+        questions: [
+          {
+            id: "table-arrivee",
+            q: "Charges-tu dans une table d'arrivée TRANSIENT, en VARCHAR, avant la table métier ?",
+            pourquoi: "Chargé droit dans la table métier, une valeur fausse bloque tout, ou entre convertie de travers. Une table TRANSIENT n'a pas les 7 jours de Fail-safe (un secours payé en stockage) : moins chère pour des données qu'on peut recharger.",
+            reflexe: "`CREATE TRANSIENT TABLE stg.cde_edi (…)`, colonnes en VARCHAR, plus le fichier et la ligne (`METADATA$FILENAME`). Garde les fichiers d'origine : sans Fail-safe, ils sont ton seul secours. Le détail : « Je crée une table pour recevoir un import »."
+          }
+        ]
+      },
+      {
+        titre: "Ne pas charger deux fois",
+        questions: [
+          {
+            id: "historique",
+            q: "Sais-tu quand COPY INTO saute un fichier, et quand il le recharge ?",
+            pourquoi: "COPY garde l'historique de chargement de chaque table : un fichier déjà chargé est sauté, même après 64 jours. Mais un `TRUNCATE`, une table recréée ou clonée, ou `FORCE = TRUE`, font tout recharger : des doublons.",
+            reflexe: "Vide la table d'arrivée avec DELETE, pas TRUNCATE, ou retire du stage les fichiers chargés. `FORCE = TRUE` seulement exprès, après avoir supprimé les lignes de ce fichier. Un fichier modifié (nouveau contenu) est rechargé."
+          },
+          {
+            id: "fichiers-charges",
+            q: "Que deviennent les fichiers une fois chargés : supprimés, archivés, ou laissés dans le stage ?",
+            pourquoi: "Laissés dans le stage, ils coûtent du stockage (stage interne) et reviennent après un TRUNCATE. Supprimés par `PURGE = TRUE`, l'original est perdu ; et si la purge échoue, aucune erreur ne le dit (doc).",
+            reflexe: "Archive chaque fichier chargé dans un autre dossier, daté, avant de le retirer du stage. Avec `PURGE = TRUE`, vérifie de temps en temps, par `LIST @stg.stage_orders`, qu'il ne reste rien."
+          }
+        ]
+      },
+      {
+        titre: "Snowpipe ou COPY planifié",
+        questions: [
+          {
+            id: "snowpipe",
+            q: "Faut-il un chargement continu avec Snowpipe, ou un COPY INTO lancé à heure fixe ?",
+            pourquoi: "Snowpipe charge chaque fichier à son arrivée, en général en moins d'une minute (sans garantie), sans warehouse, payé au Go chargé (texte : taille décompressée). Mais par défaut, il saute tout un fichier en erreur.",
+            reflexe: "Des fichiers toute la journée, des données attendues vite : Snowpipe (`AUTO_INGEST = TRUE`). Un lot de nuit : un COPY lancé par une tâche planifiée. Dans les deux cas, surveille les fichiers en échec."
+          },
+          {
+            id: "snowpipe-nom",
+            q: "Avec Snowpipe, que devient un fichier corrigé, déposé à nouveau sous le même nom ?",
+            pourquoi: "Snowpipe retient chaque fichier vu pendant 14 jours, même en échec : le fichier corrigé, au même nom, est ignoré. Après 14 jours, le même nom est rechargé : des doublons. Et un TRUNCATE ne vide pas cette mémoire.",
+            reflexe: "Dépose un fichier corrigé sous un nouveau nom (`cde_0414_v2.csv`). Ne charge jamais le même dossier par Snowpipe et par un COPY à la main : chacun a sa propre mémoire, et ne voit pas les fichiers de l'autre."
+          },
+          {
+            id: "warehouse",
+            q: "Le COPY tourne-t-il sur un warehouse dédié au chargement, à la bonne taille ?",
+            pourquoi: "Un warehouse est le moteur de calcul, payé à la seconde. Chargé sur celui des analystes, le COPY ralentit leurs rapports ; un grand warehouse pour trois fichiers coûte plus, sans aller plus vite.",
+            reflexe: "Un warehouse à part (`wh_chargement`), petit, avec un arrêt automatique court. La doc : Small, Medium ou Large suffisent en général, sauf pour des centaines ou des milliers de fichiers à la fois."
+          }
+        ]
+      },
+      {
+        titre: "Contrôler après",
+        questions: [
+          {
+            id: "controle",
+            q: "Lignes du fichier = lignes chargées : le compte tombe-t-il juste, fichier par fichier ?",
+            pourquoi: "« Copy executed with 0 files processed » n'est pas une erreur : rien de neuf, ou un mauvais chemin. Et un chargement arrêté n'apparaît pas dans COPY_HISTORY (doc) : sans contrôle, le trou passe inaperçu.",
+            reflexe: "Garde le résultat de chaque COPY dans une table de suivi : fichier, `rows_parsed`, `rows_loaded`, erreurs. Compare au nombre de lignes annoncé par l'émetteur (ligne de total, fichier `.ok`). `COPY_HISTORY` montre les 14 derniers jours."
+          },
+          {
+            id: "doublons-apres",
+            q: "Contrôles-tu les doublons après chaque chargement ?",
+            pourquoi: "PRIMARY KEY et UNIQUE ne sont pas appliqués sur une table standard. Un fichier rechargé (FORCE, TRUNCATE, Snowpipe et COPY mélangés) double les commandes, sans aucune erreur.",
+            reflexe: "Après chaque chargement : `SELECT num_cde, code_article, COUNT(*) FROM stg.cde_edi GROUP BY num_cde, code_article HAVING COUNT(*) > 1;`. Passe ensuite dans la table métier par un MERGE sur la clé (voir « Je fusionne deux tables »)."
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Un `TRUNCATE` de la table d'arrivée : le COPY suivant recharge tous les fichiers encore dans le stage.",
+      "Un fichier corrigé, redéposé sous le même nom : COPY le recharge (son contenu a changé), Snowpipe l'ignore pendant 14 jours.",
+      "`ON_ERROR = CONTINUE` sans contrôle : des commandes manquent, et rien ne le dit.",
+      "Une date 05/02/2026 en format AUTO : chargée comme le 2 mai.",
+      "Un CHECK ajouté sur la table d'arrivée : COPY INTO échoue, et le pipe ne se crée pas.",
+      "`PURGE = TRUE` qui échoue ne renvoie aucune erreur : les fichiers restent, et coûtent.",
+      "PUT et GET ne se lancent pas depuis une feuille de calcul (Worksheet) de Snowsight : passe par Snowflake CLI.",
+      "VALIDATE ne rend rien après un chargement en `ABORT_STATEMENT` (le défaut), ni après un COPY qui transforme.",
+      "Un COPY avec `SELECT $1, $2…` ignore `ERROR_ON_COLUMN_COUNT_MISMATCH` : une colonne ajoutée au fichier décale les valeurs, sans erreur."
+    ],
+    pratique: "Pour les flux EDI : un dossier par flux et par jour (`orders/2026/04/14/`), un COPY par dossier, et une table de suivi des fichiers : nom, lignes lues, lignes chargées, statut. C'est elle que tu regardes chaque matin.",
+    motsCles: ["copy into", "snowpipe", "stage", "storage integration", "file format", "on_error", "validation_mode", "purge", "force", "historique de chargement", "infer_schema", "évolution du schéma", "transient", "put", "auto_ingest"],
+    voirAussi: ["importer-fichier", "table-import", "fusionner", "couts-snowflake", "automatiser", "semi-structure", "doublons"],
+    dico: ["copy-into", "stage", "warehouse", "check", "to-date", "timestamp-tz", "timestamp-ntz", "varchar"],
+    outils: ["dico"],
+    sources: [
+      { titre: "Snowflake : COPY INTO <table>", url: "https://docs.snowflake.com/en/sql-reference/sql/copy-into-table" },
+      { titre: "Snowflake : préparer les fichiers (taille conseillée)", url: "https://docs.snowflake.com/en/user-guide/data-load-considerations-prepare" },
+      { titre: "Snowflake : charger les fichiers (historique de chargement)", url: "https://docs.snowflake.com/en/user-guide/data-load-considerations-load" },
+      { titre: "Snowflake : planifier un chargement (le warehouse)", url: "https://docs.snowflake.com/en/user-guide/data-load-considerations-plan" },
+      { titre: "Snowflake : CREATE STORAGE INTEGRATION", url: "https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration" },
+      { titre: "Snowflake : Snowpipe", url: "https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro" },
+      { titre: "Snowflake : les coûts de Snowpipe", url: "https://docs.snowflake.com/en/user-guide/data-load-snowpipe-billing" },
+      { titre: "Snowflake : l'évolution automatique du schéma", url: "https://docs.snowflake.com/en/user-guide/data-load-schema-evolution" }
+    ]
+  },
+  {
+    id: "exporter",
+    titre: "J'exporte des données vers un fichier",
+    famille: "Écrire et charger",
+    resume: "Les questions avant un export : le format attendu, l'encodage, les séparateurs, les valeurs qui cassent un CSV, Excel, le volume, les données personnelles, l'outil de chaque moteur et le contrôle.",
+    besoins: [
+      "j'exporte des données vers un fichier",
+      "exporter le résultat d'une requête en csv",
+      "exporter des données dans un fichier excel",
+      "générer un fichier pour un partenaire"
+    ],
+    essais: [
+      "bcp queryout csv avec point virgule",
+      "select into outfile mysql secure_file_priv",
+      "copy into @stage puis get snowflake",
+      "les accents sont casses quand j'ouvre l'export dans excel"
+    ],
+    exemple: {
+      texte: "Chaque lundi, le service recouvrement veut, dans Excel, les factures en retard ou seulement émises : numéro, client, date, montant, statut. Cette semaine : 2 factures, 2 464,80 € HT. Le fichier part en CSV UTF-8, avec point-virgule, virgule décimale et dates JJ/MM/AAAA.",
+      code: "-- La requête : les colonnes dans l'ordre du fichier, triées sur une clé\nSELECT f.num_fact, c.code, c.nom,\n       CONVERT(char(10), f.date_fact, 103) AS date_fact,              -- JJ/MM/AAAA\n       REPLACE(CAST(f.montant_ht AS varchar(20)), '.', ',') AS montant_ht,\n       f.statut\nFROM dbo.facture AS f\nJOIN dbo.commande AS cd ON cd.id = f.cde_id\nJOIN dbo.client AS c ON c.id = cd.client_id\nWHERE f.statut IN ('RETARD', 'EMISE')\nORDER BY f.date_fact, f.num_fact;\n-- L'export, dans l'invite de commandes (bcp n'écrit ni en-tête ni guillemets) :\n-- bcp \"<la requête>\" queryout relances_20260413.csv -S SRV-SQL -d ventes -T -c -t \";\" -C 65001\n-- Le contrôle : 2 lignes, total 2 464,80",
+      codes: {
+        snowflake: "COPY INTO @stg.stage_export/relances/relances_20260413.csv\nFROM (SELECT f.num_fact, c.code, c.nom, TO_CHAR(f.date_fact, 'DD/MM/YYYY') AS date_fact,\n             REPLACE(TO_CHAR(f.montant_ht, 'FM999999990.00'), '.', ',') AS montant_ht,\n             f.statut\n      FROM ventes.facture AS f\n      JOIN ventes.commande AS cd ON cd.id = f.cde_id\n      JOIN ventes.client AS c ON c.id = cd.client_id\n      WHERE f.statut IN ('RETARD', 'EMISE')\n      ORDER BY f.date_fact, f.num_fact)\nFILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ';' FIELD_OPTIONALLY_ENCLOSED_BY = '\"'\n               COMPRESSION = NONE NULL_IF = ())\nHEADER = TRUE SINGLE = TRUE OVERWRITE = TRUE MAX_FILE_SIZE = 104857600;\n-- Puis, avec Snowflake CLI : snow stage copy @stg.stage_export/relances/ ./export/",
+        mysql: "SELECT f.num_fact, c.code, c.nom, DATE_FORMAT(f.date_fact, '%d/%m/%Y') AS date_fact,\n       REPLACE(CAST(f.montant_ht AS CHAR), '.', ',') AS montant_ht, f.statut\nFROM facture AS f\nJOIN commande AS cd ON cd.id = f.cde_id\nJOIN client AS c ON c.id = cd.client_id\nWHERE f.statut IN ('RETARD', 'EMISE')\nORDER BY f.date_fact, f.num_fact\nINTO OUTFILE '/var/lib/mysql-files/relances_20260413.csv'\n  CHARACTER SET utf8mb4\n  FIELDS TERMINATED BY ';' OPTIONALLY ENCLOSED BY '\"'\n  LINES TERMINATED BY '\\r\\n';\nSELECT ROW_COUNT();   -- 2 lignes écrites, sur le serveur (dossier secure_file_priv)"
+      }
+    },
+    etapes: [
+      {
+        titre: "Le format attendu",
+        questions: [
+          {
+            id: "contrat",
+            q: "Le format attendu est-il écrit, et validé par celui qui lit le fichier ?",
+            pourquoi: "Sans format écrit, chacun devine : séparateur, décimales, dates, en-tête. Le fichier part, le partenaire le rejette, ou pire : son programme le charge de travers, sans rien dire.",
+            reflexe: "Écris le contrat d'interface : colonnes et ordre, séparateur, guillemets, encodage, décimales, dates, en-tête, nom du fichier, fin de ligne. Fais-le valider, puis compare chaque export à ce contrat."
+          },
+          {
+            id: "format",
+            q: "CSV, Excel ou JSON : quel format sert vraiment le destinataire ?",
+            pourquoi: "Un CSV ne porte aucun type : Excel devine, et change les codes et les dates. Un programme ou une API attend souvent du JSON. Un classeur Excel garde les types, mais les moteurs SQL n'écrivent pas de fichier .xlsx.",
+            reflexe: "Un programme : CSV ou JSON, selon sa spécification. Une personne : un CSV qu'elle ouvre par Données > À partir d'un fichier texte/CSV, ou un .xlsx produit par un outil (SSMS, Power Query).",
+            moteurs: {
+              sqlserver: "JSON : `FOR JSON PATH`. SSMS 22.4.1 et plus enregistre aussi la grille de résultats en Excel ou en JSON (doc).",
+              snowflake: "`COPY INTO @stage` écrit du CSV, du Parquet, ou du JSON depuis une colonne VARIANT (par exemple avec `OBJECT_CONSTRUCT`).",
+              mysql: "JSON : `JSON_OBJECT` et `JSON_ARRAYAGG`."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les caractères",
+        questions: [
+          {
+            id: "encodage",
+            q: "Le fichier est-il en UTF-8, avec ou sans BOM, et le lecteur le sait-il ?",
+            pourquoi: "Le BOM est une marque invisible en tête d'un fichier UTF-8. Sans elle, Excel peut afficher « GenÃ¨ve » au lieu de « Genève » ; avec elle, un programme peut lire un caractère en trop devant la 1re colonne.",
+            reflexe: "Toujours UTF-8. Avec BOM pour un fichier ouvert dans Excel, sans BOM pour un programme, sauf si sa spécification le demande. Teste avec une vraie valeur accentuée, comme Genève, ouverte chez le destinataire.",
+            moteurs: {
+              sqlserver: "bcp : `-c -C 65001` écrit de l'UTF-8 (Windows seulement, et pas avant la version 13, SQL Server 2016). sqlcmd (ODBC) : `-f 65001`. sqlcmd (Go) n'a pas `-f` ; son `-u` écrit de l'UTF-16 avec un BOM.",
+              snowflake: "`COPY INTO @stage` écrit toujours en UTF-8 (doc).",
+              mysql: "`INTO OUTFILE … CHARACTER SET utf8mb4` ; sans cette clause, les octets sont recopiés sans conversion (doc). Pas de BOM (vu sur MySQL 8.0)."
+            }
+          },
+          {
+            id: "separateur",
+            q: "Une valeur peut-elle contenir le séparateur, un guillemet ou un retour à la ligne ?",
+            pourquoi: "« Piscines; Spa », un commentaire sur deux lignes, un guillemet dans un libellé : le lecteur coupe la ligne au mauvais endroit, et toutes les colonnes suivantes se décalent.",
+            reflexe: "Entoure les textes de guillemets doubles, en doublant ceux qu'ils contiennent. Sinon, nettoie les valeurs dans la requête : voir l'astuce « Enlever les retours à la ligne et les tabulations ». Teste avec une valeur piégée.",
+            moteurs: {
+              sqlserver: "bcp et sqlcmd n'ont pas d'option pour entourer les textes de guillemets : choisis un séparateur absent des données, et nettoie les retours à la ligne dans la requête.",
+              snowflake: "`FIELD_OPTIONALLY_ENCLOSED_BY = '\"'` (pas de guillemets par défaut) : Snowflake double les guillemets contenus, comme Excel l'attend (doc).",
+              mysql: "`OPTIONALLY ENCLOSED BY '\"'` écrit un guillemet contenu sous la forme `\\\"`, qu'Excel ne comprend pas (vu sur MySQL 8.0) : retire-les dans la requête, avec REPLACE."
+            }
+          },
+          {
+            id: "nulls",
+            q: "Comment s'écrit une valeur vide (NULL) dans le fichier : rien, \\N, ou le mot NULL ?",
+            pourquoi: "Chaque outil a son habitude. Le lecteur charge le mot « NULL » comme un vrai texte, ou `\\N` comme une valeur bizarre. Et sans guillemets, une case NULL et un texte vide ne se distinguent plus.",
+            reflexe: "Décide-le avec le lecteur ; souvent : rien entre les deux séparateurs. Écris-le dans la requête (`COALESCE(ville, '')`) ou dans les options de l'outil, puis regarde le fichier produit.",
+            moteurs: {
+              snowflake: "`NULL_IF = ()` écrit NULL comme une case vide ; avec des guillemets, un texte vide s'écrit `\"\"`, et les deux restent distincts (doc).",
+              mysql: "`INTO OUTFILE` écrit `\\N` ; avec `ESCAPED BY ''`, il écrit le mot NULL (doc). Le client `mysql --batch` écrit aussi NULL (vu sur MySQL 8.0)."
+            }
+          },
+          {
+            id: "nombres-dates",
+            q: "Les montants et les dates sont-ils écrits comme le lecteur les attend ?",
+            pourquoi: "Un Excel en français prend 2385.00 pour du texte, et ne l'additionne pas. Un programme, lui, refuse 2385,00 ou 10/03/2026 s'il attend 2385.00 et 2026-03-10.",
+            reflexe: "Suis le contrat : pour un Excel en français, virgule décimale et JJ/MM/AAAA ; pour un programme, point et AAAA-MM-JJ. Le détail, moteur par moteur : « Je formate une valeur pour l'affichage »."
+          },
+          {
+            id: "excel-ouvre",
+            q: "Le fichier sera-t-il ouvert dans Excel, qui enlève les zéros devant et arrondit les longs nombres ?",
+            pourquoi: "Excel enlève les zéros devant (01200 devient 1200) et garde 15 chiffres au plus : un SSCC de 18 chiffres (le numéro des palettes EDI) est abîmé. Le fichier est juste ; c'est l'ouverture qui casse.",
+            reflexe: "Fais ouvrir le CSV par Données > À partir d'un fichier texte/CSV, avec les colonnes de codes en Texte. Excel pour Microsoft 365 et Excel 2024 permettent aussi de couper ces conversions automatiques (doc Microsoft)."
+          }
+        ]
+      },
+      {
+        titre: "Le contenu",
+        questions: [
+          {
+            id: "ordre",
+            q: "Les lignes doivent-elles sortir dans un ordre précis ?",
+            pourquoi: "Sans ORDER BY, l'ordre n'est jamais garanti : deux exports des mêmes données diffèrent, la comparaison avec la semaine passée devient pénible, et un programme qui attend l'en-tête avant les lignes se trompe.",
+            reflexe: "Termine la requête par un ORDER BY sur une clé unique : `ORDER BY f.date_fact, f.num_fact`. Vérifie l'ordre dans le fichier produit, pas seulement dans la requête.",
+            moteurs: {
+              snowflake: "Par défaut, l'export se répartit en plusieurs fichiers. Avec PARTITION BY, la doc dit que l'ORDER BY n'est pas garanti dans les fichiers. Pour un seul fichier : `SINGLE = TRUE`.",
+              mysql: "`ORDER BY` vient avant `INTO OUTFILE`, placé à la fin de la requête : la position conseillée par la doc."
+            }
+          },
+          {
+            id: "en-tete",
+            q: "Faut-il une ligne d'en-tête, et avec quels noms de colonnes ?",
+            pourquoi: "Un lecteur qui attend un en-tête prend ta 1re ligne de données pour des titres, et la perd. À l'inverse, un en-tête non prévu devient une ligne fausse dans son programme.",
+            reflexe: "Suis le contrat. Pour un programme : des noms sans accent ni espace (`num_fact`). Pour une personne : des titres clairs, identiques d'une semaine à l'autre.",
+            moteurs: {
+              sqlserver: "bcp n'écrit pas d'en-tête : ajoute-le devant les données (un fichier d'en-tête mis avant). sqlcmd écrit les titres ; `-h -1` les enlève.",
+              snowflake: "`HEADER = TRUE` (FALSE par défaut) ; avec plusieurs fichiers, chaque fichier a son en-tête (doc).",
+              mysql: "`INTO OUTFILE` n'écrit pas d'en-tête. Le client `mysql --batch` en écrit un ; `--skip-column-names` l'enlève."
+            }
+          },
+          {
+            id: "volume",
+            q: "Combien de lignes contient l'export, et le lecteur peut-il les ouvrir ?",
+            pourquoi: "Une feuille Excel s'arrête à 1 048 576 lignes : au-delà, les lignes en trop ne sont pas chargées. Un fichier de plusieurs Go ne passe pas par mail, et un programme peut avoir sa propre limite.",
+            reflexe: "Compte avant d'exporter. Plus d'un million de lignes : découpe (un fichier par mois), ou donne plutôt un accès à un rapport Power BI. Pour l'envoi, compresse et passe par un dépôt partagé, pas par mail.",
+            moteurs: {
+              snowflake: "Plusieurs fichiers de 16 Mo par défaut (`MAX_FILE_SIZE`, jusqu'à 5 Go). `SINGLE = TRUE` écrit un seul fichier : monte alors `MAX_FILE_SIZE`. Compressé en gzip par défaut : `COMPRESSION = NONE` pour un CSV lisible tel quel."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Les données sensibles",
+        questions: [
+          {
+            id: "donnees-perso",
+            q: "Le fichier contient-il des données personnelles, et où va-t-il ?",
+            pourquoi: "Un fichier envoyé par mail ou posé sur un partage échappe à tous les droits de la base. Des noms, des mails, des téléphones de clients peuvent y rester des années, ou partir chez la mauvaise personne.",
+            reflexe: "Exporte seulement les colonnes utiles. Dépose le fichier sur un espace sécurisé, et supprime-le après usage. Les règles à suivre : vois-les avec ton DPO (délégué à la protection des données).",
+            moteurs: {
+              snowflake: "Une politique de masquage s'applique aussi à `COPY INTO @stage` : un rôle non autorisé exporte la valeur masquée (doc)."
+            }
+          },
+          {
+            id: "nom-fichier",
+            q: "Le nom du fichier dit-il ce qu'il contient, sans écraser le précédent ?",
+            pourquoi: "Un `export.csv` réécrit chaque lundi efface celui de la semaine passée. Personne ne sait de quel jour il date, et deux lancements le même jour se marchent dessus.",
+            reflexe: "Mets le contenu et la date : `relances_20260413.csv`, sans espace ni accent. Écris sous un nom provisoire, puis renomme à la fin : le lecteur ne prend jamais un fichier à moitié écrit.",
+            moteurs: {
+              sqlserver: "sqlcmd `-o` écrase un fichier du même nom (doc).",
+              snowflake: "`OVERWRITE = FALSE` par défaut : les fichiers s'accumulent dans le dossier. La doc conseille `INCLUDE_QUERY_ID = TRUE`, ou un dossier vide par export.",
+              mysql: "`INTO OUTFILE` refuse un fichier qui existe déjà (erreur 1086)."
+            }
+          }
+        ]
+      },
+      {
+        titre: "L'outil de chaque moteur",
+        questions: [
+          {
+            id: "outil-sqlserver",
+            q: "Exportes-tu avec bcp, avec sqlcmd, ou à la main depuis SSMS ?",
+            pourquoi: "SSMS (« Enregistrer les résultats sous ») ne s'automatise pas. bcp est rapide, sans en-tête ni guillemets. sqlcmd ajoute des espaces et « (2 rows affected) », et coupe les textes `varchar(max)` à 256 caractères par défaut.",
+            reflexe: "Fichier automatique : `bcp \"<requête>\" queryout f.csv -S srv -d ventes -T -c -t \";\"`. Avec sqlcmd : `SET NOCOUNT ON;` dans la requête, puis `-s \";\" -W -h -1 -o f.csv`. Pour des textes longs, préfère bcp.",
+            moteurs: {
+              sqlserver: "Deux sqlcmd existent, ODBC et Go : `-s`, `-W`, `-h`, `-o` et `-u` existent dans les deux ; `-f` (l'encodage), seulement dans la version ODBC. `-W` ne va pas avec `-y` (doc)."
+            },
+            seulement: ["sqlserver"]
+          },
+          {
+            id: "outil-snowflake",
+            q: "Exportes-tu par COPY INTO vers un stage, puis GET, ou depuis l'interface ?",
+            pourquoi: "Les défauts de `COPY INTO @stage` surprennent : fichiers gzip (.csv.gz), sans en-tête, sans guillemets, découpés en plusieurs morceaux. Et GET ne se lance pas depuis une feuille de calcul de Snowsight.",
+            reflexe: "Écris les options : `COMPRESSION = NONE`, `HEADER = TRUE`, `FIELD_OPTIONALLY_ENCLOSED_BY`, `SINGLE = TRUE`. Puis récupère le fichier avec Snowflake CLI : `snow stage copy @stg.stage_export/relances/ ./export/`.",
+            seulement: ["snowflake"]
+          },
+          {
+            id: "outil-mysql",
+            q: "Exportes-tu par SELECT … INTO OUTFILE, ou par le client mysql ?",
+            pourquoi: "`INTO OUTFILE` écrit le fichier sur le serveur, pas sur ton poste : dans le dossier `secure_file_priv`, avec le droit FILE, jamais par-dessus un fichier existant. Sans en-tête, et NULL y devient `\\N`.",
+            reflexe: "Le fichier doit arriver sur ton poste : `mysql --batch -e \"SELECT …\" > f.tsv` (tabulations, en-tête). Sur le serveur : `INTO OUTFILE`, puis lis `ROW_COUNT()`, qui donne le nombre de lignes écrites (doc).",
+            seulement: ["mysql"]
+          }
+        ]
+      },
+      {
+        titre: "Contrôler et livrer",
+        questions: [
+          {
+            id: "controle",
+            q: "Le fichier a-t-il le bon nombre de lignes et le bon total ?",
+            pourquoi: "Un filtre changé, une jointure qui double, un retour à la ligne dans un texte : le fichier est faux, et c'est le destinataire qui le découvre. Ici : 2 factures, 2 464,80 € HT.",
+            reflexe: "Calcule le nombre de lignes et la somme dans la base, puis recompte dans le fichier (lignes moins l'en-tête). Si le contrat le permet, ajoute une ligne de total ou un fichier de contrôle (`.ok`) avec ces chiffres.",
+            moteurs: {
+              snowflake: "`COPY INTO @stage` rend le nombre de lignes exportées ; `DETAILED_OUTPUT = TRUE` le donne fichier par fichier (doc).",
+              mysql: "Après `INTO OUTFILE`, `ROW_COUNT()` donne le nombre de lignes écrites."
+            }
+          },
+          {
+            id: "vide-echec",
+            q: "Que se passe-t-il si l'export échoue, ou ne trouve aucune ligne ?",
+            pourquoi: "Un export planifié qui échoue lundi : pas de fichier, et personne ne s'en aperçoit avant l'appel du client. Un fichier vide, envoyé comme les autres, fait croire qu'il n'y a rien à relancer.",
+            reflexe: "Fais vérifier le code retour par l'ordonnanceur, et alerte en cas d'échec. Zéro ligne : décide avec le métier (fichier vide ou alerte), et ne l'envoie jamais sans le signaler. Le détail : « J'automatise un traitement ».",
+            moteurs: {
+              snowflake: "Avec 0 ligne, `COPY INTO @stage` n'écrit aucun fichier (doc) : le lecteur qui attend un fichier n'en trouve pas."
+            }
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "Snowflake : `COPY INTO @stage` écrit par défaut des fichiers gzip (.csv.gz), sans en-tête, sans guillemets, et en plusieurs morceaux.",
+      "Un CSV UTF-8 sans BOM, ouvert d'un double-clic : Excel peut afficher « GenÃ¨ve ».",
+      "Excel enlève les zéros devant et garde 15 chiffres : le code postal 01200 et le SSCC sont abîmés à l'ouverture.",
+      "Un « ; » ou un retour à la ligne dans un libellé, sans guillemets : toutes les colonnes suivantes se décalent.",
+      "MySQL : `INTO OUTFILE` écrit sur le serveur, pas sur ton poste, et refuse un fichier qui existe déjà (erreur 1086).",
+      "sqlcmd sans `-W` ni `SET NOCOUNT ON` : des espaces en fin de colonne, et « (2 rows affected) » en bas du fichier.",
+      "Plus de 1 048 576 lignes : Excel ne charge pas la fin du fichier.",
+      "Snowflake : `GET` ne lit que les stages internes, et ne se lance pas depuis une feuille de calcul de Snowsight.",
+      "Un export sans ORDER BY : deux exports des mêmes données ne sortent pas dans le même ordre."
+    ],
+    pratique: "Sur Divalto en SaaS, la doc décrit l'export depuis le studio SQL (Azure Data Studio) : « Save As CSV » dans le dossier DATATRANSFER, puis récupération par FTP. Garde chaque fichier envoyé avec son nombre de lignes.",
+    motsCles: ["export", "exporter", "extraction", "extrait", "csv", "bcp", "sqlcmd", "into outfile", "copy into @stage", "get", "bom", "utf-8", "excel", "séparateur", "queryout"],
+    voirAussi: ["formater", "importer-fichier", "donnees-personnelles", "automatiser", "donnees-powerbi", "dates"],
+    dico: ["copy-into", "stage", "order-by", "replace", "coalesce", "convert", "to-char", "format"],
+    outils: ["astuces", "dico"],
+    sources: [
+      { titre: "Utilitaire bcp", url: "https://learn.microsoft.com/fr-fr/sql/tools/bcp-utility" },
+      { titre: "Utilitaire sqlcmd (versions ODBC et Go)", url: "https://learn.microsoft.com/fr-fr/sql/tools/sqlcmd/sqlcmd-utility" },
+      { titre: "Snowflake : COPY INTO <location>", url: "https://docs.snowflake.com/en/sql-reference/sql/copy-into-location" },
+      { titre: "MySQL 8.4 : SELECT … INTO Statement", url: "https://dev.mysql.com/doc/refman/8.4/en/select-into.html" },
+      { titre: "Excel : garder les zéros devant et les grands nombres", url: "https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/excel/last-digits-changed-to-zeros" },
+      { titre: "Power Query : fichier texte ou CSV (UTF-8 reconnu avec le BOM)", url: "https://learn.microsoft.com/fr-fr/power-query/connectors/text-csv" },
+      { titre: "Exporter vers Excel : les limites d'une feuille", url: "https://learn.microsoft.com/fr-fr/sql/reporting-services/report-builder/exporting-to-microsoft-excel-report-builder-and-ssrs" },
+      { titre: "Divalto : utiliser Azure Data Studio (SaaS)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10586488856/Utiliser+Azure+Data+Studio+SAAS" }
+    ]
+  },
+  {
+    id: "corriger-prod",
+    titre: "Je corrige des données en production",
+    famille: "Écrire et charger",
+    resume: "Les questions avant de corriger des données après un incident : la cause, la demande écrite, le périmètre exact, la copie, l'ERP, les effets en aval, puis vérifier et documenter.",
+    besoins: [
+      "je corrige des données en production",
+      "corriger des données fausses après un incident",
+      "réparer la base de prod après une erreur de traitement",
+      "remettre les bonnes valeurs suite à un bug"
+    ],
+    essais: [
+      "un traitement de nuit a annule des commandes par erreur",
+      "patch de donnees en prod sur divalto",
+      "corriger une facture fausse dans la base",
+      "script de correction suite a un incident"
+    ],
+    exemple: {
+      texte: "Ticket INC-0412 : le traitement de nuit du 14/04 a passé à tort 3 commandes en cours (CDE-1005, 1006 et 1007) au statut ANNULEE. Sa cause est trouvée et corrigée. Tu remets le bon statut dans ta base d'intégration, sans toucher CDE-1004, annulée pour de vrai par le client.",
+      code: "-- INC-0412 · demandé par l'ADV · validé par le responsable des ventes · relu par Marc\n-- 1. Le périmètre exact : 3 lignes attendues (pas CDE-1004)\nSELECT id, num_cde, statut FROM dbo.commande\nWHERE id IN (5, 6, 7) AND statut = 'ANNULEE';\n-- 2. La copie des lignes, telles qu'elles sont, avec le ticket\nSELECT *, 'INC-0412' AS ticket INTO sauv.commande_inc0412\nFROM dbo.commande WHERE id IN (5, 6, 7);\n-- 3. La correction, validée seulement si le compte est bon\nSET XACT_ABORT ON;\nBEGIN TRAN;\nUPDATE dbo.commande SET statut = 'EN_COURS'\nWHERE id IN (5, 6, 7) AND statut = 'ANNULEE';     -- relancée, elle ne touche plus rien\nIF @@ROWCOUNT = 3 COMMIT; ELSE ROLLBACK;\n-- Retour arrière prêt : UPDATE c SET c.statut = s.statut\n--   FROM dbo.commande AS c JOIN sauv.commande_inc0412 AS s ON s.id = c.id;",
+      codes: {
+        snowflake: "-- 1. Le périmètre exact : 3 lignes attendues (pas CDE-1004)\nSELECT id, num_cde, statut FROM ventes.commande\nWHERE id IN (5, 6, 7) AND statut = 'ANNULEE';\n-- 2. La copie : un clone de la table, juste avant\nCREATE TABLE sauv.commande_inc0412 CLONE ventes.commande;\n-- 3. La correction, contrôlée avant de valider\nEXECUTE IMMEDIATE $$\nDECLARE\n  compte_faux EXCEPTION (-20001, 'INC-0412 : nombre de lignes inattendu');\nBEGIN\n  BEGIN TRANSACTION;\n  UPDATE ventes.commande SET statut = 'EN_COURS'\n  WHERE id IN (5, 6, 7) AND statut = 'ANNULEE';\n  IF (SQLROWCOUNT = 3) THEN COMMIT;\n  ELSE ROLLBACK; RAISE compte_faux; END IF;\nEND;\n$$;",
+        mysql: "-- 1. Le périmètre exact : 3 lignes attendues (pas CDE-1004)\nSELECT id, num_cde, statut FROM commande\nWHERE id IN (5, 6, 7) AND statut = 'ANNULEE';\n-- 2. La copie des lignes, telles qu'elles sont (un DDL : avant la transaction)\nCREATE TABLE sauv_commande_inc0412 AS\n  SELECT * FROM commande WHERE id IN (5, 6, 7);\n-- 3. La correction\nSTART TRANSACTION;\nUPDATE commande SET statut = 'EN_COURS'\nWHERE id IN (5, 6, 7) AND statut = 'ANNULEE';\nSELECT ROW_COUNT();   -- 3 ? alors COMMIT ; sinon ROLLBACK"
+      }
+    },
+    etapes: [
+      {
+        titre: "Comprendre d'abord",
+        questions: [
+          {
+            id: "cause",
+            q: "As-tu trouvé, et arrêté, la cause de l'erreur avant de corriger les données ?",
+            pourquoi: "Corriger les données sans toucher la cause, c'est recommencer demain : le traitement de nuit repasse les commandes en ANNULEE, et tu corriges encore, sans fin.",
+            reflexe: "Trouve l'origine : un flux, un programme, une saisie, un paramètre. Arrête-la d'abord (traitement suspendu, flux bloqué), ou corrige-la. Puis seulement les données."
+          },
+          {
+            id: "ampleur",
+            q: "Depuis quand l'erreur existe-t-elle, et combien de lignes touche-t-elle vraiment ?",
+            pourquoi: "On te signale 3 commandes ; le défaut tourne peut-être depuis 10 nuits. Corriger seulement les exemples du ticket laisse les autres fausses, et l'incident revient par un autre client.",
+            reflexe: "Cherche la première occurrence (journaux du traitement, dates de modification), puis toutes les lignes qui portent la marque de l'erreur. Compare ce nombre à celui du ticket, et fais valider l'écart."
+          },
+          {
+            id: "contourner",
+            q: "Faut-il un geste immédiat, en attendant une correction préparée et relue ?",
+            pourquoi: "Sous la pression, on corrige en direct, vite, et on ajoute une 2e erreur à la 1re. Une commande qui ne doit pas partir peut souvent être bloquée sans toucher aux données.",
+            reflexe: "Si l'activité est bloquée : un geste réversible d'abord (bloquer la facturation de ces commandes, suspendre le flux). Puis la correction, écrite, relue et testée."
+          }
+        ]
+      },
+      {
+        titre: "La demande et la décision",
+        questions: [
+          {
+            id: "demande",
+            q: "Qui demande la correction, et qui valide par écrit les nouvelles valeurs ?",
+            pourquoi: "Changer des statuts, des prix ou des montants sur une demande orale, c'est en porter seul la responsabilité. Le jour d'un audit, personne ne sait qui a décidé, ni pourquoi.",
+            reflexe: "Un ticket : l'incident, les lignes, les valeurs d'avant et d'après, le demandeur, et le validateur, propriétaire de la donnée (l'ADV, c'est-à-dire l'administration des ventes, ou la compta). Cite le ticket en tête du script."
+          },
+          {
+            id: "valeur-juste",
+            q: "Pour chaque ligne, sais-tu quelle est la bonne valeur, et d'où elle vient ?",
+            pourquoi: "« Remettre comme avant » : mais avant, c'était quoi ? Une valeur reprise de mémoire remplace une erreur par une autre, sans que personne le voie.",
+            reflexe: "Prends une source sûre : le message EDI d'origine, le journal du traitement, une sauvegarde, la pièce papier. Écris-la dans le ticket, à côté de chaque valeur.",
+            moteurs: {
+              sqlserver: "Une sauvegarde restaurée sous un autre nom, à l'heure juste avant l'erreur (mode de récupération complet), donne les anciennes valeurs sans toucher la production.",
+              snowflake: "Time Travel relit la table juste avant le traitement fautif : `SELECT … FROM ventes.commande BEFORE (STATEMENT => '<id de la requête>')`, pendant la rétention (1 jour par défaut).",
+              mysql: "Une sauvegarde restaurée ailleurs, puis le journal binaire (binlog) rejoué jusqu'à juste avant l'erreur."
+            }
+          }
+        ]
+      },
+      {
+        titre: "Le périmètre exact",
+        questions: [
+          {
+            id: "perimetre",
+            q: "Ton WHERE vise-t-il exactement les lignes abîmées, et aucune autre ?",
+            pourquoi: "`WHERE statut = 'ANNULEE'` rend 4 commandes : il remettrait en cours CDE-1004, annulée pour de vrai par le client. La correction crée alors un nouvel incident.",
+            reflexe: "Vise la marque de l'erreur (les id du journal, la date du traitement, le nom du fichier) et la valeur fausse actuelle : `WHERE id IN (5, 6, 7) AND statut = 'ANNULEE'`. Fais valider la liste par le demandeur."
+          },
+          {
+            id: "entre-temps",
+            q: "Des lignes ont-elles été modifiées depuis l'erreur, par un utilisateur ou un autre flux ?",
+            pourquoi: "L'ADV a peut-être déjà corrigé une commande à la main, ou un flux l'a fait avancer. Ta correction écrase alors leur travail avec une valeur dépassée.",
+            reflexe: "Garde la valeur fausse dans le WHERE (`AND statut = 'ANNULEE'`) : une ligne déjà changée n'est plus touchée. Liste à part les lignes modifiées depuis l'erreur, et vois-les avec le métier."
+          }
+        ]
+      },
+      {
+        titre: "Ne pas contourner l'ERP",
+        questions: [
+          {
+            id: "erp",
+            q: "La donnée est-elle dans les tables de l'ERP (Divalto), ou dans ta propre base ?",
+            pourquoi: "Un UPDATE direct dans les tables de l'ERP saute ses contrôles et ses traitements : la donnée change, mais pas ce que l'application aurait fait avec elle. La pièce peut devenir incohérente.",
+            reflexe: "Dans l'ERP : corrige par l'application (écran, traitement prévu, import), ou avec l'éditeur ou l'intégrateur, et leur accord écrit dans le ticket. Le SQL direct, seulement dans ta propre base (intégration, rapports)."
+          }
+        ]
+      },
+      {
+        titre: "Avant de lancer",
+        questions: [
+          {
+            id: "copie-retour",
+            q: "As-tu une copie des lignes touchées, et le script qui les remet, prêts avant de lancer ?",
+            pourquoi: "Si le demandeur dit « ce n'était pas ça », il faut défaire la correction, et seulement elle. Restaurer toute la base efface le travail fait depuis ; écrire le retour sous pression ajoute des erreurs.",
+            reflexe: "Copie les lignes visées juste avant, avec le ticket (`sauv.commande_inc0412`). Écris et teste le script qui remet ces valeurs. Garde la copie jusqu'à la date notée dans le ticket, puis supprime-la.",
+            moteurs: {
+              snowflake: "Un `CLONE` de la table (une copie rapide, sans doubler le stockage), juste avant ; et Time Travel (relire la table dans le passé) pendant la rétention.",
+              mysql: "`CREATE TABLE … AS SELECT` est un DDL, qui valide la transaction en cours : fais la copie avant `START TRANSACTION`."
+            }
+          },
+          {
+            id: "relu-teste",
+            q: "Même en urgence, le script est-il relu par un autre, et essayé sur une copie ?",
+            pourquoi: "Un incident pousse à aller vite : la mauvaise base, un WHERE trop large, une valeur mal tapée. Un collègue repère en deux minutes ce que l'auteur ne voit plus.",
+            reflexe: "Fais relire le WHERE, les valeurs et le retour arrière. Lance le script sur une copie récente qui contient l'erreur (une recette rafraîchie, un clone), avec le compte attendu. Le détail : « Je mets un script en production »."
+          },
+          {
+            id: "compte-controle",
+            q: "La correction ne se valide-t-elle que si le nombre de lignes est le bon ?",
+            pourquoi: "0 ligne ou 4 000 lignes ne sont pas des erreurs pour le moteur. Sans contrôle, un WHERE trop large est validé, et la production prend un 2e incident.",
+            reflexe: "Dans une transaction : l'UPDATE, puis COMMIT seulement si le compte est celui du ticket (3 ici), sinon ROLLBACK. Le détail : « J'utilise une transaction ».",
+            moteurs: {
+              sqlserver: "`SET XACT_ABORT ON;` puis `IF @@ROWCOUNT = 3 COMMIT; ELSE ROLLBACK;`, comme dans l'exemple.",
+              snowflake: "Dans un bloc : `IF (SQLROWCOUNT = 3) THEN COMMIT; ELSE ROLLBACK; …`, comme dans l'exemple.",
+              mysql: "`SELECT ROW_COUNT();` juste après l'UPDATE, puis COMMIT ou ROLLBACK, à la main."
+            }
+          },
+          {
+            id: "moment",
+            q: "Les flux et les utilisateurs qui écrivent sur ces lignes sont-ils arrêtés pendant la correction ?",
+            pourquoi: "Un flux qui tourne pendant ta correction réécrit la mauvaise valeur derrière toi, ou se bloque sur tes verrous (les lignes réservées). Une correction en pleine clôture change des chiffres que la compta arrête.",
+            reflexe: "Suspends le traitement fautif et les flux qui touchent ces lignes, corrige hors des heures de saisie et de clôture, puis relance-les, et regarde leur premier passage."
+          }
+        ]
+      },
+      {
+        titre: "Les effets en aval",
+        questions: [
+          {
+            id: "pieces-legales",
+            q: "Des factures ou des écritures comptables ont-elles déjà été faites avec la donnée fausse ?",
+            pourquoi: "Une facture émise ne se corrige pas en base : la doc Divalto le dit pour une facture signée, non modifiable et non annulable, sauf par un avoir (la facture qui annule). Et l'écriture comptable déjà passée ne suit pas ton UPDATE.",
+            reflexe: "Demande à la compta et à l'ADV ce qui est déjà parti. Une facture fausse : un avoir, puis une nouvelle facture, dans l'ERP. Une écriture déjà passée : la compta la corrige elle-même, surtout sur une période close."
+          },
+          {
+            id: "copies-aval",
+            q: "Qui a déjà reçu ou lu la donnée fausse : partenaire EDI, Power BI, exports ?",
+            pourquoi: "Ta base est juste, mais le client a peut-être reçu une annulation par EDI, le rapport Power BI d'hier montre 3 commandes en moins, et un export est déjà parti chez le transporteur.",
+            reflexe: "Liste chaque destinataire depuis l'erreur. Pour chacun, une action : un message EDI de correction (selon l'accord avec le partenaire), un rafraîchissement Power BI, un fichier corrigé, ou au moins un mot d'explication."
+          },
+          {
+            id: "donnees-derivees",
+            q: "D'autres données sont-elles calculées à partir de celles que tu corriges ?",
+            pourquoi: "Corriger une ligne de commande sans recalculer le total de l'en-tête, le stock réservé ou les statistiques laisse d'autres chiffres faux. Le rapport ne colle plus, et personne ne sait pourquoi.",
+            reflexe: "Liste ce qui dépend de la donnée : totaux, cumuls, stocks, tables de rapport. Relance le traitement normal qui les calcule, plutôt qu'un calcul à la main. Contrôle : total de l'en-tête = somme des lignes."
+          },
+          {
+            id: "prevenir",
+            q: "Qui prévenir, et quand : avant la correction, et une fois finie ?",
+            pourquoi: "Un utilisateur qui voit ses commandes changer sans explication les « corrige » à son tour. Le support cherche une panne, et le métier ne sait pas quoi refaire de son côté.",
+            reflexe: "Avant : le demandeur, les utilisateurs de ces données, le support. Après : ce qui était faux, depuis quand, ce qui est corrigé, ce qu'ils doivent refaire (une facture, un appel au client)."
+          }
+        ]
+      },
+      {
+        titre: "Vérifier et documenter",
+        questions: [
+          {
+            id: "verifier",
+            q: "As-tu vérifié la correction avec le demandeur, dans la base et dans l'application ?",
+            pourquoi: "La table est juste, mais l'écran de l'ERP ou le rapport montre autre chose : une autre table, un rapport pas encore rafraîchi. Seul le demandeur sait si son problème est réglé.",
+            reflexe: "Recompte avec la marque de l'erreur : il doit rester 0 ligne fausse. Regarde trois cas dans l'écran et dans le rapport. Fais confirmer le demandeur dans le ticket."
+          },
+          {
+            id: "documenter",
+            q: "As-tu écrit ce qui s'est passé : cause, lignes, script, contrôles, et actions pour éviter le retour ?",
+            pourquoi: "Dans six mois, le même incident revient, et personne ne se souvient du correctif. Un audit demande qui a changé ces commandes : sans trace, impossible de répondre.",
+            reflexe: "Dans le ticket : la cause, les dates, le nombre de lignes, le script et son journal, la copie et sa date de suppression, les contrôles, qui a validé. Puis un retour d'expérience, sans chercher de coupable."
+          },
+          {
+            id: "detection",
+            q: "Quel contrôle automatique aurait vu l'erreur avant le client ?",
+            pourquoi: "L'erreur a été vue par un client, après plusieurs jours. Un simple contrôle chaque nuit l'aurait signalée le matin même, avec 3 lignes à corriger au lieu de 30.",
+            reflexe: "Ajoute un contrôle au traitement ou à ta supervision : une alerte si plus de N commandes changent de statut en une nuit, ou si un total s'écarte de la veille. Note-le dans le ticket comme action de prévention."
+          }
+        ]
+      }
+    ],
+    pieges: [
+      "`WHERE statut = 'ANNULEE'` au lieu du périmètre de l'incident : CDE-1004, annulée pour de vrai, repart en cours.",
+      "Corriger les données sans arrêter la cause : le traitement de nuit refait l'erreur, et la correction est à refaire chaque matin.",
+      "Une facture émise corrigée par UPDATE : la base ne colle plus au document envoyé ; il fallait un avoir.",
+      "Restaurer toute la base pour quelques lignes : le travail fait depuis est perdu.",
+      "Une correction lancée pendant que le flux tourne : il réécrit la valeur fausse derrière toi.",
+      "Sans la valeur fausse dans le WHERE : une commande déjà corrigée à la main par l'ADV est écrasée.",
+      "La copie `sauv_…` gardée pour toujours : des données de clients oubliées dans un coin de la base.",
+      "Un UPDATE direct dans les tables de l'ERP : la donnée change, mais pas ce que l'application aurait fait avec elle."
+    ],
+    pratique: "Sur Divalto, la doc réserve le studio SQL du SaaS à la consultation (SELECT). Ses déclencheurs tiennent à jour les tables intermédiaires, mais pas les règles de l'application : corrige par l'ERP, ou avec l'éditeur.",
+    motsCles: ["correction", "corriger", "production", "prod", "incident", "données fausses", "patch", "réparer", "rattrapage", "bug", "ticket", "par erreur", "retour arrière", "divalto"],
+    voirAussi: ["mettre-en-prod", "mettre-a-jour", "transaction", "sauvegarder", "supprimer", "documenter", "automatiser"],
+    dico: ["update", "begin-transaction", "commit", "rollback", "xact-abort", "rowcount", "time-travel", "clone"],
+    outils: ["gp-decisions", "dico"],
+    sources: [
+      { titre: "Divalto : utiliser Azure Data Studio (SaaS), pour consulter seulement", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10586488856/Utiliser+Azure+Data+Studio+SAAS" },
+      { titre: "Divalto : déclaration des index dans le dictionnaire (les déclencheurs)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10558210300/D+claration+des+index+dans+le+dictionnaire" },
+      { titre: "Divalto : dématérialiser les factures clients (facture signée non modifiable)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10516500826/D+mat+rialiser+les+pi+ces+commerciales+factures+clients" },
+      { titre: "Restaurer une base SQL Server à un point dans le temps (mode complet)", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/backup-restore/restore-a-sql-server-database-to-a-point-in-time-full-recovery-model" },
+      { titre: "@@ROWCOUNT (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/functions/rowcount-transact-sql" },
+      { titre: "Snowflake : Time Travel", url: "https://docs.snowflake.com/en/user-guide/data-time-travel" },
+      { titre: "Snowflake : CREATE … CLONE", url: "https://docs.snowflake.com/en/sql-reference/sql/create-clone" },
+      { titre: "MySQL 8.4 : Point-in-Time (Incremental) Recovery", url: "https://dev.mysql.com/doc/refman/8.4/en/point-in-time-recovery.html" }
+    ]
   }
 ]);
