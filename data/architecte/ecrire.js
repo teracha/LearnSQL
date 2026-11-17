@@ -58,7 +58,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               sqlserver: "Le nombre a la priorité : toute la colonne `siren` est convertie en INT. Un SIREN avec une lettre donne l'erreur 245. Le plan d'exécution (le chemin choisi par le moteur) montre `CONVERT_IMPLICIT`.",
               snowflake: "Snowflake essaie lui aussi de changer le texte en nombre : un code comme 'C001' fait échouer la requête.",
-              mysql: "Texte et nombre sont comparés comme des nombres à virgule : `code = 0` est vrai pour 'C001', avec un simple avertissement. L'index ne sert plus (doc MySQL)."
+              mysql: "Texte et nombre sont comparés comme des nombres à virgule : dans un `SELECT`, `code = 0` est vrai pour 'C001', avec un simple avertissement ; dans un `UPDATE` ou un `DELETE`, le mode strict en fait une erreur. L'index ne sert plus (doc MySQL)."
             }
           }
         ]
@@ -1496,7 +1496,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
   // Pages officielles lues et gardées dans le scratchpad architecte/v2-ecrire/pages (Microsoft Learn sql-server-ver17,
   // docs.snowflake.com, MySQL 8.4, base Divalto). Essais refaits sur MySQL 8.0.46 (serveur jetable, bases essai_v2 et base) :
   // ON DUPLICATE KEY UPDATE (table dérivée, alias AS n, VALUES() = avertissement 1287, ROW_COUNT 1/2/0, doublon source : la
-  // dernière gagne), REPLACE (supprime puis insère : cascade des commandes, triggers DELETE + INSERT, colonne non citée remise
+  // ligne lue en dernier gagne ; l'ordre d'un INSERT … SELECT n'est pas garanti, doc et relecture), REPLACE (supprime puis insère : cascade des commandes, triggers DELETE + INSERT, colonne non citée remise
   // à NULL, nouvel id ; erreur 1451 avec une clé étrangère sans cascade), START TRANSACTION imbriqué = COMMIT implicite, DDL =
   // COMMIT implicite, MyISAM + ROLLBACK = avertissement 1196, script arrêté sur erreur = transaction annulée à la déconnexion
   // (avec --force : COMMIT du reste, code retour 0), interblocage 1213 (toute la transaction annulée), attente 1205 (seule
@@ -1573,15 +1573,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un client présent deux fois dans l'extraction : le moteur ne sait pas quelle ligne prendre. Selon le moteur, tout le MERGE échoue, une des lignes est prise sans dire laquelle, ou le client est ajouté deux fois.",
             reflexe: "Avant le MERGE : `SELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;` doit rendre 0 ligne. Sinon, garde une ligne par clé (la plus récente, avec `ROW_NUMBER()`), ou rejette le fichier.",
             moteurs: {
-              sqlserver: "Erreur 8672 : une ligne de la cible serait modifiée plusieurs fois, et tout le MERGE est refusé. Si la clé est nouvelle, les deux lignes sont ajoutées : seule une clé UNIQUE l'empêche.",
+              sqlserver: "Erreur 8672 : une ligne de la cible serait modifiée plusieurs fois, et tout le MERGE est refusé. Si la clé est nouvelle, les deux lignes sont ajoutées ; une clé primaire ou UNIQUE fait alors échouer le MERGE (erreur 2627 ou 2601).",
               snowflake: "Erreur par défaut (`ERROR_ON_NONDETERMINISTIC_MERGE = TRUE`) ; avec FALSE, une des lignes est prise, sans dire laquelle. Si la clé est nouvelle, chaque copie est ajoutée (doc), et UNIQUE n'est pas appliqué.",
-              mysql: "Avec `ON DUPLICATE KEY UPDATE`, la 2e ligne met à jour la 1re : la dernière gagne, sans erreur (vu sur MySQL 8.0)."
+              mysql: "Avec `ON DUPLICATE KEY UPDATE`, la ligne lue en dernier écrase l'autre, sans erreur. L'ordre de lecture d'un `INSERT … SELECT` n'est pas garanti (doc) : tu ne sais pas laquelle reste."
             }
           },
           {
             id: "cle-null",
             q: "La clé peut-elle être vide (NULL) dans la source ?",
-            pourquoi: "NULL n'est égal à rien, pas même à NULL. Une ligne sans clé ne trouve jamais la cible : elle est ajoutée à chaque passage, et les doublons grossissent chaque nuit.",
+            pourquoi: "NULL n'est égal à rien, pas même à NULL. Une ligne sans clé ne trouve jamais la cible : elle est ajoutée à chaque passage, et les doublons grossissent chaque nuit. Si la clé refuse NULL, tout le MERGE échoue.",
             reflexe: "Écarte les clés NULL avant le MERGE (`WHERE code IS NOT NULL`) et range-les dans tes rejets, avec le motif « clé absente ». Compte-les à chaque passage."
           },
           {
@@ -1634,7 +1634,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "source-complete",
             q: "La source est-elle complète, ou seulement un morceau : un dépôt, un jour, un fichier coupé ?",
-            pourquoi: "Avec un fichier partiel, tout ce qui manque passe pour disparu. Une extraction vide ou coupée, et le MERGE désactive, ou supprime, la moitié des clients, sans erreur.",
+            pourquoi: "Avec un fichier partiel, tout ce qui manque passe pour disparu. Une extraction vide ou coupée, et le MERGE désactive, ou supprime, tout ou partie des clients, sans erreur.",
             reflexe: "Avant de traiter les disparus, compare le nombre de lignes de la source à celui de la veille : arrête tout sous un seuil (moins de 90 %, ou 0 ligne). Une source partielle : limite le cas des disparus à son périmètre."
           }
         ]
@@ -1646,13 +1646,13 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "odku",
             q: "Remplaces-tu le MERGE par INSERT … ON DUPLICATE KEY UPDATE ?",
             pourquoi: "MySQL n'a pas de MERGE. `ON DUPLICATE KEY UPDATE` ajoute la ligne, ou met à jour celle qui a la même clé primaire ou UNIQUE. Sans clé UNIQUE sur le code, il ajoute toujours : doublons.",
-            reflexe: "Vérifie la clé UNIQUE de la cible. Lis `ROW_COUNT()` : 1 par ligne ajoutée, 2 par ligne modifiée, 0 si elle était déjà à jour (doc). Les disparus : un UPDATE à part.",
+            reflexe: "Vérifie la clé UNIQUE de la cible. Lis `ROW_COUNT()` : 1 par ligne ajoutée, 2 par ligne modifiée, 0 si elle était déjà à jour (doc ; 1 si le pilote de connexion demande `CLIENT_FOUND_ROWS`). Les disparus : un UPDATE à part.",
             seulement: ["mysql"]
           },
           {
             id: "values-alias",
             q: "Écris-tu encore VALUES(col) dans la partie ON DUPLICATE KEY UPDATE ?",
-            pourquoi: "La doc 8.4 dit `VALUES()` dépréciée, et à retirer dans une prochaine version. MySQL renvoie déjà un avertissement (1287, vu sur MySQL 8.0) : ton script cassera à une montée de version.",
+            pourquoi: "La doc 8.4 dit `VALUES()` dépréciée, et à retirer dans une prochaine version. MySQL renvoie déjà un avertissement (1287, vu sur MySQL 8.0) : ton script cassera le jour où une version la retire.",
             reflexe: "Avec VALUES, un alias de ligne (un nom pour la ligne à insérer) : `VALUES (…) AS n ON DUPLICATE KEY UPDATE nom = n.nom`. Avec un SELECT, une table dérivée (un SELECT dans le FROM), dont tu cites les colonnes : `nom = s_nom`.",
             seulement: ["mysql"]
           },
@@ -1726,7 +1726,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Sur Snowflake et MySQL, les disparus demandent une 2e instruction. Si elle échoue après le MERGE, la table est à moitié synchronisée : les nouveaux sont là, les disparus encore actifs.",
             reflexe: "Ouvre une transaction (un bloc validé ou annulé en entier) : contrôles, MERGE, disparus, comptes, puis COMMIT seulement si les comptes sont bons. Le détail : « J'utilise une transaction ».",
             moteurs: {
-              sqlserver: "`SET XACT_ABORT ON;` avant `BEGIN TRAN` : sans lui, une erreur n'annule que l'instruction fautive.",
+              sqlserver: "`SET XACT_ABORT ON;` avant `BEGIN TRAN` : sans lui, une erreur comme une violation de contrainte n'annule que l'instruction fautive.",
               snowflake: "Une instruction en erreur est annulée seule, et la transaction reste ouverte. Un ordre de structure (DDL) au milieu valide tout ce qui précède.",
               mysql: "`START TRANSACTION` … `COMMIT`. Un DDL au milieu, comme un `CREATE TABLE` de travail, valide tout ce qui précède."
             }
@@ -1741,10 +1741,10 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       }
     ],
     pieges: [
-      "Un client déjà dans la cible, et deux fois dans la source : erreur 8672 sur SQL Server, erreur par défaut sur Snowflake, la dernière ligne gagne sur MySQL.",
+      "Un client déjà dans la cible, et deux fois dans la source : erreur 8672 sur SQL Server, erreur par défaut sur Snowflake ; sur MySQL, la ligne lue en dernier gagne, sans erreur.",
       "Une clé nouvelle en double dans la source : Snowflake ajoute chaque copie, et UNIQUE ne l'arrête pas.",
       "Un filtre dans le ON (`AND c.depot_id = 1`) : les autres lignes passent pour absentes, puis sont ajoutées en double ou désactivées.",
-      "`WHEN NOT MATCHED BY SOURCE THEN DELETE` avec une extraction vide ou coupée : la moitié de la table est effacée, sans erreur.",
+      "`WHEN NOT MATCHED BY SOURCE THEN DELETE` avec une extraction vide ou coupée : toute la table, ou une partie, est effacée, sans erreur.",
       "`c.ville <> s.ville` ne voit pas le passage de NULL à Nice : la mise à jour n'a pas lieu.",
       "SQL Server : un MERGE sans `;` final est refusé (erreur 10713).",
       "MySQL : `REPLACE` supprime puis insère ; avec `ON DELETE CASCADE`, les commandes du client partent avec lui.",
@@ -1823,7 +1823,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une transaction restée ouverte, dans une fenêtre SSMS ou après une erreur, garde ses verrous (les lignes réservées). L'ERP attend, et le journal des transactions (où le moteur note chaque modification) ne se vide plus.",
             reflexe: "Écris le BEGIN, le COMMIT et le ROLLBACK ensemble, avant le reste. Avant de fermer ta fenêtre ou de partir en pause, vérifie qu'aucune transaction n'est ouverte.",
             moteurs: {
-              sqlserver: "`SELECT @@TRANCOUNT;` : plus de 0, une transaction est ouverte. La doc : une transaction en attente empêche de vider le journal, qui grossit jusqu'à se remplir.",
+              sqlserver: "`SELECT @@TRANCOUNT;` : plus de 0, une transaction est ouverte. La doc : une transaction en attente empêche de vider le journal, qui grossit et peut se remplir.",
               snowflake: "`SHOW TRANSACTIONS;`. Une session coupée net laisse sa transaction et ses verrous : annulée après 5 minutes d'inactivité si elle bloque une autre transaction, sinon après 4 heures (doc).",
               mysql: "Dans une procédure, `BEGIN` ouvre un bloc, pas une transaction : écris `START TRANSACTION` (doc)."
             }
@@ -1874,6 +1874,17 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
               sqlserver: "Erreur 1205 : toute la transaction de la victime est annulée. La doc conseille de l'attraper (TRY…CATCH) et de relancer après une courte pause.",
               snowflake: "Seule l'instruction la plus récente est annulée ; la transaction reste active : à toi de faire COMMIT ou ROLLBACK (doc). Pas d'interblocage entre instructions en autocommit sur une table standard.",
               mysql: "Erreur 1213 : toute la transaction est annulée. Attention : 1205 veut dire ici « attente de verrou trop longue » (50 s par défaut), et seule l'instruction est annulée."
+            }
+          },
+          {
+            id: "attente-verrou",
+            q: "Combien de temps une instruction attend-elle une ligne bloquée, avant d'échouer ?",
+            pourquoi: "Une transaction oubliée garde ses verrous. Le traitement de nuit attend derrière elle, parfois des heures, sans message : le rapport du matin n'est pas prêt, et personne ne sait pourquoi.",
+            reflexe: "Connais le délai de ton moteur. Dans un traitement planifié, fixe-le, et traite son erreur comme un échec : alerte, puis relance. Surveille aussi la durée habituelle du traitement.",
+            moteurs: {
+              sqlserver: "Par défaut, l'attente est sans fin (`LOCK_TIMEOUT` vaut -1). Avec `SET LOCK_TIMEOUT 60000;`, l'instruction s'arrête après 60 secondes, avec l'erreur 1222 (doc).",
+              snowflake: "`LOCK_TIMEOUT` vaut 43 200 secondes (12 heures) par défaut ; ensuite, l'instruction est annulée (doc).",
+              mysql: "`innodb_lock_wait_timeout` vaut 50 secondes par défaut ; ensuite, erreur 1205, et seule l'instruction est annulée (doc)."
             }
           }
         ]
@@ -1934,7 +1945,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Sur SQL Server, un BEGIN imbriqué ne crée pas une 2e transaction : le COMMIT intérieur ne valide rien, et un ROLLBACK intérieur annule tout, y compris le travail de l'appelant.",
             reflexe: "Une seule partie possède la transaction : l'appelant. La procédure appelée regarde s'il y en a déjà une, et pose un point de sauvegarde pour n'annuler que son propre travail.",
             moteurs: {
-              sqlserver: "`@@TRANCOUNT` compte les BEGIN. `SAVE TRANSACTION p1;` puis `ROLLBACK TRANSACTION p1;` annule ce qui suit le point, et la transaction reste ouverte (doc).",
+              sqlserver: "`@@TRANCOUNT` compte les BEGIN. `SAVE TRANSACTION p1;` puis `ROLLBACK TRANSACTION p1;` annule ce qui suit le point ; la transaction reste ouverte. Mais si `XACT_STATE()` vaut -1, seul un ROLLBACK complet est possible (doc).",
               snowflake: "Une transaction ne peut pas commencer hors d'une procédure et finir dedans, ni l'inverse : erreur (doc). Pas de point de sauvegarde.",
               mysql: "Pas de transaction imbriquée : un 2e `START TRANSACTION` valide d'abord celle en cours (doc). Point de sauvegarde : `SAVEPOINT p1;` puis `ROLLBACK TO SAVEPOINT p1;`."
             }
@@ -1947,11 +1958,11 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "ddl",
             q: "Ta transaction contient-elle un ordre de structure : CREATE, ALTER, DROP, TRUNCATE ?",
-            pourquoi: "Sur Snowflake et MySQL, un tel ordre (un DDL) valide d'abord la transaction en cours, puis s'exécute seul. Le ROLLBACK qui suit n'annule plus ce qui précède.",
+            pourquoi: "Sur Snowflake et MySQL, un CREATE, un ALTER ou un DROP (un DDL) valide d'abord la transaction en cours, puis s'exécute seul. Sur MySQL, TRUNCATE aussi. Le ROLLBACK qui suit n'annule plus ce qui précède.",
             reflexe: "Garde les DDL hors des transactions de données : la structure d'abord, puis les données dans une transaction. Une table de travail : crée-la avant le BEGIN.",
             moteurs: {
               sqlserver: "Un `CREATE TABLE` ou un `TRUNCATE` fait dans une transaction s'annule avec elle. Mais un DDL pose un verrou de structure qui bloque même les lectures en NOLOCK (doc).",
-              snowflake: "Chaque DDL est sa propre transaction : il valide la transaction active, et ne s'annule pas (doc). Un `CREATE TABLE … AS SELECT` compte comme un DDL.",
+              snowflake: "Chaque DDL est sa propre transaction : il valide la transaction active, et ne s'annule pas (doc). Un `CREATE TABLE … AS SELECT` compte comme un DDL ; `TRUNCATE`, lui, compte comme une modification de données (DML) : il reste dans la transaction.",
               mysql: "CREATE, ALTER, DROP, RENAME et TRUNCATE valident la transaction en cours. Un `CREATE TEMPORARY TABLE` ne valide rien, mais ne s'annule pas non plus (doc)."
             }
           },
@@ -1985,7 +1996,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "MySQL : un 2e `START TRANSACTION` valide la 1re transaction, sans message.",
       "Snowflake et MySQL : un `CREATE TABLE` au milieu valide tout ce qui précède.",
       "MySQL : l'erreur 1205 n'est pas un interblocage mais une attente trop longue ; seule l'instruction est annulée, la transaction continue.",
-      "MySQL lancé avec `--force` : l'erreur est sautée, le COMMIT valide le reste, et le code retour vaut 0 (vu sur MySQL 8.0).",
+      "MySQL : un script lancé par `mysql --force < script.sql` saute l'erreur, le COMMIT valide le reste, et le code retour vaut 0 (vu sur MySQL 8.0).",
       "NOLOCK dans un rapport de stock : un chiffre jamais validé, ou des lignes comptées deux fois."
     ],
     pratique: "Dans un flux EDI, une transaction par message : l'en-tête, ses lignes et le statut du flux. Un message en erreur est annulé seul, rangé en rejet avec son motif, et le flux continue avec le suivant.",
@@ -2078,7 +2089,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "colonnes-changent",
             q: "Que se passe-t-il le jour où le fichier gagne ou perd une colonne ?",
             pourquoi: "Chargée par position, une colonne ajoutée au milieu décale toutes les valeurs : le prix part dans la quantité. Le COPY simple s'arrête sur le nombre de colonnes ; un COPY qui transforme (`SELECT $1, $2…`) charge sans rien dire.",
-            reflexe: "Garde `ERROR_ON_COLUMN_COUNT_MISMATCH = TRUE` (le défaut) : un nombre de colonnes différent arrête le chargement. Pour charger par nom : `PARSE_HEADER = TRUE` et `MATCH_BY_COLUMN_NAME`. `INFER_SCHEMA` montre les colonnes d'un nouveau fichier."
+            reflexe: "Garde `ERROR_ON_COLUMN_COUNT_MISMATCH = TRUE` (le défaut) : un nombre de colonnes différent arrête le chargement. Pour charger par nom : `PARSE_HEADER = TRUE` (sans `SKIP_HEADER`) et `MATCH_BY_COLUMN_NAME` ; une colonne absente du fichier arrive alors vide (NULL), sans erreur. `INFER_SCHEMA` montre les colonnes d'un nouveau fichier."
           },
           {
             id: "evolution",
@@ -2089,7 +2100,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "taille-fichiers",
             q: "Quelle taille font tes fichiers, une fois compressés ?",
-            pourquoi: "Un fichier = un travail de chargement. Un fichier géant ne se charge pas en parallèle, et un échec le fait recommencer ; des milliers de tout petits fichiers ajoutent un travail fixe pour chacun.",
+            pourquoi: "Un fichier = un travail de chargement. Un fichier géant compressé ne se charge pas en parallèle, et un échec le fait recommencer ; des milliers de tout petits fichiers ajoutent un travail fixe pour chacun.",
             reflexe: "Vise des fichiers de 100 à 250 Mo compressés, comme le conseille la doc, et évite les fichiers de 100 Go ou plus. Compresse en gzip : `COMPRESSION = AUTO` le reconnaît ; le Brotli, lui, s'écrit `BROTLI`."
           }
         ]
@@ -2111,7 +2122,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "valider",
             q: "Sais-tu lister toutes les erreurs d'un fichier, et pas seulement la première ?",
             pourquoi: "Le résultat du COPY ne montre que la 1re erreur de chaque fichier. Corriger une erreur, relancer, trouver la suivante : une matinée perdue.",
-            reflexe: "Avant : `VALIDATION_MODE = RETURN_ERRORS` liste toutes les erreurs, sans rien charger. Après un chargement en `CONTINUE` : `SELECT * FROM TABLE(VALIDATE(stg.cde_edi, JOB_ID => '_last'));`. Ni l'un ni l'autre avec un COPY qui transforme."
+            reflexe: "Avant : `VALIDATION_MODE = RETURN_ERRORS` liste toutes les erreurs, sans rien charger. Après un chargement en `CONTINUE` : `SELECT * FROM TABLE(VALIDATE(stg.cde_edi, JOB_ID => '_last'));`. Ni l'un ni l'autre avec un COPY qui transforme ; et `VALIDATION_MODE` refuse `MATCH_BY_COLUMN_NAME` (doc)."
           },
           {
             id: "check",
@@ -2272,7 +2283,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "encodage",
             q: "Le fichier est-il en UTF-8, avec ou sans BOM, et le lecteur le sait-il ?",
             pourquoi: "Le BOM est une marque invisible en tête d'un fichier UTF-8. Sans elle, Excel peut afficher « GenÃ¨ve » au lieu de « Genève » ; avec elle, un programme peut lire un caractère en trop devant la 1re colonne.",
-            reflexe: "Toujours UTF-8. Avec BOM pour un fichier ouvert dans Excel, sans BOM pour un programme, sauf si sa spécification le demande. Teste avec une vraie valeur accentuée, comme Genève, ouverte chez le destinataire.",
+            reflexe: "Toujours UTF-8 : avec BOM pour Excel, sans BOM pour un programme, sauf si sa spécification le demande. Sans BOM, Excel le lit bien par Données > À partir d'un fichier texte/CSV, origine 65001 (UTF-8). Teste avec Genève, chez le destinataire.",
             moteurs: {
               sqlserver: "bcp : `-c -C 65001` écrit de l'UTF-8 (Windows seulement, et pas avant la version 13, SQL Server 2016). sqlcmd (ODBC) : `-f 65001`. sqlcmd (Go) n'a pas `-f` ; son `-u` écrit de l'UTF-16 avec un BOM.",
               snowflake: "`COPY INTO @stage` écrit toujours en UTF-8 (doc).",
@@ -2287,7 +2298,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               sqlserver: "bcp et sqlcmd n'ont pas d'option pour entourer les textes de guillemets : choisis un séparateur absent des données, et nettoie les retours à la ligne dans la requête.",
               snowflake: "`FIELD_OPTIONALLY_ENCLOSED_BY = '\"'` (pas de guillemets par défaut) : un guillemet contenu est doublé (`\"\"`), selon l'usage des CSV (doc).",
-              mysql: "`OPTIONALLY ENCLOSED BY '\"'` écrit un guillemet contenu sous la forme `\\\"`, et non `\"\"` (vu sur MySQL 8.0) : retire-les dans la requête, avec REPLACE."
+              mysql: "`OPTIONALLY ENCLOSED BY '\"'` écrit un guillemet contenu sous la forme `\\\"`, et non `\"\"` (doc) : retire-les dans la requête, avec REPLACE. Le client `mysql --batch` écrit une tabulation ou un retour à la ligne sous la forme `\\t` ou `\\n` (doc)."
             }
           },
           {
@@ -2296,6 +2307,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Chaque outil a son habitude. Le lecteur charge le mot « NULL » comme un vrai texte, ou `\\N` comme une valeur bizarre. Et sans guillemets, une case NULL et un texte vide ne se distinguent plus.",
             reflexe: "Décide-le avec le lecteur ; souvent : rien entre les deux séparateurs. Écris-le dans la requête (`COALESCE(ville, '')`) ou dans les options de l'outil, puis regarde le fichier produit.",
             moteurs: {
+              sqlserver: "bcp écrit NULL comme une case vide (doc). sqlcmd écrit le mot NULL : à vérifier sur ta version.",
               snowflake: "`NULL_IF = ()` écrit NULL comme une case vide ; avec des guillemets, un texte vide s'écrit `\"\"`, et les deux restent distincts (doc).",
               mysql: "`INTO OUTFILE` écrit `\\N` ; avec `ESCAPED BY ''`, il écrit le mot NULL (doc). Le client `mysql --batch` écrit aussi NULL (vu sur MySQL 8.0)."
             }
@@ -2320,7 +2332,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "ordre",
             q: "Les lignes doivent-elles sortir dans un ordre précis ?",
-            pourquoi: "Sans ORDER BY, l'ordre n'est jamais garanti : deux exports des mêmes données diffèrent, la comparaison avec la semaine passée devient pénible, et un programme qui attend l'en-tête avant les lignes se trompe.",
+            pourquoi: "Sans ORDER BY, l'ordre n'est jamais garanti : deux exports des mêmes données diffèrent, la comparaison avec la semaine passée devient pénible, et un programme qui attend l'en-tête d'une commande avant ses lignes se trompe.",
             reflexe: "Termine la requête par un ORDER BY sur une clé unique : `ORDER BY f.date_fact, f.num_fact`. Vérifie l'ordre dans le fichier produit, pas seulement dans la requête.",
             moteurs: {
               snowflake: "Par défaut, l'export se répartit en plusieurs fichiers. Avec PARTITION BY, la doc dit que l'ORDER BY n'est pas garanti dans les fichiers. Pour un seul fichier : `SINGLE = TRUE`.",
@@ -2333,7 +2345,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un lecteur qui attend un en-tête prend ta 1re ligne de données pour des titres, et la perd. À l'inverse, un en-tête non prévu devient une ligne fausse dans son programme.",
             reflexe: "Suis le contrat. Pour un programme : des noms sans accent ni espace (`num_fact`). Pour une personne : des titres clairs, identiques d'une semaine à l'autre.",
             moteurs: {
-              sqlserver: "bcp n'écrit pas d'en-tête : ajoute-le devant les données (un fichier d'en-tête mis avant). sqlcmd écrit les titres ; `-h -1` les enlève.",
+              sqlserver: "bcp n'écrit pas d'en-tête : ajoute-le devant les données (un fichier d'en-tête mis avant). sqlcmd écrit les titres, puis une ligne de tirets (doc) ; `-h -1` enlève les deux.",
               snowflake: "`HEADER = TRUE` (FALSE par défaut) ; avec plusieurs fichiers, chaque fichier a son en-tête (doc).",
               mysql: "`INTO OUTFILE` n'écrit pas d'en-tête. Le client `mysql --batch` en écrit un ; `--skip-column-names` l'enlève."
             }
@@ -2341,7 +2353,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "volume",
             q: "Combien de lignes contient l'export, et le lecteur peut-il les ouvrir ?",
-            pourquoi: "Une feuille Excel s'arrête à 1 048 576 lignes : au-delà, les lignes en trop ne sont pas chargées. Un fichier de plusieurs Go ne passe pas par mail, et un programme peut avoir sa propre limite.",
+            pourquoi: "Une feuille Excel s'arrête à 1 048 576 lignes : au-delà, les lignes en trop ne sont pas chargées, et enregistrer le fichier les perd. Un fichier de plusieurs Go ne passe pas par mail, et un programme peut avoir sa propre limite.",
             reflexe: "Compte avant d'exporter. Plus d'un million de lignes : découpe (un fichier par mois), ou donne plutôt un accès à un rapport Power BI. Pour l'envoi, compresse et passe par un dépôt partagé, pas par mail.",
             moteurs: {
               snowflake: "Plusieurs fichiers de 16 Mo par défaut (`MAX_FILE_SIZE`, jusqu'à 5 Go). `SINGLE = TRUE` écrit un seul fichier : monte alors `MAX_FILE_SIZE`. Compressé en gzip par défaut : `COMPRESSION = NONE` pour un CSV lisible tel quel."
@@ -2381,7 +2393,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "outil-sqlserver",
             q: "Exportes-tu avec bcp, avec sqlcmd, ou à la main depuis SSMS ?",
             pourquoi: "SSMS (« Enregistrer les résultats sous ») ne s'automatise pas. bcp est rapide, sans en-tête ni guillemets. sqlcmd ajoute des espaces et « (2 rows affected) », et coupe les textes `varchar(max)` à 256 caractères par défaut.",
-            reflexe: "Fichier automatique : `bcp \"<requête>\" queryout f.csv -S srv -d ventes -T -c -t \";\"`. Avec sqlcmd : `SET NOCOUNT ON;` dans la requête, puis `-s \";\" -W -h -1 -o f.csv`. Pour des textes longs, préfère bcp.",
+            reflexe: "Fichier automatique : `bcp \"<requête>\" queryout f.csv -S srv -d ventes -T -c -t \";\" -C 65001`. Avec sqlcmd : `SET NOCOUNT ON;` dans la requête, puis `-s \";\" -W -h -1 -o f.csv`. Pour des textes longs, préfère bcp.",
             moteurs: {
               sqlserver: "Deux sqlcmd existent, ODBC et Go : `-s`, `-W`, `-h`, `-o` et `-u` existent dans les deux ; `-f` (l'encodage), seulement dans la version ODBC. `-W` ne va pas avec `-y` (doc)."
             },
@@ -2439,7 +2451,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "Snowflake : `GET` ne lit que les stages internes, et ne se lance pas depuis une feuille de calcul de Snowsight.",
       "Un export sans ORDER BY : deux exports des mêmes données ne sortent pas dans le même ordre."
     ],
-    pratique: "Sur Divalto en SaaS, la doc décrit l'export depuis le studio SQL (Azure Data Studio) : « Save As CSV » dans le dossier DATATRANSFER, puis récupération par FTP. Garde chaque fichier envoyé avec son nombre de lignes.",
+    pratique: "Sur Divalto en SaaS, la doc décrit l'export depuis le studio SQL (Azure Data Studio, retiré en février 2026 : vérifie l'outil fourni) : « Save As CSV » dans DATATRANSFER, puis récupération par FTP. Garde chaque fichier envoyé avec son nombre de lignes.",
     motsCles: ["export", "exporter", "extraction", "extrait", "csv", "bcp", "sqlcmd", "into outfile", "copy into @stage", "get", "bom", "utf-8", "excel", "séparateur", "queryout"],
     voirAussi: ["formater", "importer-fichier", "donnees-personnelles", "automatiser", "donnees-powerbi", "dates"],
     dico: ["copy-into", "stage", "order-by", "replace", "coalesce", "convert", "to-char", "format"],
@@ -2451,7 +2463,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       { titre: "MySQL 8.4 : SELECT … INTO Statement", url: "https://dev.mysql.com/doc/refman/8.4/en/select-into.html" },
       { titre: "Excel : garder les zéros devant et les grands nombres", url: "https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/excel/last-digits-changed-to-zeros" },
       { titre: "Power Query : fichier texte ou CSV (UTF-8 reconnu avec le BOM)", url: "https://learn.microsoft.com/fr-fr/power-query/connectors/text-csv" },
-      { titre: "Exporter vers Excel : les limites d'une feuille", url: "https://learn.microsoft.com/fr-fr/sql/reporting-services/report-builder/exporting-to-microsoft-excel-report-builder-and-ssrs" },
+      { titre: "Excel : un jeu de données trop grand pour la grille (1 048 576 lignes)", url: "https://support.microsoft.com/en-us/office/what-to-do-if-a-data-set-is-too-large-for-the-excel-grid-976e6a34-9756-48f4-828c-ca80b3d0e15c" },
       { titre: "Divalto : utiliser Azure Data Studio (SaaS)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10586488856/Utiliser+Azure+Data+Studio+SAAS" }
     ]
   },
@@ -2519,7 +2531,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "« Remettre comme avant » : mais avant, c'était quoi ? Une valeur reprise de mémoire remplace une erreur par une autre, sans que personne le voie.",
             reflexe: "Prends une source sûre : le message EDI d'origine, le journal du traitement, une sauvegarde, la pièce papier. Écris-la dans le ticket, à côté de chaque valeur.",
             moteurs: {
-              sqlserver: "Une sauvegarde restaurée sous un autre nom, à l'heure juste avant l'erreur (mode de récupération complet), donne les anciennes valeurs sans toucher la production.",
+              sqlserver: "Une sauvegarde restaurée sous un autre nom, à l'heure juste avant l'erreur (mode de récupération complet, avec les sauvegardes du journal), donne les anciennes valeurs sans toucher la production.",
               snowflake: "Time Travel relit la table juste avant le traitement fautif : `SELECT … FROM ventes.commande BEFORE (STATEMENT => '<id de la requête>')`, pendant la rétention (1 jour par défaut).",
               mysql: "Une sauvegarde restaurée ailleurs, puis le journal binaire (binlog) rejoué jusqu'à juste avant l'erreur."
             }

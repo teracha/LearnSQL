@@ -146,7 +146,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "INSERT INTO stock_depot (article_id, depot_id, qte)\nVALUES (1, 1, 55), (5, 1, 10) AS src\nON DUPLICATE KEY UPDATE qte = src.qte;"
     },
     resultat: "Inventaire de Lyon : 1 ligne modifiée (CHL-5 : 60 → 55) et 1 ligne ajoutée (POMP-1 : 10).",
-    piege: "Deux lignes source pour le même article et le même dépôt : SQL Server et Snowflake plantent (la même ligne cible serait modifiée deux fois), MySQL garde la dernière sans rien dire. Dédoublonne la source avant le MERGE (`GROUP BY` ou `ROW_NUMBER`).",
+    piege: "Deux lignes source pour le même stock : s'il existe déjà, SQL Server et Snowflake plantent (la même ligne cible serait modifiée deux fois) ; s'il est nouveau, les deux sont ajoutées (SQL Server plante alors sur la clé primaire, Snowflake ne dit rien). MySQL garde la dernière lue, sans rien dire. Dédoublonne la source avant le MERGE (`GROUP BY` ou `ROW_NUMBER`).",
     pratique: "Sur SQL Server, `WHEN NOT MATCHED BY SOURCE THEN DELETE` efface toute ligne absente de la source. Fichier d'un seul dépôt ? Limite-le : `WHEN NOT MATCHED BY SOURCE AND stock_depot.depot_id = 1 THEN DELETE`.",
     motsCles: ["fusionner", "synchroniser", "upsert", "insérer", "mettre", "jour", "existe", "sinon", "ajouter", "merge", "matched", "duplicate", "synchroniser deux tables", "intégration", "flux"],
     voirAussi: ["insert", "update", "insert-select", "output", "row-number"],

@@ -171,7 +171,8 @@ LEARNSQL.cours.m09 = {
   differences: [
     ["UPDATE avec jointure", "`UPDATE a … FROM … JOIN`", "`UPDATE … FROM … WHERE`"],
     ["DELETE avec jointure", "`DELETE a FROM … JOIN`", "`DELETE … USING`"],
-    ["Doublon dans un MERGE", "Erreur 8672", "Erreur par défaut"],
+    ["Doublon dans un MERGE (ligne déjà dans la cible)", "Erreur 8672", "Erreur par défaut"],
+    ["Doublon dans un MERGE (clé nouvelle)", "Ajoutée deux fois ; erreur si clé primaire ou UNIQUE", "Ajoutée deux fois, sans erreur"],
     ["`MERGE … BY SOURCE`", "Oui", "Non : DELETE à part"],
     ["Voir avant / après", "`OUTPUT deleted / inserted`", "Time Travel `BEFORE`"],
     ["Grosse purge", "Lots `DELETE TOP (n)`", "Un seul `DELETE`"],

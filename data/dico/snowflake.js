@@ -179,7 +179,7 @@ LEARNSQL.dico = (LEARNSQL.dico || []).concat([
       mysql: "LOAD DATA INFILE '/var/lib/mysql-files/commandes.csv'\nINTO TABLE commande\nFIELDS TERMINATED BY ';'\nIGNORE 1 LINES;"
     },
     resultat: "Les lignes du fichier CSV (champs séparés par des points-virgules, sans la ligne d'en-tête) sont ajoutées à la table commande.",
-    piege: "Relancés, BULK INSERT et LOAD DATA rechargent le fichier : doublons, ou erreur de clé en double. COPY INTO, lui, saute un fichier déjà chargé dans la table, même après 64 jours (par défaut), sauf après un `TRUNCATE` de la table, avec `FORCE = TRUE`, ou si le fichier a été modifié.",
+    piege: "Relancés, BULK INSERT et LOAD DATA rechargent le fichier : doublons, ou erreur de clé en double. COPY INTO, lui, saute un fichier déjà chargé dans la table, même après 64 jours (par défaut), sauf après un `TRUNCATE` de la table, dans une table recréée ou clonée, avec `FORCE = TRUE`, ou si le fichier a été modifié.",
     pratique: "Avant de charger un nouveau fichier, teste-le : le même COPY INTO (sans transformation) avec `VALIDATION_MODE = RETURN_ERRORS` liste toutes ses erreurs, sans charger une ligne. Un COPY normal n'en montre qu'une par fichier.",
     motsCles: ["charger", "chargement", "importer", "import", "fichier", "csv", "intégrer", "injecter", "bulk", "load", "copy", "stage", "snowpipe", "ingestion", "alimenter", "edi"],
     voirAussi: ["stage", "variant", "clone", "insert"],
