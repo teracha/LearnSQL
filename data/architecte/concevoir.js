@@ -1785,11 +1785,11 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "faut il indexer une colonne qui a peu de valeurs"
     ],
     exemple: {
-      texte: "Le rapport Power BI « commandes en cours » cherche, des centaines de fois par jour, les commandes `EN_COURS` d'un client, les plus récentes d'abord. Imagine `commande` avec 5 millions de lignes. Avant `CREATE INDEX`, tu réponds aux questions ci-dessous. Voici l'index obtenu ; en édition Enterprise, il se crée sans bloquer la saisie. Sur la base d'exemple, la requête rend une commande : CDE-1007.",
+      texte: "Le rapport Power BI « commandes en cours » cherche, des centaines de fois par jour, les commandes `EN_COURS` d'un client, les plus récentes d'abord. Imagine `commande` avec 5 millions de lignes. Avant `CREATE INDEX`, tu réponds aux questions ci-dessous. Voici l'index obtenu ; en édition Enterprise, il se crée sans bloquer la saisie. Sur la base d'exemple, pour le client 1 (AquaBleu), la requête rend une commande : CDE-1007.",
       code: "-- La requête à aider (rapport Power BI) :\n-- SELECT num_cde, date_cde, montant_ht FROM dbo.commande\n-- WHERE client_id = @client AND statut = 'EN_COURS' ORDER BY date_cde DESC;\nIF NOT EXISTS (SELECT 1 FROM sys.indexes\n               WHERE object_id = OBJECT_ID(N'dbo.commande')\n                 AND name = N'ix_commande_client_statut_date')\n  CREATE NONCLUSTERED INDEX ix_commande_client_statut_date\n    ON dbo.commande (client_id, statut, date_cde)   -- les égalités, puis le tri\n    INCLUDE (num_cde, montant_ht)                   -- les colonnes affichées\n    WITH (ONLINE = ON);   -- édition Enterprise : la table reste utilisable",
       codes: {
         snowflake: "-- 1. D'abord le Query Profile : les partitions lues sur le total.\n-- 2. Peu lues : rien à créer. Presque toutes, sur une très grosse table,\n--    pour une recherche très sélective : un index secondaire (Enterprise).\nCREATE INDEX IF NOT EXISTS ix_commande_client_statut\n  ON ventes.commande (client_id, statut)\n  INCLUDE (num_cde, date_cde, montant_ht);\nSHOW INDEXES IN TABLE ventes.commande;",
-        mysql: "-- Pas d'INCLUDE : les colonnes affichées en fin de clé ; id (la clé primaire) y est déjà\nCREATE INDEX ix_commande_client_statut_date\n  ON commande (client_id, statut, date_cde, num_cde, montant_ht)\n  ALGORITHM = INPLACE LOCK = NONE;   -- échoue plutôt que de bloquer la table\nANALYZE TABLE commande;              -- statistiques à jour, comme le demande la doc\nEXPLAIN SELECT num_cde, date_cde, montant_ht FROM commande\nWHERE client_id = 1 AND statut = 'EN_COURS'\nORDER BY date_cde DESC;              -- la colonne key cite-t-elle l'index ?"
+        mysql: "-- Pas d'INCLUDE : les colonnes affichées en fin de clé ; id (la clé primaire) y est déjà\nCREATE INDEX ix_commande_client_statut_date\n  ON commande (client_id, statut, date_cde, num_cde, montant_ht)\n  ALGORITHM = INPLACE LOCK = NONE;   -- échoue plutôt que de bloquer la table\n-- Pas d'ANALYZE TABLE ici : les statistiques du nouvel index se calculent seules (sa doc)\nEXPLAIN SELECT num_cde, date_cde, montant_ht FROM commande\nWHERE client_id = 1 AND statut = 'EN_COURS'\nORDER BY date_cde DESC;              -- la colonne key cite-t-elle l'index ?"
       }
     },
     etapes: [
@@ -1821,6 +1821,13 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               mysql: "Sa doc le dit : un index compte peu quand la requête lit la plupart des lignes. Lire toute la table dans l'ordre va alors plus vite."
             }
+          },
+          {
+            id: "columnstore",
+            q: "La requête fait-elle un total sur des millions de lignes, comme le chiffre d'affaires par mois ?",
+            pourquoi: "Un index classique (rowstore, rangé ligne par ligne) sert à trouver peu de lignes. Pour un gros total, le moteur lit presque toute la table : cet index aide peu, et coûte à chaque écriture.",
+            reflexe: "Pour les gros agrégats, essaie un index columnstore (rangé par colonne, compressé), et mesure avant et après : `CREATE NONCLUSTERED COLUMNSTORE INDEX ix_ligne_cde_columnstore ON dbo.ligne_cde (cde_id, article_id, qte, prix_unit);`.",
+            seulement: ["sqlserver"]
           },
           {
             id: "petite-table",
@@ -1869,7 +1876,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "L'index est trié sur la valeur brute de la colonne. `WHERE UPPER(nom) = 'AQUABLEU'` ne peut pas s'en servir pour chercher : il lit tout l'index, ou toute la table.",
             reflexe: "D'abord, réécris le filtre avec la colonne nue : une plage de dates au lieu de `YEAR(date_cde)`. Calcul inévitable : indexe la valeur calculée, et filtre avec exactement la même expression.",
             moteurs: {
-              sqlserver: "Une colonne calculée, puis un index dessus : `ALTER TABLE dbo.ligne_cde ADD montant AS (qte * prix_unit);`. Le calcul doit être déterministe (même résultat pour la même entrée) et précis (sans `FLOAT`).",
+              sqlserver: "Une colonne calculée, puis un index dessus : `ALTER TABLE dbo.ligne_cde ADD montant AS (qte * prix_unit);`. Le calcul doit être déterministe (même résultat pour la même entrée) et précis (sans `FLOAT`), sinon la colonne doit être `PERSISTED`.",
               snowflake: "Un index secondaire accepte une expression : `CREATE INDEX ix_ligne_cde_montant ON ventes.ligne_cde (qte * prix_unit);`. Sa doc le conseille quand le minimum et le maximum de la colonne ne suffisent pas.",
               mysql: "Un index fonctionnel, l'expression entre doubles parenthèses : `CREATE INDEX ix_ligne_cde_montant ON ligne_cde ((qte * prix_unit));`."
             }
@@ -1981,7 +1988,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Au début ou à la fin, la création demande un court verrou sur la table. Si un `BEGIN TRAN` oublié la tient, la création attend, et les requêtes suivantes attendent derrière elle : l'ERP semble figé.",
             reflexe: "Juste avant, cherche les transactions ouvertes sur la table. Fixe un délai d'attente court : la création échoue proprement, et tu la relances plus tard.",
             moteurs: {
-              sqlserver: "`SET LOCK_TIMEOUT 10000;` (10 secondes) avant l'ordre ; sans lui, l'attente est sans fin. Avec `ONLINE = ON`, l'option `WAIT_AT_LOW_PRIORITY` limite le blocage des autres.",
+              sqlserver: "`SET LOCK_TIMEOUT 10000;` (10 secondes) avant l'ordre ; sans lui, l'attente est sans fin. Avec `ONLINE = ON`, l'option `WAIT_AT_LOW_PRIORITY` (depuis SQL Server 2022 dans `CREATE INDEX`) limite le blocage des autres.",
               mysql: "`SET SESSION lock_wait_timeout = 10;` (en secondes ; le défaut est d'un an). Sa doc le montre : un ordre qui attend ce verrou bloque les requêtes suivantes sur la table."
             }
           },
@@ -1989,7 +1996,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "journal",
             q: "Le journal, les données et tempdb ont-ils la place pour la création ?",
             pourquoi: "Créer un gros index écrit beaucoup dans le journal, qui ne peut pas être vidé avant la fin. Si le disque se remplit, la création échoue, et les autres écritures de la base aussi.",
-            reflexe: "Vérifie la place libre des disques du journal et des données. Avec `SORT_IN_TEMPDB = ON`, le tri va dans tempdb (la base de travail du serveur), qui doit avoir à peu près la taille de l'index en plus. Sauvegarde le journal pendant l'opération.",
+            reflexe: "Vérifie la place libre des disques du journal et des données. Avec `SORT_IN_TEMPDB = ON`, le tri va dans tempdb (la base de travail du serveur), qui doit avoir à peu près la taille de l'index en plus. Sauvegarde le journal juste avant.",
             seulement: ["sqlserver"]
           },
           {
@@ -2015,8 +2022,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Mets à jour les statistiques à la fin des gros chargements. Ne reconstruis pas tous les index chaque nuit « par principe » : mesure d'abord si leur fragmentation (des pages en désordre) gêne vraiment.",
             moteurs: {
               sqlserver: "Microsoft conseille de mesurer avant et après, sans calendrier fixe. Souvent, `UPDATE STATISTICS` donne le même gain qu'une reconstruction. Préfère `REORGANIZE`, plus léger et toujours en ligne, à `REBUILD`.",
-              snowflake: "Rien à lancer : les statistiques, l'index secondaire et le rangement se tiennent seuls, en crédits.",
-              mysql: "Après la création : `ANALYZE TABLE commande;`. Sa doc le demande quand les statistiques sont persistantes, ce qui est le défaut."
+              snowflake: "Rien à lancer : les statistiques se tiennent seules. L'index secondaire et la clé de clustering s'entretiennent en fond, payés en crédits.",
+              mysql: "Les statistiques d'un nouvel index se calculent seules (sa doc). Après un gros chargement, `ANALYZE TABLE commande;` les recalcule tout de suite : sinon, le recalcul automatique se fait en fond, un peu plus tard."
             }
           },
           {
@@ -2166,7 +2173,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un calcul sans `CAST` prend le type que le moteur déduit : `qte * prix_unit` sort plus large que prévu, et Power BI le lit autrement. Sans alias, la colonne n'a même pas de nom utilisable.",
             reflexe: "Convertis et nomme chaque calcul : `CAST(qte * prix_unit AS DECIMAL(12,2)) AS montant_ligne`.",
             moteurs: {
-              snowflake: "Une vue dont une colonne vient d'un calcul exige un nom pour chaque colonne : un alias, ou la liste des colonnes après le nom de la vue."
+              sqlserver: "Un calcul sans nom fait échouer `CREATE VIEW` : donne un alias, ou la liste des colonnes après le nom de la vue (sa doc).",
+              snowflake: "Une vue dont une colonne vient d'un calcul exige un nom pour chaque colonne : un alias, ou la liste des colonnes après le nom de la vue.",
+              mysql: "Pas d'erreur : sans alias, la colonne prend le texte du calcul pour nom (`qte * prix_unit`)."
             }
           },
           {
@@ -2262,7 +2271,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "indexee",
             q: "Faut-il une vue indexée, dont le résultat est stocké ?",
-            pourquoi: "Une vue indexée range son résultat comme une table : les lectures vont vite. Mais chaque écriture dans les tables de base la met à jour, et ses conditions sont strictes.",
+            pourquoi: "Une vue indexée range son résultat comme une table : les lectures vont vite. Mais chaque écriture dans ses tables la met à jour. Et sans les bons réglages de session (options SET, comme `QUOTED_IDENTIFIER ON`), cette écriture échoue : le flux EDI s'arrête.",
             reflexe: "Seulement pour un agrégat lourd, lu souvent, sur des tables peu écrites. `SCHEMABINDING`, noms en deux parties, pas d'`OUTER JOIN` ni de `TOP`, `COUNT_BIG(*)` avec `GROUP BY`, puis un index cluster unique. En édition Standard, lis-la avec `WITH (NOEXPAND)`.",
             seulement: ["sqlserver"]
           },
@@ -2284,7 +2293,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une vue simple, sur une seule table, accepte des écritures : un utilisateur peut alors modifier des commandes « depuis un rapport ». Une vue avec agrégat les refuse.",
             reflexe: "Pour un rapport : aucune écriture, le droit `SELECT` seul. Si une application doit écrire par la vue, ajoute `WITH CHECK OPTION` : une ligne modifiée doit rester visible dans la vue.",
             moteurs: {
-              sqlserver: "Une écriture ne touche qu'une seule table de base. Avec `WITH CHECK OPTION`, passer une commande de `EN_COURS` à `LIVREE` par `v_cde_en_cours` est refusé.",
+              sqlserver: "Une écriture ne touche qu'une seule table de base. Avec `WITH CHECK OPTION`, une vue des commandes `EN_COURS` qui montre `statut` refuse qu'on passe une commande à `LIVREE`.",
               snowflake: "Les vues sont en lecture seule : pas d'`INSERT` ni d'`UPDATE` sur une vue.",
               mysql: "Vue modifiable si une ligne de la vue = une ligne de la table : pas de `GROUP BY`, `DISTINCT`, `UNION`, ni `TEMPTABLE`. `WITH CHECK OPTION` vaut `CASCADED` par défaut."
             }
@@ -2389,6 +2398,16 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
               snowflake: "Une vue en `SELECT *` renvoie une erreur après une colonne ajoutée, supprimée ou déplacée.",
               mysql: "Déplacer une colonne qui existe (`MODIFY … AFTER`) reconstruit toute la table : une opération lourde (sa doc)."
             }
+          },
+          {
+            id: "suivi",
+            q: "Un flux lit-il les changements de cette table, par une capture ou un suivi des modifications ?",
+            pourquoi: "L'entrepôt est peut-être chargé avec les seules lignes changées. Selon l'outil, une colonne ajoutée n'entre pas dans cette capture, ou une table recréée perd tout son suivi : le chargement suivant rate des lignes.",
+            reflexe: "Avant le changement, liste les suivis actifs sur la table, et préviens le responsable du flux qui les lit. Après, vérifie un vrai chargement. Les outils de suivi : « Je garde l'historique des changements ».",
+            moteurs: {
+              sqlserver: "Regarde `is_tracked_by_cdc` et `temporal_type` (table temporelle) dans `sys.tables`, et `sys.change_tracking_tables`. CDC (la capture des données modifiées) ignore une colonne ajoutée : pour la capter, crée une 2e capture sur la table (2 au plus).",
+              snowflake: "`CREATE OR REPLACE TABLE` efface l'historique de la table : ses streams (le suivi des changements) deviennent périmés. Un changement de colonnes incompatible peut aussi faire échouer leur lecture (sa doc)."
+            }
           }
         ]
       },
@@ -2398,11 +2417,12 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "obligatoire",
             q: "La nouvelle colonne doit-elle être obligatoire (NOT NULL) dès le premier jour ?",
-            pourquoi: "Une colonne `NOT NULL` ajoutée à une table pleine a besoin d'une valeur pour les lignes déjà là. Sans `DEFAULT`, c'est refusé ; avec, chaque ligne ancienne reçoit cette valeur, même fausse pour elle.",
+            pourquoi: "Une colonne `NOT NULL` ajoutée à une table pleine a besoin d'une valeur pour les lignes déjà là. Avec un `DEFAULT`, chaque ligne ancienne reçoit cette valeur, même fausse pour elle. Sans, cela dépend du moteur.",
             reflexe: "Souvent : ajoute-la en `NULL`, remplis les lignes anciennes par lots, puis passe-la en `NOT NULL`. Une valeur par défaut seulement si elle a un vrai sens pour les lignes anciennes.",
             moteurs: {
-              sqlserver: "Une colonne `NULL` ajoutée avec un `DEFAULT` reste vide sur les lignes déjà là, sauf avec `WITH VALUES`.",
-              snowflake: "Une colonne ajoutée avec un `DEFAULT` remplit toutes les lignes déjà là. Ce `DEFAULT` doit être une valeur simple : `DEFAULT CURRENT_TIMESTAMP()` est refusé dans un `ADD COLUMN`."
+              sqlserver: "`NOT NULL` sans `DEFAULT` : refusé, sauf sur une table vide (sa doc). Une colonne `NULL` ajoutée avec un `DEFAULT` reste vide sur les lignes déjà là, sauf avec `WITH VALUES`.",
+              snowflake: "Une colonne ajoutée avec un `DEFAULT` remplit toutes les lignes déjà là. Ce `DEFAULT` doit être une valeur simple : `DEFAULT CURRENT_TIMESTAMP()` est refusé dans un `ADD COLUMN`.",
+              mysql: "`NOT NULL` sans `DEFAULT` n'est pas refusé : les lignes déjà là reçoivent la valeur implicite du type (0, texte vide), sans message. Une colonne `DATE` échoue (mode strict). Écris toujours le `DEFAULT` voulu."
             }
           },
           {
@@ -2461,7 +2481,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             moteurs: {
               sqlserver: "La place ne revient qu'après une reconstruction de l'index cluster (`ALTER INDEX … REBUILD`).",
               snowflake: "La place ne revient qu'à la réécriture de chaque micro-partition (bloc de stockage), puis à la fin du Time Travel (relire le passé).",
-              mysql: "`DROP COLUMN` est instantané par défaut en 8.4, sauf si la colonne porte un index fonctionnel."
+              mysql: "`DROP COLUMN` est instantané par défaut en 8.4, avec des exceptions (colonne d'un index fonctionnel, table avec un index `FULLTEXT`…). Écris `ALGORITHM = INSTANT` : si c'est impossible, l'ordre échoue au lieu de reconstruire la table."
             }
           }
         ]
@@ -2572,7 +2592,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     ],
     pratique: "Sur la base Divalto, la structure vient du dictionnaire. Sa doc prévient : changer le type d'un champ, puis synchroniser le dictionnaire (XPSQL), renomme la table et en recrée une ; le suivi des modifications SQL de cette table est perdu.",
     motsCles: ["alter table", "ajouter une colonne", "add column", "alter column", "changer le type", "agrandir", "renommer", "supprimer une colonne", "drop column", "sp_rename", "dépendances", "verrou", "instant", "nocheck", "structure"],
-    voirAussi: ["mettre-en-prod", "choisir-types", "nommer", "creer-vue", "creer-index", "sauvegarder", "script-fichier", "transaction"],
+    voirAussi: ["mettre-en-prod", "choisir-types", "nommer", "creer-vue", "creer-index", "sauvegarder", "script-fichier", "transaction", "historiser"],
     dico: ["alter-table", "alter-column", "not-null", "default", "check", "foreign-key", "try-cast", "longueur-precision"],
     outils: ["gp-changements"],
     sources: [
@@ -2607,7 +2627,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       texte: "Les achats veulent savoir quel était le prix tarif de CHL-25 à une date donnée, et qui l'a changé. Aujourd'hui, un `UPDATE` écrase l'ancien prix. Tu ajoutes l'historique à `article` : une version datée à chaque changement, en UTC (le temps universel, sans heure d'été). Attention : l'historique commence le jour où tu l'actives.",
       code: "CREATE SCHEMA histo;\nGO\nALTER TABLE dbo.article ADD\n  valide_du DATETIME2 GENERATED ALWAYS AS ROW START HIDDEN\n    CONSTRAINT df_article_valide_du DEFAULT SYSUTCDATETIME(),\n  valide_au DATETIME2 GENERATED ALWAYS AS ROW END HIDDEN\n    CONSTRAINT df_article_valide_au DEFAULT CONVERT(DATETIME2, '9999-12-31 23:59:59.9999999'),\n  PERIOD FOR SYSTEM_TIME (valide_du, valide_au);\nGO\nALTER TABLE dbo.article SET (SYSTEM_VERSIONING = ON\n  (HISTORY_TABLE = histo.article, HISTORY_RETENTION_PERIOD = 5 YEARS));  -- durée : décidée avec le métier\nGO\n-- Plus tard : le prix de CHL-25 au 1er décembre 2026, 8 h (heure UTC)\nSELECT code, prix_tarif\nFROM dbo.article FOR SYSTEM_TIME AS OF '2026-12-01T08:00:00'\nWHERE code = 'CHL-25';",
       codes: {
-        snowflake: "-- Pas de table temporelle : une table d'historique, remplie depuis un stream\nCREATE TABLE IF NOT EXISTS histo.article_prix (\n  article_id NUMBER(38,0)  NOT NULL,\n  prix_tarif NUMBER(10,2),\n  action     VARCHAR(6)    NOT NULL,     -- INSERT ou DELETE\n  capte_le   TIMESTAMP_NTZ NOT NULL);    -- heure UTC du passage, pas du changement\nCREATE STREAM IF NOT EXISTS ventes.article_changements ON TABLE ventes.article;\n-- Une task, toutes les heures : cet INSERT consomme le stream\nINSERT INTO histo.article_prix (article_id, prix_tarif, action, capte_le)\nSELECT id, prix_tarif, METADATA$ACTION, SYSDATE()\nFROM ventes.article_changements\nWHERE NOT (METADATA$ACTION = 'DELETE' AND METADATA$ISUPDATE);  -- d'un UPDATE : la nouvelle valeur",
+        snowflake: "-- Pas de table temporelle : une table d'historique, remplie depuis un stream\nCREATE TABLE IF NOT EXISTS histo.article_prix (\n  article_id NUMBER(38,0)  NOT NULL,\n  prix_tarif NUMBER(10,2),\n  type_action VARCHAR(6)   NOT NULL,     -- INSERT ou DELETE\n  capte_le   TIMESTAMP_NTZ NOT NULL);    -- heure UTC du passage, pas du changement\nCREATE STREAM IF NOT EXISTS ventes.article_changements ON TABLE ventes.article;\n-- Une task, toutes les heures : cet INSERT consomme le stream\nINSERT INTO histo.article_prix (article_id, prix_tarif, type_action, capte_le)\nSELECT id, prix_tarif, METADATA$ACTION, SYSDATE()\nFROM ventes.article_changements\nWHERE NOT (METADATA$ACTION = 'DELETE' AND METADATA$ISUPDATE);  -- d'un UPDATE : la nouvelle valeur",
         mysql: "-- Pas de table temporelle : un déclencheur (trigger) écrit l'historique\nCREATE TABLE IF NOT EXISTS article_prix_histo (\n  id          BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,\n  article_id  INT           NOT NULL,\n  prix_avant  DECIMAL(10,2) NULL,\n  prix_apres  DECIMAL(10,2) NULL,\n  modifie_le  DATETIME(6)   NOT NULL,   -- en UTC\n  modifie_par VARCHAR(300)  NOT NULL    -- USER() : le compte qui a écrit\n) ENGINE = InnoDB;\nCREATE TRIGGER trg_article_prix_au AFTER UPDATE ON article\nFOR EACH ROW\n  INSERT INTO article_prix_histo (article_id, prix_avant, prix_apres, modifie_le, modifie_par)\n  SELECT OLD.id, OLD.prix_tarif, NEW.prix_tarif, UTC_TIMESTAMP(6), USER()\n  FROM DUAL\n  WHERE NOT (OLD.prix_tarif <=> NEW.prix_tarif);   -- seulement si le prix change"
       }
     },
@@ -2842,8 +2862,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       texte: "Chaque nuit, le traducteur EDI dépose les commandes d'AquaBleu en CSV. Avant de les intégrer dans Divalto, tu les charges dans une table d'arrivée, `stg.cde_aquableu` : une table de passage, qui accepte tout ce que contient le fichier. Elle garde d'où vient chaque ligne, et le résultat de son contrôle.",
       code: "CREATE TABLE stg.cde_aquableu (\n  -- les colonnes du fichier : du texte, assez long, NULL permis\n  num_cde       NVARCHAR(100) NULL,\n  date_cde      NVARCHAR(100) NULL,\n  code_article  NVARCHAR(100) NULL,\n  qte           NVARCHAR(100) NULL,\n  prix_unit     NVARCHAR(100) NULL,\n  -- les colonnes techniques\n  id_lot        INT           NULL,          -- le chargement (table de suivi des fichiers)\n  fichier       NVARCHAR(260) NULL,\n  num_ligne     INT           NULL,          -- la ligne dans le fichier\n  charge_le     DATETIME2(0)  NOT NULL CONSTRAINT df_cde_aquableu_charge DEFAULT SYSUTCDATETIME(),\n  statut        VARCHAR(12)   NOT NULL CONSTRAINT df_cde_aquableu_statut DEFAULT 'A_CONTROLER',\n  motif_rejet   NVARCHAR(400) NULL\n);   -- ni clé, ni index, ni CHECK : un tas (heap), rapide à remplir",
       codes: {
-        snowflake: "CREATE TRANSIENT TABLE IF NOT EXISTS stg.cde_aquableu (   -- sans Fail-safe\n  num_cde VARCHAR, date_cde VARCHAR, code_article VARCHAR, qte VARCHAR, prix_unit VARCHAR,\n  fichier VARCHAR, num_ligne NUMBER(38,0), charge_le TIMESTAMP_LTZ,\n  statut VARCHAR(12) DEFAULT 'A_CONTROLER', motif_rejet VARCHAR\n) DATA_RETENTION_TIME_IN_DAYS = 1;   -- pas de CHECK : COPY INTO échouerait\nCOPY INTO stg.cde_aquableu\n  (num_cde, date_cde, code_article, qte, prix_unit, fichier, num_ligne, charge_le)\nFROM (SELECT $1, $2, $3, $4, $5,\n             METADATA$FILENAME, METADATA$FILE_ROW_NUMBER, METADATA$START_SCAN_TIME\n      FROM @edi.stage_edi/aquableu/)\nFILE_FORMAT = (FORMAT_NAME = 'edi.ff_csv_fr');",
-        mysql: "-- MySQL : un schéma est une base (ventes_stg)\nCREATE TABLE IF NOT EXISTS ventes_stg.cde_aquableu (\n  id_chargement BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,   -- InnoDB range selon cette clé\n  num_cde       VARCHAR(100) NULL,\n  date_cde      VARCHAR(100) NULL,\n  code_article  VARCHAR(100) NULL,\n  qte           VARCHAR(100) NULL,\n  prix_unit     VARCHAR(100) NULL,\n  fichier       VARCHAR(260) NULL,\n  charge_le     DATETIME     NOT NULL DEFAULT (UTC_TIMESTAMP()),   -- en UTC\n  statut        VARCHAR(12)  NOT NULL DEFAULT 'A_CONTROLER',\n  motif_rejet   VARCHAR(400) NULL\n) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;   -- les autres index : après le chargement"
+        snowflake: "CREATE TRANSIENT TABLE IF NOT EXISTS stg.cde_aquableu (   -- sans Fail-safe\n  num_cde VARCHAR, date_cde VARCHAR, code_article VARCHAR, qte VARCHAR, prix_unit VARCHAR,\n  id_lot NUMBER(38,0), fichier VARCHAR, num_ligne NUMBER(38,0), charge_le TIMESTAMP_LTZ,\n  statut VARCHAR(12) DEFAULT 'A_CONTROLER', motif_rejet VARCHAR\n) DATA_RETENTION_TIME_IN_DAYS = 1;   -- pas de CHECK : COPY INTO échouerait\nCOPY INTO stg.cde_aquableu\n  (num_cde, date_cde, code_article, qte, prix_unit, fichier, num_ligne, charge_le)\nFROM (SELECT $1, $2, $3, $4, $5,\n             METADATA$FILENAME, METADATA$FILE_ROW_NUMBER, METADATA$START_SCAN_TIME\n      FROM @edi.stage_edi/aquableu/)\nFILE_FORMAT = (FORMAT_NAME = 'edi.ff_csv_fr');",
+        mysql: "-- MySQL : un schéma est une base (ventes_stg)\nCREATE TABLE IF NOT EXISTS ventes_stg.cde_aquableu (\n  id            BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,   -- InnoDB range selon cette clé\n  num_cde       VARCHAR(100) NULL,\n  date_cde      VARCHAR(100) NULL,\n  code_article  VARCHAR(100) NULL,\n  qte           VARCHAR(100) NULL,\n  prix_unit     VARCHAR(100) NULL,\n  id_lot        BIGINT       NULL,      -- le chargement (table de suivi des fichiers)\n  fichier       VARCHAR(260) NULL,\n  num_ligne     INT          NULL,      -- la ligne dans le fichier\n  charge_le     DATETIME     NOT NULL DEFAULT (UTC_TIMESTAMP()),   -- en UTC\n  statut        VARCHAR(12)  NOT NULL DEFAULT 'A_CONTROLER',\n  motif_rejet   VARCHAR(400) NULL\n) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;   -- les autres index : après le chargement"
       }
     },
     etapes: [
@@ -2882,7 +2902,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une colonne `DATE` ou `DECIMAL` refuse '31/02/2026' ou '125,50' : le chargement échoue, ou convertit mal sans bruit. Tu ne sais plus ce que contenait vraiment le fichier.",
             reflexe: "Toutes en texte, même les dates et les montants. Les conversions se font après, en SQL, avec les fonctions TRY, qui rendent NULL au lieu d'une erreur.",
             moteurs: {
-              sqlserver: "`NVARCHAR` garde tous les caractères, accents et alphabets étrangers compris."
+              sqlserver: "`NVARCHAR` garde tous les caractères, accents et alphabets étrangers compris.",
+              mysql: "Pas de fonction TRY. Dans un `SELECT`, `STR_TO_DATE` rend NULL ; mais en mode strict, un `INSERT … SELECT` qui convertit mal échoue. Teste d'abord le format (`REGEXP`), et ne convertis que les lignes valides."
             }
           },
           {
@@ -2916,7 +2937,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Le partenaire demande : « quelle ligne de quel fichier est fausse ? ». Sans ces colonnes, tu cherches à la main dans des milliers de lignes, et tu ne peux pas annuler un chargement raté.",
             reflexe: "Ajoute `fichier`, `num_ligne` et `charge_le` (en UTC), et garde-les jusqu'à la table des rejets. Comment les remplir avec chaque outil : « J'importe un fichier (CSV, Excel, EDI) ».",
             moteurs: {
-              snowflake: "`METADATA$FILENAME`, `METADATA$FILE_ROW_NUMBER` et `METADATA$START_SCAN_TIME`, dans un `COPY INTO` avec `SELECT`, ou avec l'option `INCLUDE_METADATA`."
+              snowflake: "`METADATA$FILENAME`, `METADATA$FILE_ROW_NUMBER` et `METADATA$START_SCAN_TIME`, dans un `COPY INTO` avec `SELECT`, ou avec l'option `INCLUDE_METADATA` (seulement avec `MATCH_BY_COLUMN_NAME`)."
             }
           },
           {
@@ -3128,7 +3149,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une facture de 3 000 lignes, ou un fichier de stock, dépasse la limite du type : l'insertion de ce message échoue, souvent la nuit, et la commande n'entre pas.",
             reflexe: "Mesure les plus gros messages reçus, et compare à la limite du type. Au-delà, garde le fichier dans un stockage de fichiers, et en base seulement son chemin et son empreinte.",
             moteurs: {
-              sqlserver: "`NVARCHAR(MAX)` et `json` : 2 Go au plus. Mais en mode lax (le défaut, sans erreur), `JSON_VALUE` rend NULL au-delà de 4 000 caractères : prends `OPENJSON`, ou `RETURNING nvarchar(max)` en 2025.",
+              sqlserver: "`NVARCHAR(MAX)` et `json` : 2 Go au plus. Mais en mode lax (le défaut, sans erreur), `JSON_VALUE` rend NULL au-delà de 4 000 caractères : prends `OPENJSON`. `RETURNING nvarchar(max)` (2025) ne marche que sur une colonne `json`.",
               snowflake: "`VARIANT` : 128 Mo non compressés. `VARCHAR` sans longueur : 16 Mo par défaut ; `VARCHAR(134217728)` pour aller jusqu'à 128 Mo.",
               mysql: "`TEXT` : 65 535 octets ; `MEDIUMTEXT` : 16 Mo ; `LONGTEXT` : 4 Go. Le `JSON` dépend de `max_allowed_packet`."
             }
@@ -3162,9 +3183,13 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "null-json",
             q: "Distingues-tu une clé absente, un null JSON et un NULL SQL ?",
-            pourquoi: "`\"motif\": null` n'est pas un NULL SQL : `WHERE doc:motif IS NULL` l'oublie. Le rapport des rejets sans motif se trompe, sans erreur.",
-            reflexe: "Convertis avant de tester : `doc:motif::STRING IS NULL` attrape les deux cas. Décide avec le métier si « absent », « null » et « vide » veulent dire la même chose.",
-            seulement: ["snowflake"]
+            pourquoi: "`\"motif\": null` (un null JSON) n'est pas un NULL SQL : un filtre `IS NULL` sur la valeur lue l'oublie. Le rapport des rejets sans motif se trompe, sans erreur.",
+            reflexe: "Convertis avant de tester : les deux cas donnent alors NULL (exemples dans les notes). Décide avec le métier si « absent », « null » et « vide » veulent dire la même chose.",
+            moteurs: {
+              snowflake: "`WHERE doc:motif IS NULL` l'oublie ; `doc:motif::STRING IS NULL` attrape les deux cas (sa doc).",
+              mysql: "`doc->>'$.motif'` rend le texte 'null' : `IS NULL` l'oublie. `JSON_VALUE(doc, '$.motif') IS NULL` attrape les deux cas : il rend un vrai NULL pour un null JSON (sa doc)."
+            },
+            seulement: ["snowflake", "mysql"]
           },
           {
             id: "tableaux",
@@ -3183,7 +3208,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un JSON n'a pas de type date : la date arrive en texte, et un montant peut arriver entre guillemets. Comparés sans conversion, '7950.00' et '850.00' se trient comme des mots.",
             reflexe: "Convertis chaque valeur extraite, avec son format : `doc:date_cde::DATE`, `CAST(JSON_VALUE(brut, '$.montant') AS DECIMAL(12,2))`. Les valeurs qui ne passent pas vont en rejet.",
             moteurs: {
-              sqlserver: "Depuis SQL Server 2025, `JSON_VALUE(brut, '$.date_cde' RETURNING date)` convertit directement.",
+              sqlserver: "Sur une colonne `doc_json` de type `json` (SQL Server 2025) : `JSON_VALUE(doc_json, '$.date_cde' RETURNING date)`. Sur un `NVARCHAR` comme `brut`, `RETURNING` n'est pas permis : garde `CAST` (sa doc).",
               snowflake: "Sa doc le rappelle : une date dans un `VARIANT` est rangée en texte."
             }
           }
@@ -3198,7 +3223,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Sans index, chercher la commande CDE-1007 relit tous les messages, et leur JSON. Sur deux ans de flux, l'écran de suivi peut mettre une minute.",
             reflexe: "Extrais le champ cherché dans une colonne, et indexe-la. Le filtre porte sur la colonne extraite, pas sur le JSON.",
             moteurs: {
-              sqlserver: "Une colonne calculée avec `JSON_VALUE`, puis un index dessus (options SET correctes). En 2025, `CREATE JSON INDEX` existe aussi : il exige une clé primaire cluster, et se crée hors ligne.",
+              sqlserver: "Une colonne calculée avec `JSON_VALUE`, puis un index dessus (options SET correctes). En 2025, `CREATE JSON INDEX` existe aussi, sur une colonne de type `json` : il exige une clé primaire cluster, et se crée hors ligne.",
               snowflake: "Extrais le champ en colonne : l'élagage (moins de blocs lus) suffit souvent. Recherche très sélective : un index secondaire sur la colonne, ou la Search Optimization (une recherche rapide entretenue en fond). Les deux : édition Enterprise, payants.",
               mysql: "Une colonne générée, et un index dessus, comme dans l'exemple. Un index fonctionnel (un index sur une expression) demande `CAST(… AS CHAR(n))` et `COLLATE utf8mb4_bin` pour servir à `doc->>'$.nom' = …`."
             }
@@ -3218,7 +3243,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "edifact",
             q: "Un message EDIFACT brut : comment le garder ?",
-            pourquoi: "Un EDIFACT est du texte en segments (UNB, UNH, BGM, LIN…) terminés par une apostrophe. Ce n'est ni du JSON ni du XML : un type JSON le refuse, et le découper en SQL casse au premier cas imprévu.",
+            pourquoi: "Un EDIFACT est du texte en segments (UNB, UNH, BGM, LIN…) terminés, par défaut, par une apostrophe. Ce n'est ni du JSON ni du XML : un type JSON le refuse, et le découper en SQL casse au premier cas imprévu.",
             reflexe: "Range-le entier, en texte long, avec son numéro d'échange, son partenaire et sa date de réception. Le découpage reste au traducteur EDI ; garde sa sortie à côté, reliée au brut.",
             moteurs: {
               sqlserver: "`NVARCHAR(MAX)`, ou `VARCHAR(MAX)` avec une collation UTF-8.",
@@ -3266,7 +3291,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     pieges: [
       "Une clé JSON mal écrite (\"Num_Cde\" au lieu de \"num_cde\") : la valeur lue est NULL, sans erreur, et la commande entre sans numéro.",
       "Snowflake : `WHERE doc:motif IS NULL` oublie les messages où `\"motif\": null` : un null JSON n'est pas un NULL SQL.",
-      "SQL Server : `JSON_VALUE` sans `RETURNING` rend NULL au-delà de 4 000 caractères (mode lax), sans erreur.",
+      "SQL Server : `JSON_VALUE` rend NULL au-delà de 4 000 caractères (mode lax), sans erreur. Sur un `NVARCHAR`, prends `OPENJSON` : `RETURNING` ne marche que sur le type `json`.",
       "Garder seulement le document typé : le type JSON a réécrit le message (clé en double, espaces), et la copie exacte de ce qui a été reçu est perdue.",
       "MySQL : un index fonctionnel sur `doc->>'$.nom'` sans `CAST` est refusé ; avec `CAST` mais sans `COLLATE utf8mb4_bin`, il ne sert pas à `WHERE doc->>'$.nom' = …`.",
       "Une commande sans ligne disparaît avec `FLATTEN` ou `CROSS APPLY OPENJSON` : garde-la avec la forme « outer », puis traite-la.",
