@@ -125,7 +125,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Si le type ou le jeu de caractères ne connaît pas un caractère, il devient « ? » à l'enregistrement. Le nom du client est abîmé pour de bon.",
             reflexe: "Noms et adresses de clients étrangers : un type Unicode. Codes internes sans accent : un texte simple suffit.",
             moteurs: {
-              sqlserver: "`NVARCHAR`, ou `VARCHAR` avec une collation UTF-8 (`_UTF8`, depuis SQL Server 2019). Écris les textes Unicode avec N devant : `N'Łódź'`.",
+              sqlserver: "`NVARCHAR`, ou `VARCHAR` avec une collation (la règle des textes) UTF-8 (`_UTF8`, depuis SQL Server 2019). Écris les textes Unicode avec N devant : `N'Łódź'`.",
               snowflake: "Pas ce souci : tout texte est en UTF-8. `NVARCHAR` est un autre nom de `VARCHAR`.",
               mysql: "Le jeu de caractères `utf8mb4` (celui par défaut de MySQL 8) garde tous les caractères, même les émojis."
             }
@@ -240,7 +240,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Un index se choisit pour des requêtes, pas pour une table. Sans le bon index, une grosse table est lue en entier à chaque recherche.",
             reflexe: "Liste les 3 recherches les plus fréquentes (par `num_cde`, par date). Crée les index pour elles, pas plus : chaque index ralentit les écritures.",
             moteurs: {
-              snowflake: "Les lignes sont rangées en micro-partitions, sans index par défaut. Très grosse table : une clé de clustering. Recherches très sélectives : Search Optimization, ou un index secondaire (Enterprise, depuis le 26/10/2026).",
+              snowflake: "Les lignes sont rangées en micro-partitions (des blocs), sans index par défaut. Très grosse table : une clé de clustering (l'ordre de rangement choisi). Recherches très sélectives : Search Optimization, ou un index secondaire (Enterprise, depuis le 26/10/2026).",
               mysql: "La clé primaire est déjà l'index de rangement (InnoDB). Les autres index s'ajoutent comme sur SQL Server."
             }
           },
@@ -309,7 +309,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     ],
     exemple: {
       texte: "Ton équipe lance un entrepôt de données pour Power BI : les ventes de Divalto et les flux EDI. Il lui faut sa propre base, en recette puis en production. Avant `CREATE DATABASE`, tu réponds aux questions ci-dessous. Voici le script obtenu, rangé dans Git.",
-      code: "-- Fichier entrepot/001_creer_base.sql, rangé dans Git\nCREATE DATABASE entrepot_ventes\nON PRIMARY (NAME = entrepot_ventes_data, FILENAME = 'D:\\sql\\data\\entrepot_ventes.mdf',\n            SIZE = 20 GB, FILEGROWTH = 1 GB)\nLOG ON (NAME = entrepot_ventes_log, FILENAME = 'L:\\sql\\log\\entrepot_ventes.ldf',\n        SIZE = 4 GB, FILEGROWTH = 512 MB)\nCOLLATE French_CI_AS;   -- la même que les bases de l'ERP : vérifie la tienne\nGO\nALTER DATABASE entrepot_ventes SET RECOVERY FULL;         -- + une sauvegarde du journal toutes les 15 min\nALTER AUTHORIZATION ON DATABASE::entrepot_ventes TO sa;  -- un compte technique, pas une personne",
+      code: "-- Fichier entrepot/001_creer_base.sql, rangé dans Git\nCREATE DATABASE entrepot_ventes\nON PRIMARY (NAME = entrepot_ventes_data, FILENAME = 'D:\\sql\\data\\entrepot_ventes.mdf',\n            SIZE = 20 GB, FILEGROWTH = 1 GB)\nLOG ON (NAME = entrepot_ventes_log, FILENAME = 'L:\\sql\\log\\entrepot_ventes.ldf',\n        SIZE = 4 GB, FILEGROWTH = 512 MB)\nCOLLATE French_CI_AS;   -- exemple : mets celle des colonnes de ton ERP (sys.columns)\nGO\nALTER DATABASE entrepot_ventes SET RECOVERY FULL;         -- + une sauvegarde du journal toutes les 15 min\nALTER AUTHORIZATION ON DATABASE::entrepot_ventes TO sa;  -- un compte technique, pas une personne",
       codes: {
         snowflake: "-- Fichier entrepot/001_creer_base.sql, rangé dans Git\nUSE ROLE sysadmin;                         -- le rôle propriétaire, jamais ACCOUNTADMIN\nCREATE DATABASE IF NOT EXISTS entrepot_ventes\n  DATA_RETENTION_TIME_IN_DAYS = 7          -- Time Travel de 7 jours (édition Enterprise)\n  COMMENT = 'Entrepôt ventes et EDI pour Power BI. Responsable : équipe data';\nCREATE TRANSIENT DATABASE IF NOT EXISTS bac_a_sable   -- jetable : sans Fail-safe\n  DATA_RETENTION_TIME_IN_DAYS = 1;",
         mysql: "-- Fichier entrepot/001_creer_base.sql, rangé dans Git\nCREATE DATABASE IF NOT EXISTS entrepot_ventes\n  CHARACTER SET utf8mb4\n  COLLATE utf8mb4_0900_ai_ci;   -- le défaut de MySQL 8.4, écrit pour ne pas dépendre du serveur\nCREATE ROLE IF NOT EXISTS role_lecture;\nGRANT SELECT ON entrepot_ventes.* TO role_lecture;   -- Power BI : lecture seule"
@@ -347,7 +347,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Sur l'instance de l'ERP, ta base partage la mémoire et le processeur avec Divalto. Un gros chargement de nuit qui déborde, ou un rapport lourd, ralentit alors les saisies du matin.",
             reflexe: "Gros volumes ou rapports lourds : une instance à part pour l'entrepôt. Sinon, planifie les chargements hors des heures de saisie, et mesure leur durée.",
             moteurs: {
-              snowflake: "Le calcul passe par des warehouses séparés : un warehouse par usage (chargement, rapports) évite qu'un chargement ralentisse Power BI."
+              snowflake: "Le calcul passe par des warehouses (les moteurs de calcul) séparés : un warehouse par usage (chargement, rapports) évite qu'un chargement ralentisse Power BI."
             }
           },
           {
@@ -423,15 +423,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Choisis-la exprès, et écris-la dans le script. SSMS en français l'appelle « classement ». Sans `COLLATE`, la base prend celle du serveur, qui n'est peut-être pas la bonne.",
             moteurs: {
               sqlserver: "`COLLATE French_CI_AS` : CI = casse ignorée, AS = accents comptés. Un `ALTER DATABASE … COLLATE` ne vaut que pour les tables créées ensuite.",
-              snowflake: "Rien à choisir : les textes sont en UTF-8, comparés tels quels (la casse compte). `DEFAULT_DDL_COLLATION` existe, mais une collation peut ralentir les comparaisons.",
+              snowflake: "Par défaut, rien à choisir : les textes sont en UTF-8, comparés tels quels (la casse compte). `DEFAULT_DDL_COLLATION` existe, mais une collation peut ralentir les comparaisons.",
               mysql: "`CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci` : le défaut de MySQL 8.4, sans casse ni accents. Écris-le quand même, pour ne pas dépendre du serveur."
             }
           },
           {
             id: "collation-erp",
             q: "Ta base sera-t-elle jointe aux tables de l'ERP ?",
-            pourquoi: "Deux collations différentes dans une jointure ou une concaténation : la requête plante (« Cannot resolve the collation conflict »). La documentation Divalto signale la même erreur avec ses champs en collation `CI_AI`.",
-            reflexe: "Relève la collation des bases de l'ERP : `SELECT name, collation_name FROM sys.databases;`. Prends la même pour ta base. Sinon, chaque jointure devra écrire `COLLATE` sur les colonnes texte.",
+            pourquoi: "Deux collations différentes dans une jointure ou une concaténation : la requête plante (« Cannot resolve the collation conflict »). Depuis la 10.12, Divalto range certains libellés en `Latin1_General_CI_AI` : sa doc signale la même erreur.",
+            reflexe: "Relève la collation des colonnes que tu joindras : `SELECT name, collation_name FROM sys.columns WHERE object_id = OBJECT_ID('dbo.CLI');`. Prends la même pour ta base. La doc Divalto cite plusieurs collations : lis la tienne, ne la recopie pas.",
             seulement: ["sqlserver"]
           },
           {
@@ -487,8 +487,15 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
         ]
       },
       {
-        titre: "La taille et les options",
+        titre: "Les fichiers et les options",
         questions: [
+          {
+            id: "emplacement-fichiers",
+            q: "Les fichiers de données et le journal sont-ils sur des disques séparés ?",
+            pourquoi: "Sans chemin, ils vont dans les dossiers par défaut de l'instance, souvent sur le même disque. Les lectures et les écritures du journal s'y gênent. Et déplacer un fichier ensuite oblige à mettre la base hors ligne.",
+            reflexe: "Écris le chemin de chaque fichier : les données sur un disque (`D:\\sql\\data`), le journal sur un autre (`L:\\sql\\log`). Le guide d'installation de Divalto conseille aussi des volumes séparés pour les données, le journal et tempdb.",
+            seulement: ["sqlserver"]
+          },
           {
             id: "taille-fichiers",
             q: "Quelle taille de départ pour le fichier de données et pour le journal ?",
@@ -580,14 +587,14 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "Tes tables dans la base de l'ERP : une restauration de Divalto les ramène à la date de la sauvegarde.",
       "Une base restaurée depuis un ancien serveur garde son vieux niveau de compatibilité : `STRING_SPLIT` « n'existe pas », et l'optimiseur reste à l'ancienne."
     ],
-    pratique: "Avant de créer une base qui lira Divalto, relève la collation des bases de l'ERP (`sys.databases`) et reprends-la dans ton script. Tes jointures avec l'ERP marcheront sans `COLLATE` dans chaque requête.",
+    pratique: "Avant de créer une base qui lira Divalto, relève la collation de ses colonnes de codes (`sys.columns`) et prends la même. Attention : depuis la 10.12, certains libellés sont en `Latin1_General_CI_AI`, et demandent un `COLLATE`.",
     motsCles: ["create database", "base de données", "nouvelle base", "collation", "classement", "mode de récupération", "journal", "sauvegarde", "environnement", "recette", "propriétaire", "compatibilité", "time travel", "transient", "bdd"],
     voirAussi: ["creer-schema", "creer-table", "nommer", "droits", "sauvegarder", "mettre-en-prod", "donnees-personnelles", "couts-snowflake"],
     dico: ["collate", "time-travel", "undrop", "clone", "string-split", "table-temporaire"],
     sources: [
       { titre: "CREATE DATABASE (Transact-SQL)", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/statements/create-database-transact-sql" },
       { titre: "SQL Server : les modes de récupération", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/backup-restore/recovery-models-sql-server" },
-      { titre: "SQL Server : la collation des bases, celle de master et model", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/policy-based-management/set-collation-of-user-defined-databases-to-match-master-model-databases" },
+      { titre: "Divalto : installer le serveur SQL (classement, récupération, volumes)", url: "https://divalto.atlassian.net/wiki/spaces/PAI/pages/10550739615/Installation+Divalto+infinity+serveur+et+licence" },
       { titre: "SQL Server : gérer la taille du journal des transactions", url: "https://learn.microsoft.com/fr-fr/sql/relational-databases/logs/manage-the-size-of-the-transaction-log-file" },
       { titre: "ALTER DATABASE : le niveau de compatibilité", url: "https://learn.microsoft.com/fr-fr/sql/t-sql/statements/alter-database-transact-sql-compatibility-level" },
       { titre: "Snowflake : CREATE DATABASE", url: "https://docs.snowflake.com/en/sql-reference/sql/create-database" },
@@ -725,7 +732,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Choisis le bon schéma dès la création. Si tu déplaces, fais tout dans le même script : le déplacement, les droits, et les vues corrigées.",
             moteurs: {
               snowflake: "`ALTER TABLE … RENAME TO dwh.commande` déplace la table : les objets qui la citent sont à corriger.",
-              mysql: "`RENAME TABLE ventes_stg.commande TO ventes_dwh.commande` déplace la table, mais les droits donnés sur elle ne suivent pas."
+              mysql: "`RENAME TABLE ventes_stg.commande TO ventes_dwh.commande` déplace la table, mais les droits donnés sur elle ne suivent pas. Une table qui a des triggers refuse de changer de base."
             }
           }
         ]
@@ -929,7 +936,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "ordre-numeros",
             q: "Les numéros doivent-ils suivre l'ordre d'arrivée des lignes ?",
             pourquoi: "Par défaut (NOORDER), Snowflake donne des numéros uniques, mais pas toujours croissants. Un chargement qui reprend « au-dessus du dernier numéro lu » rate alors des lignes.",
-            reflexe: "Pour reprendre là où un chargement s'est arrêté, ne te fie pas au numéro : prends un stream (le suivi des changements), ou une date de création. `IDENTITY ORDER` rend les numéros croissants d'une instruction à l'autre, au prix d'un peu de vitesse.",
+            reflexe: "Pour reprendre là où un chargement s'est arrêté, ne te fie pas au numéro : prends un stream (le suivi des changements). `IDENTITY ORDER` donne des numéros plus grands que ceux des instructions déjà terminées, au prix d'un peu de vitesse.",
             seulement: ["snowflake"]
           }
         ]
@@ -958,7 +965,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Seulement si les numéros naissent hors de la base : plusieurs sites, une application mobile, un partenaire. Alors, le GUID en `UNIQUE` et un `INT IDENTITY` en clé cluster ; ou `NEWSEQUENTIALID()` (SQL Server).",
             moteurs: {
               snowflake: "Pas d'index cluster à fragmenter : `UUID_STRING()` convient. Mais un texte de 36 caractères reste plus lourd à joindre qu'un nombre.",
-              mysql: "Range-le en `BINARY(16)` avec `UUID_TO_BIN(UUID(), 1)` : plus court, et croissant."
+              mysql: "Range-le en `BINARY(16)` avec `UUID_TO_BIN(UUID(), 1)` : 16 octets au lieu de 36, et le 1 met la partie qui change vite à la fin, ce qui aide l'index."
             }
           }
         ]
@@ -996,7 +1003,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Repars toujours au-dessus du plus grand numéro : lis d'abord `SELECT MAX(id)`. Fais-le dans le script de reprise, pas à la main.",
             moteurs: {
               sqlserver: "`DBCC CHECKIDENT ('integ.client', RESEED, 5000);` : la ligne suivante reçoit 5000 si la table est neuve ou vidée par `TRUNCATE`, 5001 sinon, même après un `DELETE` de tout.",
-              snowflake: "Pas de RESEED, et `ALTER SEQUENCE` ne change pas le départ. Prévois une séquence nommée (`DEFAULT seq_client.NEXTVAL`) : tu la remplaces par une nouvelle, avec `START = 5001`.",
+              snowflake: "Pas de RESEED, et `ALTER SEQUENCE` ne change pas le départ. Prévois une séquence nommée (`DEFAULT seq_client.NEXTVAL`). Pour repartir : crée `seq_client_2` avec `START = 5001`, puis `ALTER TABLE … ALTER COLUMN id SET DEFAULT seq_client_2.NEXTVAL`.",
               mysql: "`ALTER TABLE integ.client AUTO_INCREMENT = 5001;`. InnoDB ne descend jamais sous le plus grand numéro existant."
             }
           }
@@ -1119,7 +1126,6 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "SQL Server refuse une clé étrangère `INT` vers un `BIGINT`. Et une jointure entre deux types différents force une conversion, qui peut empêcher l'index de servir.",
             reflexe: "Même type, même longueur, même collation (la règle de comparaison des textes) des deux côtés : `cde_id INT` pour `commande.id INT`, `code_article VARCHAR(20)` dans toutes les tables.",
             moteurs: {
-              snowflake: "La clé étrangère doit avoir les types de la clé qu'elle cite.",
               mysql: "Mêmes taille et signe pour les entiers et les décimaux ; même jeu de caractères et même collation pour les textes. Seule la longueur d'un texte peut différer."
             }
           },
@@ -1147,7 +1153,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Par défaut (`NO ACTION`), supprimer une commande qui a des lignes est refusé. Avec `ON DELETE CASCADE`, les lignes partent avec elle, sans message.",
             reflexe: "Garde le refus par défaut presque partout : on n'efface pas l'histoire d'une commande. `CASCADE` pour une dépendance sans valeur seule ; `SET NULL` seulement si perdre le lien est acceptable.",
             moteurs: {
-              snowflake: "Rien n'est appliqué sur une table standard : ni refus, ni cascade. Supprime toi-même les lignes enfants."
+              snowflake: "Rien n'est appliqué sur une table standard : ni refus, ni cascade. Supprime toi-même les lignes enfants. Et avec `ON DELETE CASCADE` écrit, Snowflake ne crée même pas la clé étrangère (selon sa doc) : garde le défaut."
             }
           },
           {
@@ -1178,7 +1184,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Un index sur chaque colonne de clé étrangère, sauf sur une toute petite table : `CREATE INDEX ix_ligne_cde_cde_id ON ligne_cde (cde_id)`. Le détail : « Je crée un index ».",
             moteurs: {
               sqlserver: "La clé étrangère ne crée pas d'index : crée-le toi-même.",
-              snowflake: "Pas d'index à créer pour une jointure : Snowflake lit par micro-partitions (des blocs). Très grosse table, jointe souvent : une clé de clustering.",
+              snowflake: "Pas d'index à créer pour une jointure : Snowflake lit par micro-partitions (des blocs). Très grosse table, jointe souvent : une clé de clustering (l'ordre de rangement choisi).",
               mysql: "InnoDB crée l'index s'il manque."
             }
           }
@@ -1193,7 +1199,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Avec des clés étrangères, charger les lignes avant leurs commandes est refusé. Vider `commande` avant `ligne_cde` aussi.",
             reflexe: "Charge les parents d'abord : client et article, puis commande, puis ligne_cde. Vide dans l'ordre inverse. Écris cet ordre dans le script du chargement.",
             moteurs: {
-              sqlserver: "`TRUNCATE TABLE` est refusé sur une table citée par une clé étrangère : utilise `DELETE`, ou retire la clé le temps du chargement."
+              sqlserver: "`TRUNCATE TABLE` est refusé sur une table citée par une clé étrangère : utilise `DELETE`, ou retire la clé le temps du chargement.",
+              mysql: "`TRUNCATE TABLE` est refusé aussi sur une table citée par la clé étrangère d'une autre table."
             }
           },
           {
@@ -1348,8 +1355,13 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "quantites",
             q: "Les quantités peuvent-elles avoir des décimales, ou être négatives ?",
-            pourquoi: "En `INT`, 2,5 kg est refusé. En `TINYINT` (SQL Server), un avoir de -3 est refusé. Le flux EDI s'arrête à la première ligne refusée.",
-            reflexe: "Des pièces : `INT`. Des poids, des longueurs, des volumes : `DECIMAL(12,3)`. Et toujours l'unité à côté (`unite` : PCE, KGM) : 10 cartons ne font pas 10 pièces."
+            pourquoi: "En entier, 2,5 kg perd sa décimale, souvent sans erreur : le stock et la facture deviennent faux. En `TINYINT` (SQL Server), un avoir de -3 est refusé, et le flux EDI s'arrête.",
+            reflexe: "Des pièces : `INT`. Des poids, des longueurs, des volumes : `DECIMAL(12,3)`. Et toujours l'unité à côté (`unite` : PCE, KGM) : 10 cartons ne font pas 10 pièces.",
+            moteurs: {
+              sqlserver: "2,5 rangé en `INT` devient 2 : la décimale est coupée, sans erreur.",
+              snowflake: "2,5 rangé en `INT` (`NUMBER(38,0)`) devient 3 : il est arrondi, sans erreur.",
+              mysql: "2,5 rangé en `INT` devient 3 : il est arrondi, sans erreur, même en mode strict."
+            }
           },
           {
             id: "taux",
@@ -1630,7 +1642,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "cles",
             q: "Comment s'appellent la clé primaire et les clés étrangères ?",
             pourquoi: "Avec `id` partout et `client_id` pour la colonne qui pointe vers `client`, chacun devine la jointure. Avec `num`, `code_cli` ou `ref`, chacun cherche.",
-            reflexe: "Clé technique : `id`. Clé étrangère : le nom de la table, ou son abréviation de la liste, + `_id` : `client_id`, `cde_id`. Le même nom partout où la colonne revient. Dans l'entrepôt, la clé d'une dimension : `client_sk`."
+            reflexe: "Clé technique : `id`. Clé étrangère : le nom de la table, ou son abréviation de la liste, + `_id` : `client_id`, `cde_id`. Le même nom partout où la colonne revient. Dans l'entrepôt, la clé d'une dimension : `client_sk` (sk : un numéro propre à l'entrepôt)."
           },
           {
             id: "dates",
