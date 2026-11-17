@@ -1522,7 +1522,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     ],
     exemple: {
       texte: "Chaque nuit, l'extraction complète des clients de Divalto arrive dans `stg.client_jour` (7 clients). Tu synchronises `dw.client`, la table lue par Power BI : 1 client nouveau (C007), 1 client modifié (C003 a maintenant une ville), 1 client disparu de Divalto (C009), à désactiver sans l'effacer. Les 5 autres ne doivent pas être réécrits.",
-      code: "-- Avant : une ligne par code (0 ligne attendue), et une extraction complète\nSELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;\nSELECT COUNT(*) FROM stg.client_jour;   -- 7 : pas beaucoup moins que la veille ?\n\nMERGE INTO dw.client AS c\nUSING stg.client_jour AS s\n   ON c.code = s.code                                   -- la clé, et rien d'autre\nWHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom           -- SQL Server 2022 ou plus\n               OR c.ville IS DISTINCT FROM s.ville OR c.est_actif = 0) THEN\n  UPDATE SET nom = s.nom, ville = s.ville, est_actif = 1, date_modif = SYSDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n  INSERT (code, nom, ville, est_actif, date_modif)\n  VALUES (s.code, s.nom, s.ville, 1, SYSDATETIME())\nWHEN NOT MATCHED BY SOURCE AND c.est_actif = 1 THEN\n  UPDATE SET est_actif = 0, date_modif = SYSDATETIME()   -- désactivé, pas effacé\nOUTPUT $action, inserted.code INTO suivi.merge_client (action, code);\n-- Attendu : 1 INSERT (C007), 2 UPDATE (C003, et C009 désactivé), 5 clients non touchés",
+      code: "-- Avant : une ligne par code (0 ligne attendue), et une extraction complète\nSELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;\nSELECT COUNT(*) FROM stg.client_jour;   -- 7 : pas beaucoup moins que la veille ?\n\nMERGE INTO dw.client AS c\nUSING stg.client_jour AS s\n   ON c.code = s.code                                   -- la clé, et rien d'autre\nWHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom           -- SQL Server 2022 ou plus\n               OR c.ville IS DISTINCT FROM s.ville OR c.est_actif = 0) THEN\n  UPDATE SET nom = s.nom, ville = s.ville, est_actif = 1, date_modif = SYSDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n  INSERT (code, nom, ville, est_actif, date_modif)\n  VALUES (s.code, s.nom, s.ville, 1, SYSDATETIME())\nWHEN NOT MATCHED BY SOURCE AND c.est_actif = 1 THEN\n  UPDATE SET est_actif = 0, date_modif = SYSDATETIME()   -- désactivé, pas effacé\nOUTPUT $action, inserted.code INTO suivi.merge_client (action_merge, code);\n-- Attendu : 1 INSERT (C007), 2 UPDATE (C003, et C009 désactivé), 5 clients non touchés",
       codes: {
         snowflake: "-- Avant : une ligne par code (0 ligne attendue), et une extraction complète\nSELECT code FROM stg.client_jour GROUP BY code HAVING COUNT(*) > 1;\n\nBEGIN TRANSACTION;\nMERGE INTO dw.client c\nUSING stg.client_jour s\n   ON c.code = s.code\nWHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom\n               OR c.ville IS DISTINCT FROM s.ville OR NOT c.est_actif) THEN\n  UPDATE SET nom = s.nom, ville = s.ville, est_actif = TRUE, date_modif = CURRENT_TIMESTAMP()\nWHEN NOT MATCHED THEN\n  INSERT (code, nom, ville, est_actif, date_modif)\n  VALUES (s.code, s.nom, s.ville, TRUE, CURRENT_TIMESTAMP());\n-- « number of rows inserted » : 1, « updated » : 1\n-- Pas de NOT MATCHED BY SOURCE : les disparus, par un UPDATE à part\nUPDATE dw.client SET est_actif = FALSE, date_modif = CURRENT_TIMESTAMP()\nWHERE est_actif\n  AND NOT EXISTS (SELECT 1 FROM stg.client_jour AS s WHERE s.code = client.code);\nCOMMIT;",
         mysql: "-- Pas de MERGE : INSERT … ON DUPLICATE KEY UPDATE, sur la clé UNIQUE (code)\nSTART TRANSACTION;\nINSERT INTO dw_client (code, nom, ville, est_actif)\nSELECT * FROM (SELECT code AS s_code, nom AS s_nom, ville AS s_ville, 1 AS s_actif\n               FROM stg_client_jour) AS s\nON DUPLICATE KEY UPDATE nom = s_nom, ville = s_ville, est_actif = 1;\nSELECT ROW_COUNT();   -- 3 : C007 ajouté (1) + C003 modifié (2) ; inchangé : 0\n-- Les disparus, à part\nUPDATE dw_client AS c LEFT JOIN stg_client_jour AS s ON s.code = c.code\nSET c.est_actif = 0\nWHERE s.code IS NULL AND c.est_actif = 1;\nCOMMIT;\n-- date_modif (ON UPDATE CURRENT_TIMESTAMP) ne change que si une valeur change"
@@ -1553,9 +1553,9 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Une clé incomplète, comme le code client sans la société, ou l'article sans le dépôt, rapproche les mauvaises lignes. Le MERGE met à jour le mauvais client, ou crée des doublons, sans erreur.",
             reflexe: "Prends la clé métier entière : `ON c.societe = s.societe AND c.code = s.code`. Vérifie qu'elle a le même type et le même format des deux côtés : zéros devant, espaces, majuscules.",
             moteurs: {
-              sqlserver: "En collation insensible à la casse, 'c001' trouve 'C001', et les espaces de fin sont ignorés.",
+              sqlserver: "Avec une collation (la règle qui compare les textes) insensible à la casse, 'c001' trouve 'C001' ; les espaces de fin sont ignorés.",
               snowflake: "La casse et les espaces de fin comptent : 'C001 ' ne trouve pas 'C001', et la ligne est ajoutée une 2e fois.",
-              mysql: "Collation par défaut : la casse ne compte pas, mais les espaces de fin comptent (NO PAD)."
+              mysql: "Avec la collation par défaut (la règle qui compare les textes), la casse ne compte pas, mais les espaces de fin comptent (NO PAD)."
             }
           },
           {
@@ -1602,7 +1602,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "que-change",
             q: "Ne mets-tu à jour que les lignes qui ont vraiment changé ?",
-            pourquoi: "Sans condition, chaque ligne trouvée est réécrite à chaque passage, même identique. Les déclencheurs tournent, `date_modif` change pour tous les clients, et un rapport qui suit cette date croit que tout a bougé.",
+            pourquoi: "Sans condition, chaque ligne trouvée est réécrite à chaque passage, même identique. Les déclencheurs (le code lancé à chaque modification) tournent, `date_modif` change pour tous les clients, et un rapport qui suit cette date croit que tout a bougé.",
             reflexe: "Ajoute la différence au cas des lignes trouvées : `WHEN MATCHED AND (c.nom IS DISTINCT FROM s.nom OR …)`. Le compte des mises à jour devient celui des vrais changements.",
             moteurs: {
               snowflake: "Une ligne réécrite à l'identique compte comme mise à jour (exemple de la doc). Et Snowflake réécrit chaque micro-partition (bloc de stockage) qu'il touche.",
@@ -1623,7 +1623,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "disparus",
             q: "Que deviennent les lignes de la cible absentes de la source : supprimées, désactivées, ou gardées ?",
-            pourquoi: "Un client absent de l'extraction n'est pas forcément supprimé dans Divalto : il peut être filtré, ou l'extraction a échoué. Le supprimer efface aussi ses ventes passées dans les rapports.",
+            pourquoi: "Un client absent de l'extraction n'est pas forcément supprimé dans Divalto : il peut être filtré, ou l'extraction a échoué. Le supprimer laisse ses ventes passées sans client dans les rapports.",
             reflexe: "Décide-le avec le métier. Souvent : désactiver (`est_actif = 0`), pas effacer. Sur SQL Server : `WHEN NOT MATCHED BY SOURCE AND c.est_actif = 1 THEN UPDATE SET est_actif = 0`.",
             moteurs: {
               sqlserver: "`WHEN NOT MATCHED BY SOURCE` : deux clauses au plus, l'une UPDATE, l'autre DELETE. Leur condition ne peut citer que des colonnes de la cible.",
@@ -1653,7 +1653,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "values-alias",
             q: "Écris-tu encore VALUES(col) dans la partie ON DUPLICATE KEY UPDATE ?",
             pourquoi: "La doc 8.4 dit `VALUES()` dépréciée, et à retirer dans une prochaine version. MySQL renvoie déjà un avertissement (1287, vu sur MySQL 8.0) : ton script cassera à une montée de version.",
-            reflexe: "Avec VALUES, un alias de ligne : `VALUES (…) AS n ON DUPLICATE KEY UPDATE nom = n.nom`. Avec un SELECT, une table dérivée dont tu cites les colonnes (`nom = s_nom`), comme dans l'exemple.",
+            reflexe: "Avec VALUES, un alias de ligne (un nom pour la ligne à insérer) : `VALUES (…) AS n ON DUPLICATE KEY UPDATE nom = n.nom`. Avec un SELECT, une table dérivée (un SELECT dans le FROM), dont tu cites les colonnes : `nom = s_nom`.",
             seulement: ["mysql"]
           },
           {
@@ -1674,7 +1674,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "Deux MERGE lancés en même temps voient tous les deux un client comme nouveau, et l'ajoutent tous les deux : une erreur de clé, ou un doublon là où la clé n'est pas appliquée.",
             reflexe: "Un seul chargement à la fois par table : enchaîne les traitements, ne les lance pas en parallèle. Teste le MERGE en recette, avec la charge réelle, avant la production.",
             moteurs: {
-              sqlserver: "La doc : `MERGE dw.client WITH (HOLDLOCK) AS c …` évite les violations de clé unique quand des clés sont ajoutées et modifiées en même temps. HOLDLOCK = SERIALIZABLE : plus sûr, mais il bloque davantage.",
+              sqlserver: "La doc : `MERGE dw.client WITH (HOLDLOCK) AS c …` évite les violations de clé unique quand des clés sont ajoutées et modifiées en même temps. HOLDLOCK = SERIALIZABLE, le réglage de verrous le plus strict : plus sûr, mais il bloque davantage.",
               snowflake: "Deux MERGE, UPDATE ou DELETE sur la même table s'attendent en général ; un INSERT ou un COPY peut parfois passer en même temps (doc). La clé n'étant pas appliquée, un doublon peut entrer."
             }
           },
@@ -1682,7 +1682,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "volume",
             q: "Combien de lignes passent dans le MERGE, et la source se limite-t-elle aux changements ?",
             pourquoi: "Un MERGE de toute la table, chaque nuit, lit les deux tables en entier et garde ses verrous (les lignes réservées) jusqu'au bout. Découpé avec TOP, il relit tout à chaque lot.",
-            reflexe: "Envoie seulement le delta : les lignes modifiées depuis le dernier passage. Les disparus, eux, demandent la source complète. Indexe la clé des deux côtés, et découpe par tranches de clés, pas avec TOP.",
+            reflexe: "Envoie seulement le delta : les lignes modifiées depuis le dernier passage. Les disparus, eux, demandent la source complète. Sur SQL Server et MySQL, indexe la clé des deux côtés ; découpe par tranches de clés, pas avec TOP.",
             moteurs: {
               sqlserver: "La doc : avec TOP, chaque lot relit la source et la cible en entier, et des doublons peuvent entrer si les lots ne visent pas des lignes neuves.",
               snowflake: "Pas de verrou par ligne : un seul MERGE. Mais il réécrit chaque micro-partition touchée : un delta en touche moins qu'une table entière."
@@ -1741,7 +1741,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       }
     ],
     pieges: [
-      "Un client deux fois dans la source : erreur 8672 sur SQL Server, erreur par défaut sur Snowflake, la dernière ligne gagne sur MySQL.",
+      "Un client déjà dans la cible, et deux fois dans la source : erreur 8672 sur SQL Server, erreur par défaut sur Snowflake, la dernière ligne gagne sur MySQL.",
       "Une clé nouvelle en double dans la source : Snowflake ajoute chaque copie, et UNIQUE ne l'arrête pas.",
       "Un filtre dans le ON (`AND c.depot_id = 1`) : les autres lignes passent pour absentes, puis sont ajoutées en double ou désactivées.",
       "`WHEN NOT MATCHED BY SOURCE THEN DELETE` avec une extraction vide ou coupée : la moitié de la table est effacée, sans erreur.",
@@ -1837,7 +1837,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "erreur-milieu",
             q: "Une erreur au milieu annule-t-elle toute la transaction, ou seulement l'instruction fautive ?",
             pourquoi: "Souvent, seule l'instruction fautive est annulée, et la transaction continue. Le COMMIT final valide alors la commande sans sa ligne, en silence.",
-            reflexe: "Demande au moteur de tout annuler à la première erreur, et teste-le : glisse une erreur volontaire en recette (un article qui n'existe pas), puis vérifie qu'il ne reste rien.",
+            reflexe: "Demande au moteur de tout annuler à la première erreur, et teste-le : glisse une erreur volontaire en recette (une quantité NULL dans une colonne obligatoire), puis vérifie qu'il ne reste rien.",
             moteurs: {
               sqlserver: "`SET XACT_ABORT ON;` avant `BEGIN TRAN`. Sans lui (OFF, le défaut), une violation de contrainte n'annule que l'instruction. Il ne couvre pas les erreurs de compilation, comme une faute de syntaxe (doc).",
               snowflake: "Par défaut, l'instruction en erreur est annulée, la transaction reste active, et COMMIT valide le reste. Avec `TRANSACTION_ABORT_ON_ERROR = TRUE`, la transaction est annulée : la suite échoue jusqu'au COMMIT ou ROLLBACK.",
@@ -1907,7 +1907,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             pourquoi: "C'est le niveau d'isolation : ce qu'une transaction voit des autres. Mal choisi, il bloque les rapports pendant tes écritures, ou te fait lire des chiffres qui changent entre deux SELECT.",
             reflexe: "Connais le niveau de ta base. Un rapport qui enchaîne plusieurs SELECT et doit rester cohérent : une photo prise au départ (SNAPSHOT), ou une table figée pour l'occasion.",
             moteurs: {
-              sqlserver: "READ COMMITTED par défaut : sans RCSI, un lecteur attend tes verrous. RCSI (`READ_COMMITTED_SNAPSHOT`) lit la dernière version validée : désactivé par défaut sur SQL Server, actif sur Azure SQL Database (doc).",
+              sqlserver: "READ COMMITTED par défaut : sans RCSI, un lecteur attend tes verrous. RCSI (`READ_COMMITTED_SNAPSHOT`) lit la dernière version validée : désactivé par défaut sur SQL Server, actif sur Azure SQL Database (doc). SNAPSHOT demande l'option `ALLOW_SNAPSHOT_ISOLATION`.",
               snowflake: "READ COMMITTED seulement : chaque instruction voit ce qui était validé à son départ. Deux SELECT de la même transaction peuvent donc voir des données différentes.",
               mysql: "REPEATABLE READ par défaut (InnoDB) : les lectures de la transaction voient la photo prise à la première lecture."
             }
@@ -2024,7 +2024,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
     exemple: {
       texte: "Le prestataire EDI dépose les commandes en CSV dans un conteneur Azure, toutes les 15 minutes, dans un dossier par jour. Tu les charges dans `stg.cde_edi`, une table d'arrivée, puis tu contrôles avant de passer à la table métier. Voici la mise en place, faite une fois, puis le chargement du jour.",
       codes: {
-        snowflake: "-- Une fois, par un administrateur : l'accès au conteneur, sans clé écrite\nCREATE STORAGE INTEGRATION int_azure_edi\n  TYPE = EXTERNAL_STAGE  STORAGE_PROVIDER = 'AZURE'  ENABLED = TRUE\n  AZURE_TENANT_ID = '<id du locataire Azure>'\n  STORAGE_ALLOWED_LOCATIONS = ('azure://compteedi.blob.core.windows.net/edi/orders/');\n-- Une fois : le format, le stage, la table d'arrivée (tout en VARCHAR)\nCREATE FILE FORMAT stg.ff_orders TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1\n  FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ENCODING = 'UTF8';\nCREATE STAGE stg.stage_orders URL = 'azure://compteedi.blob.core.windows.net/edi/orders/'\n  STORAGE_INTEGRATION = int_azure_edi FILE_FORMAT = stg.ff_orders;\nCREATE TRANSIENT TABLE stg.cde_edi\n  (num_cde VARCHAR, date_cde VARCHAR, code_article VARCHAR, qte VARCHAR, prix VARCHAR);\n-- Chaque jour : tester, puis charger le dossier du jour\nCOPY INTO stg.cde_edi FROM @stg.stage_orders/2026/04/14/ VALIDATION_MODE = RETURN_ERRORS;\nCOPY INTO stg.cde_edi FROM @stg.stage_orders/2026/04/14/ ON_ERROR = ABORT_STATEMENT;\n-- Par fichier : rows_parsed = rows_loaded ? « 0 files processed » : rien de nouveau"
+        snowflake: "-- Une fois, par un administrateur : l'accès au conteneur, sans clé écrite\nCREATE STORAGE INTEGRATION int_azure_edi\n  TYPE = EXTERNAL_STAGE  STORAGE_PROVIDER = 'AZURE'\n  AZURE_TENANT_ID = '<id du locataire Azure>'  ENABLED = TRUE\n  STORAGE_ALLOWED_LOCATIONS = ('azure://compteedi.blob.core.windows.net/edi/orders/');\n-- Une fois : le format, le stage, la table d'arrivée (tout en VARCHAR)\nCREATE FILE FORMAT stg.ff_orders TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1\n  FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ENCODING = 'UTF8';\nCREATE STAGE stg.stage_orders URL = 'azure://compteedi.blob.core.windows.net/edi/orders/'\n  STORAGE_INTEGRATION = int_azure_edi FILE_FORMAT = (FORMAT_NAME = 'stg.ff_orders');\nCREATE TRANSIENT TABLE stg.cde_edi\n  (num_cde VARCHAR, date_cde VARCHAR, code_article VARCHAR, qte VARCHAR, prix VARCHAR);\n-- Chaque jour : tester, puis charger le dossier du jour\nCOPY INTO stg.cde_edi FROM @stg.stage_orders/2026/04/14/ VALIDATION_MODE = RETURN_ERRORS;\nCOPY INTO stg.cde_edi FROM @stg.stage_orders/2026/04/14/ ON_ERROR = ABORT_STATEMENT;\n-- Par fichier : rows_parsed = rows_loaded ? « 0 files processed » : rien de nouveau"
       }
     },
     etapes: [
@@ -2077,7 +2077,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "colonnes-changent",
             q: "Que se passe-t-il le jour où le fichier gagne ou perd une colonne ?",
-            pourquoi: "Chargé par position, un fichier avec une colonne de plus au milieu décale toutes les valeurs : le prix part dans la quantité. Avec un COPY qui transforme (`SELECT $1, $2…`), aucune erreur ne prévient.",
+            pourquoi: "Chargée par position, une colonne ajoutée au milieu décale toutes les valeurs : le prix part dans la quantité. Le COPY simple s'arrête sur le nombre de colonnes ; un COPY qui transforme (`SELECT $1, $2…`) charge sans rien dire.",
             reflexe: "Garde `ERROR_ON_COLUMN_COUNT_MISMATCH = TRUE` (le défaut) : un nombre de colonnes différent arrête le chargement. Pour charger par nom : `PARSE_HEADER = TRUE` et `MATCH_BY_COLUMN_NAME`. `INFER_SCHEMA` montre les colonnes d'un nouveau fichier."
           },
           {
@@ -2128,7 +2128,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             id: "table-arrivee",
             q: "Charges-tu dans une table d'arrivée TRANSIENT, en VARCHAR, avant la table métier ?",
             pourquoi: "Chargé droit dans la table métier, une valeur fausse bloque tout, ou entre convertie de travers. Une table TRANSIENT n'a pas les 7 jours de Fail-safe (un secours payé en stockage) : moins chère pour des données qu'on peut recharger.",
-            reflexe: "`CREATE TRANSIENT TABLE stg.cde_edi (…)`, colonnes en VARCHAR, plus le fichier et la ligne (`METADATA$FILENAME`). Garde les fichiers d'origine : sans Fail-safe, ils sont ton seul secours. Le détail : « Je crée une table pour recevoir un import »."
+            reflexe: "`CREATE TRANSIENT TABLE stg.cde_edi (…)`, colonnes en VARCHAR, plus le fichier et la ligne (`METADATA$FILENAME`). Garde les fichiers d'origine : sans Fail-safe, ils sont ton vrai secours. Le détail : « Je crée une table pour recevoir un import »."
           }
         ]
       },
@@ -2286,8 +2286,8 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
             reflexe: "Entoure les textes de guillemets doubles, en doublant ceux qu'ils contiennent. Sinon, nettoie les valeurs dans la requête : voir l'astuce « Enlever les retours à la ligne et les tabulations ». Teste avec une valeur piégée.",
             moteurs: {
               sqlserver: "bcp et sqlcmd n'ont pas d'option pour entourer les textes de guillemets : choisis un séparateur absent des données, et nettoie les retours à la ligne dans la requête.",
-              snowflake: "`FIELD_OPTIONALLY_ENCLOSED_BY = '\"'` (pas de guillemets par défaut) : Snowflake double les guillemets contenus, comme Excel l'attend (doc).",
-              mysql: "`OPTIONALLY ENCLOSED BY '\"'` écrit un guillemet contenu sous la forme `\\\"`, qu'Excel ne comprend pas (vu sur MySQL 8.0) : retire-les dans la requête, avec REPLACE."
+              snowflake: "`FIELD_OPTIONALLY_ENCLOSED_BY = '\"'` (pas de guillemets par défaut) : un guillemet contenu est doublé (`\"\"`), selon l'usage des CSV (doc).",
+              mysql: "`OPTIONALLY ENCLOSED BY '\"'` écrit un guillemet contenu sous la forme `\\\"`, et non `\"\"` (vu sur MySQL 8.0) : retire-les dans la requête, avec REPLACE."
             }
           },
           {
@@ -2587,7 +2587,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
           {
             id: "moment",
             q: "Les flux et les utilisateurs qui écrivent sur ces lignes sont-ils arrêtés pendant la correction ?",
-            pourquoi: "Un flux qui tourne pendant ta correction réécrit la mauvaise valeur derrière toi, ou se bloque sur tes verrous (les lignes réservées). Une correction en pleine clôture change des chiffres que la compta arrête.",
+            pourquoi: "Un flux qui tourne pendant ta correction réécrit la mauvaise valeur derrière toi, ou se bloque sur tes verrous (les lignes réservées). Une correction en pleine clôture (l'arrêté des comptes) change des chiffres que la compta est en train d'arrêter.",
             reflexe: "Suspends le traitement fautif et les flux qui touchent ces lignes, corrige hors des heures de saisie et de clôture, puis relance-les, et regarde leur premier passage."
           }
         ]
@@ -2655,7 +2655,7 @@ LEARNSQL.architecte = (LEARNSQL.architecte || []).concat([
       "La copie `sauv_…` gardée pour toujours : des données de clients oubliées dans un coin de la base.",
       "Un UPDATE direct dans les tables de l'ERP : la donnée change, mais pas ce que l'application aurait fait avec elle."
     ],
-    pratique: "Sur Divalto, la doc réserve le studio SQL du SaaS à la consultation (SELECT). Ses déclencheurs tiennent à jour les tables intermédiaires, mais pas les règles de l'application : corrige par l'ERP, ou avec l'éditeur.",
+    pratique: "Sur Divalto, la doc réserve le studio SQL du SaaS à la consultation (SELECT). Un UPDATE direct met à jour les tables intermédiaires (par des déclencheurs), mais ne passe pas par les programmes de l'ERP : corrige par l'ERP ou l'éditeur.",
     motsCles: ["correction", "corriger", "production", "prod", "incident", "données fausses", "patch", "réparer", "rattrapage", "bug", "ticket", "par erreur", "retour arrière", "divalto"],
     voirAussi: ["mettre-en-prod", "mettre-a-jour", "transaction", "sauvegarder", "supprimer", "documenter", "automatiser"],
     dico: ["update", "begin-transaction", "commit", "rollback", "xact-abort", "rowcount", "time-travel", "clone"],
