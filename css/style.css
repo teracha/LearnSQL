@@ -438,10 +438,26 @@ select.change { border: 2px solid var(--warn); background: var(--warn-soft); }
 .cp-barre div { background: var(--ok); }
 .cp-copie { min-height: 160px; margin-top: 8px; font-size: 15px; }
 .cp-copie[hidden] { display: none; }
+/* L'exemple de la fiche (un encadré, avant les niveaux) ; sous une action, son code (le bloc défile dans son cadre, la page
+   jamais) et son tableau modèle (compact ; trop large, il défile aussi dans son cadre). Sur téléphone, ils prennent toute
+   la largeur du bloc de l'étape. */
+.cp-exemple { margin: 0 0 18px; }
+.cp-exemple .label { margin: 0 0 4px; }
+.cp-exemple-texte { white-space: pre-line; overflow-wrap: anywhere; }
+.cp-detail { margin: 4px 0 2px 36px; min-width: 0; }
+.cp-code { margin: 0 0 6px; }
+.cp-code-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+.cp-copier-code { min-height: 44px; }
+.cp-code-msg { font-size: 15px; overflow-wrap: anywhere; }
+.cp-tableau { overflow-x: auto; margin: 8px 0 4px; }
+.cp-tableau table { width: auto; border-collapse: collapse; font-size: 16px; line-height: 1.4; }
+.cp-tableau th, .cp-tableau td { padding: 5px 10px; border: 1px solid var(--line); vertical-align: top; }
+.cp-tableau th { background: var(--code-bg); font-weight: 700; }
 :root[data-theme="dark"] .cp-case input, :root[data-theme="dark"] .cp-copie { color-scheme: dark; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cp-case input, :root:not([data-theme="light"]) .cp-copie { color-scheme: dark; } }
 @media (max-width: 520px) {
   .cp-etape { padding: 0 12px 2px; }
+  .cp-detail { margin-left: 0; }
 }
 
 /* Mots réservés (#/mots-reserves) : le verdict en tête (un mot et sa couleur), un bloc par moteur, les pièges (une carte

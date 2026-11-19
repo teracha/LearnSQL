@@ -2732,12 +2732,14 @@
     brancherMoteurs(rendre);
     rendre();
   }
-  // « Copier la checklist » (Conseils d'architecte, Copilote) : le presse-papiers (et son repli, copierTexte) ; si tout
-  // échoue, le texte s'affiche dans la zone « copie », sélectionné, pour le copier à la main.
-  function copierChecklist(t, msg, copie) {
+  // « Copier la checklist » (Conseils d'architecte, Copilote).
+  function copierChecklist(t, msg, copie) { copierAvecRepli(t, msg, copie, "Copié : la checklist est prête à coller."); }
+  // Copier un texte (la checklist, le code d'une action du Copilote) : le presse-papiers (et son repli, copierTexte) ; si
+  // tout échoue, le texte s'affiche dans la zone « copie », sélectionné, pour le copier à la main. fait : le message du succès.
+  function copierAvecRepli(t, msg, copie, fait) {
     copie.hidden = true;
     copierTexte(t, function (ok) {
-      msg.textContent = ok ? "Copié : la checklist est prête à coller." : "Copie impossible. Le texte est ci-dessous : copie-le à la main.";
+      msg.textContent = ok ? fait : "Copie impossible. Le texte est ci-dessous : copie-le à la main.";
       if (ok) return;
       copie.value = t;
       copie.hidden = false;
@@ -2870,8 +2872,11 @@
   // Une case est celle de l'action, pas du niveau : cochée en Rapide, elle l'est aussi en Complet. Les cases restent dans ce
   // navigateur (learnsql-copilote : { "<fiche>": { "<action>": true } }), jamais envoyées. Public sans compte ; un compte
   // connecté suit le droit de l'outil « copilote » (section Outils), un lien vers un autre outil le droit de cet outil.
-  // Partagé avec les Conseils d'architecte : stockageCases, idsCases, copierChecklist, decocherTout, texteCoches, texteBrut,
-  // fmtAr, outilLie.
+  // Champs facultatifs (novembre 2026) : l'exemple de la fiche (un encadré avant les niveaux : l'exemple concret d'abord),
+  // le code d'une action (un bloc SQL et « Copier le code ») et son tableau modèle (1re ligne = les en-têtes). Le code et le
+  // tableau suivent leur action (cachée en Rapide : cachés aussi) ; « Copier la checklist » ne copie que les actions.
+  // Partagé avec les Conseils d'architecte : stockageCases, idsCases, copierChecklist, copierAvecRepli, decocherTout,
+  // texteCoches, texteBrut, fmtAr, outilLie.
   var COPILOTE_NIVEAUX = [{ id: "rapide", nom: "Rapide" }, { id: "complet", nom: "Complet" }];
   var COPILOTE_NIVEAU_KEY = "learnsql-copilote-niveau";
   var casesCopilote = stockageCases("learnsql-copilote");
@@ -2934,14 +2939,16 @@
       }).join('') + '</a>';
   }
 
-  // Une fiche : le titre, le résumé ; les deux niveaux et quand choisir celui qui est affiché ; la checklist ; le compte et
-  // sa barre ; « Copier la checklist », « Tout décocher ». Changer de niveau refait la checklist ; une case cochée ou
-  // décochée est enregistrée tout de suite, et seuls les comptes suivent.
+  // Une fiche : le titre, le résumé, l'exemple ; les deux niveaux et quand choisir celui qui est affiché ; la checklist ; le
+  // compte et sa barre ; « Copier la checklist », « Tout décocher ». Changer de niveau refait la checklist ; une case cochée
+  // ou décochée est enregistrée tout de suite, et seuls les comptes suivent.
   function pageFicheCopilote(id) {
     var f = fichesCopilote().filter(function (x) { return x.id === id; })[0];
     if (!f) { location.hash = "#/copilote"; return; }
     app.innerHTML = '<p class="muted"><a href="#/copilote">Copilote</a></p>' +
       '<h1>' + esc(f.titre || "") + '</h1>' + (f.resume ? '<p class="cp-resume">' + fmtCp(f.resume) + '</p>' : '') +
+      (texteOK(f.exemple) ? '<div class="feedback pratique cp-exemple"><p class="label">L\'exemple</p><p class="cp-exemple-texte">' +
+        fmtCp(f.exemple) + '</p></div>' : '') +
       '<div class="cp-niveaux" role="group" aria-label="Niveau">' + COPILOTE_NIVEAUX.map(function (n) {
         return '<button type="button" class="cp-niveau" data-niveau="' + n.id + '" aria-pressed="false">' + n.nom +
           ' (' + compteCopilote(f, n.id, {}).total + ')</button>';
@@ -2997,27 +3004,63 @@
       stockage(casesCopilote.ecrire(f.id, cases));
       majComptes();
     });
+    // « Copier le code » d'une action : comme « Copier la checklist » (le presse-papiers, son repli, puis le code à copier à
+    // la main, sous le bouton). Le texte copié est celui des données, tel quel.
+    zone.addEventListener("click", function (e) {
+      var b = e.target, a = b && b.getAttribute && b.getAttribute("data-code") ? actionCopilote(f, b.getAttribute("data-code")) : null;
+      var d = b && b.parentNode && b.parentNode.parentNode;   // le bloc .cp-detail de l'action
+      if (!a || !texteOK(a.code) || !d) return;
+      copierAvecRepli(a.code, d.querySelector(".cp-code-msg"), d.querySelector(".cp-copie"), "Copié : le code est prêt à coller.");
+    });
     surClic("cp-copier", function () { copierChecklist(texteCopilote(f, niveauCopilote(), casesFiche(f)), msg, copie); });
     surClic("cp-decocher", function () {
       decocherTout(f.titre, casesFiche(f), msg, copie, function () { stockage(casesCopilote.ecrire(f.id, {})); majComptes(); });
     });
     rendre();
   }
+  // Une action d'une fiche, par son id.
+  function actionCopilote(f, id) {
+    var r = null;
+    (f.etapes || []).forEach(function (e) { ((e && e.actions) || []).forEach(function (a) { if (a && a.id === id) r = a; }); });
+    return r;
+  }
+  function texteOK(t) { return typeof t === "string" && t.trim() !== ""; }
   // La checklist d'un niveau : chaque étape (son numéro et son titre), puis ses actions : une case et le texte (toute la
-  // ligne est cliquable) ; dessous, le lien vers l'outil de l'action, s'il est permis (outilLie : même règle que la page
-  // Outils ; sans compte, les sujets publics).
+  // ligne est cliquable) ; dessous, hors de la case (sélectionner ou copier ne coche rien), le code de l'action et son
+  // tableau modèle, puis le lien vers son outil, s'il est permis (outilLie : même règle que la page Outils ; sans compte,
+  // les sujets publics).
   function checklistCopilote(f, niveau) {
     var l = etapesCopilote(f, niveau);
     if (!l.length) return '<p class="muted">Pas d\'action à ce niveau.</p>';
     return l.map(function (et) {
       return '<section class="cp-etape"><h2><span class="cp-etape-n">' + et.n + '.</span> ' + fmtCp(et.e.titre || "") + '</h2>' +
         '<ul class="cp-actions">' + et.actions.map(function (a) {
-          var o = a.outil ? outilLie(a.outil) : null;
+          var o = a.outil ? outilLie(a.outil) : null, detail = codeCopilote(a) + tableauCopilote(a.tableau);
           return '<li class="cp-action"><label class="cp-case"><input type="checkbox" data-action="' + esc(a.id) + '">' +
             '<span class="cp-texte">' + fmtCp(a.texte || "") + '</span></label>' +
+            (detail ? '<div class="cp-detail">' + detail + '</div>' : '') +
             (o ? '<a class="cp-outil" href="' + esc(o.lien) + '">' + esc(o.titre) + '<span aria-hidden="true">&nbsp;›</span></a>' : '') + '</li>';
         }).join('') + '</ul></section>';
     }).join('');
+  }
+  // Le code d'une action : un bloc SQL tel quel (retours à la ligne gardés ; trop large, il défile dans son cadre), puis
+  // « Copier le code », son message, et la zone du code à copier à la main (cachée).
+  function codeCopilote(a) {
+    if (!texteOK(a.code)) return '';
+    return '<pre class="code cp-code">' + esc(a.code) + '</pre><div class="cp-code-actions"><button type="button" ' +
+      'class="btn small ghost cp-copier-code" data-code="' + esc(a.id) + '">Copier le code</button>' +
+      '<span class="muted cp-code-msg" role="status"></span></div>' +
+      '<textarea class="cp-copie" readonly hidden aria-label="Le code, à copier à la main"></textarea>';
+  }
+  // Un tableau modèle (même format que le résultat d'un cours : 1re ligne = les en-têtes, puis les lignes) : compact ;
+  // trop large, il défile dans son cadre. Un tableau mal formé (le vérificateur le refuse) n'est pas affiché.
+  function tableauCopilote(t) {
+    if (!Array.isArray(t) || t.length < 2 || !t.every(function (r) { return Array.isArray(r) && r.length && r.length === t[0].length; })) return '';
+    var cellule = function (v) { return fmtCp(v === null || v === undefined ? "" : String(v)); };
+    return '<div class="cp-tableau"><table><thead><tr>' + t[0].map(function (h) { return '<th scope="col">' + cellule(h) + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + t.slice(1).map(function (r) {
+        return '<tr>' + r.map(function (v) { return '<td>' + cellule(v) + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>';
   }
   // « Copier la checklist » : le niveau affiché ; le titre et le niveau, « 2 cochées sur 5 », puis les étapes numérotées et
   // leurs actions ([x] cochée, [ ] non). Le code entre accents graves perd ses accents graves.

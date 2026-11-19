@@ -5,12 +5,15 @@
 // le compte et sa barre ; le niveau gardé (learnsql-copilote-niveau) ; cocher (gardé après rechargement, partagé entre les
 // niveaux) ; le lien vers Traduire ; « Copier la checklist » (le presse-papiers, puis ses replis) ; « Tout décocher » (et
 // « Annuler » ; toute la fiche, les deux niveaux) ; une action retirée des données, un stockage illisible, un niveau
-// inconnu ; un navigateur qui refuse d'enregistrer ; les cibles tactiles ; 390 px sans débordement ; aucune erreur
-// JavaScript.
+// inconnu ; l'exemple d'une fiche (un encadré avant les niveaux, pas dans la liste), le code d'une action (un bloc qui
+// défile dans son cadre, « Copier le code » et ses replis) et son tableau modèle, qui suivent le niveau de leur action et
+// ne vont pas dans la copie de la checklist ; un navigateur qui refuse d'enregistrer ; les cibles tactiles ; 390 px sans
+// débordement ; aucune erreur JavaScript.
 // Les attendus sont lus dans les données (LEARNSQL.copilote) : les fiches viendront une par une, à la demande de l'élève.
 // Des fiches d'essai, injectées dans la page, couvrent ce que les vraies n'ont pas forcément : plusieurs fiches, une étape
 // sans action rapide, une action sans outil, un outil permis (Mots réservés), un outil interdit sans compte (la Gestion de
-// projet), un outil inconnu, une fiche toute rapide. Les droits : outils/tests/outils.js.
+// projet), un outil inconnu, une fiche toute rapide, un code et un tableau larges sur des actions du niveau Complet
+// seulement, un exemple sur deux lignes. Les droits : outils/tests/outils.js.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(process.env.CHR ? { executablePath: process.env.CHR } : {});
@@ -52,11 +55,13 @@ const { chromium } = require('playwright');
   };
   const stocke = () => p.evaluate(() => { try { return JSON.parse(localStorage.getItem('learnsql-copilote')); } catch (e) { return 'illisible'; } });
   const niveauStocke = () => p.evaluate(() => localStorage.getItem('learnsql-copilote-niveau'));
-  // Ni la page ni un élément ne dépassent à droite.
+  // Ni la page ni un élément ne dépassent à droite (le contenu d'un cadre qui défile, un code ou un tableau, peut dépasser
+  // du cadre ; le cadre, jamais).
   const largeur = async ou => {
     const r = await p.evaluate(() => {
       const l = innerWidth, trop = [];
       document.querySelectorAll('body *').forEach(e => {
+        if (e.parentElement && e.parentElement.closest('pre, .cp-tableau')) return;
         const b = e.getBoundingClientRect();
         if (b.width && b.right > l + 1 && getComputedStyle(e).position !== 'absolute') trop.push(e.tagName + '.' + e.className + ' ' + Math.round(b.right));
       });
@@ -86,6 +91,10 @@ const { chromium } = require('playwright');
   // Un bout de code entre accents graves : affiché en police code ; un petit (24 signes au plus) ne se coupe pas à une
   // espace (espaces insécables), un plus long se coupe aux espaces.
   const codesDe = a => (a.texte.match(/`[^`]+`/g) || []).map(x => x.slice(1, -1)).map(x => x.length > 24 ? x : x.replace(/ /g, '\u00a0'));
+  // Les champs facultatifs : l'exemple (la fiche), le code et le tableau (une action).
+  const texteOK = t => typeof t === 'string' && t.trim() !== '';
+  const codeDe = a => texteOK(a.code) ? a.code : null;
+  const tableauDe = a => Array.isArray(a.tableau) ? a.tableau.map(r => r.map(brut)) : null;
   // Ce que montre la page d'une fiche.
   const lu = () => p.evaluate(() => {
     const t = x => x ? x.textContent.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim() : '';
@@ -96,13 +105,19 @@ const { chromium } = require('playwright');
       niveaux: Array.from(document.querySelectorAll('.cp-niveau')).map(x => ({ id: x.getAttribute('data-niveau'), texte: t(x),
         presse: x.getAttribute('aria-pressed'), actif: x.classList.contains('actif') })),
       quand: q.hidden ? null : t(q),
+      exemple: document.querySelector('.cp-exemple') ? { label: t(document.querySelector('.cp-exemple .label')),
+        texte: t(document.querySelector('.cp-exemple-texte')), codes: Array.from(document.querySelectorAll('.cp-exemple-texte code')).map(t) } : null,
       etapes: Array.from(document.querySelectorAll('#cp-etapes .cp-etape')).map(s => ({
         titre: t(s.querySelector('h2')),
         actions: Array.from(s.querySelectorAll('.cp-action')).map(li => {
           const i = li.querySelector('input[type="checkbox"]'), o = li.querySelector('a.cp-outil');
+          const pre = li.querySelector('pre.cp-code'), bc = li.querySelector('.cp-copier-code'), tab = li.querySelector('.cp-tableau table');
           return { id: i.getAttribute('data-action'), coche: i.checked, fait: li.classList.contains('cp-fait'), texte: t(li.querySelector('.cp-texte')),
             label: t(i.closest('label')), codes: Array.from(li.querySelectorAll('.cp-texte code')).map(x => x.textContent),
-            outil: o ? o.getAttribute('href') : null, outilTexte: t(o) };
+            outil: o ? o.getAttribute('href') : null, outilTexte: t(o),
+            code: pre ? pre.textContent : null, copierCode: bc ? t(bc) : null,
+            tableau: tab ? [Array.from(tab.querySelectorAll('thead th')).map(t)].concat(Array.from(tab.querySelectorAll('tbody tr')).map(r =>
+              Array.from(r.querySelectorAll('td')).map(t))) : null };
         })
       })),
       total: t(total), complet: total.classList.contains('cp-complet'), barre: document.getElementById('cp-barre').style.width,
@@ -141,12 +156,18 @@ const { chromium } = require('playwright');
     verifier(v.niveaux.map(x => x.texte).join('|') === 'Rapide (' + nb(f, 'rapide') + ')|Complet (' + nb(f, 'complet') + ')', ou + ' : les boutons ' + v.niveaux.map(x => x.texte).join('|'));
     verifier(v.niveaux.every(x => (x.presse === 'true') === (x.id === n) && x.actif === (x.id === n)), ou + ' : le niveau choisi ' + JSON.stringify(v.niveaux));
     verifier(v.quand === brut(f.niveaux[n]), ou + ' : le texte du niveau : ' + v.quand);
+    verifier(texteOK(f.exemple) ? v.exemple && v.exemple.label === 'L\'exemple' && v.exemple.texte === brut(f.exemple) : v.exemple === null,
+      ou + ' : l\'exemple ' + JSON.stringify(v.exemple));
     verifier(v.etapes.length === et.length && v.etapes.every((e, i) => e.titre === (i + 1) + '. ' + brut(et[i].titre) && e.actions.length === et[i].actions.length),
       ou + ' : les étapes ' + JSON.stringify(v.etapes.map(e => e.titre + ' (' + e.actions.length + ')')));
     const va = [].concat(...v.etapes.map(e => e.actions)), da = actionsDe(f, n);
     verifier(va.length === da.length && va.every((a, i) => a.id === da[i].id && a.texte === brut(da[i].texte) && a.label === a.texte &&
       a.codes.join('|') === codesDe(da[i]).join('|')), ou + ' : les actions ' + JSON.stringify(va.filter((a, i) => !da[i] || a.texte !== brut(da[i].texte)).slice(0, 1)));
     verifier(va.every(a => a.coche === !!c[a.id] && a.fait === !!c[a.id]), ou + ' : les cases cochées ' + va.filter(a => a.coche).map(a => a.id).join());
+    verifier(va.every((a, i) => da[i] && a.code === codeDe(da[i]) && a.copierCode === (codeDe(da[i]) ? 'Copier le code' : null)),
+      ou + ' : le code des actions ' + JSON.stringify(va.filter((a, i) => !da[i] || a.code !== codeDe(da[i])).map(a => [a.id, a.code]).slice(0, 1)));
+    verifier(va.every((a, i) => da[i] && JSON.stringify(a.tableau) === JSON.stringify(tableauDe(da[i]))),
+      ou + ' : les tableaux ' + JSON.stringify(va.filter((a, i) => !da[i] || JSON.stringify(a.tableau) !== JSON.stringify(tableauDe(da[i]))).map(a => [a.id, a.tableau]).slice(0, 1)));
     verifier(va.every((a, i) => {
       const o = da[i] && da[i].outil && LIENS[da[i].outil];
       return o ? a.outil === o.lien && a.outilTexte === o.titre + ' ›' : a.outil === null;
@@ -166,6 +187,9 @@ const { chromium } = require('playwright');
     L[k].verts.join() === ['rapide', 'complet'].map(n => nbCoches(f, n, cases[f.id] || {}) === nb(f, n)).join());
   let L = await listeVue();
   verifier(L.length === D.length && listeAttendue(D, {}), 'la liste : ' + JSON.stringify(L));
+  const texteListe = await texte('#app');
+  verifier(!(await p.$('#app .cp-exemple, #app pre, #app table')) && D.filter(f => texteOK(f.exemple)).every(f => texteListe.indexOf(brut(f.exemple)) < 0),
+    'la liste montre un exemple, un code ou un tableau');
   await largeur('la liste des fiches');
 
   // 3. La fiche, en Rapide (le niveau par défaut, rien n'est enregistré tant que l'élève ne choisit pas)
@@ -289,7 +313,78 @@ const { chromium } = require('playwright');
   await p.evaluate(() => { localStorage.removeItem('learnsql-copilote'); localStorage.removeItem('learnsql-copilote-niveau'); });
   await p.reload(); await attendre(250);
 
-  // 10. Des fiches d'essai : plusieurs fiches ; une étape sans action rapide (cachée en Rapide, les étapes renumérotées) ;
+  // 10. Les vraies fiches qui ont un exemple, un code ou un tableau : l'exemple d'abord (après le résumé, avant les
+  // niveaux) ; le code et le tableau sous leur action, hors de sa case (un clic dedans ne coche rien) ; « Copier le code »
+  // (le presse-papiers, puis ses replis) ; ni l'exemple, ni le code, ni le tableau dans la copie de la checklist ; 390 px
+  const FX = D.filter(f => texteOK(f.exemple))[0];
+  const FC = D.filter(f => actionsDe(f, 'complet').some(codeDe))[0], FT = D.filter(f => actionsDe(f, 'complet').some(tableauDe))[0];
+  if (FX) {
+    await aller('#/copilote/' + FX.id);
+    await verifierFiche(FX, 'rapide', {}, FX.id + ', Rapide');
+    verifier(await p.evaluate(() => {
+      const l = ['.cp-resume', '.cp-exemple', '.cp-niveaux', '#cp-etapes'].map(x => document.querySelector(x));
+      return l.every((x, i) => x && (!i || (l[i - 1].compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING)));
+    }), FX.id + ' : l\'exemple n\'est pas entre le résumé et les niveaux');
+    await largeur(FX.id + ', Rapide');
+    await niveau('complet');
+    await verifierFiche(FX, 'complet', {}, FX.id + ', Complet');
+    await largeur(FX.id + ', Complet');
+    await niveau('rapide');
+  } else console.log('(aucune vraie fiche n\'a d\'exemple : il est vérifié sur une fiche d\'essai)');
+  if (FC) {
+    const AC = actionsDe(FC, 'complet').filter(codeDe)[0], nv = AC.rapide === true ? 'rapide' : 'complet';
+    const sel = '.cp-action:has(input[data-action="' + AC.id + '"])', msgCode = () => p.textContent(sel + ' .cp-code-msg').then(net);
+    await aller('#/copilote/' + FC.id); await niveau(nv);
+    // Le bloc garde les retours à la ligne et défile dans son cadre ; un clic dedans ne coche pas la case
+    const cadre = await p.$eval(sel + ' pre.cp-code', x => ({ ws: getComputedStyle(x).whiteSpace, ox: getComputedStyle(x).overflowX,
+      police: getComputedStyle(x).fontFamily }));
+    verifier(cadre.ws === 'pre' && cadre.ox === 'auto' && /JetBrains Mono/.test(cadre.police), 'le bloc de code : ' + JSON.stringify(cadre));
+    await p.click(sel + ' pre.cp-code');
+    verifier(!(await p.isChecked('input[data-action="' + AC.id + '"]')), 'un clic dans le code coche la case');
+    // « Copier le code » : le code des données, tel quel ; puis le repli (execCommand) ; puis le code à copier à la main
+    await p.click(sel + ' .cp-copier-code'); await attendre(150);
+    verifier(await p.evaluate(() => window.__copie) === AC.code && await msgCode() === 'Copié : le code est prêt à coller.' &&
+      !(await p.isChecked('input[data-action="' + AC.id + '"]')), '« Copier le code » : ' + await msgCode());
+    await p.evaluate(() => { window.__refus = 1; window.__repli = null; });
+    await p.click(sel + ' .cp-copier-code'); await attendre(150);
+    verifier(await p.evaluate(() => window.__repli) === AC.code && await msgCode() === 'Copié : le code est prêt à coller.', '« Copier le code » par le repli (execCommand)');
+    await p.evaluate(() => { window.__refus = 2; });
+    await p.click(sel + ' .cp-copier-code'); await attendre(150);
+    const main = await p.evaluate(x => {
+      const z = document.querySelector(x + ' textarea.cp-copie');
+      return { visible: !!z && !z.hidden, valeur: z ? z.value : null, focus: !!z && document.activeElement === z };
+    }, sel);
+    verifier(main.visible && main.valeur === AC.code && main.focus && await msgCode() === 'Copie impossible. Le texte est ci-dessous : copie-le à la main.',
+      '« Copier le code » impossible : le code à copier à la main ' + JSON.stringify(main));
+    verifier(await p.isHidden('#cp-copie') && net(await p.textContent('#cp-msg')) === '', '« Copier le code » touche à la copie de la checklist');
+    await largeur(FC.id + ', le code à copier à la main');
+    await p.evaluate(() => { window.__refus = 0; });
+    verifier(await p.$eval(sel + ' .cp-copier-code', x => x.getBoundingClientRect().height) >= 44, 'le bouton « Copier le code » fait moins de 44 px');
+    // « Copier la checklist » : les actions seulement (ni l'exemple, ni le code, ni le tableau)
+    await p.click('#cp-copier'); await attendre(150);
+    const cc = await p.evaluate(() => window.__copie) || '';
+    verifier(cc === copieAttendue(FC, nv, {}) && cc.indexOf(AC.code.split('\n')[0]) < 0 && (!texteOK(FC.exemple) || cc.indexOf(brut(FC.exemple)) < 0),
+      'la copie de la checklist, avec un code :\n' + cc);
+    await niveau('rapide');
+  } else console.log('(aucune vraie fiche n\'a de code : il est vérifié sur une fiche d\'essai)');
+  if (FT) {
+    const ATB = actionsDe(FT, 'complet').filter(tableauDe)[0], nv = ATB.rapide === true ? 'rapide' : 'complet';
+    const sel = '.cp-action:has(input[data-action="' + ATB.id + '"])';
+    await aller('#/copilote/' + FT.id); await niveau(nv);
+    const tb = await p.$eval(sel + ' .cp-tableau', x => ({ th: x.querySelectorAll('thead th[scope="col"]').length, droite: x.getBoundingClientRect().right,
+      ox: getComputedStyle(x).overflowX }));
+    verifier(tb.th === ATB.tableau[0].length && tb.droite <= 390 && tb.ox === 'auto', 'le tableau : ' + JSON.stringify(tb));
+    await p.click(sel + ' .cp-tableau td');
+    verifier(!(await p.isChecked('input[data-action="' + ATB.id + '"]')), 'un clic dans le tableau coche la case');
+    await p.click('#cp-copier'); await attendre(150);
+    const cc = await p.evaluate(() => window.__copie) || '';
+    // (l'égalité avec la copie attendue, faite des seuls titres et textes d'actions, prouve que le tableau n'y est pas)
+    verifier(cc === copieAttendue(FT, nv, {}) && cc.indexOf(ATB.tableau[0].map(brut).join(' ')) < 0, 'la copie de la checklist, avec un tableau :\n' + cc);
+    await largeur(FT.id + ', le tableau');
+    await niveau('rapide');
+  } else console.log('(aucune vraie fiche n\'a de tableau : il est vérifié sur une fiche d\'essai)');
+
+  // 11. Des fiches d'essai : plusieurs fiches ; une étape sans action rapide (cachée en Rapide, les étapes renumérotées) ;
   // une action sans outil ; un outil permis (Mots réservés), un outil interdit sans compte (la Gestion de projet), un outil
   // inconnu ; une fiche toute rapide (les deux niveaux ont les mêmes actions)
   const ESSAI = [{
@@ -298,14 +393,18 @@ const { chromium } = require('playwright');
     etapes: [
       { titre: 'Je commence', actions: [
         { id: 'a1', texte: 'Vérifier le nom dans `Mots réservés` d\'abord.', rapide: true, outil: 'mots-reserves' },
-        { id: 'a2', texte: 'Une action sans outil, avec un long code : `SELECT COUNT(*) FROM commandes_clients WHERE statut = 2`.' }] },
+        { id: 'a2', texte: 'Une action sans outil, avec un long code : `SELECT COUNT(*) FROM commandes_clients WHERE statut = 2`.',
+          tableau: [['Colonne', 'Valeur', 'Ce qu\'elle veut dire', 'Source', 'Remarque'],
+            ['`statut`', '`EXP`', 'Commande expédiée au client final', 'Divalto', 'Une remarque assez longue pour faire défiler le tableau'],
+            ['`canal`', '`WEB`', 'Commande passée sur le site', 'PMI', '']] }] },
       { titre: 'Je fais sans rapide', actions: [
-        { id: 'b1', texte: 'Une action vers un outil réservé.', outil: 'gp-risques' },
+        { id: 'b1', texte: 'Une action vers un outil réservé.', outil: 'gp-risques',
+          code: 'SELECT\n  un_nom_de_colonne_tres_long_pour_faire_defiler_le_cadre_du_code_sur_un_telephone,\n  statut\nFROM essai_commandes;' },
         { id: 'b2', texte: 'Une action vers un outil inconnu.', outil: 'pas-un-outil' }] },
       { titre: 'Je finis', actions: [{ id: 'c1', texte: 'Traduire la requête.', rapide: true, outil: 'traduire' }] }
     ]
   }, {
-    id: 'essai-rapide', titre: 'Je fais vite', resume: 'Tout est rapide.',
+    id: 'essai-rapide', titre: 'Je fais vite', resume: 'Tout est rapide.', exemple: 'Un exemple d\'essai avec `du code`.\nUne 2e ligne.',
     niveaux: { rapide: 'Toujours.', complet: 'Aussi.' },
     etapes: [{ titre: 'Je fais tout', actions: [{ id: 'x', texte: 'Faire.', rapide: true }] }]
   }];
@@ -314,10 +413,13 @@ const { chromium } = require('playwright');
   const D2 = D.concat(ESSAI), E = ESSAI[0];
   L = await listeVue();
   verifier(L.length === D2.length && listeAttendue(D2, {}), 'la liste avec les fiches d\'essai : ' + JSON.stringify(L.map(c => [c.href, c.comptes])));
+  verifier(!(await p.$('#app .cp-exemple')) && (await texte('#app')).indexOf('Un exemple d\'essai') < 0, 'la liste montre l\'exemple d\'une fiche d\'essai');
   await largeur('la liste avec les fiches d\'essai');
   // Rapide : l'étape sans action rapide est cachée, la suivante devient « 2. » ; les liens permis (Mots réservés, Traduire)
   await aller('#/copilote/essai-etapes');
   v = await verifierFiche(E, 'rapide', {}, 'essai, Rapide');
+  verifier(!(await p.$('#cp-etapes pre, #cp-etapes .cp-tableau, #cp-etapes .cp-copier-code')) && !(await p.$('.cp-exemple')),
+    'essai, Rapide : un code ou un tableau d\'une action cachée, ou un exemple sans champ exemple');
   verifier(v.etapes.map(e => e.titre).join('|') === '1. Je commence|2. Je finis' && v.total === '0 cochée sur 2', 'essai, Rapide : ' + v.etapes.map(e => e.titre).join('|'));
   verifier(v.etapes.map(e => e.actions.map(a => a.outil).join()).join('|') === '#/mots-reserves|#/traduire' && v.etapes[0].actions[0].outilTexte === 'Mots réservés ›',
     'essai, Rapide : les liens ' + JSON.stringify(v.etapes.map(e => e.actions.map(a => a.outil))));
@@ -331,6 +433,14 @@ const { chromium } = require('playwright');
   verifier(v.etapes[0].actions[1].codes.join() === 'SELECT COUNT(*) FROM commandes_clients WHERE statut = 2', 'essai : un long code se coupe aux espaces ' +
     v.etapes[0].actions[1].codes.join());
   await largeur('une fiche d\'essai (Complet, un long code)');
+  const cadres = await p.evaluate(() => ({
+    pre: Array.from(document.querySelectorAll('#cp-etapes pre.cp-code')).map(x => x.scrollWidth > x.clientWidth),
+    tab: Array.from(document.querySelectorAll('#cp-etapes .cp-tableau')).map(x => x.scrollWidth > x.clientWidth),
+    codes: Array.from(document.querySelectorAll('#cp-etapes .cp-tableau td code')).map(x => x.textContent) }));
+  verifier(cadres.pre.join() === 'true' && cadres.tab.join() === 'true' && cadres.codes.join() === 'statut,EXP,canal,WEB',
+    'essai, Complet : le code et le tableau larges défilent dans leur cadre ' + JSON.stringify(cadres));
+  await p.click('.cp-action:has(input[data-action="b1"]) .cp-copier-code'); await attendre(150);
+  verifier(await p.evaluate(() => window.__copie) === E.etapes[1].actions[0].code, 'essai, « Copier le code » (une action du niveau Complet)');
   // Les cases de deux fiches ne se mêlent pas ; une case d'une étape cachée en Rapide compte en Complet seulement
   await cocher('a1'); await cocher('b1');
   verifier(JSON.stringify(await stocke()) === JSON.stringify({ 'essai-etapes': { a1: true, b1: true } }), 'essai : le stockage ' + JSON.stringify(await stocke()));
@@ -354,7 +464,9 @@ const { chromium } = require('playwright');
   // Une fiche toute rapide : cochée, son compte passe au vert, dans la fiche et dans la liste (les deux niveaux)
   await aller('#/copilote/essai-rapide');
   await cocher('x');
-  await verifierFiche(ESSAI[1], 'rapide', { x: true }, 'essai tout rapide');
+  v = await verifierFiche(ESSAI[1], 'rapide', { x: true }, 'essai tout rapide');
+  verifier(v.exemple && v.exemple.codes.join() === 'du code' && await p.$eval('.cp-exemple-texte', x => getComputedStyle(x).whiteSpace === 'pre-line' &&
+    x.textContent.indexOf('\n') > 0), 'essai : l\'exemple (un code, deux lignes) ' + JSON.stringify(v.exemple));
   await aller('#/copilote');
   L = await listeVue();
   verifier(listeAttendue(D2, { 'essai-etapes': { a1: true, b1: true }, 'essai-rapide': { x: true } }) &&
@@ -364,7 +476,7 @@ const { chromium } = require('playwright');
   await aller('#/copilote/inconnue');
   verifier(await p.evaluate(() => location.hash) === '#/copilote' && await texte('h1') === 'Copilote', 'une fiche inconnue ne ramène pas à la liste');
 
-  // 11. Le navigateur refuse d'enregistrer : la page marche ; les cases et le niveau vivent le temps de l'onglet, et c'est dit
+  // 12. Le navigateur refuse d'enregistrer : la page marche ; les cases et le niveau vivent le temps de l'onglet, et c'est dit
   const p2 = await ctx.newPage();
   p2.on('pageerror', e => errs.push('stockage refusé : ' + e.message));
   await p2.route('https://kkugxebgeteijhxijohk.supabase.co/**', r => r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
@@ -391,6 +503,6 @@ const { chromium } = require('playwright');
   await p2.close();
 
   console.log('copilote : carte Outils, liste, fiche en Rapide et en Complet (' + nb(F, 'rapide') + ' et ' + nb(F, 'complet') + ' actions), cases partagées, ' +
-    'lien vers Traduire, copie, décocher, stockage, fiches d\'essai, cibles tactiles, 390 px');
+    'lien vers Traduire, copie, décocher, stockage, exemple, code et tableau, fiches d\'essai, cibles tactiles, 390 px');
   console.log('errors', errs); await b.close();
 })();

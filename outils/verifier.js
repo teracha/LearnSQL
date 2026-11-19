@@ -872,7 +872,8 @@ if (!filtre && fs.existsSync(dossierArchitecte)) {
 // qui n'est pas à la 1re personne, un champ inconnu. Ids des fiches uniques ; niveaux.rapide et niveaux.complet ; au moins
 // une étape ; chaque étape a un titre et au moins une action ; ids des actions uniques dans la fiche (ils gardent les cases
 // cochées) ; texte non vide ; rapide vaut true s'il est là ; au moins une action rapide par fiche ; outil = un outil de la
-// section Outils. Le lien « copilote » du sujet SQL mène à #/copilote : section « Outils » plus haut.
+// section Outils. Les champs facultatifs : exemple (la fiche) ; code et tableau (une action). Le lien « copilote » du sujet
+// SQL mène à #/copilote : section « Outils » plus haut.
 const dossierCopilote = path.join(racine, 'data/copilote');
 let nbFichesCopilote = 0, nbActionsCopilote = 0;
 if (!filtre && fs.existsSync(dossierCopilote)) {
@@ -884,11 +885,12 @@ if (!filtre && fs.existsSync(dossierCopilote)) {
   // Les mots d'un texte : ceux qui ont une lettre ou un chiffre (« : » ou « · » seuls ne comptent pas).
   const nbMots = t => String(t || '').split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
   const idOK = id => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(id || '');
-  const CHAMPS = ['id', 'titre', 'resume', 'niveaux', 'etapes'], NIVEAUX = ['rapide', 'complet'];
-  const CHAMPS_ETAPE = ['titre', 'actions'], CHAMPS_ACTION = ['id', 'texte', 'rapide', 'outil'];
-  // Les limites de mots (docs/copilote.md) : un titre (de la fiche ou d'une étape) 8 ; le résumé, une phrase de niveaux,
-  // le texte d'une action 25.
-  const MAX_TITRE = 8, MAX_PHRASE = 25;
+  const CHAMPS = ['id', 'titre', 'resume', 'exemple', 'niveaux', 'etapes'], NIVEAUX = ['rapide', 'complet'];
+  const CHAMPS_ETAPE = ['titre', 'actions'], CHAMPS_ACTION = ['id', 'texte', 'rapide', 'outil', 'code', 'tableau'];
+  // Les limites (docs/copilote.md) : un titre (de la fiche ou d'une étape) 8 mots ; le résumé, une phrase de niveaux, le
+  // texte d'une action 25 mots ; l'exemple 60 mots ; le code d'une action 15 lignes ; son tableau 12 lignes, en-têtes
+  // comprises. Au-delà : une alerte.
+  const MAX_TITRE = 8, MAX_PHRASE = 25, MAX_EXEMPLE = 60, MAX_LIGNES_CODE = 15, MAX_LIGNES_TABLEAU = 12;
   // Un texte limité en mots : erreur s'il manque, alerte au-delà de max mots.
   const limite = (lieu, nom, t, max) => {
     if (!texte(t)) err(lieu, ':', nom, 'manquant (un texte)');
@@ -918,6 +920,11 @@ if (!filtre && fs.existsSync(dossierCopilote)) {
     ids.add(id);
     titre(l, fi.titre);
     limite(l, 'resume', fi.resume, MAX_PHRASE);
+    // L'exemple (facultatif) : la situation concrète, affichée avant les niveaux.
+    if (fi.exemple !== undefined) {
+      if (!texte(fi.exemple)) err(l, ': exemple vide (un texte, ou pas de champ exemple)');
+      else if (nbMots(fi.exemple) > MAX_EXEMPLE) alerte(l, ': exemple de', nbMots(fi.exemple), 'mots (' + MAX_EXEMPLE + ' au plus)');
+    }
     // Les niveaux : quand choisir Rapide, quand choisir Complet (une phrase chacun).
     if (!objet(fi.niveaux)) err(l, ': niveaux manquant ({ rapide, complet })');
     else {
@@ -946,6 +953,21 @@ if (!filtre && fs.existsSync(dossierCopilote)) {
         if (a.rapide !== undefined && a.rapide !== true) err(la, ': rapide vaut true (sinon, pas de champ rapide)');
         if (a.rapide === true) rapides++;
         if (a.outil !== undefined && !idsOutils.has(a.outil)) err(la, ': outil, « ' + a.outil + ' » n\'est pas un outil de la section Outils');
+        // Le code (facultatif) : un bloc SQL, affiché tel quel sous l'action, avec « Copier le code ».
+        if (a.code !== undefined) {
+          const n = texte(a.code) ? a.code.replace(/\n+$/, '').split('\n').length : 0;
+          if (!n) err(la, ': code vide (un texte : le SQL, retours à la ligne compris)');
+          else if (n > MAX_LIGNES_CODE) alerte(la, ': code de', n, 'lignes (' + MAX_LIGNES_CODE + ' au plus)');
+        }
+        // Le tableau modèle (facultatif) : comme le résultat d'un cours, la 1re ligne = les en-têtes ; des cases en texte.
+        if (a.tableau !== undefined) {
+          const t = a.tableau;
+          if (!Array.isArray(t) || t.length < 2) err(la, ': tableau, au moins 2 lignes (les en-têtes, puis une ligne)');
+          else if (!t.every(r => Array.isArray(r) && r.length && r.length === t[0].length)) err(la, ': tableau, chaque ligne est une liste de cases, toutes de la même longueur');
+          else if (!t.every(r => r.every(c => typeof c === 'string'))) err(la, ': tableau, chaque case est un texte (entre guillemets)');
+          else if (!t[0].every(texte)) err(la, ': tableau, un en-tête vide');
+          else if (t.length > MAX_LIGNES_TABLEAU) alerte(la, ': tableau de', t.length, 'lignes (' + MAX_LIGNES_TABLEAU + ' au plus, en-têtes comprises)');
+        }
       });
     });
     if (!rapides) err(l, ': aucune action rapide (rapide: true) : le niveau Rapide serait vide');

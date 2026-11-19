@@ -226,12 +226,15 @@ Spécification et format figé : `docs/outils.md`.
   `outils/tests/architecte.js` (navigateur, dans `lancer.sh`).
 - Copilote (`#/copilote`, outil `copilote`, mêmes droits que le dico ; `docs/copilote.md`) : des checklists prêtes à
   l'emploi, « je lis, je fais, je coche » : une ligne = une action, sans explication. Fiches dans
-  `data/copilote/fiches.js` (une seule pour l'instant, « Je finis une requête ») : **une fiche s'ajoute seulement à la
-  demande de l'élève**, une par une (ne pas reprendre les situations d'Architecte). Deux niveaux : Rapide (les actions
-  `rapide: true`) et Complet (toutes), choix gardé (`learnsql-copilote-niveau`, Rapide par défaut). Une case est celle de
-  l'action (cochée en Rapide, elle l'est en Complet), dans le navigateur (`learnsql-copilote`), jamais envoyée ; « Copier
-  la checklist », « Tout décocher » ; une action peut ouvrir un autre outil (`outil`, selon son droit). Contrôles :
-  `node outils/verifier.js` ; test `outils/tests/copilote.js` (navigateur, dans `lancer.sh`).
+  `data/copilote/fiches.js` (deux fiches : « Je finis une requête », « Je documente une vue Snowflake ») : **une fiche
+  s'ajoute seulement à la demande de l'élève**, une par une (ne pas reprendre les situations d'Architecte). Deux niveaux :
+  Rapide (les actions `rapide: true`) et Complet (toutes), choix gardé (`learnsql-copilote-niveau`, Rapide par défaut).
+  Une case est celle de l'action (cochée en Rapide, elle l'est en Complet), dans le navigateur (`learnsql-copilote`),
+  jamais envoyée ; « Copier la checklist » (les actions seulement), « Tout décocher » ; une action peut ouvrir un autre
+  outil (`outil`, selon son droit). Champs facultatifs : `exemple` (la fiche : un encadré « L'exemple », avant les
+  niveaux), `code` (une action : un bloc SQL et « Copier le code ») et `tableau` (une action : un tableau modèle, 1re ligne
+  = les en-têtes) ; le code et le tableau suivent le niveau de leur action. Contrôles : `node outils/verifier.js` ; test
+  `outils/tests/copilote.js` (navigateur, dans `lancer.sh`).
 - Droits (le « droit outil », `docs/outils.md`, « Les droits des outils ») : même règle que les parcours, même table
   `acces`, réglée sur la page Équipe (« Droits des outils »). Chaîne `outils` (toute la section) → sujet → outil ;
   sans ligne = ouvert à tous les connectés ; admin : tout ; sans compte : les sujets de `outilsPublics` (SQL).
