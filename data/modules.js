@@ -20,6 +20,7 @@ window.LEARNSQL = { modules: [
   { id: "m16", titre: "Bonnes pratiques et anti-patterns", resume: "Lisibilité, curseurs, fonctions scalaires, conventions.", niveau: "Expert" },
   { id: "dv01", titre: "Le cycle de vente", resume: "Commande, encours client, BL, facture et avoir dans Divalto 10.13.", niveau: "Débutant" },
   { id: "dv02", titre: "Le cycle d'achat", resume: "Demande d'achat, commande, réception, contrôle facture, démat et réappro dans Divalto 10.13.", niveau: "Intermédiaire" },
+  { id: "fd01", titre: "Le P2P et la dématérialisation fiscale", resume: "Le cycle achats (P2P) et le cycle ventes, puis la facture électronique obligatoire en France : calendrier, plateformes, formats, e-reporting.", niveau: "Tous niveaux" },
   { id: "dv03", titre: "Achats, partie 2", resume: "Contremarque, Aide à l'Achat, frais d'approche, relances, suivi des fournisseurs, analyse des consommations et réception WMS dans Divalto 10.13.", niveau: "Avancé" },
   { id: "cp01", titre: "Bilan de départ", resume: "Auto-évaluation et mises en situation : repérer tes 2 ou 3 points faibles.", niveau: "Tous niveaux", sansNote: true },
   { id: "cp02", titre: "S'organiser et tenir sous pression", resume: "Une liste et la date légale d'abord, le run contre le projet, interruptions, rituels, charge, tenir sous pression.", niveau: "Débutant" },

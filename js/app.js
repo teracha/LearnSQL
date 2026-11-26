@@ -394,7 +394,7 @@
   function carteModule(store, m, num) {
     var qs = DATA.questions[m.id];
     var st = statsModule(store, m.id);
-    var droite = !qs ? '<div class="note"><small>À venir</small></div>'
+    var droite = !qs ? '<div class="note"><small>' + (DATA.cours[m.id] ? 'Cours seul' : 'À venir') + '</small></div>'
       : st ? '<div class="note ' + classeNote(st.meilleure) + '">' + fmtNote(st.meilleure) +
              '<small>meilleure · ' + st.nb + ' essai(s)</small></div>'
       : '<div class="note"><small>' + Math.min(TAILLE_QCM, qs.length) + ' questions</small></div>';
@@ -425,8 +425,9 @@
     });
     var reussis = prets.filter(function (id) { var st = statsModule(store, id); return st && st.meilleure >= 16; });
     var nbSous = (n.sous || []).length;
-    var detail = !prets.length && !nbSous ? 'À venir'
-      : (nbSous ? nbSous + ' sous-parcours · ' : '') + ids.length + ' modules';
+    var avecCours = ids.filter(function (id) { return DATA.cours[id]; }).length;
+    var detail = !prets.length && !nbSous && !avecCours ? 'À venir'
+      : (nbSous ? nbSous + ' sous-parcours · ' : '') + ids.length + (ids.length > 1 ? ' modules' : ' module');
     return '<a class="card parcours" href="' + lien + '"><div><h3>' + esc(n.titre) + '</h3>' +
       '<p>' + esc(n.resume) + '</p><div class="tags"><span class="tag">' + detail + '</span>' +
       (prets.length ? '<span class="tag">' + reussis.length + '/' + prets.length + ' à 16/20</span>' : '') +

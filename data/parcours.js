@@ -34,5 +34,10 @@ LEARNSQL.parcours = [
     sous: [
       { id: "divalto-gc", titre: "Gestion commerciale", resume: "Ventes, achats, stock et logistique.", modules: ["dv01", "dv02", "dv03"] }
     ]
+  },
+  {
+    id: "finance-demat", titre: "Finance et dématérialisation",
+    resume: "Les cycles achats et ventes, et la facture électronique en France.",
+    modules: ["fd01"]
   }
 ];
