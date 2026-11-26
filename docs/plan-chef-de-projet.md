@@ -41,6 +41,8 @@ Issue de l'audit de cohérence du 29/10/2026. En cas de doute, c'est cette fiche
 - Émission et e-reporting : obligatoires pour les PME au 1er septembre 2027.
 - Tout passe par une plateforme agréée (PA, ex-PDP). Facture électronique = B2B en France.
 - Nouvelles mentions obligatoires, dont le SIREN du client : sans lui, la facture ne peut pas être acheminée (rejet).
+  Pour une PME, elles s'appliquent avec l'émission, au 1er septembre 2027 (décret n° 2022-1299, article 3 ; la FAQ
+  d'impots.gouv.fr écrit « 1er septembre 2026 » sans distinguer la taille : vérifié en novembre 2026, cours `fd01`).
 - RGPD : en cas de doute (copie de données, violation possible), l'avis du DPO, ou du référent RGPD s'il n'y a pas de DPO.
 - La DGFiP publie sur impots.gouv.fr la liste officielle des PA immatriculées : on choisit dans cette liste
   (un comparateur privé ne la remplace pas).

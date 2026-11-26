@@ -27,8 +27,10 @@ const { chromium } = require('playwright');
 
   await p.goto(U + '#/compte'); await p.fill('#email', 'a@x.fr'); await p.fill('#mdp', 'motdepasse1'); await p.click('button[type=submit]'); await p.waitForTimeout(700);
   await p.goto(U + '#/revision');
-  // Les thèmes attendus : les parcours qui ont des modules (lus dans les données, pas écrits en dur).
-  const themesAttendus = await p.evaluate(() => LEARNSQL.parcours.filter(x => (x.modules || []).length || (x.sous || []).some(s => s.modules.length)).map(x => x.id).join(','));
+  // Les thèmes attendus : les parcours qui ont au moins un module avec des questions (un cours seul, comme fd01, n'a pas
+  // de QCM : son parcours n'est pas un thème de révision). Lus dans les données, pas écrits en dur.
+  const themesAttendus = await p.evaluate(() => LEARNSQL.parcours.filter(x => [].concat(x.modules || [], ...(x.sous || []).map(s => s.modules || []))
+    .some(id => (LEARNSQL.questions[id] || []).length)).map(x => x.id).join(','));
   verifie('admin, thèmes :', (await p.$$eval('.noeud.niv1 > .tete input', l => l.map(x => x.getAttribute('data-groupe')))).join(','), themesAttendus);
   await p.click('.noeud.niv1:has([data-groupe="chef-projet"]) > details > summary');
   // Nombre de modules lu dans la page (« · N module(s) ») : le test ne dépend pas du contenu publié.

@@ -35,7 +35,8 @@
 //     https://bofip.impots.gouv.fr/bofip/13901-PGP.html/identifiant=BOI-TVA-DECLA-20-30-60-20260930
 //   · BOFiP BOI-CF-COM-10-10-30 du 03/09/2025 (6 ans au format d'origine, article L102 B du LPF ; 10 ans, Code de
 //     commerce) : https://bofip.impots.gouv.fr/bofip/645-PGP.html/identifiant=BOI-CF-COM-10-10-30-20250903
-//   · economie.gouv.fr, « Mentions obligatoires d'une facture : tout savoir » (les 4 nouvelles mentions) :
+//   · economie.gouv.fr, « Mentions obligatoires d'une facture : tout savoir » (les 4 nouvelles mentions ; leur date :
+//     2026 pour les grandes entreprises et les ETI, 2027 pour les PME et les micro-entreprises) :
 //     https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir
 //   · economie.gouv.fr, « Qu'est-ce que l'annuaire de la facturation électronique ? » :
 //     https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/quest-ce-que-lannuaire-de-la-facturation-electronique
@@ -44,14 +45,18 @@
 //     https://aife.economie.gouv.fr/nos-applications/facturation-electronique-b2b/
 //   · economie.gouv.fr, « Facturation électronique entre entreprises : coup d'envoi de la réforme », et
 //     presse.economie.gouv.fr, « Le premier comité dresse le bilan du déploiement et engage la préparation de 2027 »
-//     (tolérance annoncée en juillet 2026 : pas de sanction en 2026 pour une entreprise de bonne foi ; ni report, ni suspension) :
+//     (tolérance annoncée le 11 juillet 2026 : pas de sanction au démarrage pour une entreprise de bonne foi en
+//     difficulté ; comité du 8 octobre 2026 : aucune sanction avant la fin de 2026 ; ni report, ni suspension ; rien
+//     d'annoncé pour 2027 ; annonce de juillet : https://presse.economie.gouv.fr/?p=181381) :
 //     https://www.economie.gouv.fr/actualites/facturation-electronique-entre-entreprises-coup-denvoi-de-la-reforme
 //     https://presse.economie.gouv.fr/facturation-electronique-le-premier-comite-dresse-le-bilan-du-deploiement-et-engage-la-preparation-de-2027/
 //   · economie.gouv.fr (DGCCRF), « Délais de paiement : les règles à connaître » :
 //     https://www.economie.gouv.fr/dgccrf/les-fiches-pratiques/delais-de-paiement-les-regles-connaitre
 //   · Légifrance : article 1737 du CGI, section « Infractions aux règles de facturation » (modifié par la loi du
 //     19 février 2026) : https://www.legifrance.gouv.fr/codes/id/LEGISCTA000006163056 ; article L441-10 du Code de
-//     commerce : https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038414392
+//     commerce : https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038414392 ; décret n° 2022-1299 du
+//     7 octobre 2022, article 3 (date des nouvelles mentions selon la taille) :
+//     https://www.legifrance.gouv.fr/loda/id/JORFTEXT000046383394
 // - Divalto 10.13 (base documentaire du dépôt Divalto_10, lue en lecture seule) :
 //   · « Cadre législatif et choix éditoriaux » : https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704714461/Cadre+l+gislatif+et+choix+ditoriaux
 //   · « Principes et paramétrages » (Factur-X, support PDF, matrice des supports, schéma commercial, profils) :
@@ -90,12 +95,15 @@
 //   de la norme XP Z12-012 n'a pas pu être lue en entier : le cours dit seulement qu'ils ne sont pas obligatoires pour
 //   l'administration (tableau officiel de la page Divalto « Consulter le cycle de vie… » : « recommandé » ou « libre »),
 //   et renvoie au contrat de la PA.
-// - Mentions : prévues depuis le 1er septembre 2026 (FAQ, décret du 7 octobre 2022) ; la fiche officielle « Données de
-//   facture à transmettre » date certaines données de 2027 : le cours dit de vérifier.
-// - B2G : seulement « Chorus Pro reste la plateforme de référence » ; le lien avec une PA n'est pas détaillé.
+// - Mentions : leur date suit celle de l'émission (décret n° 2022-1299, article 3 ; economie.gouv.fr) : 2026 pour les
+//   grandes entreprises et les ETI, 2027 pour les PME. La FAQ d'impots.gouv.fr dit seulement « 1er septembre 2026 » :
+//   le cours le signale.
+// - B2G : Chorus Pro reste la plateforme de référence ; en direct comme avant, ou par une PA raccordée à Chorus Pro
+//   (la cible : economie.gouv.fr, « Chorus Pro restera la plateforme de référence… »).
 // - Inventé pour les exemples (cohérent avec le fil rouge) : la pompe HP-300, les fournisseurs HydroPompes et LinerSud
 //   (cours dv02), le régime de TVA du négociant (réel normal mensuel), un client belge, un fabricant italien.
-// Contradictions dans la base Divalto (pages d'avant les changements de 2024-2025 ; le cours suit les sources officielles) :
+// Contradictions dans la base Divalto (pages pas à jour de la réforme, certaines écrites en 2025 : « Factur-X, pourquoi… »
+// montre une facture du 24/04/2025 ; le cours suit les sources officielles) :
 // - « Cadre législatif et choix éditoriaux » : le PPF y est encore une plateforme possible (« la plateforme publique ou
 //   une plateforme privée ») et parle de PDP. Depuis octobre 2024 (loi de finances pour 2025), le PPF n'échange plus de
 //   factures : PA seulement. Elle impose aussi un « coffre-fort numérique, en un dépôt scellé et horodaté » : non
@@ -122,7 +130,7 @@ LEARNSQL.cours.fd01 = {
         ["Réception", "Bon de livraison (BL)", "BL fournisseur"],
         ["Facture", "Facture rapprochée", "Contrôle facture"],
         ["Comptabilité", "Écriture d'achat", "Intégration comptable"],
-        ["Bon à payer", "Accord pour payer (BAP)", "Bons à payer"],
+        ["Bon à payer (BAP)", "Accord signé pour payer", "Bons à payer"],
         ["Paiement", "Virement, puis lettrage", "Préparation, émission"]
       ],
       regle: "Le P2P (Procure-to-Pay : de l'achat au paiement) est la chaîne qui va d'un besoin jusqu'au paiement du fournisseur. Chaque étape laisse une pièce. Ces pièces prouvent ce qui a été demandé, commandé, reçu, facturé et payé. Elles se contrôlent entre elles : on ne paie que ce qui a été commandé et reçu. Et les rôles sont séparés : celui qui commande n'est pas celui qui paie.",
@@ -165,7 +173,7 @@ LEARNSQL.cours.fd01 = {
         "Livraison : le BL fait sortir le stock et prouve ce qui est livré. En général, on facture ce qui est livré.",
         "Facture : un numéro unique, et elle est figée une fois émise. Dans Divalto, l'impression normale la fige ; le brouillon sert à contrôler avant. Une erreur se corrige par un avoir. En EDI, le message INVOIC porte le code 380 pour une facture, 381 pour un avoir.",
         "Comptabilité : la facture crée la créance client (compte 411), le chiffre d'affaires (comptes 70) et la TVA collectée. Le paiement solde la créance ; le lettrage les relie.",
-        "Relance : un scénario selon les jours de retard. Dans Divalto Règlement, jusqu'à 10 délais comptés depuis l'échéance, avec un texte qui change à chaque relance. Les délais de paiement légaux sont ceux de la partie 2."
+        "Relance : un scénario selon les jours de retard. Dans Divalto Règlement, jusqu'à 10 délais, avant ou après l'échéance, avec un texte qui change à chaque relance. Les délais de paiement légaux sont ceux de la partie 2."
       ],
       retenir: "O2C : commande, livraison, facture, encaissement. On livre juste, on facture juste, on relance à l'heure.",
       source: { titre: "Relances (Divalto 10.13)", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11705864144/Relances" }
@@ -223,19 +231,19 @@ LEARNSQL.cours.fd01 = {
         "B2C (vers les particuliers) : pas de facture électronique obligatoire. Ta PA transmet un total par jour et par taux de TVA.",
         "International (Union européenne et hors UE), achats comme ventes : la facture ne change pas, ses données partent en e-reporting. Les importations de biens en sont exclues.",
         "Données de paiement : seulement les services dont la TVA est due à l'encaissement. Pas si l'entreprise a opté pour les débits, ni en autoliquidation (le client déclare lui-même la TVA). C'est le fournisseur qui les transmet.",
-        "B2G (vers le secteur public) : Chorus Pro reste la plateforme de référence. Comment ta PA s'y relie : à vérifier sur impots.gouv.fr."
+        "B2G (vers le secteur public) : Chorus Pro reste la plateforme de référence. Deux voies : Chorus Pro en direct, comme avant ; ou ta PA, si elle est raccordée à Chorus Pro. Cette 2e voie est la cible : un seul canal pour tous tes clients."
       ],
       retenir: "B2B en France : facture électronique. Particuliers, étranger, paiements de services : e-reporting.",
       source: { titre: "La transmission des données de transactions, ou e-reporting (fiche impots.gouv.fr)", url: "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/fiches_reforme/fiche-e-reporting_transactions.pdf" }
     },
     {
-      titre: "Les plateformes agréées (PA), le PPF et l'annuaire",
+      titre: "Les plateformes agréées (PA), le portail public (PPF) et l'annuaire",
       exemple: "Sophie émet une facture pour AquaBleu.\n1. Divalto l'envoie à la PA du négociant.\n2. Cette PA cherche AquaBleu dans l'annuaire, par son SIREN : l'annuaire donne la PA d'AquaBleu.\n3. La facture passe de PA à PA. AquaBleu la reçoit.\n4. La PA du négociant envoie les données fiscales au PPF (portail public de facturation), qui les transmet à l'administration.",
-      regle: "Une plateforme agréée (PA) est un opérateur privé, immatriculé par l'administration fiscale. Elle seule peut transmettre les factures électroniques, et leurs données à l'administration. Le PPF (portail public de facturation) ne transporte pas de factures : il tient l'annuaire et concentre les données pour l'administration. L'annuaire dit, pour chaque entreprise, quelle PA reçoit ses factures. Chacun choisit sa PA ; les PA échangent entre elles.",
+      regle: "Une plateforme agréée (PA) est un opérateur privé, immatriculé par l'administration fiscale. Elle seule peut transmettre les factures électroniques entre entreprises, et leurs données à l'administration. Le PPF (portail public de facturation) ne transporte pas de factures : il tient l'annuaire et concentre les données pour l'administration. L'annuaire dit, pour chaque entreprise, quelle PA reçoit ses factures. Chacun choisit sa PA ; les PA échangent entre elles.",
       points: [
         "PA : l'ancien nom était PDP (plateforme de dématérialisation partenaire). Elle est immatriculée pour 3 ans, renouvelables. La liste officielle est sur impots.gouv.fr, et elle évolue. Un comparateur privé ne la remplace pas.",
         "Une ou plusieurs PA ; la même peut émettre et recevoir. Ton fournisseur peut avoir une autre PA que toi. Une « solution compatible » (un logiciel non immatriculé) doit passer par une PA : elle ne transmet rien seule.",
-        "PPF : depuis une annonce d'octobre 2024, confirmée par la loi de finances pour 2025, il fait seulement l'annuaire et la concentration des données. Toute facture passe par une PA.",
+        "PPF : depuis une annonce d'octobre 2024, confirmée par la loi de finances pour 2025, il fait seulement l'annuaire et la concentration des données. Toute facture entre entreprises passe par une PA.",
         "Annuaire : ouvert depuis septembre 2025, en accès libre. On y cherche par SIREN, par SIRET (14 chiffres : un établissement) ou par nom. L'adresse de facturation peut viser le SIREN, un SIRET, ou un service précis avec un code de routage.",
         "Pour recevoir, tu signes un accord de désignation de ta PA de réception. C'est lui qui met l'annuaire à jour."
       ],
@@ -251,7 +259,7 @@ LEARNSQL.cours.fd01 = {
         "Factur-X a des profils. Le profil MINIMUM ne suffit pas pour la réforme. Divalto produit les profils EN 16931 ou EXTENDED.",
         "Un autre format, comme l'EDIFACT (la norme des messages EDI) ? Ta PA peut le convertir dans un format du socle, si elle offre ce service : fais-le écrire au contrat.",
         "4 nouvelles mentions. Le SIREN du client. L'adresse de livraison, si elle diffère. La catégorie de l'opération : biens, services, ou les deux. L'option pour la TVA sur les débits, si l'entreprise l'a prise.",
-        "Elles sont obligatoires depuis le 1er septembre 2026, selon la FAQ officielle (décret du 7 octobre 2022). Certaines données ont une date à part, en 2027 : vérifie la fiche officielle « Données de facture » avant de paramétrer. Sans SIREN du client, la facture ne peut pas être acheminée : elle est rejetée."
+        "Quand ? En même temps que l'émission : depuis le 1er septembre 2026 pour les grandes entreprises et les ETI, au 1er septembre 2027 pour les PME et les micro-entreprises (décret du 7 octobre 2022, article 3). La FAQ d'impots.gouv.fr dit seulement « 1er septembre 2026 » : en cas de doute, demande à ton expert-comptable. Sans SIREN du client, la facture ne peut pas être acheminée : elle est rejetée."
       ],
       retenir: "Une facture électronique, ce sont des données (UBL, CII ou Factur-X), pas un simple PDF. Plus 4 mentions, dont le SIREN du client.",
       source: { titre: "Mentions obligatoires d'une facture : tout savoir (economie.gouv.fr)", url: "https://www.economie.gouv.fr/entreprises/gerer-son-entreprise-au-quotidien/gerer-sa-comptabilite-et-ses-demarches/mentions-obligatoires-dune-facture-tout-savoir" }
@@ -279,7 +287,7 @@ LEARNSQL.cours.fd01 = {
     },
     {
       titre: "L'e-reporting : quoi, quand, à quel rythme",
-      exemple: "Exemple : le négociant déclare sa TVA chaque mois (réel normal mensuel). Nous sommes en mars 2028.\nDu 1er au 10 mars : des ventes au comptoir à des particuliers, et 20 pompes vendues en Belgique.\nAu plus tard le 20 mars, sa PA transmet ces données. Puis celles du 11 au 20, et celles du 21 au 31.\nSes paiements de services, s'il en a : une fois par mois.",
+      exemple: "Le négociant déclare sa TVA chaque mois (réel normal mensuel). Nous sommes en mars 2028.\nDu 1er au 10 mars : des ventes au comptoir à des particuliers, et 20 pompes vendues en Belgique.\nAu plus tard le 20 mars, sa PA transmet ces données. Puis celles du 11 au 20, et celles du 21 au 31.\nSes paiements de services, s'il en a : une fois par mois.",
       resultat: [
         ["Régime de TVA", "Transactions", "Paiements"],
         ["Réel normal mensuel", "3 fois par mois", "1 fois par mois"],
@@ -299,21 +307,21 @@ LEARNSQL.cours.fd01 = {
     },
     {
       titre: "Conserver, corriger, et les sanctions",
-      exemple: "Contrôle fiscal en 2031. Le vérificateur demande une facture fournisseur de mars 2027.\nJulie la sort de l'archive, dans son format électronique d'origine : le Factur-X reçu, pas une impression.\nIl demande aussi une facture client de 2028, émise avec une erreur. Elle n'a pas été retouchée : un avoir l'a corrigée, avec son propre numéro.",
+      exemple: "Contrôle fiscal en 2030. Le vérificateur demande une facture fournisseur de mars 2027.\nJulie la sort de l'archive, dans son format électronique d'origine : le Factur-X reçu, pas une impression.\nIl demande aussi une facture client de 2028, émise avec une erreur. Elle n'a pas été retouchée : un avoir l'a corrigée, avec son propre numéro.",
       regle: "Une facture émise ne se modifie plus : on la corrige par un avoir ou une facture rectificative. Les factures se gardent 6 ans pour le fisc, dans leur format électronique d'origine, et 10 ans au titre du Code de commerce. C'est l'entreprise qui en répond, même si sa PA les archive. Des amendes existent ; leurs montants ont changé en 2026 : on lit le texte en vigueur, pas un vieux chiffre.",
       points: [
         "6 ans : article L102 B du LPF (Livre des procédures fiscales), dans le format d'origine. 10 ans : article L123-22 du Code de commerce, pour les documents comptables.",
         "L'archive, tu la choisis : ta PA (si elle le propose), ou un service à part. La durée légale reste l'affaire de ton entreprise, pas celle de la PA.",
         "Ne pas émettre en électronique : une amende par facture, avec un plafond par an. C'est l'article 1737 du CGI (Code général des impôts), modifié en février 2026.",
         "Ne pas recevoir par une PA : une mise en demeure, puis des amendes (article 1737 aussi). E-reporting manqué : article 1788 D du CGI. Les montants : sur Légifrance, à la date du jour.",
-        "Tolérance annoncée en juillet 2026 : pas de sanction en 2026 pour une entreprise de bonne foi en difficulté. Elle doit faire le nécessaire, et le documenter. Ce n'est ni un report, ni une suspension."
+        "Tolérance annoncée en juillet 2026 : pas de sanction au démarrage pour une entreprise de bonne foi en difficulté, qui fait le nécessaire et le documente. En octobre 2026 : aucune sanction avant la fin de 2026. Ce n'est ni un report, ni une suspension. Pour 2027 : à vérifier."
       ],
       retenir: "Une facture émise ne se retouche pas : un avoir. Elle se garde 6 ans au format d'origine, 10 ans en comptabilité. Des amendes existent : lis le texte en vigueur.",
       source: { titre: "Guide pratique de démarrage au 1er septembre 2026 (impots.gouv.fr)", url: "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/guide_pratique_facturation_electronique.pdf" }
     },
     {
       titre: "Ce qui change au quotidien : P2P, O2C et EDI",
-      exemple: "Juillet 2027, après la bascule.\nJulie : les factures fournisseurs arrivent par la PA, puis dans Divalto. Elle contrôle au lieu de ressaisir. Une facture fausse ? Elle la refuse dans la PA, avec un motif.\nSophie : chaque facture client part par la PA. Le matin, elle traite les rejets de la veille.\nMarc : les factures EDI d'AquaBleu passent, elles aussi, par les PA. Il vérifie les premières.",
+      exemple: "Juillet 2027, après la bascule.\nJulie : les factures fournisseurs arrivent par la PA, puis dans Divalto. Elle contrôle au lieu de ressaisir. Une facture fausse ? Elle la refuse dans la PA, avec un motif.\nSophie : chaque facture client part par la PA. Le matin, elle traite les rejets de la veille.\nMarc : les factures EDI d'AquaBleu passent, elles aussi, par les PA. Il suit leurs statuts.",
       regle: "La réforme ne change pas le P2P ni l'O2C : on commande, on reçoit, on facture et on paie toujours. Elle change le transport de la facture, ses contrôles, et ce qu'on suit chaque jour. La ressaisie recule ; les rejets et les statuts arrivent. Les flux EDI déjà en place doivent, eux aussi, passer par les plateformes agréées.",
       points: [
         "P2P : moins de ressaisie, mais le rapprochement à 3 voies reste. D'autres statuts suivent ton circuit : « Prise en charge », « Approuvée », « Paiement transmis ». Ils ne sont pas obligatoires pour l'administration. Ton fournisseur les voit, si vos PA les gèrent.",
@@ -334,7 +342,7 @@ LEARNSQL.cours.fd01 = {
         "Schéma commercial (V10.13), dans le dossier et sur la fiche tiers. Il dit quel flux produire : B2B domestique, B2G domestique, B2B non domestique, B2C, B2C quotidienne (le comptoir), ou Non.",
         "Routage (V10.12) : la table `Routage RFE` relie le SIRET du client au code de routage de la PA. RFE veut dire réforme de la facturation électronique. Menu `Commerce et logistique / Fichiers / Tables / Tables liées aux tiers`.",
         "Recevoir : les factures entrent par le Data Hub (le module qui intègre les factures dématérialisées). Divalto trouve le dossier et le fournisseur par SIRET, GLN (le code de lieu de l'EDI) ou DUNS (un numéro d'entreprise international). Renseigne-les tous, sinon la facture s'arrête.",
-        "Installation sur vos serveurs : le composant Divalto ERP Gateway est requis pour la réforme. Attention, une partie de la doc Divalto date d'avant 2025 : elle parle encore de PDP, et du PPF comme d'une plateforme. La règle actuelle : la PA."
+        "Installation sur vos serveurs : le composant Divalto ERP Gateway est requis pour la réforme. Attention : une partie de la doc Divalto n'est pas à jour de la réforme. Elle parle encore de PDP, et du PPF comme d'une plateforme. La règle actuelle : la PA."
       ],
       retenir: "Dans Divalto : Factur-X sur les clients, schéma commercial, routage vers la PA, identifiants complets. Et des SIREN justes, corrigés dans Divalto.",
       source: { titre: "Paramétrer le routage des factures vers la Plateforme agréée (PA) (V10.12) (Divalto)", url: "https://divalto.atlassian.net/wiki/spaces/UDI113/pages/11704715896/Param+trer+le+routage+des+factures+vers+la+Plateforme+agr+e+PA+V10.12" }

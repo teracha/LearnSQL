@@ -1,6 +1,6 @@
 #!/bin/sh
 # Lance tous les tests navigateur (Playwright, Supabase simulé). Usage : sh outils/tests/lancer.sh
-# Dans le conteneur cloud : CHR=/opt/pw-browsers/chromium-1194/chrome-linux/chrome sh outils/tests/lancer.sh
+# Dans le conteneur cloud : CHR=/opt/pw-browsers/chromium sh outils/tests/lancer.sh (lien vers la version installée)
 cd "$(dirname "$0")" || exit 1
 echu=0
 for t in qcm compte mdp equipe parcours divalto cours fiches revision rgpd dico dico-divalto astuces traduire mots-reserves architecte copilote outils; do

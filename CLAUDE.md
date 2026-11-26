@@ -24,7 +24,7 @@ L'utilisateur est **l'élève**.
 ## Les parcours
 
 - Parcours, sous-parcours et leur liste de modules : `data/parcours.js` (SQL, Chef de projet SI, Maîtriser les outils du
-  chef de projet, EDI, Divalto).
+  chef de projet, EDI, Divalto, Finance et dématérialisation).
   Un parcours peut avoir des sous-parcours (`sous`) et / ou des modules. Chaque id est unique dans tout le site.
 - Sans compte : seulement les parcours de `parcoursPublics` (SQL).
 - Droits : table `acces` (`outils/supabase-parcours.sql`), réglée par l'admin sur la page Équipe (« Droits des
@@ -33,6 +33,8 @@ L'utilisateur est **l'élève**.
   Sans ligne = ouvert à tous les connectés. Pour un sous-parcours, il faut aussi l'accès au parcours.
   C'est un masquage d'écran, pas une protection : le contenu reste public sur GitHub Pages.
 - Liste des modules : `data/modules.js`. Un module appartient à un seul parcours.
+- Un module peut être un cours seul, sans QCM (ex. `fd01` « Le P2P et la dématérialisation fiscale », parcours
+  `finance-demat`, demandé par l'élève en novembre 2026) : sa carte affiche « Cours seul », pas « À venir ».
 - Questions d'un module : `data/mXX-nom.js` (format décrit plus bas).
 - L'élève fait les modules **dans l'ordre**, depuis le début.
 - Objectif : **16/20 minimum** avant de passer au module suivant.
